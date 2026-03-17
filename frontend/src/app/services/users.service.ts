@@ -50,12 +50,24 @@ export class UsersService {
 		);
 	}
 
-	createUsersGroup(connectionID: string, title: string, cedarPolicy?: string | null) {
-		return this._http.post<any>(`/connection/group/${connectionID}`, { title, cedarPolicy: cedarPolicy || null }).pipe(
+	createUsersGroup(connectionID: string, title: string) {
+		return this._http.post<any>(`/connection/group/${connectionID}`, { title }).pipe(
 			map((res) => {
 				this.groups.next({ action: 'add group', group: res });
 				this._notifications.showSuccessSnackbar('Group of users has been created.');
+				return res;
 			}),
+			catchError((err) => {
+				console.log(err);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
+				return EMPTY;
+			}),
+		);
+	}
+
+	saveCedarPolicy(connectionID: string, groupId: string, cedarPolicy: string) {
+		return this._http.post<any>(`/connection/cedar-policy/${connectionID}`, { cedarPolicy, groupId }).pipe(
+			map((res) => res),
 			catchError((err) => {
 				console.log(err);
 				this._notifications.showErrorSnackbar(err.error?.message || err.message);
@@ -118,8 +130,8 @@ export class UsersService {
 		);
 	}
 
-	editUsersGroupName(groupId: string, title: string, cedarPolicy?: string | null) {
-		return this._http.put<any>(`/group/title`, { title, groupId, cedarPolicy }).pipe(
+	editUsersGroupName(groupId: string, title: string) {
+		return this._http.put<any>(`/group/title`, { title, groupId }).pipe(
 			map(() => {
 				this.groups.next({ action: 'edit group name', groupId: groupId });
 				this._notifications.showSuccessSnackbar('Group name has been updated.');

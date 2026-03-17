@@ -1,0 +1,35 @@
+<h1 mat-dialog-title>Cedar policy — {{ data.groupTitle }}</h1>
+<mat-dialog-content>
+    <div class="editor-mode-toggle">
+        <mat-button-toggle-group [value]="editorMode" (change)="onEditorModeChange($event.value)">
+            <mat-button-toggle value="form">Form</mat-button-toggle>
+            <mat-button-toggle value="code">Code</mat-button-toggle>
+        </mat-button-toggle-group>
+    </div>
+
+    <div *ngIf="editorMode === 'form'">
+        <app-cedar-policy-list
+            [policies]="policyItems"
+            [availableTables]="availableTables"
+            [loading]="tablesLoading"
+            (policiesChange)="onPolicyItemsChange($event)">
+        </app-cedar-policy-list>
+    </div>
+
+    <div *ngIf="editorMode === 'code'" class="code-editor-box">
+        <ngs-code-editor
+            [theme]="codeEditorTheme"
+            [codeModel]="cedarPolicyModel"
+            [options]="codeEditorOptions"
+            (valueChanged)="onCedarPolicyChange($event)">
+        </ngs-code-editor>
+    </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button type="button" mat-flat-button mat-dialog-close>Cancel</button>
+    <button type="button" mat-flat-button color="primary"
+        [disabled]="submitting"
+        (click)="savePolicy()">
+        Save
+    </button>
+</mat-dialog-actions>

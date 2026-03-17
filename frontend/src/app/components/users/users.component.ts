@@ -19,6 +19,7 @@ import { UserService } from 'src/app/services/user.service';
 import { UsersService } from '../../services/users.service';
 import { PlaceholderUserGroupComponent } from '../skeletons/placeholder-user-group/placeholder-user-group.component';
 import { PlaceholderUserGroupsComponent } from '../skeletons/placeholder-user-groups/placeholder-user-groups.component';
+import { CedarPolicyEditorDialogComponent } from './cedar-policy-editor-dialog/cedar-policy-editor-dialog.component';
 import { GroupAddDialogComponent } from './group-add-dialog/group-add-dialog.component';
 import { GroupDeleteDialogComponent } from './group-delete-dialog/group-delete-dialog.component';
 import { GroupNameEditDialogComponent } from './group-name-edit-dialog/group-name-edit-dialog.component';
@@ -176,7 +177,7 @@ export class UsersComponent implements OnInit, OnDestroy {
 		event.preventDefault();
 		event.stopImmediatePropagation();
 		this.dialog.open(GroupAddDialogComponent, {
-			width: '40em',
+			width: '25em',
 		});
 	}
 
@@ -198,8 +199,15 @@ export class UsersComponent implements OnInit, OnDestroy {
 	openEditGroupNameDialog(e: Event, group: UserGroup) {
 		e.stopPropagation();
 		this.dialog.open(GroupNameEditDialogComponent, {
-			width: '40em',
+			width: '25em',
 			data: group,
+		});
+	}
+
+	openCedarPolicyDialog(group: UserGroup) {
+		this.dialog.open(CedarPolicyEditorDialogComponent, {
+			width: '40em',
+			data: { groupId: group.id, groupTitle: group.title, cedarPolicy: group.cedarPolicy },
 		});
 	}
 

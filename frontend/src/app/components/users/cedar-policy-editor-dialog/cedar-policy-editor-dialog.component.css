@@ -1,0 +1,13 @@
+.editor-mode-toggle {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 12px;
+}
+
+.code-editor-box {
+	height: 300px;
+	border: 1px solid var(--mdc-outlined-text-field-outline-color, rgba(0, 0, 0, 0.38));
+	border-radius: 4px;
+	overflow: hidden;
+}

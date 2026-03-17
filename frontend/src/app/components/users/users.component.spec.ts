@@ -91,7 +91,7 @@ describe('UsersComponent', () => {
 
 		component.openCreateUsersGroupDialog(event);
 		expect(fakeCreateUsersGroupOpen).toHaveBeenCalledWith(GroupAddDialogComponent, {
-			width: '40em',
+			width: '25em',
 		});
 	});
 

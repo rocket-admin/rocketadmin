@@ -6,33 +6,6 @@
             <input matInput [(ngModel)]="groupTitle" name="title" #title="ngModel" required data-testid="group-title-input">
             <mat-error *ngIf="title.errors?.required && (title.invalid && title.touched)">Title should not be empty.</mat-error>
         </mat-form-field>
-
-        <div class="cedar-policy-section">
-            <div class="editor-mode-toggle">
-                <mat-button-toggle-group [value]="editorMode" (change)="onEditorModeChange($event.value)">
-                    <mat-button-toggle value="form">Form</mat-button-toggle>
-                    <mat-button-toggle value="code">Code</mat-button-toggle>
-                </mat-button-toggle-group>
-            </div>
-
-            <div *ngIf="editorMode === 'form'">
-                <app-cedar-policy-list
-                    [policies]="policyItems"
-                    [availableTables]="availableTables"
-                    [loading]="tablesLoading"
-                    (policiesChange)="onPolicyItemsChange($event)">
-                </app-cedar-policy-list>
-            </div>
-
-            <div *ngIf="editorMode === 'code'" class="code-editor-box">
-                <ngs-code-editor
-                    [theme]="codeEditorTheme"
-                    [codeModel]="cedarPolicyModel"
-                    [options]="codeEditorOptions"
-                    (valueChanged)="onCedarPolicyChange($event)">
-                </ngs-code-editor>
-            </div>
-        </div>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
         <button type="button" mat-flat-button mat-dialog-close>Cancel</button>

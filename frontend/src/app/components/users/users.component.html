@@ -30,6 +30,13 @@
                 <mat-panel-description (click)="$event.stopPropagation();" class="group-actions">
                     <button type="button" mat-icon-button *ngIf="isPermitted(groupItem.accessLevel) && groupItem.group.title !== 'Admin'"
                         angulartics2On="click"
+                        angularticsAction="Users access: cedar policy is clicked"
+                        matTooltip="Edit cedar policy"
+                        (click)="openCedarPolicyDialog(groupItem.group); posthog.capture('Users access: cedar policy is clicked')">
+                        <mat-icon fontSet="material-symbols-outlined">vpn_key</mat-icon>
+                    </button>
+                    <button type="button" mat-icon-button *ngIf="isPermitted(groupItem.accessLevel) && groupItem.group.title !== 'Admin'"
+                        angulartics2On="click"
                         angularticsAction="Users access: delete group is clicked"
                         matTooltip="Delete group"
                         (click)="openDeleteGroupDialog(groupItem.group); posthog.capture('Users access: delete group is clicked')">
