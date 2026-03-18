@@ -11,36 +11,36 @@
 		}
 	},
 	"dependencies": {
-		"@aws-sdk/client-dynamodb": "^3.999.0",
-		"@aws-sdk/lib-dynamodb": "^3.999.0",
-		"@clickhouse/client": "^1.17.0",
+		"@aws-sdk/client-dynamodb": "^3.1011.0",
+		"@aws-sdk/lib-dynamodb": "^3.1011.0",
+		"@clickhouse/client": "^1.18.2",
 		"@elastic/elasticsearch": "8.18.1",
-		"@types/multer": "^2.0.0",
-		"axios": "^1.13.5",
+		"@types/multer": "^2.1.0",
+		"axios": "^1.13.6",
 		"cassandra-driver": "^4.8.0",
-		"csv": "^6.4.1",
+		"csv": "^6.5.0",
 		"get-port": "^7.1.0",
 		"jsonwebtoken": "^9.0.3",
 		"knex": "^3.1.0",
-		"lru-cache": "^11.2.6",
+		"lru-cache": "^11.2.7",
 		"mongodb": "^7.1.0",
-		"mysql2": "^3.18.2",
-		"nanoid": "^5.1.6",
+		"mysql2": "^3.20.0",
+		"nanoid": "^5.1.7",
 		"oracledb": "^6.10.0",
 		"p-queue": "^9.1.0",
-		"pg": "^8.19.0",
+		"pg": "^8.20.0",
 		"pg-copy-streams": "^7.0.0",
-		"pg-query-stream": "^4.13.0",
+		"pg-query-stream": "^4.14.0",
 		"redis": "^5.11.0",
 		"ssh2": "^1.17.0",
 		"tedious": "^19.2.1",
 		"tunnel-ssh": "5.2.0"
 	},
 	"optionalDependencies": {
-		"ibm_db": "3.3.4"
+		"ibm_db": "3.3.5"
 	},
 	"devDependencies": {
-		"@types/oracledb": "^6.10.1",
+		"@types/oracledb": "^6.10.2",
 		"@types/pg-copy-streams": "^1.2.5",
 		"typescript": "^5.9.3"
 	}
