@@ -5,6 +5,25 @@
         Create your first connection
     </h1>
     <ul class="supportedDatabases">
+        @if (showHostedDatabaseEntry) {
+            <li>
+                <button
+                    type="button"
+                    class="addConnectionLink addConnectionLink_hosted"
+                    data-testid="create-hosted-database-empty-button"
+                    [disabled]="creatingHostedDatabase"
+                    (click)="createHostedDatabase()">
+                    <span class="addConnectionLink__eyebrow">Hosted by RocketAdmin</span>
+                    <div class="addConnectionLink__iconBox addConnectionLink__iconBox_hosted">
+                        <mat-icon svgIcon="ai_rocket" class="addConnectionLink__icon"></mat-icon>
+                    </div>
+                    <span class="addConnectionLink__label">
+                        {{ creatingHostedDatabase ? 'Creating hosted PostgreSQL...' : 'Hosted PostgreSQL' }}
+                        <span class="addConnectionLink__subLabel">Provision a managed database in one click</span>
+                    </span>
+                </button>
+            </li>
+        }
         <li *ngFor="let supportedDatabase of supportedOrderedDatabases">
             <a routerLink="/connect-db"
                 [queryParams]="{ type: supportedDatabase }"
@@ -32,7 +51,7 @@
                 <img *ngIf="connectionItem.connection.connection_properties?.logo_url; else noLogo"
                     [src]="connectionItem.connection.connection_properties?.logo_url"
                     class="connectionLogoPreview__logo"
-                    [alt]="connectionItem.connection.connection_properties?.company_name">
+                    alt="Rocketadmin connection">
                 <ng-template #noLogo>
                     <img src="../../assets/rocketadmin_logo_white-short.svg"
                         class="connectionLogoPreview__logo"
@@ -59,6 +78,19 @@
 </button>
 
 <div class="fabActions">
+    @if (showHostedDatabaseEntry && connections?.length) {
+        <button
+            mat-stroked-button
+            type="button"
+            color="primary"
+            class="fabHostedButton"
+            data-testid="create-hosted-database-button"
+            [disabled]="creatingHostedDatabase"
+            (click)="createHostedDatabase()">
+            <mat-icon>cloud_queue</mat-icon>
+            {{ creatingHostedDatabase ? 'Creating...' : 'Create hosted PostgreSQL' }}
+        </button>
+    }
     <a mat-flat-button *ngIf="(currentUser?.role === 'ADMIN' || currentUser?.role === 'DB_ADMIN') && connections?.length"
         data-testid="add-connection-button"
         color="primary"
@@ -91,4 +123,3 @@
         Request access from your Account Owner
     </p>
 </div>
-
