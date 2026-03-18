@@ -6,7 +6,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { UsersService } from 'src/app/services/users.service';
-import { GroupAddDialogComponent } from '../group-add-dialog/group-add-dialog.component';
+import { GroupNameEditDialogComponent as Self } from './group-name-edit-dialog.component';
 
 @Component({
 	selector: 'app-group-name-edit-dialog',
@@ -15,14 +15,13 @@ import { GroupAddDialogComponent } from '../group-add-dialog/group-add-dialog.co
 	imports: [NgIf, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule, FormsModule],
 })
 export class GroupNameEditDialogComponent {
-	public connectionID: string;
 	public groupTitle: string = '';
 	public submitting: boolean = false;
 
 	constructor(
-		@Inject(MAT_DIALOG_DATA) public group: any,
+		@Inject(MAT_DIALOG_DATA) public group: { id: string; title: string },
 		public _usersService: UsersService,
-		public dialogRef: MatDialogRef<GroupAddDialogComponent>,
+		public dialogRef: MatDialogRef<Self>,
 	) {}
 
 	ngOnInit(): void {

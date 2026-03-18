@@ -36,9 +36,9 @@ export class GroupAddDialogComponent implements OnInit {
 	addGroup() {
 		this.submitting = true;
 		this._usersService.createUsersGroup(this.connectionID, this.groupTitle).subscribe(
-			() => {
+			(res) => {
 				this.submitting = false;
-				this.dialogRef.close();
+				this.dialogRef.close(res);
 				this.angulartics2.eventTrack.next({
 					action: 'User groups: user groups was created successfully',
 				});

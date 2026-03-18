@@ -22,11 +22,7 @@ import { AmplitudeEventTypeEnum, InTransactionEnum } from '../../enums/index.js'
 import { Messages } from '../../exceptions/text/messages.js';
 import { processExceptionMessage } from '../../exceptions/utils/process-exception-message.js';
 import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards/index.js';
-import {
-	isConnectionTypeAgent,
-	slackPostMessage,
-	toPrettyErrorsMsg,
-} from '../../helpers/index.js';
+import { isConnectionTypeAgent, slackPostMessage, toPrettyErrorsMsg } from '../../helpers/index.js';
 import { SentryInterceptor } from '../../interceptors/index.js';
 import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { AmplitudeService } from '../amplitude/amplitude.service.js';
@@ -689,5 +685,4 @@ export class ConnectionController {
 		}
 		return await this.unfreezeConnectionUseCase.execute({ connectionId, userId }, InTransactionEnum.ON);
 	}
-
 }
