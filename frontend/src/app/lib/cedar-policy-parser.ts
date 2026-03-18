@@ -134,6 +134,44 @@ export function parseCedarDashboardItems(policyText: string, connectionId: strin
 	return items;
 }
 
+export function canRepresentAsForm(policyText: string): boolean {
+	if (!policyText?.trim()) return true;
+
+	// Forbid statements are not supported in form mode
+	if (/\bforbid\s*\(/.test(policyText)) return false;
+
+	// when/unless clauses are not supported in form mode
+	if (/\bwhen\s*\{/.test(policyText)) return false;
+	if (/\bunless\s*\{/.test(policyText)) return false;
+
+	const permits = extractPermitStatements(policyText);
+	if (permits.length === 0) return false;
+
+	const knownActions = new Set([
+		'connection:read',
+		'connection:edit',
+		'group:read',
+		'group:edit',
+		'table:*',
+		'table:read',
+		'table:add',
+		'table:edit',
+		'table:delete',
+		'dashboard:*',
+		'dashboard:read',
+		'dashboard:create',
+		'dashboard:edit',
+		'dashboard:delete',
+	]);
+
+	for (const permit of permits) {
+		if (permit.isWildcard) continue;
+		if (!permit.action || !knownActions.has(permit.action)) return false;
+	}
+
+	return true;
+}
+
 function extractPermitStatements(policyText: string): ParsedPermitStatement[] {
 	const results: ParsedPermitStatement[] = [];
 	const permitKeyword = 'permit';

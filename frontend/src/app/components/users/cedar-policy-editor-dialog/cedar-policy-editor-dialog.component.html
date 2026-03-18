@@ -7,7 +7,12 @@
         </mat-button-toggle-group>
     </div>
 
-    <div *ngIf="editorMode === 'form'">
+    <div *ngIf="formParseError" class="form-parse-warning">
+        <mat-icon>warning</mat-icon>
+        <span>This policy uses advanced Cedar syntax that cannot be represented in form mode. Please use the code editor.</span>
+    </div>
+
+    <div *ngIf="editorMode === 'form' && !formParseError">
         <app-cedar-policy-list
             [policies]="policyItems"
             [availableTables]="availableTables"

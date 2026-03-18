@@ -16,6 +16,22 @@
 	text-decoration: underline;
 }
 
+.form-parse-warning {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 12px;
+	margin-bottom: 12px;
+	border-radius: 4px;
+	background: var(--mdc-theme-warning-container, #fff3e0);
+	color: var(--mdc-theme-on-warning-container, #e65100);
+	font-size: 13px;
+}
+
+.form-parse-warning mat-icon {
+	flex-shrink: 0;
+}
+
 .code-editor-box {
 	height: 300px;
 	border: 1px solid var(--mdc-outlined-text-field-outline-color, rgba(0, 0, 0, 0.38));

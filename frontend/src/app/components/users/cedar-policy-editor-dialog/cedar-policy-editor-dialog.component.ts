@@ -4,11 +4,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { CodeEditorModule, CodeEditorService } from '@ngstack/code-editor';
 import { take } from 'rxjs';
 import { registerCedarLanguage } from 'src/app/lib/cedar-monaco-language';
 import { CedarPolicyItem, permissionsToPolicyItems, policyItemsToCedarPolicy } from 'src/app/lib/cedar-policy-items';
-import { parseCedarDashboardItems, parseCedarPolicy } from 'src/app/lib/cedar-policy-parser';
+import { canRepresentAsForm, parseCedarDashboardItems, parseCedarPolicy } from 'src/app/lib/cedar-policy-parser';
 import { normalizeTableName } from 'src/app/lib/normalize';
 import { TablePermission } from 'src/app/models/user';
 import { ConnectionsService } from 'src/app/services/connections.service';
@@ -33,7 +34,15 @@ export interface CedarPolicyEditorDialogData {
 	selector: 'app-cedar-policy-editor-dialog',
 	templateUrl: './cedar-policy-editor-dialog.component.html',
 	styleUrls: ['./cedar-policy-editor-dialog.component.css'],
-	imports: [NgIf, MatDialogModule, MatButtonModule, MatButtonToggleModule, CodeEditorModule, CedarPolicyListComponent],
+	imports: [
+		NgIf,
+		MatDialogModule,
+		MatButtonModule,
+		MatButtonToggleModule,
+		MatIconModule,
+		CodeEditorModule,
+		CedarPolicyListComponent,
+	],
 })
 export class CedarPolicyEditorDialogComponent implements OnInit {
 	public connectionID: string;
@@ -46,6 +55,7 @@ export class CedarPolicyEditorDialogComponent implements OnInit {
 	public availableDashboards: AvailableDashboard[] = [];
 	public allTables: TablePermission[] = [];
 	public loading: boolean = true;
+	public formParseError: boolean = false;
 
 	public cedarPolicyModel: object;
 	public codeEditorOptions = {
@@ -107,7 +117,12 @@ export class CedarPolicyEditorDialogComponent implements OnInit {
 				this.loading = false;
 
 				if (this.cedarPolicy) {
-					this.policyItems = this._parseCedarToPolicyItems();
+					this.formParseError = !canRepresentAsForm(this.cedarPolicy);
+					if (this.formParseError) {
+						this.editorMode = 'code';
+					} else {
+						this.policyItems = this._parseCedarToPolicyItems();
+					}
 				}
 			});
 	}
@@ -130,7 +145,10 @@ export class CedarPolicyEditorDialogComponent implements OnInit {
 				uri: `cedar-policy-${this.data.groupId}-${Date.now()}.cedar`,
 				value: this.cedarPolicy,
 			};
+			this.formParseError = false;
 		} else {
+			this.formParseError = !canRepresentAsForm(this.cedarPolicy);
+			if (this.formParseError) return;
 			this.policyItems = this._parseCedarToPolicyItems();
 		}
 
