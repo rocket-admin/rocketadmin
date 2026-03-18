@@ -89,7 +89,12 @@ export class UsersComponent implements OnInit, OnDestroy {
 		});
 
 		this.usersSubscription = this._usersService.cast.subscribe((arg) => {
-			if (arg.action === 'add group' || arg.action === 'delete group' || arg.action === 'edit group name') {
+			if (
+				arg.action === 'add group' ||
+				arg.action === 'delete group' ||
+				arg.action === 'edit group name' ||
+				arg.action === 'save policy'
+			) {
 				this.getUsersGroups();
 			} else if (arg.action === 'add user' || arg.action === 'delete user') {
 				this.fetchAndPopulateGroupUsers(arg.groupId).subscribe({
@@ -176,8 +181,16 @@ export class UsersComponent implements OnInit, OnDestroy {
 	openCreateUsersGroupDialog(event) {
 		event.preventDefault();
 		event.stopImmediatePropagation();
-		this.dialog.open(GroupAddDialogComponent, {
+		const dialogRef = this.dialog.open(GroupAddDialogComponent, {
 			width: '25em',
+		});
+		dialogRef.afterClosed().subscribe((createdGroup) => {
+			if (createdGroup) {
+				this.dialog.open(CedarPolicyEditorDialogComponent, {
+					width: '40em',
+					data: { groupId: createdGroup.id, groupTitle: createdGroup.title, cedarPolicy: null },
+				});
+			}
 		});
 	}
 
