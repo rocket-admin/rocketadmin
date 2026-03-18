@@ -37,7 +37,8 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 	}
 
 	isFeatureEnabled(): boolean {
-		return process.env.CEDAR_AUTHORIZATION_ENABLED === 'true';
+		// return process.env.CEDAR_AUTHORIZATION_ENABLED === 'true';
+		return true;
 	}
 
 	async validate(request: CedarValidationRequest): Promise<boolean> {
@@ -265,13 +266,10 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 		}
 	}
 
-	private async validatePolicyReferences(
-		cedarPolicy: string,
-		connectionId: string,
-	): Promise<void> {
-		const connectionIds = [
-			...cedarPolicy.matchAll(/resource\s*==\s*RocketAdmin::Connection::"([^"]+)"/g),
-		].map((m) => m[1]);
+	private async validatePolicyReferences(cedarPolicy: string, connectionId: string): Promise<void> {
+		const connectionIds = [...cedarPolicy.matchAll(/resource\s*==\s*RocketAdmin::Connection::"([^"]+)"/g)].map(
+			(m) => m[1],
+		);
 
 		for (const refConnectionId of connectionIds) {
 			if (refConnectionId !== connectionId) {
@@ -282,9 +280,9 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 			}
 		}
 
-		const groupResourceIds = [
-			...cedarPolicy.matchAll(/resource\s*==\s*RocketAdmin::Group::"([^"]+)"/g),
-		].map((m) => m[1]);
+		const groupResourceIds = [...cedarPolicy.matchAll(/resource\s*==\s*RocketAdmin::Group::"([^"]+)"/g)].map(
+			(m) => m[1],
+		);
 
 		if (groupResourceIds.length > 0) {
 			const connectionGroups = await this.globalDbContext.groupRepository.findAllGroupsInConnection(connectionId);
@@ -292,17 +290,14 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 
 			for (const refGroupId of groupResourceIds) {
 				if (!connectionGroupIds.has(refGroupId)) {
-					throw new HttpException(
-						{ message: Messages.CEDAR_POLICY_REFERENCES_FOREIGN_GROUP },
-						HttpStatus.BAD_REQUEST,
-					);
+					throw new HttpException({ message: Messages.CEDAR_POLICY_REFERENCES_FOREIGN_GROUP }, HttpStatus.BAD_REQUEST);
 				}
 			}
 		}
 
-		const tableResourceIds = [
-			...cedarPolicy.matchAll(/resource\s*==\s*RocketAdmin::Table::"([^"]+)"/g),
-		].map((m) => m[1]);
+		const tableResourceIds = [...cedarPolicy.matchAll(/resource\s*==\s*RocketAdmin::Table::"([^"]+)"/g)].map(
+			(m) => m[1],
+		);
 
 		for (const tableRef of tableResourceIds) {
 			if (!tableRef.startsWith(`${connectionId}/`)) {
@@ -313,9 +308,9 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 			}
 		}
 
-		const dashboardResourceIds = [
-			...cedarPolicy.matchAll(/resource\s*==\s*RocketAdmin::Dashboard::"([^"]+)"/g),
-		].map((m) => m[1]);
+		const dashboardResourceIds = [...cedarPolicy.matchAll(/resource\s*==\s*RocketAdmin::Dashboard::"([^"]+)"/g)].map(
+			(m) => m[1],
+		);
 
 		for (const dashboardRef of dashboardResourceIds) {
 			if (!dashboardRef.startsWith(`${connectionId}/`)) {
