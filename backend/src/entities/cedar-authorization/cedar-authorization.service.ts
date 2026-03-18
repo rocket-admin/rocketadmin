@@ -186,47 +186,42 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 		const userGroups = await this.globalDbContext.groupRepository.findAllUserGroupsInConnection(connectionId, userId);
 		if (userGroups.length === 0) return false;
 
-		const userGroupIds = userGroups.map((g) => g.id);
-		const policies = await this.loadPoliciesForUser(connectionId, userId, userGroupIds);
-		if (!policies) return false;
+		const groupPolicies = await this.loadPoliciesPerGroup(connectionId, userGroups);
+		if (groupPolicies.length === 0) return false;
 
 		const entities = buildCedarEntities(userId, userGroups, connectionId, tableName, dashboardId);
 
-		const call = {
-			principal: { type: CEDAR_USER_TYPE, id: userId },
-			action: { type: CEDAR_ACTION_TYPE, id: action },
-			resource: { type: resourceType as string, id: resourceId },
-			context: {},
-			policies: { staticPolicies: policies },
-			entities: entities,
-			schema: this.schema,
-		};
+		for (const policy of groupPolicies) {
+			const call = {
+				principal: { type: CEDAR_USER_TYPE, id: userId },
+				action: { type: CEDAR_ACTION_TYPE, id: action },
+				resource: { type: resourceType as string, id: resourceId },
+				context: {},
+				policies: { staticPolicies: policy },
+				entities: entities,
+				schema: this.schema,
+			};
 
-		const result = cedarWasm.isAuthorized(call as Parameters<typeof cedarWasm.isAuthorized>[0]);
-		if (result.type === 'success') {
-			return result.response.decision === 'allow';
+			const result = cedarWasm.isAuthorized(call as Parameters<typeof cedarWasm.isAuthorized>[0]);
+			if (result.type === 'success') {
+				if (result.response.decision === 'allow') {
+					return true;
+				}
+			} else {
+				this.logger.warn(`Cedar authorization error for group policy: ${JSON.stringify(result.errors)}`);
+			}
 		}
 
-		this.logger.warn(`Cedar authorization error: ${JSON.stringify(result.errors)}`);
 		return false;
 	}
 
-	private async loadPoliciesForUser(connectionId: string, userId: string, userGroupIds: string[]): Promise<string | null> {
-		const cached = Cacher.getCedarPolicyCache(connectionId, userId);
-		if (cached !== null) return cached;
-
+	private async loadPoliciesPerGroup(connectionId: string, userGroups: Array<GroupEntity>): Promise<string[]> {
 		const groups = await this.globalDbContext.groupRepository.findAllGroupsInConnection(connectionId);
-		const userGroupIdSet = new Set(userGroupIds);
-		const policyTexts = groups
+		const userGroupIdSet = new Set(userGroups.map((g) => g.id));
+		return groups
 			.filter((g) => userGroupIdSet.has(g.id))
 			.map((g) => g.cedarPolicy)
 			.filter(Boolean);
-
-		if (policyTexts.length === 0) return null;
-
-		const combined = policyTexts.join('\n\n');
-		Cacher.setCedarPolicyCache(connectionId, userId, combined);
-		return combined;
 	}
 
 	private async assertUserNotSuspended(userId: string): Promise<void> {
