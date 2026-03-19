@@ -1,0 +1,80 @@
+.plan-dialog__content {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	min-width: min(100%, 30rem);
+}
+
+.plan-dialog__option {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 16px;
+	border: 1px solid rgba(15, 23, 42, 0.12);
+	border-radius: 12px;
+	background: transparent;
+	cursor: pointer;
+	text-align: left;
+	transition:
+		border-color 0.15s,
+		background 0.15s;
+}
+
+.plan-dialog__option:hover {
+	border-color: rgba(37, 99, 235, 0.5);
+	background: rgba(37, 99, 235, 0.04);
+}
+
+.plan-dialog__option--paid:hover {
+	border-color: rgba(124, 58, 237, 0.5);
+	background: rgba(124, 58, 237, 0.04);
+}
+
+.plan-dialog__option-header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.plan-dialog__option-title {
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.plan-dialog__option-description {
+	margin: 0;
+	color: rgba(15, 23, 42, 0.68);
+	font-size: 14px;
+}
+
+.plan-dialog__option-price {
+	font-size: 13px;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: rgba(15, 23, 42, 0.48);
+}
+
+@media (prefers-color-scheme: dark) {
+	.plan-dialog__option {
+		border-color: rgba(255, 255, 255, 0.08);
+	}
+
+	.plan-dialog__option:hover {
+		border-color: rgba(96, 165, 250, 0.5);
+		background: rgba(96, 165, 250, 0.08);
+	}
+
+	.plan-dialog__option--paid:hover {
+		border-color: rgba(167, 139, 250, 0.5);
+		background: rgba(167, 139, 250, 0.08);
+	}
+
+	.plan-dialog__option-description {
+		color: rgba(255, 255, 255, 0.62);
+	}
+
+	.plan-dialog__option-price {
+		color: rgba(255, 255, 255, 0.42);
+	}
+}

@@ -1,24 +1,27 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import posthog from 'posthog-js';
-import { catchError, EMPTY, finalize, map, switchMap, tap } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { supportedDatabasesTitles, supportedOrderedDatabases } from 'src/app/consts/databases';
 import { AlertActionType, AlertType } from 'src/app/models/alert';
 import { CompanyMember, CompanyMemberRole } from 'src/app/models/company';
 import { ConnectionItem } from 'src/app/models/connection';
-import { CreateHostedDatabaseConnectionPayload } from 'src/app/models/hosted-database';
 import { UiSettings } from 'src/app/models/ui-settings';
-import { User } from 'src/app/models/user';
+import { SubscriptionPlans, User } from 'src/app/models/user';
 import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { HostedDatabaseService } from 'src/app/services/hosted-database.service';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { environment } from 'src/environments/environment';
+import {
+	HostedDatabasePlanChoice,
+	HostedDatabasePlanDialogComponent,
+} from '../hosted-database-plan-dialog/hosted-database-plan-dialog.component';
 import {
 	HostedDatabaseSuccessDialogComponent,
 	HostedDatabaseSuccessDialogData,
@@ -44,7 +47,7 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 	public supportedOrderedDatabases = supportedOrderedDatabases;
 	public hasMultipleMembers: boolean = false;
 	public isDarkMode: boolean = false;
-	public creatingHostedDatabase: boolean = false;
+	public creatingHostedDatabase = signal(false);
 
 	constructor(
 		private _uiSettings: UiSettingsService,
@@ -53,6 +56,7 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 		private _hostedDatabaseService: HostedDatabaseService,
 		private _notifications: NotificationsService,
 		private _dialog: MatDialog,
+		private _router: Router,
 	) {}
 
 	get canManageConnections(): boolean {
@@ -102,77 +106,70 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 		return match ? match[1] : '';
 	}
 
-	createHostedDatabase(): void {
-		if (!this.currentUser?.company?.id || !this.currentUser?.id || this.creatingHostedDatabase) {
+	async createHostedDatabase(): Promise<void> {
+		if (!this.currentUser?.company?.id || !this.currentUser?.id || this.creatingHostedDatabase()) {
 			return;
 		}
 
-		const companyId = this.currentUser.company.id;
-		const userId = this.currentUser.id;
+		const subscriptionLevel = this.currentUser.subscriptionLevel;
+		const isFreePlan = !subscriptionLevel || subscriptionLevel === SubscriptionPlans.free;
+		console.log('[HostedDB] subscriptionLevel:', subscriptionLevel, 'isFreePlan:', isFreePlan);
 
-		this.creatingHostedDatabase = true;
+		if (isFreePlan) {
+			const choice = await this._openPlanDialog();
+			console.log('[HostedDB] plan dialog choice:', choice);
+			if (!choice) {
+				return;
+			}
+			if (choice === 'upgrade') {
+				this._router.navigate(['/upgrade']);
+				return;
+			}
+		}
+
+		const companyId = this.currentUser.company.id;
+
+		this.creatingHostedDatabase.set(true);
 		posthog.capture('Connections: hosted PostgreSQL creation started');
 
-		this._hostedDatabaseService
-			.createHostedDatabase(companyId)
-			.pipe(
-				tap(() => {
-					posthog.capture('Connections: hosted PostgreSQL provisioned successfully');
-				}),
-				switchMap((hostedDatabase) => {
-					const payload: CreateHostedDatabaseConnectionPayload = {
-						companyId,
-						userId,
-						databaseName: hostedDatabase.databaseName,
-						hostname: hostedDatabase.hostname,
-						port: hostedDatabase.port,
-						username: hostedDatabase.username,
-						password: hostedDatabase.password,
-					};
+		try {
+			const hostedDatabase = await this._hostedDatabaseService.createHostedDatabase(companyId);
 
-					return this._hostedDatabaseService.createConnectionForHostedDatabase(payload).pipe(
-						map((createdConnection) => ({
-							hostedDatabase,
-							connectionId: createdConnection.id,
-						})),
-						catchError((error) => {
-							const errorMessage = this._getErrorMessage(error);
-							posthog.capture('Connections: hosted PostgreSQL connection creation failed', { errorMessage });
-							this._openHostedDatabaseDialog({
-								hostedDatabase,
-								connectionId: null,
-								errorMessage,
-							});
-							return EMPTY;
-						}),
-					);
-				}),
-				finalize(() => {
-					this.creatingHostedDatabase = false;
-				}),
-			)
-			.subscribe({
-				next: ({ hostedDatabase, connectionId }) => {
-					posthog.capture('Connections: hosted PostgreSQL connection created successfully', { connectionId });
-					this._connectionsService.fetchConnections().subscribe();
-					this._notifications.showSuccessSnackbar('Hosted PostgreSQL database is ready.');
-					this._openHostedDatabaseDialog({
-						hostedDatabase,
-						connectionId,
-					});
-				},
-				error: (error) => {
-					const errorMessage = this._getErrorMessage(error);
-					posthog.capture('Connections: hosted PostgreSQL provisioning failed', { errorMessage });
-					this._notifications.showAlert(AlertType.Error, errorMessage, [
-						{
-							type: AlertActionType.Button,
-							caption: 'Dismiss',
-							action: (_id: number) => this._notifications.dismissAlert(),
-						},
-					]);
-				},
+			if (!hostedDatabase) {
+				return;
+			}
+
+			posthog.capture('Connections: hosted PostgreSQL provisioned successfully');
+			this._connectionsService.fetchConnections().subscribe();
+			this._notifications.showSuccessSnackbar('Hosted PostgreSQL database is ready.');
+			this._openHostedDatabaseDialog({
+				hostedDatabase,
+				connectionId: null,
 			});
+		} catch (error) {
+			const errorMessage = this._getErrorMessage(error);
+			posthog.capture('Connections: hosted PostgreSQL provisioning failed', { errorMessage });
+			this._notifications.showAlert(AlertType.Error, errorMessage, [
+				{
+					type: AlertActionType.Button,
+					caption: 'Dismiss',
+					action: (_id: number) => this._notifications.dismissAlert(),
+				},
+			]);
+		} finally {
+			this.creatingHostedDatabase.set(false);
+		}
+	}
+
+	private _openPlanDialog(): Promise<HostedDatabasePlanChoice | undefined> {
+		const dialogRef = this._dialog.open<HostedDatabasePlanDialogComponent, void, HostedDatabasePlanChoice>(
+			HostedDatabasePlanDialogComponent,
+			{
+				width: '32em',
+				maxWidth: '95vw',
+			},
+		);
+		return firstValueFrom(dialogRef.afterClosed());
 	}
 
 	private _openHostedDatabaseDialog(data: HostedDatabaseSuccessDialogData): void {

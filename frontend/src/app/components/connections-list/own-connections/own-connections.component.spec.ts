@@ -17,7 +17,6 @@ describe('OwnConnectionsComponent', () => {
 	let fixture: ComponentFixture<OwnConnectionsComponent>;
 	let hostedDatabaseService: {
 		createHostedDatabase: ReturnType<typeof vi.fn>;
-		createConnectionForHostedDatabase: ReturnType<typeof vi.fn>;
 	};
 	let connectionsService: {
 		fetchConnections: ReturnType<typeof vi.fn>;
@@ -29,7 +28,6 @@ describe('OwnConnectionsComponent', () => {
 	beforeEach(async () => {
 		hostedDatabaseService = {
 			createHostedDatabase: vi.fn(),
-			createConnectionForHostedDatabase: vi.fn(),
 		};
 		connectionsService = {
 			fetchConnections: vi.fn().mockReturnValue(of([])),
@@ -116,38 +114,26 @@ describe('OwnConnectionsComponent', () => {
 		expect(fixture.nativeElement.querySelector('[data-testid="create-hosted-database-empty-button"]')).toBeFalsy();
 	});
 
-	it('should provision a hosted database and open the success dialog', () => {
-		hostedDatabaseService.createHostedDatabase.mockReturnValue(
-			of({
-				id: 'hosted-db-id',
-				companyId: 'company-id',
-				databaseName: 'rocketadmin_hosted',
-				hostname: 'db.rocketadmin.com',
-				port: 5432,
-				username: 'postgres',
-				password: 'secret',
-				createdAt: '2026-03-18T00:00:00.000Z',
-			}),
-		);
-		hostedDatabaseService.createConnectionForHostedDatabase.mockReturnValue(of({ id: 'connection-id' }));
+	it('should provision a hosted database and open the success dialog', async () => {
+		hostedDatabaseService.createHostedDatabase.mockResolvedValue({
+			id: 'hosted-db-id',
+			companyId: 'company-id',
+			databaseName: 'rocketadmin_hosted',
+			hostname: 'db.rocketadmin.com',
+			port: 5432,
+			username: 'postgres',
+			password: 'secret',
+			createdAt: '2026-03-18T00:00:00.000Z',
+		});
 		component.currentUser = {
 			id: 'user-id',
 			role: CompanyMemberRole.CAO,
 			company: { id: 'company-id' },
 		} as User;
 
-		component.createHostedDatabase();
+		await component.createHostedDatabase();
 
 		expect(hostedDatabaseService.createHostedDatabase).toHaveBeenCalledWith('company-id');
-		expect(hostedDatabaseService.createConnectionForHostedDatabase).toHaveBeenCalledWith({
-			companyId: 'company-id',
-			userId: 'user-id',
-			databaseName: 'rocketadmin_hosted',
-			hostname: 'db.rocketadmin.com',
-			port: 5432,
-			username: 'postgres',
-			password: 'secret',
-		});
 		expect(connectionsService.fetchConnections).toHaveBeenCalled();
 		expect(dialog.open).toHaveBeenCalled();
 	});

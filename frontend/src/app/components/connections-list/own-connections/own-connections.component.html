@@ -11,14 +11,14 @@
                     type="button"
                     class="addConnectionLink addConnectionLink_hosted"
                     data-testid="create-hosted-database-empty-button"
-                    [disabled]="creatingHostedDatabase"
+                    [disabled]="creatingHostedDatabase()"
                     (click)="createHostedDatabase()">
                     <span class="addConnectionLink__eyebrow">Hosted by RocketAdmin</span>
                     <div class="addConnectionLink__iconBox addConnectionLink__iconBox_hosted">
                         <mat-icon svgIcon="ai_rocket" class="addConnectionLink__icon"></mat-icon>
                     </div>
                     <span class="addConnectionLink__label">
-                        {{ creatingHostedDatabase ? 'Creating hosted PostgreSQL...' : 'Hosted PostgreSQL' }}
+                        {{ creatingHostedDatabase() ? 'Creating hosted PostgreSQL...' : 'Hosted PostgreSQL' }}
                         <span class="addConnectionLink__subLabel">Provision a managed database in one click</span>
                     </span>
                 </button>
@@ -85,10 +85,10 @@
             color="primary"
             class="fabHostedButton"
             data-testid="create-hosted-database-button"
-            [disabled]="creatingHostedDatabase"
+            [disabled]="creatingHostedDatabase()"
             (click)="createHostedDatabase()">
             <mat-icon>cloud_queue</mat-icon>
-            {{ creatingHostedDatabase ? 'Creating...' : 'Create hosted PostgreSQL' }}
+            {{ creatingHostedDatabase() ? 'Creating...' : 'Create hosted PostgreSQL' }}
         </button>
     }
     <a mat-flat-button *ngIf="(currentUser?.role === 'ADMIN' || currentUser?.role === 'DB_ADMIN') && connections?.length"
