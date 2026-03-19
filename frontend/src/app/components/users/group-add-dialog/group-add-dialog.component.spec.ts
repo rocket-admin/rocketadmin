@@ -20,7 +20,7 @@ describe('GroupAddDialogComponent', () => {
 		close: () => {},
 	};
 
-	beforeEach(async () => {
+	beforeEach(() => {
 		TestBed.configureTestingModule({
 			imports: [
 				MatSnackBarModule,
@@ -59,7 +59,6 @@ describe('GroupAddDialogComponent', () => {
 		component.addGroup();
 
 		expect(fakeCreateUsersGroup).toHaveBeenCalledWith('12345678', 'Sellers');
-		// expect(component.dialogRef.close).toHaveBeenCalled();
 		expect(component.submitting).toBe(false);
 	});
 });

@@ -5,6 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideRouter } from '@angular/router';
+import { Angulartics2Module } from 'angulartics2';
 import { GroupNameEditDialogComponent } from './group-name-edit-dialog.component';
 
 describe('GroupNameEditDialogComponent', () => {
@@ -17,13 +19,25 @@ describe('GroupNameEditDialogComponent', () => {
 
 	beforeEach(() => {
 		TestBed.configureTestingModule({
-			imports: [MatDialogModule, MatSnackBarModule, FormsModule, BrowserAnimationsModule, GroupNameEditDialogComponent],
+			imports: [
+				MatDialogModule,
+				MatSnackBarModule,
+				FormsModule,
+				BrowserAnimationsModule,
+				Angulartics2Module.forRoot({}),
+				GroupNameEditDialogComponent,
+			],
 			providers: [
 				provideHttpClient(),
-				{ provide: MAT_DIALOG_DATA, useValue: {} },
+				provideRouter([]),
+				{
+					provide: MAT_DIALOG_DATA,
+					useValue: { id: 'test-id', title: 'Test Group' },
+				},
 				{ provide: MatDialogRef, useValue: mockDialogRef },
 			],
 		}).compileComponents();
+
 		fixture = TestBed.createComponent(GroupNameEditDialogComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
