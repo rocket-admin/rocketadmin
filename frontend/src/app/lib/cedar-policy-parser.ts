@@ -3,6 +3,7 @@ import { CedarPolicyItem } from './cedar-policy-items';
 
 interface ParsedPermitStatement {
 	action: string | null;
+	actions: string[] | null;
 	resourceType: string | null;
 	resourceId: string | null;
 	isWildcard: boolean;
@@ -225,12 +226,18 @@ function extractPermitStatements(policyText: string): ParsedPermitStatement[] {
 		}
 	}
 
-	return results;
+	return results.flatMap(expandActionIn);
+}
+
+function expandActionIn(stmt: ParsedPermitStatement): ParsedPermitStatement[] {
+	if (!stmt.actions || stmt.actions.length === 0) return [stmt];
+	return stmt.actions.map((action) => ({ ...stmt, action, actions: null }));
 }
 
 function parsePermitBody(body: string): ParsedPermitStatement {
 	const result: ParsedPermitStatement = {
 		action: null,
+		actions: null,
 		resourceType: null,
 		resourceId: null,
 		isWildcard: false,
@@ -240,9 +247,14 @@ function parsePermitBody(body: string): ParsedPermitStatement {
 	if (actionMatch) {
 		result.action = actionMatch[1];
 	} else {
-		const actionClause = body.match(/,\s*(action)\s*,/);
-		if (actionClause) {
-			result.isWildcard = true;
+		const actionInMatch = body.match(/action\s+in\s*\[([^\]]+)\]/);
+		if (actionInMatch) {
+			result.actions = [...actionInMatch[1].matchAll(/RocketAdmin::Action::"([^"]+)"/g)].map((m) => m[1]);
+		} else {
+			const actionClause = body.match(/,\s*(action)\s*,/);
+			if (actionClause) {
+				result.isWildcard = true;
+			}
 		}
 	}
 
@@ -261,7 +273,7 @@ function parsePermitBody(body: string): ParsedPermitStatement {
 }
 
 function extractResourceSuffix(resourceId: string | null, connectionId: string): string | null {
-	if (!resourceId) return null;
+	if (!resourceId) return '*';
 	const prefix = `${connectionId}/`;
 	if (resourceId.startsWith(prefix)) {
 		return resourceId.slice(prefix.length);
