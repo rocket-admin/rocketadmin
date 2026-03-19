@@ -112,24 +112,6 @@ export class CedarPermissionsService implements IUserAccessRepository {
 			return [];
 		}
 
-		// If user has connection:edit, they get full access to all tables
-		const connEditEntities = buildCedarEntities(cognitoUserName, userGroups, connectionId);
-		const hasConnectionEdit = this.evaluatePolicies(
-			cognitoUserName, CedarAction.ConnectionEdit, CedarResourceType.Connection, connectionId, groupPolicies, connEditEntities,
-		);
-		if (hasConnectionEdit) {
-			return tableNames.map((tableName) => ({
-				tableName,
-				accessLevel: {
-					visibility: true,
-					readonly: false,
-					add: true,
-					delete: true,
-					edit: true,
-				},
-			}));
-		}
-
 		const actions = [CedarAction.TableRead, CedarAction.TableAdd, CedarAction.TableEdit, CedarAction.TableDelete];
 		const result: Array<ITablePermissionData> = [];
 

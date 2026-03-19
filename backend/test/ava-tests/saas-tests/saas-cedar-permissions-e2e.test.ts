@@ -1487,7 +1487,7 @@ test.serial(
 );
 
 test.serial(
-	`${currentTest} user with connection:edit should see all tables with full permissions via Cedar`,
+	`${currentTest} user with connection:edit but no table perms should see empty table list via Cedar`,
 	async (t) => {
 		try {
 			const testData = await createConnectionAndInviteUserWithConnectionEditOnly(app);
@@ -1504,13 +1504,9 @@ test.serial(
 				.set('Accept', 'application/json');
 			t.is(getTablesInConnection.status, 200);
 			const tables = JSON.parse(getTablesInConnection.text);
-			t.true(tables.length > 0);
+			// connection:edit does NOT grant table access — tables should be empty
 			const targetTable = tables.find((table: any) => table.table === firstTableInfo.testTableName);
-			t.truthy(targetTable);
-			t.is(targetTable.permissions.visibility, true);
-			t.is(targetTable.permissions.add, true);
-			t.is(targetTable.permissions.edit, true);
-			t.is(targetTable.permissions.delete, true);
+			t.is(targetTable, undefined);
 		} catch (e) {
 			console.error(e);
 			throw e;
