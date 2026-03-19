@@ -19,6 +19,7 @@ import { buildFoundTableWidgetDs } from '../../widget/utils/build-found-table-wi
 import { GetTableStructureDs } from '../application/data-structures/get-table-structure-ds.js';
 import { ForeignKeyDSInfo, TableStructureDs } from '../table-datastructures.js';
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
+import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { IGetTableStructure } from './table-use-cases.interface.js';
 
 @Injectable()
@@ -29,6 +30,7 @@ export class GetTableStructureUseCase
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
+		private readonly cedarPermissions: CedarPermissionsService,
 	) {
 		super();
 	}
@@ -101,7 +103,7 @@ export class GetTableStructureUseCase
 				canRead: boolean;
 			}> = await Promise.all(
 				tableForeignKeys.map(async (foreignKey) => {
-					const cenTableRead = await this._dbContext.userAccessRepository.improvedCheckTableRead(
+					const cenTableRead = await this.cedarPermissions.improvedCheckTableRead(
 						userId,
 						connectionId,
 						foreignKey.referenced_table_name,

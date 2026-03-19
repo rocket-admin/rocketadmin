@@ -7,6 +7,7 @@ import { LogOutEntity } from '../log-out/log-out.entity.js';
 import { UserEntity } from '../user/user.entity.js';
 import { CedarAuthorizationController } from './cedar-authorization.controller.js';
 import { CedarAuthorizationService } from './cedar-authorization.service.js';
+import { CedarPermissionsService } from './cedar-permissions.service.js';
 
 @Global()
 @Module({
@@ -17,9 +18,10 @@ import { CedarAuthorizationService } from './cedar-authorization.service.js';
 			useClass: GlobalDatabaseContext,
 		},
 		CedarAuthorizationService,
+		CedarPermissionsService,
 	],
 	controllers: [CedarAuthorizationController],
-	exports: [CedarAuthorizationService],
+	exports: [CedarAuthorizationService, CedarPermissionsService],
 })
 export class CedarAuthorizationModule implements NestModule {
 	public configure(consumer: MiddlewareConsumer): void {

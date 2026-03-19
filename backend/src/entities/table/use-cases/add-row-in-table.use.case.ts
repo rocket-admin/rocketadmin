@@ -31,6 +31,7 @@ import { hashPasswordsInRowUtil } from '../utils/hash-passwords-in-row.util.js';
 import { processUuidsInRowUtil } from '../utils/process-uuids-in-row-util.js';
 import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util.js';
 import { validateTableRowUtil } from '../utils/validate-table-row.util.js';
+import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { IAddRowInTable } from './table-use-cases.interface.js';
 
 @Injectable()
@@ -41,6 +42,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
 		private amplitudeService: AmplitudeService,
 		private tableLogsService: TableLogsService,
 		private tableActionActivationService: TableActionActivationService,
+		private readonly cedarPermissions: CedarPermissionsService,
 	) {
 		super();
 	}
@@ -111,7 +113,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
 		for (const referencedTable of referencedTableNamesAndColumns) {
 			referencedTable.referenced_by = await Promise.all(
 				referencedTable.referenced_by.map(async (referencedByTable) => {
-					const canUserReadTable = await this._dbContext.userAccessRepository.improvedCheckTableRead(
+					const canUserReadTable = await this.cedarPermissions.improvedCheckTableRead(
 						userId,
 						connectionId,
 						referencedByTable.table_name,
@@ -164,7 +166,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
 
 		const canUserReadForeignTables = await Promise.all(
 			foreignKeysWithKeysFromWidgets.map(async (foreignKey) => {
-				const canRead = await this._dbContext.userAccessRepository.improvedCheckTableRead(
+				const canRead = await this.cedarPermissions.improvedCheckTableRead(
 					userId,
 					connectionId,
 					foreignKey.referenced_table_name,

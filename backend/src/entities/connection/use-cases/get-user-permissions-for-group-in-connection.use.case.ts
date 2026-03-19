@@ -3,6 +3,7 @@ import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-acce
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
+import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { TablePermissionDs } from '../../permission/application/data-structures/create-permissions.ds.js';
 import { FoundPermissionsInConnectionDs } from '../application/data-structures/found-permissions-in-connection.ds.js';
 import { GetPermissionsInConnectionDs } from '../application/data-structures/get-permissions-in-connection.ds.js';
@@ -16,17 +17,18 @@ export class GetUserPermissionsForGroupInConnectionUseCase
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
+		private readonly cedarPermissions: CedarPermissionsService,
 	) {
 		super();
 	}
 
 	protected async implementation(inputData: GetPermissionsInConnectionDs): Promise<FoundPermissionsInConnectionDs> {
 		const { connectionId, groupId, cognitoUserName, masterPwd } = inputData;
-		const userConnectionAccessLevel = await this._dbContext.userAccessRepository.getUserConnectionAccessLevel(
+		const userConnectionAccessLevel = await this.cedarPermissions.getUserConnectionAccessLevel(
 			cognitoUserName,
 			connectionId,
 		);
-		const userGroupAccessLevel = await this._dbContext.userAccessRepository.getGroupAccessLevel(
+		const userGroupAccessLevel = await this.cedarPermissions.getGroupAccessLevel(
 			cognitoUserName,
 			groupId,
 		);
@@ -36,7 +38,7 @@ export class GetUserPermissionsForGroupInConnectionUseCase
 		const tables: Array<string> = (await dao.getTablesFromDB()).map((table) => table.tableName);
 		const tablesWithAccessLevels: Array<TablePermissionDs> = await Promise.all(
 			tables.map(async (table) => {
-				return await this._dbContext.userAccessRepository.getUserTablePermissions(
+				return await this.cedarPermissions.getUserTablePermissions(
 					cognitoUserName,
 					connectionId,
 					table,
