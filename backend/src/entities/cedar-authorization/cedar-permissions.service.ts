@@ -6,20 +6,21 @@ import { IGlobalDatabaseContext } from '../../common/application/global-database
 import { BaseType } from '../../common/data-injection.tokens.js';
 import { GroupEntity } from '../group/group.entity.js';
 import { ITablePermissionData } from '../permission/permission.interface.js';
-import {
-	CedarAction,
-	CedarResourceType,
-	CEDAR_ACTION_TYPE,
-	CEDAR_USER_TYPE,
-} from './cedar-action-map.js';
+import { CedarAction, CedarResourceType, CEDAR_ACTION_TYPE, CEDAR_USER_TYPE } from './cedar-action-map.js';
 import { buildCedarEntities } from './cedar-entity-builder.js';
 import { CEDAR_SCHEMA } from './cedar-schema.js';
 import * as cedarWasm from '@cedar-policy/cedar-wasm/nodejs';
 import { IUserAccessRepository } from '../user-access/repository/user-access.repository.interface.js';
 
+interface EvalContext {
+	userGroups: Array<GroupEntity>;
+	policies: string[];
+}
+
 @Injectable()
 export class CedarPermissionsService implements IUserAccessRepository {
 	private readonly schema: Record<string, unknown> = CEDAR_SCHEMA as Record<string, unknown>;
+	private suspendedCheckCache = new Map<string, boolean>();
 
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
@@ -28,30 +29,111 @@ export class CedarPermissionsService implements IUserAccessRepository {
 
 	async getUserConnectionAccessLevel(cognitoUserName: string, connectionId: string): Promise<AccessLevelEnum> {
 		await this.assertUserNotSuspended(cognitoUserName);
-		const editAllowed = await this.evaluateAction(cognitoUserName, connectionId, CedarAction.ConnectionEdit);
-		if (editAllowed) return AccessLevelEnum.edit;
-		const readAllowed = await this.evaluateAction(cognitoUserName, connectionId, CedarAction.ConnectionRead);
-		if (readAllowed) return AccessLevelEnum.readonly;
+		const ctx = await this.loadContext(connectionId, cognitoUserName);
+		if (!ctx) return AccessLevelEnum.none;
+
+		const entities = buildCedarEntities(cognitoUserName, ctx.userGroups, connectionId);
+		if (
+			this.evaluatePolicies(
+				cognitoUserName,
+				CedarAction.ConnectionEdit,
+				CedarResourceType.Connection,
+				connectionId,
+				ctx.policies,
+				entities,
+			)
+		) {
+			return AccessLevelEnum.edit;
+		}
+		if (
+			this.evaluatePolicies(
+				cognitoUserName,
+				CedarAction.ConnectionRead,
+				CedarResourceType.Connection,
+				connectionId,
+				ctx.policies,
+				entities,
+			)
+		) {
+			return AccessLevelEnum.readonly;
+		}
 		return AccessLevelEnum.none;
 	}
 
 	async checkUserConnectionRead(cognitoUserName: string, connectionId: string): Promise<boolean> {
-		const level = await this.getUserConnectionAccessLevel(cognitoUserName, connectionId);
-		return level === AccessLevelEnum.edit || level === AccessLevelEnum.readonly;
+		await this.assertUserNotSuspended(cognitoUserName);
+		const ctx = await this.loadContext(connectionId, cognitoUserName);
+		if (!ctx) return false;
+
+		const entities = buildCedarEntities(cognitoUserName, ctx.userGroups, connectionId);
+		return (
+			this.evaluatePolicies(
+				cognitoUserName,
+				CedarAction.ConnectionRead,
+				CedarResourceType.Connection,
+				connectionId,
+				ctx.policies,
+				entities,
+			) ||
+			this.evaluatePolicies(
+				cognitoUserName,
+				CedarAction.ConnectionEdit,
+				CedarResourceType.Connection,
+				connectionId,
+				ctx.policies,
+				entities,
+			)
+		);
 	}
 
 	async checkUserConnectionEdit(cognitoUserName: string, connectionId: string): Promise<boolean> {
-		const level = await this.getUserConnectionAccessLevel(cognitoUserName, connectionId);
-		return level === AccessLevelEnum.edit;
+		await this.assertUserNotSuspended(cognitoUserName);
+		const ctx = await this.loadContext(connectionId, cognitoUserName);
+		if (!ctx) return false;
+
+		const entities = buildCedarEntities(cognitoUserName, ctx.userGroups, connectionId);
+		return this.evaluatePolicies(
+			cognitoUserName,
+			CedarAction.ConnectionEdit,
+			CedarResourceType.Connection,
+			connectionId,
+			ctx.policies,
+			entities,
+		);
 	}
 
 	async getGroupAccessLevel(cognitoUserName: string, groupId: string): Promise<AccessLevelEnum> {
 		await this.assertUserNotSuspended(cognitoUserName);
 		const connectionId = await this.getConnectionId(groupId);
-		const editAllowed = await this.evaluateAction(cognitoUserName, connectionId, CedarAction.GroupEdit, undefined, groupId);
-		if (editAllowed) return AccessLevelEnum.edit;
-		const readAllowed = await this.evaluateAction(cognitoUserName, connectionId, CedarAction.GroupRead, undefined, groupId);
-		if (readAllowed) return AccessLevelEnum.readonly;
+		const ctx = await this.loadContext(connectionId, cognitoUserName);
+		if (!ctx) return AccessLevelEnum.none;
+
+		const entities = buildCedarEntities(cognitoUserName, ctx.userGroups, connectionId);
+		const resourceId = groupId;
+		if (
+			this.evaluatePolicies(
+				cognitoUserName,
+				CedarAction.GroupEdit,
+				CedarResourceType.Group,
+				resourceId,
+				ctx.policies,
+				entities,
+			)
+		) {
+			return AccessLevelEnum.edit;
+		}
+		if (
+			this.evaluatePolicies(
+				cognitoUserName,
+				CedarAction.GroupRead,
+				CedarResourceType.Group,
+				resourceId,
+				ctx.policies,
+				entities,
+			)
+		) {
+			return AccessLevelEnum.readonly;
+		}
 		return AccessLevelEnum.none;
 	}
 
@@ -72,17 +154,186 @@ export class CedarPermissionsService implements IUserAccessRepository {
 		_masterPwd: string,
 	): Promise<ITablePermissionData> {
 		await this.assertUserNotSuspended(cognitoUserName);
-		const results = await this.evaluateBatch(cognitoUserName, connectionId, [
-			CedarAction.TableRead,
-			CedarAction.TableAdd,
-			CedarAction.TableEdit,
-			CedarAction.TableDelete,
-		], tableName);
+		const ctx = await this.loadContext(connectionId, cognitoUserName);
+		if (!ctx) {
+			return { tableName, accessLevel: { visibility: false, readonly: false, add: false, delete: false, edit: false } };
+		}
 
-		const canRead = results.get(CedarAction.TableRead);
-		const canAdd = results.get(CedarAction.TableAdd);
-		const canEdit = results.get(CedarAction.TableEdit);
-		const canDelete = results.get(CedarAction.TableDelete);
+		return this.evaluateTablePermissions(cognitoUserName, connectionId, tableName, ctx);
+	}
+
+	async getUserPermissionsForAvailableTables(
+		cognitoUserName: string,
+		connectionId: string,
+		tableNames: Array<string>,
+	): Promise<Array<ITablePermissionData>> {
+		await this.assertUserNotSuspended(cognitoUserName);
+		const ctx = await this.loadContext(connectionId, cognitoUserName);
+		if (!ctx) return [];
+
+		const result: Array<ITablePermissionData> = [];
+		for (const tableName of tableNames) {
+			const perm = this.evaluateTablePermissions(cognitoUserName, connectionId, tableName, ctx);
+			if (perm.accessLevel.visibility) {
+				result.push(perm);
+			}
+		}
+		return result;
+	}
+
+	async checkTableRead(
+		cognitoUserName: string,
+		connectionId: string,
+		tableName: string,
+		_masterPwd: string,
+	): Promise<boolean> {
+		await this.assertUserNotSuspended(cognitoUserName);
+		const ctx = await this.loadContext(connectionId, cognitoUserName);
+		if (!ctx) return false;
+
+		const entities = buildCedarEntities(cognitoUserName, ctx.userGroups, connectionId, tableName);
+		return this.evaluatePolicies(
+			cognitoUserName,
+			CedarAction.TableRead,
+			CedarResourceType.Table,
+			`${connectionId}/${tableName}`,
+			ctx.policies,
+			entities,
+		);
+	}
+
+	async checkTableAdd(
+		cognitoUserName: string,
+		connectionId: string,
+		tableName: string,
+		_masterPwd: string,
+	): Promise<boolean> {
+		await this.assertUserNotSuspended(cognitoUserName);
+		const ctx = await this.loadContext(connectionId, cognitoUserName);
+		if (!ctx) return false;
+
+		const entities = buildCedarEntities(cognitoUserName, ctx.userGroups, connectionId, tableName);
+		return this.evaluatePolicies(
+			cognitoUserName,
+			CedarAction.TableAdd,
+			CedarResourceType.Table,
+			`${connectionId}/${tableName}`,
+			ctx.policies,
+			entities,
+		);
+	}
+
+	async checkTableDelete(
+		cognitoUserName: string,
+		connectionId: string,
+		tableName: string,
+		_masterPwd: string,
+	): Promise<boolean> {
+		await this.assertUserNotSuspended(cognitoUserName);
+		const ctx = await this.loadContext(connectionId, cognitoUserName);
+		if (!ctx) return false;
+
+		const entities = buildCedarEntities(cognitoUserName, ctx.userGroups, connectionId, tableName);
+		return this.evaluatePolicies(
+			cognitoUserName,
+			CedarAction.TableDelete,
+			CedarResourceType.Table,
+			`${connectionId}/${tableName}`,
+			ctx.policies,
+			entities,
+		);
+	}
+
+	async checkTableEdit(
+		cognitoUserName: string,
+		connectionId: string,
+		tableName: string,
+		_masterPwd: string,
+	): Promise<boolean> {
+		await this.assertUserNotSuspended(cognitoUserName);
+		const ctx = await this.loadContext(connectionId, cognitoUserName);
+		if (!ctx) return false;
+
+		const entities = buildCedarEntities(cognitoUserName, ctx.userGroups, connectionId, tableName);
+		return this.evaluatePolicies(
+			cognitoUserName,
+			CedarAction.TableEdit,
+			CedarResourceType.Table,
+			`${connectionId}/${tableName}`,
+			ctx.policies,
+			entities,
+		);
+	}
+
+	async getConnectionId(groupId: string): Promise<string> {
+		const group = await this.globalDbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
+		if (!group?.connection?.id) {
+			throw new HttpException({ message: Messages.CONNECTION_NOT_FOUND }, HttpStatus.BAD_REQUEST);
+		}
+		return group.connection.id;
+	}
+
+	async improvedCheckTableRead(
+		userId: string,
+		connectionId: string,
+		tableName: string,
+		_masterPwd?: string,
+	): Promise<boolean> {
+		const cachedReadPermission: boolean | null = Cacher.getUserTableReadPermissionCache(
+			userId,
+			connectionId,
+			tableName,
+		);
+		if (cachedReadPermission !== null) {
+			return cachedReadPermission;
+		}
+
+		const canRead = await this.checkTableRead(userId, connectionId, tableName, undefined);
+		Cacher.setUserTableReadPermissionCache(userId, connectionId, tableName, canRead);
+		return canRead;
+	}
+
+	private evaluateTablePermissions(
+		userId: string,
+		connectionId: string,
+		tableName: string,
+		ctx: EvalContext,
+	): ITablePermissionData {
+		const entities = buildCedarEntities(userId, ctx.userGroups, connectionId, tableName);
+		const resourceId = `${connectionId}/${tableName}`;
+
+		const canRead = this.evaluatePolicies(
+			userId,
+			CedarAction.TableRead,
+			CedarResourceType.Table,
+			resourceId,
+			ctx.policies,
+			entities,
+		);
+		const canAdd = this.evaluatePolicies(
+			userId,
+			CedarAction.TableAdd,
+			CedarResourceType.Table,
+			resourceId,
+			ctx.policies,
+			entities,
+		);
+		const canEdit = this.evaluatePolicies(
+			userId,
+			CedarAction.TableEdit,
+			CedarResourceType.Table,
+			resourceId,
+			ctx.policies,
+			entities,
+		);
+		const canDelete = this.evaluatePolicies(
+			userId,
+			CedarAction.TableDelete,
+			CedarResourceType.Table,
+			resourceId,
+			ctx.policies,
+			entities,
+		);
 
 		return {
 			tableName,
@@ -94,173 +345,6 @@ export class CedarPermissionsService implements IUserAccessRepository {
 				edit: canEdit,
 			},
 		};
-	}
-
-	async getUserPermissionsForAvailableTables(
-		cognitoUserName: string,
-		connectionId: string,
-		tableNames: Array<string>,
-	): Promise<Array<ITablePermissionData>> {
-		await this.assertUserNotSuspended(cognitoUserName);
-
-		const userGroups = await this.globalDbContext.groupRepository.findAllUserGroupsInConnection(connectionId, cognitoUserName);
-		if (userGroups.length === 0) {
-			return [];
-		}
-		const groupPolicies = await this.loadPoliciesPerGroup(connectionId, userGroups);
-		if (groupPolicies.length === 0) {
-			return [];
-		}
-
-		const actions = [CedarAction.TableRead, CedarAction.TableAdd, CedarAction.TableEdit, CedarAction.TableDelete];
-		const result: Array<ITablePermissionData> = [];
-
-		for (const tableName of tableNames) {
-			const entities = buildCedarEntities(cognitoUserName, userGroups, connectionId, tableName);
-			const actionResults = new Map<CedarAction, boolean>();
-
-			for (const action of actions) {
-				const resourceId = `${connectionId}/${tableName}`;
-				const allowed = this.evaluatePolicies(
-					cognitoUserName, action, CedarResourceType.Table, resourceId, groupPolicies, entities,
-				);
-				actionResults.set(action, allowed);
-			}
-
-			const canRead = actionResults.get(CedarAction.TableRead);
-			const canAdd = actionResults.get(CedarAction.TableAdd);
-			const canEdit = actionResults.get(CedarAction.TableEdit);
-			const canDelete = actionResults.get(CedarAction.TableDelete);
-			const visibility = canRead || canAdd || canEdit || canDelete;
-
-			if (visibility) {
-				result.push({
-					tableName,
-					accessLevel: {
-						visibility: true,
-						readonly: canRead && !canAdd && !canEdit && !canDelete,
-						add: canAdd,
-						delete: canDelete,
-						edit: canEdit,
-					},
-				});
-			}
-		}
-
-		return result;
-	}
-
-	async checkTableRead(
-		cognitoUserName: string,
-		connectionId: string,
-		tableName: string,
-		_masterPwd: string,
-	): Promise<boolean> {
-		await this.assertUserNotSuspended(cognitoUserName);
-		return this.evaluateAction(cognitoUserName, connectionId, CedarAction.TableRead, tableName);
-	}
-
-	async checkTableAdd(
-		cognitoUserName: string,
-		connectionId: string,
-		tableName: string,
-		_masterPwd: string,
-	): Promise<boolean> {
-		await this.assertUserNotSuspended(cognitoUserName);
-		return this.evaluateAction(cognitoUserName, connectionId, CedarAction.TableAdd, tableName);
-	}
-
-	async checkTableDelete(
-		cognitoUserName: string,
-		connectionId: string,
-		tableName: string,
-		_masterPwd: string,
-	): Promise<boolean> {
-		await this.assertUserNotSuspended(cognitoUserName);
-		return this.evaluateAction(cognitoUserName, connectionId, CedarAction.TableDelete, tableName);
-	}
-
-	async checkTableEdit(
-		cognitoUserName: string,
-		connectionId: string,
-		tableName: string,
-		_masterPwd: string,
-	): Promise<boolean> {
-		await this.assertUserNotSuspended(cognitoUserName);
-		return this.evaluateAction(cognitoUserName, connectionId, CedarAction.TableEdit, tableName);
-	}
-
-	async getConnectionId(groupId: string): Promise<string> {
-		const group = await this.globalDbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
-		if (!group?.connection?.id) {
-			throw new HttpException({ message: Messages.CONNECTION_NOT_FOUND }, HttpStatus.BAD_REQUEST);
-		}
-		return group.connection.id;
-	}
-
-	async improvedCheckTableRead(userId: string, connectionId: string, tableName: string, _masterPwd?: string): Promise<boolean> {
-		const cachedReadPermission: boolean | null = Cacher.getUserTableReadPermissionCache(
-			userId,
-			connectionId,
-			tableName,
-		);
-		if (cachedReadPermission !== null) {
-			return cachedReadPermission;
-		}
-
-		const canRead = await this.evaluateAction(userId, connectionId, CedarAction.TableRead, tableName);
-		Cacher.setUserTableReadPermissionCache(userId, connectionId, tableName, canRead);
-		return canRead;
-	}
-
-	private async evaluateBatch(
-		userId: string,
-		connectionId: string,
-		actions: CedarAction[],
-		tableName?: string,
-		groupId?: string,
-	): Promise<Map<CedarAction, boolean>> {
-		const userGroups = await this.globalDbContext.groupRepository.findAllUserGroupsInConnection(connectionId, userId);
-		if (userGroups.length === 0) {
-			return new Map(actions.map(a => [a, false]));
-		}
-
-		const groupPolicies = await this.loadPoliciesPerGroup(connectionId, userGroups);
-		if (groupPolicies.length === 0) {
-			return new Map(actions.map(a => [a, false]));
-		}
-
-		const dashboardId = undefined;
-		const entities = buildCedarEntities(userId, userGroups, connectionId, tableName, dashboardId);
-
-		const results = new Map<CedarAction, boolean>();
-		for (const action of actions) {
-			const actionPrefix = action.split(':')[0];
-			let resourceType: CedarResourceType;
-			let resourceId: string;
-
-			switch (actionPrefix) {
-				case 'connection':
-					resourceType = CedarResourceType.Connection;
-					resourceId = connectionId;
-					break;
-				case 'group':
-					resourceType = CedarResourceType.Group;
-					resourceId = groupId;
-					break;
-				case 'table':
-					resourceType = CedarResourceType.Table;
-					resourceId = `${connectionId}/${tableName}`;
-					break;
-				default:
-					results.set(action, false);
-					continue;
-			}
-
-			results.set(action, this.evaluatePolicies(userId, action, resourceType, resourceId, groupPolicies, entities));
-		}
-
-		return results;
 	}
 
 	private evaluatePolicies(
@@ -290,66 +374,33 @@ export class CedarPermissionsService implements IUserAccessRepository {
 		return false;
 	}
 
-	private async evaluateAction(
-		userId: string,
-		connectionId: string,
-		action: CedarAction,
-		tableName?: string,
-		groupId?: string,
-	): Promise<boolean> {
+	private async loadContext(connectionId: string, userId: string): Promise<EvalContext | null> {
 		const userGroups = await this.globalDbContext.groupRepository.findAllUserGroupsInConnection(connectionId, userId);
-		if (userGroups.length === 0) return false;
+		if (userGroups.length === 0) return null;
 
-		const groupPolicies = await this.loadPoliciesPerGroup(connectionId, userGroups);
-		if (groupPolicies.length === 0) return false;
+		const policies = userGroups.map((g) => g.cedarPolicy).filter(Boolean);
+		if (policies.length === 0) return null;
 
-		const entities = buildCedarEntities(userId, userGroups, connectionId, tableName);
-
-		const actionPrefix = action.split(':')[0];
-		let resourceType: CedarResourceType;
-		let resourceId: string;
-
-		switch (actionPrefix) {
-			case 'connection':
-				resourceType = CedarResourceType.Connection;
-				resourceId = connectionId;
-				break;
-			case 'group':
-				resourceType = CedarResourceType.Group;
-				resourceId = groupId;
-				break;
-			case 'table':
-				resourceType = CedarResourceType.Table;
-				resourceId = `${connectionId}/${tableName}`;
-				break;
-			default:
-				return false;
-		}
-
-		return this.evaluatePolicies(userId, action, resourceType, resourceId, groupPolicies, entities);
-	}
-
-	private async loadPoliciesPerGroup(connectionId: string, userGroups: Array<GroupEntity>): Promise<string[]> {
-		const groups = await this.globalDbContext.groupRepository.findAllGroupsInConnection(connectionId);
-		const userGroupIdSet = new Set(userGroups.map((g) => g.id));
-		return groups
-			.filter((g) => userGroupIdSet.has(g.id))
-			.map((g) => g.cedarPolicy)
-			.filter(Boolean);
+		return { userGroups, policies };
 	}
 
 	private async assertUserNotSuspended(userId: string): Promise<void> {
+		const cached = this.suspendedCheckCache.get(userId);
+		if (cached !== undefined) {
+			if (cached) {
+				throw new HttpException({ message: Messages.ACCOUNT_SUSPENDED }, HttpStatus.FORBIDDEN);
+			}
+			return;
+		}
+
 		const user = await this.globalDbContext.userRepository.findOne({
 			where: { id: userId },
 			select: ['id', 'suspended'],
 		});
-		if (user?.suspended) {
-			throw new HttpException(
-				{
-					message: Messages.ACCOUNT_SUSPENDED,
-				},
-				HttpStatus.FORBIDDEN,
-			);
+		const isSuspended = !!user?.suspended;
+		this.suspendedCheckCache.set(userId, isSuspended);
+		if (isSuspended) {
+			throw new HttpException({ message: Messages.ACCOUNT_SUSPENDED }, HttpStatus.FORBIDDEN);
 		}
 	}
 }
