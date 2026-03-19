@@ -27,7 +27,6 @@ export class CedarPermissionsService implements IUserAccessRepository {
 	) {}
 
 	async getUserConnectionAccessLevel(cognitoUserName: string, connectionId: string): Promise<AccessLevelEnum> {
-		await this.assertUserNotSuspended(cognitoUserName);
 		const ctx = await this.loadContext(connectionId, cognitoUserName);
 		if (!ctx) return AccessLevelEnum.none;
 
@@ -60,7 +59,6 @@ export class CedarPermissionsService implements IUserAccessRepository {
 	}
 
 	async checkUserConnectionRead(cognitoUserName: string, connectionId: string): Promise<boolean> {
-		await this.assertUserNotSuspended(cognitoUserName);
 		const ctx = await this.loadContext(connectionId, cognitoUserName);
 		if (!ctx) return false;
 
@@ -86,7 +84,6 @@ export class CedarPermissionsService implements IUserAccessRepository {
 	}
 
 	async checkUserConnectionEdit(cognitoUserName: string, connectionId: string): Promise<boolean> {
-		await this.assertUserNotSuspended(cognitoUserName);
 		const ctx = await this.loadContext(connectionId, cognitoUserName);
 		if (!ctx) return false;
 
@@ -102,7 +99,6 @@ export class CedarPermissionsService implements IUserAccessRepository {
 	}
 
 	async getGroupAccessLevel(cognitoUserName: string, groupId: string): Promise<AccessLevelEnum> {
-		await this.assertUserNotSuspended(cognitoUserName);
 		const connectionId = await this.getConnectionId(groupId);
 		const ctx = await this.loadContext(connectionId, cognitoUserName);
 		if (!ctx) return AccessLevelEnum.none;
@@ -152,7 +148,6 @@ export class CedarPermissionsService implements IUserAccessRepository {
 		tableName: string,
 		_masterPwd: string,
 	): Promise<ITablePermissionData> {
-		await this.assertUserNotSuspended(cognitoUserName);
 		const ctx = await this.loadContext(connectionId, cognitoUserName);
 		if (!ctx) {
 			return { tableName, accessLevel: { visibility: false, readonly: false, add: false, delete: false, edit: false } };
@@ -166,7 +161,6 @@ export class CedarPermissionsService implements IUserAccessRepository {
 		connectionId: string,
 		tableNames: Array<string>,
 	): Promise<Array<ITablePermissionData>> {
-		await this.assertUserNotSuspended(cognitoUserName);
 		const ctx = await this.loadContext(connectionId, cognitoUserName);
 		if (!ctx) return [];
 
@@ -186,7 +180,6 @@ export class CedarPermissionsService implements IUserAccessRepository {
 		tableName: string,
 		_masterPwd: string,
 	): Promise<boolean> {
-		await this.assertUserNotSuspended(cognitoUserName);
 		const ctx = await this.loadContext(connectionId, cognitoUserName);
 		if (!ctx) return false;
 
@@ -207,7 +200,6 @@ export class CedarPermissionsService implements IUserAccessRepository {
 		tableName: string,
 		_masterPwd: string,
 	): Promise<boolean> {
-		await this.assertUserNotSuspended(cognitoUserName);
 		const ctx = await this.loadContext(connectionId, cognitoUserName);
 		if (!ctx) return false;
 
@@ -228,7 +220,6 @@ export class CedarPermissionsService implements IUserAccessRepository {
 		tableName: string,
 		_masterPwd: string,
 	): Promise<boolean> {
-		await this.assertUserNotSuspended(cognitoUserName);
 		const ctx = await this.loadContext(connectionId, cognitoUserName);
 		if (!ctx) return false;
 
@@ -249,7 +240,6 @@ export class CedarPermissionsService implements IUserAccessRepository {
 		tableName: string,
 		_masterPwd: string,
 	): Promise<boolean> {
-		await this.assertUserNotSuspended(cognitoUserName);
 		const ctx = await this.loadContext(connectionId, cognitoUserName);
 		if (!ctx) return false;
 
@@ -383,13 +373,4 @@ export class CedarPermissionsService implements IUserAccessRepository {
 		return { userGroups, policies };
 	}
 
-	private async assertUserNotSuspended(userId: string): Promise<void> {
-		const user = await this.globalDbContext.userRepository.findOne({
-			where: { id: userId },
-			select: ['id', 'suspended'],
-		});
-		if (user?.suspended) {
-			throw new HttpException({ message: Messages.ACCOUNT_SUSPENDED }, HttpStatus.FORBIDDEN);
-		}
-	}
 }
