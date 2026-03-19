@@ -51,7 +51,6 @@ import { IUserInvitationRepository } from '../../entities/user/user-invitation/r
 import { IPasswordResetRepository } from '../../entities/user/user-password/repository/password-reset-repository.interface.js';
 import { IUserSessionSettings } from '../../entities/user/user-session-settings/reposiotory/user-session-settings-repository.interface.js';
 import { UserSessionSettingsEntity } from '../../entities/user/user-session-settings/user-session-settings.entity.js';
-import { IUserAccessRepository } from '../../entities/user-access/repository/user-access.repository.interface.js';
 import { IUserActionRepository } from '../../entities/user-actions/repository/user-action.repository.interface.js';
 import { IUserSecretRepository } from '../../entities/user-secret/repository/user-secret-repository.interface.js';
 import { UserSecretEntity } from '../../entities/user-secret/user-secret.entity.js';
@@ -73,7 +72,6 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
 	groupRepository: IGroupRepository;
 	permissionRepository: IPermissionRepository;
 	tableSettingsRepository: Repository<TableSettingsEntity> & ITableSettingsRepository;
-	userAccessRepository: IUserAccessRepository;
 	agentRepository: IAgentRepository;
 	emailVerificationRepository: IEmailVerificationRepository;
 	passwordResetRepository: IPasswordResetRepository;

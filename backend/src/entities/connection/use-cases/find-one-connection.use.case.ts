@@ -7,6 +7,7 @@ import { AccessLevelEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { FoundConnectionPropertiesDs } from '../../connection-properties/application/data-structures/found-connection-properties.ds.js';
 import { buildFoundConnectionPropertiesDs } from '../../connection-properties/utils/build-found-connection-properties-ds.js';
 import { FindOneConnectionDs } from '../application/data-structures/find-one-connection.ds.js';
@@ -24,6 +25,7 @@ export class FindOneConnectionUseCase
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
+		private readonly cedarPermissions: CedarPermissionsService,
 	) {
 		super();
 	}
@@ -33,7 +35,7 @@ export class FindOneConnectionUseCase
 		if (!connection) {
 			throw new BadRequestException(Messages.CONNECTION_NOT_FOUND);
 		}
-		const accessLevel: AccessLevelEnum = await this._dbContext.userAccessRepository.getUserConnectionAccessLevel(
+		const accessLevel: AccessLevelEnum = await this.cedarPermissions.getUserConnectionAccessLevel(
 			inputData.cognitoUserName,
 			inputData.connectionId,
 		);
@@ -120,7 +122,7 @@ export class FindOneConnectionUseCase
 		}
 		const groupsInConnection = await this._dbContext.groupRepository.findAllGroupsInConnection(connectionId);
 		for (const group of groupsInConnection) {
-			const groupRead = await this._dbContext.userAccessRepository.checkUserGroupRead(cognitoUserName, group.id);
+			const groupRead = await this.cedarPermissions.checkUserGroupRead(cognitoUserName, group.id);
 			if (groupRead) {
 				return true;
 			}

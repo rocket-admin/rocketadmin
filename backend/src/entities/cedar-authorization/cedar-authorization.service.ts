@@ -31,14 +31,8 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 	) {}
 
 	async onModuleInit(): Promise<void> {
-		if (!this.isFeatureEnabled()) return;
 		this.schema = CEDAR_SCHEMA as Record<string, unknown>;
 		this.logger.log('Cedar authorization service initialized');
-	}
-
-	isFeatureEnabled(): boolean {
-		// return process.env.CEDAR_AUTHORIZATION_ENABLED === 'true';
-		return true;
 	}
 
 	async validate(request: CedarValidationRequest): Promise<boolean> {

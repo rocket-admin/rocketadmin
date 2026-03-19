@@ -11,6 +11,7 @@ import { Constants } from '../../../helpers/constants/constants.js';
 import { validateStringWithEnum } from '../../../helpers/validators/validate-string-with-enum.js';
 import { FindLogsDs } from '../application/data-structures/find-logs.ds.js';
 import { IFindLogsOptions } from '../repository/table-logs-repository.interface.js';
+import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { IExportLogsAsCsv } from './use-cases.interface.js';
 
 @Injectable()
@@ -18,13 +19,14 @@ export class ExportLogsAsCsvUseCase extends AbstractUseCase<FindLogsDs, Streamab
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
+		private readonly cedarPermissions: CedarPermissionsService,
 	) {
 		super();
 	}
 
 	public async implementation(inputData: FindLogsDs): Promise<StreamableFile> {
 		const { connectionId, query, userId, operationTypes } = inputData;
-		const userConnectionEdit = await this._dbContext.userAccessRepository.checkUserConnectionEdit(userId, connectionId);
+		const userConnectionEdit = await this.cedarPermissions.checkUserConnectionEdit(userId, connectionId);
 		const tableName = query.tableName;
 		let order = query.order;
 		let limit: string | number = query.limit;
