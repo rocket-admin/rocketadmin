@@ -20,7 +20,6 @@ interface EvalContext {
 @Injectable()
 export class CedarPermissionsService implements IUserAccessRepository {
 	private readonly schema: Record<string, unknown> = CEDAR_SCHEMA as Record<string, unknown>;
-	private suspendedCheckCache = new Map<string, boolean>();
 
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
@@ -385,21 +384,11 @@ export class CedarPermissionsService implements IUserAccessRepository {
 	}
 
 	private async assertUserNotSuspended(userId: string): Promise<void> {
-		const cached = this.suspendedCheckCache.get(userId);
-		if (cached !== undefined) {
-			if (cached) {
-				throw new HttpException({ message: Messages.ACCOUNT_SUSPENDED }, HttpStatus.FORBIDDEN);
-			}
-			return;
-		}
-
 		const user = await this.globalDbContext.userRepository.findOne({
 			where: { id: userId },
 			select: ['id', 'suspended'],
 		});
-		const isSuspended = !!user?.suspended;
-		this.suspendedCheckCache.set(userId, isSuspended);
-		if (isSuspended) {
+		if (user?.suspended) {
 			throw new HttpException({ message: Messages.ACCOUNT_SUSPENDED }, HttpStatus.FORBIDDEN);
 		}
 	}
