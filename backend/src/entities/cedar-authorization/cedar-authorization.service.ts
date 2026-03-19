@@ -37,7 +37,8 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 	}
 
 	isFeatureEnabled(): boolean {
-		return process.env.CEDAR_AUTHORIZATION_ENABLED === 'true';
+		// return process.env.CEDAR_AUTHORIZATION_ENABLED === 'true';
+		return true;
 	}
 
 	async validate(request: CedarValidationRequest): Promise<boolean> {
@@ -186,47 +187,42 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 		const userGroups = await this.globalDbContext.groupRepository.findAllUserGroupsInConnection(connectionId, userId);
 		if (userGroups.length === 0) return false;
 
-		const userGroupIds = userGroups.map((g) => g.id);
-		const policies = await this.loadPoliciesForUser(connectionId, userId, userGroupIds);
-		if (!policies) return false;
+		const groupPolicies = await this.loadPoliciesPerGroup(connectionId, userGroups);
+		if (groupPolicies.length === 0) return false;
 
 		const entities = buildCedarEntities(userId, userGroups, connectionId, tableName, dashboardId);
 
-		const call = {
-			principal: { type: CEDAR_USER_TYPE, id: userId },
-			action: { type: CEDAR_ACTION_TYPE, id: action },
-			resource: { type: resourceType as string, id: resourceId },
-			context: {},
-			policies: { staticPolicies: policies },
-			entities: entities,
-			schema: this.schema,
-		};
+		for (const policy of groupPolicies) {
+			const call = {
+				principal: { type: CEDAR_USER_TYPE, id: userId },
+				action: { type: CEDAR_ACTION_TYPE, id: action },
+				resource: { type: resourceType as string, id: resourceId },
+				context: {},
+				policies: { staticPolicies: policy },
+				entities: entities,
+				schema: this.schema,
+			};
 
-		const result = cedarWasm.isAuthorized(call as Parameters<typeof cedarWasm.isAuthorized>[0]);
-		if (result.type === 'success') {
-			return result.response.decision === 'allow';
+			const result = cedarWasm.isAuthorized(call as Parameters<typeof cedarWasm.isAuthorized>[0]);
+			if (result.type === 'success') {
+				if (result.response.decision === 'allow') {
+					return true;
+				}
+			} else {
+				this.logger.warn(`Cedar authorization error for group policy: ${JSON.stringify(result.errors)}`);
+			}
 		}
 
-		this.logger.warn(`Cedar authorization error: ${JSON.stringify(result.errors)}`);
 		return false;
 	}
 
-	private async loadPoliciesForUser(connectionId: string, userId: string, userGroupIds: string[]): Promise<string | null> {
-		const cached = Cacher.getCedarPolicyCache(connectionId, userId);
-		if (cached !== null) return cached;
-
+	private async loadPoliciesPerGroup(connectionId: string, userGroups: Array<GroupEntity>): Promise<string[]> {
 		const groups = await this.globalDbContext.groupRepository.findAllGroupsInConnection(connectionId);
-		const userGroupIdSet = new Set(userGroupIds);
-		const policyTexts = groups
+		const userGroupIdSet = new Set(userGroups.map((g) => g.id));
+		return groups
 			.filter((g) => userGroupIdSet.has(g.id))
 			.map((g) => g.cedarPolicy)
 			.filter(Boolean);
-
-		if (policyTexts.length === 0) return null;
-
-		const combined = policyTexts.join('\n\n');
-		Cacher.setCedarPolicyCache(connectionId, userId, combined);
-		return combined;
 	}
 
 	private async assertUserNotSuspended(userId: string): Promise<void> {
@@ -270,13 +266,10 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 		}
 	}
 
-	private async validatePolicyReferences(
-		cedarPolicy: string,
-		connectionId: string,
-	): Promise<void> {
-		const connectionIds = [
-			...cedarPolicy.matchAll(/resource\s*==\s*RocketAdmin::Connection::"([^"]+)"/g),
-		].map((m) => m[1]);
+	private async validatePolicyReferences(cedarPolicy: string, connectionId: string): Promise<void> {
+		const connectionIds = [...cedarPolicy.matchAll(/resource\s*==\s*RocketAdmin::Connection::"([^"]+)"/g)].map(
+			(m) => m[1],
+		);
 
 		for (const refConnectionId of connectionIds) {
 			if (refConnectionId !== connectionId) {
@@ -287,9 +280,9 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 			}
 		}
 
-		const groupResourceIds = [
-			...cedarPolicy.matchAll(/resource\s*==\s*RocketAdmin::Group::"([^"]+)"/g),
-		].map((m) => m[1]);
+		const groupResourceIds = [...cedarPolicy.matchAll(/resource\s*==\s*RocketAdmin::Group::"([^"]+)"/g)].map(
+			(m) => m[1],
+		);
 
 		if (groupResourceIds.length > 0) {
 			const connectionGroups = await this.globalDbContext.groupRepository.findAllGroupsInConnection(connectionId);
@@ -297,17 +290,14 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 
 			for (const refGroupId of groupResourceIds) {
 				if (!connectionGroupIds.has(refGroupId)) {
-					throw new HttpException(
-						{ message: Messages.CEDAR_POLICY_REFERENCES_FOREIGN_GROUP },
-						HttpStatus.BAD_REQUEST,
-					);
+					throw new HttpException({ message: Messages.CEDAR_POLICY_REFERENCES_FOREIGN_GROUP }, HttpStatus.BAD_REQUEST);
 				}
 			}
 		}
 
-		const tableResourceIds = [
-			...cedarPolicy.matchAll(/resource\s*==\s*RocketAdmin::Table::"([^"]+)"/g),
-		].map((m) => m[1]);
+		const tableResourceIds = [...cedarPolicy.matchAll(/resource\s*==\s*RocketAdmin::Table::"([^"]+)"/g)].map(
+			(m) => m[1],
+		);
 
 		for (const tableRef of tableResourceIds) {
 			if (!tableRef.startsWith(`${connectionId}/`)) {
@@ -318,9 +308,9 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 			}
 		}
 
-		const dashboardResourceIds = [
-			...cedarPolicy.matchAll(/resource\s*==\s*RocketAdmin::Dashboard::"([^"]+)"/g),
-		].map((m) => m[1]);
+		const dashboardResourceIds = [...cedarPolicy.matchAll(/resource\s*==\s*RocketAdmin::Dashboard::"([^"]+)"/g)].map(
+			(m) => m[1],
+		);
 
 		for (const dashboardRef of dashboardResourceIds) {
 			if (!dashboardRef.startsWith(`${connectionId}/`)) {

@@ -1,5 +1,5 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <h2 mat-dialog-title>{{ isEdit ? 'Edit panel' : 'Add chart' }}</h2>
+    <h2 mat-dialog-title>{{ isEdit ? 'Edit panel' : 'Add panel' }}</h2>
 
     <mat-dialog-content>
         @if (savedQueries().length > 0) {
@@ -27,7 +27,7 @@
             <div class="no-queries-message">
                 <mat-icon class="no-queries-icon">code</mat-icon>
                 <h3>No saved queries yet</h3>
-                <p>Create a saved query first to add it as a chart on this dashboard.</p>
+                <p>Create a saved query first to add it as a panel on this dashboard.</p>
                 <a mat-stroked-button color="primary"
                     [routerLink]="['/panels', data.connectionId, 'new']"
                     (click)="dialogRef.close()">

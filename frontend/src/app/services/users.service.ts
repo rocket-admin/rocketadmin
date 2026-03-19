@@ -51,10 +51,26 @@ export class UsersService {
 	}
 
 	createUsersGroup(connectionID: string, title: string) {
-		return this._http.post<any>(`/connection/group/${connectionID}`, { title: title }).pipe(
+		return this._http.post<any>(`/connection/group/${connectionID}`, { title }).pipe(
 			map((res) => {
 				this.groups.next({ action: 'add group', group: res });
 				this._notifications.showSuccessSnackbar('Group of users has been created.');
+				return res;
+			}),
+			catchError((err) => {
+				console.log(err);
+				this._notifications.showErrorSnackbar(err.error?.message || err.message);
+				return EMPTY;
+			}),
+		);
+	}
+
+	saveCedarPolicy(connectionID: string, groupId: string, cedarPolicy: string) {
+		return this._http.post<any>(`/connection/cedar-policy/${connectionID}`, { cedarPolicy, groupId }).pipe(
+			map((res) => {
+				this.groups.next({ action: 'save policy', groupId });
+				this._notifications.showSuccessSnackbar('Cedar policy has been saved.');
+				return res;
 			}),
 			catchError((err) => {
 				console.log(err);

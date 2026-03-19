@@ -1,0 +1,81 @@
+.policy-list {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.empty-state {
+	opacity: 0.7;
+	font-size: 14px;
+	padding: 12px 0;
+}
+
+.policy-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 4px 8px;
+	border-radius: 4px;
+	border: 1px solid var(--mdc-outlined-text-field-outline-color, rgba(0, 0, 0, 0.12));
+}
+
+.policy-item--add {
+	border-style: dashed;
+}
+
+.policy-item__content {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex: 1;
+	min-width: 0;
+}
+
+.policy-item__icon {
+	font-size: 20px;
+	width: 20px;
+	height: 20px;
+	color: var(--color-accentedPalette-500, #1976d2);
+	flex-shrink: 0;
+}
+
+.policy-item__label {
+	font-size: 14px;
+	font-weight: 500;
+}
+
+.policy-item__table {
+	font-size: 14px;
+	opacity: 0.7;
+}
+
+.policy-item__actions {
+	display: flex;
+	align-items: center;
+	flex-shrink: 0;
+}
+
+.policy-item__edit-form {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	flex: 1;
+	flex-wrap: wrap;
+}
+
+.policy-field {
+	flex: 1;
+	min-width: 180px;
+}
+
+.policy-item__edit-actions {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding-top: 8px;
+}
+
+.add-policy-button {
+	align-self: flex-start;
+	margin-top: 4px;
+}

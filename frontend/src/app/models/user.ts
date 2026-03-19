@@ -17,6 +17,7 @@ export interface UserGroup {
 	id: string;
 	title: string;
 	isMain: boolean;
+	cedarPolicy?: string | null;
 	users?: {
 		id: string;
 		isActive: boolean;

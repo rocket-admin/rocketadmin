@@ -20,6 +20,8 @@ import { SaaSRegisterUserWIthSamlUseCase } from './use-cases/register-user-with-
 import { SaasUsualRegisterUseCase } from './use-cases/saas-usual-register-user.use.case.js';
 import { SuspendUsersUseCase } from './use-cases/suspend-users.use.case.js';
 import { SuspendUsersOverLimitUseCase } from './use-cases/suspend-users-over-limit.use.case.js';
+import { CreateConnectionForHostedDbUseCase } from './use-cases/create-connection-for-hosted-db.use.case.js';
+import { DeleteConnectionForHostedDbUseCase } from './use-cases/delete-connection-for-hosted-db.use.case.js';
 import { UnFreezeConnectionsInCompanyUseCase } from './use-cases/unfreeze-connections-in-company-use.case.js';
 
 @Module({
@@ -85,6 +87,14 @@ import { UnFreezeConnectionsInCompanyUseCase } from './use-cases/unfreeze-connec
 			provide: UseCaseType.SAAS_SUSPEND_USERS_OVER_LIMIT,
 			useClass: SuspendUsersOverLimitUseCase,
 		},
+		{
+			provide: UseCaseType.SAAS_CREATE_CONNECTION_FOR_HOSTED_DB,
+			useClass: CreateConnectionForHostedDbUseCase,
+		},
+		{
+			provide: UseCaseType.SAAS_DELETE_CONNECTION_FOR_HOSTED_DB,
+			useClass: DeleteConnectionForHostedDbUseCase,
+		},
 		SignInAuditService,
 	],
 	controllers: [SaasController],
@@ -108,6 +118,8 @@ export class SaasModule {
 				{ path: 'saas/company/freeze-connections', method: RequestMethod.PUT },
 				{ path: 'saas/company/unfreeze-connections', method: RequestMethod.PUT },
 				{ path: 'saas/user/saml/login', method: RequestMethod.POST },
+				{ path: 'saas/connection/hosted', method: RequestMethod.POST },
+				{ path: 'saas/connection/hosted/delete', method: RequestMethod.POST },
 			);
 	}
 }
