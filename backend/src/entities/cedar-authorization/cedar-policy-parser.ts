@@ -7,7 +7,6 @@ import {
 
 interface ParsedPermitStatement {
 	action: string | null;
-	actions: string[] | null;
 	resourceType: string | null;
 	resourceId: string | null;
 	isWildcard: boolean;
@@ -56,41 +55,21 @@ export function parseCedarPolicyToClassicalPermissions(
 			case 'group:edit':
 				result.group.accessLevel = AccessLevelEnum.edit;
 				break;
-			case 'table:*': {
-				const wildcardTableName = permit.resourceId ? extractTableName(permit.resourceId, connectionId) : '*';
-				if (!wildcardTableName) break;
-				const wildcardTableEntry = getOrCreateTableEntry(tableMap, wildcardTableName);
-				applyTableAction(wildcardTableEntry, 'table:read');
-				applyTableAction(wildcardTableEntry, 'table:add');
-				applyTableAction(wildcardTableEntry, 'table:edit');
-				applyTableAction(wildcardTableEntry, 'table:delete');
-				break;
-			}
 			case 'table:read':
 			case 'table:add':
 			case 'table:edit':
 			case 'table:delete': {
-				const tableName = permit.resourceId ? extractTableName(permit.resourceId, connectionId) : '*';
+				const tableName = extractTableName(permit.resourceId, connectionId);
 				if (!tableName) break;
 				const tableEntry = getOrCreateTableEntry(tableMap, tableName);
 				applyTableAction(tableEntry, permit.action);
-				break;
-			}
-			case 'dashboard:*': {
-				const wildcardDashboardId = permit.resourceId ? extractDashboardId(permit.resourceId, connectionId) : '*';
-				if (!wildcardDashboardId) break;
-				const wildcardDashboardEntry = getOrCreateDashboardEntry(dashboardMap, wildcardDashboardId);
-				applyDashboardAction(wildcardDashboardEntry, 'dashboard:read');
-				applyDashboardAction(wildcardDashboardEntry, 'dashboard:create');
-				applyDashboardAction(wildcardDashboardEntry, 'dashboard:edit');
-				applyDashboardAction(wildcardDashboardEntry, 'dashboard:delete');
 				break;
 			}
 			case 'dashboard:read':
 			case 'dashboard:create':
 			case 'dashboard:edit':
 			case 'dashboard:delete': {
-				const dashboardId = permit.resourceId ? extractDashboardId(permit.resourceId, connectionId) : '*';
+				const dashboardId = extractDashboardId(permit.resourceId, connectionId);
 				if (!dashboardId) break;
 				const dashboardEntry = getOrCreateDashboardEntry(dashboardMap, dashboardId);
 				applyDashboardAction(dashboardEntry, permit.action);
@@ -161,39 +140,28 @@ function extractPermitStatements(policyText: string): ParsedPermitStatement[] {
 		}
 	}
 
-	return results.flatMap(expandActionIn);
-}
-
-function expandActionIn(stmt: ParsedPermitStatement): ParsedPermitStatement[] {
-	if (!stmt.actions || stmt.actions.length === 0) return [stmt];
-	return stmt.actions.map((action) => ({ ...stmt, action, actions: null }));
+	return results;
 }
 
 function parsePermitBody(body: string): ParsedPermitStatement {
 	const result: ParsedPermitStatement = {
 		action: null,
-		actions: null,
 		resourceType: null,
 		resourceId: null,
 		isWildcard: false,
 	};
 
-	const actionMatch = body.match(/action\s*(?:==|like)\s*RocketAdmin::Action::"([^"]+)"/);
+	const actionMatch = body.match(/action\s*==\s*RocketAdmin::Action::"([^"]+)"/);
 	if (actionMatch) {
 		result.action = actionMatch[1];
 	} else {
-		const actionInMatch = body.match(/action\s+in\s*\[([^\]]+)\]/);
-		if (actionInMatch) {
-			result.actions = [...actionInMatch[1].matchAll(/RocketAdmin::Action::"([^"]+)"/g)].map((m) => m[1]);
-		} else {
-			const actionClause = body.match(/,\s*(action)\s*,/);
-			if (actionClause) {
-				result.isWildcard = true;
-			}
+		const actionClause = body.match(/,\s*(action)\s*,/);
+		if (actionClause) {
+			result.isWildcard = true;
 		}
 	}
 
-	const resourceMatch = body.match(/resource\s*(?:==|like)\s*(RocketAdmin::\w+)::"([^"]+)"/);
+	const resourceMatch = body.match(/resource\s*==\s*(RocketAdmin::\w+)::"([^"]+)"/);
 	if (resourceMatch) {
 		result.resourceType = resourceMatch[1];
 		result.resourceId = resourceMatch[2];
