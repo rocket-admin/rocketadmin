@@ -1,7 +1,6 @@
 import { AccessLevelEnum } from '../../../enums/access-level.enum.js';
 import { PermissionTypeEnum } from '../../../enums/permission-type.enum.js';
 import { GroupEntity } from '../../group/group.entity.js';
-import { TablePermissionDs } from '../application/data-structures/create-permissions.ds.js';
 import { PermissionEntity } from '../permission.entity.js';
 
 export const permissionCustomRepositoryExtension = {
@@ -75,33 +74,6 @@ export const permissionCustomRepositoryExtension = {
 		return groupAccessLevel;
 	},
 
-	async getGroupPermissionsForTable(
-		connectionId: string,
-		groupId: string,
-		tableName: string,
-	): Promise<TablePermissionDs> {
-		const tableQb = this.createQueryBuilder('permission')
-			.leftJoinAndSelect('permission.groups', 'group')
-			.leftJoinAndSelect('group.connection', 'connection')
-			.andWhere('connection.id = :connectionId', { connectionId: connectionId })
-			.andWhere('group.id = :groupId', { groupId: groupId })
-			.andWhere('permission.type = :permissionType', {
-				permissionType: PermissionTypeEnum.Table,
-			})
-			.andWhere('permission.tableName = :tableName', { tableName: tableName });
-		const tablePermissions: Array<PermissionEntity> = await tableQb.getMany();
-		return {
-			tableName: tableName,
-			accessLevel: {
-				add: !!tablePermissions.find((el) => el.accessLevel === AccessLevelEnum.add),
-				delete: !!tablePermissions.find((el) => el.accessLevel === AccessLevelEnum.delete),
-				edit: !!tablePermissions.find((el) => el.accessLevel === AccessLevelEnum.edit),
-				readonly: !!tablePermissions.find((el) => el.accessLevel === AccessLevelEnum.readonly),
-				visibility: !!tablePermissions.find((el) => el.accessLevel === AccessLevelEnum.visibility),
-			},
-		};
-	},
-
 	async getGroupPermissionsForAllTables(connectionId: string, groupId: string): Promise<Array<PermissionEntity>> {
 		const tableQb = this.createQueryBuilder('permission')
 			.leftJoinAndSelect('permission.groups', 'group')
@@ -136,20 +108,6 @@ export const permissionCustomRepositoryExtension = {
 				permissionType: PermissionTypeEnum.Group,
 			});
 		return await groupQb.getOne();
-	},
-
-	async getAllUserPermissionsForAllTablesInConnection(
-		userId: string,
-		connectionId: string,
-	): Promise<Array<PermissionEntity>> {
-		const qb = this.createQueryBuilder('permission')
-			.leftJoin('permission.groups', 'group')
-			.leftJoin('group.users', 'user')
-			.leftJoin('group.connection', 'connection')
-			.andWhere('connection.id = :connectionId', { connectionId: connectionId })
-			.andWhere('user.id = :userId', { userId: userId })
-			.andWhere('permission.type = :permissionType', { permissionType: PermissionTypeEnum.Table });
-		return await qb.getMany();
 	},
 
 	async removePermissionEntity(permission: PermissionEntity): Promise<PermissionEntity> {
