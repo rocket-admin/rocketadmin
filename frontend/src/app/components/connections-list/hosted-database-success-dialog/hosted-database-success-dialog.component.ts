@@ -26,13 +26,8 @@ export class HostedDatabaseSuccessDialogComponent {
 	) {}
 
 	get credentialsText(): string {
-		return [
-			`Database: ${this.data.hostedDatabase.databaseName}`,
-			`Host: ${this.data.hostedDatabase.hostname}`,
-			`Port: ${this.data.hostedDatabase.port}`,
-			`Username: ${this.data.hostedDatabase.username}`,
-			`Password: ${this.data.hostedDatabase.password}`,
-		].join('\n');
+		const { username, password, hostname, port, databaseName } = this.data.hostedDatabase;
+		return `postgres://${username}:${password}@${hostname}:${port}/${databaseName}`;
 	}
 
 	handleCredentialsCopied(): void {

@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { CompanyMemberRole } from 'src/app/models/company';
-import { User } from 'src/app/models/user';
+import { SubscriptionPlans, User } from 'src/app/models/user';
 import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { HostedDatabaseService } from 'src/app/services/hosted-database.service';
@@ -129,6 +129,7 @@ describe('OwnConnectionsComponent', () => {
 			id: 'user-id',
 			role: CompanyMemberRole.CAO,
 			company: { id: 'company-id' },
+			subscriptionLevel: SubscriptionPlans.team,
 		} as User;
 
 		await component.createHostedDatabase();
