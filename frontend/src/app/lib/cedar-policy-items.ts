@@ -132,10 +132,7 @@ export function policyItemsToCedarPolicy(items: CedarPolicyItem[], connectionId:
 			return policies.join('\n\n');
 		}
 
-		const actionRef =
-			item.action === 'table:*' || item.action === 'dashboard:*'
-				? `action like RocketAdmin::Action::"${item.action}"`
-				: `action == RocketAdmin::Action::"${item.action}"`;
+		const actionRef = buildActionRef(item.action);
 		let resource: string;
 
 		if (item.action.startsWith('table:')) {
@@ -154,9 +151,24 @@ export function policyItemsToCedarPolicy(items: CedarPolicyItem[], connectionId:
 	return policies.join('\n\n');
 }
 
+const TABLE_ACTIONS = ['table:read', 'table:add', 'table:edit', 'table:delete'];
+const DASHBOARD_ACTIONS = ['dashboard:read', 'dashboard:create', 'dashboard:edit', 'dashboard:delete'];
+
+function buildActionRef(action: string): string {
+	if (action === 'table:*') {
+		const list = TABLE_ACTIONS.map((a) => `RocketAdmin::Action::"${a}"`).join(', ');
+		return `action in [${list}]`;
+	}
+	if (action === 'dashboard:*') {
+		const list = DASHBOARD_ACTIONS.map((a) => `RocketAdmin::Action::"${a}"`).join(', ');
+		return `action in [${list}]`;
+	}
+	return `action == RocketAdmin::Action::"${action}"`;
+}
+
 function buildResourceRef(type: string, connectionId: string, id: string | undefined): string {
 	if (id === '*') {
-		return `resource like RocketAdmin::${type}::"${connectionId}/*"`;
+		return `resource`;
 	}
 	return `resource == RocketAdmin::${type}::"${connectionId}/${id}"`;
 }
