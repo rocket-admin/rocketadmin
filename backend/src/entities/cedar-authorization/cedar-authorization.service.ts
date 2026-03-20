@@ -1,12 +1,10 @@
 import { HttpException, HttpStatus, Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { AccessLevelEnum, PermissionTypeEnum } from '../../enums/index.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { Cacher } from '../../helpers/cache/cacher.js';
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../common/data-injection.tokens.js';
 import { GroupEntity } from '../group/group.entity.js';
 import { IComplexPermission } from '../permission/permission.interface.js';
-import { PermissionEntity } from '../permission/permission.entity.js';
 import {
 	CedarAction,
 	CedarResourceType,
@@ -105,8 +103,6 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 		await this.validatePolicyReferences(cedarPolicy, connectionId);
 
 		const classicalPermissions = parseCedarPolicyToClassicalPermissions(cedarPolicy, connectionId, groupId);
-
-		await this.syncClassicalPermissions(group, classicalPermissions);
 
 		group.cedarPolicy = cedarPolicy;
 		await this.globalDbContext.groupRepository.saveNewOrUpdatedGroup(group);
@@ -316,74 +312,4 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 		}
 	}
 
-	private async syncClassicalPermissions(group: GroupEntity, permissions: IComplexPermission): Promise<void> {
-		if (group.permissions && group.permissions.length > 0) {
-			for (const perm of group.permissions) {
-				await this.globalDbContext.permissionRepository.removePermissionEntity(perm);
-			}
-		}
-		group.permissions = [];
-
-		if (permissions.connection.accessLevel !== AccessLevelEnum.none) {
-			const connPerm = new PermissionEntity();
-			connPerm.type = PermissionTypeEnum.Connection;
-			connPerm.accessLevel = permissions.connection.accessLevel;
-			const saved = await this.globalDbContext.permissionRepository.saveNewOrUpdatedPermission(connPerm);
-			group.permissions.push(saved);
-		}
-
-		if (permissions.group.accessLevel !== AccessLevelEnum.none) {
-			const groupPerm = new PermissionEntity();
-			groupPerm.type = PermissionTypeEnum.Group;
-			groupPerm.accessLevel = permissions.group.accessLevel;
-			const saved = await this.globalDbContext.permissionRepository.saveNewOrUpdatedPermission(groupPerm);
-			group.permissions.push(saved);
-		}
-
-		for (const table of permissions.tables) {
-			const access = table.accessLevel;
-			if (access.visibility) {
-				const perm = new PermissionEntity();
-				perm.type = PermissionTypeEnum.Table;
-				perm.accessLevel = AccessLevelEnum.visibility;
-				perm.tableName = table.tableName;
-				const saved = await this.globalDbContext.permissionRepository.saveNewOrUpdatedPermission(perm);
-				group.permissions.push(saved);
-			}
-			if (access.readonly) {
-				const perm = new PermissionEntity();
-				perm.type = PermissionTypeEnum.Table;
-				perm.accessLevel = AccessLevelEnum.readonly;
-				perm.tableName = table.tableName;
-				const saved = await this.globalDbContext.permissionRepository.saveNewOrUpdatedPermission(perm);
-				group.permissions.push(saved);
-			}
-			if (access.add) {
-				const perm = new PermissionEntity();
-				perm.type = PermissionTypeEnum.Table;
-				perm.accessLevel = AccessLevelEnum.add;
-				perm.tableName = table.tableName;
-				const saved = await this.globalDbContext.permissionRepository.saveNewOrUpdatedPermission(perm);
-				group.permissions.push(saved);
-			}
-			if (access.edit) {
-				const perm = new PermissionEntity();
-				perm.type = PermissionTypeEnum.Table;
-				perm.accessLevel = AccessLevelEnum.edit;
-				perm.tableName = table.tableName;
-				const saved = await this.globalDbContext.permissionRepository.saveNewOrUpdatedPermission(perm);
-				group.permissions.push(saved);
-			}
-			if (access.delete) {
-				const perm = new PermissionEntity();
-				perm.type = PermissionTypeEnum.Table;
-				perm.accessLevel = AccessLevelEnum.delete;
-				perm.tableName = table.tableName;
-				const saved = await this.globalDbContext.permissionRepository.saveNewOrUpdatedPermission(perm);
-				group.permissions.push(saved);
-			}
-		}
-
-		await this.globalDbContext.groupRepository.saveNewOrUpdatedGroup(group);
-	}
 }
