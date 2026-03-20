@@ -65,7 +65,7 @@ test('parses table:read + table:add + table:edit + table:delete into full access
 	const result = parseCedarPolicyToClassicalPermissions(policy, connectionId, groupId);
 	t.is(result.tables.length, 1);
 	t.is(result.tables[0].accessLevel.visibility, true);
-	t.is(result.tables[0].accessLevel.readonly, true);
+	t.is(result.tables[0].accessLevel.readonly, false);
 	t.is(result.tables[0].accessLevel.add, true);
 	t.is(result.tables[0].accessLevel.edit, true);
 	t.is(result.tables[0].accessLevel.delete, true);

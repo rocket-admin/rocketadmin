@@ -20,7 +20,6 @@ import { ConnectionEntity } from '../../../src/entities/connection/connection.en
 import { UserRoleEnum } from '../../../src/entities/user/enums/user-role.enum.js';
 import { generateGwtToken } from '../../../src/entities/user/utils/generate-gwt-token.js';
 import { buildDefaultAdminGroups } from '../../../src/entities/user/utils/build-default-admin-groups.js';
-import { buildDefaultAdminPermissions } from '../../../src/entities/user/utils/build-default-admin-permissions.js';
 import { generateCedarPolicyForGroup } from '../../../src/entities/cedar-authorization/cedar-policy-generator.js';
 import { AccessLevelEnum, PermissionTypeEnum } from '../../../src/enums/index.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
@@ -1549,13 +1548,20 @@ test.serial(
 				}),
 			);
 
-			// Step 3: buildDefaultAdminPermissions (same as DemoDataService)
-			const testPermissionsEntities = buildDefaultAdminPermissions(createdGroups);
-			await Promise.all(
-				testPermissionsEntities.map(async (permission: PermissionEntity) => {
-					await permissionRepository.save(permission);
-				}),
-			);
+			// Step 3: Create old-style permission entities (simulating pre-Cedar state)
+			for (const group of createdGroups) {
+				const connPerm = new PermissionEntity();
+				connPerm.type = PermissionTypeEnum.Connection;
+				connPerm.accessLevel = AccessLevelEnum.edit;
+				connPerm.groups = [group];
+				await permissionRepository.save(connPerm);
+
+				const groupPerm = new PermissionEntity();
+				groupPerm.type = PermissionTypeEnum.Group;
+				groupPerm.accessLevel = AccessLevelEnum.edit;
+				groupPerm.groups = [group];
+				await permissionRepository.save(groupPerm);
+			}
 
 			// Step 4: Generate Cedar policies and re-save groups (same as DemoDataService fix)
 			// This is the critical step: the fix in DemoDataService deletes group.permissions

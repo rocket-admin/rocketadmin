@@ -79,6 +79,10 @@ export function parseCedarPolicyToClassicalPermissions(
 	}
 
 	result.tables = Array.from(tableMap.values());
+	for (const table of result.tables) {
+		const a = table.accessLevel;
+		a.readonly = a.visibility && !a.add && !a.edit && !a.delete;
+	}
 	result.dashboards = Array.from(dashboardMap.values());
 
 	return result;
@@ -209,7 +213,6 @@ function applyTableAction(entry: ITablePermissionData, action: string): void {
 	switch (action) {
 		case 'table:read':
 			entry.accessLevel.visibility = true;
-			entry.accessLevel.readonly = true;
 			break;
 		case 'table:add':
 			entry.accessLevel.add = true;

@@ -99,7 +99,6 @@ export class CreateConnectionUseCase
 				savedConnection,
 				connectionAuthor,
 			);
-			await this._dbContext.permissionRepository.createdDefaultAdminPermissionsInGroup(createdAdminGroup);
 			createdAdminGroup.cedarPolicy = generateCedarPolicyForGroup(
 				savedConnection.id,
 				true,
