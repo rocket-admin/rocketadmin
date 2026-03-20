@@ -1,0 +1,81 @@
+<h1 mat-dialog-title>
+	{{ data.connectionId ? 'Hosted PostgreSQL is ready' : 'Hosted PostgreSQL created' }}
+</h1>
+
+<mat-dialog-content class="hosted-dialog__content">
+	@if (data.connectionId) {
+		<p class="hosted-dialog__description">
+			Your hosted PostgreSQL database is provisioned and already connected to RocketAdmin.
+			Save these credentials now. The password is shown only once.
+		</p>
+	} @else {
+		<p class="hosted-dialog__description">
+			Your hosted PostgreSQL database is provisioned, but RocketAdmin could not finish the automatic connection setup.
+			Save these credentials now and use them for a manual PostgreSQL connection or support follow-up.
+		</p>
+	}
+
+	@if (data.errorMessage) {
+		<p class="hosted-dialog__error">
+			Automatic connection setup failed: {{ data.errorMessage }}
+		</p>
+	}
+
+	<div class="hosted-dialog__credentials">
+		<div class="hosted-dialog__row">
+			<span class="hosted-dialog__label">Database</span>
+			<code>{{ data.hostedDatabase.databaseName }}</code>
+		</div>
+		<div class="hosted-dialog__row">
+			<span class="hosted-dialog__label">Host</span>
+			<code>{{ data.hostedDatabase.hostname }}</code>
+		</div>
+		<div class="hosted-dialog__row">
+			<span class="hosted-dialog__label">Port</span>
+			<code>{{ data.hostedDatabase.port }}</code>
+		</div>
+		<div class="hosted-dialog__row">
+			<span class="hosted-dialog__label">Username</span>
+			<code>{{ data.hostedDatabase.username }}</code>
+		</div>
+		<div class="hosted-dialog__row">
+			<span class="hosted-dialog__label">Password</span>
+			<code>{{ data.hostedDatabase.password }}</code>
+		</div>
+	</div>
+
+	<p class="hosted-dialog__hint">
+		The generated password cannot be recovered from this screen later.
+	</p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="hosted-dialog__actions">
+	<button type="button" mat-button mat-dialog-close>
+		Close
+	</button>
+	<button
+		type="button"
+		mat-stroked-button
+		[cdkCopyToClipboard]="credentialsText"
+		(cdkCopyToClipboardCopied)="handleCredentialsCopied()">
+		Copy credentials
+	</button>
+	@if (data.connectionId) {
+		<a
+			mat-button
+			[routerLink]="['/dashboard', data.connectionId]"
+			mat-dialog-close
+			(click)="handleSecondaryActionClick()">
+			Open tables
+		</a>
+		<a
+			mat-flat-button
+			color="primary"
+			[routerLink]="['/auto-configure', data.connectionId]"
+			mat-dialog-close
+			cdkFocusInitial
+			(click)="handlePrimaryActionClick()">
+			Set up dashboard
+		</a>
+	}
+</mat-dialog-actions>
