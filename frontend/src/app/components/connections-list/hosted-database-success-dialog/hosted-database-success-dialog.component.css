@@ -1,0 +1,86 @@
+.hosted-dialog__content {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	min-width: min(100%, 34rem);
+}
+
+.hosted-dialog__description,
+.hosted-dialog__hint,
+.hosted-dialog__error {
+	margin: 0;
+}
+
+.hosted-dialog__error {
+	background: var(--color-error-background);
+	border: 1px solid var(--color-error);
+	border-radius: 8px;
+	color: var(--color-error);
+	padding: 12px 14px;
+}
+
+.hosted-dialog__credentials {
+	display: grid;
+	gap: 10px;
+	border: 1px solid var(--color-accentedPalette-100);
+	border-radius: 12px;
+	padding: 14px;
+}
+
+.hosted-dialog__row {
+	display: grid;
+	grid-template-columns: minmax(96px, 120px) minmax(0, 1fr);
+	align-items: start;
+	gap: 12px;
+}
+
+.hosted-dialog__label {
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+.hosted-dialog__credentials code {
+	background: var(--color-accentedPalette-50);
+	border-radius: 8px;
+	font-family: "IBM Plex Mono", monospace;
+	padding: 8px 10px;
+	overflow-wrap: anywhere;
+}
+
+.hosted-dialog__hint {
+	color: rgba(0, 0, 0, 0.64);
+	font-size: 13px;
+}
+
+.hosted-dialog__actions {
+	gap: 8px;
+	padding-top: 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+	.hosted-dialog__credentials {
+		background: transparent;
+		border-color: var(--color-accentedPalette-400);
+	}
+
+	.hosted-dialog__credentials code {
+		background: var(--color-accentedPalette-600);
+	}
+
+	.hosted-dialog__hint {
+		color: rgba(255, 255, 255, 0.64);
+	}
+}
+
+@media (width <= 600px) {
+	.hosted-dialog__content {
+		min-width: auto;
+	}
+
+	.hosted-dialog__row {
+		grid-template-columns: 1fr;
+		gap: 6px;
+	}
+}

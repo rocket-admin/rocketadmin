@@ -42,6 +42,15 @@ export class UpgradeComponent implements OnInit {
 	public submitting = false;
 	public isAdmin = false;
 
+	hostedInstances = [
+		{
+			title: 'Hosted PostgreSQL',
+			free: 'Tiny node (0.1 CPU, 100 MB)',
+			team: 'Scalable (pay as you go)',
+			enterprise: 'Scalable (pay as you go)',
+		},
+	];
+
 	databases = [
 		{
 			title: 'MySQL',

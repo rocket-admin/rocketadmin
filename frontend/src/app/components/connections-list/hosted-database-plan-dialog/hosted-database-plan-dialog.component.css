@@ -1,0 +1,72 @@
+.plan-dialog__content {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	min-width: min(100%, 30rem);
+	margin-top: 16px;
+}
+
+.plan-dialog__option {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 16px;
+	border: 1px solid rgba(0, 0, 0, 0.12);
+	border-radius: 12px;
+	background: transparent;
+	cursor: pointer;
+	text-align: left;
+	transition:
+		border-color 0.15s,
+		background 0.15s;
+}
+
+.plan-dialog__option:hover {
+	border-color: var(--color-accentedPalette-200);
+	background: var(--color-accentedPalette-50);
+}
+
+.plan-dialog__option-header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	color: var(--mat-sidenav-content-text-color);
+}
+
+.plan-dialog__option-title {
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.plan-dialog__option-description {
+	margin: 0;
+	color: rgba(0, 0, 0, 0.64);
+	font-size: 14px;
+}
+
+.plan-dialog__option-price {
+	font-size: 13px;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: rgba(0, 0, 0, 0.48);
+}
+
+@media (prefers-color-scheme: dark) {
+	.plan-dialog__option {
+		border-color: rgba(255, 255, 255, 0.08);
+	}
+
+	.plan-dialog__option:hover {
+		border-color: var(--color-accentedPalette-500);
+		background: var(--color-accentedPalette-700);
+	}
+
+	.plan-dialog__option-description {
+		color: rgba(255, 255, 255, 0.64);
+	}
+
+	.plan-dialog__option-price {
+		color: rgba(255, 255, 255, 0.48);
+	}
+}
