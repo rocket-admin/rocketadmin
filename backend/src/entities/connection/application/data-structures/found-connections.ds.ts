@@ -134,7 +134,7 @@ export class FoundAgentConnectionsDs {
 	connection_properties: ConnectionPropertiesEntity;
 }
 
-export class FoundSipleConnectionInfoDS {
+export class FoundSimpleConnectionInfoDS {
 	@ApiProperty()
 	id: string;
 

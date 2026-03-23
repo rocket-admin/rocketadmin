@@ -107,7 +107,7 @@ export class ConnectionEntity {
 	saved_table_info: number;
 
 	@Column({ default: null })
-	signing_key: string;
+	signing_key: string | null;
 
 	@Column({ default: null })
 	authSource?: string | null;

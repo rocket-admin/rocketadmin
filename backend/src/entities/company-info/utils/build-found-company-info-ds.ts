@@ -1,5 +1,5 @@
 import { FoundSassCompanyInfoDS } from '../../../microservices/gateways/saas-gateway.ts/data-structures/found-saas-company-info.ds.js';
-import { FoundSipleConnectionInfoDS } from '../../connection/application/data-structures/found-connections.ds.js';
+import { FoundSimpleConnectionInfoDS } from '../../connection/application/data-structures/found-connections.ds.js';
 import { UserRoleEnum } from '../../user/enums/user-role.enum.js';
 import { buildSimpleUserInfoDs } from '../../user/utils/build-created-user.ds.js';
 import {
@@ -26,7 +26,7 @@ export function buildFoundCompanyFullInfoDs(
 		companyCustomDomain,
 		userRole,
 	) as any;
-	const connectionsRO: Array<FoundSipleConnectionInfoDS> = companyInfoFromCore.connections.map((connection) => {
+	const connectionsRO: Array<FoundSimpleConnectionInfoDS> = companyInfoFromCore.connections.map((connection) => {
 		return {
 			id: connection.id,
 			createdAt: connection.createdAt,
