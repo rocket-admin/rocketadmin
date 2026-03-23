@@ -14,7 +14,6 @@ import { CreateConnectionPropertiesDs } from '../connection-properties/applicati
 import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity.js';
 import { buildConnectionPropertiesEntity } from '../connection-properties/utils/build-connection-properties-entity.js';
 import { GroupEntity } from '../group/group.entity.js';
-import { PermissionEntity } from '../permission/permission.entity.js';
 import { buildActionEventWithRule } from '../table-actions/table-action-events-module/utils/build-action-event-with-rule.util.js';
 import {
 	CreateRuleDataDs,
@@ -29,7 +28,6 @@ import { buildNewTableSettingsEntity } from '../table-settings/common-table-sett
 import { buildConnectionEntitiesFromTestDtos } from '../user/utils/build-connection-entities-from-test-dtos.js';
 import { buildDefaultAdminGroups } from '../user/utils/build-default-admin-groups.js';
 import { generateCedarPolicyForGroup } from '../cedar-authorization/cedar-policy-generator.js';
-import { buildDefaultAdminPermissions } from '../user/utils/build-default-admin-permissions.js';
 import { CreateTableWidgetDs } from '../widget/application/data-sctructures/create-table-widgets.ds.js';
 import { buildNewTableWidgetEntity } from '../widget/utils/build-new-table-widget-entity.js';
 
@@ -72,13 +70,6 @@ export class DemoDataService {
 				return await this._dbContext.groupRepository.saveNewOrUpdatedGroup(group);
 			}),
 		);
-		const testPermissionsEntities = buildDefaultAdminPermissions(createdTestGroups);
-		await Promise.all(
-			testPermissionsEntities.map(async (permission: PermissionEntity) => {
-				await this._dbContext.permissionRepository.saveNewOrUpdatedPermission(permission);
-			}),
-		);
-
 		await Promise.all(
 			createdTestGroups.map(async (group: GroupEntity) => {
 				const connectionId = group.connection?.id;
@@ -88,8 +79,6 @@ export class DemoDataService {
 					group: { groupId: group.id, accessLevel: AccessLevelEnum.edit },
 					tables: [],
 				});
-				delete group.permissions;
-				delete group.users;
 				await this._dbContext.groupRepository.saveNewOrUpdatedGroup(group);
 			}),
 		);

@@ -10,7 +10,6 @@ export function buildDefaultAdminGroups(user: UserEntity, connections: Array<Con
 		group.isMain = true;
 		group.users = [user];
 		group.connection = connection;
-		group.permissions = [];
 		createdGroups.push(group);
 	}
 	return createdGroups;

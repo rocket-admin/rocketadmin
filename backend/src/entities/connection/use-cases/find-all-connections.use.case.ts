@@ -8,14 +8,13 @@ import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
+import { generateCedarPolicyForGroup } from '../../cedar-authorization/cedar-policy-generator.js';
 import { GroupEntity } from '../../group/group.entity.js';
-import { PermissionEntity } from '../../permission/permission.entity.js';
 import { CreateUserDs } from '../../user/application/data-structures/create-user.ds.js';
 import { FindUserDs } from '../../user/application/data-structures/find-user.ds.js';
 import { UserRoleEnum } from '../../user/enums/user-role.enum.js';
 import { buildConnectionEntitiesFromTestDtos } from '../../user/utils/build-connection-entities-from-test-dtos.js';
 import { buildDefaultAdminGroups } from '../../user/utils/build-default-admin-groups.js';
-import { buildDefaultAdminPermissions } from '../../user/utils/build-default-admin-permissions.js';
 import { FoundConnectionsDs } from '../application/data-structures/found-connections.ds.js';
 import { ConnectionEntity } from '../connection.entity.js';
 import { buildFoundConnectionDs } from '../utils/build-found-connection.ds.js';
@@ -76,10 +75,16 @@ export class FindAllConnectionsUseCase
 						return await this._dbContext.groupRepository.saveNewOrUpdatedGroup(group);
 					}),
 				);
-				const testPermissionsEntities = buildDefaultAdminPermissions(createdTestGroups);
 				await Promise.all(
-					testPermissionsEntities.map(async (permission: PermissionEntity) => {
-						await this._dbContext.permissionRepository.saveNewOrUpdatedPermission(permission);
+					createdTestGroups.map(async (group: GroupEntity) => {
+						const connectionId = group.connection?.id;
+						if (!connectionId) return;
+						group.cedarPolicy = generateCedarPolicyForGroup(connectionId, group.isMain, {
+							connection: { connectionId, accessLevel: AccessLevelEnum.edit },
+							group: { groupId: group.id, accessLevel: AccessLevelEnum.edit },
+							tables: [],
+						});
+						await this._dbContext.groupRepository.saveNewOrUpdatedGroup(group);
 					}),
 				);
 				allFoundUserTestConnections.push(...createdTestConnections);

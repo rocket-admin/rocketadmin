@@ -6,7 +6,6 @@ export { FilterCriteriaEnum } from './filter-criteria.enum.js';
 export { InTransactionEnum } from './in-transaction.enum.js';
 export { LogOperationTypeEnum } from './log-operation-type.enum.js';
 export { OperationResultStatusEnum } from './operation-result-status.enum.js';
-export { PermissionTypeEnum } from './permission-type.enum.js';
 export { QueryOrderingEnum } from './query-ordering.enum.js';
 export { SubscriptionLevelEnum } from './subscription-level.enum.js';
 export { TableActionTypeEnum } from './table-action-type.enum.js';
