@@ -85,7 +85,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 	): Promise<{ cedarPolicy: string; classicalPermissions: IComplexPermission }> {
 		this.validateCedarPolicyText(cedarPolicy);
 
-		const group = await this.globalDbContext.groupRepository.findGroupWithPermissionsById(groupId);
+		const group = await this.globalDbContext.groupRepository.findGroupById(groupId);
 		if (!group) {
 			throw new HttpException({ message: Messages.GROUP_NOT_FOUND }, HttpStatus.BAD_REQUEST);
 		}

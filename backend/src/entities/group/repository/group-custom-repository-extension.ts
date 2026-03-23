@@ -69,7 +69,7 @@ export const groupCustomRepositoryExtension: IGroupRepository = {
 		return await qb.getMany();
 	},
 
-	async findGroupWithPermissionsById(groupId: string): Promise<GroupEntity> {
+	async findGroupById(groupId: string): Promise<GroupEntity> {
 		const qb = this.createQueryBuilder('group').andWhere('group.id = :id', { id: groupId });
 		return await qb.getOne();
 	},

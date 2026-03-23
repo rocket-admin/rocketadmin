@@ -40,7 +40,7 @@ export class CreateOrUpdatePermissionsUseCase
 				HttpStatus.BAD_REQUEST,
 			);
 		}
-		const groupToUpdate = await this._dbContext.groupRepository.findGroupWithPermissionsById(groupId);
+		const groupToUpdate = await this._dbContext.groupRepository.findGroupById(groupId);
 		if (!groupToUpdate) {
 			throw new HttpException(
 				{

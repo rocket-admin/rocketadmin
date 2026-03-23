@@ -23,7 +23,7 @@ export class GetPermissionsForGroupInConnectionUseCase
 	}
 
 	protected async implementation(inputData: GetPermissionsInConnectionDs): Promise<FoundPermissionsInConnectionDs> {
-		const group = await this._dbContext.groupRepository.findGroupWithPermissionsById(inputData.groupId);
+		const group = await this._dbContext.groupRepository.findGroupById(inputData.groupId);
 
 		let connectionAccessLevel = AccessLevelEnum.none;
 		let groupAccessLevel = AccessLevelEnum.none;

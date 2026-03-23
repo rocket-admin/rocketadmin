@@ -8,7 +8,7 @@ import { CreateConnectionPropertiesDto } from '../src/entities/connection-proper
 import { CreateTableActionDTO } from '../src/entities/table-actions/table-actions-module/dto/create-table-action.dto.js';
 import { TableActionEntity } from '../src/entities/table-actions/table-actions-module/table-action.entity.js';
 import { CreateTableWidgetDto } from '../src/entities/widget/dto/index.js';
-import { AccessLevelEnum, PermissionTypeEnum, QueryOrderingEnum, WidgetTypeEnum } from '../src/enums/index.js';
+import { AccessLevelEnum, QueryOrderingEnum, WidgetTypeEnum } from '../src/enums/index.js';
 import { TestConstants } from './mocks/test-constants.js';
 
 class CreateGroupDto {
@@ -423,33 +423,6 @@ export class MockFactory {
 		];
 
 		return permissionsArr;
-	}
-
-	generateCreatePermissionDTOgroup(groupId) {
-		return {
-			type: PermissionTypeEnum.Group,
-			accessLevel: AccessLevelEnum.edit,
-			tableName: '',
-			groupId: groupId,
-		};
-	}
-
-	generateCreatePermissionDTOconnection(groupId) {
-		return {
-			type: PermissionTypeEnum.Connection,
-			accessLevel: AccessLevelEnum.edit,
-			tableName: '',
-			groupId: groupId,
-		};
-	}
-
-	generateCreatePermissionDTOtable(groupId: string, tableName: string) {
-		return {
-			type: PermissionTypeEnum.Table,
-			accessLevel: AccessLevelEnum.edit,
-			tableName: tableName,
-			groupId: groupId,
-		};
 	}
 
 	generatePermissions(
