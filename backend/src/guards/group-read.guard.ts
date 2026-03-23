@@ -3,14 +3,10 @@ import {
 	CanActivate,
 	ExecutionContext,
 	ForbiddenException,
-	Inject,
 	Injectable,
-	Logger,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { IRequestWithCognitoInfo } from '../authorization/index.js';
-import { IGlobalDatabaseContext } from '../common/application/global-database-context.interface.js';
-import { BaseType } from '../common/data-injection.tokens.js';
 import { CedarAction } from '../entities/cedar-authorization/cedar-action-map.js';
 import { CedarAuthorizationService } from '../entities/cedar-authorization/cedar-authorization.service.js';
 import { Messages } from '../exceptions/text/messages.js';
@@ -18,11 +14,7 @@ import { validateUuidByRegex } from './utils/validate-uuid-by-regex.js';
 
 @Injectable()
 export class GroupReadGuard implements CanActivate {
-	private readonly logger = new Logger(GroupReadGuard.name);
-
 	constructor(
-		@Inject(BaseType.GLOBAL_DB_CONTEXT)
-		protected _dbContext: IGlobalDatabaseContext,
 		private readonly cedarAuthService: CedarAuthorizationService,
 	) {}
 
@@ -39,43 +31,19 @@ export class GroupReadGuard implements CanActivate {
 				return;
 			}
 
-			// Cedar-first authorization
-			if (this.cedarAuthService.isFeatureEnabled()) {
-				try {
-					const allowed = await this.cedarAuthService.validate({
-						userId: cognitoUserName,
-						action: CedarAction.GroupRead,
-						groupId,
-					});
-					if (allowed) {
-						resolve(true);
-						return;
-					}
-					reject(new ForbiddenException(Messages.DONT_HAVE_PERMISSIONS));
-					return;
-				} catch (e) {
-					if (e instanceof ForbiddenException || e?.status === 403) {
-						reject(e);
-						return;
-					}
-					this.logger.error(`Cedar authorization error, falling back to legacy: ${e.message}`);
-				}
-			}
-
-			// Legacy authorization fallback
-			let userGroupRead = false;
 			try {
-				userGroupRead = await this._dbContext.userAccessRepository.checkUserGroupRead(cognitoUserName, groupId);
+				const allowed = await this.cedarAuthService.validate({
+					userId: cognitoUserName,
+					action: CedarAction.GroupRead,
+					groupId,
+				});
+				if (allowed) {
+					resolve(true);
+					return;
+				}
+				reject(new ForbiddenException(Messages.DONT_HAVE_PERMISSIONS));
 			} catch (e) {
 				reject(e);
-				return;
-			}
-			if (userGroupRead) {
-				resolve(true);
-				return;
-			} else {
-				reject(new ForbiddenException(Messages.DONT_HAVE_PERMISSIONS));
-				return;
 			}
 		});
 	}

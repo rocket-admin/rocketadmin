@@ -43,6 +43,7 @@ import { findOrderingFieldUtil } from '../utils/find-ordering-field.util.js';
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
 import { isHexString } from '../utils/is-hex-string.js';
 import { processRowsUtil } from '../utils/process-found-rows-util.js';
+import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { IGetTableRows } from './table-use-cases.interface.js';
 
 @Injectable()
@@ -52,6 +53,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 		protected _dbContext: IGlobalDatabaseContext,
 		private amplitudeService: AmplitudeService,
 		private tableLogsService: TableLogsService,
+		private readonly cedarPermissions: CedarPermissionsService,
 	) {
 		super();
 	}
@@ -109,7 +111,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 				dao.getTablePrimaryColumns(tableName, userEmail),
 				dao.getTableForeignKeys(tableName, userEmail),
 				dao.getTableStructure(tableName, userEmail),
-				this._dbContext.userAccessRepository.getUserTablePermissions(userId, connectionId, tableName, masterPwd),
+				this.cedarPermissions.getUserTablePermissions(userId, connectionId, tableName, masterPwd),
 				this._dbContext.actionEventsRepository.findCustomEventsForTable(connectionId, tableName),
 				this._dbContext.tableFiltersRepository.findTableFiltersForTableInConnection(tableName, connectionId),
 				this._dbContext.personalTableSettingsRepository.findUserTableSettings(userId, connectionId, tableName),
@@ -196,7 +198,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 
 			const canUserReadForeignTables = await Promise.all(
 				tableForeignKeys.map((foreignKey) =>
-					this._dbContext.userAccessRepository
+					this.cedarPermissions
 						.improvedCheckTableRead(userId, connectionId, foreignKey.referenced_table_name, masterPwd)
 						.then((canRead) => ({
 							tableName: foreignKey.referenced_table_name,

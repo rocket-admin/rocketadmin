@@ -3,28 +3,19 @@ import {
 	CanActivate,
 	ExecutionContext,
 	ForbiddenException,
-	Inject,
 	Injectable,
-	Logger,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { IRequestWithCognitoInfo } from '../authorization/index.js';
-import { IGlobalDatabaseContext } from '../common/application/global-database-context.interface.js';
-import { BaseType } from '../common/data-injection.tokens.js';
 import { CedarAction } from '../entities/cedar-authorization/cedar-action-map.js';
 import { CedarAuthorizationService } from '../entities/cedar-authorization/cedar-authorization.service.js';
 import { Messages } from '../exceptions/text/messages.js';
-import { getMasterPwd } from '../helpers/index.js';
 import { ValidationHelper } from '../helpers/validators/validation-helper.js';
 import { validateUuidByRegex } from './utils/validate-uuid-by-regex.js';
 
 @Injectable()
 export class TableEditGuard implements CanActivate {
-	private readonly logger = new Logger(TableEditGuard.name);
-
 	constructor(
-		@Inject(BaseType.GLOBAL_DB_CONTEXT)
-		protected _dbContext: IGlobalDatabaseContext,
 		private readonly cedarAuthService: CedarAuthorizationService,
 	) {}
 
@@ -34,7 +25,6 @@ export class TableEditGuard implements CanActivate {
 			const cognitoUserName = request.decoded.sub;
 			const connectionId: string = request.params?.slug || request.params?.connectionId;
 			const tableName: string = request.query?.tableName;
-			const masterPwd = getMasterPwd(request);
 			if (!tableName) {
 				reject(new BadRequestException(Messages.TABLE_NAME_MISSING));
 				return;
@@ -44,49 +34,20 @@ export class TableEditGuard implements CanActivate {
 				return;
 			}
 
-			// Cedar-first authorization
-			if (this.cedarAuthService.isFeatureEnabled()) {
-				try {
-					const allowed = await this.cedarAuthService.validate({
-						userId: cognitoUserName,
-						action: CedarAction.TableEdit,
-						connectionId,
-						tableName,
-					});
-					if (allowed) {
-						resolve(true);
-						return;
-					}
-					reject(new ForbiddenException(Messages.DONT_HAVE_PERMISSIONS));
-					return;
-				} catch (e) {
-					if (e instanceof ForbiddenException || e?.status === 403) {
-						reject(e);
-						return;
-					}
-					this.logger.error(`Cedar authorization error, falling back to legacy: ${e.message}`);
-				}
-			}
-
-			// Legacy authorization fallback
-			let userTableEdit = false;
 			try {
-				userTableEdit = await this._dbContext.userAccessRepository.checkTableEdit(
-					cognitoUserName,
+				const allowed = await this.cedarAuthService.validate({
+					userId: cognitoUserName,
+					action: CedarAction.TableEdit,
 					connectionId,
 					tableName,
-					masterPwd,
-				);
+				});
+				if (allowed) {
+					resolve(true);
+					return;
+				}
+				reject(new ForbiddenException(Messages.DONT_HAVE_PERMISSIONS));
 			} catch (e) {
 				reject(e);
-				return;
-			}
-			if (userTableEdit) {
-				resolve(userTableEdit);
-				return;
-			} else {
-				reject(new ForbiddenException(Messages.DONT_HAVE_PERMISSIONS));
-				return;
 			}
 		});
 	}
