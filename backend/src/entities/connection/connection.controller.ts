@@ -291,7 +291,7 @@ export class ConnectionController {
 		@UserId() userId: string,
 		@MasterPassword() masterPwd: string,
 	): Promise<UpdatedConnectionResponseDTO> {
-		const errors = [];
+		const errors: string[] = [];
 		if (updateConnectionDto.masterEncryption && !masterPwd) {
 			errors.push(Messages.MASTER_PASSWORD_REQUIRED);
 		}

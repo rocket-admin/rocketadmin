@@ -111,7 +111,7 @@ export class TestConnectionUseCase
 				const updated = Object.assign(toUpdate, connectionData);
 				const dataForProcessing: CreateConnectionDs = {
 					connection_parameters: updated,
-					creation_info: null,
+					creation_info: null as unknown as CreateConnectionDs['creation_info'],
 				};
 				const processed = (await processAWSConnection(dataForProcessing)).connection_parameters;
 				Object.assign(updated, processed);
@@ -123,10 +123,10 @@ export class TestConnectionUseCase
 					inputData.update_info.authorId,
 					inputData.connection_parameters.type,
 				);
-			} catch (e) {
+			} catch (e: unknown) {
 				return {
 					result: false,
-					message: `${Messages.CONNECTION_TEST_FAILED}${e ? e : ''}`,
+					message: `${Messages.CONNECTION_TEST_FAILED}${e instanceof Error ? e.message : String(e)}`,
 				};
 			}
 		} else {
@@ -143,10 +143,10 @@ export class TestConnectionUseCase
 
 			const dataForProcessing: CreateConnectionDs = {
 				connection_parameters: connectionData,
-				creation_info: null,
+				creation_info: null as unknown as CreateConnectionDs['creation_info'],
 			};
 			connectionData = (await processAWSConnection(dataForProcessing)).connection_parameters;
-			const dao = getDataAccessObject(connectionData as ConnectionEntity);
+			const dao = getDataAccessObject(connectionData);
 
 			return await this.testConnection(
 				dao,
@@ -167,8 +167,8 @@ export class TestConnectionUseCase
 		try {
 			testResult = await dao.testConnect();
 			return testResult;
-		} catch (e) {
-			let text: string = e.message.toLowerCase();
+		} catch (e: unknown) {
+			let text: string = (e instanceof Error ? e.message : String(e)).toLowerCase();
 
 			if (text.includes('ssl required') || text.includes('ssl connection required')) {
 				connectionData.ssl = true;
@@ -176,8 +176,8 @@ export class TestConnectionUseCase
 				try {
 					testResult = await dao.testConnect();
 					return testResult;
-				} catch (e) {
-					text = e.message;
+				} catch (e: unknown) {
+					text = e instanceof Error ? e.message : String(e);
 				}
 			}
 

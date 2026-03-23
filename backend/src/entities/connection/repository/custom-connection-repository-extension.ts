@@ -65,7 +65,7 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
 		return await usersQb.getMany();
 	},
 
-	async findOneConnection(connectionId: string): Promise<ConnectionEntity> {
+	async findOneConnection(connectionId: string): Promise<ConnectionEntity | null> {
 		const connectionQb = this.createQueryBuilder('connection')
 			.leftJoinAndSelect('connection.connection_properties', 'connection_properties')
 			.where('connection.id = :connectionId', {
@@ -82,7 +82,7 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
 		return connection;
 	},
 
-	async findAndDecryptConnection(connectionId: string, masterPwd: string): Promise<ConnectionEntity> {
+	async findAndDecryptConnection(connectionId: string, masterPwd: string): Promise<ConnectionEntity | null> {
 		const qb = this.createQueryBuilder('connection')
 			.leftJoinAndSelect('connection.agent', 'agent')
 			.andWhere('connection.id = :connectionId', { connectionId: connectionId });
@@ -115,7 +115,7 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
 		return await this.remove(connection);
 	},
 
-	async findConnectionWithGroups(connectionId: string): Promise<ConnectionEntity> {
+	async findConnectionWithGroups(connectionId: string): Promise<ConnectionEntity | null> {
 		const qb = this.createQueryBuilder('connection')
 			.leftJoinAndSelect('connection.groups', 'group')
 			.andWhere('connection.id = :connectionId', { connectionId: connectionId });
@@ -134,7 +134,7 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
 		return freshNonTestConnectionsWithLogs;
 	},
 
-	async getConnectionByGroupIdWithCompanyAndUsersInCompany(groupId: string): Promise<ConnectionEntity> {
+	async getConnectionByGroupIdWithCompanyAndUsersInCompany(groupId: string): Promise<ConnectionEntity | null> {
 		const qb = this.createQueryBuilder('connection')
 			.leftJoinAndSelect('connection.groups', 'group')
 			.leftJoinAndSelect('connection.company', 'company')
@@ -143,11 +143,11 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
 		return await qb.getOne();
 	},
 
-	async findOneById(connectionId: string): Promise<ConnectionEntity> {
+	async findOneById(connectionId: string): Promise<ConnectionEntity | null> {
 		return await this.findOne({ where: { id: connectionId } });
 	},
 
-	async findOneAgentConnectionByToken(connectionToken: string): Promise<ConnectionEntity> {
+	async findOneAgentConnectionByToken(connectionToken: string): Promise<ConnectionEntity | null> {
 		const qb = this.createQueryBuilder('connection').leftJoinAndSelect('connection.agent', 'agent');
 		qb.andWhere('agent.token = :agentToken', { agentToken: connectionToken });
 		return await qb.getOne();
