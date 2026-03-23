@@ -1,5 +1,5 @@
 import { NgIf } from '@angular/common';
-import { Component, DestroyRef, Inject, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, Inject, inject, OnInit, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -56,6 +56,8 @@ export class CedarPolicyEditorDialogComponent implements OnInit {
 	public allTables: TablePermission[] = [];
 	public loading: boolean = true;
 	public formParseError: boolean = false;
+
+	@ViewChild(CedarPolicyListComponent) policyList?: CedarPolicyListComponent;
 
 	public cedarPolicyModel: object;
 	public codeEditorOptions = {
@@ -156,6 +158,12 @@ export class CedarPolicyEditorDialogComponent implements OnInit {
 	}
 
 	savePolicy() {
+		if (this.editorMode === 'form' && this.policyList?.hasPendingChanges()) {
+			const discard = confirm('You have an unsaved policy in the form. Discard it and save?');
+			if (!discard) return;
+			this.policyList.discardPending();
+		}
+
 		this.submitting = true;
 
 		if (this.editorMode === 'form') {
