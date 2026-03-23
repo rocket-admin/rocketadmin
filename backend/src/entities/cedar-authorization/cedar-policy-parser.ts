@@ -99,7 +99,10 @@ function extractPermitStatements(policyText: string): ParsedPermitStatement[] {
 
 		let i = permitIndex + permitKeyword.length;
 		// Skip whitespace after "permit"
-		while (i < policyText.length && (policyText[i] === ' ' || policyText[i] === '\t' || policyText[i] === '\n' || policyText[i] === '\r')) {
+		while (
+			i < policyText.length &&
+			(policyText[i] === ' ' || policyText[i] === '\t' || policyText[i] === '\n' || policyText[i] === '\r')
+		) {
 			i++;
 		}
 
@@ -126,7 +129,10 @@ function extractPermitStatements(policyText: string): ParsedPermitStatement[] {
 		const body = policyText.slice(bodyStart, i);
 		// Skip past ')' and optional whitespace, expect ';'
 		let j = i + 1;
-		while (j < policyText.length && (policyText[j] === ' ' || policyText[j] === '\t' || policyText[j] === '\n' || policyText[j] === '\r')) {
+		while (
+			j < policyText.length &&
+			(policyText[j] === ' ' || policyText[j] === '\t' || policyText[j] === '\n' || policyText[j] === '\r')
+		) {
 			j++;
 		}
 
