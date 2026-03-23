@@ -8,12 +8,11 @@ import PQueue from 'p-queue';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { AccessLevelEnum, AmplitudeEventTypeEnum } from '../../../enums/index.js';
+import { AmplitudeEventTypeEnum } from '../../../enums/index.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isConnectionTypeAgent } from '../../../helpers/index.js';
-import { isObjectPropertyExists } from '../../../helpers/validators/is-object-property-exists-validator.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util.js';
@@ -24,6 +23,7 @@ import { TableSettingsEntity } from '../../table-settings/common-table-settings/
 import { FindTablesDs } from '../application/data-structures/find-tables.ds.js';
 import { FoundTableDs } from '../application/data-structures/found-table.ds.js';
 import { buildTableFieldInfoEntity, buildTableInfoEntity } from '../utils/save-tables-info-in-database.util.js';
+import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { IFindTablesInConnection } from './table-use-cases.interface.js';
 
 @Injectable()
@@ -36,6 +36,7 @@ export class FindTablesInConnectionUseCase
 		protected _dbContext: IGlobalDatabaseContext,
 		private amplitudeService: AmplitudeService,
 		private readonly logger: WinstonLogger,
+		private readonly cedarPermissions: CedarPermissionsService,
 	) {
 		super();
 	}
@@ -113,7 +114,12 @@ export class FindTablesInConnectionUseCase
 				this.saveTableInfoInDatabase(connection.id, userId, tables, masterPwd);
 			}
 		}
-		const tablesWithPermissions = await this.getUserPermissionsForAvailableTables(userId, connectionId, tables);
+		const tableNames = tables.map((t) => t.tableName);
+		const permissionsArr = await this.cedarPermissions.getUserPermissionsForAvailableTables(userId, connectionId, tableNames);
+		const tablesWithPermissions: Array<ITableAndViewPermissionData> = permissionsArr.map((perm) => ({
+			...perm,
+			isView: tables.find((t) => t.tableName === perm.tableName)?.isView || false,
+		}));
 		const excludedTables = await this._dbContext.connectionPropertiesRepository.findConnectionProperties(connectionId);
 		let tablesRO = await this.addDisplayNamesForTables(connectionId, tablesWithPermissions);
 		if (excludedTables?.hidden_tables?.length) {
@@ -122,7 +128,7 @@ export class FindTablesInConnectionUseCase
 					return !excludedTables.hidden_tables.includes(tableRO.table);
 				});
 			} else {
-				const userConnectionEdit = await this._dbContext.userAccessRepository.checkUserConnectionEdit(
+				const userConnectionEdit = await this.cedarPermissions.checkUserConnectionEdit(
 					userId,
 					connectionId,
 				);
@@ -176,75 +182,6 @@ export class FindTablesInConnectionUseCase
 				display_name: displayName,
 				icon: icon,
 			};
-		});
-	}
-
-	private async getUserPermissionsForAvailableTables(
-		userId: string,
-		connectionId: string,
-		tables: Array<TableDS>,
-	): Promise<Array<ITableAndViewPermissionData>> {
-		const connectionEdit = await this._dbContext.userAccessRepository.checkUserConnectionEdit(userId, connectionId);
-		if (connectionEdit) {
-			return tables.map((table) => {
-				return {
-					tableName: table.tableName,
-					isView: table.isView,
-					accessLevel: {
-						visibility: true,
-						readonly: false,
-						add: true,
-						delete: true,
-						edit: true,
-					},
-				};
-			});
-		}
-
-		const allTablePermissions =
-			await this._dbContext.permissionRepository.getAllUserPermissionsForAllTablesInConnection(userId, connectionId);
-		const tablesAndAccessLevels = {};
-		tables.map((table) => {
-			if (table.tableName !== '__proto__') {
-				tablesAndAccessLevels[table.tableName] = [];
-			}
-		});
-		tables.map((table) => {
-			allTablePermissions.map((permission) => {
-				if (
-					permission.tableName === table.tableName &&
-					isObjectPropertyExists(tablesAndAccessLevels, table.tableName)
-				) {
-					tablesAndAccessLevels[table.tableName].push(permission.accessLevel);
-				}
-			});
-		});
-		const tablesWithPermissions: Array<ITableAndViewPermissionData> = [];
-		for (const key in tablesAndAccessLevels) {
-			// eslint-disable-next-line security/detect-object-injection
-			const addPermission = tablesAndAccessLevels[key].includes(AccessLevelEnum.add);
-			// eslint-disable-next-line security/detect-object-injection
-			const deletePermission = tablesAndAccessLevels[key].includes(AccessLevelEnum.delete);
-			// eslint-disable-next-line security/detect-object-injection
-			const editPermission = tablesAndAccessLevels[key].includes(AccessLevelEnum.edit);
-
-			const readOnly = !(addPermission || deletePermission || editPermission);
-			tablesWithPermissions.push({
-				tableName: key,
-				isView: tables.find((table) => table.tableName === key).isView,
-				accessLevel: {
-					// eslint-disable-next-line security/detect-object-injection
-					visibility: tablesAndAccessLevels[key].includes(AccessLevelEnum.visibility),
-					// eslint-disable-next-line security/detect-object-injection
-					readonly: tablesAndAccessLevels[key].includes(AccessLevelEnum.readonly) && !readOnly,
-					add: addPermission,
-					delete: deletePermission,
-					edit: editPermission,
-				},
-			});
-		}
-		return tablesWithPermissions.filter((tableWithPermission: ITableAndViewPermissionData) => {
-			return !!tableWithPermission.accessLevel.visibility;
 		});
 	}
 

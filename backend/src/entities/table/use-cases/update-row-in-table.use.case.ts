@@ -39,6 +39,7 @@ import { formFullTableStructure } from '../utils/form-full-table-structure.js';
 import { hashPasswordsInRowUtil } from '../utils/hash-passwords-in-row.util.js';
 import { processUuidsInRowUtil } from '../utils/process-uuids-in-row-util.js';
 import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util.js';
+import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { IUpdateRowInTable } from './table-use-cases.interface.js';
 
 @Injectable()
@@ -52,6 +53,7 @@ export class UpdateRowInTableUseCase
 		private amplitudeService: AmplitudeService,
 		private tableLogsService: TableLogsService,
 		private tableActionActivationService: TableActionActivationService,
+		private readonly cedarPermissions: CedarPermissionsService,
 	) {
 		super();
 	}
@@ -118,7 +120,7 @@ export class UpdateRowInTableUseCase
 		for (const referencedTable of referencedTableNamesAndColumns) {
 			referencedTable.referenced_by = await Promise.all(
 				referencedTable.referenced_by.map(async (referencedByTable) => {
-					const canUserReadTable = await this._dbContext.userAccessRepository.improvedCheckTableRead(
+					const canUserReadTable = await this.cedarPermissions.improvedCheckTableRead(
 						userId,
 						connectionId,
 						referencedByTable.table_name,
@@ -192,7 +194,7 @@ export class UpdateRowInTableUseCase
 			canRead: boolean;
 		}> = await Promise.all(
 			tableForeignKeys.map(async (foreignKey) => {
-				const cenTableRead = await this._dbContext.userAccessRepository.improvedCheckTableRead(
+				const cenTableRead = await this.cedarPermissions.improvedCheckTableRead(
 					userId,
 					connectionId,
 					foreignKey.referenced_table_name,

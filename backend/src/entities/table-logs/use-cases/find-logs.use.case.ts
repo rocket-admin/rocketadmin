@@ -6,6 +6,7 @@ import { LogOperationTypeEnum, QueryOrderingEnum } from '../../../enums/index.js
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { validateStringWithEnum } from '../../../helpers/validators/validate-string-with-enum.js';
+import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { FindLogsDs } from '../application/data-structures/find-logs.ds.js';
 import { FoundLogsDs, FoundLogsEntities } from '../application/data-structures/found-logs.ds.js';
 import { IFindLogsOptions } from '../repository/table-logs-repository.interface.js';
@@ -17,13 +18,14 @@ export class FindLogsUseCase extends AbstractUseCase<FindLogsDs, FoundLogsDs> im
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
+		private readonly cedarPermissions: CedarPermissionsService,
 	) {
 		super();
 	}
 
 	protected async implementation(inputData: FindLogsDs): Promise<FoundLogsDs> {
 		const { connectionId, query, userId, operationTypes } = inputData;
-		const userConnectionEdit = await this._dbContext.userAccessRepository.checkUserConnectionEdit(userId, connectionId);
+		const userConnectionEdit = await this.cedarPermissions.checkUserConnectionEdit(userId, connectionId);
 		const tableName = query.tableName;
 		let order = query.order;
 		let limit: string | number = query.limit;

@@ -7,6 +7,7 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
+import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { GroupEntity } from '../../group/group.entity.js';
 import { PermissionEntity } from '../../permission/permission.entity.js';
 import { CreateUserDs } from '../../user/application/data-structures/create-user.ds.js';
@@ -33,6 +34,7 @@ export class FindAllConnectionsUseCase
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
 		private amplitudeService: AmplitudeService,
+		private readonly cedarPermissions: CedarPermissionsService,
 	) {
 		super();
 	}
@@ -111,7 +113,7 @@ export class FindAllConnectionsUseCase
 
 		const connectionsWithPermissions = await Promise.all(
 			allFoundUserConnections.map(async (connection) => {
-				const accessLevel = await this._dbContext.userAccessRepository.getUserConnectionAccessLevel(
+				const accessLevel = await this.cedarPermissions.getUserConnectionAccessLevel(
 					user.id,
 					connection.id,
 				);

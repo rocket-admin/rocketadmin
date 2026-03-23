@@ -26,6 +26,7 @@ import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-pri
 import { findAvailableFields } from '../utils/find-available-fields.utils.js';
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
 import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util.js';
+import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { IGetRowByPrimaryKey } from './table-use-cases.interface.js';
 
 @Injectable()
@@ -36,6 +37,7 @@ export class GetRowByPrimaryKeyUseCase
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
+		private readonly cedarPermissions: CedarPermissionsService,
 	) {
 		super();
 	}
@@ -93,7 +95,7 @@ export class GetRowByPrimaryKeyUseCase
 			dao.getTablePrimaryColumns(tableName, userEmail),
 			this._dbContext.actionEventsRepository.findCustomEventsForTable(connectionId, tableName),
 			dao.getReferencedTableNamesAndColumns(tableName, userEmail),
-			this._dbContext.userAccessRepository.getUserTablePermissions(userId, connectionId, tableName, masterPwd),
+			this.cedarPermissions.getUserTablePermissions(userId, connectionId, tableName, masterPwd),
 		]);
 		primaryKey = convertHexDataInPrimaryKeyUtil(primaryKey, tableStructure);
 		const availablePrimaryColumns: Array<string> = tablePrimaryKeys.map((column) => column.column_name);
@@ -131,7 +133,7 @@ export class GetRowByPrimaryKeyUseCase
 			canRead: boolean;
 		}> = await Promise.all(
 			tableForeignKeys.map(async (foreignKey) => {
-				const cenTableRead = await this._dbContext.userAccessRepository.improvedCheckTableRead(
+				const cenTableRead = await this.cedarPermissions.improvedCheckTableRead(
 					userId,
 					connectionId,
 					foreignKey.referenced_table_name,
@@ -184,7 +186,7 @@ export class GetRowByPrimaryKeyUseCase
 		for (const referencedTable of referencedTableNamesAndColumns) {
 			referencedTable.referenced_by = await Promise.all(
 				referencedTable.referenced_by.map(async (referencedByTable) => {
-					const canUserReadTable = await this._dbContext.userAccessRepository.improvedCheckTableRead(
+					const canUserReadTable = await this.cedarPermissions.improvedCheckTableRead(
 						userId,
 						connectionId,
 						referencedByTable.table_name,

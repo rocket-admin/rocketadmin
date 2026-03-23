@@ -9,6 +9,7 @@ import { TableLogsService } from '../../../table-logs/table-logs.service.js';
 import { TableActionActivationService } from '../../table-actions-module/table-action-activation.service.js';
 import { ActivateEventActionsDS } from '../application/data-structures/activate-rule-actions.ds.js';
 import { ActivatedTableActionsDTO } from '../application/dto/activated-table-actions.dto.js';
+import { CedarPermissionsService } from '../../../cedar-authorization/cedar-permissions.service.js';
 import { IActivateTableActionsInRule } from './action-rules-use-cases.interface.js';
 
 @Injectable()
@@ -21,6 +22,7 @@ export class ActivateActionsInEventUseCase
 		protected _dbContext: IGlobalDatabaseContext,
 		private tableLogsService: TableLogsService,
 		private tableActionActivationService: TableActionActivationService,
+		private readonly cedarPermissions: CedarPermissionsService,
 	) {
 		super();
 	}
@@ -44,7 +46,7 @@ export class ActivateActionsInEventUseCase
 			);
 		}
 		const tableName = foundActionsWithCustomEvents[0].action_rule.table_name;
-		const canUserReadTable = await this._dbContext.userAccessRepository.checkTableRead(
+		const canUserReadTable = await this.cedarPermissions.checkTableRead(
 			userId,
 			connectionId,
 			tableName,

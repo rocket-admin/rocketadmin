@@ -92,8 +92,6 @@ import { userPasswordResetCustomRepositoryExtension } from '../../entities/user/
 import { userSessionSettingsRepositoryExtension } from '../../entities/user/user-session-settings/reposiotory/user-session-settings-custom-repository.extension.js';
 import { IUserSessionSettings } from '../../entities/user/user-session-settings/reposiotory/user-session-settings-repository.interface.js';
 import { UserSessionSettingsEntity } from '../../entities/user/user-session-settings/user-session-settings.entity.js';
-import { IUserAccessRepository } from '../../entities/user-access/repository/user-access.repository.interface.js';
-import { userAccessCustomReposiotoryExtension } from '../../entities/user-access/repository/user-access-custom-repository-extension.js';
 import { IUserActionRepository } from '../../entities/user-actions/repository/user-action.repository.interface.js';
 import { userActionCustomRepositoryExtension } from '../../entities/user-actions/repository/user-action-custom-repository-extension.js';
 import { UserActionEntity } from '../../entities/user-actions/user-action.entity.js';
@@ -127,7 +125,6 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 	private _groupRepository: IGroupRepository;
 	private _permissionRepository: IPermissionRepository;
 	private _tableSettingsRepository: Repository<TableSettingsEntity> & ITableSettingsRepository;
-	private _userAccessRepository: IUserAccessRepository;
 	private _agentRepository: IAgentRepository;
 	private _emailVerificationRepository: IEmailVerificationRepository;
 	private _passwordResetRepository: IPasswordResetRepository;
@@ -184,9 +181,6 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 		this._tableSettingsRepository = this.appDataSource
 			.getRepository(TableSettingsEntity)
 			.extend(tableSettingsCustomRepositoryExtension);
-		this._userAccessRepository = this.appDataSource
-			.getRepository(PermissionEntity)
-			.extend(userAccessCustomReposiotoryExtension);
 		this._agentRepository = this.appDataSource.getRepository(AgentEntity).extend(customAgentRepositoryExtension);
 		this._emailVerificationRepository = this.appDataSource
 			.getRepository(EmailVerificationEntity)
@@ -297,10 +291,6 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
 	public get tableSettingsRepository(): Repository<TableSettingsEntity> & ITableSettingsRepository {
 		return this._tableSettingsRepository;
-	}
-
-	public get userAccessRepository(): IUserAccessRepository {
-		return this._userAccessRepository;
 	}
 
 	public get agentRepository(): IAgentRepository {
