@@ -12,17 +12,17 @@
 }
 
 .hosted-dialog__error {
-	background: rgba(220, 38, 38, 0.08);
-	border: 1px solid rgba(220, 38, 38, 0.2);
+	background: var(--color-error-background);
+	border: 1px solid var(--color-error);
 	border-radius: 8px;
-	color: #b91c1c;
+	color: var(--color-error);
 	padding: 12px 14px;
 }
 
 .hosted-dialog__credentials {
 	display: grid;
 	gap: 10px;
-	border: 1px solid rgba(15, 23, 42, 0.12);
+	border: 1px solid var(--color-accentedPalette-100);
 	border-radius: 12px;
 	padding: 14px;
 }
@@ -42,7 +42,7 @@
 }
 
 .hosted-dialog__credentials code {
-	background: rgba(37, 99, 235, 0.08);
+	background: var(--color-accentedPalette-50);
 	border-radius: 8px;
 	font-family: "IBM Plex Mono", monospace;
 	padding: 8px 10px;
@@ -50,7 +50,7 @@
 }
 
 .hosted-dialog__hint {
-	color: rgba(15, 23, 42, 0.72);
+	color: rgba(0, 0, 0, 0.64);
 	font-size: 13px;
 }
 
@@ -60,23 +60,17 @@
 }
 
 @media (prefers-color-scheme: dark) {
-	.hosted-dialog__error {
-		background: rgba(248, 113, 113, 0.12);
-		border-color: rgba(248, 113, 113, 0.26);
-		color: #fca5a5;
-	}
-
 	.hosted-dialog__credentials {
-		background: #111827;
-		border-color: rgba(255, 255, 255, 0.08);
+		background: transparent;
+		border-color: var(--color-accentedPalette-400);
 	}
 
 	.hosted-dialog__credentials code {
-		background: rgba(59, 130, 246, 0.14);
+		background: var(--color-accentedPalette-600);
 	}
 
 	.hosted-dialog__hint {
-		color: rgba(255, 255, 255, 0.68);
+		color: rgba(255, 255, 255, 0.64);
 	}
 }
 

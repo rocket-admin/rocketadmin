@@ -3,6 +3,7 @@
 	flex-direction: column;
 	gap: 12px;
 	min-width: min(100%, 30rem);
+	margin-top: 16px;
 }
 
 .plan-dialog__option {
@@ -10,7 +11,7 @@
 	flex-direction: column;
 	gap: 8px;
 	padding: 16px;
-	border: 1px solid rgba(15, 23, 42, 0.12);
+	border: 1px solid rgba(0, 0, 0, 0.12);
 	border-radius: 12px;
 	background: transparent;
 	cursor: pointer;
@@ -21,19 +22,15 @@
 }
 
 .plan-dialog__option:hover {
-	border-color: rgba(37, 99, 235, 0.5);
-	background: rgba(37, 99, 235, 0.04);
-}
-
-.plan-dialog__option--paid:hover {
-	border-color: rgba(124, 58, 237, 0.5);
-	background: rgba(124, 58, 237, 0.04);
+	border-color: var(--color-accentedPalette-200);
+	background: var(--color-accentedPalette-50);
 }
 
 .plan-dialog__option-header {
 	display: flex;
 	align-items: center;
 	gap: 8px;
+	color: var(--mat-sidenav-content-text-color);
 }
 
 .plan-dialog__option-title {
@@ -43,7 +40,7 @@
 
 .plan-dialog__option-description {
 	margin: 0;
-	color: rgba(15, 23, 42, 0.68);
+	color: rgba(0, 0, 0, 0.64);
 	font-size: 14px;
 }
 
@@ -52,7 +49,7 @@
 	font-weight: 700;
 	letter-spacing: 0.04em;
 	text-transform: uppercase;
-	color: rgba(15, 23, 42, 0.48);
+	color: rgba(0, 0, 0, 0.48);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -61,20 +58,15 @@
 	}
 
 	.plan-dialog__option:hover {
-		border-color: rgba(96, 165, 250, 0.5);
-		background: rgba(96, 165, 250, 0.08);
-	}
-
-	.plan-dialog__option--paid:hover {
-		border-color: rgba(167, 139, 250, 0.5);
-		background: rgba(167, 139, 250, 0.08);
+		border-color: var(--color-accentedPalette-500);
+		background: var(--color-accentedPalette-700);
 	}
 
 	.plan-dialog__option-description {
-		color: rgba(255, 255, 255, 0.62);
+		color: rgba(255, 255, 255, 0.64);
 	}
 
 	.plan-dialog__option-price {
-		color: rgba(255, 255, 255, 0.42);
+		color: rgba(255, 255, 255, 0.48);
 	}
 }
