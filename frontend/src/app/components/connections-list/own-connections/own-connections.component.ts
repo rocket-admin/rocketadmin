@@ -177,6 +177,7 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 			width: '42em',
 			maxWidth: '95vw',
 			data,
+			disableClose: true,
 		});
 	}
 
