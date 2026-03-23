@@ -1,12 +1,11 @@
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { CreatedConnectionDTO } from '../application/dto/created-connection.dto.js';
 import { ConnectionEntity } from '../connection.entity.js';
 
 export function buildCreatedConnectionDs(
 	connection: ConnectionEntity,
-	token: string,
-	masterPwd: string,
+	token: string | null | undefined,
+	masterPwd: string | null | undefined,
 ): CreatedConnectionDTO {
 	if (connection.masterEncryption && masterPwd) {
 		connection = Encryptor.decryptConnectionCredentials(connection, masterPwd);
@@ -31,7 +30,7 @@ export function buildCreatedConnectionDs(
 		ssl: connection.ssl,
 		title: connection.title,
 		token: token ? token : null,
-		type: connection.type as ConnectionTypesEnum,
+		type: connection.type,
 		updatedAt: connection.updatedAt,
 		username: connection.username,
 		authSource: connection.authSource,

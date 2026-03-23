@@ -27,7 +27,6 @@ import { SentryInterceptor } from '../../interceptors/index.js';
 import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { AmplitudeService } from '../amplitude/amplitude.service.js';
 import { FoundGroupResponseDto } from '../group/dto/found-group-response.dto.js';
-import { IComplexPermission } from '../permission/permission.interface.js';
 import { FindUserDs } from '../user/application/data-structures/find-user.ds.js';
 import { FoundUserDto } from '../user/dto/found-user.dto.js';
 import { CreateConnectionDs } from './application/data-structures/create-connection.ds.js';
@@ -457,7 +456,7 @@ export class ConnectionController {
 		@QueryUuid('groupId') groupId: string,
 		@UserId() userId: string,
 		@MasterPassword() masterPwd: string,
-	): Promise<IComplexPermission> {
+	): Promise<FoundPermissionsInConnectionDs> {
 		if (!connectionId || !groupId) {
 			throw new BadRequestException(Messages.PARAMETER_MISSING);
 		}
@@ -481,7 +480,7 @@ export class ConnectionController {
 		@QueryUuid('groupId') groupId: string,
 		@UserId() userId: string,
 		@MasterPassword() masterPwd: string,
-	): Promise<IComplexPermission> {
+	): Promise<FoundPermissionsInConnectionDs> {
 		if (!connectionId || !groupId) {
 			throw new BadRequestException(Messages.PARAMETER_MISSING);
 		}

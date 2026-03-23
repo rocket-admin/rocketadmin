@@ -10,7 +10,6 @@ import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { generateCedarPolicyForGroup } from '../../cedar-authorization/cedar-policy-generator.js';
 import { GroupEntity } from '../../group/group.entity.js';
-import { CreateUserDs } from '../../user/application/data-structures/create-user.ds.js';
 import { FindUserDs } from '../../user/application/data-structures/find-user.ds.js';
 import { UserRoleEnum } from '../../user/enums/user-role.enum.js';
 import { buildConnectionEntitiesFromTestDtos } from '../../user/utils/build-connection-entities-from-test-dtos.js';
@@ -26,7 +25,7 @@ export type FilteredConnection = RequiredConnectionKeys & OptionalConnectionKeys
 
 @Injectable()
 export class FindAllConnectionsUseCase
-	extends AbstractUseCase<CreateUserDs | FindUserDs, FoundConnectionsDs>
+	extends AbstractUseCase<FindUserDs, FoundConnectionsDs>
 	implements IFindConnections
 {
 	constructor(
@@ -38,7 +37,7 @@ export class FindAllConnectionsUseCase
 		super();
 	}
 
-	protected async implementation(userData: CreateUserDs | FindUserDs): Promise<FoundConnectionsDs> {
+	protected async implementation(userData: FindUserDs): Promise<FoundConnectionsDs> {
 		const user = await this._dbContext.userRepository.findOneUserByIdWithCompany(userData.id);
 		if (!user) {
 			throw new InternalServerErrorException(Messages.USER_NOT_FOUND);

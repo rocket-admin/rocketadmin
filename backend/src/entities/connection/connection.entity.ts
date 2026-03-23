@@ -13,6 +13,7 @@ import {
 	PrimaryColumn,
 	Relation,
 } from 'typeorm';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { Constants } from '../../helpers/constants/constants.js';
 import { Encryptor } from '../../helpers/encryption/encryptor.js';
 import { isConnectionTypeAgent } from '../../helpers/index.js';
@@ -43,7 +44,7 @@ export class ConnectionEntity {
 	masterEncryption: boolean;
 
 	@Column({ default: null })
-	type?: string | null;
+	type?: ConnectionTypesEnum | null;
 
 	@Column({ default: null })
 	host?: string | null;
