@@ -1,4 +1,3 @@
-import { AccessLevelEnum, PermissionTypeEnum } from '../../../enums/index.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { UserEntity } from '../../user/user.entity.js';
 import { GroupEntity } from '../group.entity.js';
@@ -71,27 +70,38 @@ export const groupCustomRepositoryExtension: IGroupRepository = {
 	},
 
 	async findGroupWithPermissionsById(groupId: string): Promise<GroupEntity> {
-		const qb = this.createQueryBuilder('group')
-			.leftJoinAndSelect('group.permissions', 'permission')
-			.andWhere('group.id = :id', { id: groupId });
+		const qb = this.createQueryBuilder('group').andWhere('group.id = :id', { id: groupId });
 		return await qb.getOne();
 	},
 
 	async findAllUsersInGroupsWhereUserIsAdmin(userId: string, connectionId: string): Promise<Array<UserEntity>> {
-		const userQb = this.manager
+		// Find groups where the user is a member, in the given connection,
+		// and the Cedar policy grants group:edit access (wildcard or explicit)
+		const adminGroupIds: Array<{ id: string }> = await this.createQueryBuilder('group')
+			.select('group.id', 'id')
+			.leftJoin('group.connection', 'connection')
+			.leftJoin('group.users', 'user')
+			.where('user.id = :userId', { userId })
+			.andWhere('connection.id = :connectionId', { connectionId })
+			.andWhere(
+				'(group.isMain = true OR group.cedarPolicy LIKE :wildcardPattern OR group.cedarPolicy LIKE :groupEditPattern)',
+				{
+					wildcardPattern: '%principal, action, resource%',
+					groupEditPattern: '%group:edit%',
+				},
+			)
+			.getRawMany();
+
+		if (adminGroupIds.length === 0) {
+			return [];
+		}
+
+		const groupIds = adminGroupIds.map((g) => g.id);
+		return await this.manager
 			.getRepository(UserEntity)
 			.createQueryBuilder('user')
-			.leftJoinAndSelect('user.groups', 'group')
-			.leftJoinAndSelect('group.connection', 'connection')
-			.leftJoinAndSelect('group.permissions', 'permission')
-			.andWhere('user.id = :userId', { userId: userId })
-			.andWhere('connection.id = :connectionId', { connectionId: connectionId })
-			.andWhere('permission.type = :permissionType', {
-				permissionType: PermissionTypeEnum.Group,
-			})
-			.andWhere('permission.accessLevel = :permissionAccessLevel', {
-				permissionAccessLevel: AccessLevelEnum.edit,
-			});
-		return await userQb.getMany();
+			.leftJoin('user.groups', 'group')
+			.where('group.id IN (:...groupIds)', { groupIds })
+			.getMany();
 	},
 };

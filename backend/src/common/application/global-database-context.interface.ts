@@ -23,7 +23,6 @@ import { ICustomFieldsRepository } from '../../entities/custom-field/repository/
 import { IEmailVerificationRepository } from '../../entities/email/repository/email-verification.repository.interface.js';
 import { IGroupRepository } from '../../entities/group/repository/group.repository.interface.js';
 import { ILogOutRepository } from '../../entities/log-out/repository/log-out-repository.interface.js';
-import { IPermissionRepository } from '../../entities/permission/repository/permission.repository.interface.js';
 import { ISecretAccessLogRepository } from '../../entities/secret-access-log/repository/secret-access-log-repository.interface.js';
 import { SecretAccessLogEntity } from '../../entities/secret-access-log/secret-access-log.entity.js';
 import { ActionEventsEntity } from '../../entities/table-actions/table-action-events-module/action-event.entity.js';
@@ -70,7 +69,6 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
 	userRepository: Repository<UserEntity> & IUserRepository;
 	connectionRepository: Repository<ConnectionEntity> & IConnectionRepository;
 	groupRepository: IGroupRepository;
-	permissionRepository: IPermissionRepository;
 	tableSettingsRepository: Repository<TableSettingsEntity> & ITableSettingsRepository;
 	agentRepository: IAgentRepository;
 	emailVerificationRepository: IEmailVerificationRepository;

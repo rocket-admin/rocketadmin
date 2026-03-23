@@ -8,11 +8,23 @@ export async function migratePermissionsToCedar(dataSource: DataSource): Promise
 	const groupRepository = dataSource.getRepository(GroupEntity);
 	let migratedCount = 0;
 
-	// Migrate groups with no Cedar policy OR groups with old-format policies (using "principal in" instead of bare "principal")
+	const permissionTableExists = await dataSource
+		.query(
+			`SELECT EXISTS (
+				SELECT FROM information_schema.tables
+				WHERE table_name = 'permission'
+			) AS "exists"`,
+		)
+		.then((rows: Array<{ exists: boolean }>) => rows[0]?.exists === true);
+
+	if (!permissionTableExists) {
+		console.log('Permission tables already removed — skipping legacy migration');
+		return;
+	}
+
 	const groups = await groupRepository
 		.createQueryBuilder('group')
 		.leftJoinAndSelect('group.connection', 'connection')
-		.leftJoinAndSelect('group.permissions', 'permission')
 		.where('group.cedarPolicy IS NULL OR group.cedarPolicy = :empty OR group.cedarPolicy LIKE :oldFormat', {
 			empty: '',
 			oldFormat: '%principal in RocketAdmin::Group%',
@@ -23,7 +35,13 @@ export async function migratePermissionsToCedar(dataSource: DataSource): Promise
 		const connection = group.connection;
 		if (!connection) continue;
 
-		const permissions = group.permissions || [];
+		const permissions: Array<{ type: string; accessLevel: string; tableName: string }> = await dataSource.query(
+			`SELECT p.type, p."accessLevel", p."tableName"
+			 FROM permission p
+			 INNER JOIN permission_groups_group pg ON pg."permissionId" = p.id
+			 WHERE pg."groupId" = $1`,
+			[group.id],
+		);
 
 		const connectionPermission = permissions.find((p) => p.type === PermissionTypeEnum.Connection);
 		const groupPermission = permissions.find((p) => p.type === PermissionTypeEnum.Group);

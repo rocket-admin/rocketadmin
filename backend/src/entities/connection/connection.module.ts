@@ -10,7 +10,6 @@ import { ConnectionPropertiesEntity } from '../connection-properties/connection-
 import { CustomFieldsEntity } from '../custom-field/custom-fields.entity.js';
 import { GroupEntity } from '../group/group.entity.js';
 import { LogOutEntity } from '../log-out/log-out.entity.js';
-import { PermissionEntity } from '../permission/permission.entity.js';
 import { TableLogsEntity } from '../table-logs/table-logs.entity.js';
 import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
 import { UserEntity } from '../user/user.entity.js';
@@ -43,7 +42,6 @@ import { ValidateConnectionTokenUseCase } from './use-cases/validate-connection-
 			ConnectionEntity,
 			UserEntity,
 			GroupEntity,
-			PermissionEntity,
 			TableSettingsEntity,
 			TableLogsEntity,
 			CustomFieldsEntity,

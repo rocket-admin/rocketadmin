@@ -15,7 +15,6 @@ import { TableSettingsEntity } from '../table-settings/common-table-settings/tab
 import { UserEntity } from '../user/user.entity.js';
 import { TableWidgetEntity } from '../widget/table-widget.entity.js';
 import { PermissionController } from './permission.controller.js';
-import { PermissionEntity } from './permission.entity.js';
 import { CreateOrUpdatePermissionsUseCase } from './use-cases/create-or-update-permissions.use.case.js';
 
 @Module({
@@ -24,7 +23,6 @@ import { CreateOrUpdatePermissionsUseCase } from './use-cases/create-or-update-p
 			ConnectionEntity,
 			CustomFieldsEntity,
 			GroupEntity,
-			PermissionEntity,
 			TableLogsEntity,
 			TableSettingsEntity,
 			TableWidgetEntity,
