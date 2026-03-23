@@ -1,0 +1,171 @@
+.profile-layout {
+	display: flex;
+	height: calc(100vh - 64px);
+}
+
+.profile-main {
+	flex: 1;
+	background-color: var(--mat-sidenav-content-background-color);
+	overflow-y: auto;
+}
+
+::ng-deep .profile-main > app-alert {
+	position: relative;
+	top: 0;
+	margin: 24px;
+}
+
+.hosted-databases-page {
+	margin: var(--top-margin) auto;
+	padding: 0 clamp(40px, 5vw, 100px);
+	max-width: 800px;
+}
+
+@media (width <= 600px) {
+	.hosted-databases-page {
+		padding: 0 16px;
+		margin: 1.5em auto;
+	}
+}
+
+.hosted-databases-description {
+	color: rgba(0, 0, 0, 0.64);
+	margin-top: 8px;
+	margin-bottom: 32px;
+}
+
+@media (prefers-color-scheme: dark) {
+	.hosted-databases-description {
+		color: rgba(255, 255, 255, 0.7);
+	}
+}
+
+.hosted-databases-content {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.hosted-databases-loading {
+	display: flex;
+	justify-content: center;
+	padding: 48px 24px;
+	color: rgba(0, 0, 0, 0.54);
+}
+
+@media (prefers-color-scheme: dark) {
+	.hosted-databases-loading {
+		color: rgba(255, 255, 255, 0.54);
+	}
+}
+
+.hosted-databases-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 48px 24px;
+	text-align: center;
+	background-color: rgba(0, 0, 0, 0.02);
+	border-radius: 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+	.hosted-databases-empty {
+		background-color: rgba(255, 255, 255, 0.05);
+	}
+}
+
+.hosted-databases-empty__icon {
+	font-size: 48px;
+	width: 48px;
+	height: 48px;
+	color: rgba(0, 0, 0, 0.26);
+	margin-bottom: 16px;
+}
+
+@media (prefers-color-scheme: dark) {
+	.hosted-databases-empty__icon {
+		color: rgba(255, 255, 255, 0.3);
+	}
+}
+
+.hosted-databases-empty p {
+	margin: 0;
+	color: rgba(0, 0, 0, 0.54);
+}
+
+@media (prefers-color-scheme: dark) {
+	.hosted-databases-empty p {
+		color: rgba(255, 255, 255, 0.54);
+	}
+}
+
+.hosted-databases-empty__hint {
+	font-size: 13px;
+	margin-top: 4px;
+}
+
+.hosted-databases-list {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.db-card {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 16px 20px;
+	border: 1px solid var(--color-accentedPalette-100);
+	border-radius: 12px;
+	gap: 16px;
+}
+
+@media (prefers-color-scheme: dark) {
+	.db-card {
+		border-color: var(--color-accentedPalette-400);
+	}
+}
+
+@media (width <= 600px) {
+	.db-card {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}
+
+.db-card__info {
+	flex: 1;
+	min-width: 0;
+}
+
+.db-card__name {
+	font-weight: 600;
+	font-size: 16px;
+	margin-bottom: 6px;
+	overflow-wrap: anywhere;
+}
+
+.db-card__details {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
+	color: rgba(0, 0, 0, 0.64);
+	font-size: 13px;
+}
+
+@media (prefers-color-scheme: dark) {
+	.db-card__details {
+		color: rgba(255, 255, 255, 0.64);
+	}
+}
+
+.db-card__detail-label {
+	font-weight: 600;
+}
+
+.db-card__actions {
+	display: flex;
+	gap: 4px;
+	flex-shrink: 0;
+}
