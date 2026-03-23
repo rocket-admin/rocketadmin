@@ -54,6 +54,10 @@
 }
 
 .addConnectionLink {
+	appearance: none;
+	background: transparent;
+	border: none;
+	cursor: pointer;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -99,6 +103,32 @@
 	}
 }
 
+.addConnectionLink_hosted {
+	background:
+		radial-gradient(circle at top right, rgba(125, 211, 252, 0.32), transparent 42%),
+		linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%);
+	border: 1px solid rgba(125, 211, 252, 0.35);
+	color: #f8fafc;
+	gap: 10px;
+	padding: 14px 12px;
+	text-align: left;
+}
+
+.addConnectionLink_hosted:hover {
+	border-color: rgba(191, 219, 254, 0.72);
+	box-shadow:
+		0px 8px 24px rgba(29, 78, 216, 0.24),
+		0px 1px 5px rgba(15, 23, 42, 0.22);
+}
+
+.addConnectionLink__eyebrow {
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	opacity: 0.84;
+	text-transform: uppercase;
+}
+
 .addConnectionLink__iconBox {
 	flex-shrink: 0;
 	display: flex;
@@ -106,6 +136,13 @@
 	justify-content: center;
 	height: 32px;
 	width: 32px;
+}
+
+.addConnectionLink__iconBox_hosted {
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: 999px;
+	height: 42px;
+	width: 42px;
 }
 
 .addConnectionLink__icon {
@@ -169,11 +206,25 @@
 	width: 178px;
 }
 
+.fabHostedButton {
+	border-radius: 24px;
+	height: 48px !important;
+}
+
 @media (width <= 600px) {
-	.fabAddButton {
+	.fabActions {
 		position: fixed;
+		right: 9vw;
 		bottom: max(64px, 10vw);
+		flex-direction: column;
+		align-items: flex-end;
 		z-index: 1;
+	}
+
+	.fabAddButton,
+	.fabHostedButton {
+		width: auto;
+		min-width: 178px;
 	}
 }
 
