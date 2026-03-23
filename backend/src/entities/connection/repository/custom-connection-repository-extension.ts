@@ -1,3 +1,4 @@
+import { Repository } from 'typeorm';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
@@ -7,7 +8,8 @@ import { ConnectionEntity } from '../connection.entity.js';
 import { isTestConnectionUtil } from '../utils/is-test-connection-util.js';
 import { IConnectionRepository } from './connection.repository.interface.js';
 
-export const customConnectionRepositoryExtension: IConnectionRepository = {
+export const customConnectionRepositoryExtension: IConnectionRepository &
+	ThisType<Repository<ConnectionEntity> & IConnectionRepository> = {
 	async saveNewConnection(connection: ConnectionEntity): Promise<ConnectionEntity> {
 		const savedConnection = await this.save(connection);
 		if (!isConnectionTypeAgent(savedConnection.type)) {
