@@ -360,16 +360,3 @@
 		transform: translateX(100%);
 	}
 }
-
-.demo-loader {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	gap: 24px;
-}
-
-.demo-loader__text {
-	color: var(--mat-sidenav-content-text-color);
-	margin: 0;
-}

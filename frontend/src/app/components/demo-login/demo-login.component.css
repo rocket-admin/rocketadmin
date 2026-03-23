@@ -1,0 +1,19 @@
+.wrapper {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-height: 100vh;
+}
+
+.demo-loader {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 24px;
+}
+
+.demo-loader__text {
+	color: var(--mat-sidenav-content-text-color);
+	margin: 0;
+}
