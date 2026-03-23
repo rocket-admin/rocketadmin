@@ -1,3 +1,4 @@
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import {
 	FoundAgentConnectionsDs,
 	FoundDirectConnectionsDs,
@@ -27,7 +28,7 @@ export function buildFoundConnectionDs(
 		ssl: connection.ssl,
 		title: connection.title,
 		token: connection.agent?.token,
-		type: connection.type,
+		type: connection.type as ConnectionTypesEnum,
 		updatedAt: connection.updatedAt,
 		username: connection.username,
 		signing_key: connection.signing_key,
