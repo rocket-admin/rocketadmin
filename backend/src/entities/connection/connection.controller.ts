@@ -536,10 +536,11 @@ export class ConnectionController {
 		};
 		try {
 			await validateCreateConnectionData(inputData);
-		} catch (e) {
+		} catch (e: unknown) {
+			const err = e as { response?: { message?: string }; message?: string };
 			return {
 				result: false,
-				message: e?.response?.message || e?.message || Messages.CONNECTION_TYPE_INVALID,
+				message: err?.response?.message || err?.message || Messages.CONNECTION_TYPE_INVALID,
 			};
 		}
 		const result = await this.testConnectionUseCase.execute(inputData, InTransactionEnum.OFF);
