@@ -142,7 +142,7 @@ test.serial(
 			t.is(body.classicalPermissions.tables.length, 1);
 			t.is(body.classicalPermissions.tables[0].tableName, tableName);
 			t.is(body.classicalPermissions.tables[0].accessLevel.visibility, true);
-			t.is(body.classicalPermissions.tables[0].accessLevel.readonly, true);
+			t.is(body.classicalPermissions.tables[0].accessLevel.readonly, false);
 			t.is(body.classicalPermissions.tables[0].accessLevel.add, true);
 			t.is(body.classicalPermissions.tables[0].accessLevel.edit, true);
 			t.is(body.classicalPermissions.tables[0].accessLevel.delete, true);

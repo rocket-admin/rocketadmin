@@ -7,9 +7,7 @@ import bodyParser from 'body-parser';
 import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
-import { DataSource } from 'typeorm';
 import { ApplicationModule } from './app.module.js';
-import { migratePermissionsToCedar } from './entities/cedar-authorization/scripts/migrate-permissions-to-cedar.js';
 import { WinstonLogger } from './entities/logging/winston-logger.js';
 import { AllExceptionsFilter } from './exceptions/all-exceptions.filter.js';
 import { ValidationException } from './exceptions/custom-exceptions/validation-exception.js';
@@ -83,9 +81,6 @@ async function bootstrap() {
 				},
 			}),
 		);
-
-		const dataSource = app.get(DataSource);
-		await migratePermissionsToCedar(dataSource);
 
 		await app.listen(3000);
 	} catch (e) {
