@@ -51,11 +51,6 @@ export class PermissionModule implements NestModule {
 		consumer
 			.apply(AuthMiddleware)
 			.forRoutes(
-				{ path: 'permissions/all', method: RequestMethod.GET },
-				{ path: 'permission/:slug', method: RequestMethod.POST },
-				{ path: 'permission/group/:slug', method: RequestMethod.POST },
-				{ path: 'permission/group/:slug', method: RequestMethod.PUT },
-				{ path: 'permissions/:slug', method: RequestMethod.POST },
 				{ path: 'permissions/:slug', method: RequestMethod.PUT },
 			);
 	}

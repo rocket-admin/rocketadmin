@@ -85,14 +85,12 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 	): Promise<{ cedarPolicy: string; classicalPermissions: IComplexPermission }> {
 		this.validateCedarPolicyText(cedarPolicy);
 
-		const group = await this.globalDbContext.groupRepository.findGroupById(groupId);
+		const group = await this.globalDbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
 		if (!group) {
 			throw new HttpException({ message: Messages.GROUP_NOT_FOUND }, HttpStatus.BAD_REQUEST);
 		}
 
-		const groupWithConnection = await this.globalDbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
-
-		if (groupWithConnection?.connection?.id !== connectionId) {
+		if (group.connection?.id !== connectionId) {
 			throw new HttpException({ message: Messages.GROUP_NOT_FROM_THIS_CONNECTION }, HttpStatus.BAD_REQUEST);
 		}
 
@@ -177,7 +175,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 		const userGroups = await this.globalDbContext.groupRepository.findAllUserGroupsInConnection(connectionId, userId);
 		if (userGroups.length === 0) return false;
 
-		const groupPolicies = await this.loadPoliciesPerGroup(connectionId, userGroups);
+		const groupPolicies = this.loadPoliciesPerGroup(userGroups);
 		if (groupPolicies.length === 0) return false;
 
 		const entities = buildCedarEntities(userId, userGroups, connectionId, tableName, dashboardId);
@@ -206,13 +204,8 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 		return false;
 	}
 
-	private async loadPoliciesPerGroup(connectionId: string, userGroups: Array<GroupEntity>): Promise<string[]> {
-		const groups = await this.globalDbContext.groupRepository.findAllGroupsInConnection(connectionId);
-		const userGroupIdSet = new Set(userGroups.map((g) => g.id));
-		return groups
-			.filter((g) => userGroupIdSet.has(g.id))
-			.map((g) => g.cedarPolicy)
-			.filter(Boolean);
+	private loadPoliciesPerGroup(userGroups: Array<GroupEntity>): string[] {
+		return userGroups.map((g) => g.cedarPolicy).filter(Boolean);
 	}
 
 	private async assertUserNotSuspended(userId: string): Promise<void> {
