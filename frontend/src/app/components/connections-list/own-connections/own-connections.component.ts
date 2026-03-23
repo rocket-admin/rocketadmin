@@ -72,7 +72,7 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 
 		this._uiSettings.getUiSettings().subscribe((settings: UiSettings) => {
 			this.connectionsListCollapsed = settings?.globalSettings?.connectionsListCollapsed;
-			this.displayedCardCount = this.connectionsListCollapsed ? 3 : this.connections.length;
+			this.displayedCardCount = this.connectionsListCollapsed ? 3 : (this.connections?.length || 3);
 		});
 	}
 
@@ -81,6 +81,10 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 			this._companyService.fetchCompanyMembers(this.companyId).subscribe((members: CompanyMember[]) => {
 				this.hasMultipleMembers = members && members.length > 1;
 			});
+		}
+
+		if (changes.connections && this.connections && !this.connectionsListCollapsed) {
+			this.displayedCardCount = this.connections.length;
 		}
 	}
 
