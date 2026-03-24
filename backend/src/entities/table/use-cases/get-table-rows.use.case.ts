@@ -10,7 +10,6 @@ import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/inte
 import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
 import { FoundRowsDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/found-rows.ds.js';
 import Sentry from '@sentry/minimal';
-import JSON5 from 'json5';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -18,15 +17,13 @@ import {
 	AmplitudeEventTypeEnum,
 	LogOperationTypeEnum,
 	OperationResultStatusEnum,
-	WidgetTypeEnum,
 } from '../../../enums/index.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
-import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { hexToBinary, isBinary } from '../../../helpers/binary-to-hex.js';
 import { Constants } from '../../../helpers/constants/constants.js';
-import { isConnectionTypeAgent, isObjectEmpty } from '../../../helpers/index.js';
+import { isObjectEmpty } from '../../../helpers/index.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { buildActionEventDto } from '../../table-actions/table-action-rules-module/utils/build-found-action-event-dto.util.js';
 import { buildCreatedTableFilterRO } from '../../table-filters/utils/build-created-table-filters-response-object.util.js';
@@ -35,7 +32,7 @@ import { TableSettingsEntity } from '../../table-settings/common-table-settings/
 import { PersonalTableSettingsEntity } from '../../table-settings/personal-table-settings/personal-table-settings.entity.js';
 import { FoundTableRowsDs } from '../application/data-structures/found-table-rows.ds.js';
 import { GetTableRowsDs } from '../application/data-structures/get-table-rows.ds.js';
-import { FilteringFieldsDs, ForeignKeyDSInfo } from '../table-datastructures.js';
+import { FilteringFieldsDs } from '../table-datastructures.js';
 import { findAutocompleteFieldsUtil } from '../utils/find-autocomplete-fields.util.js';
 import { findAvailableFields } from '../utils/find-available-fields.utils.js';
 import { findFilteringFieldsUtil, parseFilteringFieldsFromBodyData } from '../utils/find-filtering-fields.util.js';
@@ -45,6 +42,11 @@ import { isHexString } from '../utils/is-hex-string.js';
 import { processRowsUtil } from '../utils/process-found-rows-util.js';
 import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { IGetTableRows } from './table-use-cases.interface.js';
+import { validateConnection, getUserEmailForAgent } from '../utils/validate-connection.util.js';
+import { extractForeignKeysFromWidgets } from '../utils/extract-foreign-keys-from-widgets.util.js';
+import { filterForeignKeysByReadPermission } from '../utils/filter-foreign-keys-by-permission.util.js';
+import { attachForeignColumnNames } from '../utils/attach-foreign-column-names.util.js';
+import { buildTableSettingsForResponse } from '../utils/build-table-settings-for-response.util.js';
 
 @Injectable()
 export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTableRowsDs> implements IGetTableRows {
@@ -64,18 +66,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 		const { connectionId, masterPwd, page, perPage, query, tableName, userId, filters } = inputData;
 		let { searchingFieldValue } = inputData;
 		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
-		if (!connection) {
-			throw new HttpException(
-				{
-					message: Messages.CONNECTION_NOT_FOUND,
-				},
-				HttpStatus.BAD_REQUEST,
-			);
-		}
-
-		if (connection.is_frozen) {
-			throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
-		}
+		validateConnection(connection);
 
 		try {
 			const dao = getDataAccessObject(connection);
@@ -86,10 +77,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 				throw new BadRequestException(Messages.TABLE_NOT_FOUND);
 			}
 
-			let userEmail: string;
-			if (isConnectionTypeAgent(connection.type)) {
-				userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
-			}
+			const userEmail = await getUserEmailForAgent(connection, userId, this._dbContext.userRepository);
 
 			await validateSchemaCache(dao, userEmail);
 
@@ -180,44 +168,22 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 			}
 			rows = processRowsUtil(rows, tableWidgets, tableStructure, tableCustomFields);
 
-			const foreignKeysFromWidgets: Array<ForeignKeyDSInfo> = tableWidgets
-				.filter((widget) => widget.widget_type === WidgetTypeEnum.Foreign_key)
-				.reduce<Array<ForeignKeyDSInfo>>((acc, widget) => {
-					if (widget.widget_params) {
-						try {
-							const widgetParams = JSON5.parse(widget.widget_params) as ForeignKeyDSInfo;
-							acc.push(widgetParams);
-						} catch (_e) {
-							//
-						}
-					}
-					return acc;
-				}, []);
+			const foreignKeysFromWidgets = extractForeignKeysFromWidgets(tableWidgets);
 
 			tableForeignKeys = [...tableForeignKeys, ...foreignKeysFromWidgets];
 
-			const canUserReadForeignTables = await Promise.all(
-				tableForeignKeys.map((foreignKey) =>
-					this.cedarPermissions
-						.improvedCheckTableRead(userId, connectionId, foreignKey.referenced_table_name, masterPwd)
-						.then((canRead) => ({
-							tableName: foreignKey.referenced_table_name,
-							canRead,
-						})),
-				),
-			);
-
-			const readableForeignTables = new Set(
-				canUserReadForeignTables.filter(({ canRead }) => canRead).map(({ tableName }) => tableName),
-			);
-
-			tableForeignKeys = tableForeignKeys.filter(({ referenced_table_name }) =>
-				readableForeignTables.has(referenced_table_name),
+			tableForeignKeys = await filterForeignKeysByReadPermission(
+				tableForeignKeys, userId, connectionId, masterPwd, this.cedarPermissions,
 			);
 
 			if (tableForeignKeys && tableForeignKeys.length > 0) {
 				tableForeignKeys = await Promise.all(
-					tableForeignKeys.map((el) => this.attachForeignColumnNames(el, userId, connectionId, dao).catch(() => el)),
+					tableForeignKeys.map((el) =>
+						attachForeignColumnNames(
+							el, userEmail, connectionId, dao,
+							this._dbContext.tableSettingsRepository.findTableSettingsPure.bind(this._dbContext.tableSettingsRepository),
+						).catch(() => el),
+					),
 				);
 			}
 
@@ -253,22 +219,10 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 				can_delete: can_delete,
 				can_update: can_update,
 				can_add: can_add,
-				table_settings: {
-					sortable_by: builtDAOsTableSettings?.sortable_by?.length > 0 ? builtDAOsTableSettings.sortable_by : [],
-					ordering: builtDAOsTableSettings.ordering ? builtDAOsTableSettings.ordering : undefined,
-					identity_column: builtDAOsTableSettings.identity_column ? builtDAOsTableSettings.identity_column : null,
-					list_fields: builtDAOsTableSettings?.list_fields?.length > 0 ? builtDAOsTableSettings.list_fields : [],
-					allow_csv_export: allowCsvExport,
-					allow_csv_import: allowCsvImport,
-					can_delete: can_delete,
-					can_update: can_update,
-					can_add: can_add,
-					columns_view: builtDAOsTableSettings?.columns_view ? builtDAOsTableSettings.columns_view : [],
-					ordering_field: builtDAOsTableSettings.ordering_field ? builtDAOsTableSettings.ordering_field : undefined,
-				},
+				table_settings: buildTableSettingsForResponse(builtDAOsTableSettings, tableSettings),
 			};
 
-			const identitiesMap = new Map<string, any[]>();
+			const identitiesMap = new Map<string, Array<Record<string, unknown>>>();
 
 			if (tableForeignKeys?.length > 0) {
 				const uniqueReferencedTables = [...new Set(tableForeignKeys.map((fk) => fk.referenced_table_name))];
@@ -399,34 +353,6 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 				isTest ? AmplitudeEventTypeEnum.tableRowsReceivedTest : AmplitudeEventTypeEnum.tableRowsReceived,
 				userId,
 			);
-		}
-	}
-
-	private async attachForeignColumnNames(
-		foreignKey: ForeignKeyDS,
-		userId: string,
-		connectionId: string,
-		dao: IDataAccessObject | IDataAccessObjectAgent,
-	): Promise<ForeignKeyWithAutocompleteColumnsDS> {
-		try {
-			const [foreignTableSettings, foreignTableStructure] = await Promise.all([
-				this._dbContext.tableSettingsRepository.findTableSettingsPure(connectionId, foreignKey.referenced_table_name),
-				dao.getTableStructure(foreignKey.referenced_table_name, userId),
-			]);
-
-			const columnNames = foreignTableStructure
-				.map((el) => el.column_name)
-				.filter((el) => foreignTableSettings?.autocomplete_columns.includes(el));
-
-			return {
-				...foreignKey,
-				autocomplete_columns: columnNames,
-			};
-		} catch (_e) {
-			return {
-				...foreignKey,
-				autocomplete_columns: [],
-			};
 		}
 	}
 
