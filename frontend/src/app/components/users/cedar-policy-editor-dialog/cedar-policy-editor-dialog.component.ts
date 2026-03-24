@@ -1,6 +1,7 @@
 import { NgIf } from '@angular/common';
 import { Component, DestroyRef, Inject, inject, OnInit, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -36,6 +37,7 @@ export interface CedarPolicyEditorDialogData {
 	styleUrls: ['./cedar-policy-editor-dialog.component.css'],
 	imports: [
 		NgIf,
+		FormsModule,
 		MatDialogModule,
 		MatButtonModule,
 		MatButtonToggleModule,
@@ -82,6 +84,16 @@ export class CedarPolicyEditorDialogComponent implements OnInit {
 	) {
 		this.codeEditorTheme = this._uiSettings.isDarkMode ? 'vs-dark' : 'vs';
 		this._editorService.loaded.pipe(take(1)).subscribe(({ monaco }) => registerCedarLanguage(monaco));
+
+		this.dialogRef.disableClose = true;
+		this.dialogRef.backdropClick().pipe(takeUntilDestroyed(this._destroyRef)).subscribe(() => {
+			this.confirmClose();
+		});
+		this.dialogRef.keydownEvents().pipe(takeUntilDestroyed(this._destroyRef)).subscribe((event) => {
+			if (event.key === 'Escape') {
+				this.confirmClose();
+			}
+		});
 	}
 
 	ngOnInit(): void {
@@ -155,6 +167,15 @@ export class CedarPolicyEditorDialogComponent implements OnInit {
 		}
 
 		this.editorMode = mode;
+	}
+
+	confirmClose() {
+		if (this.editorMode === 'form' && this.policyList?.hasPendingChanges()) {
+			const discard = confirm('You have an unsaved policy in the form. Discard it and close?');
+			if (!discard) return;
+			this.policyList.discardPending();
+		}
+		this.dialogRef.close();
 	}
 
 	savePolicy() {

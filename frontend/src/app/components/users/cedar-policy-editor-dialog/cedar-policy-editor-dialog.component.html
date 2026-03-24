@@ -1,44 +1,45 @@
 <h1 mat-dialog-title>Policy — {{ data.groupTitle }}</h1>
-<mat-dialog-content>
-    <div class="editor-mode-toggle">
-        <mat-button-toggle-group [value]="editorMode" (change)="onEditorModeChange($event.value)">
-            <mat-button-toggle value="form">Form</mat-button-toggle>
-            <mat-button-toggle value="code">Code</mat-button-toggle>
-        </mat-button-toggle-group>
-    </div>
-
-    <div *ngIf="formParseError" class="form-parse-warning">
-        <mat-icon>warning</mat-icon>
-        <span>This policy uses advanced Cedar syntax that cannot be represented in form mode. Please use the code editor.</span>
-    </div>
-
-    <div *ngIf="editorMode === 'form' && !formParseError">
-        <app-cedar-policy-list
-            [policies]="policyItems"
-            [availableTables]="availableTables"
-            [availableDashboards]="availableDashboards"
-            [loading]="loading"
-            (policiesChange)="onPolicyItemsChange($event)">
-        </app-cedar-policy-list>
-    </div>
-
-    <div *ngIf="editorMode === 'code'">
-        <p class="cedar-hint">Edit policy in <a href="https://www.cedarpolicy.com/en" target="_blank" rel="noopener">Cedar</a> format</p>
-        <div class="code-editor-box">
-            <ngs-code-editor
-                [theme]="codeEditorTheme"
-                [codeModel]="cedarPolicyModel"
-                [options]="codeEditorOptions"
-                (valueChanged)="onCedarPolicyChange($event)">
-            </ngs-code-editor>
+<form (ngSubmit)="savePolicy()">
+    <mat-dialog-content>
+        <div class="editor-mode-toggle">
+            <mat-button-toggle-group [value]="editorMode" (change)="onEditorModeChange($event.value)">
+                <mat-button-toggle value="form">Form</mat-button-toggle>
+                <mat-button-toggle value="code">Code</mat-button-toggle>
+            </mat-button-toggle-group>
         </div>
-    </div>
-</mat-dialog-content>
-<mat-dialog-actions align="end">
-    <button type="button" mat-flat-button mat-dialog-close>Cancel</button>
-    <button type="button" mat-flat-button color="primary"
-        [disabled]="submitting"
-        (click)="savePolicy()">
-        Save
-    </button>
-</mat-dialog-actions>
+
+        <div *ngIf="formParseError" class="form-parse-warning">
+            <mat-icon>warning</mat-icon>
+            <span>This policy uses advanced Cedar syntax that cannot be represented in form mode. Please use the code editor.</span>
+        </div>
+
+        <div *ngIf="editorMode === 'form' && !formParseError">
+            <app-cedar-policy-list
+                [policies]="policyItems"
+                [availableTables]="availableTables"
+                [availableDashboards]="availableDashboards"
+                [loading]="loading"
+                (policiesChange)="onPolicyItemsChange($event)">
+            </app-cedar-policy-list>
+        </div>
+
+        <div *ngIf="editorMode === 'code'">
+            <p class="cedar-hint">Edit policy in <a href="https://www.cedarpolicy.com/en" target="_blank" rel="noopener">Cedar</a> format</p>
+            <div class="code-editor-box">
+                <ngs-code-editor
+                    [theme]="codeEditorTheme"
+                    [codeModel]="cedarPolicyModel"
+                    [options]="codeEditorOptions"
+                    (valueChanged)="onCedarPolicyChange($event)">
+                </ngs-code-editor>
+            </div>
+        </div>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+        <button type="button" mat-flat-button (click)="confirmClose()">Cancel</button>
+        <button type="submit" mat-flat-button color="primary"
+            [disabled]="submitting">
+            Save
+        </button>
+    </mat-dialog-actions>
+</form>
