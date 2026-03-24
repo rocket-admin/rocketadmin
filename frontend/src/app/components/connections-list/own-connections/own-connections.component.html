@@ -1,125 +1,137 @@
-<h1 *ngIf="isDemo" class="mat-display-1">Create your own test connection</h1>
+<!-- Page header -->
+@if (!connections?.length && connections !== null) {
+    @if (isDemo) {
+        <h1 class="mat-display-1">Create your own test connection</h1>
+    } @else if (currentUser?.role === 'ADMIN' || currentUser?.role === 'DB_ADMIN') {
+        <h1 class="mat-display-1">Create your first connection</h1>
+    }
+}
 
-<div *ngIf="!connections?.length && connections !== null" class="empty-state">
-    <h1 *ngIf="(currentUser?.role === 'ADMIN' || currentUser?.role === 'DB_ADMIN') && !isDemo" class="mat-display-1">
-        Create your first connection
-    </h1>
-    <ul class="supportedDatabases">
-        @if (showHostedDatabaseEntry) {
-            <li>
-                <button
-                    type="button"
-                    class="addConnectionLink addConnectionLink_hosted"
-                    data-testid="create-hosted-database-empty-button"
-                    [disabled]="creatingHostedDatabase()"
-                    (click)="createHostedDatabase()">
-                    <span class="addConnectionLink__eyebrow">Hosted by RocketAdmin</span>
-                    <div class="addConnectionLink__iconBox addConnectionLink__iconBox_hosted">
-                        <mat-icon svgIcon="ai_rocket" class="addConnectionLink__icon"></mat-icon>
+<!-- Existing connections -->
+@if (connections?.length) {
+    <ul class="connections">
+        @for (connectionItem of connections | slice:0:displayedCardCount; track connectionItem.connection.id) {
+            <li class="connectionItem">
+                <a routerLink="/dashboard/{{connectionItem.connection.id}}" class="connection"
+                    angulartics2On="click"
+                    angularticsAction="Connections: open own db is clicked"
+                    (click)="posthog.capture('Connections: open own db is clicked')">
+                    <div class="connectionLogoPreview">
+                        @if ($any(connectionItem.connection).connection_properties?.logo_url) {
+                            <img [src]="$any(connectionItem.connection).connection_properties?.logo_url"
+                                class="connectionLogoPreview__logo"
+                                alt="Rocketadmin connection">
+                        } @else {
+                            <img src="../../assets/rocketadmin_logo_white-short.svg"
+                                class="connectionLogoPreview__logo"
+                                alt="Rocketadmin connection">
+                        }
+                        <div class="connectionInfo">
+                            <h2 class="connectionInfo__connectionTitle">{{ $any(connectionItem).displayTitle }}</h2>
+                            <span class="mat-body-2">{{ supportedDatabasesTitles[connectionItem.connection.type] }}</span>
+                        </div>
                     </div>
-                    <span class="addConnectionLink__label">
-                        {{ creatingHostedDatabase() ? 'Creating hosted PostgreSQL...' : 'Hosted PostgreSQL' }}
-                        <span class="addConnectionLink__subLabel">Provision a managed database in one click</span>
-                    </span>
-                </button>
+                </a>
             </li>
         }
-        <li *ngFor="let supportedDatabase of supportedOrderedDatabases">
-            <a routerLink="/connect-db"
-                [queryParams]="{ type: supportedDatabase }"
-                class="addConnectionLink"
-                attr.data-testid="{{supportedDatabase}}-test-connection-list-item">
-                <div class="addConnectionLink__iconBox">
-                    <mat-icon [svgIcon]="supportedDatabase === 'cassandra' && isDarkMode ? 'cassandra-dark' : supportedDatabase" class="addConnectionLink__icon"></mat-icon>
-                </div>
-                <span class="addConnectionLink__label">
-                    {{ getMainTitle(supportedDatabase) }}
-                    <span *ngIf="getSubTitle(supportedDatabase)" class="addConnectionLink__subLabel">{{ getSubTitle(supportedDatabase) }}</span>
-                </span>
-            </a>
-        </li>
     </ul>
-</div>
 
-<ul class="connections">
-    <li *ngFor="let connectionItem of connections | slice:0:displayedCardCount" class="connectionItem">
-        <a routerLink="/dashboard/{{connectionItem.connection.id}}" class="connection"
-            angulartics2On="click"
-            angularticsAction="Connections: open own db is clicked"
-            (click)="posthog.capture('Connections: open own db is clicked')">
-            <div  class="connectionLogoPreview">
-                <img *ngIf="connectionItem.connection.connection_properties?.logo_url; else noLogo"
-                    [src]="connectionItem.connection.connection_properties?.logo_url"
-                    class="connectionLogoPreview__logo"
-                    alt="Rocketadmin connection">
-                <ng-template #noLogo>
-                    <img src="../../assets/rocketadmin_logo_white-short.svg"
-                        class="connectionLogoPreview__logo"
-                        alt="Rocketadmin connection">
-                </ng-template>
-                <div class="connectionInfo">
-                    <h2 class="connectionInfo__connectionTitle">{{ connectionItem.displayTitle }}</h2>
-                    <span class="mat-body-2">{{ supportedDatabasesTitles[connectionItem.connection.type] }}</span>
-                </div>
-            </div>
-        </a>
-    </li>
-</ul>
+    @if (displayedCardCount < connections?.length) {
+        <button type="button" mat-button color="accent" class="showAllButton" (click)="showMore()">Show all</button>
+    }
+    @if (displayedCardCount > 3) {
+        <button type="button" mat-button color="accent" class="showAllButton" (click)="showLess()">Show less</button>
+    }
+}
 
-<button *ngIf="displayedCardCount < connections?.length"
-    type="button" mat-button color="accent"
-    class="showAllButton" (click)="showMore()">
-    Show all
-</button>
-<button *ngIf="displayedCardCount > 3"
-    type="button" mat-button color="accent"
-    class="showAllButton" (click)="showLess()">
-    Show less
-</button>
-
-<div class="fabActions">
-    @if (showHostedDatabaseEntry && connections?.length) {
+<!-- Section: Hosted by Rocketadmin -->
+@if (showHostedDatabaseEntry) {
+    <div class="section">
+        <span class="section__label">HOSTED BY ROCKETADMIN</span>
         <button
-            mat-stroked-button
             type="button"
-            color="primary"
-            class="fabHostedButton"
+            class="hosted-banner"
             data-testid="create-hosted-database-button"
             [disabled]="creatingHostedDatabase()"
             (click)="createHostedDatabase()">
-            <mat-icon>cloud_queue</mat-icon>
-            {{ creatingHostedDatabase() ? 'Creating...' : 'Create hosted PostgreSQL' }}
+            <div class="hosted-banner__iconBox">
+                <mat-icon svgIcon="ai_rocket" class="hosted-banner__icon"></mat-icon>
+            </div>
+            <div class="hosted-banner__text">
+                <span class="hosted-banner__title">
+                    {{ creatingHostedDatabase() ? 'Creating hosted PostgreSQL...' : 'Hosted PostgreSQL' }}
+                </span>
+                <span class="hosted-banner__subtitle">Provision a managed database in one click</span>
+            </div>
+            <span class="hosted-banner__badge">&#10022; Recommended</span>
         </button>
-    }
-    <a mat-flat-button *ngIf="(currentUser?.role === 'ADMIN' || currentUser?.role === 'DB_ADMIN') && connections?.length"
-        data-testid="add-connection-button"
-        color="primary"
-        class="fabAddButton"
-        routerLink="/connect-db"
-        angulartics2On="click"
-        angularticsAction="Connections: Add connection button is clicked"
-        (click)="posthog.capture('Connections: Add connection button is clicked')">
-        <mat-icon *ngIf="connections?.length">add</mat-icon>
-        Add database
-    </a>
-</div>
-<!--<a mat-flat-button *ngIf="(currentUser?.role === 'ADMIN' || currentUser?.role === 'DB_ADMIN') && !connections?.length"
-    data-testid="add-connection-button"
-    color="primary"
-    class="addButton"
-    routerLink="/connect-db"
-    angulartics2On="click"
-    angularticsAction="Connections: Add connection button is clicked"
-    (click)="posthog.capture('Connections: Add connection button is clicked')">
-    <mat-icon *ngIf="connections?.length">add</mat-icon>
-    Add database
-</a>-->
+    </div>
+}
 
-<div *ngIf="!connections?.length && connections !== null && !isDemo && hasMultipleMembers" class="empty-state_bottom">
-    <p class="mat-body-1 empty-state__text">
-        Invited to a company but don't see your admin panel?
-    </p>
-    <p class="mat-body-1" style="text-align: center;">
-        Request access from your Account Owner
-    </p>
+<!-- Section: Connect your own -->
+<div class="section">
+    <span class="section__label">CONNECT YOUR OWN</span>
+    <ul class="dbGrid">
+        @for (supportedDatabase of supportedOrderedDatabases; track supportedDatabase) {
+            <li>
+                <a routerLink="/connect-db"
+                    [queryParams]="{ type: supportedDatabase }"
+                    class="dbCard"
+                    attr.data-testid="{{supportedDatabase}}-test-connection-list-item">
+                    <div class="dbCard__iconBox">
+                        <mat-icon [svgIcon]="supportedDatabase === 'cassandra' && isDarkMode ? 'cassandra-dark' : supportedDatabase" class="dbCard__icon"></mat-icon>
+                    </div>
+                    <span class="dbCard__label">
+                        {{ getMainTitle(supportedDatabase) }}
+                        @if (getSubTitle(supportedDatabase)) {
+                            <span class="dbCard__subLabel">{{ getSubTitle(supportedDatabase) }}</span>
+                        }
+                    </span>
+                </a>
+            </li>
+        }
+    </ul>
 </div>
+
+<!-- FAB actions (when connections exist) -->
+@if (connections?.length) {
+    <div class="fabActions">
+        @if (showHostedDatabaseEntry) {
+            <button
+                mat-stroked-button
+                type="button"
+                color="primary"
+                class="fabHostedButton"
+                data-testid="create-hosted-database-fab-button"
+                [disabled]="creatingHostedDatabase()"
+                (click)="createHostedDatabase()">
+                <mat-icon>cloud_queue</mat-icon>
+                {{ creatingHostedDatabase() ? 'Creating...' : 'Create hosted PostgreSQL' }}
+            </button>
+        }
+        @if (currentUser?.role === 'ADMIN' || currentUser?.role === 'DB_ADMIN') {
+            <a mat-flat-button
+                data-testid="add-connection-button"
+                color="primary"
+                class="fabAddButton"
+                routerLink="/connect-db"
+                angulartics2On="click"
+                angularticsAction="Connections: Add connection button is clicked"
+                (click)="posthog.capture('Connections: Add connection button is clicked')">
+                <mat-icon>add</mat-icon>
+                Add database
+            </a>
+        }
+    </div>
+}
+
+@if (!connections?.length && connections !== null && !isDemo && hasMultipleMembers) {
+    <div class="empty-state_bottom">
+        <p class="mat-body-1 empty-state__text">
+            Invited to a company but don't see your admin panel?
+        </p>
+        <p class="mat-body-1" style="text-align: center;">
+            Request access from your Account Owner
+        </p>
+    </div>
+}

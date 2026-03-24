@@ -1,23 +1,27 @@
-<h1 *ngIf="!isDemo" class="mat-display-1">Explore demo panels</h1>
-<h1 *ngIf="isDemo" class="mat-display-1">Try out a demo admin panel</h1>
+@if (!isDemo) {
+    <span class="section__label">EXPLORE DEMO PANELS</span>
+} @else {
+    <h1 class="mat-display-1">Try out a demo admin panel</h1>
+}
 
-<ul class="testConnections">
-    <li *ngFor="let testConnectionItem of testConnections">
-        <a routerLink="/dashboard/{{testConnectionItem.connection.id}}" class="testConnectionLink"
-            attr.data-testid="{{testConnectionItem.connection.id}}-test-connection-list-item"
-            angulartics2On="click"
-            angularticsAction="Connections: open test db is clicked"
-            (click)="posthog.capture('Connections: open test db is clicked')"
-            [angularticsProperties]="{'dbType': testConnectionItem.connection.type}">
-            <img [src]="testDatabasesIcons[testConnectionItem.connection.type]"
-                class="testConnectionLink__icon"
-                [alt]="testConnectionItem.connection.type">
-            <div class="testConnectionLink__info">
-                <strong>{{ testConnectionItem.displayTitle }}</strong>
-                <span class="testConnectionLink__type">{{ testDatabasesNames[testConnectionItem.connection.type] }}</span>
-            </div>
-
-            <mat-icon class="connection__goIcon">arrow_forward</mat-icon>
-        </a>
-    </li>
+<ul class="demoGrid">
+    @for (testConnectionItem of testConnections; track testConnectionItem.connection.id) {
+        <li>
+            <a routerLink="/dashboard/{{testConnectionItem.connection.id}}" class="demoCard"
+                attr.data-testid="{{testConnectionItem.connection.id}}-test-connection-list-item"
+                angulartics2On="click"
+                angularticsAction="Connections: open test db is clicked"
+                (click)="posthog.capture('Connections: open test db is clicked')"
+                [angularticsProperties]="{'dbType': testConnectionItem.connection.type}">
+                <img [src]="testDatabasesIcons[testConnectionItem.connection.type]"
+                    class="demoCard__icon"
+                    [alt]="testConnectionItem.connection.type">
+                <div class="demoCard__info">
+                    <strong>{{ $any(testConnectionItem).displayTitle }}</strong>
+                    <span class="demoCard__type">{{ testDatabasesNames[testConnectionItem.connection.type] }}</span>
+                </div>
+                <mat-icon class="demoCard__arrow">arrow_forward</mat-icon>
+            </a>
+        </li>
+    }
 </ul>
