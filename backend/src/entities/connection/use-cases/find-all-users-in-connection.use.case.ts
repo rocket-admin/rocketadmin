@@ -7,6 +7,8 @@ import { UserEntity } from '../../user/user.entity.js';
 import { buildFoundUserDto } from '../../user/utils/build-found-user.dto.js';
 import { IFindUsersInConnection } from './use-cases.interfaces.js';
 
+type UserWithoutRelations = Omit<UserEntity, 'connections' | 'groups'>;
+
 @Injectable()
 export class FindAllUsersInConnectionUseCase
 	extends AbstractUseCase<string, Array<FoundUserDto>>
@@ -20,10 +22,8 @@ export class FindAllUsersInConnectionUseCase
 	}
 
 	protected async implementation(connectionId: string): Promise<Array<FoundUserDto>> {
-		const userInConnection = await this._dbContext.userRepository.findAllUsersInConnection(connectionId);
-		return userInConnection.map((user) => {
-			//todo fix type after repository types are fixed
-			return buildFoundUserDto(user as UserEntity);
-		});
+		const userInConnection: UserWithoutRelations[] =
+			await this._dbContext.userRepository.findAllUsersInConnection(connectionId);
+		return userInConnection.map((user) => buildFoundUserDto(user as UserEntity));
 	}
 }
