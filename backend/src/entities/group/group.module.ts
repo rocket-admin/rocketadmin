@@ -64,7 +64,7 @@ import { UpdateGroupTitleUseCase } from './use-cases/update-group-title.use.case
 	exports: [],
 })
 export class GroupModule {
-	public configure(consumer: MiddlewareConsumer): any {
+	public configure(consumer: MiddlewareConsumer): void {
 		consumer
 			.apply(AuthMiddleware)
 			.forRoutes(
