@@ -4,7 +4,6 @@ import { AccessLevelEnum } from '../../../../enums/index.js';
 import { ConnectionPropertiesEntity } from '../../../connection-properties/connection-properties.entity.js';
 import { FoundGroupDataWithUsersDs } from '../../../group/application/data-sctructures/found-user-groups.ds.js';
 import { SimpleFoundUserInfoDs } from '../../../user/dto/found-user.dto.js';
-import { UserEntity } from '../../../user/user.entity.js';
 
 export class FoundDirectConnectionsDs {
 	@ApiProperty()
@@ -17,7 +16,7 @@ export class FoundDirectConnectionsDs {
 	masterEncryption: boolean;
 
 	@ApiProperty({ enum: ConnectionTypesEnum })
-	type?: ConnectionTypesEnum | string;
+	type?: ConnectionTypesEnum;
 
 	@ApiProperty()
 	host?: string;
@@ -59,7 +58,7 @@ export class FoundDirectConnectionsDs {
 	cert?: string;
 
 	@ApiProperty({ required: false })
-	author?: UserEntity | string;
+	author?: string;
 
 	@ApiProperty({ required: false })
 	token?: string;
@@ -94,7 +93,7 @@ export class FoundDirectConnectionsNonePermissionDs {
 	title?: string;
 
 	@ApiProperty()
-	type?: ConnectionTypesEnum | string;
+	type?: ConnectionTypesEnum;
 
 	@ApiProperty()
 	database: string;
@@ -117,10 +116,10 @@ export class FoundAgentConnectionsDs {
 	title?: string;
 
 	@ApiProperty({ enum: ConnectionTypesEnum })
-	type?: ConnectionTypesEnum | string;
+	type?: ConnectionTypesEnum;
 
 	@ApiProperty({ required: false })
-	author: UserEntity | string;
+	author?: string;
 
 	@ApiProperty()
 	token: string;
@@ -135,7 +134,7 @@ export class FoundAgentConnectionsDs {
 	connection_properties: ConnectionPropertiesEntity;
 }
 
-export class FoundSipleConnectionInfoDS {
+export class FoundSimpleConnectionInfoDS {
 	@ApiProperty()
 	id: string;
 
@@ -143,7 +142,7 @@ export class FoundSipleConnectionInfoDS {
 	title?: string;
 
 	@ApiProperty({ enum: ConnectionTypesEnum })
-	type?: ConnectionTypesEnum | string;
+	type?: ConnectionTypesEnum;
 
 	@ApiProperty()
 	isTestConnection: boolean;

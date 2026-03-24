@@ -1,12 +1,10 @@
 import { HttpException, HttpStatus, Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { AccessLevelEnum, PermissionTypeEnum } from '../../enums/index.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { Cacher } from '../../helpers/cache/cacher.js';
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../common/data-injection.tokens.js';
 import { GroupEntity } from '../group/group.entity.js';
 import { IComplexPermission } from '../permission/permission.interface.js';
-import { PermissionEntity } from '../permission/permission.entity.js';
 import {
 	CedarAction,
 	CedarResourceType,
@@ -87,14 +85,12 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 	): Promise<{ cedarPolicy: string; classicalPermissions: IComplexPermission }> {
 		this.validateCedarPolicyText(cedarPolicy);
 
-		const group = await this.globalDbContext.groupRepository.findGroupWithPermissionsById(groupId);
+		const group = await this.globalDbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
 		if (!group) {
 			throw new HttpException({ message: Messages.GROUP_NOT_FOUND }, HttpStatus.BAD_REQUEST);
 		}
 
-		const groupWithConnection = await this.globalDbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
-
-		if (groupWithConnection?.connection?.id !== connectionId) {
+		if (group.connection?.id !== connectionId) {
 			throw new HttpException({ message: Messages.GROUP_NOT_FROM_THIS_CONNECTION }, HttpStatus.BAD_REQUEST);
 		}
 
@@ -105,8 +101,6 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 		await this.validatePolicyReferences(cedarPolicy, connectionId);
 
 		const classicalPermissions = parseCedarPolicyToClassicalPermissions(cedarPolicy, connectionId, groupId);
-
-		await this.syncClassicalPermissions(group, classicalPermissions);
 
 		group.cedarPolicy = cedarPolicy;
 		await this.globalDbContext.groupRepository.saveNewOrUpdatedGroup(group);
@@ -181,7 +175,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 		const userGroups = await this.globalDbContext.groupRepository.findAllUserGroupsInConnection(connectionId, userId);
 		if (userGroups.length === 0) return false;
 
-		const groupPolicies = await this.loadPoliciesPerGroup(connectionId, userGroups);
+		const groupPolicies = this.loadPoliciesPerGroup(userGroups);
 		if (groupPolicies.length === 0) return false;
 
 		const entities = buildCedarEntities(userId, userGroups, connectionId, tableName, dashboardId);
@@ -210,13 +204,8 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 		return false;
 	}
 
-	private async loadPoliciesPerGroup(connectionId: string, userGroups: Array<GroupEntity>): Promise<string[]> {
-		const groups = await this.globalDbContext.groupRepository.findAllGroupsInConnection(connectionId);
-		const userGroupIdSet = new Set(userGroups.map((g) => g.id));
-		return groups
-			.filter((g) => userGroupIdSet.has(g.id))
-			.map((g) => g.cedarPolicy)
-			.filter(Boolean);
+	private loadPoliciesPerGroup(userGroups: Array<GroupEntity>): string[] {
+		return userGroups.map((g) => g.cedarPolicy).filter(Boolean);
 	}
 
 	private async assertUserNotSuspended(userId: string): Promise<void> {
@@ -316,74 +305,4 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 		}
 	}
 
-	private async syncClassicalPermissions(group: GroupEntity, permissions: IComplexPermission): Promise<void> {
-		if (group.permissions && group.permissions.length > 0) {
-			for (const perm of group.permissions) {
-				await this.globalDbContext.permissionRepository.removePermissionEntity(perm);
-			}
-		}
-		group.permissions = [];
-
-		if (permissions.connection.accessLevel !== AccessLevelEnum.none) {
-			const connPerm = new PermissionEntity();
-			connPerm.type = PermissionTypeEnum.Connection;
-			connPerm.accessLevel = permissions.connection.accessLevel;
-			const saved = await this.globalDbContext.permissionRepository.saveNewOrUpdatedPermission(connPerm);
-			group.permissions.push(saved);
-		}
-
-		if (permissions.group.accessLevel !== AccessLevelEnum.none) {
-			const groupPerm = new PermissionEntity();
-			groupPerm.type = PermissionTypeEnum.Group;
-			groupPerm.accessLevel = permissions.group.accessLevel;
-			const saved = await this.globalDbContext.permissionRepository.saveNewOrUpdatedPermission(groupPerm);
-			group.permissions.push(saved);
-		}
-
-		for (const table of permissions.tables) {
-			const access = table.accessLevel;
-			if (access.visibility) {
-				const perm = new PermissionEntity();
-				perm.type = PermissionTypeEnum.Table;
-				perm.accessLevel = AccessLevelEnum.visibility;
-				perm.tableName = table.tableName;
-				const saved = await this.globalDbContext.permissionRepository.saveNewOrUpdatedPermission(perm);
-				group.permissions.push(saved);
-			}
-			if (access.readonly) {
-				const perm = new PermissionEntity();
-				perm.type = PermissionTypeEnum.Table;
-				perm.accessLevel = AccessLevelEnum.readonly;
-				perm.tableName = table.tableName;
-				const saved = await this.globalDbContext.permissionRepository.saveNewOrUpdatedPermission(perm);
-				group.permissions.push(saved);
-			}
-			if (access.add) {
-				const perm = new PermissionEntity();
-				perm.type = PermissionTypeEnum.Table;
-				perm.accessLevel = AccessLevelEnum.add;
-				perm.tableName = table.tableName;
-				const saved = await this.globalDbContext.permissionRepository.saveNewOrUpdatedPermission(perm);
-				group.permissions.push(saved);
-			}
-			if (access.edit) {
-				const perm = new PermissionEntity();
-				perm.type = PermissionTypeEnum.Table;
-				perm.accessLevel = AccessLevelEnum.edit;
-				perm.tableName = table.tableName;
-				const saved = await this.globalDbContext.permissionRepository.saveNewOrUpdatedPermission(perm);
-				group.permissions.push(saved);
-			}
-			if (access.delete) {
-				const perm = new PermissionEntity();
-				perm.type = PermissionTypeEnum.Table;
-				perm.accessLevel = AccessLevelEnum.delete;
-				perm.tableName = table.tableName;
-				const saved = await this.globalDbContext.permissionRepository.saveNewOrUpdatedPermission(perm);
-				group.permissions.push(saved);
-			}
-		}
-
-		await this.globalDbContext.groupRepository.saveNewOrUpdatedGroup(group);
-	}
 }

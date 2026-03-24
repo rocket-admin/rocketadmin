@@ -27,7 +27,7 @@ export class CreatedConnectionDTO {
 	masterEncryption: boolean;
 
 	@ApiProperty({ enum: ConnectionTypesEnum })
-	type: ConnectionTypesEnum | string;
+	type: ConnectionTypesEnum;
 
 	@ApiProperty()
 	host: string;

@@ -5,6 +5,7 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { AccessLevelEnum } from '../../../enums/access-level.enum.js';
 import { TablePermissionDs } from '../../permission/application/data-structures/create-permissions.ds.js';
+import { parseCedarPolicyToClassicalPermissions } from '../../cedar-authorization/cedar-policy-parser.js';
 import { FoundPermissionsInConnectionDs } from '../application/data-structures/found-permissions-in-connection.ds.js';
 import { GetPermissionsInConnectionDs } from '../application/data-structures/get-permissions-in-connection.ds.js';
 import { IGetPermissionsForGroupInConnection } from './use-cases.interfaces.js';
@@ -22,14 +23,25 @@ export class GetPermissionsForGroupInConnectionUseCase
 	}
 
 	protected async implementation(inputData: GetPermissionsInConnectionDs): Promise<FoundPermissionsInConnectionDs> {
-		const groupPermissionForConnection = await this._dbContext.permissionRepository.getGroupPermissionForConnection(
-			inputData.connectionId,
-			inputData.groupId,
-		);
-		const groupPermissionForGroup = await this._dbContext.permissionRepository.getGroupPermissionsForGroup(
-			inputData.connectionId,
-			inputData.groupId,
-		);
+		const group = await this._dbContext.groupRepository.findGroupById(inputData.groupId);
+
+		let connectionAccessLevel = AccessLevelEnum.none;
+		let groupAccessLevel = AccessLevelEnum.none;
+		const tablePermissionsMap = new Map<string, TablePermissionDs>();
+
+		if (group?.cedarPolicy) {
+			const parsed = parseCedarPolicyToClassicalPermissions(
+				group.cedarPolicy,
+				inputData.connectionId,
+				inputData.groupId,
+			);
+			connectionAccessLevel = parsed.connection.accessLevel;
+			groupAccessLevel = parsed.group.accessLevel;
+			for (const table of parsed.tables) {
+				tablePermissionsMap.set(table.tableName, table);
+			}
+		}
+
 		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(
 			inputData.connectionId,
 			inputData.masterPwd,
@@ -37,35 +49,34 @@ export class GetPermissionsForGroupInConnectionUseCase
 		const dao = getDataAccessObject(connection);
 		const tables: Array<string> = (await dao.getTablesFromDB()).map((table) => table.tableName);
 
-		const allTablePermissions = await this._dbContext.permissionRepository.getGroupPermissionsForAllTables(
-			inputData.connectionId,
-			inputData.groupId,
-		);
-
 		const tablesWithAccessLevels: Array<TablePermissionDs> = tables.map((tableName) => {
-			const tablePermissions = allTablePermissions.filter((p) => p.tableName === tableName);
+			const existing = tablePermissionsMap.get(tableName);
+			if (existing) {
+				return existing;
+			}
 			return {
 				tableName,
 				accessLevel: {
-					add: !!tablePermissions.find((el) => el.accessLevel === AccessLevelEnum.add),
-					delete: !!tablePermissions.find((el) => el.accessLevel === AccessLevelEnum.delete),
-					edit: !!tablePermissions.find((el) => el.accessLevel === AccessLevelEnum.edit),
-					readonly: !!tablePermissions.find((el) => el.accessLevel === AccessLevelEnum.readonly),
-					visibility: !!tablePermissions.find((el) => el.accessLevel === AccessLevelEnum.visibility),
+					add: false,
+					delete: false,
+					edit: false,
+					readonly: false,
+					visibility: false,
 				},
 			};
 		});
+
 		const allTableSettingsInConnection = await this._dbContext.tableSettingsRepository.findTableSettingsInConnection(
 			inputData.connectionId,
 		);
 		return {
 			connection: {
 				connectionId: inputData.connectionId,
-				accessLevel: groupPermissionForConnection,
+				accessLevel: connectionAccessLevel,
 			},
 			group: {
 				groupId: inputData.groupId,
-				accessLevel: groupPermissionForGroup,
+				accessLevel: groupAccessLevel,
 			},
 			tables: tablesWithAccessLevels.map((table) => {
 				const tableSettings = allTableSettingsInConnection.find(

@@ -1,0 +1,29 @@
+<h1 mat-dialog-title>Choose your hosted database plan</h1>
+
+<mat-dialog-content class="plan-dialog__content">
+	<button type="button" class="plan-dialog__option" (click)="chooseFree()">
+		<div class="plan-dialog__option-header">
+			<mat-icon>dns</mat-icon>
+			<span class="plan-dialog__option-title">Tiny node</span>
+		</div>
+		<p class="plan-dialog__option-description">
+			Up to 0.1 CPU and 100 MB storage
+		</p>
+		<span class="plan-dialog__option-price">Free</span>
+	</button>
+
+	<button type="button" class="plan-dialog__option" (click)="chooseUpgrade()">
+		<div class="plan-dialog__option-header">
+			<mat-icon>rocket_launch</mat-icon>
+			<span class="plan-dialog__option-title">Scalable node</span>
+		</div>
+		<p class="plan-dialog__option-description">
+			$0.04/CPU/minute, $0.2/GB/month and $0.04/million IOPS
+		</p>
+		<span class="plan-dialog__option-price">Pay as you go</span>
+	</button>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+	<button type="button" mat-button mat-dialog-close>Cancel</button>
+</mat-dialog-actions>

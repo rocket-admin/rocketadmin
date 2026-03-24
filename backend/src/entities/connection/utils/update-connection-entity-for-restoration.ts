@@ -1,5 +1,5 @@
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
-import { isConnectionEntityAgent } from '../../../helpers/index.js';
+import { isConnectionTypeAgent } from '../../../helpers/index.js';
 import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
 import { ConnectionEntity } from '../connection.entity.js';
 
@@ -17,7 +17,7 @@ export async function updateConnectionEntityForRestoration(
 	toUpdate.ssh = connection_parameters.ssh;
 	toUpdate.ssl = connection_parameters.ssl;
 	toUpdate.isTestConnection = isTestConnection;
-	if (!isConnectionEntityAgent(connection_parameters)) {
+	if (!isConnectionTypeAgent(connection_parameters.type)) {
 		toUpdate.masterEncryption = connection_parameters.masterEncryption;
 		toUpdate.host = connection_parameters.host;
 		toUpdate.port = connection_parameters.port;
