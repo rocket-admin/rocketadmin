@@ -22,7 +22,6 @@ import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards/index.js'
 import { SentryInterceptor } from '../../interceptors/index.js';
 import { CreateConnectionPropertiesDs } from './application/data-structures/create-connection-properties.ds.js';
 import { FoundConnectionPropertiesDs } from './application/data-structures/found-connection-properties.ds.js';
-import { IConnectionPropertiesRO } from './connection-properties.interface.js';
 import { CreateConnectionPropertiesDto } from './dto/create-connection-properties.dto.js';
 import {
 	ICreateConnectionProperties,
@@ -96,24 +95,9 @@ export class ConnectionPropertiesController {
 				HttpStatus.BAD_REQUEST,
 			);
 		}
-		const createConnectionPropertiesDs: CreateConnectionPropertiesDs = {
-			connectionId: connectionId,
-			master_password: masterPwd,
-			hidden_tables: connectionPropertiesData.hidden_tables,
-			userId: userId,
-			logo_url: connectionPropertiesData.logo_url,
-			primary_color: connectionPropertiesData.primary_color,
-			secondary_color: connectionPropertiesData.secondary_color,
-			hostname: connectionPropertiesData.hostname,
-			company_name: connectionPropertiesData.company_name,
-			tables_audit: connectionPropertiesData.tables_audit,
-			human_readable_table_names: connectionPropertiesData.human_readable_table_names,
-			allow_ai_requests: connectionPropertiesData.allow_ai_requests,
-			default_showing_table: connectionPropertiesData.default_showing_table,
-			table_categories: connectionPropertiesData.table_categories,
-		};
+		const inputData = this.buildConnectionPropertiesDs(connectionPropertiesData, connectionId, userId, masterPwd);
 
-		return await this.createConnectionPropertiesUseCase.execute(createConnectionPropertiesDs, InTransactionEnum.ON);
+		return await this.createConnectionPropertiesUseCase.execute(inputData, InTransactionEnum.ON);
 	}
 
 	@ApiOperation({ summary: 'Update connection properties' })
@@ -132,7 +116,7 @@ export class ConnectionPropertiesController {
 		@UserId() userId: string,
 		@MasterPassword() masterPwd: string,
 		@SlugUuid('connectionId') connectionId: string,
-	): Promise<IConnectionPropertiesRO> {
+	): Promise<FoundConnectionPropertiesDs> {
 		if (!connectionId) {
 			throw new HttpException(
 				{
@@ -142,22 +126,7 @@ export class ConnectionPropertiesController {
 			);
 		}
 
-		const inputData: CreateConnectionPropertiesDs = {
-			connectionId: connectionId,
-			master_password: masterPwd,
-			hidden_tables: connectionPropertiesData.hidden_tables,
-			userId: userId,
-			logo_url: connectionPropertiesData.logo_url,
-			primary_color: connectionPropertiesData.primary_color,
-			secondary_color: connectionPropertiesData.secondary_color,
-			company_name: connectionPropertiesData.company_name,
-			hostname: connectionPropertiesData.hostname,
-			tables_audit: connectionPropertiesData.tables_audit,
-			human_readable_table_names: connectionPropertiesData.human_readable_table_names,
-			allow_ai_requests: connectionPropertiesData.allow_ai_requests,
-			default_showing_table: connectionPropertiesData.default_showing_table,
-			table_categories: connectionPropertiesData.table_categories,
-		};
+		const inputData = this.buildConnectionPropertiesDs(connectionPropertiesData, connectionId, userId, masterPwd);
 
 		return await this.updateConnectionPropertiesUseCase.execute(inputData, InTransactionEnum.ON);
 	}
@@ -170,7 +139,7 @@ export class ConnectionPropertiesController {
 	})
 	@UseGuards(ConnectionEditGuard)
 	@Delete('/connection/properties/:connectionId')
-	async deleteConnectionProperties(@SlugUuid('connectionId') connectionId: string): Promise<IConnectionPropertiesRO> {
+	async deleteConnectionProperties(@SlugUuid('connectionId') connectionId: string): Promise<FoundConnectionPropertiesDs> {
 		if (!connectionId) {
 			throw new HttpException(
 				{
@@ -180,5 +149,19 @@ export class ConnectionPropertiesController {
 			);
 		}
 		return await this.deleteConnectionPropertiesUseCase.execute(connectionId, InTransactionEnum.ON);
+	}
+
+	private buildConnectionPropertiesDs(
+		dto: CreateConnectionPropertiesDto,
+		connectionId: string,
+		userId: string,
+		masterPwd: string,
+	): CreateConnectionPropertiesDs {
+		return {
+			connectionId,
+			userId,
+			master_password: masterPwd,
+			...dto,
+		};
 	}
 }

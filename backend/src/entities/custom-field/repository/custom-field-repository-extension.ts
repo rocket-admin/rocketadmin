@@ -1,7 +1,7 @@
 import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';
 import { CustomFieldsEntity } from '../custom-fields.entity.js';
 
-export const cusomFieldsCustomRepositoryExtension = {
+export const customFieldsCustomRepositoryExtension = {
 	async getCustomFields(connectionId: string, tableName: string): Promise<Array<CustomFieldsEntity>> {
 		const qb = this.manager
 			.getRepository(TableSettingsEntity)
