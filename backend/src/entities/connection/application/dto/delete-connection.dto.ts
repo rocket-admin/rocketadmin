@@ -4,11 +4,11 @@ import { IsOptional, IsString } from 'class-validator';
 export class DeleteConnectionReasonDto {
 	@IsOptional()
 	@IsString()
-	@ApiProperty()
-	reason: string;
+	@ApiProperty({ required: false })
+	reason?: string;
 
 	@IsOptional()
 	@IsString()
-	@ApiProperty()
-	message: string;
+	@ApiProperty({ required: false })
+	message?: string;
 }
