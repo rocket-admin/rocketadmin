@@ -8,10 +8,10 @@ export class ConnectionPropertiesEntity {
 	id: string;
 
 	@Column('varchar', { array: true, default: null })
-	hidden_tables: string[];
+	hidden_tables: string[] | null;
 
 	@Column({ default: null })
-	logo_url: string;
+	logo_url: string | null;
 
 	@Column({ default: '' })
 	primary_color: string;
@@ -20,10 +20,10 @@ export class ConnectionPropertiesEntity {
 	secondary_color: string;
 
 	@Column({ default: null })
-	hostname: string;
+	hostname: string | null;
 
 	@Column({ default: null })
-	company_name: string;
+	company_name: string | null;
 
 	@Column({ default: true, type: 'boolean' })
 	tables_audit: boolean;
@@ -35,7 +35,7 @@ export class ConnectionPropertiesEntity {
 	allow_ai_requests: boolean;
 
 	@Column({ default: null })
-	default_showing_table: string;
+	default_showing_table: string | null;
 
 	@OneToOne(
 		(_) => ConnectionEntity,
