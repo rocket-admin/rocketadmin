@@ -52,7 +52,7 @@ export const invitationInCompanyCustomRepositoryExtension: IInvitationInCompanyR
 			.leftJoinAndSelect('invitation_in_company.company', 'company')
 			.leftJoinAndSelect('company.users', 'users')
 			.where("invitation_in_company.createdAt > NOW() - INTERVAL '1 day'")
-			.where('invitation_in_company.verification_string = :verificationString', { verificationString });
+			.andWhere('invitation_in_company.verification_string = :verificationString', { verificationString });
 		return await qb.getOne();
 	},
 

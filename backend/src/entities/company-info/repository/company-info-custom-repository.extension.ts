@@ -26,13 +26,6 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
 			.getOne();
 	},
 
-	async finOneCompanyInfoByUserId(userId: string): Promise<CompanyInfoEntity> {
-		return await this.createQueryBuilder('company_info')
-			.leftJoinAndSelect('company_info.users', 'users')
-			.where('users.id = :userId', { userId })
-			.getOne();
-	},
-
 	async findCompanyInfoByUserId(userId: string): Promise<CompanyInfoEntity> {
 		return await this.createQueryBuilder('company_info')
 			.leftJoinAndSelect('company_info.users', 'users')
@@ -94,9 +87,10 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
 			.andWhere('connections.isTestConnection IS FALSE')
 			.andWhere('connections.is_frozen IS FALSE')
 			.getMany();
-		return foundCompaniesWithPaidConnections.map((companyInfo: CompanyInfoEntity) => {
-			return companyInfo.connections;
-		});
+		return foundCompaniesWithPaidConnections
+			.map((companyInfo: CompanyInfoEntity) => companyInfo.connections)
+			.filter(Boolean)
+			.flat();
 	},
 
 	async findCompanyFrozenPaidConnections(companyIds: Array<string>): Promise<Array<ConnectionEntity>> {
@@ -108,9 +102,10 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
 			.andWhere('connections.isTestConnection IS FALSE')
 			.andWhere('connections.is_frozen IS TRUE')
 			.getMany();
-		return foundCompaniesWithPaidConnections.map((companyInfo: CompanyInfoEntity) => {
-			return companyInfo.connections;
-		});
+		return foundCompaniesWithPaidConnections
+			.map((companyInfo: CompanyInfoEntity) => companyInfo.connections)
+			.filter(Boolean)
+			.flat();
 	},
 
 	async findCompanyWithLogo(companyId: string): Promise<CompanyInfoEntity> {
