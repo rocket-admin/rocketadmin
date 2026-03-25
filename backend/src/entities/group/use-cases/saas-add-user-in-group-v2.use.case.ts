@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -9,6 +9,7 @@ import { AddedUserInGroupDs } from '../application/data-sctructures/added-user-i
 import { buildFoundGroupResponseDto } from '../utils/biuld-found-group-response.dto.js';
 import { IAddUserInGroup } from './use-cases.interfaces.js';
 
+@Injectable({ scope: Scope.REQUEST })
 export class AddUserInGroupUseCase
 	extends AbstractUseCase<AddUserInGroupWithSaaSDs, AddedUserInGroupDs>
 	implements IAddUserInGroup

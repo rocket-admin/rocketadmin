@@ -3,10 +3,7 @@ import { Messages } from '../../../exceptions/text/messages.js';
 
 export function validateTableRowUtil(row: Record<string, unknown>, structure: Array<TableStructureDS>): Array<string> {
 	const errors = [];
-	const keys = Object.keys(row);
-	keys.map((key) => {
-		key.toLowerCase();
-	});
+	const keys = Object.keys(row).map((key) => key.toLowerCase());
 
 	for (let i = 0; i < structure.length; i++) {
 		try {

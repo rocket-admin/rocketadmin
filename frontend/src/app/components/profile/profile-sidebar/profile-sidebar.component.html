@@ -50,6 +50,17 @@
             <mat-icon matListItemIcon>payments</mat-icon>
             <span *ngIf="!collapsed()" matListItemTitle>Subscription</span>
         </a>
+        <a mat-list-item
+            *ngIf="isSaas"
+            routerLink="/hosted-databases"
+            [class.active-link]="activeTab() === 'hosted-databases'"
+            class="sidebar-nav-item"
+            [class.sidebar-nav-item_collapsed]="collapsed()"
+            [matTooltip]="collapsed() ? 'Hosted Databases' : ''"
+            matTooltipPosition="right">
+            <mat-icon matListItemIcon>dns</mat-icon>
+            <span *ngIf="!collapsed()" matListItemTitle>Hosted Databases</span>
+        </a>
 
         <div class="sidebar-divider" [class.sidebar-divider_collapsed]="collapsed()"></div>
         <span *ngIf="!collapsed()" class="sidebar-group-label">Customization</span>

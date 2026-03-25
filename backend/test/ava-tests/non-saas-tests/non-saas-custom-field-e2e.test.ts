@@ -1638,7 +1638,7 @@ test.serial(`${currentTest} should throw exception, when tableName passed in req
 		.set('Cookie', token)
 		.set('masterpwd', 'ahalaimahalai')
 		.set('Accept', 'application/json');
-	t.is(deleteCustomField.status, 400);
+	t.is(deleteCustomField.status, 404);
 	const deleteCustomFieldsRO = JSON.parse(deleteCustomField.text);
 	t.is(deleteCustomFieldsRO.message, Messages.TABLE_SETTINGS_NOT_FOUND);
 });
@@ -1746,7 +1746,7 @@ test.serial(`${currentTest} should throw exception, when field id passed in requ
 		.set('Cookie', token)
 		.set('masterpwd', 'ahalaimahalai')
 		.set('Accept', 'application/json');
-	t.is(deleteCustomField.status, 400);
+	t.is(deleteCustomField.status, 404);
 	const deleteCustomFieldsRO = JSON.parse(deleteCustomField.text);
 	t.is(deleteCustomFieldsRO.message, Messages.CUSTOM_FIELD_NOT_FOUND);
 });

@@ -27,7 +27,6 @@ import { SentryInterceptor } from '../../interceptors/index.js';
 import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { AmplitudeService } from '../amplitude/amplitude.service.js';
 import { FoundGroupResponseDto } from '../group/dto/found-group-response.dto.js';
-import { IComplexPermission } from '../permission/permission.interface.js';
 import { FindUserDs } from '../user/application/data-structures/find-user.ds.js';
 import { FoundUserDto } from '../user/dto/found-user.dto.js';
 import { CreateConnectionDs } from './application/data-structures/create-connection.ds.js';
@@ -291,7 +290,7 @@ export class ConnectionController {
 		@UserId() userId: string,
 		@MasterPassword() masterPwd: string,
 	): Promise<UpdatedConnectionResponseDTO> {
-		const errors = [];
+		const errors: string[] = [];
 		if (updateConnectionDto.masterEncryption && !masterPwd) {
 			errors.push(Messages.MASTER_PASSWORD_REQUIRED);
 		}
@@ -457,7 +456,7 @@ export class ConnectionController {
 		@QueryUuid('groupId') groupId: string,
 		@UserId() userId: string,
 		@MasterPassword() masterPwd: string,
-	): Promise<IComplexPermission> {
+	): Promise<FoundPermissionsInConnectionDs> {
 		if (!connectionId || !groupId) {
 			throw new BadRequestException(Messages.PARAMETER_MISSING);
 		}
@@ -481,7 +480,7 @@ export class ConnectionController {
 		@QueryUuid('groupId') groupId: string,
 		@UserId() userId: string,
 		@MasterPassword() masterPwd: string,
-	): Promise<IComplexPermission> {
+	): Promise<FoundPermissionsInConnectionDs> {
 		if (!connectionId || !groupId) {
 			throw new BadRequestException(Messages.PARAMETER_MISSING);
 		}
@@ -537,10 +536,11 @@ export class ConnectionController {
 		};
 		try {
 			await validateCreateConnectionData(inputData);
-		} catch (e) {
+		} catch (e: unknown) {
+			const err = e as { response?: { message?: string }; message?: string };
 			return {
 				result: false,
-				message: e?.response?.message || e?.message || Messages.CONNECTION_TYPE_INVALID,
+				message: err?.response?.message || err?.message || Messages.CONNECTION_TYPE_INVALID,
 			};
 		}
 		const result = await this.testConnectionUseCase.execute(inputData, InTransactionEnum.OFF);

@@ -85,7 +85,7 @@ export class FindOneConnectionUseCase
 		if (filteredConnection.masterEncryption && inputData.masterPwd && accessLevel !== AccessLevelEnum.none) {
 			try {
 				filteredConnection = Encryptor.decryptConnectionCredentials(connection, inputData.masterPwd);
-			} catch (e) {
+			} catch (e: unknown) {
 				console.error('-> Error decrypting connection credentials', e);
 				throw new HttpException(
 					{

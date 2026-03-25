@@ -1,0 +1,65 @@
+<div class="profile-layout">
+	<app-profile-sidebar activeTab="hosted-databases"></app-profile-sidebar>
+
+	<div class="profile-main">
+		<app-alert></app-alert>
+
+		<div class="hosted-databases-page">
+			<h1 class="mat-h1">Hosted Databases</h1>
+			<p class="hosted-databases-description">
+				Manage your hosted PostgreSQL database instances.
+			</p>
+
+			<div class="hosted-databases-content">
+				@if (loading()) {
+					<div class="hosted-databases-loading">
+						<p>Loading databases...</p>
+					</div>
+				} @else if (databases()?.length === 0) {
+					<div class="hosted-databases-empty">
+						<mat-icon class="hosted-databases-empty__icon">dns</mat-icon>
+						<p>No hosted databases yet.</p>
+						<p class="hosted-databases-empty__hint">Create one from the connections page.</p>
+					</div>
+				} @else {
+					<div class="hosted-databases-list">
+						@for (db of databases(); track db.id) {
+							<div class="db-card">
+								<div class="db-card__info">
+									<div class="db-card__name">{{ db.databaseName }}</div>
+									<div class="db-card__details">
+										<span class="db-card__detail">
+											<span class="db-card__detail-label">Host:</span>
+											{{ db.hostname }}
+										</span>
+										<span class="db-card__detail">
+											<span class="db-card__detail-label">Port:</span>
+											{{ db.port }}
+										</span>
+										<span class="db-card__detail">
+											<span class="db-card__detail-label">User:</span>
+											{{ db.username }}
+										</span>
+									</div>
+								</div>
+								<div class="db-card__actions">
+									<button type="button" mat-icon-button
+										matTooltip="Reset password"
+										(click)="resetPassword(db)">
+										<mat-icon>lock_reset</mat-icon>
+									</button>
+									<button type="button" mat-icon-button
+										color="warn"
+										matTooltip="Delete database"
+										(click)="deleteDatabase(db)">
+										<mat-icon>delete</mat-icon>
+									</button>
+								</div>
+							</div>
+						}
+					</div>
+				}
+			</div>
+		</div>
+	</div>
+</div>

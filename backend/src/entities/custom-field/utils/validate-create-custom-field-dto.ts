@@ -9,7 +9,6 @@ import { CreateFieldDto } from '../application/data-structures/create-custom-fie
 export async function validateCreateCustomFieldDto(
 	createFieldDto: CreateFieldDto,
 	connection: ConnectionEntity,
-	_userId: string,
 	tableName: string,
 ): Promise<void> {
 	const errors = [];

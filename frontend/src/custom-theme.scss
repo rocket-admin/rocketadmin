@@ -32,11 +32,13 @@ html {
   --warning-color: #f79008;
   --info-color: #296ee9;
   --success-color: #1b5e20;
+  --alternative-color: #6d28d9;
 
   --error-background-color: color-mix(in hsl, var(--error-color), transparent 95%);
   --warning-background-color: color-mix(in hsl, var(--warning-color), transparent 95%);
   --info-background-color: color-mix(in hsl, var(--info-color), transparent 95%);
   --success-background-color: color-mix(in hsl, var(--success-color), transparent 95%);
+  --alternative-background-color: color-mix(in hsl, var(--alternative-color), transparent 95%);
 }
 
 @media (prefers-color-scheme: dark) {

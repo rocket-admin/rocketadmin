@@ -134,7 +134,7 @@ import { ValidateConnectionTokenUseCase } from './use-cases/validate-connection-
 	controllers: [ConnectionController],
 })
 export class ConnectionModule implements NestModule {
-	public configure(consumer: MiddlewareConsumer): any {
+	public configure(consumer: MiddlewareConsumer): void {
 		consumer
 			.apply(AuthMiddleware)
 			.forRoutes(

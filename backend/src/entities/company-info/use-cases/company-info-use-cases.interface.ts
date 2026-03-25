@@ -84,6 +84,8 @@ export interface ISuspendUsersInCompany {
 	execute(inputData: SuspendUsersInCompanyDS, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
 
+export type IUnsuspendUsersInCompany = ISuspendUsersInCompany;
+
 export interface IToggleCompanyTestConnectionsMode {
 	execute(inputData: ToggleTestConnectionDisplayModeDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }

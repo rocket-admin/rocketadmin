@@ -40,7 +40,7 @@ export class RequestEmailVerificationUseCase
 				HttpStatus.BAD_REQUEST,
 			);
 		}
-		const foundUserCompany = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(foundUser.id);
+		const foundUserCompany = await this._dbContext.companyInfoRepository.findCompanyInfoByUserId(foundUser.id);
 		const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(foundUserCompany.id);
 
 		const { rawToken } = await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(foundUser);

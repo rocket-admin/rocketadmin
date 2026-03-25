@@ -25,15 +25,26 @@ export class AgentEntity {
 	@Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
 	updatedAt: Date;
 
+	private _tokenChanged = false;
+
+	setToken(token: string): void {
+		this.token = token;
+		this._tokenChanged = true;
+	}
+
 	@BeforeInsert()
 	encryptToken(): void {
 		this.token = Encryptor.hashDataHMAC(this.token);
+		this._tokenChanged = false;
 	}
 
 	@BeforeUpdate()
 	updateTimestampAndEncryptToken(): void {
 		this.updatedAt = new Date();
-		this.token = Encryptor.hashDataHMAC(this.token);
+		if (this._tokenChanged) {
+			this.token = Encryptor.hashDataHMAC(this.token);
+			this._tokenChanged = false;
+		}
 	}
 
 	@OneToOne(

@@ -90,9 +90,9 @@ export async function validateCreateConnectionData(
 	}
 }
 
-function validateConnectionType(type: string): string {
+function validateConnectionType(type: string): boolean {
 	if (process.env.NODE_ENV === 'test') {
-		return Object.keys(ConnectionTypeTestEnum).find((key) => key === type);
+		return !!Object.keys(ConnectionTypeTestEnum).find((key) => key === type);
 	}
-	return Object.keys(ConnectionTypesEnum).find((key) => key === type);
+	return !!Object.keys(ConnectionTypesEnum).find((key) => key === type);
 }
