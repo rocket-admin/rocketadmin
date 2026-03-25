@@ -1,5 +1,4 @@
-import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { UsersService } from 'src/app/services/users.service';
@@ -8,32 +7,24 @@ import { UsersService } from 'src/app/services/users.service';
 	selector: 'app-user-delete-dialog',
 	templateUrl: './user-delete-dialog.component.html',
 	styleUrls: ['./user-delete-dialog.component.css'],
-	imports: [CommonModule, MatButtonModule, MatDialogModule],
+	imports: [MatButtonModule, MatDialogModule],
 })
-export class UserDeleteDialogComponent implements OnInit {
-	public submitting: boolean = false;
+export class UserDeleteDialogComponent {
+	private _usersService = inject(UsersService);
+	protected dialogRef = inject<MatDialogRef<UserDeleteDialogComponent>>(MatDialogRef);
 
-	constructor(
-		@Inject(MAT_DIALOG_DATA) public data: any,
-		private _usersService: UsersService,
-		public dialogRef: MatDialogRef<UserDeleteDialogComponent>,
-	) {}
+	protected submitting = signal(false);
 
-	ngOnInit(): void {
-		this._usersService.cast.subscribe();
-	}
+	// biome-ignore lint/suspicious/noExplicitAny: legacy dialog data type
+	constructor(@Inject(MAT_DIALOG_DATA) public data: any) {}
 
-	deleteGroupUser() {
-		this.submitting = true;
-		this._usersService.deleteGroupUser(this.data.user.email, this.data.group.id).subscribe(
-			() => {
-				this.dialogRef.close();
-				this.submitting = false;
-			},
-			() => {},
-			() => {
-				this.submitting = false;
-			},
-		);
+	async deleteGroupUser() {
+		this.submitting.set(true);
+		try {
+			await this._usersService.deleteGroupUser(this.data.user.email, this.data.group.id);
+			this.dialogRef.close();
+		} finally {
+			this.submitting.set(false);
+		}
 	}
 }

@@ -1,12 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { CedarPolicyItem, PolicyActionGroup, POLICY_ACTION_GROUPS, POLICY_ACTIONS } from 'src/app/lib/cedar-policy-items';
+import {
+	CedarPolicyItem,
+	POLICY_ACTION_GROUPS,
+	POLICY_ACTIONS,
+	PolicyActionGroup,
+} from 'src/app/lib/cedar-policy-items';
 import { ContentLoaderComponent } from '../../ui-components/content-loader/content-loader.component';
 
 export interface AvailableTable {
@@ -42,13 +47,14 @@ export interface PolicyGroup {
 	templateUrl: './cedar-policy-list.component.html',
 	styleUrls: ['./cedar-policy-list.component.css'],
 })
-export class CedarPolicyListComponent implements OnChanges {
-	@Input() policies: CedarPolicyItem[] = [];
-	@Input() availableTables: AvailableTable[] = [];
-	@Input() availableDashboards: AvailableDashboard[] = [];
-	@Input() loading: boolean = false;
-	@Output() policiesChange = new EventEmitter<CedarPolicyItem[]>();
+export class CedarPolicyListComponent {
+	readonly policies = input<CedarPolicyItem[]>([]);
+	readonly availableTables = input<AvailableTable[]>([]);
+	readonly availableDashboards = input<AvailableDashboard[]>([]);
+	readonly loading = input(false);
+	readonly policiesChange = output<CedarPolicyItem[]>();
 
+	// Form state - plain properties for ngModel binding
 	showAddForm = false;
 	newAction = '';
 	newTableName = '';
@@ -61,36 +67,51 @@ export class CedarPolicyListComponent implements OnChanges {
 
 	collapsedGroups = new Set<string>();
 
-	availableActions = POLICY_ACTIONS;
+	private _availableActions = POLICY_ACTIONS;
 
-	groupedPolicies: PolicyGroup[] = [];
-	addActionGroups: PolicyActionGroup[] = [];
-	editActionGroups: PolicyActionGroup[] = [];
-
-	usedTables = new Map<string, string[]>();
-	usedDashboards = new Map<string, string[]>();
-
-	ngOnChanges(changes: SimpleChanges): void {
-		if (changes['policies']) {
-			this._refreshViews();
-		}
-	}
+	// Computed derived views
+	protected groupedPolicies = computed(() => this._computeGroupedPolicies());
+	protected addActionGroups = computed(() => this._buildFilteredGroups(-1));
 
 	get needsTable(): boolean {
-		return this.availableActions.find((a) => a.value === this.newAction)?.needsTable ?? false;
+		return this._availableActions.find((a) => a.value === this.newAction)?.needsTable ?? false;
 	}
 
 	get needsDashboard(): boolean {
-		return this.availableActions.find((a) => a.value === this.newAction)?.needsDashboard ?? false;
+		return this._availableActions.find((a) => a.value === this.newAction)?.needsDashboard ?? false;
 	}
 
 	get editNeedsTable(): boolean {
-		return this.availableActions.find((a) => a.value === this.editAction)?.needsTable ?? false;
+		return this._availableActions.find((a) => a.value === this.editAction)?.needsTable ?? false;
 	}
 
 	get editNeedsDashboard(): boolean {
-		return this.availableActions.find((a) => a.value === this.editAction)?.needsDashboard ?? false;
+		return this._availableActions.find((a) => a.value === this.editAction)?.needsDashboard ?? false;
 	}
+
+	protected usedTables = computed(() => {
+		const map = new Map<string, string[]>();
+		for (const p of this.policies()) {
+			if (p.tableName) {
+				const labels = map.get(p.tableName) || [];
+				labels.push(this._shortLabels[p.action] || p.action);
+				map.set(p.tableName, labels);
+			}
+		}
+		return map;
+	});
+
+	protected usedDashboards = computed(() => {
+		const map = new Map<string, string[]>();
+		for (const p of this.policies()) {
+			if (p.dashboardId) {
+				const labels = map.get(p.dashboardId) || [];
+				labels.push(this._shortLabels[p.action] || p.action);
+				map.set(p.dashboardId, labels);
+			}
+		}
+		return map;
+	});
 
 	toggleGroup(label: string) {
 		if (this.collapsedGroups.has(label)) {
@@ -104,28 +125,12 @@ export class CedarPolicyListComponent implements OnChanges {
 		return this.collapsedGroups.has(label);
 	}
 
-	trackByGroup(_index: number, group: PolicyGroup): string {
-		return group.label;
-	}
-
-	trackByPolicy(_index: number, entry: { item: CedarPolicyItem; originalIndex: number }): number {
-		return entry.originalIndex;
-	}
-
-	trackByActionGroup(_index: number, group: PolicyActionGroup): string {
-		return group.group;
-	}
-
-	trackByAction(_index: number, action: { value: string }): string {
-		return action.value;
-	}
-
 	getTableUsedHint(tableName: string): string {
-		return this.usedTables.get(tableName)?.join(', ') || '';
+		return this.usedTables().get(tableName)?.join(', ') || '';
 	}
 
 	getDashboardUsedHint(dashboardId: string): string {
-		return this.usedDashboards.get(dashboardId)?.join(', ') || '';
+		return this.usedDashboards().get(dashboardId)?.join(', ') || '';
 	}
 
 	getActionIcon(action: string): string {
@@ -137,17 +142,17 @@ export class CedarPolicyListComponent implements OnChanges {
 	}
 
 	getActionLabel(action: string): string {
-		return this.availableActions.find((a) => a.value === action)?.label || action;
+		return this._availableActions.find((a) => a.value === action)?.label || action;
 	}
 
 	getTableDisplayName(tableName: string): string {
 		if (tableName === '*') return 'All tables';
-		return this.availableTables.find((t) => t.tableName === tableName)?.displayName || tableName;
+		return this.availableTables().find((t) => t.tableName === tableName)?.displayName || tableName;
 	}
 
 	getDashboardDisplayName(dashboardId: string): string {
 		if (dashboardId === '*') return 'All dashboards';
-		return this.availableDashboards.find((d) => d.id === dashboardId)?.name || dashboardId;
+		return this.availableDashboards().find((d) => d.id === dashboardId)?.name || dashboardId;
 	}
 
 	hasPendingChanges(): boolean {
@@ -164,7 +169,8 @@ export class CedarPolicyListComponent implements OnChanges {
 		if (this.needsTable && !this.newTableName) return;
 		if (this.needsDashboard && !this.newDashboardId) return;
 
-		const duplicate = this.policies.some((p) => {
+		const currentPolicies = this.policies();
+		const duplicate = currentPolicies.some((p) => {
 			if (p.action !== this.newAction) return false;
 			if (this.needsTable) return p.tableName === this.newTableName;
 			if (this.needsDashboard) return p.dashboardId === this.newDashboardId;
@@ -179,24 +185,24 @@ export class CedarPolicyListComponent implements OnChanges {
 		if (this.needsDashboard) {
 			item.dashboardId = this.newDashboardId;
 		}
-		this.policies = [...this.policies, item];
-		this.policiesChange.emit(this.policies);
+		this.policiesChange.emit([...currentPolicies, item]);
 		this.resetAddForm();
-		this._refreshViews();
 	}
 
 	removePolicy(index: number) {
-		this.policies = this.policies.filter((_, i) => i !== index);
-		this.policiesChange.emit(this.policies);
-		this._refreshViews();
+		this.policiesChange.emit(this.policies().filter((_, i) => i !== index));
 	}
 
 	startEdit(index: number) {
+		const p = this.policies()[index];
 		this.editingIndex = index;
-		this.editAction = this.policies[index].action;
-		this.editTableName = this.policies[index].tableName || '';
-		this.editDashboardId = this.policies[index].dashboardId || '';
-		this.editActionGroups = this._buildFilteredGroups(index);
+		this.editAction = p.action;
+		this.editTableName = p.tableName || '';
+		this.editDashboardId = p.dashboardId || '';
+	}
+
+	get editActionGroups(): PolicyActionGroup[] {
+		return this._buildFilteredGroups(this.editingIndex ?? -1);
 	}
 
 	saveEdit(index: number) {
@@ -204,16 +210,14 @@ export class CedarPolicyListComponent implements OnChanges {
 		if (this.editNeedsTable && !this.editTableName) return;
 		if (this.editNeedsDashboard && !this.editDashboardId) return;
 
-		const updated = [...this.policies];
+		const updated = [...this.policies()];
 		updated[index] = {
 			action: this.editAction,
 			tableName: this.editNeedsTable ? this.editTableName : undefined,
 			dashboardId: this.editNeedsDashboard ? this.editDashboardId : undefined,
 		};
-		this.policies = updated;
-		this.policiesChange.emit(this.policies);
+		this.policiesChange.emit(updated);
 		this.editingIndex = null;
-		this._refreshViews();
 	}
 
 	cancelEdit() {
@@ -228,11 +232,35 @@ export class CedarPolicyListComponent implements OnChanges {
 	}
 
 	private _groupConfig = [
-		{ prefix: '*', label: 'General', description: 'Full access to everything', icon: 'admin_panel_settings', colorClass: 'general' },
-		{ prefix: 'connection:', label: 'Connection', description: 'Connection settings access', icon: 'cable', colorClass: 'connection' },
+		{
+			prefix: '*',
+			label: 'General',
+			description: 'Full access to everything',
+			icon: 'admin_panel_settings',
+			colorClass: 'general',
+		},
+		{
+			prefix: 'connection:',
+			label: 'Connection',
+			description: 'Connection settings access',
+			icon: 'cable',
+			colorClass: 'connection',
+		},
 		{ prefix: 'group:', label: 'Group', description: 'User group management', icon: 'group', colorClass: 'group' },
-		{ prefix: 'table:', label: 'Table', description: 'Table data operations', icon: 'table_chart', colorClass: 'table' },
-		{ prefix: 'dashboard:', label: 'Dashboard', description: 'Dashboard access', icon: 'dashboard', colorClass: 'dashboard' },
+		{
+			prefix: 'table:',
+			label: 'Table',
+			description: 'Table data operations',
+			icon: 'table_chart',
+			colorClass: 'table',
+		},
+		{
+			prefix: 'dashboard:',
+			label: 'Dashboard',
+			description: 'Dashboard access',
+			icon: 'dashboard',
+			colorClass: 'dashboard',
+		},
 	];
 
 	private _actionIcons: Record<string, string> = {
@@ -271,60 +299,41 @@ export class CedarPolicyListComponent implements OnChanges {
 		'dashboard:delete': 'Delete',
 	};
 
-	private _refreshViews() {
-		this.groupedPolicies = this._groupConfig
+	private _computeGroupedPolicies(): PolicyGroup[] {
+		const policies = this.policies();
+		return this._groupConfig
 			.map((cfg) => ({
 				label: cfg.label,
 				description: cfg.description,
 				icon: cfg.icon,
 				colorClass: cfg.colorClass,
-				policies: this.policies
+				policies: policies
 					.map((item, i) => ({ item, originalIndex: i }))
-					.filter(({ item }) =>
-						cfg.prefix === '*' ? item.action === '*' : item.action.startsWith(cfg.prefix),
-					),
+					.filter(({ item }) => (cfg.prefix === '*' ? item.action === '*' : item.action.startsWith(cfg.prefix))),
 			}))
 			.filter((g) => g.policies.length > 0);
-
-		this.addActionGroups = this._buildFilteredGroups(-1);
-
-		this.usedTables = new Map<string, string[]>();
-		this.usedDashboards = new Map<string, string[]>();
-		for (const p of this.policies) {
-			if (p.tableName) {
-				const labels = this.usedTables.get(p.tableName) || [];
-				labels.push(this._shortLabels[p.action] || p.action);
-				this.usedTables.set(p.tableName, labels);
-			}
-			if (p.dashboardId) {
-				const labels = this.usedDashboards.get(p.dashboardId) || [];
-				labels.push(this._shortLabels[p.action] || p.action);
-				this.usedDashboards.set(p.dashboardId, labels);
-			}
-		}
 	}
 
 	private _buildFilteredGroups(excludeIndex: number): PolicyActionGroup[] {
+		const policies = this.policies();
 		const existingSimple = new Set(
-			this.policies
+			policies
 				.filter((p, i) => {
 					if (i === excludeIndex) return false;
-					const def = this.availableActions.find((a) => a.value === p.action);
+					const def = this._availableActions.find((a) => a.value === p.action);
 					return def && !def.needsTable && !def.needsDashboard;
 				})
 				.map((p) => p.action),
 		);
 
-		return POLICY_ACTION_GROUPS
-			.map((group) => ({
-				...group,
-				actions: group.actions.filter((action) => {
-					if (!action.needsTable && !action.needsDashboard) {
-						return !existingSimple.has(action.value);
-					}
-					return true;
-				}),
-			}))
-			.filter((group) => group.actions.length > 0);
+		return POLICY_ACTION_GROUPS.map((group) => ({
+			...group,
+			actions: group.actions.filter((action) => {
+				if (!action.needsTable && !action.needsDashboard) {
+					return !existingSimple.has(action.value);
+				}
+				return true;
+			}),
+		})).filter((group) => group.actions.length > 0);
 	}
 }

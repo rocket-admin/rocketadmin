@@ -3,32 +3,29 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideRouter } from '@angular/router';
 import { Angulartics2Module } from 'angulartics2';
-import { of } from 'rxjs';
 import { UsersService } from 'src/app/services/users.service';
 import { UserAddDialogComponent } from './user-add-dialog.component';
 
 describe('UserAddDialogComponent', () => {
 	let component: UserAddDialogComponent;
 	let fixture: ComponentFixture<UserAddDialogComponent>;
-	let usersService: UsersService;
 
 	const mockDialogRef = {
-		close: () => {},
+		close: vi.fn(),
+	};
+
+	const mockUsersService: Partial<UsersService> = {
+		addGroupUser: vi.fn().mockResolvedValue(undefined),
 	};
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			imports: [
-				RouterTestingModule,
-				MatSnackBarModule,
-				FormsModule,
-				Angulartics2Module.forRoot(),
-				UserAddDialogComponent,
-			],
+			imports: [MatSnackBarModule, FormsModule, Angulartics2Module.forRoot(), UserAddDialogComponent],
 			providers: [
 				provideHttpClient(),
+				provideRouter([]),
 				{
 					provide: MAT_DIALOG_DATA,
 					useValue: {
@@ -40,6 +37,7 @@ describe('UserAddDialogComponent', () => {
 					},
 				},
 				{ provide: MatDialogRef, useValue: mockDialogRef },
+				{ provide: UsersService, useValue: mockUsersService },
 			],
 		}).compileComponents();
 	});
@@ -47,7 +45,6 @@ describe('UserAddDialogComponent', () => {
 	beforeEach(() => {
 		fixture = TestBed.createComponent(UserAddDialogComponent);
 		component = fixture.componentInstance;
-		usersService = TestBed.inject(UsersService);
 		fixture.detectChanges();
 	});
 
@@ -55,18 +52,15 @@ describe('UserAddDialogComponent', () => {
 		expect(component).toBeTruthy();
 	});
 
-	it('should call add user service', () => {
-		component.groupUserEmail = 'user@test.com';
-		const fakeAddUser = vi.spyOn(usersService, 'addGroupUser').mockReturnValue(of());
-		// vi.spyOn(mockDialogRef, 'close');
+	it('should call add user service', async () => {
+		const testable = component as unknown as UserAddDialogComponent & {
+			groupUserEmail: string;
+			joinGroupUser: () => Promise<void>;
+		};
+		testable.groupUserEmail = 'user@test.com';
 
-		component.joinGroupUser();
-		expect(fakeAddUser).toHaveBeenCalledWith('12345678-123', 'user@test.com');
+		await testable.joinGroupUser();
 
-		// fixture.detectChanges();
-		// fixture.whenStable().then(() => {
-		//   expect(component.dialogRef.close).toHaveBeenCalled();
-		//   expect(component.submitting).toBe(false);
-		// });
+		expect(mockUsersService.addGroupUser).toHaveBeenCalledWith('12345678-123', 'user@test.com');
 	});
 });

@@ -10,8 +10,21 @@ import { Angulartics2Module } from 'angulartics2';
 import { of } from 'rxjs';
 import { DashboardsService } from 'src/app/services/dashboards.service';
 import { TablesService } from 'src/app/services/tables.service';
+import { UsersService } from 'src/app/services/users.service';
 import { MockCodeEditorComponent } from 'src/app/testing/code-editor.mock';
 import { CedarPolicyEditorDialogComponent } from './cedar-policy-editor-dialog.component';
+
+type CedarPolicyEditorTestable = CedarPolicyEditorDialogComponent & {
+	// biome-ignore lint/suspicious/noExplicitAny: test helper type for accessing protected signals
+	allTables: ReturnType<typeof signal<any[]>>;
+	// biome-ignore lint/suspicious/noExplicitAny: test helper type for accessing protected signals
+	availableTables: ReturnType<typeof signal<any[]>>;
+	loading: ReturnType<typeof signal<boolean>>;
+	// biome-ignore lint/suspicious/noExplicitAny: test helper type for accessing protected signals
+	policyItems: ReturnType<typeof signal<any[]>>;
+	editorMode: ReturnType<typeof signal<string>>;
+	cedarPolicy: ReturnType<typeof signal<string>>;
+};
 
 describe('CedarPolicyEditorDialogComponent', () => {
 	let component: CedarPolicyEditorDialogComponent;
@@ -47,6 +60,10 @@ describe('CedarPolicyEditorDialogComponent', () => {
 		');',
 	].join('\n');
 
+	const mockUsersService: Partial<UsersService> = {
+		saveCedarPolicy: vi.fn().mockResolvedValue(undefined),
+	};
+
 	beforeEach(() => {
 		dashboardsService = {
 			dashboards: signal([
@@ -72,6 +89,7 @@ describe('CedarPolicyEditorDialogComponent', () => {
 				},
 				{ provide: MatDialogRef, useValue: mockDialogRef },
 				{ provide: DashboardsService, useValue: dashboardsService },
+				{ provide: UsersService, useValue: mockUsersService },
 			],
 		})
 			.overrideComponent(CedarPolicyEditorDialogComponent, {
@@ -93,24 +111,28 @@ describe('CedarPolicyEditorDialogComponent', () => {
 	});
 
 	it('should load tables on init', () => {
+		const testable = component as unknown as CedarPolicyEditorTestable;
 		expect(tablesService.fetchTables).toHaveBeenCalled();
-		expect(component.allTables.length).toBe(2);
-		expect(component.availableTables.length).toBe(2);
-		expect(component.loading).toBe(false);
+		expect(testable.allTables().length).toBe(2);
+		expect(testable.availableTables().length).toBe(2);
+		expect(testable.loading()).toBe(false);
 	});
 
 	it('should pre-populate policy items from existing cedar policy', () => {
-		expect(component.policyItems.length).toBeGreaterThan(0);
-		expect(component.policyItems.some((item) => item.action === 'connection:read')).toBe(true);
+		const testable = component as unknown as CedarPolicyEditorTestable;
+		expect(testable.policyItems().length).toBeGreaterThan(0);
+		expect(testable.policyItems().some((item) => item.action === 'connection:read')).toBe(true);
 	});
 
 	it('should start in form mode', () => {
-		expect(component.editorMode).toBe('form');
+		const testable = component as unknown as CedarPolicyEditorTestable;
+		expect(testable.editorMode()).toBe('form');
 	});
 
 	it('should switch to code mode', () => {
+		const testable = component as unknown as CedarPolicyEditorTestable;
 		component.onEditorModeChange('code');
-		expect(component.editorMode).toBe('code');
-		expect(component.cedarPolicy).toBeTruthy();
+		expect(testable.editorMode()).toBe('code');
+		expect(testable.cedarPolicy()).toBeTruthy();
 	});
 });

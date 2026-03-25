@@ -1,5 +1,4 @@
-import { NgIf } from '@angular/common';
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -12,34 +11,26 @@ import { GroupNameEditDialogComponent as Self } from './group-name-edit-dialog.c
 	selector: 'app-group-name-edit-dialog',
 	templateUrl: './group-name-edit-dialog.component.html',
 	styleUrls: ['./group-name-edit-dialog.component.css'],
-	imports: [NgIf, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule, FormsModule],
+	imports: [MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule, FormsModule],
 })
 export class GroupNameEditDialogComponent {
-	public groupTitle: string = '';
-	public submitting: boolean = false;
+	private _usersService = inject(UsersService);
+	protected dialogRef = inject<MatDialogRef<Self>>(MatDialogRef);
 
-	constructor(
-		@Inject(MAT_DIALOG_DATA) public group: { id: string; title: string },
-		public _usersService: UsersService,
-		public dialogRef: MatDialogRef<Self>,
-	) {}
+	protected groupTitle: string;
+	protected submitting = signal(false);
 
-	ngOnInit(): void {
+	constructor(@Inject(MAT_DIALOG_DATA) public group: { id: string; title: string }) {
 		this.groupTitle = this.group.title;
-		this._usersService.cast.subscribe();
 	}
 
-	addGroup() {
-		this.submitting = true;
-		this._usersService.editUsersGroupName(this.group.id, this.groupTitle).subscribe(
-			() => {
-				this.submitting = false;
-				this.dialogRef.close();
-			},
-			() => {},
-			() => {
-				this.submitting = false;
-			},
-		);
+	async addGroup() {
+		this.submitting.set(true);
+		try {
+			await this._usersService.editGroupName(this.group.id, this.groupTitle);
+			this.dialogRef.close();
+		} finally {
+			this.submitting.set(false);
+		}
 	}
 }

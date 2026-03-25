@@ -1,5 +1,5 @@
-import { CommonModule, NgClass, NgForOf, NgIf } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
@@ -10,9 +10,8 @@ import { Title } from '@angular/platform-browser';
 import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import { differenceBy } from 'lodash-es';
 import posthog from 'posthog-js';
-import { forkJoin, Observable, Subscription, take, tap } from 'rxjs';
-import { Connection } from 'src/app/models/connection';
-import { GroupUser, User, UserGroup, UserGroupInfo } from 'src/app/models/user';
+import { take } from 'rxjs';
+import { GroupUser, User, UserGroup } from 'src/app/models/user';
 import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { UserService } from 'src/app/services/user.service';
@@ -29,10 +28,6 @@ import { UserDeleteDialogComponent } from './user-delete-dialog/user-delete-dial
 @Component({
 	selector: 'app-users',
 	imports: [
-		NgIf,
-		NgForOf,
-		NgClass,
-		CommonModule,
 		MatButtonModule,
 		MatIconModule,
 		MatListModule,
@@ -46,147 +41,103 @@ import { UserDeleteDialogComponent } from './user-delete-dialog/user-delete-dial
 	templateUrl: './users.component.html',
 	styleUrls: ['./users.component.css'],
 })
-export class UsersComponent implements OnInit, OnDestroy {
+export class UsersComponent implements OnInit {
+	private _usersService = inject(UsersService);
+	private _userService = inject(UserService);
+	private _connections = inject(ConnectionsService);
+	private _company = inject(CompanyService);
+	private _dialog = inject(MatDialog);
+	private _title = inject(Title);
+	private _destroyRef = inject(DestroyRef);
+
 	protected posthog = posthog;
-	public users: { [key: string]: GroupUser[] | 'empty' } = {};
-	public currentUser: User;
-	public groups: UserGroupInfo[] | null = null;
-	public currentConnection: Connection;
-	public connectionID: string | null = null;
-	public companyMembers: [];
+	protected connectionID: string | null = null;
+
+	protected currentUser = signal<User | null>(null);
 	// biome-ignore lint/suspicious/noExplicitAny: legacy company member type
-	public companyMembersWithoutAccess: any = [];
-	private usersSubscription: Subscription;
+	protected companyMembers = signal<any[]>([]);
 
-	constructor(
-		private _usersService: UsersService,
-		private _userService: UserService,
-		private _connections: ConnectionsService,
-		private _company: CompanyService,
-		public dialog: MatDialog,
-		private title: Title,
-		_angulartics2: Angulartics2,
-	) {}
+	protected groups = computed(() => {
+		const g = this._usersService.groups();
+		return g.length > 0 || !this._usersService.groupsLoading() ? g : null;
+	});
 
-	ngOnInit() {
-		this._connections
-			.getCurrentConnectionTitle()
-			.pipe(take(1))
-			.subscribe((connectionTitle) => {
-				this.title.setTitle(
-					`User permissions - ${connectionTitle} | ${this._company.companyTabTitle || 'Rocketadmin'}`,
-				);
-			});
-		this.connectionID = this._connections.currentConnectionID;
-		this.getUsersGroups();
+	protected groupUsers = this._usersService.groupUsers;
 
-		this._userService.cast.subscribe((user) => {
-			this.currentUser = user;
+	protected companyMembersWithoutAccess = computed(() => {
+		const members = this.companyMembers();
+		const users = this.groupUsers();
+		const allGroupUsers = Object.values(users).flat();
+		return differenceBy(members, allGroupUsers, 'email');
+	});
 
-			this._company.fetchCompanyMembers(this.currentUser.company.id).subscribe((members) => {
-				this.companyMembers = members;
-			});
+	constructor() {
+		// React to group update events
+		effect(() => {
+			const action = this._usersService.groupsUpdated();
+			if (!action) return;
+
+			if (action === 'user-added' || action === 'user-deleted') {
+				// Refresh all group users to get updated data
+				const currentGroups = this._usersService.groups();
+				if (currentGroups.length) {
+					this._usersService.fetchAllGroupUsers(currentGroups);
+				}
+			} else {
+				// Group-level changes: refresh groups resource, then users
+				this._usersService.refreshGroups();
+			}
+			this._usersService.clearGroupsUpdated();
 		});
 
-		this.usersSubscription = this._usersService.cast.subscribe((arg) => {
-			if (
-				arg.action === 'add group' ||
-				arg.action === 'delete group' ||
-				arg.action === 'edit group name' ||
-				arg.action === 'save policy'
-			) {
-				this.getUsersGroups();
-			} else if (arg.action === 'add user' || arg.action === 'delete user') {
-				this.fetchAndPopulateGroupUsers(arg.groupId).subscribe({
-					next: (updatedUsers) => {
-						// `this.users[groupId]` is now updated.
-						// `updatedUsers` is the raw array from the server (if you need it).
-						this.getCompanyMembersWithoutAccess();
-
-						console.log(`Group ${arg.groupId} updated:`, updatedUsers);
-					},
-					error: (err) => console.error(`Failed to update group ${arg.groupId}:`, err),
-				});
+		// Fetch group users when groups load
+		effect(() => {
+			const groups = this._usersService.groups();
+			if (groups.length > 0) {
+				this._usersService.fetchAllGroupUsers(groups);
 			}
 		});
 	}
 
-	ngOnDestroy() {
-		this.usersSubscription.unsubscribe();
+	ngOnInit() {
+		this.connectionID = this._connections.currentConnectionID;
+
+		this._connections
+			.getCurrentConnectionTitle()
+			.pipe(take(1))
+			.subscribe((connectionTitle) => {
+				this._title.setTitle(
+					`User permissions - ${connectionTitle} | ${this._company.companyTabTitle || 'Rocketadmin'}`,
+				);
+			});
+
+		this._usersService.setActiveConnection(this.connectionID);
+
+		this._userService.cast.pipe(takeUntilDestroyed(this._destroyRef)).subscribe((user) => {
+			this.currentUser.set(user);
+
+			this._company.fetchCompanyMembers(user.company.id).subscribe((members) => {
+				this.companyMembers.set(members);
+			});
+		});
 	}
 
 	get connectionAccessLevel() {
 		return this._connections.currentConnectionAccessLevel || 'none';
 	}
 
-	isPermitted(accessLevel) {
+	isPermitted(accessLevel: string) {
 		return accessLevel === 'fullaccess' || accessLevel === 'edit';
 	}
 
-	getUsersGroups() {
-		// biome-ignore lint/suspicious/noExplicitAny: legacy service return type
-		this._usersService.fetchConnectionGroups(this.connectionID).subscribe((groups: any) => {
-			// Sort Admin to the front
-			this.groups = groups.sort((a, b) => {
-				if (a.group.title === 'Admin') return -1;
-				if (b.group.title === 'Admin') return 1;
-				return 0;
-			});
-
-			// Create an array of Observables based on each group
-			const groupRequests = this.groups.map((groupItem) => {
-				return this.fetchAndPopulateGroupUsers(groupItem.group.id);
-			});
-
-			// Wait until all these Observables complete
-			forkJoin(groupRequests).subscribe({
-				next: (_results) => {
-					// Here, 'results' is an array of the user arrays from each group.
-					// By this point, this.users[...] is updated for ALL groups.
-					// Update any shared state
-					this.getCompanyMembersWithoutAccess();
-				},
-				error: (err) => console.error('Error in group fetch:', err),
-			});
-		});
-	}
-
-	// biome-ignore lint/suspicious/noExplicitAny: legacy service return type
-	fetchAndPopulateGroupUsers(groupId: string): Observable<any[]> {
-		return this._usersService.fetcGroupUsers(groupId).pipe(
-			// biome-ignore lint/suspicious/noExplicitAny: legacy service return type
-			tap((res: any[]) => {
-				if (res.length) {
-					let groupUsers = [...res];
-					const userIndex = groupUsers.findIndex((user) => user.email === this.currentUser.email);
-
-					if (userIndex !== -1) {
-						const user = groupUsers.splice(userIndex, 1)[0];
-						groupUsers.unshift(user);
-					}
-
-					this.users[groupId] = groupUsers;
-				} else {
-					this.users[groupId] = 'empty';
-				}
-			}),
-		);
-	}
-
-	getCompanyMembersWithoutAccess() {
-		const allGroupUsers = Object.values(this.users).flat();
-		this.companyMembersWithoutAccess = differenceBy(this.companyMembers, allGroupUsers, 'email');
-	}
-
 	getGroupUsers(groupId: string): GroupUser[] | null {
-		const val = this.users[groupId];
+		const val = this.groupUsers()[groupId];
 		if (!val || val === 'empty') return null;
 		return val;
 	}
 
 	getUserInitials(user: GroupUser): string {
-		// biome-ignore lint/suspicious/noExplicitAny: name comes from API but not typed
-		const name = (user as any).name as string | undefined;
+		const name = user.name;
 		if (name) {
 			const parts = name.trim().split(/\s+/);
 			if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
@@ -195,15 +146,15 @@ export class UsersComponent implements OnInit, OnDestroy {
 		return user.email[0].toUpperCase();
 	}
 
-	openCreateUsersGroupDialog(event) {
+	openCreateUsersGroupDialog(event: Event) {
 		event.preventDefault();
 		event.stopImmediatePropagation();
-		const dialogRef = this.dialog.open(GroupAddDialogComponent, {
+		const dialogRef = this._dialog.open(GroupAddDialogComponent, {
 			width: '25em',
 		});
 		dialogRef.afterClosed().subscribe((createdGroup) => {
 			if (createdGroup) {
-				this.dialog.open(CedarPolicyEditorDialogComponent, {
+				this._dialog.open(CedarPolicyEditorDialogComponent, {
 					width: '40em',
 					data: { groupId: createdGroup.id, groupTitle: createdGroup.title, cedarPolicy: null },
 				});
@@ -212,15 +163,20 @@ export class UsersComponent implements OnInit, OnDestroy {
 	}
 
 	openAddUserDialog(group: UserGroup) {
-		const availableMembers = differenceBy(this.companyMembers, this.users[group.id] as [], 'email');
-		this.dialog.open(UserAddDialogComponent, {
+		const groupUsersList = this.groupUsers()[group.id];
+		const availableMembers = differenceBy(
+			this.companyMembers(),
+			groupUsersList === 'empty' ? [] : ((groupUsersList as []) ?? []),
+			'email',
+		);
+		this._dialog.open(UserAddDialogComponent, {
 			width: '25em',
 			data: { availableMembers, group },
 		});
 	}
 
 	openDeleteGroupDialog(group: UserGroup) {
-		this.dialog.open(GroupDeleteDialogComponent, {
+		this._dialog.open(GroupDeleteDialogComponent, {
 			width: '25em',
 			data: group,
 		});
@@ -228,21 +184,21 @@ export class UsersComponent implements OnInit, OnDestroy {
 
 	openEditGroupNameDialog(e: Event, group: UserGroup) {
 		e.stopPropagation();
-		this.dialog.open(GroupNameEditDialogComponent, {
+		this._dialog.open(GroupNameEditDialogComponent, {
 			width: '25em',
 			data: group,
 		});
 	}
 
 	openCedarPolicyDialog(group: UserGroup) {
-		this.dialog.open(CedarPolicyEditorDialogComponent, {
+		this._dialog.open(CedarPolicyEditorDialogComponent, {
 			width: '40em',
 			data: { groupId: group.id, groupTitle: group.title, cedarPolicy: group.cedarPolicy },
 		});
 	}
 
 	openDeleteUserDialog(user: GroupUser, group: UserGroup) {
-		this.dialog.open(UserDeleteDialogComponent, {
+		this._dialog.open(UserDeleteDialogComponent, {
 			width: '25em',
 			data: { user, group },
 		});

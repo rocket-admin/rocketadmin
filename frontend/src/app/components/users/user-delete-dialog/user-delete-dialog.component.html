@@ -2,26 +2,25 @@
 <mat-dialog-content>
     <p class="mat-body">
         You are going to delete
-        <span *ngIf="data.user.name; else userEmail">
+        @if (data.user.name) {
           <strong>{{ data.user.name }} </strong>
-          <span *ngIf="data.user.name">(</span>{{ data.user.email }}<span *ngIf="data.user.name">)</span>
-        </span>
-        <ng-template #userEmail>
+          <span>(</span>{{ data.user.email }}<span>)</span>
+        } @else {
           <strong>{{ data.user.email }}</strong>
-        </ng-template>
+        }
         from <strong>{{ data.group.title }}</strong> group.
     </p>
     <br>
     <p class="mat-body">Please confirm.</p>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-flat-button mat-dialog-close
+  <button type="button" mat-flat-button mat-dialog-close
     aria-label="Cancel">
     Cancel
   </button>
-  <button mat-flat-button color="warn"
+  <button type="button" mat-flat-button color="warn"
     aria-label="Delete user from group"
-    [disabled]="submitting"
+    [disabled]="submitting()"
     (click)="deleteGroupUser()">
       Delete
   </button>
