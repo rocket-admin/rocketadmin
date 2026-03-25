@@ -33,6 +33,10 @@
 	flex-shrink: 0;
 }
 
+.dialog-actions-spacer {
+	flex: 1;
+}
+
 .code-editor-box {
 	height: 300px;
 	border: 1px solid var(--mdc-outlined-text-field-outline-color, rgba(0, 0, 0, 0.38));

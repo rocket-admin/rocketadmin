@@ -1,5 +1,5 @@
 import { NgIf } from '@angular/common';
-import { Component, DestroyRef, Inject, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, DestroyRef, ElementRef, Inject, inject, OnInit, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -60,6 +60,7 @@ export class CedarPolicyEditorDialogComponent implements OnInit {
 	public formParseError: boolean = false;
 
 	@ViewChild(CedarPolicyListComponent) policyList?: CedarPolicyListComponent;
+	@ViewChild('dialogContent', { read: ElementRef }) dialogContent?: ElementRef<HTMLElement>;
 
 	public cedarPolicyModel: object;
 	public codeEditorOptions = {
@@ -209,6 +210,17 @@ export class CedarPolicyEditorDialogComponent implements OnInit {
 					this.submitting = false;
 				},
 			});
+	}
+
+	onAddPolicyClick() {
+		if (!this.policyList) return;
+		this.policyList.showAddForm = true;
+		setTimeout(() => {
+			const el = this.dialogContent?.nativeElement;
+			if (el) {
+				el.scrollTop = el.scrollHeight;
+			}
+		});
 	}
 
 	private _parseCedarToPolicyItems(): CedarPolicyItem[] {
