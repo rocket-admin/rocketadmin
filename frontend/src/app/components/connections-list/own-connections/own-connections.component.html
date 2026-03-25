@@ -46,7 +46,7 @@
     <!-- Section: Hosted by Rocketadmin -->
     @if (showHostedDatabaseEntry) {
         <div class="section">
-            <span class="section__label">HOSTED BY ROCKETADMIN</span>
+            <span class="section__label">Hosted by Rocketadmin</span>
             <button
                 type="button"
                 class="hosted-banner"
@@ -62,14 +62,14 @@
                     </span>
                     <span class="hosted-banner__subtitle">Provision a managed database in one click</span>
                 </div>
-                <span class="hosted-banner__badge">&#10022; Recommended</span>
+                <span class="hosted-banner__badge">&#10022; Quickstart</span>
             </button>
         </div>
     }
 
     <!-- Section: Connect your own -->
     <div class="section">
-        <span class="section__label">CONNECT YOUR OWN</span>
+        <span class="section__label">Connect your own</span>
         <ul class="dbGrid">
             @for (supportedDatabase of supportedOrderedDatabases; track supportedDatabase) {
                 <li>
