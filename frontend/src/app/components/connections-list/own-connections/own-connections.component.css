@@ -2,7 +2,6 @@
 	flex-grow: 1;
 	display: flex;
 	flex-direction: column;
-	align-items: center;
 	width: 100%;
 }
 
@@ -38,36 +37,33 @@
 	gap: 16px;
 	padding: 18px 24px;
 	border-radius: 12px;
-	border: 1px solid rgba(139, 128, 255, 0.25);
+	border: 1px solid var(--color-accentedPalette-200);
 	background-clip: padding-box;
-	background:
-		radial-gradient(ellipse 120% 80% at 85% 0%, rgba(129, 120, 248, 0.25), transparent),
-		radial-gradient(ellipse 80% 100% at 0% 100%, rgba(99, 60, 200, 0.15), transparent),
-		linear-gradient(160deg, #2e2a7a 0%, #3b34a8 35%, #4f46c8 70%, #6358e0 100%);
-	color: #f8fafc;
+	background-color: var(--color-accentedPalette-50);
+	color: var(--color-accentedPalette-900);
 	text-align: left;
 	transition: border-color 200ms, box-shadow 200ms;
 }
 
 .hosted-banner:hover {
-	border-color: rgba(139, 128, 255, 0.4);
+	border-color: var(--color-accentedPalette-300);
 	box-shadow:
-		0px 8px 24px rgba(59, 52, 168, 0.25),
-		0px 1px 5px rgba(30, 26, 94, 0.15);
+		0px 8px 24px var(--color-accentedPalette-100),
+		0px 1px 5px var(--color-accentedPalette-50);
 }
 
 @media (prefers-color-scheme: dark) {
 	.hosted-banner {
-		background:
-			radial-gradient(ellipse 120% 80% at 85% 0%, rgba(129, 120, 248, 0.3), transparent),
-			radial-gradient(ellipse 80% 100% at 0% 100%, rgba(99, 60, 200, 0.2), transparent),
-			linear-gradient(160deg, #12103a 0%, #1e1a5e 35%, #2d2680 70%, #3b34a8 100%);
+		border-color: var(--color-accentedPalette-700);
+		background-color: var(--color-accentedPalette-900);
+		color: var(--color-accentedPalette-100);
 	}
 
 	.hosted-banner:hover {
+		border-color: var(--color-accentedPalette-500);
 		box-shadow:
-			0px 8px 24px rgba(30, 26, 94, 0.4),
-			0px 1px 5px rgba(15, 15, 42, 0.25);
+			0px 8px 24px var(--color-accentedPalette-800),
+			0px 1px 5px var(--color-accentedPalette-600);
 	}
 }
 
@@ -90,8 +86,12 @@
 .hosted-banner__icon {
 	width: 28px;
 	height: 28px;
-	color: #fff;
-	filter: brightness(0) invert(1);
+}
+
+@media (prefers-color-scheme: dark) {
+	.hosted-banner__icon {
+		filter: brightness(0) invert(1);
+	}
 }
 
 .hosted-banner__text {
@@ -116,10 +116,10 @@
 	flex-shrink: 0;
 	font-size: 12px;
 	font-weight: 600;
-	padding: 4px 12px;
+	padding: 6px 12px;
 	border-radius: 999px;
-	background: rgba(255, 255, 255, 0.06);
-	border: 1px solid rgba(139, 128, 255, 0.3);
+	background: var(--color-accentedPalette-700);
+	color: var(--color-accentedPalette-50);
 	white-space: nowrap;
 }
 
@@ -205,7 +205,7 @@
 
 	.dbCard:hover {
 		background: var(--surface-dark-color);
-		border: 1px solid rgba(255, 255, 255, 0.75);
+		border: 1px solid rgba(255, 255, 255, 0.25);
 		box-shadow:
 			0px 1px 3px 0px rgba(255, 255, 255, 0.1),
 			0px 2px 2px 0px rgba(255, 255, 255, 0.08),

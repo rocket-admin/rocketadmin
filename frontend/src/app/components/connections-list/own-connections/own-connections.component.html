@@ -42,56 +42,56 @@
     @if (displayedCardCount > 3) {
         <button type="button" mat-button color="accent" class="showAllButton" (click)="showLess()">Show less</button>
     }
-}
+} @else {
+    <!-- Section: Hosted by Rocketadmin -->
+    @if (showHostedDatabaseEntry) {
+        <div class="section">
+            <span class="section__label">HOSTED BY ROCKETADMIN</span>
+            <button
+                type="button"
+                class="hosted-banner"
+                data-testid="create-hosted-database-button"
+                [disabled]="creatingHostedDatabase()"
+                (click)="createHostedDatabase()">
+                <div class="hosted-banner__iconBox">
+                    <mat-icon svgIcon="ai_rocket" class="hosted-banner__icon"></mat-icon>
+                </div>
+                <div class="hosted-banner__text">
+                    <span class="hosted-banner__title">
+                        {{ creatingHostedDatabase() ? 'Creating hosted PostgreSQL...' : 'Hosted PostgreSQL' }}
+                    </span>
+                    <span class="hosted-banner__subtitle">Provision a managed database in one click</span>
+                </div>
+                <span class="hosted-banner__badge">&#10022; Recommended</span>
+            </button>
+        </div>
+    }
 
-<!-- Section: Hosted by Rocketadmin -->
-@if (showHostedDatabaseEntry) {
+    <!-- Section: Connect your own -->
     <div class="section">
-        <span class="section__label">HOSTED BY ROCKETADMIN</span>
-        <button
-            type="button"
-            class="hosted-banner"
-            data-testid="create-hosted-database-button"
-            [disabled]="creatingHostedDatabase()"
-            (click)="createHostedDatabase()">
-            <div class="hosted-banner__iconBox">
-                <mat-icon svgIcon="ai_rocket" class="hosted-banner__icon"></mat-icon>
-            </div>
-            <div class="hosted-banner__text">
-                <span class="hosted-banner__title">
-                    {{ creatingHostedDatabase() ? 'Creating hosted PostgreSQL...' : 'Hosted PostgreSQL' }}
-                </span>
-                <span class="hosted-banner__subtitle">Provision a managed database in one click</span>
-            </div>
-            <span class="hosted-banner__badge">&#10022; Recommended</span>
-        </button>
+        <span class="section__label">CONNECT YOUR OWN</span>
+        <ul class="dbGrid">
+            @for (supportedDatabase of supportedOrderedDatabases; track supportedDatabase) {
+                <li>
+                    <a routerLink="/connect-db"
+                        [queryParams]="{ type: supportedDatabase }"
+                        class="dbCard"
+                        attr.data-testid="{{supportedDatabase}}-test-connection-list-item">
+                        <div class="dbCard__iconBox">
+                            <mat-icon [svgIcon]="supportedDatabase === 'cassandra' && isDarkMode ? 'cassandra-dark' : supportedDatabase" class="dbCard__icon"></mat-icon>
+                        </div>
+                        <span class="dbCard__label">
+                            {{ getMainTitle(supportedDatabase) }}
+                            @if (getSubTitle(supportedDatabase)) {
+                                <span class="dbCard__subLabel">{{ getSubTitle(supportedDatabase) }}</span>
+                            }
+                        </span>
+                    </a>
+                </li>
+            }
+        </ul>
     </div>
 }
-
-<!-- Section: Connect your own -->
-<div class="section">
-    <span class="section__label">CONNECT YOUR OWN</span>
-    <ul class="dbGrid">
-        @for (supportedDatabase of supportedOrderedDatabases; track supportedDatabase) {
-            <li>
-                <a routerLink="/connect-db"
-                    [queryParams]="{ type: supportedDatabase }"
-                    class="dbCard"
-                    attr.data-testid="{{supportedDatabase}}-test-connection-list-item">
-                    <div class="dbCard__iconBox">
-                        <mat-icon [svgIcon]="supportedDatabase === 'cassandra' && isDarkMode ? 'cassandra-dark' : supportedDatabase" class="dbCard__icon"></mat-icon>
-                    </div>
-                    <span class="dbCard__label">
-                        {{ getMainTitle(supportedDatabase) }}
-                        @if (getSubTitle(supportedDatabase)) {
-                            <span class="dbCard__subLabel">{{ getSubTitle(supportedDatabase) }}</span>
-                        }
-                    </span>
-                </a>
-            </li>
-        }
-    </ul>
-</div>
 
 <!-- FAB actions (when connections exist) -->
 @if (connections?.length) {
