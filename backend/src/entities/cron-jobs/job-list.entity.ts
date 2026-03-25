@@ -2,7 +2,7 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('job_list')
 export class JobListEntity {
-	@PrimaryColumn({ type: 'int', nullable: false, unique: true })
+	@PrimaryColumn({ type: 'int' })
 	id: number;
 
 	@Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

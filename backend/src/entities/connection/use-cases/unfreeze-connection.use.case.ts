@@ -25,7 +25,7 @@ export class UnfreezeConnectionUseCase
 		const connection = await this._dbContext.connectionRepository.findOne({ where: { id: connectionId } });
 
 		// if (isSaaS()) {
-		//   const userCompany = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(userId);
+		//   const userCompany = await this._dbContext.companyInfoRepository.findCompanyInfoByUserId(userId);
 		//   const companyInfoFromSaas = await this.saasCompanyGatewayService.getCompanyInfo(userCompany.id);
 		//   if (companyInfoFromSaas.subscriptionLevel === SubscriptionLevelEnum.FREE_PLAN) {
 		//     if (Constants.NON_FREE_PLAN_CONNECTION_TYPES.includes(connection.type as ConnectionTypesEnum)) {

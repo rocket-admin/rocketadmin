@@ -31,7 +31,7 @@ import { ConnectionPropertiesEntity } from '../../entities/connection-properties
 import { IConnectionPropertiesRepository } from '../../entities/connection-properties/repository/connection-properties.repository.interface.js';
 import { customConnectionPropertiesRepositoryExtension } from '../../entities/connection-properties/repository/custom-connection-properties-repository-extension.js';
 import { CustomFieldsEntity } from '../../entities/custom-field/custom-fields.entity.js';
-import { cusomFieldsCustomRepositoryExtension } from '../../entities/custom-field/repository/custom-field-repository-extension.js';
+import { customFieldsCustomRepositoryExtension } from '../../entities/custom-field/repository/custom-field-repository-extension.js';
 import { ICustomFieldsRepository } from '../../entities/custom-field/repository/custom-fields-repository.interface.js';
 import { EmailVerificationEntity } from '../../entities/email/email-verification.entity.js';
 import { IEmailVerificationRepository } from '../../entities/email/repository/email-verification.repository.interface.js';
@@ -192,7 +192,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 			.extend(customConnectionPropertiesRepositoryExtension);
 		this._customFieldsRepository = this.appDataSource
 			.getRepository(CustomFieldsEntity)
-			.extend(cusomFieldsCustomRepositoryExtension);
+			.extend(customFieldsCustomRepositoryExtension);
 		this._tableLogsRepository = this.appDataSource
 			.getRepository(TableLogsEntity)
 			.extend(tableLogsCustomRepositoryExtension);

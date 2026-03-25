@@ -92,22 +92,23 @@ export function findFilteringFieldsUtil(
 }
 
 export function parseFilteringFieldsFromBodyData(
-	filtersDataFromBody: Record<string, any>,
+	filtersDataFromBody: Record<string, unknown>,
 	tableStructure: Array<TableStructureDS>,
 ): Array<FilteringFieldsDs> {
 	const filteringItems: Array<FilteringFieldsDs> = [];
 	const rowNames = tableStructure.map((el) => el.column_name);
 	rowNames.forEach((rowName) => {
 		if (isObjectPropertyExists(filtersDataFromBody, rowName)) {
-			for (const key in filtersDataFromBody[rowName]) {
+			const filterData = filtersDataFromBody[rowName] as Record<string, string>;
+			for (const key in filterData) {
 				if (!validateStringWithEnum(key, FilterCriteriaEnum)) {
 					throw new Error(`Invalid filter criteria: "${key}".`);
 				}
-				const isValueNull = filtersDataFromBody[rowName][key] === null && key === FilterCriteriaEnum.eq;
+				const isValueNull = filterData[key] === null && key === FilterCriteriaEnum.eq;
 				filteringItems.push({
 					field: rowName,
 					criteria: isValueNull ? FilterCriteriaEnum.empty : (key as FilterCriteriaEnum),
-					value: filtersDataFromBody[rowName][key],
+					value: filterData[key],
 				});
 			}
 		}
