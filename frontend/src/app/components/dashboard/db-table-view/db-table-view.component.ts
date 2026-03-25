@@ -5,12 +5,15 @@ import { CommonModule } from '@angular/common';
 import {
 	ChangeDetectorRef,
 	Component,
+	computed,
 	EventEmitter,
 	Input,
+	inject,
 	OnChanges,
 	OnInit,
 	Output,
 	SimpleChanges,
+	signal,
 	ViewChild,
 } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -40,16 +43,8 @@ import { merge } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { formatFieldValue } from 'src/app/lib/format-field-value';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
-import {
-	CustomAction,
-	TableForeignKey,
-	TableOrdering,
-	TablePermissions,
-	TableProperties,
-	TableRow,
-	Widget,
-} from 'src/app/models/table';
-import { AccessLevel } from 'src/app/models/user';
+import { CustomAction, TableForeignKey, TableOrdering, TableProperties, TableRow, Widget } from 'src/app/models/table';
+import { CedarPermissionService } from 'src/app/services/cedar-permission.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { TableRowService } from 'src/app/services/table-row.service';
@@ -115,8 +110,6 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 	protected posthog = posthog;
 	@Input() name: string;
 	@Input() displayName: string;
-	@Input() permissions: TablePermissions;
-	@Input() accessLevel: AccessLevel;
 	@Input() connectionID: string;
 	@Input() isTestConnection: boolean;
 	@Input() activeFilters: object;
@@ -137,6 +130,38 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 
 	@Output() applyFilter = new EventEmitter();
 
+	private _permissions = inject(CedarPermissionService);
+	private _tableResourceId = signal('');
+
+	protected canEditRow = computed(() => {
+		const rid = this._tableResourceId();
+		return rid ? this._permissions.canI('table:edit', 'Table', rid)() : null;
+	});
+	protected canAddRow = computed(() => {
+		const rid = this._tableResourceId();
+		return rid ? this._permissions.canI('table:add', 'Table', rid)() : null;
+	});
+	protected canDeleteRow = computed(() => {
+		const rid = this._tableResourceId();
+		return rid ? this._permissions.canI('table:delete', 'Table', rid)() : null;
+	});
+	private _connectionsForPermissions = inject(ConnectionsService);
+	protected canEditConnection = this._permissions.canI(
+		'connection:edit',
+		'Connection',
+		this._connectionsForPermissions.currentConnectionID,
+	);
+
+	protected get actionsColumnWidth(): string {
+		const editCount = this.canEditRow() ? 1 : 0;
+		const addCount = this.canAddRow() ? 1 : 0;
+		const deleteCount = this.canDeleteRow() && this.tableData?.canDelete ? 1 : 0;
+		const defaultActionsCount = editCount + addCount + deleteCount;
+		const totalActionsCount = (this.tableData?.tableActions?.length || 0) + defaultActionsCount;
+		const lengthValue = totalActionsCount * 30 + 32;
+		return totalActionsCount === 0 ? '0' : `${lengthValue}px`;
+	}
+
 	// public tablesSwitchControl = new FormControl('');
 	public tableData: any;
 	// public selection: any;
@@ -145,7 +170,6 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 	public columnsToDisplay: string[] = [];
 	public searchString: string;
 	public staticSearchString: string;
-	public actionsColumnWidth: string;
 	public bulkActions: CustomAction[];
 	public bulkRows: string[];
 	public displayedComparators = {
@@ -259,6 +283,11 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 	}
 
 	ngOnChanges(changes: SimpleChanges) {
+		// Update table resource ID for Cedar permission signals
+		if (changes.name || changes.connectionID) {
+			this._tableResourceId.set(`${this.connectionID}/${this.name}`);
+		}
+
 		// When table name changes, reset sort to default
 		if (changes.name && !changes.name.firstChange && this.sort) {
 			console.log('Table name changed from', changes.name.previousValue, 'to', changes.name.currentValue);

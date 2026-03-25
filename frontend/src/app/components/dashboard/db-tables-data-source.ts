@@ -10,7 +10,6 @@ import { normalizeFieldName } from 'src/app/lib/normalize';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
 import { CustomAction, CustomActionType, CustomEvent, TableField, TableForeignKey, Widget } from 'src/app/models/table';
-import { AccessLevel } from 'src/app/models/user';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TablesService } from 'src/app/services/tables.service';
@@ -68,14 +67,12 @@ export class TablesDataSource implements DataSource<Object> {
 		referenced_on_column_name: '',
 		referenced_by: [],
 	};
-	public permissions;
 	public isExportAllowed: boolean;
 	public isImportAllowed: boolean;
 	public canDelete: boolean;
 	public isEmptyTable: boolean;
 	public tableActions: CustomAction[];
 	public tableBulkActions: CustomAction[];
-	public actionsColumnWidth: string;
 	public largeDataset: boolean;
 	public identityColumn: string;
 
@@ -85,7 +82,7 @@ export class TablesDataSource implements DataSource<Object> {
 
 	constructor(
 		private _tables: TablesService,
-		private _connections: ConnectionsService,
+		_connections: ConnectionsService,
 		private _tableRow: TableRowService,
 	) {}
 
@@ -207,7 +204,7 @@ export class TablesDataSource implements DataSource<Object> {
 
 								try {
 									parsedParams = JSON5.parse(widget.widget_params);
-								} catch (error) {
+								} catch (_error) {
 									parsedParams = {};
 								}
 
@@ -267,21 +264,16 @@ export class TablesDataSource implements DataSource<Object> {
 							});
 
 					this.dataColumns = this.columns.map((column) => column.title);
-					this.dataNormalizedColumns = this.columns.reduce(
-						(normalizedColumns, column) => (
-							(normalizedColumns[column.title] = column.normalizedTitle), normalizedColumns
-						),
-						{},
-					);
+					this.dataNormalizedColumns = this.columns.reduce((normalizedColumns, column) => {
+						normalizedColumns[column.title] = column.normalizedTitle;
+						return normalizedColumns;
+					}, {});
 					this.displayedDataColumns = filter(this.columns, (column) => column.selected === true).map(
 						(column) => column.title,
 					);
-					this.permissions = res.table_permissions.accessLevel;
 					if (this.keyAttributes.length) {
-						this.actionsColumnWidth = this.getActionsColumnWidth(this.tableActions, this.permissions);
 						this.displayedColumns = ['select', ...this.displayedDataColumns, 'actions'];
 					} else {
-						this.actionsColumnWidth = '0';
 						this.displayedColumns = [...this.displayedDataColumns];
 						this.alert_primaryKeysInfo = {
 							id: 10000,
@@ -314,12 +306,7 @@ export class TablesDataSource implements DataSource<Object> {
 					}
 
 					const widgetsConfigured = res.widgets?.length;
-					if (
-						!res.configured &&
-						!widgetsConfigured &&
-						this._connections.connectionAccessLevel !== AccessLevel.None &&
-						this._connections.connectionAccessLevel !== AccessLevel.Readonly
-					)
+					if (!res.configured && !widgetsConfigured)
 						this.alert_settingsInfo = {
 							id: 10001,
 							type: AlertType.Info,
@@ -350,14 +337,7 @@ export class TablesDataSource implements DataSource<Object> {
 		}
 	}
 
-	getActionsColumnWidth(actions, permissions) {
-		const defaultActionsCount = permissions.edit + permissions.add + (!!permissions.delete && !!this.canDelete);
-		const totalActionsCount = actions.length + defaultActionsCount;
-		const lengthValue = totalActionsCount * 30 + 32;
-		return totalActionsCount === 0 ? '0' : `${lengthValue}px`;
-	}
-
-	changleColumnList(connectionId: string, tableName: string) {
+	changleColumnList(_connectionId: string, _tableName: string) {
 		this.displayedDataColumns = filter(this.columns, (column) => column.selected === true).map(
 			(column) => column.title,
 		);

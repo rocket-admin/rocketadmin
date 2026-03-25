@@ -92,32 +92,32 @@ describe('CedarPermissionService', () => {
 		expect(service).toBeTruthy();
 	});
 
-	it('canI signal returns false when WASM not loaded', () => {
+	it('canI signal returns null when WASM not loaded', () => {
 		userSubject.next({ id: USER_ID } as User);
 		groupsSignal.set([makeGroup('g1', permitPolicy('connection:read', 'Connection', CONN_ID), [USER_ID])]);
 
 		const sig = service.canI('connection:read', 'Connection', CONN_ID);
-		expect(sig()).toBe(false);
+		expect(sig()).toBe(null);
 	});
 
-	it('canI signal returns false when no user', async () => {
+	it('canI signal returns null when no user', async () => {
 		wasmLoaded();
 		await TestBed.inject(CedarWasmService).load();
 
 		groupsSignal.set([makeGroup('g1', permitPolicy('connection:read', 'Connection', CONN_ID), [USER_ID])]);
 
 		const sig = service.canI('connection:read', 'Connection', CONN_ID);
-		expect(sig()).toBe(false);
+		expect(sig()).toBe(null);
 		expect(mockIsAuthorized).not.toHaveBeenCalled();
 	});
 
-	it('canI signal returns false when user has no groups', async () => {
+	it('canI signal returns null when user has no groups', async () => {
 		wasmLoaded();
 		await TestBed.inject(CedarWasmService).load();
 		userSubject.next({ id: USER_ID } as User);
 
 		const sig = service.canI('connection:read', 'Connection', CONN_ID);
-		expect(sig()).toBe(false);
+		expect(sig()).toBe(null);
 		expect(mockIsAuthorized).not.toHaveBeenCalled();
 	});
 
@@ -209,9 +209,9 @@ describe('CedarPermissionService', () => {
 		await TestBed.inject(CedarWasmService).load();
 		userSubject.next({ id: USER_ID } as User);
 
-		// Initially no groups → false
+		// Initially no groups → null (not yet determined)
 		const sig = service.canI('connection:read', 'Connection', CONN_ID);
-		expect(sig()).toBe(false);
+		expect(sig()).toBe(null);
 
 		// Add a group with a permit policy
 		groupsSignal.set([makeGroup('g1', permitPolicy('connection:read', 'Connection', CONN_ID), [USER_ID])]);

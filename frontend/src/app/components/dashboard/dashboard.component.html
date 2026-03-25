@@ -74,7 +74,6 @@
                 [connectionID]="connectionID"
                 [selectedTable]="selectedTableName"
                 [uiSettings]="uiSettings"
-                [accessLevel]="currentConnectionAccessLevel"
                 (expandSidebar)="toggleSideBar()">
             </app-db-tables-list>
         </mat-sidenav>
@@ -82,7 +81,7 @@
             <div class="table-preview-content">
                 <div class="alerts">
                     <app-alert></app-alert>
-                    <div *ngIf="dataSource.alert_settingsInfo" class="ai-config-alert">
+                    <div *ngIf="dataSource.alert_settingsInfo && canEditConnection()" class="ai-config-alert">
                         <mat-icon class="ai-config-alert__icon">auto_awesome</mat-icon>
                         <div class="ai-config-alert__message mat-body-1">
                             <strong class="ai-config-alert__title">New: AI Configuration</strong>
@@ -106,7 +105,6 @@
                     [selection]="selection"
                     [connectionID]="connectionID"
                     [isTestConnection]="currentConnectionIsTest"
-                    [accessLevel]="currentConnectionAccessLevel"
                     [tableFolders]="tableFolders"
                     (openFilters)="openTableFilters($event)"
                     (removeFilter)="removeFilter($event)"

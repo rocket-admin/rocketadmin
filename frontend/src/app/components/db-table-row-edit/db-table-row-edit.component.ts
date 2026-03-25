@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, NgZone, OnInit } from '@angular/core';
+import { Component, computed, inject, NgZone, OnInit, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -23,7 +23,8 @@ import { normalizeFieldName, normalizeTableName } from 'src/app/lib/normalize';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { Alert, AlertType, ServerError } from 'src/app/models/alert';
 import { DBtype } from 'src/app/models/connection';
-import { CustomAction, CustomEvent, TableField, TableForeignKey, TablePermissions, Widget } from 'src/app/models/table';
+import { CustomAction, CustomEvent, TableField, TableForeignKey, Widget } from 'src/app/models/table';
+import { CedarPermissionService } from 'src/app/services/cedar-permission.service';
 import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { NotificationsService } from 'src/app/services/notifications.service';
@@ -97,7 +98,6 @@ export class DbTableRowEditComponent implements OnInit {
 	public referencedRecords: {} = {};
 	public referencedTablesURLParams: any;
 	public isDesktop: boolean = true;
-	public permissions: TablePermissions;
 	public canDelete: boolean;
 	public pageAction: string;
 	public pageMode: string = null;
@@ -120,6 +120,22 @@ export class DbTableRowEditComponent implements OnInit {
 		return 0;
 	};
 	routeSub: any;
+
+	private _permissions = inject(CedarPermissionService);
+	private _tableResourceId = signal('');
+
+	protected canEditRow = computed(() => {
+		const rid = this._tableResourceId();
+		return rid ? this._permissions.canI('table:edit', 'Table', rid)() : null;
+	});
+	protected canAddRow = computed(() => {
+		const rid = this._tableResourceId();
+		return rid ? this._permissions.canI('table:add', 'Table', rid)() : null;
+	});
+	protected canDeleteRow = computed(() => {
+		const rid = this._tableResourceId();
+		return rid ? this._permissions.canI('table:delete', 'Table', rid)() : null;
+	});
 
 	constructor(
 		private _connections: ConnectionsService,
@@ -159,19 +175,13 @@ export class DbTableRowEditComponent implements OnInit {
 
 		this.routeSub = this.route.queryParams.subscribe((params) => {
 			this.tableName = this.route.snapshot.paramMap.get('table-name');
+			this._tableResourceId.set(`${this.connectionID}/${this.tableName}`);
 			if (Object.keys(params).length === 0) {
 				this._tables.fetchTableStructure(this.connectionID, this.tableName).subscribe((res) => {
 					this.dispalyTableName = res.display_name || normalizeTableName(this.tableName);
 					this.title.setTitle(
 						`${this.dispalyTableName} - Add new record | ${this._company.companyTabTitle || 'Rocketadmin'}`,
 					);
-					this.permissions = {
-						visibility: true,
-						readonly: false,
-						add: true,
-						delete: true,
-						edit: true,
-					};
 
 					this.keyAttributesListFromStructure = res.primaryColumns.map((field: TableField) => field.column_name);
 					this.readonlyFields = res.readonly_fields;
@@ -220,7 +230,6 @@ export class DbTableRowEditComponent implements OnInit {
 					(res) => {
 						this.dispalyTableName = res.display_name || normalizeTableName(this.tableName);
 						this.title.setTitle(`${this.dispalyTableName} - Edit record | Rocketadmin`);
-						this.permissions = res.table_access_level;
 						this.canDelete = res.can_delete;
 						this.keyAttributesListFromStructure = res.primaryColumns.map((field: TableField) => field.column_name);
 

@@ -22,13 +22,13 @@
         <div class="row-edit-header">
             <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title || currentConnection.database)"></app-breadcrumbs>
             <div class="row-actions">
-                <a mat-icon-button *ngIf="permissions.add && hasKeyAttributesFromURL"
+                <a mat-icon-button *ngIf="canAddRow() && hasKeyAttributesFromURL"
                     routerLink="/dashboard/{{connectionID}}/{{tableName}}/entry"
                     [queryParams]="dubURLParams"
                     matTooltip="Duplicate row">
                     <mat-icon fontSet="material-symbols-outlined">difference</mat-icon>
                 </a>
-                <button type="button" mat-icon-button *ngIf="permissions.delete && canDelete && hasKeyAttributesFromURL"
+                <button type="button" mat-icon-button *ngIf="canDeleteRow() && canDelete && hasKeyAttributesFromURL"
                     matTooltip="Delete row"
                     (click)="handleDeleteRow()">
                     <mat-icon fontSet="material-symbols-outlined">delete</mat-icon>
@@ -123,7 +123,7 @@
                                     label: tableWidgets[value].name || value,
                                     value: tableRowValues[value],
                                     required: tableRowRequiredValues[value],
-                                    readonly: (!permissions?.edit && pageAction !== 'dub') || pageMode === 'view',
+                                    readonly: (!canEditRow() && pageAction !== 'dub') || pageMode === 'view',
                                     disabled: isReadonlyField(value),
                                     widgetStructure: tableWidgets[value],
                                     relations: tableTypes[value] === 'foreign key' ? getRelations(value) : undefined,
@@ -149,7 +149,7 @@
                                     label: value,
                                     value: tableRowValues[value],
                                     required: tableRowRequiredValues[value],
-                                    readonly: (!permissions?.edit && pageAction !== 'dub') || pageMode === 'view',
+                                    readonly: (!canEditRow() && pageAction !== 'dub') || pageMode === 'view',
                                     disabled: isReadonlyField(value),
                                     structure: tableRowStructure[value],
                                     relations: tableTypes[value] === 'foreign key' ? getRelations(value) : undefined
@@ -172,7 +172,7 @@
                     </a>
 
                     <button type="button" mat-flat-button color="primary"
-                        *ngIf="(keyAttributesListFromStructure.length || hasKeyAttributesFromURL) && permissions.edit && pageMode === 'view'"
+                        *ngIf="(keyAttributesListFromStructure.length || hasKeyAttributesFromURL) && canEditRow() && pageMode === 'view'"
                         data-testid="switch-to-editing-button"
                         (click)="switchToEditMode()">
                         <mat-icon fontSet="material-symbols-outlined">edit</mat-icon>
@@ -180,7 +180,7 @@
                     </button>
 
                     <button type="button" mat-button color="primary"
-                        *ngIf="(keyAttributesListFromStructure.length || hasKeyAttributesFromURL) && permissions.edit && pageMode !== 'view'"
+                        *ngIf="(keyAttributesListFromStructure.length || hasKeyAttributesFromURL) && canEditRow() && pageMode !== 'view'"
                         class="actions__continue"
                         data-testid="record-save-and-continue-editing-button"
                         [disabled]="submitting || editRowForm.form.invalid"
@@ -188,14 +188,14 @@
                         Save and continue editing
                     </button>
 
-                    <button *ngIf="hasKeyAttributesFromURL && permissions?.edit && !pageAction && pageMode !== 'view'"
+                    <button *ngIf="hasKeyAttributesFromURL && canEditRow() && !pageAction && pageMode !== 'view'"
                         type="submit" mat-flat-button color="primary"
                         data-testid="record-edit-button"
                         [disabled]="submitting || editRowForm.form.invalid">
                         Save
                     </button>
 
-                    <button *ngIf="hasKeyAttributesFromURL && permissions?.add && pageAction === 'dub'"
+                    <button *ngIf="hasKeyAttributesFromURL && canAddRow() && pageAction === 'dub'"
                         type="submit" mat-flat-button color="primary"
                         data-testid="record-duplicate-button"
                         [disabled]="submitting || editRowForm.form.invalid">

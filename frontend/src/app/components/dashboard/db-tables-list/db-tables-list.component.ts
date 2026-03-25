@@ -1,6 +1,6 @@
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, inject, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -15,7 +15,8 @@ import { RouterModule } from '@angular/router';
 import { normalizeTableName } from 'src/app/lib/normalize';
 import { TableCategory } from 'src/app/models/connection';
 import { TableProperties } from 'src/app/models/table';
-import { AccessLevel } from 'src/app/models/user';
+import { CedarPermissionService } from 'src/app/services/cedar-permission.service';
+import { ConnectionsService } from 'src/app/services/connections.service';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
@@ -73,9 +74,16 @@ export class DbTablesListComponent implements OnInit, OnChanges {
 	@Input() selectedTable: string;
 	@Input() collapsed: boolean;
 	@Input() uiSettings: any;
-	@Input() accessLevel: AccessLevel;
 
 	@Output() expandSidebar = new EventEmitter<void>();
+
+	private _permissions = inject(CedarPermissionService);
+	private _connections = inject(ConnectionsService);
+	protected canEditConnection = this._permissions.canI(
+		'connection:edit',
+		'Connection',
+		this._connections.currentConnectionID,
+	);
 
 	public tableCategories: TableCategory[] = [];
 	public substringToSearch: string;
@@ -555,7 +563,7 @@ export class DbTablesListComponent implements OnInit, OnChanges {
 	// Table reordering within folders
 	isReorderingEnabled(folder: Folder): boolean {
 		return (
-			this.accessLevel === 'edit' &&
+			this.canEditConnection() === true &&
 			!this.collapsed &&
 			(!this.substringToSearch || this.substringToSearch.trim() === '')
 		);

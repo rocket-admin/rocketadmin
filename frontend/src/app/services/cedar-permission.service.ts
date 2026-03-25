@@ -32,7 +32,7 @@ export class CedarPermissionService {
 
 	public readonly ready = computed(() => !!this._wasmModule() && !!this._mergedPolicies() && !!this._userId());
 
-	private _signals = new Map<string, Signal<boolean>>();
+	private _signals = new Map<string, Signal<boolean | null>>();
 
 	constructor() {
 		this._cedarWasm.load().then((mod) => {
@@ -40,7 +40,7 @@ export class CedarPermissionService {
 		});
 	}
 
-	canI(action: string, resourceType: string, resourceId: string): Signal<boolean> {
+	canI(action: string, resourceType: string, resourceId: string): Signal<boolean | null> {
 		const key = `${action}|${resourceType}|${resourceId}`;
 		let sig = this._signals.get(key);
 		if (!sig) {
@@ -50,12 +50,12 @@ export class CedarPermissionService {
 		return sig;
 	}
 
-	private _evaluate(action: string, resourceType: string, resourceId: string): boolean {
+	private _evaluate(action: string, resourceType: string, resourceId: string): boolean | null {
 		const cedar = this._wasmModule();
 		const mergedPolicies = this._mergedPolicies();
 		const userId = this._userId();
 
-		if (!cedar || !mergedPolicies || !userId) return false;
+		if (!cedar || !mergedPolicies || !userId) return null;
 
 		const result = cedar.isAuthorized({
 			principal: { type: 'RocketAdmin::User', id: userId },
