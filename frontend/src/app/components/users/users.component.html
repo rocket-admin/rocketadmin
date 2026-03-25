@@ -18,6 +18,7 @@
             <mat-expansion-panel-header class="group-item">
                 <mat-panel-title>
                     <span>{{ groupItem.group.title }}</span>
+                    <span *ngIf="groupItem.group.title === 'Admin'" class="group-system-badge">system</span>
                     <button type="button" mat-icon-button *ngIf="isPermitted(groupItem.accessLevel) && groupItem.group.title !== 'Admin'"
                         class="title-edit-button"
                         angulartics2On="click"
@@ -26,12 +27,19 @@
                         (click)="openEditGroupNameDialog($event, groupItem.group); posthog.capture('Users access: edit group name is clicked')">
                         <mat-icon fontSet="material-symbols-outlined">edit</mat-icon>
                     </button>
+                    <span class="group-members-preview" *ngIf="getGroupUsers(groupItem.group.id) as groupUsers">
+                        <span class="group-avatar" *ngFor="let user of groupUsers.slice(0, 3)"
+                            [matTooltip]="user.name || user.email">
+                            {{ getUserInitials(user) }}
+                        </span>
+                        <span class="group-members-count">{{ groupUsers.length }} {{ groupUsers.length === 1 ? 'member' : 'members' }}</span>
+                    </span>
                 </mat-panel-title>
                 <mat-panel-description (click)="$event.stopPropagation();" class="group-actions">
                     <button type="button" mat-icon-button *ngIf="isPermitted(groupItem.accessLevel) && groupItem.group.title !== 'Admin'"
                         angulartics2On="click"
                         angularticsAction="Users access: cedar policy is clicked"
-                        matTooltip="Edit cedar policy"
+                        matTooltip="Edit policy"
                         (click)="openCedarPolicyDialog(groupItem.group); posthog.capture('Users access: cedar policy is clicked')">
                         <mat-icon fontSet="material-symbols-outlined">vpn_key</mat-icon>
                     </button>

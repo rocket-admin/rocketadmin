@@ -21,6 +21,9 @@ describe('CedarPolicyEditorDialogComponent', () => {
 
 	const mockDialogRef = {
 		close: () => {},
+		backdropClick: () => of(),
+		keydownEvents: () => of(),
+		disableClose: false,
 	};
 
 	const fakeTables = [
