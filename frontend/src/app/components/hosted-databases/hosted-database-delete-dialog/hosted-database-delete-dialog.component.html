@@ -1,0 +1,15 @@
+<h1 mat-dialog-title>Delete <strong>{{ data.databaseName }}</strong></h1>
+<mat-dialog-content>
+	<p class="mat-body">
+		This will permanently delete the hosted database and all its data.
+		This action cannot be undone.
+	</p>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+	<button type="button" mat-flat-button mat-dialog-close>Cancel</button>
+	<button type="button" mat-flat-button color="warn"
+		[disabled]="submitting()"
+		(click)="deleteDatabase()">
+		{{ submitting() ? 'Deleting...' : 'Delete' }}
+	</button>
+</mat-dialog-actions>

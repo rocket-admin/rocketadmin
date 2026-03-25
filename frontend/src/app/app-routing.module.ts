@@ -119,6 +119,14 @@ const routes: Routes = [
 		loadChildren: () => import('./routes/password-change.routes').then((m) => m.PASSWORD_CHANGE_ROUTES),
 	},
 	{
+		path: 'hosted-databases',
+		pathMatch: 'full',
+		loadComponent: () =>
+			import('./components/hosted-databases/hosted-databases.component').then((m) => m.HostedDatabasesComponent),
+		canActivate: [AuthGuard],
+		title: 'Hosted Databases | Rocketadmin',
+	},
+	{
 		path: 'upgrade',
 		loadComponent: () => import('./components/upgrade/upgrade.component').then((m) => m.UpgradeComponent),
 		canActivate: [AuthGuard],
