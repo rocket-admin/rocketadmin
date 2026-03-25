@@ -1,5 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -8,9 +9,11 @@ import { of } from 'rxjs';
 import { AlertActionType, AlertType } from '../models/alert';
 import { ConnectionType, DBtype } from '../models/connection';
 import { AccessLevel } from '../models/user';
+import { CedarPermissionService } from './cedar-permission.service';
 import { ConnectionsService } from './connections.service';
 import { MasterPasswordService } from './master-password.service';
 import { NotificationsService } from './notifications.service';
+import { UsersService } from './users.service';
 
 describe('ConnectionsService', () => {
 	let httpMock: HttpTestingController;
@@ -18,6 +21,8 @@ describe('ConnectionsService', () => {
 
 	let fakeNotifications;
 	let fakeMasterPassword;
+	let mockCanI: ReturnType<typeof vi.fn>;
+	let mockPermissions: Partial<CedarPermissionService>;
 
 	const connectionCredsApp = {
 		title: 'Test connection via SSH tunnel to mySQL',
@@ -102,6 +107,11 @@ describe('ConnectionsService', () => {
 			showMasterPasswordDialog: vi.fn(),
 			checkMasterPassword: vi.fn(),
 		};
+		mockCanI = vi.fn().mockReturnValue(signal(false).asReadonly());
+		mockPermissions = {
+			canI: mockCanI,
+			ready: signal(false).asReadonly(),
+		};
 
 		TestBed.configureTestingModule({
 			imports: [MatSnackBarModule, MatDialogModule],
@@ -117,6 +127,14 @@ describe('ConnectionsService', () => {
 				{
 					provide: MasterPasswordService,
 					useValue: fakeMasterPassword,
+				},
+				{
+					provide: UsersService,
+					useValue: { setActiveConnection: vi.fn() },
+				},
+				{
+					provide: CedarPermissionService,
+					useValue: mockPermissions,
 				},
 			],
 		});
@@ -257,14 +275,11 @@ describe('ConnectionsService', () => {
 		expect(service.visibleTabs).toEqual(['dashboard', 'dashboards', 'audit']);
 	});
 
-	it('should get visible tabs dashboard, dashboards, audit and permissions if groupsAccessLevel is true', () => {
-		service.groupsAccessLevel = true;
-		expect(service.visibleTabs).toEqual(['dashboard', 'dashboards', 'audit', 'permissions']);
-	});
-
-	it('should get visible tabs dashboard, dashboards, audit, connection-settings and edit-db if connectionAccessLevel is edit', () => {
-		service.connectionAccessLevel = AccessLevel.Edit;
-		expect(service.visibleTabs).toEqual(['dashboard', 'dashboards', 'audit', 'connection-settings', 'edit-db']);
+	it('should get visible tabs with permissions if canI group:read returns true', () => {
+		mockCanI.mockReturnValue(signal(true).asReadonly());
+		expect(service.visibleTabs).toContain('permissions');
+		expect(service.visibleTabs).toContain('connection-settings');
+		expect(service.visibleTabs).toContain('edit-db');
 	});
 
 	it('should call fetchConnections', () => {

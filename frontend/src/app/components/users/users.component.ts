@@ -12,6 +12,7 @@ import { differenceBy } from 'lodash-es';
 import posthog from 'posthog-js';
 import { take } from 'rxjs';
 import { GroupUser, User, UserGroup } from 'src/app/models/user';
+import { CedarPermissionService } from 'src/app/services/cedar-permission.service';
 import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { UserService } from 'src/app/services/user.service';
@@ -49,6 +50,7 @@ export class UsersComponent implements OnInit {
 	private _dialog = inject(MatDialog);
 	private _title = inject(Title);
 	private _destroyRef = inject(DestroyRef);
+	private _permissions = inject(CedarPermissionService);
 
 	protected posthog = posthog;
 	protected connectionID: string | null = null;
@@ -111,8 +113,6 @@ export class UsersComponent implements OnInit {
 				);
 			});
 
-		this._usersService.setActiveConnection(this.connectionID);
-
 		this._userService.cast.pipe(takeUntilDestroyed(this._destroyRef)).subscribe((user) => {
 			this.currentUser.set(user);
 
@@ -122,12 +122,10 @@ export class UsersComponent implements OnInit {
 		});
 	}
 
-	get connectionAccessLevel() {
-		return this._connections.currentConnectionAccessLevel || 'none';
-	}
+	protected canCreateGroup = this._permissions.canI('group:edit', 'Group', this._connections.currentConnectionID);
 
-	isPermitted(accessLevel: string) {
-		return accessLevel === 'fullaccess' || accessLevel === 'edit';
+	canManageGroup(groupId: string) {
+		return this._permissions.canI('group:edit', 'Group', groupId);
 	}
 
 	getGroupUsers(groupId: string): GroupUser[] | null {

@@ -5,6 +5,7 @@ import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dial
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { provideRouter } from '@angular/router';
 import { Angulartics2Module } from 'angulartics2';
+import { CedarPermissionService } from 'src/app/services/cedar-permission.service';
 import { UsersService } from 'src/app/services/users.service';
 import { GroupAddDialogComponent } from './group-add-dialog/group-add-dialog.component';
 import { GroupDeleteDialogComponent } from './group-delete-dialog/group-delete-dialog.component';
@@ -55,6 +56,11 @@ describe('UsersComponent', () => {
 		fetchConnectionUsers: vi.fn(),
 	};
 
+	const mockPermissions: Partial<CedarPermissionService> = {
+		canI: () => signal(true).asReadonly(),
+		ready: signal(true).asReadonly(),
+	};
+
 	beforeEach(() => {
 		TestBed.configureTestingModule({
 			imports: [MatSnackBarModule, MatDialogModule, Angulartics2Module.forRoot(), UsersComponent],
@@ -63,6 +69,7 @@ describe('UsersComponent', () => {
 				provideRouter([]),
 				{ provide: MatDialogRef, useValue: {} },
 				{ provide: UsersService, useValue: mockUsersService },
+				{ provide: CedarPermissionService, useValue: mockPermissions },
 			],
 		}).compileComponents();
 	});
@@ -76,21 +83,6 @@ describe('UsersComponent', () => {
 
 	it('should create', () => {
 		expect(component).toBeTruthy();
-	});
-
-	it('should permit action if access level is fullaccess', () => {
-		const isPermitted = component.isPermitted('fullaccess');
-		expect(isPermitted).toBe(true);
-	});
-
-	it('should permit action if access level is edit', () => {
-		const isPermitted = component.isPermitted('edit');
-		expect(isPermitted).toBe(true);
-	});
-
-	it('should not permit action if access level is none', () => {
-		const isPermitted = component.isPermitted('none');
-		expect(isPermitted).toBe(false);
 	});
 
 	it('should open create group dialog', () => {

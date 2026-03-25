@@ -1,6 +1,6 @@
 import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
-import { Component, NgZone, OnInit } from '@angular/core';
+import { Component, inject, NgZone, OnInit } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -22,6 +22,7 @@ import googlIPsList from 'src/app/consts/google-IP-addresses';
 import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
 import { Connection, ConnectionType, DBtype, TestConnection } from 'src/app/models/connection';
 import { AccessLevel } from 'src/app/models/user';
+import { CedarPermissionService } from 'src/app/services/cedar-permission.service';
 import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { NotificationsService } from 'src/app/services/notifications.service';
@@ -129,7 +130,13 @@ export class ConnectDBComponent implements OnInit {
 		public dialog: MatDialog,
 		private angulartics2: Angulartics2,
 		private title: Title,
-	) {}
+	) {
+		this.canEditConnection = this._permissions.canI(
+			'connection:edit',
+			'Connection',
+			this._connections.currentConnectionID,
+		);
+	}
 
 	get isDemo() {
 		return this._user.isDemo;
@@ -168,6 +175,9 @@ export class ConnectDBComponent implements OnInit {
 	get db(): Connection {
 		return this._connections.currentConnection;
 	}
+
+	private _permissions = inject(CedarPermissionService);
+	protected canEditConnection: ReturnType<CedarPermissionService['canI']>;
 
 	get accessLevel(): AccessLevel {
 		return this._connections.currentConnectionAccessLevel;

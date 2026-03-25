@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -15,7 +15,7 @@ import { take } from 'rxjs';
 import { ServerError } from 'src/app/models/alert';
 import { ConnectionSettings } from 'src/app/models/connection';
 import { TableProperties } from 'src/app/models/table';
-import { AccessLevel } from 'src/app/models/user';
+import { CedarPermissionService } from 'src/app/services/cedar-permission.service';
 import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { TablesService } from 'src/app/services/tables.service';
@@ -74,7 +74,13 @@ export class ConnectionSettingsComponent implements OnInit {
 		private _company: CompanyService,
 		private title: Title,
 		@Inject(Angulartics2) private angulartics2: Angulartics2,
-	) {}
+	) {
+		this.canEditConnection = this._permissions.canI(
+			'connection:edit',
+			'Connection',
+			this._connections.currentConnectionID,
+		);
+	}
 
 	ngOnInit(): void {
 		this._connections
@@ -113,9 +119,8 @@ export class ConnectionSettingsComponent implements OnInit {
 		return this._connections.currentConnection.title || this._connections.currentConnection.database;
 	}
 
-	get accessLevel(): AccessLevel {
-		return this._connections.currentConnectionAccessLevel;
-	}
+	private _permissions = inject(CedarPermissionService);
+	protected canEditConnection: ReturnType<CedarPermissionService['canI']>;
 
 	getSettings() {
 		this._connections.getConnectionSettings(this.connectionID).subscribe((res: any) => {

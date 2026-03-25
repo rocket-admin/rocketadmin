@@ -1,7 +1,7 @@
 <div class="wrapper">
     <header>
             <h1 class="mat-h1">User groups</h1>
-            @if (connectionAccessLevel !== 'none') {
+            @if (canCreateGroup()) {
                 <button type="button" mat-stroked-button
                     color="primary" class="add-group-button"
                     angulartics2On="click"
@@ -27,7 +27,7 @@
                             @if (groupItem.group.title === 'Admin') {
                                 <span class="group-system-badge">system</span>
                             }
-                            @if (isPermitted(groupItem.accessLevel) && groupItem.group.title !== 'Admin') {
+                            @if (canManageGroup(groupItem.group.id)() && groupItem.group.title !== 'Admin') {
                                 <button type="button" mat-icon-button
                                     class="title-edit-button"
                                     angulartics2On="click"
@@ -50,7 +50,7 @@
                             }
                         </mat-panel-title>
                         <mat-panel-description (click)="$event.stopPropagation();" class="group-actions">
-                            @if (isPermitted(groupItem.accessLevel) && groupItem.group.title !== 'Admin') {
+                            @if (canManageGroup(groupItem.group.id)() && groupItem.group.title !== 'Admin') {
                                 <button type="button" mat-icon-button
                                     angulartics2On="click"
                                     angularticsAction="Users access: cedar policy is clicked"
@@ -66,7 +66,7 @@
                                     <mat-icon>delete</mat-icon>
                                 </button>
                             }
-                            @if (isPermitted(groupItem.accessLevel)) {
+                            @if (canManageGroup(groupItem.group.id)()) {
                                 <button type="button" mat-icon-button
                                     angulartics2On="click"
                                     angularticsAction="Users access: add user is clicked"
@@ -94,7 +94,7 @@
                                         } @else {
                                             <span>{{user.email}}</span>
                                         }
-                                        @if (currentUser()?.email !== user.email && isPermitted(groupItem.accessLevel)) {
+                                        @if (currentUser()?.email !== user.email && canManageGroup(groupItem.group.id)()) {
                                             <button type="button" mat-icon-button
                                                 angulartics2On="click"
                                                 angularticsAction="Users access: delete user is clicked"
