@@ -35,6 +35,16 @@
                     (valueChanged)="onCedarPolicyChange($event)">
                 </ngs-code-editor>
             </div>
+            @if (validationErrors().length > 0) {
+                <div class="cedar-validation-errors">
+                    <mat-icon>error</mat-icon>
+                    <div class="cedar-validation-errors__messages">
+                        @for (error of validationErrors(); track error) {
+                            <span>{{ error }}</span>
+                        }
+                    </div>
+                </div>
+            }
         }
     </mat-dialog-content>
     <mat-dialog-actions>

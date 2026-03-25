@@ -66,10 +66,9 @@ export function permissionsToPolicyItems(permissions: Permissions): CedarPolicyI
 
 	const connAccess = permissions.connection.accessLevel;
 	if (connAccess === AccessLevel.Edit) {
-		items.push({ action: '*' });
-		return items;
-	}
-	if (connAccess === AccessLevel.Readonly) {
+		items.push({ action: 'connection:read' });
+		items.push({ action: 'connection:edit' });
+	} else if (connAccess === AccessLevel.Readonly) {
 		items.push({ action: 'connection:read' });
 	}
 

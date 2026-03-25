@@ -8,6 +8,7 @@ import { provideRouter } from '@angular/router';
 import { CodeEditorModule } from '@ngstack/code-editor';
 import { Angulartics2Module } from 'angulartics2';
 import { of } from 'rxjs';
+import { CedarValidatorService } from 'src/app/services/cedar-validator.service';
 import { DashboardsService } from 'src/app/services/dashboards.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { UsersService } from 'src/app/services/users.service';
@@ -24,6 +25,8 @@ type CedarPolicyEditorTestable = CedarPolicyEditorDialogComponent & {
 	policyItems: ReturnType<typeof signal<any[]>>;
 	editorMode: ReturnType<typeof signal<string>>;
 	cedarPolicy: ReturnType<typeof signal<string>>;
+	validationErrors: ReturnType<typeof signal<string[]>>;
+	submitting: ReturnType<typeof signal<boolean>>;
 };
 
 describe('CedarPolicyEditorDialogComponent', () => {
@@ -64,7 +67,12 @@ describe('CedarPolicyEditorDialogComponent', () => {
 		saveCedarPolicy: vi.fn().mockResolvedValue(undefined),
 	};
 
+	let mockCedarValidator: Partial<CedarValidatorService>;
+
 	beforeEach(() => {
+		mockCedarValidator = {
+			validate: vi.fn().mockResolvedValue({ valid: true, errors: [] }),
+		};
 		dashboardsService = {
 			dashboards: signal([
 				{ id: 'dash-1', name: 'Sales', description: null, connection_id: 'conn-123', created_at: '', updated_at: '' },
@@ -90,6 +98,7 @@ describe('CedarPolicyEditorDialogComponent', () => {
 				{ provide: MatDialogRef, useValue: mockDialogRef },
 				{ provide: DashboardsService, useValue: dashboardsService },
 				{ provide: UsersService, useValue: mockUsersService },
+				{ provide: CedarValidatorService, useValue: mockCedarValidator },
 			],
 		})
 			.overrideComponent(CedarPolicyEditorDialogComponent, {
@@ -129,10 +138,69 @@ describe('CedarPolicyEditorDialogComponent', () => {
 		expect(testable.editorMode()).toBe('form');
 	});
 
-	it('should switch to code mode', () => {
+	it('should switch to code mode', async () => {
 		const testable = component as unknown as CedarPolicyEditorTestable;
-		component.onEditorModeChange('code');
+		await component.onEditorModeChange('code');
 		expect(testable.editorMode()).toBe('code');
 		expect(testable.cedarPolicy()).toBeTruthy();
+	});
+
+	it('should block save when cedar-wasm reports invalid policy', async () => {
+		const testable = component as unknown as CedarPolicyEditorTestable;
+		await component.onEditorModeChange('code');
+		testable.cedarPolicy.set('invalid policy text {{{');
+		(mockCedarValidator.validate as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+			valid: false,
+			errors: ['unexpected token'],
+		});
+
+		await component.savePolicy();
+
+		expect(testable.validationErrors()).toEqual(['unexpected token']);
+		expect(mockUsersService.saveCedarPolicy).not.toHaveBeenCalled();
+		expect(testable.submitting()).toBe(false);
+	});
+
+	it('should allow save when cedar-wasm reports valid policy', async () => {
+		const testable = component as unknown as CedarPolicyEditorTestable;
+		await component.onEditorModeChange('code');
+
+		await component.savePolicy();
+
+		expect(testable.validationErrors()).toEqual([]);
+		expect(mockUsersService.saveCedarPolicy).toHaveBeenCalled();
+	});
+
+	it('should block switching to form mode when policy is invalid', async () => {
+		const testable = component as unknown as CedarPolicyEditorTestable;
+		await component.onEditorModeChange('code');
+		testable.cedarPolicy.set('broken ;;;');
+		(mockCedarValidator.validate as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+			valid: false,
+			errors: ['parse error at line 1'],
+		});
+
+		await component.onEditorModeChange('form');
+
+		expect(testable.editorMode()).toBe('code');
+		expect(testable.validationErrors()).toEqual(['parse error at line 1']);
+	});
+
+	it('should clear validation errors when user edits policy text', async () => {
+		const testable = component as unknown as CedarPolicyEditorTestable;
+		testable.validationErrors.set(['some old error']);
+
+		component.onCedarPolicyChange('permit(principal, action, resource);');
+
+		expect(testable.validationErrors()).toEqual([]);
+	});
+
+	it('should clear validation errors when switching to code mode', async () => {
+		const testable = component as unknown as CedarPolicyEditorTestable;
+		testable.validationErrors.set(['stale error']);
+
+		await component.onEditorModeChange('code');
+
+		expect(testable.validationErrors()).toEqual([]);
 	});
 });

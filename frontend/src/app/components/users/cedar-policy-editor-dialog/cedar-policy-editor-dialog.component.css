@@ -43,3 +43,31 @@
 	border-radius: 4px;
 	overflow: hidden;
 }
+
+.code-editor-box ngs-code-editor {
+	display: block;
+	height: 100%;
+}
+
+.cedar-validation-errors {
+	display: flex;
+	align-items: flex-start;
+	gap: 16px;
+	padding: 12px 16px;
+	border: 1px solid var(--mat-sys-error, #b00020);
+	margin-top: 8px;
+	border-radius: 4px;
+	background: color-mix(in srgb, var(--mat-sys-error, #b00020) 8%, transparent);
+	color: var(--mat-sys-error, #b00020);
+	font-size: 13px;
+}
+
+.cedar-validation-errors mat-icon {
+	flex-shrink: 0;
+}
+
+.cedar-validation-errors__messages {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}

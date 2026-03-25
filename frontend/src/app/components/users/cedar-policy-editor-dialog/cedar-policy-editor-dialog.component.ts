@@ -12,6 +12,7 @@ import { CedarPolicyItem, permissionsToPolicyItems, policyItemsToCedarPolicy } f
 import { canRepresentAsForm, parseCedarDashboardItems, parseCedarPolicy } from 'src/app/lib/cedar-policy-parser';
 import { normalizeTableName } from 'src/app/lib/normalize';
 import { TablePermission } from 'src/app/models/user';
+import { CedarValidatorService } from 'src/app/services/cedar-validator.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DashboardsService } from 'src/app/services/dashboards.service';
 import { TablesService } from 'src/app/services/tables.service';
@@ -51,6 +52,7 @@ export class CedarPolicyEditorDialogComponent implements OnInit {
 	private _tablesService = inject(TablesService);
 	private _dashboardsService = inject(DashboardsService);
 	private _editorService = inject(CodeEditorService);
+	private _cedarValidator = inject(CedarValidatorService);
 	private _destroyRef = inject(DestroyRef);
 
 	protected connectionID: string;
@@ -64,6 +66,8 @@ export class CedarPolicyEditorDialogComponent implements OnInit {
 	protected allTables = signal<TablePermission[]>([]);
 	protected loading = signal(true);
 	protected formParseError = signal(false);
+	protected validationErrors = signal<string[]>([]);
+	protected validating = signal(false);
 
 	@ViewChild(CedarPolicyListComponent) policyList?: CedarPolicyListComponent;
 	@ViewChild('dialogContent', { read: ElementRef }) dialogContent?: ElementRef<HTMLElement>;
@@ -154,13 +158,14 @@ export class CedarPolicyEditorDialogComponent implements OnInit {
 
 	onCedarPolicyChange(value: string) {
 		this.cedarPolicy.set(value);
+		this.validationErrors.set([]);
 	}
 
 	onPolicyItemsChange(items: CedarPolicyItem[]) {
 		this.policyItems.set(items);
 	}
 
-	onEditorModeChange(mode: 'form' | 'code') {
+	async onEditorModeChange(mode: 'form' | 'code') {
 		if (mode === this.editorMode()) return;
 
 		if (mode === 'code') {
@@ -171,8 +176,16 @@ export class CedarPolicyEditorDialogComponent implements OnInit {
 				value: this.cedarPolicy(),
 			};
 			this.formParseError.set(false);
+			this.validationErrors.set([]);
 		} else {
-			this.formParseError.set(!canRepresentAsForm(this.cedarPolicy()));
+			const policy = this.cedarPolicy();
+			const validation = await this._cedarValidator.validate(policy);
+			if (!validation.valid) {
+				this.validationErrors.set(validation.errors);
+				return;
+			}
+			this.validationErrors.set([]);
+			this.formParseError.set(!canRepresentAsForm(policy));
 			if (this.formParseError()) return;
 			this.policyItems.set(this._parseCedarToPolicyItems());
 		}
@@ -208,6 +221,14 @@ export class CedarPolicyEditorDialogComponent implements OnInit {
 			this.dialogRef.close();
 			return;
 		}
+
+		const validation = await this._cedarValidator.validate(policy);
+		if (!validation.valid) {
+			this.validationErrors.set(validation.errors);
+			this.submitting.set(false);
+			return;
+		}
+		this.validationErrors.set([]);
 
 		try {
 			await this._usersService.saveCedarPolicy(this.connectionID, this.data.groupId, policy);
