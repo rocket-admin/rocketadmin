@@ -17,6 +17,7 @@ import { SaasRegisterUserWithGithub } from '../data-structures/saas-register-use
 import { SaasSAMLUserRegisterDS } from '../data-structures/saas-saml-user-register.ds.js';
 import { SaasRegisterUserWithGoogleDS } from '../data-structures/sass-register-user-with-google.js';
 import { SuspendUsersDS } from '../data-structures/suspend-users.ds.js';
+import { UpdateHostedConnectionPasswordDto } from '../data-structures/update-hosted-connection-password.dto.js';
 
 export interface ICompanyRegistration {
 	execute(inputData: RegisterCompanyWebhookDS): Promise<RegisteredCompanyDS>;
@@ -76,4 +77,8 @@ export interface ICreateConnectionForHostedDb {
 
 export interface IDeleteConnectionForHostedDb {
 	execute(inputData: DeleteConnectionForHostedDbDto): Promise<CreatedConnectionDTO>;
+}
+
+export interface IUpdateHostedConnectionPassword {
+	execute(inputData: UpdateHostedConnectionPasswordDto): Promise<SuccessResponse>;
 }

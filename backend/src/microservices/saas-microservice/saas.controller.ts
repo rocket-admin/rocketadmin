@@ -16,6 +16,7 @@ import { SkipThrottle } from '@nestjs/throttler';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { Timeout } from '../../decorators/timeout.decorator.js';
 import { CompanyInfoEntity } from '../../entities/company-info/company-info.entity.js';
+import { CreatedConnectionDTO } from '../../entities/connection/application/dto/created-connection.dto.js';
 import { SaasUsualUserRegisterDS } from '../../entities/user/application/data-structures/usual-register-user.ds.js';
 import { FoundUserDto } from '../../entities/user/dto/found-user.dto.js';
 import { ExternalRegistrationProviderEnum } from '../../entities/user/enums/external-registration-provider.enum.js';
@@ -24,11 +25,14 @@ import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { SuccessResponse } from './data-structures/common-responce.ds.js';
+import { CreateConnectionForHostedDbDto } from './data-structures/create-connecttion-for-selfhosted-db.dto.js';
+import { DeleteConnectionForHostedDbDto } from './data-structures/delete-connection-for-hosted-db.dto.js';
 import { RegisterCompanyWebhookDS } from './data-structures/register-company.ds.js';
 import { RegisteredCompanyDS } from './data-structures/registered-company.ds.js';
 import { SaasRegisterUserWithGithub } from './data-structures/saas-register-user-with-github.js';
 import { SaasSAMLUserRegisterDS } from './data-structures/saas-saml-user-register.ds.js';
 import { SaasRegisterUserWithGoogleDS } from './data-structures/sass-register-user-with-google.js';
+import { UpdateHostedConnectionPasswordDto } from './data-structures/update-hosted-connection-password.dto.js';
 import {
 	ICompanyRegistration,
 	ICreateConnectionForHostedDb,
@@ -45,10 +49,8 @@ import {
 	ISaasSAMLRegisterUser,
 	ISuspendUsers,
 	ISuspendUsersOverLimit,
+	IUpdateHostedConnectionPassword,
 } from './use-cases/saas-use-cases.interface.js';
-import { CreatedConnectionDTO } from '../../entities/connection/application/dto/created-connection.dto.js';
-import { CreateConnectionForHostedDbDto } from './data-structures/create-connecttion-for-selfhosted-db.dto.js';
-import { DeleteConnectionForHostedDbDto } from './data-structures/delete-connection-for-hosted-db.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @SkipThrottle()
@@ -91,6 +93,8 @@ export class SaasController {
 		private readonly createConnectionForHostedDbUseCase: ICreateConnectionForHostedDb,
 		@Inject(UseCaseType.SAAS_DELETE_CONNECTION_FOR_HOSTED_DB)
 		private readonly deleteConnectionForHostedDbUseCase: IDeleteConnectionForHostedDb,
+		@Inject(UseCaseType.SAAS_UPDATE_HOSTED_CONNECTION_PASSWORD)
+		private readonly updateHostedConnectionPasswordUseCase: IUpdateHostedConnectionPassword,
 	) {}
 
 	@ApiOperation({ summary: 'Company registered webhook' })
@@ -308,5 +312,18 @@ export class SaasController {
 		@Body() deleteConnectionData: DeleteConnectionForHostedDbDto,
 	): Promise<CreatedConnectionDTO> {
 		return await this.deleteConnectionForHostedDbUseCase.execute(deleteConnectionData);
+	}
+
+	@ApiOperation({ summary: 'Update password of hosted database connection' })
+	@ApiBody({ type: UpdateHostedConnectionPasswordDto })
+	@ApiResponse({
+		status: 201,
+		type: SuccessResponse,
+	})
+	@Post('/connection/hosted/password')
+	async updateHostedConnectionPassword(
+		@Body() updatePasswordData: UpdateHostedConnectionPasswordDto,
+	): Promise<SuccessResponse> {
+		return await this.updateHostedConnectionPasswordUseCase.execute(updatePasswordData);
 	}
 }
