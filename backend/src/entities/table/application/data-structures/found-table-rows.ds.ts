@@ -111,7 +111,7 @@ export class FoundTableRowsDs {
 	table_settings: TableSettingsInRowsDS;
 }
 
-export class OrderingFiledDs {
+export class OrderingFieldDs {
 	@ApiProperty()
 	field: string;
 

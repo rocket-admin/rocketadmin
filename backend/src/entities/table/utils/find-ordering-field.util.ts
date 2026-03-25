@@ -4,13 +4,13 @@ import { QueryOrderingEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isObjectPropertyExists } from '../../../helpers/validators/is-object-property-exists-validator.js';
 import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';
-import { OrderingFiledDs } from '../application/data-structures/found-table-rows.ds.js';
+import { OrderingFieldDs } from '../application/data-structures/found-table-rows.ds.js';
 
 export function findOrderingFieldUtil(
 	query: Record<string, unknown>,
 	tableStructure: Array<TableStructureDS>,
 	tableSettings: TableSettingsEntity,
-): OrderingFiledDs | undefined {
+): OrderingFieldDs | undefined {
 	if (!isObjectPropertyExists(query, 'sort_by') || !isObjectPropertyExists(query, 'sort_order')) {
 		return undefined;
 	}
