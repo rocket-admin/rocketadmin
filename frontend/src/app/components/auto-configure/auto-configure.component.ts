@@ -17,7 +17,7 @@ export class AutoConfigureComponent implements OnInit {
 
 	protected connectionId = signal<string | null>(null);
 
-	ngOnInit(): void {
+	async ngOnInit(): Promise<void> {
 		const connectionId = this._route.snapshot.paramMap.get('connection-id');
 		if (!connectionId) {
 			this._router.navigate(['/connections-list']);
@@ -25,6 +25,7 @@ export class AutoConfigureComponent implements OnInit {
 		}
 
 		this.connectionId.set(connectionId);
-		this._configState.startConfiguring(connectionId);
+		await this._configState.startConfiguring(connectionId);
+		this._router.navigate(['/dashboard', connectionId]);
 	}
 }
