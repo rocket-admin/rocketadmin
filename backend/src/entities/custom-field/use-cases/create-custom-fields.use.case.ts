@@ -30,7 +30,7 @@ export class CreateCustomFieldsUseCase
 			connectionId,
 			masterPwd,
 		);
-		await validateCreateCustomFieldDto(createFieldDto, foundConnection, userId, tableName);
+		await validateCreateCustomFieldDto(createFieldDto, foundConnection, tableName);
 		const foundTableSettingToUpdate: TableSettingsEntity =
 			await this._dbContext.tableSettingsRepository.findTableSettingsWithCustomFields(connectionId, tableName);
 		const newCustomFieldEntity = buildNewCustomFieldsEntity(inputData);

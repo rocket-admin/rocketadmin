@@ -6,7 +6,6 @@ import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
 import { AgentModule } from '../agent/agent.module.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
 import { LogOutEntity } from '../log-out/log-out.entity.js';
-import { PermissionEntity } from '../permission/permission.entity.js';
 import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
 import { UserEntity } from '../user/user.entity.js';
 import { UserModule } from '../user/user.module.js';
@@ -24,7 +23,6 @@ import { UpdateGroupTitleUseCase } from './use-cases/update-group-title.use.case
 		TypeOrmModule.forFeature([
 			ConnectionEntity,
 			GroupEntity,
-			PermissionEntity,
 			UserEntity,
 			TableSettingsEntity,
 			LogOutEntity,
@@ -66,7 +64,7 @@ import { UpdateGroupTitleUseCase } from './use-cases/update-group-title.use.case
 	exports: [],
 })
 export class GroupModule {
-	public configure(consumer: MiddlewareConsumer): any {
+	public configure(consumer: MiddlewareConsumer): void {
 		consumer
 			.apply(AuthMiddleware)
 			.forRoutes(

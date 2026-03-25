@@ -3,9 +3,8 @@ import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-acce
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
+import { validateConnection, getUserEmailForAgent } from '../utils/validate-connection.util.js';
 import { ImportCSVInTableDs } from '../application/data-structures/import-scv-in-table.ds.js';
 import { IImportCSVFinTable } from './table-use-cases.interface.js';
 
@@ -22,20 +21,9 @@ export class ImportCSVInTableUseCase
 	}
 
 	protected async implementation(inputData: ImportCSVInTableDs): Promise<boolean> {
-		const { file, tableName, connectionId, materPwd, userId } = inputData;
-		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, materPwd);
-		if (!connection) {
-			throw new HttpException(
-				{
-					message: Messages.CONNECTION_NOT_FOUND,
-				},
-				HttpStatus.BAD_REQUEST,
-			);
-		}
-
-		if (connection.is_frozen) {
-			throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
-		}
+		const { file, tableName, connectionId, masterPwd, userId } = inputData;
+		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
+		validateConnection(connection);
 
 		if (connection.isTestConnection) {
 			throw new HttpException(
@@ -59,10 +47,7 @@ export class ImportCSVInTableUseCase
 
 		try {
 			const dao = getDataAccessObject(connection);
-			let userEmail: string;
-			if (isConnectionTypeAgent(connection.type)) {
-				userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
-			}
+			const userEmail = await getUserEmailForAgent(connection, userId, this._dbContext.userRepository);
 			await dao.importCSVInTable(file, tableName, userEmail);
 			return true;
 		} catch (error) {

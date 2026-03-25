@@ -90,7 +90,7 @@ export class GroupController {
 		@SlugUuid('groupId') groupId: string,
 	): Promise<Array<FoundUserInGroupDs>> {
 		try {
-			return this.findAllUsersInGroupUseCase.execute(groupId, InTransactionEnum.OFF);
+			return await this.findAllUsersInGroupUseCase.execute(groupId, InTransactionEnum.OFF);
 		} finally {
 			await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.groupUserListReceived, userId);
 		}
@@ -118,9 +118,9 @@ export class GroupController {
 		Cacher.increaseUserInvitationsCacheCount(userId);
 		Cacher.increaseGroupInvitationsCacheCount(groupId);
 		const inputData: AddUserInGroupWithSaaSDs = {
-			companyId: companyId,
-			email: email,
-			groupId: groupId,
+			companyId,
+			email,
+			groupId,
 			userSaasRole: role,
 			inviterId: userId,
 		};
@@ -141,7 +141,7 @@ export class GroupController {
 	@Delete('/group/:groupId')
 	async delete(@SlugUuid('groupId') groupId: string, @UserId() userId: string): Promise<DeletedGroupResultDs> {
 		try {
-			return this.deleteGroupUseCase.execute(groupId, InTransactionEnum.ON);
+			return await this.deleteGroupUseCase.execute(groupId, InTransactionEnum.ON);
 		} finally {
 			await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.groupDeleted, userId);
 		}

@@ -6,11 +6,11 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../../enums/index.js';
-import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { hexToBinary, isBinary } from '../../../helpers/binary-to-hex.js';
 import { slackPostMessage } from '../../../helpers/index.js';
 import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
+import { validateConnection, getUserEmailForAgent } from '../utils/validate-connection.util.js';
 import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { GetTableRowsDs } from '../application/data-structures/get-table-rows.ds.js';
@@ -37,28 +37,14 @@ export class ExportCSVFromTableUseCase
 		// eslint-disable-next-line prefer-const
 		let { connectionId, masterPwd, page, perPage, query, searchingFieldValue, tableName, userId, filters } = inputData;
 		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
-		if (!connection) {
-			throw new HttpException(
-				{
-					message: Messages.CONNECTION_NOT_FOUND,
-				},
-				HttpStatus.BAD_REQUEST,
-			);
-		}
-
-		if (connection.is_frozen) {
-			throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
-		}
+		validateConnection(connection);
 
 		let operationResult = OperationResultStatusEnum.unknown;
 
 		try {
 			const dao = getDataAccessObject(connection);
 
-			let userEmail: string;
-			if (isConnectionTypeAgent(connection.type)) {
-				userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
-			}
+			const userEmail = await getUserEmailForAgent(connection, userId, this._dbContext.userRepository);
 
 			// eslint-disable-next-line prefer-const
 			let [tableSettings, tableStructure, personalTableSettings] = await Promise.all([

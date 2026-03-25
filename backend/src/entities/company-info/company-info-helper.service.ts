@@ -21,9 +21,10 @@ export class CompanyInfoHelperService {
 
 		const companyInformationFromSaaS = await this.saasCompanyGatewayService.getCompanyInfo(companyId);
 
-		const countUsersInCompany = await this._dbContext.userRepository.countUsersInCompany(companyId);
-		const countInvitationsInCompany =
-			await this._dbContext.invitationInCompanyRepository.countNonExpiredInvitationsInCompany(companyId);
+		const [countUsersInCompany, countInvitationsInCompany] = await Promise.all([
+			this._dbContext.userRepository.countUsersInCompany(companyId),
+			this._dbContext.invitationInCompanyRepository.countNonExpiredInvitationsInCompany(companyId),
+		]);
 
 		if (companyInformationFromSaaS.subscriptionLevel === SubscriptionLevelEnum.FREE_PLAN) {
 			return countUsersInCompany + countInvitationsInCompany < Constants.FREE_PLAN_USERS_COUNT;

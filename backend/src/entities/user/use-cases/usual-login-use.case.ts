@@ -121,7 +121,7 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
 
 		await this.recordSignInAudit(email, user.id, SignInStatusEnum.SUCCESS, ipAddress, userAgent);
 
-		const foundUserCompany = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(user.id);
+		const foundUserCompany = await this._dbContext.companyInfoRepository.findCompanyInfoByUserId(user.id);
 		return generateGwtToken(user, get2FaScope(user, foundUserCompany));
 	}
 

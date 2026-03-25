@@ -81,6 +81,7 @@ import {
 	IRemoveUserFromCompany,
 	IRevokeUserInvitationInCompany,
 	ISuspendUsersInCompany,
+	IUnsuspendUsersInCompany,
 	IToggleCompanyTestConnectionsMode,
 	IUpdateCompanyName,
 	IUpdateUsers2faStatusInCompany,
@@ -128,7 +129,7 @@ export class CompanyInfoController {
 		@Inject(UseCaseType.SUSPEND_USERS_IN_COMPANY)
 		private readonly suspendUsersInCompanyUseCase: ISuspendUsersInCompany,
 		@Inject(UseCaseType.UNSUSPEND_USERS_IN_COMPANY)
-		private readonly unSuspendUsersInCompanyUseCase: ISuspendUsersInCompany,
+		private readonly unSuspendUsersInCompanyUseCase: IUnsuspendUsersInCompany,
 		@Inject(UseCaseType.TOGGLE_TEST_CONNECTIONS_DISPLAY_MODE_IN_COMPANY)
 		private readonly toggleTestConnectionsCompanyDisplayModeUseCase: IToggleCompanyTestConnectionsMode,
 		@Inject(UseCaseType.UPLOAD_COMPANY_LOGO)

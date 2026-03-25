@@ -1,6 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, PrimaryGeneratedColumn, Relation, Unique } from 'typeorm';
 import { ConnectionEntity } from '../connection/connection.entity.js';
-import { PermissionEntity } from '../permission/permission.entity.js';
 import { UserEntity } from '../user/user.entity.js';
 
 @Entity('group')
@@ -14,15 +13,6 @@ export class GroupEntity {
 
 	@Column({ default: false, type: 'boolean' })
 	isMain: boolean;
-
-	@ManyToMany(
-		(_) => PermissionEntity,
-		(permission) => permission.groups,
-		{
-			onDelete: 'CASCADE',
-		},
-	)
-	permissions?: Relation<PermissionEntity>[];
 
 	@ManyToMany(
 		(_) => UserEntity,

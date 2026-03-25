@@ -29,7 +29,7 @@ export class DeleteCustomFieldUseCase
 				{
 					message: Messages.CUSTOM_FIELD_NOT_FOUND,
 				},
-				HttpStatus.BAD_REQUEST,
+				HttpStatus.NOT_FOUND,
 			);
 		}
 		const tableSettingsToUpdate = await this._dbContext.tableSettingsRepository.findTableSettingsWithCustomFields(
@@ -41,7 +41,7 @@ export class DeleteCustomFieldUseCase
 				{
 					message: Messages.TABLE_SETTINGS_NOT_FOUND,
 				},
-				HttpStatus.BAD_REQUEST,
+				HttpStatus.NOT_FOUND,
 			);
 		}
 		const delIndex = tableSettingsToUpdate.custom_fields.findIndex((field) => field.id === fieldId);
