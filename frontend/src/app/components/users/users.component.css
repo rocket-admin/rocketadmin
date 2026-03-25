@@ -69,8 +69,8 @@ header {
 	letter-spacing: 0.5px;
 	padding: 2px 6px;
 	border-radius: 10px;
-	background: color-mix(in srgb, var(--mdc-filled-button-container-color, #6750a4), transparent 88%);
-	color: var(--mdc-filled-button-container-color, #6750a4);
+	background: color-mix(in srgb, var(--alternative-color), transparent 88%);
+	color: var(--alternative-color);
 	margin-left: 8px;
 }
 
@@ -88,8 +88,8 @@ header {
 	width: 20px;
 	height: 20px;
 	border-radius: 50%;
-	background: color-mix(in srgb, #6366f1, transparent 85%);
-	color: #4f46e5;
+	background: var(--color-accentedPalette-100);
+	color: var(--color-accentedPalette-500);
 	font-size: 9px;
 	font-weight: 600;
 	display: flex;
@@ -106,8 +106,8 @@ header {
 
 @media (prefers-color-scheme: dark) {
 	.group-avatar {
-		background: rgba(99, 102, 241, 0.2);
-		color: #a5b4fc;
+		background: var(--color-accentedPalette-700);
+		color: var(--color-accentedPalette-100);
 		border-color: var(--mat-expansion-container-background-color, #1e1e1e);
 	}
 }
