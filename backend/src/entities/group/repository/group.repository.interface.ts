@@ -13,7 +13,7 @@ export interface IGroupRepository {
 
 	removeGroupEntity(group: GroupEntity): Promise<GroupEntity>;
 
-	findAllUserGroupsInConnection(connectionId: string, cognitoUserName: string): Promise<Array<GroupEntity>>;
+	findAllUserGroupsInConnection(connectionId: string, userId: string): Promise<Array<GroupEntity>>;
 
 	findGroupByIdWithConnectionAndUsers(groupId: string): Promise<GroupEntity>;
 

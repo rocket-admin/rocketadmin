@@ -2,12 +2,9 @@ import { ConnectionTypeTestEnum } from '@rocketadmin/shared-code/dist/src/shared
 import { nanoid } from 'nanoid';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { AgentEntity } from '../agent.entity.js';
+import { IAgentRepository } from './agent.repository.interface.js';
 
-export const customAgentRepositoryExtension = {
-	async saveNewAgent(agent: AgentEntity): Promise<AgentEntity> {
-		return await this.save(agent);
-	},
-
+export const customAgentRepositoryExtension: IAgentRepository = {
 	async createNewAgentForConnectionAndReturnToken(connection: ConnectionEntity): Promise<string> {
 		const newAgent = await this.createNewAgentForConnection(connection);
 		return newAgent.token;
@@ -15,13 +12,8 @@ export const customAgentRepositoryExtension = {
 
 	async createNewAgentForConnection(connection: ConnectionEntity): Promise<AgentEntity> {
 		const agent = new AgentEntity();
-		let token = nanoid(64);
-		if (process.env.NODE_ENV !== 'test') {
-			agent.token = token;
-		} else {
-			token = this.getTestAgentToken(connection.type);
-			agent.token = token;
-		}
+		const token = process.env.NODE_ENV !== 'test' ? nanoid(64) : this.getTestAgentToken(connection.type);
+		agent.setToken(token);
 		agent.connection = connection;
 		const savedAgent = await this.save(agent);
 		savedAgent.token = token;
@@ -42,7 +34,7 @@ export const customAgentRepositoryExtension = {
 			return await this.createNewAgentForConnectionAndReturnToken(foundConnection);
 		} else {
 			const newToken = nanoid(64);
-			foundAgent.token = newToken;
+			foundAgent.setToken(newToken);
 			await this.save(foundAgent);
 			return newToken;
 		}
