@@ -708,7 +708,8 @@
 
 .table-link {
 	flex: 1;
-	display: block;
+	display: flex;
+	align-items: center;
 	text-decoration: none;
 	color: inherit;
 	overflow: hidden;
@@ -722,8 +723,60 @@
 	padding: 0 12px;
 }
 
+.table-link_active {
+	background: rgba(37, 99, 235, 0.08);
+	border-radius: 4px;
+	margin: 0 -12px;
+	padding: 0 12px;
+}
+
 .table-link_active .table-name {
-	color: var(--color-accentedPalette-500);
+	color: #2563eb;
+}
+
+@media (prefers-color-scheme: dark) {
+	.table-link_active {
+		background: rgba(96, 165, 250, 0.1);
+	}
+
+	.table-link_active .table-name {
+		color: #60a5fa;
+	}
+}
+
+/* ── Dot indicators ── */
+
+.table-dot {
+	flex-shrink: 0;
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: transparent;
+	margin-right: 6px;
+}
+
+.table-dot--configured {
+	background: #16a34a;
+}
+
+.table-dot--configuring {
+	background: #2563eb;
+	animation: dot-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes dot-pulse {
+	0%, 100% { opacity: 1; transform: scale(1); }
+	50% { opacity: 0.4; transform: scale(0.75); }
+}
+
+@media (prefers-color-scheme: dark) {
+	.table-dot--configured {
+		background: #4ade80;
+	}
+
+	.table-dot--configuring {
+		background: #60a5fa;
+	}
 }
 
 .table-name {

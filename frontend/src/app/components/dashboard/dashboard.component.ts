@@ -23,6 +23,7 @@ import { TableRowService } from 'src/app/services/table-row.service';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
+import { ConfigurationStateService } from 'src/app/services/configuration-state.service';
 import { environment } from 'src/environments/environment';
 import { normalizeTableName } from '../../lib/normalize';
 import { PlaceholderTableViewComponent } from '../skeletons/placeholder-table-view/placeholder-table-view.component';
@@ -99,6 +100,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 	public uiSettings: ConnectionSettingsUI;
 	public tableFolders: any[] = [];
+	public isConfiguring: boolean = false;
+	public configurationDone: boolean = false;
 
 	constructor(
 		private _connections: ConnectionsService,
@@ -107,6 +110,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		private _uiSettings: UiSettingsService,
 		private _tableState: TableStateService,
 		private _company: CompanyService,
+		private _configState: ConfigurationStateService,
 		public router: Router,
 		private route: ActivatedRoute,
 		public dialog: MatDialog,
@@ -133,6 +137,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	ngOnInit() {
 		this.connectionID = this._connections.currentConnectionID;
 		this.dataSource = new TablesDataSource(this._tables, this._connections, this._tableRow);
+
+		// Check if auto-configure is running for this connection
+		this.isConfiguring = this._configState.isConfiguring(this.connectionID);
+
 		this._tableState.cast.subscribe((row) => {
 			this.selectedRow = row;
 		});

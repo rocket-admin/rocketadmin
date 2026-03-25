@@ -180,6 +180,146 @@
 	}
 }
 
+/* ── Status banner ── */
+
+.status-banner {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 12px 20px;
+	width: 100%;
+	border: none;
+	border-left: 3px solid #2563eb;
+	border-radius: 0;
+	background: #ebf2ff;
+	font-size: 13px;
+	color: #1e293b;
+}
+
+.status-banner--done {
+	border-left-color: #16a34a;
+	background: #edfaf3;
+}
+
+.status-banner--done .status-banner__icon {
+	color: #16a34a;
+}
+
+.status-banner__icon {
+	flex-shrink: 0;
+	color: #2563eb;
+	font-size: 20px;
+	width: 20px;
+	height: 20px;
+}
+
+.status-banner__body {
+	flex: 1;
+	display: flex;
+	align-items: baseline;
+	gap: 6px;
+	min-width: 0;
+}
+
+.status-banner__title {
+	color: #1e293b;
+	white-space: nowrap;
+}
+
+.status-banner__subtitle {
+	color: #475569;
+}
+
+.status-banner__link {
+	color: #2563eb;
+	text-decoration: underline;
+}
+
+.status-banner__link:hover {
+	color: #1d4ed8;
+}
+
+.status-banner__progress {
+	flex-shrink: 0;
+	width: 80px;
+	height: 3px;
+	border-radius: 2px;
+	background: rgba(37, 99, 235, 0.15);
+	overflow: hidden;
+}
+
+.status-banner__progress-fill {
+	width: 40%;
+	height: 100%;
+	border-radius: 2px;
+	background: #2563eb;
+	animation: banner-indeterminate 1.5s ease-in-out infinite;
+}
+
+@keyframes banner-indeterminate {
+	0% { transform: translateX(-100%); }
+	100% { transform: translateX(350%); }
+}
+
+@media (prefers-color-scheme: dark) {
+	.status-banner {
+		background: #1a2744;
+		color: #93c5fd;
+	}
+
+	.status-banner__title {
+		color: #e2e8f0;
+	}
+
+	.status-banner__subtitle {
+		color: #93c5fd;
+	}
+
+	.status-banner__link {
+		color: #60a5fa;
+	}
+
+	.status-banner__link:hover {
+		color: #93c5fd;
+	}
+
+	.status-banner__icon {
+		color: #60a5fa;
+	}
+
+	.status-banner--done {
+		background: #0f2a1a;
+		color: #86efac;
+	}
+
+	.status-banner--done .status-banner__icon {
+		color: #4ade80;
+	}
+
+	.status-banner--done .status-banner__title {
+		color: #e2e8f0;
+	}
+
+	.status-banner--done .status-banner__subtitle {
+		color: #86efac;
+	}
+
+	.status-banner__progress {
+		background: rgba(96, 165, 250, 0.15);
+	}
+
+	.status-banner__progress-fill {
+		background: #60a5fa;
+	}
+}
+
+@media (width <= 600px) {
+	.status-banner__body {
+		flex-direction: column;
+		gap: 2px;
+	}
+}
+
 .error-details {
 	margin-top: 8px;
 }

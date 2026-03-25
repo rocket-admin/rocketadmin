@@ -13,6 +13,8 @@ export interface TableProperties {
 	initials?: string;
 	icon?: string;
 	permissions: TablePermissions;
+	configured?: boolean;
+	configuring?: boolean;
 }
 
 export enum TableOrdering {
