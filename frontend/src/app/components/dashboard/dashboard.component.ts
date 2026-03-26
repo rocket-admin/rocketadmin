@@ -1,6 +1,6 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,7 +17,6 @@ import { ServerError } from 'src/app/models/alert';
 import { CustomEvent, TableProperties } from 'src/app/models/table';
 import { ConnectionSettingsUI, UiSettings } from 'src/app/models/ui-settings';
 import { User } from 'src/app/models/user';
-import { CedarPermissionService } from 'src/app/services/cedar-permission.service';
 import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { TableRowService } from 'src/app/services/table-row.service';
@@ -113,16 +112,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		public dialog: MatDialog,
 		private title: Title,
 		private angulartics2: Angulartics2,
-	) {
-		this.canEditConnection = this._permissions.canI(
-			'connection:edit',
-			'Connection',
-			this._connections.currentConnectionID,
-		);
-	}
+	) {}
 
-	private _permissions = inject(CedarPermissionService);
-	protected canEditConnection: ReturnType<CedarPermissionService['canI']>;
+	protected canEditConnection = () => this._connections.canEditConnection();
 
 	get currentConnectionAccessLevel() {
 		return this._connections.currentConnectionAccessLevel;

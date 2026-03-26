@@ -15,7 +15,6 @@ import { RouterModule } from '@angular/router';
 import { normalizeTableName } from 'src/app/lib/normalize';
 import { TableCategory } from 'src/app/models/connection';
 import { TableProperties } from 'src/app/models/table';
-import { CedarPermissionService } from 'src/app/services/cedar-permission.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
@@ -77,13 +76,8 @@ export class DbTablesListComponent implements OnInit, OnChanges {
 
 	@Output() expandSidebar = new EventEmitter<void>();
 
-	private _permissions = inject(CedarPermissionService);
 	private _connections = inject(ConnectionsService);
-	protected canEditConnection = this._permissions.canI(
-		'connection:edit',
-		'Connection',
-		this._connections.currentConnectionID,
-	);
+	protected canEditConnection = () => this._connections.canEditConnection();
 
 	public tableCategories: TableCategory[] = [];
 	public substringToSearch: string;

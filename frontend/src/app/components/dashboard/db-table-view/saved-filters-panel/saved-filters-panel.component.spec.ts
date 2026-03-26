@@ -79,6 +79,7 @@ describe('SavedFiltersPanelComponent', () => {
 			get currentConnection() {
 				return { type: 'postgres' };
 			},
+			canEditConnection: () => false,
 		};
 
 		await TestBed.configureTestingModule({

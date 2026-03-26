@@ -133,24 +133,10 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 	private _permissions = inject(CedarPermissionService);
 	private _tableResourceId = signal('');
 
-	protected canEditRow = computed(() => {
-		const rid = this._tableResourceId();
-		return rid ? this._permissions.canI('table:edit', 'Table', rid)() : null;
-	});
-	protected canAddRow = computed(() => {
-		const rid = this._tableResourceId();
-		return rid ? this._permissions.canI('table:add', 'Table', rid)() : null;
-	});
-	protected canDeleteRow = computed(() => {
-		const rid = this._tableResourceId();
-		return rid ? this._permissions.canI('table:delete', 'Table', rid)() : null;
-	});
-	private _connectionsForPermissions = inject(ConnectionsService);
-	protected canEditConnection = this._permissions.canI(
-		'connection:edit',
-		'Connection',
-		this._connectionsForPermissions.currentConnectionID,
-	);
+	protected canEditRow = this._tablePermission('table:edit');
+	protected canAddRow = this._tablePermission('table:add');
+	protected canDeleteRow = this._tablePermission('table:delete');
+	protected canEditConnection = () => this._connections.canEditConnection();
 
 	protected get actionsColumnWidth(): string {
 		const editCount = this.canEditRow() ? 1 : 0;
@@ -916,5 +902,12 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 		a.click();
 		window.URL.revokeObjectURL(url);
 		a.remove();
+	}
+
+	private _tablePermission(action: string) {
+		return computed(() => {
+			const rid = this._tableResourceId();
+			return rid ? this._permissions.canI(action, 'Table', rid)() : null;
+		});
 	}
 }

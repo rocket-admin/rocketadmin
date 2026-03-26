@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, inject, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -21,7 +21,6 @@ import { filterTypes } from 'src/app/consts/filter-types';
 import { UIwidgets } from 'src/app/consts/record-edit-types';
 import { normalizeTableName } from 'src/app/lib/normalize';
 import { TableField, TableForeignKey } from 'src/app/models/table';
-import { CedarPermissionService } from 'src/app/services/cedar-permission.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { SavedFiltersDialogComponent } from './saved-filters-dialog/saved-filters-dialog.component';
@@ -60,13 +59,7 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
 	@Output() filterSelected = new EventEmitter<any>();
 	@Input() resetSelection: boolean = false;
 
-	private _permissions = inject(CedarPermissionService);
-	private _connectionsForPermissions = inject(ConnectionsService);
-	protected canEditConnection = this._permissions.canI(
-		'connection:edit',
-		'Connection',
-		this._connectionsForPermissions.currentConnectionID,
-	);
+	protected canEditConnection = () => this._connections.canEditConnection();
 
 	private dynamicColumnValueDebounceTimer: any = null;
 

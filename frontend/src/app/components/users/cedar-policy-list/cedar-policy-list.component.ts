@@ -54,7 +54,6 @@ export class CedarPolicyListComponent {
 	readonly loading = input(false);
 	readonly policiesChange = output<CedarPolicyItem[]>();
 
-	// Form state - plain properties for ngModel binding
 	showAddForm = false;
 	newAction = '';
 	newTableName = '';

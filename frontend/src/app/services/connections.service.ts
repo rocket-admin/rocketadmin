@@ -123,10 +123,14 @@ export class ConnectionsService {
 		return this.currentPage;
 	}
 
+	canEditConnection() {
+		return this._permissions.canI('connection:edit', 'Connection', this.connectionID)();
+	}
+
 	get visibleTabs() {
 		const tabs = ['dashboard', 'dashboards', 'audit'];
 		if (this._permissions.canI('group:read', 'Group', this.connectionID)()) tabs.push('permissions');
-		if (this._permissions.canI('connection:edit', 'Connection', this.connectionID)()) {
+		if (this.canEditConnection()) {
 			tabs.push('connection-settings', 'edit-db');
 		}
 		return tabs;
