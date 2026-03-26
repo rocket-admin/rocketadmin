@@ -24,7 +24,7 @@ import { UserEntity } from '../../entities/user/user.entity.js';
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
-import { SuccessResponse } from './data-structures/common-responce.ds.js';
+import { CreatedConnectionResponse, SuccessResponse } from './data-structures/common-responce.ds.js';
 import { CreateConnectionForHostedDbDto } from './data-structures/create-connecttion-for-selfhosted-db.dto.js';
 import { DeleteConnectionForHostedDbDto } from './data-structures/delete-connection-for-hosted-db.dto.js';
 import { RegisterCompanyWebhookDS } from './data-structures/register-company.ds.js';
@@ -292,12 +292,12 @@ export class SaasController {
 	@ApiBody({ type: CreateConnectionForHostedDbDto })
 	@ApiResponse({
 		status: 201,
-		type: CreatedConnectionDTO,
+		type: CreatedConnectionResponse,
 	})
 	@Post('/connection/hosted')
 	async createConnectionForHostedDb(
 		@Body() connectionData: CreateConnectionForHostedDbDto,
-	): Promise<CreatedConnectionDTO> {
+	): Promise<CreatedConnectionResponse> {
 		return await this.createConnectionForHostedDbUseCase.execute(connectionData);
 	}
 

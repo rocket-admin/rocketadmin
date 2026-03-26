@@ -28,9 +28,10 @@ export class UpdateHostedConnectionPasswordUseCase
 			throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
 		}
 
-		const connection = await this._dbContext.connectionRepository.findOne({
-			where: { company: { id: companyId }, database: databaseName },
+		const companyConnections = await this._dbContext.connectionRepository.find({
+			where: { company: { id: companyId } },
 		});
+		const connection = companyConnections.find((conn) => conn.database === databaseName);
 		if (!connection) {
 			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
 		}
