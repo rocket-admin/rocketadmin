@@ -1,14 +1,22 @@
-@if (loading()) {
-	<div class="auto-configure">
-		<mat-spinner diameter="48"></mat-spinner>
-		<h2 class="auto-configure__title">Setting up your dashboard</h2>
-		<p class="auto-configure__text">We're analyzing your database structure and applying the best configuration. This may take a while.</p>
-		<a mat-flat-button class="auto-configure__open-btn" [routerLink]="'/dashboard/' + connectionId()">Open tables</a>
-		<p class="auto-configure__hint">Setup will continue in the background</p>
+<div class="page">
+	<div class="card">
+		<div class="card__body">
+			<div class="spinner">
+				<div class="spinner__ring spinner__ring--outer"></div>
+				<div class="spinner__ring spinner__ring--inner"></div>
+			</div>
+			<h2 class="card__title">Configuring your database</h2>
+			<p class="card__subtitle">We're analyzing your structure and applying the best settings. This is running in the background.</p>
+			<div class="progress-bar">
+				<div class="progress-bar__fill"></div>
+			</div>
+		</div>
+		<div class="card__footer">
+			<p class="card__footer-text">You can start working — setup will continue in the background.</p>
+			<a mat-flat-button class="card__cta" [routerLink]="'/dashboard/' + connectionId()">
+				Open tables
+				<span class="card__cta-arrow">&rarr;</span>
+			</a>
+		</div>
 	</div>
-} @else if (errorMessage()) {
-	<div class="auto-configure">
-		<p class="auto-configure__notice">{{ errorMessage() }}</p>
-		<a mat-flat-button [routerLink]="'/dashboard/' + connectionId()">Continue to dashboard</a>
-	</div>
-}
+</div>

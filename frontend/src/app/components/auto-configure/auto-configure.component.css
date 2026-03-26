@@ -1,43 +1,223 @@
-.auto-configure {
+/* ── Page ── */
+
+.page {
 	display: flex;
-	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-	gap: 24px;
 	height: 100vh;
+	background: var(--color-primaryPalette-50);
 }
 
-.auto-configure__title {
-	color: var(--mat-sidenav-content-text-color);
-	margin: 0;
-	font-weight: 500;
+@media (prefers-color-scheme: dark) {
+	.page {
+		background: var(--surface-dark-color);
+	}
 }
 
-.auto-configure__text {
-	color: var(--mat-sidenav-content-text-color);
-	opacity: 0.7;
+/* ── Card ── */
+
+.card {
+	width: 100%;
+	max-width: 480px;
+	border-radius: 16px;
+	background: var(--color-whitePalette-500);
+	box-shadow:
+		0 1px 3px rgba(0, 0, 0, 0.08),
+		0 4px 24px rgba(0, 0, 0, 0.06);
+	overflow: hidden;
+}
+
+@media (prefers-color-scheme: dark) {
+	.card {
+		background: var(--color-primaryPalette-900);
+		box-shadow:
+			0 1px 3px rgba(0, 0, 0, 0.3),
+			0 4px 24px rgba(0, 0, 0, 0.2);
+	}
+}
+
+@media (width <= 600px) {
+	.card {
+		margin: 0 16px;
+	}
+}
+
+.card__body {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 48px 32px 36px;
+	gap: 16px;
+}
+
+.card__title {
 	margin: 0;
-	max-width: 400px;
+	font-size: 20px;
+	font-weight: 700;
+	color: var(--color-primaryPalette-900);
 	text-align: center;
 }
 
-.auto-configure__open-btn {
-	margin-top: 8px;
-	font-size: 16px;
-	padding: 0 32px;
+@media (prefers-color-scheme: dark) {
+	.card__title {
+		color: var(--color-primaryPalette-50);
+	}
 }
 
-.auto-configure__hint {
-	color: var(--mat-sidenav-content-text-color);
-	opacity: 0.5;
+.card__subtitle {
+	margin: 0;
+	font-size: 14px;
+	color: var(--color-primaryPalette-400);
+	text-align: center;
+	line-height: 1.5;
+	max-width: 360px;
+}
+
+@media (prefers-color-scheme: dark) {
+	.card__subtitle {
+		color: var(--color-primaryPalette-300);
+	}
+}
+
+.card__notice {
+	margin: 0;
+	font-size: 14px;
+	color: var(--color-primaryPalette-400);
+	text-align: center;
+	max-width: 360px;
+	line-height: 1.5;
+}
+
+@media (prefers-color-scheme: dark) {
+	.card__notice {
+		color: var(--color-primaryPalette-300);
+	}
+}
+
+/* ── Footer ── */
+
+.card__footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 16px 24px;
+	border-top: 1px solid var(--color-primaryPalette-200);
+}
+
+@media (prefers-color-scheme: dark) {
+	.card__footer {
+		border-top-color: var(--color-primaryPalette-800);
+	}
+}
+
+@media (width <= 600px) {
+	.card__footer {
+		flex-direction: column;
+		text-align: center;
+	}
+}
+
+.card__footer-text {
 	margin: 0;
 	font-size: 13px;
+	color: var(--color-primaryPalette-300);
+	line-height: 1.4;
+	flex: 1;
 }
 
-.auto-configure__notice {
-	color: var(--mat-sidenav-content-text-color);
-	opacity: 0.7;
-	margin: 0;
-	text-align: center;
-	max-width: 400px;
+@media (prefers-color-scheme: dark) {
+	.card__footer-text {
+		color: var(--color-primaryPalette-400);
+	}
+}
+
+/* ── CTA button ── */
+
+.card__cta {
+	flex-shrink: 0;
+	background: var(--color-accentedPalette-500) !important;
+	color: var(--color-accentedPalette-500-contrast) !important;
+	border-radius: 8px;
+	font-weight: 600;
+	font-size: 14px;
+	padding: 0 20px;
+	height: 40px;
+	text-decoration: none;
+}
+
+.card__cta:hover {
+	background: var(--color-accentedPalette-700) !important;
+}
+
+.card__cta-arrow {
+	margin-left: 6px;
+}
+
+/* ── Concentric spinning rings ── */
+
+.spinner {
+	position: relative;
+	width: 72px;
+	height: 72px;
+	margin-bottom: 8px;
+}
+
+.spinner__ring {
+	position: absolute;
+	border-radius: 50%;
+	border: 3px solid transparent;
+}
+
+.spinner__ring--outer {
+	inset: 0;
+	border-top-color: var(--color-accentedPalette-500);
+	border-right-color: var(--color-accentedPalette-500);
+	animation: spin-outer 1.8s linear infinite;
+}
+
+.spinner__ring--inner {
+	inset: 10px;
+	border-bottom-color: var(--color-accentedPalette-500);
+	border-left-color: var(--color-accentedPalette-500);
+	animation: spin-inner 1.2s linear infinite;
+}
+
+@keyframes spin-outer {
+	to { transform: rotate(360deg); }
+}
+
+@keyframes spin-inner {
+	to { transform: rotate(-360deg); }
+}
+
+/* ── Indeterminate progress bar ── */
+
+.progress-bar {
+	width: 100%;
+	max-width: 320px;
+	height: 4px;
+	border-radius: 2px;
+	background: var(--color-primaryPalette-200);
+	overflow: hidden;
+	margin-top: 4px;
+}
+
+@media (prefers-color-scheme: dark) {
+	.progress-bar {
+		background: var(--color-primaryPalette-800);
+	}
+}
+
+.progress-bar__fill {
+	width: 40%;
+	height: 100%;
+	border-radius: 2px;
+	background: var(--color-accentedPalette-500);
+	animation: indeterminate 1.5s ease-in-out infinite;
+}
+
+@keyframes indeterminate {
+	0% { transform: translateX(-100%); }
+	100% { transform: translateX(350%); }
 }
