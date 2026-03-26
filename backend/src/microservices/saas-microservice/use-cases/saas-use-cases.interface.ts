@@ -5,7 +5,7 @@ import { SaasUsualUserRegisterDS } from '../../../entities/user/application/data
 import { FoundUserDto } from '../../../entities/user/dto/found-user.dto.js';
 import { UserEntity } from '../../../entities/user/user.entity.js';
 import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
-import { SuccessResponse } from '../data-structures/common-responce.ds.js';
+import { CreatedConnectionResponse, SuccessResponse } from '../data-structures/common-responce.ds.js';
 import { CreateConnectionForHostedDbDto } from '../data-structures/create-connecttion-for-selfhosted-db.dto.js';
 import { DeleteConnectionForHostedDbDto } from '../data-structures/delete-connection-for-hosted-db.dto.js';
 import { FreezeConnectionsInCompanyDS } from '../data-structures/freeze-connections-in-company.ds.js';
@@ -17,6 +17,7 @@ import { SaasRegisterUserWithGithub } from '../data-structures/saas-register-use
 import { SaasSAMLUserRegisterDS } from '../data-structures/saas-saml-user-register.ds.js';
 import { SaasRegisterUserWithGoogleDS } from '../data-structures/sass-register-user-with-google.js';
 import { SuspendUsersDS } from '../data-structures/suspend-users.ds.js';
+import { UpdateHostedConnectionPasswordDto } from '../data-structures/update-hosted-connection-password.dto.js';
 
 export interface ICompanyRegistration {
 	execute(inputData: RegisterCompanyWebhookDS): Promise<RegisteredCompanyDS>;
@@ -71,9 +72,13 @@ export interface ISaasSAMLRegisterUser {
 }
 
 export interface ICreateConnectionForHostedDb {
-	execute(inputData: CreateConnectionForHostedDbDto): Promise<CreatedConnectionDTO>;
+	execute(inputData: CreateConnectionForHostedDbDto): Promise<CreatedConnectionResponse>;
 }
 
 export interface IDeleteConnectionForHostedDb {
 	execute(inputData: DeleteConnectionForHostedDbDto): Promise<CreatedConnectionDTO>;
+}
+
+export interface IUpdateHostedConnectionPassword {
+	execute(inputData: UpdateHostedConnectionPasswordDto): Promise<SuccessResponse>;
 }
