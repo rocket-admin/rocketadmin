@@ -43,6 +43,21 @@
     </div>
 
 
+    @if (isConfiguring) {
+        <div class="status-banner status-banner--configuring">
+            <mat-icon class="status-banner__icon">info</mat-icon>
+            <div class="status-banner__body">
+                <strong class="status-banner__title">Configuring tables</strong>
+                <span class="status-banner__subtitle">Some tables may look incomplete while setup is running. You can adjust column types, display formats and filters in
+                    <a class="status-banner__link" routerLink="/table-settings/{{connectionID}}/{{selectedTableName}}">Settings</a> and
+                    <a class="status-banner__link" routerLink="/widgets/{{connectionID}}/{{selectedTableName}}">UI widgets</a> after setup finishes.</span>
+            </div>
+            <div class="status-banner__progress">
+                <div class="status-banner__progress-fill"></div>
+            </div>
+        </div>
+    }
+
     <mat-sidenav-container class="table-list-sidenav-container">
         <mat-sidenav #sideList mode="side" [(opened)]="shownTableTitles"
             class="table-list-sidenav"
@@ -82,7 +97,7 @@
             <div class="table-preview-content">
                 <div class="alerts">
                     <app-alert></app-alert>
-                    <div *ngIf="dataSource.alert_settingsInfo" class="ai-config-alert">
+                    <div *ngIf="dataSource.alert_settingsInfo && !isConfiguring" class="ai-config-alert">
                         <mat-icon class="ai-config-alert__icon">auto_awesome</mat-icon>
                         <div class="ai-config-alert__message mat-body-1">
                             <strong class="ai-config-alert__title">New: AI Configuration</strong>
@@ -92,6 +107,7 @@
                             <a mat-button [routerLink]="'/auto-configure/' + connectionID">Configure all</a>
                         </div>
                     </div>
+
                     <app-alert *ngIf="dataSource.alert_primaryKeysInfo" [alert]="dataSource.alert_primaryKeysInfo"></app-alert>
                     <app-alert *ngIf="dataSource.alert_widgetsWarning" [alert]="dataSource.alert_widgetsWarning"></app-alert>
                 </div>
