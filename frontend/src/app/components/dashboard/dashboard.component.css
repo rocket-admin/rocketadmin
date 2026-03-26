@@ -195,15 +195,6 @@
 	font-size: 13px;
 }
 
-/* .status-banner--done {
-	border-left-color: var(--success-color);
-	background: var(--success-background-color);
-}
-
-.status-banner--done .status-banner__icon {
-	color: var(--success-color);
-} */
-
 .status-banner__icon {
 	flex-shrink: 0;
 	color: var(--color-accentedPalette-500);
@@ -284,23 +275,6 @@
 	.status-banner__icon {
 		color: var(--color-accentedPalette-500);
 	}
-
-	/* .status-banner--done {
-		background: #0f2a1a;
-		color: #86efac;
-	}
-
-	.status-banner--done .status-banner__icon {
-		color: #4ade80;
-	}
-
-	.status-banner--done .status-banner__title {
-		color: #e2e8f0;
-	}
-
-	.status-banner--done .status-banner__subtitle {
-		color: #86efac;
-	} */
 
 	.status-banner__progress {
 		background: var(--color-accentedPalette-800);

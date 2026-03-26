@@ -101,7 +101,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	public uiSettings: ConnectionSettingsUI;
 	public tableFolders: any[] = [];
 	public isConfiguring: boolean = false;
-	public configurationDone: boolean = false;
 
 	constructor(
 		private _connections: ConnectionsService,
