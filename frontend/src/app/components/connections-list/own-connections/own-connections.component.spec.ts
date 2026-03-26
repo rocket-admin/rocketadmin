@@ -98,7 +98,7 @@ describe('OwnConnectionsComponent', () => {
 
 		fixture.detectChanges();
 
-		expect(fixture.nativeElement.querySelector('[data-testid="create-hosted-database-empty-button"]')).toBeTruthy();
+		expect(fixture.nativeElement.querySelector('[data-testid="create-hosted-database-button"]')).toBeTruthy();
 	});
 
 	it('should hide hosted database CTA for non-admin users', () => {
@@ -111,7 +111,7 @@ describe('OwnConnectionsComponent', () => {
 
 		fixture.detectChanges();
 
-		expect(fixture.nativeElement.querySelector('[data-testid="create-hosted-database-empty-button"]')).toBeFalsy();
+		expect(fixture.nativeElement.querySelector('[data-testid="create-hosted-database-button"]')).toBeFalsy();
 	});
 
 	it('should provision a hosted database and open the success dialog', async () => {
