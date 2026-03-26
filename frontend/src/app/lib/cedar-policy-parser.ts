@@ -126,9 +126,13 @@ export function parseCedarDashboardItems(policyText: string, connectionId: strin
 
 	for (const permit of permits) {
 		if (!permit.action || !permit.action.startsWith('dashboard:')) continue;
-		const dashboardId = extractResourceSuffix(permit.resourceId, connectionId);
-		if (dashboardId) {
-			items.push({ action: permit.action, dashboardId });
+		if (permit.action === 'dashboard:create') {
+			items.push({ action: permit.action });
+		} else {
+			const dashboardId = extractResourceSuffix(permit.resourceId, connectionId);
+			if (dashboardId) {
+				items.push({ action: permit.action, dashboardId });
+			}
 		}
 	}
 

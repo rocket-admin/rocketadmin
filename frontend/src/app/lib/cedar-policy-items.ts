@@ -52,7 +52,7 @@ export const POLICY_ACTION_GROUPS: PolicyActionGroup[] = [
 		actions: [
 			{ value: 'dashboard:*', label: 'Full dashboard access', needsTable: false, needsDashboard: true },
 			{ value: 'dashboard:read', label: 'Dashboard read', needsTable: false, needsDashboard: true },
-			{ value: 'dashboard:create', label: 'Dashboard create', needsTable: false, needsDashboard: true },
+			{ value: 'dashboard:create', label: 'Dashboard create', needsTable: false, needsDashboard: false },
 			{ value: 'dashboard:edit', label: 'Dashboard edit', needsTable: false, needsDashboard: true },
 			{ value: 'dashboard:delete', label: 'Dashboard delete', needsTable: false, needsDashboard: true },
 		],
@@ -136,6 +136,8 @@ export function policyItemsToCedarPolicy(items: CedarPolicyItem[], connectionId:
 
 		if (item.action.startsWith('table:')) {
 			resource = buildResourceRef('Table', connectionId, item.tableName);
+		} else if (item.action === 'dashboard:create') {
+			resource = `resource == RocketAdmin::Connection::"${connectionId}"`;
 		} else if (item.action.startsWith('dashboard:')) {
 			resource = buildResourceRef('Dashboard', connectionId, item.dashboardId);
 		} else if (item.action.startsWith('group:')) {
