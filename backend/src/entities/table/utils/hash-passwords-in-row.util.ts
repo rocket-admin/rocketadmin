@@ -23,7 +23,7 @@ export async function hashPasswordsInRowUtil(
 			}
 
 			if (fieldValue !== undefined && fieldValue !== null && fieldValue !== '' && widgetParams.encrypt) {
-				row[widget.field_name] = await Encryptor.processDataWithAlgorithm(fieldValue as any, widgetParams.algorithm);
+				row[widget.field_name] = await Encryptor.processDataWithAlgorithm(fieldValue as string, widgetParams.algorithm);
 			}
 		} catch (e) {
 			console.log('-> Error in password widget encryption processing', e);

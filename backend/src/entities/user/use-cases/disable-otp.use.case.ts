@@ -31,7 +31,7 @@ export class DisableOtpUseCase extends AbstractUseCase<VerifyOtpDS, OtpDisabling
 			throw new NotFoundException(Messages.USER_NOT_FOUND);
 		}
 
-		const foundUserCompany = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(userId);
+		const foundUserCompany = await this._dbContext.companyInfoRepository.findCompanyInfoByUserId(userId);
 		if (foundUserCompany.is2faEnabled) {
 			throw new ForbiddenException(Messages.DISABLING_2FA_FORBIDDEN_BY_ADMIN);
 		}

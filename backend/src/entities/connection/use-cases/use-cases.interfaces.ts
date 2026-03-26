@@ -1,7 +1,7 @@
 import { InTransactionEnum } from '../../../enums/index.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { FoundGroupResponseDto } from '../../group/dto/found-group-response.dto.js';
-import { CreateUserDs } from '../../user/application/data-structures/create-user.ds.js';
+import { FindUserDs } from '../../user/application/data-structures/find-user.ds.js';
 import { FoundUserDto } from '../../user/dto/found-user.dto.js';
 import { CreateConnectionDs } from '../application/data-structures/create-connection.ds.js';
 import { CreateGroupInConnectionDs } from '../application/data-structures/create-group-in-connection.ds.js';
@@ -26,7 +26,7 @@ import { ValidationResultRo } from '../application/dto/validation-result.ro.js';
 import { TokenValidationResult } from './validate-connection-token.use.case.js';
 
 export interface IFindConnections {
-	execute(user: CreateUserDs, inTransaction: InTransactionEnum): Promise<FoundConnectionsDs>;
+	execute(user: FindUserDs, inTransaction: InTransactionEnum): Promise<FoundConnectionsDs>;
 }
 
 export interface IFindUsersInConnection {

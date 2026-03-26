@@ -189,10 +189,10 @@ export class TableController {
 	@Get('/table/rows/:connectionId')
 	async findAllRows(
 		@QueryTableName() tableName: string,
-		@Query('page') page: any,
-		@Query('perPage') perPage: any,
+		@Query('page') page: string,
+		@Query('perPage') perPage: string,
 		@Query('search') searchingFieldValue: string,
-		@Query() query,
+		@Query() query: Record<string, string>,
 		@SlugUuid('connectionId') connectionId: string,
 		@UserId() userId: string,
 		@MasterPassword() masterPwd: string,
@@ -205,10 +205,12 @@ export class TableController {
 				HttpStatus.BAD_REQUEST,
 			);
 		}
+		let parsedPage: number;
+		let parsedPerPage: number;
 		if (page && perPage) {
-			page = parseInt(page, 10);
-			perPage = parseInt(perPage, 10);
-			if ((page && page <= 0) || (perPage && perPage <= 0)) {
+			parsedPage = parseInt(page, 10);
+			parsedPerPage = parseInt(perPage, 10);
+			if ((parsedPage && parsedPage <= 0) || (parsedPerPage && parsedPerPage <= 0)) {
 				throw new HttpException(
 					{
 						message: Messages.PAGE_AND_PERPAGE_INVALID,
@@ -220,8 +222,8 @@ export class TableController {
 		const inputData: GetTableRowsDs = {
 			connectionId: connectionId,
 			masterPwd: masterPwd,
-			page: page,
-			perPage: perPage,
+			page: parsedPage,
+			perPage: parsedPerPage,
 			query: query,
 			searchingFieldValue: searchingFieldValue,
 			tableName: tableName,
@@ -249,10 +251,10 @@ export class TableController {
 	@Post('/table/rows/find/:connectionId')
 	async findAllRowsWithBodyFilter(
 		@QueryTableName() tableName: string,
-		@Query('page') page: any,
-		@Query('perPage') perPage: any,
+		@Query('page') page: string,
+		@Query('perPage') perPage: string,
 		@Query('search') searchingFieldValue: string,
-		@Query() query,
+		@Query() query: Record<string, string>,
 		@SlugUuid('connectionId') connectionId: string,
 		@UserId() userId: string,
 		@MasterPassword() masterPwd: string,
@@ -266,10 +268,12 @@ export class TableController {
 				HttpStatus.BAD_REQUEST,
 			);
 		}
+		let parsedPage: number;
+		let parsedPerPage: number;
 		if (page && perPage) {
-			page = parseInt(page, 10);
-			perPage = parseInt(perPage, 10);
-			if ((page && page <= 0) || (perPage && perPage <= 0)) {
+			parsedPage = parseInt(page, 10);
+			parsedPerPage = parseInt(perPage, 10);
+			if ((parsedPage && parsedPage <= 0) || (parsedPerPage && parsedPerPage <= 0)) {
 				throw new HttpException(
 					{
 						message: Messages.PAGE_AND_PERPAGE_INVALID,
@@ -281,8 +285,8 @@ export class TableController {
 		const inputData: GetTableRowsDs = {
 			connectionId: connectionId,
 			masterPwd: masterPwd,
-			page: page,
-			perPage: perPage,
+			page: parsedPage,
+			perPage: parsedPerPage,
 			query: query,
 			searchingFieldValue: searchingFieldValue,
 			tableName: tableName,
@@ -378,8 +382,8 @@ export class TableController {
 	@UseGuards(TableEditGuard)
 	@Put('/table/row/:connectionId')
 	async updateRowInTable(
-		@Body() body: string,
-		@Query() query: string,
+		@Body() body: Record<string, unknown>,
+		@Query() query: Record<string, string>,
 		@UserId() userId: string,
 		@MasterPassword() masterPwd: string,
 		@SlugUuid('connectionId') connectionId: string,
@@ -403,7 +407,7 @@ export class TableController {
 			connectionId: connectionId,
 			masterPwd: masterPwd,
 			primaryKey: primaryKey,
-			row: body as unknown as Record<string, unknown>,
+			row: body,
 			tableName: tableName,
 			userId: userId,
 		};
@@ -423,7 +427,7 @@ export class TableController {
 	@UseGuards(TableDeleteGuard)
 	@Delete('/table/row/:connectionId')
 	async deleteRowInTable(
-		@Query() query: string,
+		@Query() query: Record<string, string>,
 		@MasterPassword() masterPwd: string,
 		@SlugUuid('connectionId') connectionId: string,
 		@UserId() userId: string,
@@ -553,7 +557,7 @@ export class TableController {
 	@UseGuards(TableReadGuard)
 	@Get('/table/row/:connectionId')
 	async getRowByPrimaryKey(
-		@Query() query: string,
+		@Query() query: Record<string, string>,
 		@MasterPassword() masterPwd: string,
 		@SlugUuid('connectionId') connectionId: string,
 		@UserId() userId: string,
@@ -610,10 +614,10 @@ export class TableController {
 	@Post('/table/csv/export/:connectionId')
 	async exportCSVFromTable(
 		@QueryTableName() tableName: string,
-		@Query('page') page: any,
-		@Query('perPage') perPage: any,
+		@Query('page') page: string,
+		@Query('perPage') perPage: string,
 		@Query('search') searchingFieldValue: string,
-		@Query() query,
+		@Query() query: Record<string, string>,
 		@SlugUuid('connectionId') connectionId: string,
 		@UserId() userId: string,
 		@MasterPassword() masterPwd: string,
@@ -627,10 +631,12 @@ export class TableController {
 				HttpStatus.BAD_REQUEST,
 			);
 		}
+		let parsedPage: number;
+		let parsedPerPage: number;
 		if (page && perPage) {
-			page = parseInt(page, 10);
-			perPage = parseInt(perPage, 10);
-			if ((page && page <= 0) || (perPage && perPage <= 0)) {
+			parsedPage = parseInt(page, 10);
+			parsedPerPage = parseInt(perPage, 10);
+			if ((parsedPage && parsedPage <= 0) || (parsedPerPage && parsedPerPage <= 0)) {
 				throw new HttpException(
 					{
 						message: Messages.PAGE_AND_PERPAGE_INVALID,
@@ -642,8 +648,8 @@ export class TableController {
 		const inputData: GetTableRowsDs = {
 			connectionId: connectionId,
 			masterPwd: masterPwd,
-			page: page,
-			perPage: perPage,
+			page: parsedPage,
+			perPage: parsedPerPage,
 			query: query,
 			searchingFieldValue: searchingFieldValue,
 			tableName: tableName,
@@ -692,7 +698,7 @@ export class TableController {
 			connectionId: connectionId,
 			file: file,
 			tableName: tableName,
-			materPwd: masterPwd,
+			masterPwd: masterPwd,
 			userId: userId,
 		};
 		await this.importCSVToTableUseCase.execute(inputData, InTransactionEnum.OFF);
@@ -705,9 +711,9 @@ export class TableController {
 		userId: string,
 		connectionId: string,
 		tableName: string,
-		query: string,
+		query: Record<string, string>,
 		masterPwd: string,
-	): Promise<Array<any>> {
+	): Promise<Array<Record<string, unknown>>> {
 		const primaryKeys = [];
 		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
 		let userEmail: string;

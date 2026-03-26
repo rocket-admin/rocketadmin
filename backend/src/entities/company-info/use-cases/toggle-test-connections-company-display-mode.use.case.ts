@@ -21,7 +21,7 @@ export class ToggleCompanyTestConnectionsDisplayModeUseCase
 
 	public async implementation(inputData: ToggleTestConnectionDisplayModeDs): Promise<SuccessResponse> {
 		const { userId, displayMode } = inputData;
-		const foundCompanyInfo = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(userId);
+		const foundCompanyInfo = await this._dbContext.companyInfoRepository.findCompanyInfoByUserId(userId);
 		if (!foundCompanyInfo) {
 			throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
 		}

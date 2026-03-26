@@ -27,8 +27,8 @@ export const groupCustomRepositoryExtension: IGroupRepository = {
 	async findGroupInConnection(groupId: string, connectionId: string): Promise<GroupEntity> {
 		const qb = this.createQueryBuilder('group')
 			.leftJoinAndSelect('group.connection', 'connection')
-			.andWhere('group.id = :groupId', { groupId: groupId })
-			.andWhere('connection.id = :connectionId', { connectionId: connectionId });
+			.andWhere('group.id = :groupId', { groupId })
+			.andWhere('connection.id = :connectionId', { connectionId });
 		return await qb.getOne();
 	},
 
@@ -36,12 +36,12 @@ export const groupCustomRepositoryExtension: IGroupRepository = {
 		return await this.remove(group);
 	},
 
-	async findAllUserGroupsInConnection(connectionId: string, cognitoUserName: string): Promise<Array<GroupEntity>> {
+	async findAllUserGroupsInConnection(connectionId: string, userId: string): Promise<Array<GroupEntity>> {
 		const qb = this.createQueryBuilder('group')
 			.leftJoinAndSelect('group.connection', 'connection')
 			.leftJoinAndSelect('group.users', 'user')
-			.andWhere('connection.id = :connectionId', { connectionId: connectionId })
-			.andWhere('user.id = :cognitoUserName', { cognitoUserName: cognitoUserName });
+			.andWhere('connection.id = :connectionId', { connectionId })
+			.andWhere('user.id = :userId', { userId });
 		return await qb.getMany();
 	},
 

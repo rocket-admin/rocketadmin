@@ -7,10 +7,9 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { LogOperationTypeEnum } from '../../../enums/log-operation-type.enum.js';
 import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
-import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
+import { validateConnection, getUserEmailForAgent } from '../utils/validate-connection.util.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { UpdateRowsInTableDs } from '../application/data-structures/update-rows-in-table.ds.js';
@@ -46,24 +45,10 @@ export class BulkUpdateRowsInTableUseCase
 		}
 
 		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
-		if (!connection) {
-			throw new HttpException(
-				{
-					message: Messages.CONNECTION_NOT_FOUND,
-				},
-				HttpStatus.BAD_REQUEST,
-			);
-		}
-
-		if (connection.is_frozen) {
-			throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
-		}
+		validateConnection(connection);
 
 		const dao = getDataAccessObject(connection);
-		let userEmail: string;
-		if (isConnectionTypeAgent(connection.type)) {
-			userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
-		}
+		const userEmail = await getUserEmailForAgent(connection, userId, this._dbContext.userRepository);
 
 		const isView = await dao.isView(tableName, userEmail);
 		if (isView) {

@@ -4,20 +4,19 @@ import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/en
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { Messages } from '../../../exceptions/text/messages.js';
-import { slackPostMessage } from '../../../helpers/index.js';
-import { AccessLevelEnum } from '../../../enums/index.js';
 import { generateCedarPolicyForGroup } from '../../../entities/cedar-authorization/cedar-policy-generator.js';
-import { CreatedConnectionDTO } from '../../../entities/connection/application/dto/created-connection.dto.js';
 import { ConnectionEntity } from '../../../entities/connection/connection.entity.js';
 import { readSslCertificate } from '../../../entities/connection/ssl-certificate/read-certificate.js';
-import { buildCreatedConnectionDs } from '../../../entities/connection/utils/build-created-connection.ds.js';
+import { AccessLevelEnum } from '../../../enums/index.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { slackPostMessage } from '../../../helpers/index.js';
+import { CreatedConnectionResponse } from '../data-structures/common-responce.ds.js';
 import { CreateConnectionForHostedDbDto } from '../data-structures/create-connecttion-for-selfhosted-db.dto.js';
 import { ICreateConnectionForHostedDb } from './saas-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class CreateConnectionForHostedDbUseCase
-	extends AbstractUseCase<CreateConnectionForHostedDbDto, CreatedConnectionDTO>
+	extends AbstractUseCase<CreateConnectionForHostedDbDto, CreatedConnectionResponse>
 	implements ICreateConnectionForHostedDb
 {
 	constructor(
@@ -27,7 +26,7 @@ export class CreateConnectionForHostedDbUseCase
 		super();
 	}
 
-	protected async implementation(inputData: CreateConnectionForHostedDbDto): Promise<CreatedConnectionDTO> {
+	protected async implementation(inputData: CreateConnectionForHostedDbDto): Promise<CreatedConnectionResponse> {
 		const { companyId, userId, databaseName, hostname, port, username, password } = inputData;
 
 		const connectionAuthor = await this._dbContext.userRepository.findOneUserById(userId);
@@ -35,9 +34,7 @@ export class CreateConnectionForHostedDbUseCase
 			throw new InternalServerErrorException(Messages.USER_NOT_FOUND);
 		}
 
-		await slackPostMessage(
-			Messages.USER_TRY_CREATE_CONNECTION(connectionAuthor.email, ConnectionTypesEnum.postgres),
-		);
+		await slackPostMessage(Messages.USER_TRY_CREATE_CONNECTION(connectionAuthor.email, ConnectionTypesEnum.postgres));
 
 		const cert = await readSslCertificate();
 
@@ -85,21 +82,18 @@ export class CreateConnectionForHostedDbUseCase
 			savedConnection,
 			connectionAuthor,
 		);
-		createdAdminGroup.cedarPolicy = generateCedarPolicyForGroup(
-			savedConnection.id,
-			true,
-			{
-				connection: { connectionId: savedConnection.id, accessLevel: AccessLevelEnum.edit },
-				group: { groupId: createdAdminGroup.id, accessLevel: AccessLevelEnum.edit },
-				tables: [],
-			},
-		);
+		createdAdminGroup.cedarPolicy = generateCedarPolicyForGroup(savedConnection.id, true, {
+			connection: { connectionId: savedConnection.id, accessLevel: AccessLevelEnum.edit },
+			group: { groupId: createdAdminGroup.id, accessLevel: AccessLevelEnum.edit },
+			tables: [],
+		});
 		await this._dbContext.groupRepository.saveNewOrUpdatedGroup(createdAdminGroup);
 		delete createdAdminGroup.connection;
 		await this._dbContext.userRepository.saveUserEntity(connectionAuthor);
 		savedConnection.groups = [createdAdminGroup];
 
-		const foundCompany = await this._dbContext.companyInfoRepository.findCompanyInfoByCompanyIdWithoutConnections(companyId);
+		const foundCompany =
+			await this._dbContext.companyInfoRepository.findCompanyInfoByCompanyIdWithoutConnections(companyId);
 		if (foundCompany) {
 			const connectionToUpdate = await this._dbContext.connectionRepository.findOne({
 				where: { id: savedConnection.id },
@@ -108,11 +102,8 @@ export class CreateConnectionForHostedDbUseCase
 			await this._dbContext.connectionRepository.saveUpdatedConnection(connectionToUpdate);
 		}
 
-		await slackPostMessage(
-			Messages.USER_CREATED_CONNECTION(connectionAuthor.email, ConnectionTypesEnum.postgres),
-		);
+		await slackPostMessage(Messages.USER_CREATED_CONNECTION(connectionAuthor.email, ConnectionTypesEnum.postgres));
 
-		const connectionRO = buildCreatedConnectionDs(savedConnection, null, null);
-		return connectionRO;
+		return { connectionId: savedConnection.id };
 	}
 }

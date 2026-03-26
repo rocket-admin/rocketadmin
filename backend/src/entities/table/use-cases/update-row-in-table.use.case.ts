@@ -1,13 +1,8 @@
 /* eslint-disable prefer-const */
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
-import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
 import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
-import { ReferencedTableNamesAndColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/referenced-table-names-columns.ds.js';
 import { buildDAOsTableSettingsDs } from '@rocketadmin/shared-code/dist/src/helpers/data-structures-builders/table-settings.ds.builder.js';
-import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object.interface.js';
-import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
-import JSON5 from 'json5';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -15,16 +10,13 @@ import {
 	AmplitudeEventTypeEnum,
 	LogOperationTypeEnum,
 	OperationResultStatusEnum,
-	WidgetTypeEnum,
 } from '../../../enums/index.js';
 import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
-import { NonAvailableInFreePlanException } from '../../../exceptions/custom-exceptions/non-available-in-free-plan-exception.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import {
 	compareArrayElements,
-	isConnectionTypeAgent,
 	isObjectEmpty,
 	toPrettyErrorsMsg,
 } from '../../../helpers/index.js';
@@ -33,7 +25,7 @@ import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-
 import { TableActionActivationService } from '../../table-actions/table-actions-module/table-action-activation.service.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { UpdateRowInTableDs } from '../application/data-structures/update-row-in-table.ds.js';
-import { ForeignKeyDSInfo, ReferencedTableNamesAndColumnsDs, TableRowRODs } from '../table-datastructures.js';
+import { ReferencedTableNamesAndColumnsDs, TableRowRODs } from '../table-datastructures.js';
 import { convertBinaryDataInRowUtil } from '../utils/convert-binary-data-in-row.util.js';
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
 import { hashPasswordsInRowUtil } from '../utils/hash-passwords-in-row.util.js';
@@ -41,6 +33,12 @@ import { processUuidsInRowUtil } from '../utils/process-uuids-in-row-util.js';
 import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util.js';
 import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { IUpdateRowInTable } from './table-use-cases.interface.js';
+import { validateConnection, getUserEmailForAgent } from '../utils/validate-connection.util.js';
+import { extractForeignKeysFromWidgets } from '../utils/extract-foreign-keys-from-widgets.util.js';
+import { filterForeignKeysByReadPermission } from '../utils/filter-foreign-keys-by-permission.util.js';
+import { attachForeignColumnNames } from '../utils/attach-foreign-column-names.util.js';
+import { filterReferencedTablesByPermission, enrichReferencedTablesWithDisplayNames } from '../utils/process-referenced-tables.util.js';
+import { buildTableSettingsForResponse } from '../utils/build-table-settings-for-response.util.js';
 
 @Injectable()
 export class UpdateRowInTableUseCase
@@ -68,25 +66,11 @@ export class UpdateRowInTableUseCase
 		}
 
 		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
-		if (!connection) {
-			throw new HttpException(
-				{
-					message: Messages.CONNECTION_NOT_FOUND,
-				},
-				HttpStatus.BAD_REQUEST,
-			);
-		}
-
-		if (connection.is_frozen) {
-			throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
-		}
+		validateConnection(connection);
 
 		const dao = getDataAccessObject(connection);
 
-		let userEmail: string;
-		if (isConnectionTypeAgent(connection.type)) {
-			userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
-		}
+		const userEmail = await getUserEmailForAgent(connection, userId, this._dbContext.userRepository);
 		const isView = await dao.isView(tableName, userEmail);
 		if (isView) {
 			throw new HttpException(
@@ -117,42 +101,12 @@ export class UpdateRowInTableUseCase
 
 		const builtDAOsTableSettings = buildDAOsTableSettingsDs(tableSettings, personalTableSettings);
 
-		for (const referencedTable of referencedTableNamesAndColumns) {
-			referencedTable.referenced_by = await Promise.all(
-				referencedTable.referenced_by.map(async (referencedByTable) => {
-					const canUserReadTable = await this.cedarPermissions.improvedCheckTableRead(
-						userId,
-						connectionId,
-						referencedByTable.table_name,
-						masterPwd,
-					);
-					return canUserReadTable ? referencedByTable : null;
-				}),
-			).then((results) => results.filter(Boolean));
-		}
-
-		const referencedTableNamesAndColumnsWithTablesDisplayNames: Array<ReferencedTableNamesAndColumnsDs> =
-			await Promise.all(
-				referencedTableNamesAndColumns.map(async (el: ReferencedTableNamesAndColumnsDS) => {
-					const { referenced_by, referenced_on_column_name } = el;
-					const responseObject: ReferencedTableNamesAndColumnsDs = {
-						referenced_on_column_name: referenced_on_column_name,
-						referenced_by: [],
-					};
-					for (const element of referenced_by) {
-						const foundTableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(
-							connectionId,
-							element.table_name,
-						);
-						const displayName = foundTableSettings?.display_name ? foundTableSettings.display_name : null;
-						responseObject.referenced_by.push({
-							...element,
-							display_name: displayName,
-						});
-					}
-					return responseObject;
-				}),
-			);
+		await filterReferencedTablesByPermission(referencedTableNamesAndColumns, userId, connectionId, masterPwd, this.cedarPermissions);
+		const referencedTableNamesAndColumnsWithTablesDisplayNames = await enrichReferencedTablesWithDisplayNames(
+			referencedTableNamesAndColumns,
+			connectionId,
+			this._dbContext.tableSettingsRepository.findTableSettings.bind(this._dbContext.tableSettingsRepository),
+		);
 
 		if (tableSettings && !tableSettings?.can_update) {
 			throw new HttpException(
@@ -172,55 +126,23 @@ export class UpdateRowInTableUseCase
 			);
 		}
 
-		const foreignKeysFromWidgets: Array<ForeignKeyDSInfo> = tableWidgets
-			.filter((widget) => widget.widget_type === WidgetTypeEnum.Foreign_key)
-			.map((widget) => {
-				if (widget.widget_params) {
-					try {
-						const widgetParams = JSON5.parse(widget.widget_params) as ForeignKeyDSInfo;
-						return widgetParams;
-					} catch (_e) {
-						return null;
-					}
-				}
-			})
-			.filter((el) => el !== null);
+		const foreignKeysFromWidgets = extractForeignKeysFromWidgets(tableWidgets);
 
 		tableForeignKeys = tableForeignKeys.concat(foreignKeysFromWidgets);
 
 		let foreignKeysWithAutocompleteColumns: Array<ForeignKeyWithAutocompleteColumnsDS> = [];
-		const canUserReadForeignTables: Array<{
-			tableName: string;
-			canRead: boolean;
-		}> = await Promise.all(
-			tableForeignKeys.map(async (foreignKey) => {
-				const cenTableRead = await this.cedarPermissions.improvedCheckTableRead(
-					userId,
-					connectionId,
-					foreignKey.referenced_table_name,
-					masterPwd,
-				);
-				return {
-					tableName: foreignKey.referenced_table_name,
-					canRead: cenTableRead,
-				};
-			}),
+		tableForeignKeys = await filterForeignKeysByReadPermission(
+			tableForeignKeys, userId, connectionId, masterPwd, this.cedarPermissions,
 		);
-		tableForeignKeys = tableForeignKeys.filter((foreignKey) => {
-			return canUserReadForeignTables.find((el) => {
-				return el.tableName === foreignKey.referenced_table_name && el.canRead;
-			});
-		});
 
 		if (tableForeignKeys && tableForeignKeys.length > 0) {
 			foreignKeysWithAutocompleteColumns = await Promise.all(
-				tableForeignKeys.map((el) => {
-					try {
-						return this.attachForeignColumnNames(el, userId, connectionId, dao);
-					} catch (_e) {
-						return el as ForeignKeyWithAutocompleteColumnsDS;
-					}
-				}),
+				tableForeignKeys.map((el) =>
+					attachForeignColumnNames(
+						el, userEmail, connectionId, dao,
+						this._dbContext.tableSettingsRepository.findTableSettings.bind(this._dbContext.tableSettingsRepository),
+					).catch(() => el as ForeignKeyWithAutocompleteColumnsDS),
+				),
 			);
 		}
 
@@ -279,11 +201,6 @@ export class UpdateRowInTableUseCase
 			let updatedRow = await dao.getRowByPrimaryKey(tableName, futurePrimaryKey, builtDAOsTableSettings, userEmail);
 			updatedRow = removePasswordsFromRowsUtil(updatedRow, tableWidgets);
 			updatedRow = convertBinaryDataInRowUtil(updatedRow, tableStructure);
-			const allowCsvExport = tableSettings?.allow_csv_export ?? true;
-			const allowCsvImport = tableSettings?.allow_csv_import ?? true;
-			const can_delete = tableSettings?.can_delete ?? true;
-			const can_update = tableSettings?.can_update ?? true;
-			const can_add = tableSettings?.can_add ?? true;
 			return {
 				row: updatedRow,
 				foreignKeys: foreignKeysWithAutocompleteColumns,
@@ -299,19 +216,7 @@ export class UpdateRowInTableUseCase
 				can_delete: tableSettings ? tableSettings.can_delete : true,
 				can_update: tableSettings ? tableSettings.can_update : true,
 				can_add: tableSettings ? tableSettings.can_add : true,
-				table_settings: {
-					sortable_by: builtDAOsTableSettings?.sortable_by?.length > 0 ? builtDAOsTableSettings.sortable_by : [],
-					ordering: builtDAOsTableSettings.ordering ? builtDAOsTableSettings.ordering : undefined,
-					identity_column: builtDAOsTableSettings.identity_column ? builtDAOsTableSettings.identity_column : null,
-					list_fields: builtDAOsTableSettings?.list_fields?.length > 0 ? builtDAOsTableSettings.list_fields : [],
-					allow_csv_export: allowCsvExport,
-					allow_csv_import: allowCsvImport,
-					can_delete: can_delete,
-					can_update: can_update,
-					can_add: can_add,
-					columns_view: builtDAOsTableSettings?.columns_view ? builtDAOsTableSettings.columns_view : [],
-					ordering_field: builtDAOsTableSettings.ordering_field ? builtDAOsTableSettings.ordering_field : undefined,
-				},
+				table_settings: buildTableSettingsForResponse(builtDAOsTableSettings, tableSettings),
 			};
 		} catch (e) {
 			operationResult = OperationResultStatusEnum.unsuccessfully;
@@ -348,36 +253,4 @@ export class UpdateRowInTableUseCase
 		}
 	}
 
-	private async attachForeignColumnNames(
-		foreignKey: ForeignKeyDS,
-		userId: string,
-		connectionId: string,
-		dao: IDataAccessObject | IDataAccessObjectAgent,
-	): Promise<ForeignKeyWithAutocompleteColumnsDS> {
-		try {
-			const [foreignTableSettings, foreignTableStructure] = await Promise.all([
-				this._dbContext.tableSettingsRepository.findTableSettings(connectionId, foreignKey.referenced_table_name),
-				dao.getTableStructure(foreignKey.referenced_table_name, userId),
-			]);
-
-			let columnNames = foreignTableStructure.map((el) => {
-				return el.column_name;
-			});
-			if (foreignTableSettings && foreignTableSettings.autocomplete_columns.length > 0) {
-				columnNames = columnNames.filter((el) => {
-					const index = foreignTableSettings.autocomplete_columns.indexOf(el);
-					return index >= 0;
-				});
-			}
-			return {
-				...foreignKey,
-				autocomplete_columns: columnNames,
-			};
-		} catch (_e) {
-			return {
-				...foreignKey,
-				autocomplete_columns: [],
-			};
-		}
-	}
 }
