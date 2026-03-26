@@ -113,6 +113,7 @@ export class UsersService {
 				successMessage: 'Policy has been saved.',
 			},
 		);
+		this.refreshGroups();
 		this._groupsUpdated.set('policy-saved');
 	}
 

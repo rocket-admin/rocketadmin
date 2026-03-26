@@ -85,8 +85,9 @@ export class UsersComponent implements OnInit {
 				if (currentGroups.length) {
 					this._usersService.fetchAllGroupUsers(currentGroups);
 				}
-			} else {
+			} else if (action !== 'policy-saved') {
 				// Group-level changes: refresh groups resource, then users
+				// (policy-saved already refreshes in UsersService.saveCedarPolicy)
 				this._usersService.refreshGroups();
 			}
 			this._usersService.clearGroupsUpdated();
