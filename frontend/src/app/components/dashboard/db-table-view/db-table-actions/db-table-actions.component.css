@@ -519,15 +519,15 @@
 }
 
 .example-trigger__icon-box--custom {
-	background: color-mix(in srgb, #c084fc, transparent 80%);
-	color: #6d28d9;
+	background: color-mix(in srgb, var(--alternative-color), transparent 80%);
+	color: var(--alternative-color);
 }
 
 @media (prefers-color-scheme: dark) {
 	.example-trigger__icon-box--add { background: color-mix(in srgb, var(--success-color), transparent 88%); color: var(--success-color); }
 	.example-trigger__icon-box--update { background: color-mix(in srgb, var(--info-color), transparent 88%); color: var(--info-color); }
 	.example-trigger__icon-box--delete { background: color-mix(in srgb, var(--error-color), transparent 88%); color: var(--error-color); }
-	.example-trigger__icon-box--custom { background: rgba(192, 132, 252, 0.12); color: #c084fc; }
+	.example-trigger__icon-box--custom { background: color-mix(in srgb, var(--alternative-color), transparent 88%); color: var(--alternative-color); }
 }
 
 .example-trigger__text {

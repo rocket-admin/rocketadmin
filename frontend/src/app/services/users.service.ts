@@ -69,7 +69,7 @@ export class UsersService {
 		return this._http.post<any>(`/connection/cedar-policy/${connectionID}`, { cedarPolicy, groupId }).pipe(
 			map((res) => {
 				this.groups.next({ action: 'save policy', groupId });
-				this._notifications.showSuccessSnackbar('Cedar policy has been saved.');
+				this._notifications.showSuccessSnackbar('Policy has been saved.');
 				return res;
 			}),
 			catchError((err) => {
