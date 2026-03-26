@@ -591,29 +591,6 @@
 	max-width: calc(100% - 40px);
 }
 
-.folder-name.editing {
-	background: white;
-	border: 1px solid #2196f3;
-	border-radius: 2px;
-	padding: 2px 6px;
-	margin: 0 4px;
-	flex: 1;
-	max-width: 100%;
-}
-
-.enter-icon {
-	font-size: 16px;
-	width: 16px;
-	height: 16px;
-	color: #9e9e9e;
-	cursor: pointer;
-	margin-left: 4px;
-}
-
-.enter-icon:hover {
-	color: #757575;
-}
-
 .folder-icon {
 	font-size: 20px;
 	width: 20px;
@@ -724,59 +701,13 @@
 }
 
 .table-link_active {
-	background: rgba(37, 99, 235, 0.08);
 	border-radius: 4px;
 	margin: 0 -12px;
 	padding: 0 12px;
 }
 
 .table-link_active .table-name {
-	color: #2563eb;
-}
-
-@media (prefers-color-scheme: dark) {
-	.table-link_active {
-		background: rgba(96, 165, 250, 0.1);
-	}
-
-	.table-link_active .table-name {
-		color: #60a5fa;
-	}
-}
-
-/* ── Dot indicators ── */
-
-.table-dot {
-	flex-shrink: 0;
-	width: 6px;
-	height: 6px;
-	border-radius: 50%;
-	background: transparent;
-	margin-right: 6px;
-}
-
-.table-dot--configured {
-	background: #16a34a;
-}
-
-.table-dot--configuring {
-	background: #2563eb;
-	animation: dot-pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes dot-pulse {
-	0%, 100% { opacity: 1; transform: scale(1); }
-	50% { opacity: 0.4; transform: scale(0.75); }
-}
-
-@media (prefers-color-scheme: dark) {
-	.table-dot--configured {
-		background: #4ade80;
-	}
-
-	.table-dot--configuring {
-		background: #60a5fa;
-	}
+	color: var(--color-accentedPalette-500);
 }
 
 .table-name {

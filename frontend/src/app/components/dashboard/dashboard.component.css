@@ -189,25 +189,24 @@
 	padding: 12px 20px;
 	width: 100%;
 	border: none;
-	border-left: 3px solid #2563eb;
+	border-left: 3px solid var(--color-accentedPalette-500);
 	border-radius: 0;
-	background: #ebf2ff;
+	background: var(--color-accentedPalette-50);
 	font-size: 13px;
-	color: #1e293b;
 }
 
-.status-banner--done {
-	border-left-color: #16a34a;
-	background: #edfaf3;
+/* .status-banner--done {
+	border-left-color: var(--success-color);
+	background: var(--success-background-color);
 }
 
 .status-banner--done .status-banner__icon {
-	color: #16a34a;
-}
+	color: var(--success-color);
+} */
 
 .status-banner__icon {
 	flex-shrink: 0;
-	color: #2563eb;
+	color: var(--color-accentedPalette-500);
 	font-size: 20px;
 	width: 20px;
 	height: 20px;
@@ -222,21 +221,21 @@
 }
 
 .status-banner__title {
-	color: #1e293b;
+	color: var(--color-accentedPalette-900);
 	white-space: nowrap;
 }
 
 .status-banner__subtitle {
-	color: #475569;
+	color: var(--color-accentedPalette-700);
 }
 
 .status-banner__link {
-	color: #2563eb;
+	color: var(--color-accentedPalette-500);
 	text-decoration: underline;
 }
 
 .status-banner__link:hover {
-	color: #1d4ed8;
+	color: var(--color-accentedPalette-700);
 }
 
 .status-banner__progress {
@@ -244,7 +243,7 @@
 	width: 80px;
 	height: 3px;
 	border-radius: 2px;
-	background: rgba(37, 99, 235, 0.15);
+	background: var(--color-accentedPalette-100);
 	overflow: hidden;
 }
 
@@ -252,7 +251,7 @@
 	width: 40%;
 	height: 100%;
 	border-radius: 2px;
-	background: #2563eb;
+	background: var(--color-accentedPalette-500);
 	animation: banner-indeterminate 1.5s ease-in-out infinite;
 }
 
@@ -263,31 +262,30 @@
 
 @media (prefers-color-scheme: dark) {
 	.status-banner {
-		background: #1a2744;
-		color: #93c5fd;
+		background: var(--color-accentedPalette-900);
 	}
 
 	.status-banner__title {
-		color: #e2e8f0;
+		color: var(--color-accentedPalette-100);
 	}
 
 	.status-banner__subtitle {
-		color: #93c5fd;
+		color: var(--color-accentedPalette-200);
 	}
 
 	.status-banner__link {
-		color: #60a5fa;
+		color: var(--color-accentedPalette-500);
 	}
 
 	.status-banner__link:hover {
-		color: #93c5fd;
+		color: var(--color-accentedPalette-200);
 	}
 
 	.status-banner__icon {
-		color: #60a5fa;
+		color: var(--color-accentedPalette-500);
 	}
 
-	.status-banner--done {
+	/* .status-banner--done {
 		background: #0f2a1a;
 		color: #86efac;
 	}
@@ -302,14 +300,14 @@
 
 	.status-banner--done .status-banner__subtitle {
 		color: #86efac;
-	}
+	} */
 
 	.status-banner__progress {
-		background: rgba(96, 165, 250, 0.15);
+		background: var(--color-accentedPalette-800);
 	}
 
 	.status-banner__progress-fill {
-		background: #60a5fa;
+		background: var(--color-accentedPalette-300);
 	}
 }
 

@@ -161,11 +161,6 @@
                                             (dragstart)="accessLevel === 'edit' && onTableDragStart($event, table)"
                                             (dragend)="accessLevel === 'edit' && onTableDragEnd($event)"
                                             (click)="closeSidebar()">
-                                            <span class="table-dot"
-                                                [ngClass]="{
-                                                    'table-dot--configured': table.configured,
-                                                    'table-dot--configuring': table.configuring
-                                                }"></span>
                                             <span class="table-name">{{getTableName(table)}}</span>
                                         </a>
                                     </div>
