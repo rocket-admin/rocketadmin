@@ -28,7 +28,7 @@
   <mat-dialog-actions align="end">
     <button type="button" mat-flat-button mat-dialog-close>Cancel</button>
     @if (data.availableMembers.length) {
-      <button type="button"
+      <button type="submit"
         mat-flat-button color="primary"
         [disabled]="submitting() || addUserForm.form.invalid">
         Add
