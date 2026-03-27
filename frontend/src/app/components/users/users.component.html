@@ -117,7 +117,7 @@
     @if (companyMembersWithoutAccess().length > 0) {
         <div class="no-access mat-body-1">
             Company members who do NOT have access to this connection:
-            @for (member of companyMembersWithoutAccess(); track member.email; let last = $last) {
+            @for (member of companyMembersWithoutAccess(); track member.id; let last = $last) {
                 <span>
                     <strong>{{member.name}}</strong> ({{member.email}}) {{!last ? ', ' : ''}}
                 </span>

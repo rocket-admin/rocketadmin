@@ -6,7 +6,7 @@
         <mat-label>Select user</mat-label>
           <mat-select name="email" required
               [(ngModel)]="groupUserEmail">
-              @for (member of data.availableMembers; track member.email) {
+              @for (member of data.availableMembers; track member.id) {
                 <mat-option [value]="member.email">
                   @if (member.name) { <span>{{member.name}} (</span> }{{member.email}}@if (member.name) { <span>)</span> }
                 </mat-option>
