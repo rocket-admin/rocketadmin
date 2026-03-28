@@ -128,8 +128,9 @@ export class ConnectionsService {
 	}
 
 	get visibleTabs() {
-		const tabs = ['dashboard', 'dashboards', 'audit'];
-		if (this._permissions.canI('group:read', 'Group', this.connectionID)()) tabs.push('permissions');
+		const tabs = ['dashboard', 'audit'];
+		if (this._permissions.canIAny('dashboard:read', 'Dashboard')()) tabs.push('dashboards');
+		if (this._permissions.canIAny('group:read', 'Group')()) tabs.push('permissions');
 		if (this.canEditConnection()) {
 			tabs.push('connection-settings', 'edit-db');
 		}

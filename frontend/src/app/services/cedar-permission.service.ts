@@ -50,6 +50,46 @@ export class CedarPermissionService {
 		return sig;
 	}
 
+	canIAny(action: string, resourceType: string): Signal<boolean | null> {
+		const key = `any|${action}|${resourceType}`;
+		let sig = this._signals.get(key);
+		if (!sig) {
+			sig = computed(() => this._evaluatePartial(action, resourceType));
+			this._signals.set(key, sig);
+		}
+		return sig;
+	}
+
+	private _evaluatePartial(action: string, resourceType: string): boolean | null {
+		const cedar = this._wasmModule();
+		const mergedPolicies = this._mergedPolicies();
+		const userId = this._userId();
+
+		if (!cedar || !mergedPolicies || !userId) return null;
+
+		const result = cedar.isAuthorizedPartial({
+			principal: { type: 'RocketAdmin::User', id: userId },
+			action: { type: 'RocketAdmin::Action', id: action },
+			resource: null,
+			context: {},
+			policies: {
+				staticPolicies: mergedPolicies,
+				templates: {},
+				templateLinks: [],
+			},
+			entities: [],
+		});
+
+		if (result.type === 'residuals') {
+			// decision is 'allow' (unconditionally allowed), 'deny' (unconditionally denied),
+			// or null (depends on resource — meaning at least one resource could be allowed)
+			return result.response.decision !== 'deny';
+		}
+
+		console.warn('Cedar partial authorization failed:', result.errors);
+		return false;
+	}
+
 	private _evaluate(action: string, resourceType: string, resourceId: string): boolean | null {
 		const cedar = this._wasmModule();
 		const mergedPolicies = this._mergedPolicies();

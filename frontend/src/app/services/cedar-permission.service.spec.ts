@@ -45,6 +45,7 @@ describe('CedarPermissionService', () => {
 	let groupsSignal: WritableSignal<UserGroupInfo[]>;
 	let userSubject: BehaviorSubject<User | null>;
 	let mockIsAuthorized: ReturnType<typeof vi.fn>;
+	let mockIsAuthorizedPartial: ReturnType<typeof vi.fn>;
 	let wasmLoaded: () => void;
 
 	beforeEach(() => {
@@ -57,6 +58,12 @@ describe('CedarPermissionService', () => {
 			warnings: [],
 		});
 
+		mockIsAuthorizedPartial = vi.fn().mockReturnValue({
+			type: 'residuals',
+			response: { decision: 'deny', satisfied: [], errored: [], mayBeDetermining: [], mustBeDetermining: [] },
+			warnings: [],
+		});
+
 		let resolveWasm: (mod: unknown) => void;
 		const wasmPromise = new Promise<unknown>((resolve) => {
 			resolveWasm = resolve;
@@ -64,6 +71,7 @@ describe('CedarPermissionService', () => {
 		wasmLoaded = () =>
 			resolveWasm!({
 				isAuthorized: mockIsAuthorized,
+				isAuthorizedPartial: mockIsAuthorizedPartial,
 				checkParsePolicySet: vi.fn(),
 			});
 
@@ -266,5 +274,120 @@ describe('CedarPermissionService', () => {
 
 		const sig = service.canI('connection:read', 'Connection', CONN_ID);
 		expect(sig()).toBe(false);
+	});
+
+	// canIAny tests (partial authorization)
+
+	it('canIAny returns null when WASM not loaded', () => {
+		userSubject.next({ id: USER_ID } as User);
+		groupsSignal.set([makeGroup('g1', permitPolicy('dashboard:read', 'Dashboard', `${CONN_ID}/dash-1`), [USER_ID])]);
+
+		const sig = service.canIAny('dashboard:read', 'Dashboard');
+		expect(sig()).toBe(null);
+	});
+
+	it('canIAny returns null when no user', async () => {
+		wasmLoaded();
+		await TestBed.inject(CedarWasmService).load();
+		groupsSignal.set([makeGroup('g1', permitPolicy('dashboard:read', 'Dashboard', `${CONN_ID}/dash-1`), [USER_ID])]);
+
+		const sig = service.canIAny('dashboard:read', 'Dashboard');
+		expect(sig()).toBe(null);
+		expect(mockIsAuthorizedPartial).not.toHaveBeenCalled();
+	});
+
+	it('canIAny returns true when decision is allow (wildcard policy)', async () => {
+		wasmLoaded();
+		await TestBed.inject(CedarWasmService).load();
+		userSubject.next({ id: USER_ID } as User);
+		groupsSignal.set([makeGroup('g1', 'permit(principal, action, resource);', [USER_ID])]);
+
+		mockIsAuthorizedPartial.mockReturnValue({
+			type: 'residuals',
+			response: { decision: 'allow', satisfied: ['policy0'], errored: [], mayBeDetermining: [], mustBeDetermining: [] },
+			warnings: [],
+		});
+
+		const sig = service.canIAny('dashboard:read', 'Dashboard');
+		expect(sig()).toBe(true);
+	});
+
+	it('canIAny returns true when decision is null (resource-dependent)', async () => {
+		wasmLoaded();
+		await TestBed.inject(CedarWasmService).load();
+		userSubject.next({ id: USER_ID } as User);
+		groupsSignal.set([makeGroup('g1', permitPolicy('dashboard:read', 'Dashboard', `${CONN_ID}/dash-1`), [USER_ID])]);
+
+		mockIsAuthorizedPartial.mockReturnValue({
+			type: 'residuals',
+			response: { decision: null, satisfied: [], errored: [], mayBeDetermining: ['policy0'], mustBeDetermining: [] },
+			warnings: [],
+		});
+
+		const sig = service.canIAny('dashboard:read', 'Dashboard');
+		expect(sig()).toBe(true);
+	});
+
+	it('canIAny returns false when decision is deny', async () => {
+		wasmLoaded();
+		await TestBed.inject(CedarWasmService).load();
+		userSubject.next({ id: USER_ID } as User);
+		groupsSignal.set([makeGroup('g1', permitPolicy('connection:read', 'Connection', CONN_ID), [USER_ID])]);
+
+		mockIsAuthorizedPartial.mockReturnValue({
+			type: 'residuals',
+			response: { decision: 'deny', satisfied: [], errored: [], mayBeDetermining: [], mustBeDetermining: [] },
+			warnings: [],
+		});
+
+		const sig = service.canIAny('dashboard:read', 'Dashboard');
+		expect(sig()).toBe(false);
+	});
+
+	it('canIAny returns false on partial authorization failure', async () => {
+		wasmLoaded();
+		await TestBed.inject(CedarWasmService).load();
+		userSubject.next({ id: USER_ID } as User);
+		groupsSignal.set([makeGroup('g1', permitPolicy('dashboard:read', 'Dashboard', `${CONN_ID}/dash-1`), [USER_ID])]);
+
+		mockIsAuthorizedPartial.mockReturnValue({
+			type: 'failure',
+			errors: [{ message: 'parse error' }],
+			warnings: [],
+		});
+
+		const sig = service.canIAny('dashboard:read', 'Dashboard');
+		expect(sig()).toBe(false);
+	});
+
+	it('canIAny calls isAuthorizedPartial with resource null', async () => {
+		wasmLoaded();
+		await TestBed.inject(CedarWasmService).load();
+		userSubject.next({ id: USER_ID } as User);
+		groupsSignal.set([makeGroup('g1', permitPolicy('group:read', 'Group', 'g1'), [USER_ID])]);
+
+		mockIsAuthorizedPartial.mockReturnValue({
+			type: 'residuals',
+			response: { decision: null, satisfied: [], errored: [], mayBeDetermining: [], mustBeDetermining: [] },
+			warnings: [],
+		});
+
+		service.canIAny('group:read', 'Group')();
+
+		expect(mockIsAuthorizedPartial).toHaveBeenCalledWith(
+			expect.objectContaining({
+				principal: { type: 'RocketAdmin::User', id: USER_ID },
+				action: { type: 'RocketAdmin::Action', id: 'group:read' },
+				resource: null,
+			}),
+		);
+	});
+
+	it('canIAny caches signals by action and resourceType', () => {
+		const sig1 = service.canIAny('dashboard:read', 'Dashboard');
+		const sig2 = service.canIAny('dashboard:read', 'Dashboard');
+		const sig3 = service.canIAny('group:read', 'Group');
+		expect(sig1).toBe(sig2);
+		expect(sig1).not.toBe(sig3);
 	});
 });

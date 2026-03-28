@@ -22,6 +22,7 @@ describe('ConnectionsService', () => {
 	let fakeNotifications;
 	let fakeMasterPassword;
 	let mockCanI: ReturnType<typeof vi.fn>;
+	let mockCanIAny: ReturnType<typeof vi.fn>;
 	let mockPermissions: Partial<CedarPermissionService>;
 
 	const connectionCredsApp = {
@@ -108,8 +109,10 @@ describe('ConnectionsService', () => {
 			checkMasterPassword: vi.fn(),
 		};
 		mockCanI = vi.fn().mockReturnValue(signal(false).asReadonly());
+		mockCanIAny = vi.fn().mockReturnValue(signal(false).asReadonly());
 		mockPermissions = {
 			canI: mockCanI,
+			canIAny: mockCanIAny,
 			ready: signal(false).asReadonly(),
 		};
 
@@ -271,12 +274,26 @@ describe('ConnectionsService', () => {
 		expect(service.currentTab).toEqual('dashboard');
 	});
 
-	it('should get visible tabs dashboard, dashboards and audit in any case', () => {
-		expect(service.visibleTabs).toEqual(['dashboard', 'dashboards', 'audit']);
+	it('should get visible tabs dashboard and audit when all permissions denied', () => {
+		expect(service.visibleTabs).toEqual(['dashboard', 'audit']);
 	});
 
-	it('should get visible tabs with permissions if canI group:read returns true', () => {
+	it('should show dashboards tab when canIAny dashboard:read returns true', () => {
+		mockCanIAny.mockImplementation((action: string) => signal(action === 'dashboard:read').asReadonly());
+		expect(service.visibleTabs).toContain('dashboards');
+		expect(service.visibleTabs).not.toContain('permissions');
+	});
+
+	it('should show permissions tab when canIAny group:read returns true', () => {
+		mockCanIAny.mockImplementation((action: string) => signal(action === 'group:read').asReadonly());
+		expect(service.visibleTabs).toContain('permissions');
+		expect(service.visibleTabs).not.toContain('dashboards');
+	});
+
+	it('should show all tabs when all permissions granted', () => {
 		mockCanI.mockReturnValue(signal(true).asReadonly());
+		mockCanIAny.mockReturnValue(signal(true).asReadonly());
+		expect(service.visibleTabs).toContain('dashboards');
 		expect(service.visibleTabs).toContain('permissions');
 		expect(service.visibleTabs).toContain('connection-settings');
 		expect(service.visibleTabs).toContain('edit-db');
