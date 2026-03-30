@@ -6,8 +6,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { RouterModule } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import posthog from 'posthog-js';
 import { CreatedHostedDatabase } from 'src/app/models/hosted-database';
+import { ConnectionsService } from 'src/app/services/connections.service';
 import { NotificationsService } from 'src/app/services/notifications.service';
 
 export interface HostedDatabaseSuccessDialogData {
@@ -24,31 +26,48 @@ export interface HostedDatabaseSuccessDialogData {
 })
 export class HostedDatabaseSuccessDialogComponent {
 	private _http = inject(HttpClient);
+	private _connectionsService = inject(ConnectionsService);
 	public connectionTitle = '';
-	private _titleSaved = false;
+	private _saving = false;
+	private _lastSavedTitle = '';
 
 	constructor(
 		@Inject(MAT_DIALOG_DATA) public data: HostedDatabaseSuccessDialogData,
 		private _notifications: NotificationsService,
 	) {
 		this.connectionTitle = data.hostedDatabase.databaseName || '';
+		this._lastSavedTitle = this.connectionTitle;
 	}
 
-	saveTitle(): void {
+	async saveTitle(): Promise<void> {
 		const title = this.connectionTitle.trim();
-		if (!title || !this.data.connectionId) return;
-		if (this._titleSaved && title === this._lastSavedTitle) return;
+		if (!title || !this.data.connectionId || this._saving) return;
+		if (title === this._lastSavedTitle) return;
 
-		this._http.put(`/connection/${this.data.connectionId}`, { title }).subscribe({
-			next: () => {
-				this._titleSaved = true;
-				this._lastSavedTitle = title;
-			},
-			error: () => {},
-		});
+		this._saving = true;
+		try {
+			const db = this.data.hostedDatabase;
+			await firstValueFrom(
+				this._http.put(`/connection/${this.data.connectionId}`, {
+					title,
+					host: db.hostname,
+					port: db.port,
+					database: db.databaseName,
+					username: db.username,
+					type: 'postgres',
+					ssl: false,
+					ssh: false,
+					masterEncryption: false,
+					azure_encryption: false,
+					connectionType: 'direct',
+				}),
+			);
+			this._lastSavedTitle = title;
+			this._connectionsService.fetchConnections().subscribe();
+		} catch {} finally {
+			this._saving = false;
+		}
 	}
-
-	private _lastSavedTitle = '';
 
 	get credentialsText(): string {
 		const { username, password, hostname, port, databaseName } = this.data.hostedDatabase;
