@@ -48,6 +48,7 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 	public hasMultipleMembers: boolean = false;
 	public isDarkMode: boolean = false;
 	public creatingHostedDatabase = signal(false);
+	public hostedDbCount: number = 0;
 
 	constructor(
 		private _uiSettings: UiSettingsService,
@@ -76,11 +77,21 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 		});
 	}
 
+	get hostedDbLimitReached(): boolean {
+		return this.hostedDbCount >= 3;
+	}
+
 	ngOnChanges(changes: SimpleChanges) {
 		if (changes.companyId && this.companyId) {
 			this._companyService.fetchCompanyMembers(this.companyId).subscribe((members: CompanyMember[]) => {
 				this.hasMultipleMembers = members && members.length > 1;
 			});
+
+			if (this.isSaas) {
+				this._hostedDatabaseService.listHostedDatabases(this.companyId).then((dbs) => {
+					this.hostedDbCount = dbs?.length || 0;
+				});
+			}
 		}
 
 		if (changes.connections && this.connections && !this.connectionsListCollapsed) {
@@ -115,6 +126,11 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 			return;
 		}
 
+		if (this.hostedDbLimitReached) {
+			this._router.navigate(['/upgrade']);
+			return;
+		}
+
 		const subscriptionLevel = this.currentUser.subscriptionLevel;
 		const isFreePlan = !subscriptionLevel || subscriptionLevel === SubscriptionPlans.free;
 		console.log('[HostedDB] subscriptionLevel:', subscriptionLevel, 'isFreePlan:', isFreePlan);
@@ -144,11 +160,29 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 			}
 
 			posthog.capture('Connections: hosted PostgreSQL provisioned successfully');
-			this._connectionsService.fetchConnections().subscribe();
 			this._notifications.showSuccessSnackbar('Hosted PostgreSQL database is ready.');
+			this.hostedDbCount++;
+
+			// Fetch connections and find the newly created one by hostname
+			let connectionId: string | null = null;
+			try {
+				await new Promise<void>((resolve) => {
+					this._connectionsService.fetchConnections().subscribe({
+						next: () => {
+							const match = this._connectionsService.ownConnectionsList?.find(
+								(c) => c.host === hostedDatabase.hostname,
+							);
+							connectionId = match?.id || null;
+							resolve();
+						},
+						error: () => resolve(),
+					});
+				});
+			} catch {}
+
 			this._openHostedDatabaseDialog({
 				hostedDatabase,
-				connectionId: null,
+				connectionId,
 			});
 		} catch (error) {
 			const errorMessage = this._getErrorMessage(error);

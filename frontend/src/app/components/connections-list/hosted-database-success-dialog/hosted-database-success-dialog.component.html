@@ -3,6 +3,15 @@
 </h1>
 
 <mat-dialog-content class="hosted-dialog__content">
+	<div class="hosted-dialog__name-field">
+		<label class="hosted-dialog__name-label">Connection name</label>
+		<input
+			class="hosted-dialog__name-input"
+			[(ngModel)]="connectionTitle"
+			placeholder="e.g. Production DB, Staging, My App"
+			(blur)="saveTitle()">
+	</div>
+
 	@if (data.connectionId) {
 		<p class="hosted-dialog__description">
 			Your hosted PostgreSQL database is provisioned and already connected to RocketAdmin.
@@ -44,9 +53,10 @@
 		</div>
 	</div>
 
-	<p class="hosted-dialog__hint">
-		The generated password cannot be recovered from this screen later.
-	</p>
+	<div class="hosted-dialog__warning">
+		<mat-icon class="hosted-dialog__warning-icon">warning</mat-icon>
+		<span>The generated password cannot be recovered from this screen later.</span>
+	</div>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" class="hosted-dialog__actions">
@@ -57,6 +67,7 @@
 		type="button"
 		mat-flat-button
 		color="accent"
+		cdkFocusInitial
 		[cdkCopyToClipboard]="credentialsText"
 		(cdkCopyToClipboardCopied)="handleCredentialsCopied()">
 		Copy credentials
@@ -74,7 +85,6 @@
 			color="primary"
 			[routerLink]="['/auto-configure', data.connectionId]"
 			mat-dialog-close
-			cdkFocusInitial
 			(click)="handlePrimaryActionClick()">
 			Set up dashboard
 		</a>

@@ -18,7 +18,8 @@
 	text-align: left;
 	transition:
 		border-color 0.15s,
-		background 0.15s;
+		background 0.15s,
+		box-shadow 0.15s;
 }
 
 .plan-dialog__option:hover {
@@ -49,7 +50,7 @@
 	font-weight: 700;
 	letter-spacing: 0.04em;
 	text-transform: uppercase;
-	color: rgba(0, 0, 0, 0.48);
+	color: var(--color-accentedPalette-500);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -67,6 +68,6 @@
 	}
 
 	.plan-dialog__option-price {
-		color: rgba(255, 255, 255, 0.48);
+		color: var(--color-accentedPalette-400);
 	}
 }

@@ -1,3 +1,48 @@
+.hosted-dialog__name-field {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.hosted-dialog__name-label {
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	opacity: 0.55;
+}
+
+.hosted-dialog__name-input {
+	font-size: 16px;
+	font-weight: 600;
+	padding: 8px 12px;
+	border: 1px solid rgba(0, 0, 0, 0.12);
+	border-radius: 8px;
+	background: transparent;
+	color: inherit;
+	outline: none;
+	transition: border-color 0.15s;
+}
+
+.hosted-dialog__name-input:focus {
+	border-color: var(--color-accentedPalette-500);
+}
+
+.hosted-dialog__name-input::placeholder {
+	color: rgba(0, 0, 0, 0.3);
+	font-weight: 400;
+}
+
+@media (prefers-color-scheme: dark) {
+	.hosted-dialog__name-input {
+		border-color: rgba(255, 255, 255, 0.12);
+	}
+
+	.hosted-dialog__name-input::placeholder {
+		color: rgba(255, 255, 255, 0.3);
+	}
+}
+
 .hosted-dialog__content {
 	display: flex;
 	flex-direction: column;
@@ -49,9 +94,24 @@
 	overflow-wrap: anywhere;
 }
 
-.hosted-dialog__hint {
-	color: rgba(0, 0, 0, 0.64);
+.hosted-dialog__warning {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 14px;
+	border-radius: 8px;
+	border-left: 3px solid var(--warning-color);
+	background: var(--warning-background-color);
 	font-size: 13px;
+	color: inherit;
+}
+
+.hosted-dialog__warning-icon {
+	flex-shrink: 0;
+	color: var(--warning-color);
+	font-size: 20px;
+	width: 20px;
+	height: 20px;
 }
 
 .hosted-dialog__actions {
