@@ -29,6 +29,11 @@ const routes: Routes = [
 		title: 'Login | Rocketadmin',
 	},
 	{
+		path: 'demo',
+		loadComponent: () => import('./components/demo-login/demo-login.component').then((m) => m.DemoLoginComponent),
+		title: 'Demo | Rocketadmin',
+	},
+	{
 		path: 'forget-password',
 		loadComponent: () =>
 			import('./components/password-request/password-request.component').then((m) => m.PasswordRequestComponent),
