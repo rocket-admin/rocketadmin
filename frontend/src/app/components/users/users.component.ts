@@ -178,6 +178,23 @@ export class UsersComponent implements OnInit, OnDestroy {
 		this.companyMembersWithoutAccess = differenceBy(this.companyMembers, allGroupUsers, 'email');
 	}
 
+	getGroupUsers(groupId: string): GroupUser[] | null {
+		const val = this.users[groupId];
+		if (!val || val === 'empty') return null;
+		return val;
+	}
+
+	getUserInitials(user: GroupUser): string {
+		// biome-ignore lint/suspicious/noExplicitAny: name comes from API but not typed
+		const name = (user as any).name as string | undefined;
+		if (name) {
+			const parts = name.trim().split(/\s+/);
+			if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+			return parts[0][0].toUpperCase();
+		}
+		return user.email[0].toUpperCase();
+	}
+
 	openCreateUsersGroupDialog(event) {
 		event.preventDefault();
 		event.stopImmediatePropagation();

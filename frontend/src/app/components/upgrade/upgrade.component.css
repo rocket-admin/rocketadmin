@@ -94,9 +94,21 @@
 
 @media (width <= 600px) {
 	.current-plan-banner {
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 16px;
+		flex-direction: row;
+		align-items: flex-end;
+		justify-content: space-between;
+		padding: 12px 16px;
+	}
+
+	.payment-settings-button mat-icon {
+		display: none;
+	}
+}
+
+@media (width <= 600px) {
+	.plans {
+		margin: 1.5em auto;
+		width: calc(100% - 32px);
 	}
 }
 
@@ -105,6 +117,85 @@
 	grid-template-columns: 0 7fr repeat(3, 6fr);
 	grid-column-gap: 12px;
 	margin-bottom: 1em;
+}
+
+@media (width <= 600px) {
+	.header {
+		grid-template-columns: repeat(3, 1fr);
+		grid-column-gap: 4px;
+		align-items: stretch;
+		position: sticky;
+		top: 4px;
+		z-index: 10;
+		background-color: var(--mat-sidenav-content-background-color);
+		padding: 4px 0;
+		margin-left: calc(-1 * (100vw - 100%) / 2);
+		margin-right: calc(-1 * (100vw - 100%) / 2);
+		padding-left: calc((100vw - 100%) / 2);
+		padding-right: calc((100vw - 100%) / 2);
+		width: 100vw;
+		box-sizing: border-box;
+	}
+
+	.header > div:first-child,
+	.header > div:nth-child(2) {
+		display: none;
+	}
+
+	.plan-header {
+		position: relative;
+		padding: 12px 8px !important;
+		border-radius: 8px;
+		flex: 1;
+	}
+
+	.plan-header-name {
+		margin-bottom: 2px !important;
+	}
+
+	.plan-header-name .mat-h3 {
+		font-size: 14px;
+	}
+
+	.price {
+		font-size: 1.15em;
+	}
+
+	.per {
+		font-size: 0.8em;
+	}
+
+	.users {
+		font-size: 0.7em;
+		margin-bottom: 0.5em;
+		margin-top: 0.15em;
+	}
+
+	.plan-badge:not(.plan-badge-mobile) {
+		display: none;
+	}
+
+	.plan-badge.plan-badge-mobile {
+		position: absolute;
+		top: -8px;
+		right: 8px;
+		display: inline-flex;
+		margin-bottom: 4px;
+		height: 18px;
+	}
+
+	.plan-header-actions {
+		margin-top: auto;
+		padding-top: 4px;
+	}
+}
+
+.plan-badge-mobile {
+	display: none;
+}
+
+.plan-header-actions {
+	margin-top: auto;
 }
 
 .mat-h1 {
@@ -248,6 +339,70 @@
 @media (prefers-color-scheme: dark) {
 	.plansTable {
 		--mat-table-header-headline-color: rgba(255, 255, 255, 0.64);
+	}
+}
+
+@media (width <= 600px) {
+	.plansTable colgroup {
+		display: none;
+	}
+
+	.plansTable ::ng-deep table {
+		display: block;
+	}
+
+	.plansTable ::ng-deep tbody {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.plansTable ::ng-deep .mat-mdc-row {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr;
+		padding: 12px 16px;
+		height: auto;
+	}
+
+	.plansTable ::ng-deep .mat-mdc-cell:first-child {
+		grid-column: 1 / -1;
+		font-weight: 500;
+		padding: 0 0 4px !important;
+		font-size: 14px;
+		text-align: left;
+		border-bottom: none;
+		min-height: unset;
+	}
+
+	.plansTable ::ng-deep .mat-mdc-cell:not(:first-child) {
+		padding: 0 !important;
+		text-align: center;
+		border-bottom: none;
+		min-height: unset;
+		border-left: 1px solid rgba(0, 0, 0, 0.08);
+		border-right: 1px solid rgba(0, 0, 0, 0.08);
+	}
+
+	.plansTable ::ng-deep .mat-mdc-cell:nth-child(2) {
+		border-left: none;
+	}
+
+	.plansTable ::ng-deep .mat-mdc-cell:last-child {
+		border-right: none;
+	}
+
+	.cell_centered {
+		padding: 0 !important;
+	}
+
+	.cell_current {
+		background: none;
+	}
+}
+
+@media (width <= 600px) and (prefers-color-scheme: dark) {
+	.plansTable ::ng-deep .mat-mdc-cell:not(:first-child) {
+		border-left-color: rgba(255, 255, 255, 0.08);
+		border-right-color: rgba(255, 255, 255, 0.08);
 	}
 }
 

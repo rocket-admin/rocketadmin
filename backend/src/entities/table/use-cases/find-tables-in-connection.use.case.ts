@@ -2,9 +2,7 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { validateSchemaCache } from '@rocketadmin/shared-code/dist/src/caching/schema-cache-validator.js';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { TableDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table.ds.js';
-import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 import * as Sentry from '@sentry/node';
-import PQueue from 'p-queue';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -18,11 +16,10 @@ import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util.js';
 import { WinstonLogger } from '../../logging/winston-logger.js';
 import { ITableAndViewPermissionData } from '../../permission/permission.interface.js';
-import { TableInfoEntity } from '../../table-info/table-info.entity.js';
-import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';
 import { FindTablesDs } from '../application/data-structures/find-tables.ds.js';
 import { FoundTableDs } from '../application/data-structures/found-table.ds.js';
-import { buildTableFieldInfoEntity, buildTableInfoEntity } from '../utils/save-tables-info-in-database.util.js';
+import { saveTableInfoInDatabase } from '../utils/save-table-info-in-database-orchestrator.util.js';
+import { addDisplayNamesForTables } from '../utils/add-display-names-for-tables.util.js';
 import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { IFindTablesInConnection } from './table-use-cases.interface.js';
 
@@ -111,7 +108,7 @@ export class FindTablesInConnectionUseCase
 				operationResult &&
 				process.env.NODE_ENV !== 'test'
 			) {
-				this.saveTableInfoInDatabase(connection.id, userId, tables, masterPwd);
+				saveTableInfoInDatabase(connection.id, tables, masterPwd, this._dbContext);
 			}
 		}
 		const tableNames = tables.map((t) => t.tableName);
@@ -121,7 +118,8 @@ export class FindTablesInConnectionUseCase
 			isView: tables.find((t) => t.tableName === perm.tableName)?.isView || false,
 		}));
 		const excludedTables = await this._dbContext.connectionPropertiesRepository.findConnectionProperties(connectionId);
-		let tablesRO = await this.addDisplayNamesForTables(connectionId, tablesWithPermissions);
+		const tableSettings = await this._dbContext.tableSettingsRepository.findTableSettingsInConnectionPure(connectionId);
+		let tablesRO = addDisplayNamesForTables(tableSettings, tablesWithPermissions);
 		if (excludedTables?.hidden_tables?.length) {
 			if (!hiddenTablesOption) {
 				tablesRO = tablesRO.filter((tableRO) => {
@@ -142,103 +140,10 @@ export class FindTablesInConnectionUseCase
 				}
 			}
 		}
-		return tablesRO.sort((tableRO1, tableRO2) => {
-			const display_name1 = tableRO1.display_name;
-			const display_name2 = tableRO2.display_name;
-			if (display_name1 && display_name2) {
-				return display_name1.localeCompare(display_name2);
-			}
-			if (!display_name1 && !display_name2) {
-				return tableRO1.table.localeCompare(tableRO2.table);
-			}
-			if (!display_name1 && display_name2) {
-				return tableRO1.table.localeCompare(display_name2);
-			}
-			if (display_name1 && !display_name2) {
-				return display_name1.localeCompare(tableRO2.table);
-			}
-			return 0;
+		return tablesRO.sort((a, b) => {
+			const nameA = a.display_name || a.table;
+			const nameB = b.display_name || b.table;
+			return nameA.localeCompare(nameB);
 		});
-	}
-
-	private async addDisplayNamesForTables(
-		connectionId: string,
-		tablesObjArr: Array<ITableAndViewPermissionData>,
-	): Promise<Array<FoundTableDs>> {
-		const tableSettings = await this._dbContext.tableSettingsRepository.findTableSettingsInConnectionPure(connectionId);
-		return tablesObjArr.map((tableObj: ITableAndViewPermissionData) => {
-			const foundTableSettings =
-				tableSettings[
-					tableSettings.findIndex((el: TableSettingsEntity) => {
-						return el.table_name === tableObj.tableName;
-					})
-				];
-			const displayName = foundTableSettings ? foundTableSettings.display_name : undefined;
-			const icon = foundTableSettings ? foundTableSettings.icon : undefined;
-			return {
-				table: tableObj.tableName,
-				isView: tableObj.isView || false,
-				permissions: tableObj.accessLevel,
-				display_name: displayName,
-				icon: icon,
-			};
-		});
-	}
-
-	private async saveTableInfoInDatabase(
-		connectionId: string,
-		_userId: string,
-		tables: Array<TableDS>,
-		masterPwd: string,
-	): Promise<void> {
-		try {
-			const foundConnection = await this._dbContext.connectionRepository.findOne({ where: { id: connectionId } });
-			if (!foundConnection) {
-				return;
-			}
-			const decryptedConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
-				connectionId,
-				masterPwd,
-			);
-			const tableNames: Array<string> = tables.map((table) => table.tableName);
-			const queue = new PQueue({ concurrency: 2 });
-			const dao = getDataAccessObject(decryptedConnection);
-			const tablesStructures: Array<{
-				tableName: string;
-				structure: Array<TableStructureDS>;
-			}> = (await Promise.all(
-				tableNames.map(async (tableName) => {
-					return await queue.add(async () => {
-						const structure = await dao.getTableStructure(tableName, undefined);
-						return {
-							tableName: tableName,
-							structure: structure,
-						};
-					});
-				}),
-			)) as Array<{
-				tableName: string;
-				structure: Array<TableStructureDS>;
-			}>;
-			foundConnection.tables_info = (await Promise.all(
-				tablesStructures.map(async (tableStructure) => {
-					return await queue.add(async () => {
-						const newTableInfo = buildTableInfoEntity(tableStructure.tableName, foundConnection);
-						const savedTableInfo = await this._dbContext.tableInfoRepository.save(newTableInfo);
-						const newTableFieldsInfos = tableStructure.structure.map((el) =>
-							buildTableFieldInfoEntity(el, savedTableInfo),
-						);
-						newTableInfo.table_fields_info = await this._dbContext.tableFieldInfoRepository.save(newTableFieldsInfos);
-						await this._dbContext.tableInfoRepository.save(newTableInfo);
-						return newTableInfo;
-					});
-				}),
-			)) as Array<TableInfoEntity>;
-			foundConnection.saved_table_info = ++foundConnection.saved_table_info;
-			await this._dbContext.connectionRepository.saveUpdatedConnection(foundConnection);
-		} catch (e) {
-			Sentry.captureException(e);
-			console.error(e);
-		}
 	}
 }

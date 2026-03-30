@@ -57,7 +57,7 @@ export class StructureRowInfoDs {
 	column_name: string;
 
 	@ApiProperty()
-	column_default: any;
+	column_default: string | number | boolean | null;
 
 	@ApiProperty()
 	data_type: string;

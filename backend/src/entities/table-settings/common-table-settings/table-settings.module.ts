@@ -9,7 +9,6 @@ import { ConnectionPropertiesEntity } from '../../connection-properties/connecti
 import { CustomFieldsEntity } from '../../custom-field/custom-fields.entity.js';
 import { GroupEntity } from '../../group/group.entity.js';
 import { LogOutEntity } from '../../log-out/log-out.entity.js';
-import { PermissionEntity } from '../../permission/permission.entity.js';
 import { TableLogsEntity } from '../../table-logs/table-logs.entity.js';
 import { UserEntity } from '../../user/user.entity.js';
 import { UserModule } from '../../user/user.module.js';
@@ -27,7 +26,6 @@ import { UpdateTableSettingsUseCase } from './use-cases/update-table-settings.us
 			ConnectionEntity,
 			CustomFieldsEntity,
 			GroupEntity,
-			PermissionEntity,
 			TableLogsEntity,
 			TableSettingsEntity,
 			TableWidgetEntity,

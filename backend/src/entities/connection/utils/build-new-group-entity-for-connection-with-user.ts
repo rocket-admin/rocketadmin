@@ -9,7 +9,6 @@ export function buildNewGroupEntityForConnectionWithUser(
 ): GroupEntity {
 	const newGroup = new GroupEntity();
 	newGroup.title = groupTitle ? groupTitle : 'New group';
-	newGroup.permissions = [];
 	newGroup.users = [user];
 	newGroup.connection = connection;
 	newGroup.isMain = false;

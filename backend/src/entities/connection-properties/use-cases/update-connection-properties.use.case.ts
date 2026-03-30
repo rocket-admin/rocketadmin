@@ -4,7 +4,6 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { TableCategoriesEntity } from '../../table-categories/table-categories.entity.js';
 import { CreateConnectionPropertiesDs } from '../application/data-structures/create-connection-properties.ds.js';
 import { FoundConnectionPropertiesDs } from '../application/data-structures/found-connection-properties.ds.js';
 import { buildFoundConnectionPropertiesDs } from '../utils/build-found-connection-properties-ds.js';
@@ -12,6 +11,7 @@ import {
 	buildUpdateConnectionPropertiesObject,
 	IUpdateConnectionPropertiesObject,
 } from '../utils/build-update-connection-properties-object.js';
+import { syncTableCategories } from '../utils/sync-table-categories.js';
 import { validateCreateConnectionPropertiesDs } from '../utils/validate-create-connection-properties-ds.js';
 import { IUpdateConnectionProperties } from './connection-properties-use.cases.interface.js';
 
@@ -51,53 +51,14 @@ export class UpdateConnectionPropertiesUseCase
 			where: { connection_properties_id: connectionPropertiesToUpdate.id },
 		});
 
-		const newCategories: Array<TableCategoriesEntity> = [];
-
+		let newCategories = foundCategories;
 		if (table_categories && table_categories.length > 0) {
-			const categoriesToRemove = foundCategories.filter((foundCategory) => {
-				return !table_categories?.some((inputCategory) => inputCategory.category_id === foundCategory.category_id);
-			});
-			if (categoriesToRemove && categoriesToRemove.length > 0) {
-				await this._dbContext.tableCategoriesRepository.remove(categoriesToRemove);
-			}
-
-			const categoriesToCreate = table_categories.filter((inputCategory) => {
-				return !foundCategories.some((foundCategory) => foundCategory.category_id === inputCategory.category_id);
-			});
-
-			if (categoriesToCreate && categoriesToCreate.length > 0) {
-				const createdCategories = categoriesToCreate.map((category) => {
-					const newCategory = this._dbContext.tableCategoriesRepository.create({
-						category_name: category.category_name,
-						tables: category.tables,
-						category_color: category.category_color,
-						category_id: category.category_id,
-					});
-					newCategory.connection_properties = connectionPropertiesToUpdate;
-					return newCategory;
-				});
-				const savedNewCategories = await this._dbContext.tableCategoriesRepository.save(createdCategories);
-				newCategories.push(...savedNewCategories);
-			}
-
-			const categoriesToUpdate = table_categories.filter((inputCategory) => {
-				return foundCategories.some((foundCategory) => foundCategory.category_id === inputCategory.category_id);
-			});
-
-			for (const category of categoriesToUpdate) {
-				const categoryToUpdate = foundCategories.find(
-					(foundCategory) => foundCategory.category_id === category.category_id,
-				);
-				if (categoryToUpdate) {
-					categoryToUpdate.category_name = category.category_name;
-					categoryToUpdate.category_color = category.category_color;
-					categoryToUpdate.tables = category.tables;
-					const savedUpdatedCategory = await this._dbContext.tableCategoriesRepository.save(categoryToUpdate);
-					newCategories.push(savedUpdatedCategory);
-				}
-			}
-		} else {
-			newCategories.push(...foundCategories);
+			newCategories = await syncTableCategories(
+				table_categories,
+				foundCategories,
+				connectionPropertiesToUpdate,
+				this._dbContext.tableCategoriesRepository,
+			);
 		}
 
 		const updatedProperties = await this._dbContext.connectionPropertiesRepository.saveNewConnectionProperties(updated);

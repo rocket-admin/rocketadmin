@@ -93,11 +93,7 @@ export class CustomFieldController {
 		@UserId() userId: string,
 	): Promise<FoundTableSettingsDs> {
 		const { type, template_string, text } = customFieldData;
-		const createFieldDto = {
-			type: type,
-			text: text,
-			template_string: template_string,
-		};
+		const createFieldDto = { type, text, template_string };
 		const inputData: CreateCustomFieldsDs = {
 			connectionId: connectionId,
 			createFieldDto: createFieldDto,
@@ -127,12 +123,7 @@ export class CustomFieldController {
 		@UserId() userId: string,
 	): Promise<FoundCustomFieldsDs> {
 		const { id, type, template_string, text } = customFieldData;
-		const updateFieldDto = {
-			id: id,
-			type: type,
-			text: text,
-			template_string: template_string,
-		};
+		const updateFieldDto = { id, type, text, template_string };
 		if (!updateFieldDto.id) {
 			throw new HttpException(
 				{

@@ -4,8 +4,8 @@ import { ConnectionEntity } from '../connection.entity.js';
 
 export function buildCreatedConnectionDs(
 	connection: ConnectionEntity,
-	token: string,
-	masterPwd: string,
+	token: string | null | undefined,
+	masterPwd: string | null | undefined,
 ): CreatedConnectionDTO {
 	if (connection.masterEncryption && masterPwd) {
 		connection = Encryptor.decryptConnectionCredentials(connection, masterPwd);

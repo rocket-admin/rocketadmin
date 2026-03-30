@@ -62,8 +62,8 @@ export class CreateConnectionUseCase
 			try {
 				const testResult = await dao.testConnect();
 				isConnectionTestedSuccessfully = testResult.result;
-			} catch (e) {
-				const text: string = e.message.toLowerCase();
+			} catch (e: unknown) {
+				const text: string = (e instanceof Error ? e.message : String(e)).toLowerCase();
 				isConnectionTestedSuccessfully = false;
 				if (text.includes('ssl required') || text.includes('ssl connection required')) {
 					createConnectionData.connection_parameters.ssl = true;
@@ -80,7 +80,7 @@ export class CreateConnectionUseCase
 				}
 			}
 		}
-		let connectionCopy: ConnectionEntity = null;
+		let connectionCopy: ConnectionEntity | null = null;
 		try {
 			const createdConnection: ConnectionEntity = await buildConnectionEntity(createConnectionData, connectionAuthor);
 			const savedConnection: ConnectionEntity =
@@ -99,7 +99,6 @@ export class CreateConnectionUseCase
 				savedConnection,
 				connectionAuthor,
 			);
-			await this._dbContext.permissionRepository.createdDefaultAdminPermissionsInGroup(createdAdminGroup);
 			createdAdminGroup.cedarPolicy = generateCedarPolicyForGroup(
 				savedConnection.id,
 				true,
@@ -129,7 +128,7 @@ export class CreateConnectionUseCase
 			const connectionRO = buildCreatedConnectionDs(savedConnection, token, masterPwd);
 			return connectionRO;
 		} finally {
-			if (isConnectionTestedSuccessfully && !isConnectionTypeAgent(connectionCopy.type)) {
+			if (connectionCopy && isConnectionTestedSuccessfully && !isConnectionTypeAgent(connectionCopy.type)) {
 				// Fire-and-forget: run AI scan in background without blocking response
 				this.sharedJobsService.scanDatabaseAndCreateSettingsAndWidgetsWithAI(connectionCopy).catch((error) => {
 					console.error('Background AI scan failed:', error);

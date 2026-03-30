@@ -2,20 +2,13 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { AccessLevelEnum, PermissionTypeEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { isObjectPropertyExists } from '../../../helpers/validators/is-object-property-exists-validator.js';
 import {
 	CreatePermissionsDs,
 	PermissionsDs,
-	TablePermissionDs,
 } from '../application/data-structures/create-permissions.ds.js';
-import { PermissionEntity } from '../permission.entity.js';
 import { generateCedarPolicyForGroup } from '../../cedar-authorization/cedar-policy-generator.js';
 import { Cacher } from '../../../helpers/cache/cacher.js';
-import { buildFinalTablesPermissions } from '../utils/build-final-tables-permissions.js';
-import { buildNewPermissionEntityConnection } from '../utils/build-new-permission-entity-connection.js';
-import { buildNewPermissionEntityGroup } from '../utils/build-new-permission-entity-group.js';
 import { ICreateOrUpdatePermissions } from './permissions-use-cases.interface.js';
 
 @Injectable()
@@ -31,18 +24,6 @@ export class CreateOrUpdatePermissionsUseCase
 	}
 
 	protected async implementation(inputData: CreatePermissionsDs): Promise<PermissionsDs> {
-		const resultPermissions: PermissionsDs = {
-			connection: {
-				accessLevel: AccessLevelEnum.none,
-				connectionId: inputData.permissions.connection.connectionId,
-			},
-			group: {
-				accessLevel: AccessLevelEnum.none,
-				groupId: inputData.permissions.group.groupId,
-			},
-			tables: [],
-		};
-
 		const {
 			groupId,
 			permissions: {
@@ -59,7 +40,7 @@ export class CreateOrUpdatePermissionsUseCase
 				HttpStatus.BAD_REQUEST,
 			);
 		}
-		const groupToUpdate = await this._dbContext.groupRepository.findGroupWithPermissionsById(groupId);
+		const groupToUpdate = await this._dbContext.groupRepository.findGroupById(groupId);
 		if (!groupToUpdate) {
 			throw new HttpException(
 				{
@@ -77,116 +58,17 @@ export class CreateOrUpdatePermissionsUseCase
 			);
 		}
 
-		const [currentConnectionPermission, currentGroupPermission]: Array<PermissionEntity> = await Promise.all([
-			(async () => {
-				return await this._dbContext.permissionRepository.getPermissionEntityForConnection(connectionId, groupId);
-			})(),
-			(async () => {
-				return await this._dbContext.permissionRepository.getPermissionEntityForGroup(connectionId, groupId);
-			})(),
-		]);
-		const allTablePermissionsInGroup = await this._dbContext.permissionRepository.getGroupPermissionsForAllTables(
-			connectionId,
-			groupId,
-		);
-		// *** CONNECTION PERMISSION
-		if (currentConnectionPermission) {
-			const updatedPermissionData = {
-				type: PermissionTypeEnum.Connection,
+		const resultPermissions: PermissionsDs = {
+			connection: {
 				accessLevel: inputData.permissions.connection.accessLevel,
-				tableName: '',
-				groupId: groupId,
-			};
-			const updated = Object.assign(currentConnectionPermission, updatedPermissionData);
-			await this._dbContext.permissionRepository.saveNewOrUpdatedPermission(updated);
-			await this._dbContext.groupRepository.saveNewOrUpdatedGroup(groupToUpdate);
-			resultPermissions.connection.accessLevel = updated.accessLevel;
-		} else {
-			const newPermission = buildNewPermissionEntityConnection(inputData.permissions.connection.accessLevel);
-			const savedPermission = await this._dbContext.permissionRepository.saveNewOrUpdatedPermission(newPermission);
-			groupToUpdate.permissions.push(savedPermission);
-			await this._dbContext.groupRepository.saveNewOrUpdatedGroup(groupToUpdate);
-			resultPermissions.connection.accessLevel = newPermission.accessLevel as AccessLevelEnum;
-		}
-
-		// *** GROUP PERMISSION
-		if (currentGroupPermission) {
-			const updatedPermissionData = {
-				type: PermissionTypeEnum.Group,
+				connectionId: inputData.permissions.connection.connectionId,
+			},
+			group: {
 				accessLevel: inputData.permissions.group.accessLevel,
-				tableName: '',
-				groupId: groupId,
-			};
-			const updated = Object.assign(currentGroupPermission, updatedPermissionData);
-			await this._dbContext.permissionRepository.saveNewOrUpdatedPermission(updated);
-			await this._dbContext.groupRepository.saveNewOrUpdatedGroup(groupToUpdate);
-			resultPermissions.group.accessLevel = updated.accessLevel;
-		} else {
-			const newPermission = buildNewPermissionEntityGroup(inputData.permissions.group.accessLevel);
-			const savedPermission = await this._dbContext.permissionRepository.saveNewOrUpdatedPermission(newPermission);
-			groupToUpdate.permissions.push(savedPermission);
-			await this._dbContext.groupRepository.saveNewOrUpdatedGroup(groupToUpdate);
-			resultPermissions.group.accessLevel = newPermission.accessLevel as AccessLevelEnum;
-		}
-
-		// *** TABLES PERMISSIONS
-		const tablePermissions = inputData.permissions.tables;
-		// delete falsy permissions
-		const deletedPermissions: Array<PermissionEntity> = [];
-		await Promise.all(
-			tablePermissions.map(async (tablePermission: TablePermissionDs) => {
-				const { accessLevel, tableName } = tablePermission;
-				for (const key in accessLevel) {
-					// has own property check added to avoid object injection
-					// eslint-disable-next-line security/detect-object-injection
-					if (isObjectPropertyExists(accessLevel, key) && !accessLevel[key]) {
-						const permissionIndex = groupToUpdate.permissions.findIndex(
-							(permission: PermissionEntity) => permission.accessLevel === key && tableName === permission.tableName,
-						);
-						if (permissionIndex >= 0) {
-							const permissionInGroup = groupToUpdate.permissions.at(permissionIndex);
-							const deletedPermission =
-								await this._dbContext.permissionRepository.removePermissionEntity(permissionInGroup);
-							deletedPermissions.push(deletedPermission);
-						}
-					}
-				}
-			}),
-		);
-		await this._dbContext.groupRepository.saveNewOrUpdatedGroup(groupToUpdate);
-
-		//create truthy permissions
-		const createdPermissions: Array<PermissionEntity> = [];
-		await Promise.all(
-			tablePermissions.map(async (tablePermission: TablePermissionDs) => {
-				const { accessLevel, tableName } = tablePermission;
-				for (const key in accessLevel) {
-					// has own property check added to avoid object injection
-					// eslint-disable-next-line security/detect-object-injection
-					if (isObjectPropertyExists(accessLevel, key) && accessLevel[key]) {
-						const permissionIndex = groupToUpdate.permissions.findIndex(
-							(permission: PermissionEntity) => permission.accessLevel === key && tableName === permission.tableName,
-						);
-						if (permissionIndex < 0) {
-							const permissionEntity = new PermissionEntity();
-							permissionEntity.type = PermissionTypeEnum.Table;
-							permissionEntity.accessLevel = key;
-							permissionEntity.tableName = tableName;
-							groupToUpdate.permissions.push(permissionEntity);
-							const createdPermission =
-								await this._dbContext.permissionRepository.saveNewOrUpdatedPermission(permissionEntity);
-							createdPermissions.push(createdPermission);
-						}
-					}
-				}
-			}),
-		);
-		await this._dbContext.groupRepository.saveNewOrUpdatedGroup(groupToUpdate);
-		resultPermissions.tables = buildFinalTablesPermissions(
-			allTablePermissionsInGroup,
-			deletedPermissions,
-			createdPermissions,
-		);
+				groupId: inputData.permissions.group.groupId,
+			},
+			tables: inputData.permissions.tables,
+		};
 
 		// Generate and save Cedar policy for this group
 		const cedarPolicy = generateCedarPolicyForGroup(connectionId, groupToUpdate.isMain, resultPermissions);

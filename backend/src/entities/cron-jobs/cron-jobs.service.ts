@@ -7,6 +7,7 @@ import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { Constants } from '../../helpers/constants/constants.js';
 import { slackPostMessage } from '../../helpers/index.js';
 import { ValidationHelper } from '../../helpers/validators/validation-helper.js';
+import Mail from 'nodemailer/lib/mailer/index.js';
 import { EmailService, ICronMessagingResults } from '../email/email/email.service.js';
 import {
 	ICheckUsersActionsAndMailingUsers,
@@ -60,9 +61,7 @@ export class CronJobsService {
 				);
 
 				const emailsBefore = emails.length;
-				emails = emails.filter((email) => {
-					return ValidationHelper.isValidEmail(email);
-				});
+				emails = emails.filter(ValidationHelper.isValidEmail);
 
 				const filteredOutEmailsCount = emailsBefore - emails.length;
 
@@ -72,13 +71,13 @@ export class CronJobsService {
 				);
 
 				const batchSize = 10;
-				let allMailingResults = [];
+				const allMailingResults: Array<ICronMessagingResults | null> = [];
 
 				for (let i = 0; i < emails.length; i += batchSize) {
 					const emailsBatch = emails.slice(i, i + batchSize);
 					try {
 						const batchResults = await this.emailService.sendRemindersToUsers(emailsBatch);
-						allMailingResults = [...allMailingResults, ...batchResults];
+						allMailingResults.push(...batchResults);
 					} catch (error) {
 						console.error(`Error processing batch ${Math.floor(i / batchSize) + 1}: ${error.message}`);
 						Sentry.captureException(error);
@@ -89,11 +88,10 @@ export class CronJobsService {
 				if (allMailingResults.length === 0) {
 					const mailingResultToString = 'Sending emails triggered, but no emails sent (no users found)';
 					await slackPostMessage(mailingResultToString, Constants.EXCEPTIONS_CHANNELS);
-					await slackPostMessage(`morning cron finished at ${this.getCurrentTime()}`, Constants.EXCEPTIONS_CHANNELS);
 				} else {
 					await this.sendEmailResultsToSlack(allMailingResults, emails);
-					await slackPostMessage(`morning cron finished at ${this.getCurrentTime()}`, Constants.EXCEPTIONS_CHANNELS);
 				}
+				await slackPostMessage(`morning cron finished at ${this.getCurrentTime()}`, Constants.EXCEPTIONS_CHANNELS);
 			} catch (innerError) {
 				console.error('Detailed error in email processing:', innerError);
 				const errorMessage = innerError.stack
@@ -158,11 +156,11 @@ export class CronJobsService {
 		results: Array<ICronMessagingResults | null>,
 		allFoundEmails: Array<string>,
 	): Promise<void> {
-		const filteredResults = results.filter((result) => !!result);
+		const filteredResults = results.filter((result): result is ICronMessagingResults => !!result);
 		const nullResultsCount = results.length - filteredResults.length;
 		const chunkSize = 20;
 
-		const foundEmails = new Set();
+		const foundEmails = new Set<string | Mail.Address>();
 		filteredResults.forEach((result) => {
 			if (result?.accepted) {
 				result.accepted.forEach((email) => foundEmails.add(email));

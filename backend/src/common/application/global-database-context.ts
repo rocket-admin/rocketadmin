@@ -31,7 +31,7 @@ import { ConnectionPropertiesEntity } from '../../entities/connection-properties
 import { IConnectionPropertiesRepository } from '../../entities/connection-properties/repository/connection-properties.repository.interface.js';
 import { customConnectionPropertiesRepositoryExtension } from '../../entities/connection-properties/repository/custom-connection-properties-repository-extension.js';
 import { CustomFieldsEntity } from '../../entities/custom-field/custom-fields.entity.js';
-import { cusomFieldsCustomRepositoryExtension } from '../../entities/custom-field/repository/custom-field-repository-extension.js';
+import { customFieldsCustomRepositoryExtension } from '../../entities/custom-field/repository/custom-field-repository-extension.js';
 import { ICustomFieldsRepository } from '../../entities/custom-field/repository/custom-fields-repository.interface.js';
 import { EmailVerificationEntity } from '../../entities/email/email-verification.entity.js';
 import { IEmailVerificationRepository } from '../../entities/email/repository/email-verification.repository.interface.js';
@@ -42,9 +42,6 @@ import { groupCustomRepositoryExtension } from '../../entities/group/repository/
 import { LogOutEntity } from '../../entities/log-out/log-out.entity.js';
 import { logOutCustomRepositoryExtension } from '../../entities/log-out/repository/log-out-custom-repository-extension.js';
 import { ILogOutRepository } from '../../entities/log-out/repository/log-out-repository.interface.js';
-import { PermissionEntity } from '../../entities/permission/permission.entity.js';
-import { IPermissionRepository } from '../../entities/permission/repository/permission.repository.interface.js';
-import { permissionCustomRepositoryExtension } from '../../entities/permission/repository/permission-custom-repository-extension.js';
 import { secretAccessLogRepositoryExtension } from '../../entities/secret-access-log/repository/secret-access-log-repository.extension.js';
 import { ISecretAccessLogRepository } from '../../entities/secret-access-log/repository/secret-access-log-repository.interface.js';
 import { SecretAccessLogEntity } from '../../entities/secret-access-log/secret-access-log.entity.js';
@@ -123,7 +120,6 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 	private _userRepository: Repository<UserEntity> & IUserRepository;
 	private _connectionRepository: Repository<ConnectionEntity> & IConnectionRepository;
 	private _groupRepository: IGroupRepository;
-	private _permissionRepository: IPermissionRepository;
 	private _tableSettingsRepository: Repository<TableSettingsEntity> & ITableSettingsRepository;
 	private _agentRepository: IAgentRepository;
 	private _emailVerificationRepository: IEmailVerificationRepository;
@@ -175,9 +171,6 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 			.getRepository(ConnectionEntity)
 			.extend(customConnectionRepositoryExtension);
 		this._groupRepository = this.appDataSource.getRepository(GroupEntity).extend(groupCustomRepositoryExtension);
-		this._permissionRepository = this.appDataSource
-			.getRepository(PermissionEntity)
-			.extend(permissionCustomRepositoryExtension);
 		this._tableSettingsRepository = this.appDataSource
 			.getRepository(TableSettingsEntity)
 			.extend(tableSettingsCustomRepositoryExtension);
@@ -199,7 +192,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 			.extend(customConnectionPropertiesRepositoryExtension);
 		this._customFieldsRepository = this.appDataSource
 			.getRepository(CustomFieldsEntity)
-			.extend(cusomFieldsCustomRepositoryExtension);
+			.extend(customFieldsCustomRepositoryExtension);
 		this._tableLogsRepository = this.appDataSource
 			.getRepository(TableLogsEntity)
 			.extend(tableLogsCustomRepositoryExtension);
@@ -283,10 +276,6 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
 	public get groupRepository(): IGroupRepository {
 		return this._groupRepository;
-	}
-
-	public get permissionRepository(): IPermissionRepository {
-		return this._permissionRepository;
 	}
 
 	public get tableSettingsRepository(): Repository<TableSettingsEntity> & ITableSettingsRepository {

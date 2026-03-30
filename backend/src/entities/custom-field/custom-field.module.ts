@@ -8,7 +8,6 @@ import { ConnectionEntity } from '../connection/connection.entity.js';
 import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity.js';
 import { GroupEntity } from '../group/group.entity.js';
 import { LogOutEntity } from '../log-out/log-out.entity.js';
-import { PermissionEntity } from '../permission/permission.entity.js';
 import { TableLogsEntity } from '../table-logs/table-logs.entity.js';
 import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
 import { UserEntity } from '../user/user.entity.js';
@@ -27,7 +26,6 @@ import { UpdateCustomFieldUseCase } from './use-cases/update-custom-field.use.ca
 			ConnectionEntity,
 			CustomFieldsEntity,
 			GroupEntity,
-			PermissionEntity,
 			TableLogsEntity,
 			TableSettingsEntity,
 			TableWidgetEntity,
