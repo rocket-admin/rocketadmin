@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { provideZxvbnServiceForPSM } from 'angular-password-strength-meter/zxcvbn';
-import { AuthGuard } from './auth.guard';
+import { AuthGuard } from './guards/auth.guard';
 import { configurationGuard } from './guards/configuration.guard';
 import { noAuthGuard } from './guards/no-auth.guard';
 import { setupGuard } from './guards/setup.guard';
