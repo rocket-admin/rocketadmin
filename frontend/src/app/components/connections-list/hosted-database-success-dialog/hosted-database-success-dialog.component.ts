@@ -28,8 +28,12 @@ export class HostedDatabaseSuccessDialogComponent {
 	private _http = inject(HttpClient);
 	private _connectionsService = inject(ConnectionsService);
 	public connectionTitle = '';
-	private _saving = false;
+	public _saving = false;
 	private _lastSavedTitle = '';
+
+	get titleChanged(): boolean {
+		return this.connectionTitle.trim() !== this._lastSavedTitle;
+	}
 
 	constructor(
 		@Inject(MAT_DIALOG_DATA) public data: HostedDatabaseSuccessDialogData,

@@ -12,7 +12,19 @@
 	opacity: 0.55;
 }
 
+.hosted-dialog__name-row {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+.hosted-dialog__name-save {
+	flex-shrink: 0;
+	height: 40px !important;
+}
+
 .hosted-dialog__name-input {
+	flex: 1;
 	font-size: 16px;
 	font-weight: 600;
 	padding: 8px 12px;

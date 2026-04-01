@@ -170,9 +170,9 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 					this._connectionsService.fetchConnections().subscribe({
 						next: () => {
 							const match = this._connectionsService.ownConnectionsList?.find(
-								(c) => c.host === hostedDatabase.hostname,
+								(c: any) => (c.connection?.host || c.host) === hostedDatabase.hostname,
 							);
-							connectionId = match?.id || null;
+							connectionId = (match as any)?.connection?.id || match?.id || null;
 							resolve();
 						},
 						error: () => resolve(),
