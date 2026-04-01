@@ -17,11 +17,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import { DynamicModule } from 'ng-dynamic-component';
+import { SignalComponentIoModule } from 'ng-dynamic-component/signal-component-io';
 import posthog from 'posthog-js';
 import { map, Observable, startWith } from 'rxjs';
 import { ContentLoaderComponent } from 'src/app/components/ui-components/content-loader/content-loader.component';
-import { filterTypes } from 'src/app/consts/filter-types';
-import { UIwidgets } from 'src/app/consts/record-edit-types';
+import { UIwidgets as FilterUIwidgets, filterTypes } from 'src/app/consts/filter-types';
+import { UIwidgets as EditUIwidgets } from 'src/app/consts/record-edit-types';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { TableField } from 'src/app/models/table';
 import { ConnectionsService } from 'src/app/services/connections.service';
@@ -44,6 +45,7 @@ import { TablesService } from 'src/app/services/tables.service';
 		MatCheckboxModule,
 		MatRadioModule,
 		DynamicModule,
+		SignalComponentIoModule,
 		RouterModule,
 		MatDialogModule,
 		MatSnackBarModule,
@@ -74,7 +76,7 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
 	public tableTypes: Object;
 	public tableWidgets: object;
 	public tableWidgetsList: string[] = [];
-	public UIwidgets = UIwidgets;
+	public UIwidgets = { ...EditUIwidgets, ...FilterUIwidgets };
 	public dynamicColumn: string | null = null;
 	public showAddConditionField = false;
 	public showNameError = false;
@@ -217,6 +219,10 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
 	isWidget(columnName: string) {
 		return this.tableWidgetsList.includes(columnName);
 	}
+
+	updateComparatorFromComponent = (comparator: string, field: string) => {
+		this.tableRowFieldsComparator[field] = comparator;
+	};
 
 	updateField = (updatedValue: any, field: string) => {
 		this.tableRowFieldsShown[field] = updatedValue;

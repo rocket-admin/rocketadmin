@@ -1,0 +1,16 @@
+<mat-form-field class="phone-form-field" appearance="outline">
+    <mat-label>{{normalizedLabel}} (country)</mat-label>
+    <input type="text" matInput
+        [required]="required" [disabled]="disabled" [readonly]="readonly"
+        [formControl]="countryControl"
+        [matAutocomplete]="auto">
+    <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
+        <mat-option *ngFor="let country of filteredCountries | async"
+            [value]="country"
+            (onSelectionChange)="country && onCountrySelected(country)">
+            <span *ngIf="country.flag" class="country-flag">{{country.flag}}</span>
+            <span class="country-name">{{country.name}}</span>
+            <span class="country-dial-code">({{country.dialCode}})</span>
+        </mat-option>
+    </mat-autocomplete>
+</mat-form-field>

@@ -101,7 +101,8 @@
                                 relations: tableTypes[value.key] === 'foreign key' ? data.tableForeignKeys[value.key] : undefined
                             }"
                             [ndcDynamicOutputs]="{
-                                onFieldChange: { handler: updateField, args: ['$event', value.key] }
+                                onFieldChange: { handler: updateField, args: ['$event', value.key] },
+                                onComparatorChange: { handler: updateComparatorFromComponent, args: ['$event', value.key] }
                             }"
                         ></ndc-dynamic>
                     </div>
@@ -116,7 +117,8 @@
                                 relations: tableTypes[value.key] === 'foreign key' ? data.tableForeignKeys[value.key] : undefined
                             }"
                             [ndcDynamicOutputs]="{
-                                onFieldChange: { handler: updateField, args: ['$event', value.key] }
+                                onFieldChange: { handler: updateField, args: ['$event', value.key] },
+                                onComparatorChange: { handler: updateComparatorFromComponent, args: ['$event', value.key] }
                             }"
                         ></ndc-dynamic>
                     </ng-template>
@@ -197,7 +199,8 @@
                             relations: tableTypes[value.key] === 'foreign key' ? data.tableForeignKeys[value.key] : undefined
                         }"
                         [ndcDynamicOutputs]="{
-                            onFieldChange: { handler: updateField, args: ['$event', value.key] }
+                            onFieldChange: { handler: updateField, args: ['$event', value.key] },
+                            onComparatorChange: { handler: updateComparatorFromComponent, args: ['$event', value.key] }
                         }"
                     ></ndc-dynamic>
                 </ng-template>
@@ -259,7 +262,7 @@
             (click)="removeFilters()">
             Remove
         </button>
-        <button mat-flat-button mat-dialog-close>
+        <button mat-flat-button mat-dialog-close type="button">
             Cancel
         </button>
         <button mat-flat-button color="primary" type="submit">

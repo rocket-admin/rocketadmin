@@ -1,0 +1,9 @@
+<mat-form-field class="email-form-field" appearance="outline">
+    <mat-label>{{normalizedLabel}} (domain)</mat-label>
+    <span matTextPrefix>@&nbsp;</span>
+    <input matInput type="text" name="{{label}}-{{key}}"
+        #inputElement
+        [required]="required" [disabled]="disabled" [readonly]="readonly"
+        placeholder="gmail.com"
+        [(ngModel)]="domainValue" (ngModelChange)="onDomainChange($event)">
+</mat-form-field>

@@ -17,8 +17,8 @@ import { SignalComponentIoModule } from 'ng-dynamic-component/signal-component-i
 import posthog from 'posthog-js';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import { filterTypes } from 'src/app/consts/filter-types';
-import { UIwidgets } from 'src/app/consts/record-edit-types';
+import { UIwidgets as FilterUIwidgets, filterTypes } from 'src/app/consts/filter-types';
+import { UIwidgets as EditUIwidgets } from 'src/app/consts/record-edit-types';
 import { getComparatorsFromUrl, getFiltersFromUrl } from 'src/app/lib/parse-filter-params';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { TableField, TableForeignKey, Widget } from 'src/app/models/table';
@@ -66,7 +66,7 @@ export class DbTableFiltersDialogComponent implements OnInit, AfterViewInit {
 	public tableTypes: Object;
 	public tableWidgets: object;
 	public tableWidgetsList: string[] = [];
-	public UIwidgets = UIwidgets;
+	public UIwidgets = { ...EditUIwidgets, ...FilterUIwidgets };
 	public autofocusField: string | null = null;
 
 	constructor(
@@ -253,6 +253,10 @@ export class DbTableFiltersDialogComponent implements OnInit, AfterViewInit {
 
 	updateField = (updatedValue: any, field: string) => {
 		this.tableRowFieldsShown[field] = updatedValue;
+	};
+
+	updateComparatorFromComponent = (comparator: string, field: string) => {
+		this.tableRowFieldsComparator[field] = comparator;
 	};
 
 	addFilter(e) {

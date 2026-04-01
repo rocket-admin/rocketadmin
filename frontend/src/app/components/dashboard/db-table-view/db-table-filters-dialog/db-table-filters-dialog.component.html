@@ -38,7 +38,8 @@
                                 autofocus: autofocusField === value.key
                             }"
                             [ndcDynamicOutputs]="{
-                                onFieldChange: { handler: updateField, args: ['$event', value.key] }
+                                onFieldChange: { handler: updateField, args: ['$event', value.key] },
+                            onComparatorChange: { handler: updateComparatorFromComponent, args: ['$event', value.key] }
                             }"
                         ></ndc-dynamic>
                     </div>
@@ -54,7 +55,8 @@
                                 autofocus: autofocusField === value.key
                             }"
                             [ndcDynamicOutputs]="{
-                                onFieldChange: { handler: updateField, args: ['$event', value.key] }
+                                onFieldChange: { handler: updateField, args: ['$event', value.key] },
+                                onComparatorChange: { handler: updateComparatorFromComponent, args: ['$event', value.key] }
                             }"
                         ></ndc-dynamic>
                     </ng-template>
@@ -146,6 +148,7 @@
             Reset
         </button>
         <button mat-flat-button mat-dialog-close
+            type="button"
             angulartics2On="click"
             angularticsAction="Filters: cancel is clicked"
             (click)="posthog.capture('Filters: cancel is clicked')">

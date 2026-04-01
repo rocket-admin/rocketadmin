@@ -20,6 +20,7 @@ export class BaseFilterFieldComponent implements OnInit {
 	@Input() autofocus: boolean = false;
 
 	@Output() onFieldChange = new EventEmitter<any>();
+	@Output() onComparatorChange = new EventEmitter<string>();
 
 	public normalizedLabel: string;
 
