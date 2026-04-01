@@ -83,21 +83,4 @@
 		(cdkCopyToClipboardCopied)="handleCredentialsCopied()">
 		Copy credentials
 	</button>
-	@if (data.connectionId) {
-		<a
-			mat-button
-			[routerLink]="['/dashboard', data.connectionId]"
-			mat-dialog-close
-			(click)="handleSecondaryActionClick()">
-			Open tables
-		</a>
-		<a
-			mat-flat-button
-			color="primary"
-			[routerLink]="['/auto-configure', data.connectionId]"
-			mat-dialog-close
-			(click)="handlePrimaryActionClick()">
-			Set up dashboard
-		</a>
-	}
 </mat-dialog-actions>

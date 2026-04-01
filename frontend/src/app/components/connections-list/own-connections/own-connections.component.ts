@@ -152,6 +152,11 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 		this.creatingHostedDatabase.set(true);
 		posthog.capture('Connections: hosted PostgreSQL creation started');
 
+		// Remember existing connection IDs before creation
+		const existingIds = new Set(
+			(this._connectionsService.ownConnectionsList || []).map((c: any) => c.connection?.id || c.id),
+		);
+
 		try {
 			const hostedDatabase = await this._hostedDatabaseService.createHostedDatabase(companyId);
 
@@ -163,16 +168,18 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 			this._notifications.showSuccessSnackbar('Hosted PostgreSQL database is ready.');
 			this.hostedDbCount++;
 
-			// Fetch connections and find the newly created one by hostname
+			// Fetch connections and find the newly created one by diffing
 			let connectionId: string | null = null;
 			try {
 				await new Promise<void>((resolve) => {
 					this._connectionsService.fetchConnections().subscribe({
 						next: () => {
-							const match = this._connectionsService.ownConnectionsList?.find(
-								(c: any) => (c.connection?.host || c.host) === hostedDatabase.hostname,
-							);
-							connectionId = (match as any)?.connection?.id || match?.id || null;
+							const list = this._connectionsService.ownConnectionsList || [];
+							const newConn = list.find((c: any) => {
+								const id = c.connection?.id || c.id;
+								return !existingIds.has(id);
+							});
+							connectionId = (newConn as any)?.connection?.id || newConn?.id || null;
 							resolve();
 						},
 						error: () => resolve(),
