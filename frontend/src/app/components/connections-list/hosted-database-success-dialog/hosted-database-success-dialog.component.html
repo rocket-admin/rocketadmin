@@ -41,6 +41,11 @@
 		</p>
 	}
 
+	<div class="hosted-dialog__warning">
+		<mat-icon class="hosted-dialog__warning-icon">warning</mat-icon>
+		<span>The generated password cannot be recovered from this screen later.</span>
+	</div>
+
 	<div class="hosted-dialog__credentials ph-no-capture">
 		<div class="hosted-dialog__row">
 			<span class="hosted-dialog__label">Database</span>
@@ -62,11 +67,6 @@
 			<span class="hosted-dialog__label">Password</span>
 			<code>{{ data.hostedDatabase.password }}</code>
 		</div>
-	</div>
-
-	<div class="hosted-dialog__warning">
-		<mat-icon class="hosted-dialog__warning-icon">warning</mat-icon>
-		<span>The generated password cannot be recovered from this screen later.</span>
 	</div>
 </mat-dialog-content>
 
