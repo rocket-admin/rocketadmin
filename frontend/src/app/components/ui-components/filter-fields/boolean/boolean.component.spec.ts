@@ -38,7 +38,7 @@ describe('BooleanFilterComponent', () => {
 
 	it('should set booleanValue in false when input value is 0', () => {
 		component.value = 0;
-		component.structure = fakeStructure;
+		fixture.componentRef.setInput('structure', fakeStructure);
 		component.ngOnInit();
 
 		expect(component.booleanValue).toEqual(false);
@@ -46,7 +46,7 @@ describe('BooleanFilterComponent', () => {
 
 	it('should set booleanValue in unknown when input value is null', () => {
 		component.value = null;
-		component.structure = fakeStructure;
+		fixture.componentRef.setInput('structure', fakeStructure);
 		component.ngOnInit();
 
 		expect(component.booleanValue).toEqual('unknown');
@@ -54,7 +54,7 @@ describe('BooleanFilterComponent', () => {
 
 	it('should set isRadiogroup in false if allow_null is false', () => {
 		component.value = undefined;
-		component.structure = fakeStructure;
+		fixture.componentRef.setInput('structure', fakeStructure);
 		component.ngOnInit();
 
 		expect(component.isRadiogroup).toEqual(false);
@@ -62,7 +62,7 @@ describe('BooleanFilterComponent', () => {
 
 	it('should set isRadiogroup in true if allow_null is true', () => {
 		component.value = undefined;
-		component.structure = {
+		fixture.componentRef.setInput('structure', {
 			column_name: 'banned',
 			column_default: '0',
 			data_type: 'tinyint',
@@ -71,7 +71,7 @@ describe('BooleanFilterComponent', () => {
 			auto_increment: false,
 			allow_null: true,
 			character_maximum_length: 1,
-		};
+		});
 		component.ngOnInit();
 
 		expect(component.isRadiogroup).toEqual(true);

@@ -15,6 +15,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import JsonURL from '@jsonurl/jsonurl';
 import { Angulartics2OnModule } from 'angulartics2';
 import { DynamicModule } from 'ng-dynamic-component';
+import { SignalComponentIoModule } from 'ng-dynamic-component/signal-component-io';
 import posthog from 'posthog-js';
 import { PlaceholderSavedFiltersComponent } from 'src/app/components/skeletons/placeholder-saved-filters/placeholder-saved-filters.component';
 import { UIwidgets as FilterUIwidgets, filterTypes } from 'src/app/consts/filter-types';
@@ -32,6 +33,7 @@ import { SavedFiltersDialogComponent } from './saved-filters-dialog/saved-filter
 		CommonModule,
 		FormsModule,
 		DynamicModule,
+		SignalComponentIoModule,
 		MatButtonModule,
 		MatIconModule,
 		MatChipsModule,

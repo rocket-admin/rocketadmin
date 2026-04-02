@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, output, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -16,14 +16,13 @@ export class DateTimeFilterComponent extends BaseFilterFieldComponent implements
 	@Input() value: string;
 	@ViewChild('inputElement') inputElement: ElementRef<HTMLInputElement>;
 
-	@Output() onFieldChange = new EventEmitter();
+	override readonly onFieldChange = output<any>();
 
 	static type = 'datetime';
 	public date: string;
 	public time: string;
 
 	ngOnInit(): void {
-		super.ngOnInit();
 		if (this.value) {
 			const datetime = new Date(this.value);
 			this.date = format(datetime, 'yyyy-MM-dd');
@@ -43,7 +42,7 @@ export class DateTimeFilterComponent extends BaseFilterFieldComponent implements
 	}
 
 	ngAfterViewInit(): void {
-		if (this.autofocus && this.inputElement) {
+		if (this.autofocus() && this.inputElement) {
 			setTimeout(() => {
 				this.inputElement.nativeElement.focus();
 			}, 100);

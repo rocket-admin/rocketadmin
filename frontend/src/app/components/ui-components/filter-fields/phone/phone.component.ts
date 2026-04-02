@@ -44,7 +44,6 @@ export class PhoneFilterComponent extends BaseFilterFieldComponent implements On
 	getCountryFlag = getCountryFlag;
 
 	ngOnInit(): void {
-		super.ngOnInit();
 		this.setupAutocomplete();
 
 		if (this.value) {

@@ -20,8 +20,6 @@ export class EmailFilterComponent extends BaseFilterFieldComponent implements On
 	public domainValue: string = '';
 
 	ngOnInit(): void {
-		super.ngOnInit();
-
 		if (this.value?.startsWith('@')) {
 			this.filterMode = 'domain';
 			this.domainValue = this.value.substring(1);
@@ -33,7 +31,7 @@ export class EmailFilterComponent extends BaseFilterFieldComponent implements On
 			this.onComparatorChange.emit(this.filterMode === 'domain' ? 'endswith' : this.filterMode);
 		}
 
-		if (this.autofocus && this.inputElement) {
+		if (this.autofocus() && this.inputElement) {
 			setTimeout(() => {
 				this.inputElement.nativeElement.focus();
 			}, 100);

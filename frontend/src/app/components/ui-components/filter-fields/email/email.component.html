@@ -12,20 +12,20 @@
 
     @if (filterMode === 'domain') {
         <mat-form-field class="value-field" appearance="outline">
-            <mat-label>{{normalizedLabel}} (domain)</mat-label>
+            <mat-label>{{normalizedLabel()}} (domain)</mat-label>
             <span matTextPrefix>@&nbsp;</span>
-            <input matInput type="text" name="{{label}}-{{key}}"
+            <input matInput type="text" name="{{label()}}-{{key()}}"
                 #inputElement
-                [required]="required" [disabled]="disabled" [readonly]="readonly"
+                [required]="required()" [disabled]="disabled()" [readonly]="readonly()"
                 placeholder="gmail.com"
                 [(ngModel)]="domainValue" (ngModelChange)="onDomainChange($event)">
         </mat-form-field>
     } @else if (filterMode !== 'empty') {
         <mat-form-field class="value-field" appearance="outline">
-            <mat-label>{{normalizedLabel}}</mat-label>
-            <input matInput type="text" name="{{label}}-{{key}}"
+            <mat-label>{{normalizedLabel()}}</mat-label>
+            <input matInput type="text" name="{{label()}}-{{key()}}"
                 #inputElement
-                [required]="required" [disabled]="disabled" [readonly]="readonly"
+                [required]="required()" [disabled]="disabled()" [readonly]="readonly()"
                 [(ngModel)]="value" (ngModelChange)="onValueChange($event)">
         </mat-form-field>
     }

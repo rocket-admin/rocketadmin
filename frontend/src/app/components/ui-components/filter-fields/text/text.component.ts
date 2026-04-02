@@ -18,7 +18,7 @@ export class TextFilterComponent extends BaseFilterFieldComponent implements Aft
 	static type = 'text';
 
 	ngAfterViewInit(): void {
-		if (this.autofocus && this.inputElement) {
+		if (this.autofocus() && this.inputElement) {
 			setTimeout(() => {
 				this.inputElement.nativeElement.focus();
 			}, 100);

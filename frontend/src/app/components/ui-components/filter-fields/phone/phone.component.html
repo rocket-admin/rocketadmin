@@ -11,9 +11,9 @@
 
     @if (filterMode === 'country') {
         <mat-form-field class="value-field" appearance="outline">
-            <mat-label>{{normalizedLabel}} (country)</mat-label>
+            <mat-label>{{normalizedLabel()}} (country)</mat-label>
             <input type="text" matInput
-                [required]="required" [disabled]="disabled" [readonly]="readonly"
+                [required]="required()" [disabled]="disabled()" [readonly]="readonly()"
                 [formControl]="countryControl"
                 [matAutocomplete]="auto">
             <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
@@ -28,9 +28,9 @@
         </mat-form-field>
     } @else if (filterMode !== 'empty') {
         <mat-form-field class="value-field" appearance="outline">
-            <mat-label>{{normalizedLabel}}</mat-label>
-            <input matInput type="text" name="{{label}}-{{key}}"
-                [required]="required" [disabled]="disabled" [readonly]="readonly"
+            <mat-label>{{normalizedLabel()}}</mat-label>
+            <input matInput type="text" name="{{label()}}-{{key()}}"
+                [required]="required()" [disabled]="disabled()" [readonly]="readonly()"
                 [(ngModel)]="value" (ngModelChange)="onValueChange($event)">
         </mat-form-field>
     }

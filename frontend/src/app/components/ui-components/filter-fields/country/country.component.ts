@@ -42,9 +42,9 @@ export class CountryFilterComponent extends BaseFilterFieldComponent {
 	getCountryFlag = getCountryFlag;
 
 	ngOnInit(): void {
-		super.ngOnInit();
-
-		if (this.widgetStructure?.widget_params?.allow_null || this.structure?.allow_null) {
+		const ws = this.widgetStructure();
+		const struct = this.structure();
+		if (ws?.widget_params?.allow_null || struct?.allow_null) {
 			this.countries = [{ value: null, label: '', flag: '' }, ...BASE_COUNTRIES];
 		} else {
 			this.countries = BASE_COUNTRIES;

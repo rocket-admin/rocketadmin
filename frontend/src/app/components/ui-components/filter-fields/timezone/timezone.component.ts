@@ -60,9 +60,9 @@ export class TimezoneFilterComponent extends BaseFilterFieldComponent {
 	static type = 'timezone';
 
 	ngOnInit(): void {
-		super.ngOnInit();
-
-		if (this.widgetStructure?.widget_params?.allow_null || this.structure?.allow_null) {
+		const ws = this.widgetStructure();
+		const struct = this.structure();
+		if (ws?.widget_params?.allow_null || struct?.allow_null) {
 			this.timezones = [{ value: null, label: '' }, ...BASE_TIMEZONES];
 		} else {
 			this.timezones = BASE_TIMEZONES;

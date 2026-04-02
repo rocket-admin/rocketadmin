@@ -1,6 +1,5 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, computed, input, OnInit, output } from '@angular/core';
 import { TableField, TableForeignKey, WidgetStructure } from 'src/app/models/table';
-
 import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Component({
@@ -9,22 +8,20 @@ import { normalizeFieldName } from '../../../../lib/normalize';
 	styleUrl: './base-filter-field.component.css',
 })
 export class BaseFilterFieldComponent implements OnInit {
-	@Input() key: string;
-	@Input() label: string;
-	@Input() required: boolean;
-	@Input() readonly: boolean;
-	@Input() structure: TableField;
-	@Input() disabled: boolean;
-	@Input() widgetStructure: WidgetStructure;
-	@Input() relations: TableForeignKey;
-	@Input() autofocus: boolean = false;
+	readonly key = input<string>();
+	readonly label = input<string>();
+	readonly required = input<boolean>(false);
+	readonly readonly = input<boolean>(false);
+	readonly structure = input<TableField>();
+	readonly disabled = input<boolean>(false);
+	readonly widgetStructure = input<WidgetStructure>();
+	readonly relations = input<TableForeignKey>();
+	readonly autofocus = input<boolean>(false);
 
-	@Output() onFieldChange = new EventEmitter<any>();
-	@Output() onComparatorChange = new EventEmitter<string>();
+	readonly onFieldChange = output<any>();
+	readonly onComparatorChange = output<string>();
 
-	public normalizedLabel: string;
+	readonly normalizedLabel = computed(() => normalizeFieldName(this.label() || ''));
 
-	ngOnInit(): void {
-		this.normalizedLabel = normalizeFieldName(this.label);
-	}
+	ngOnInit(): void {}
 }

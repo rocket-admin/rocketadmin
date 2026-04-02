@@ -1,8 +1,8 @@
 <mat-form-field class="country-form-field" appearance="outline">
-    <mat-label>{{normalizedLabel}}</mat-label>
+    <mat-label>{{normalizedLabel()}}</mat-label>
     <input type="text" matInput
-        [required]="required" [disabled]="disabled" [readonly]="readonly"
-        attr.data-testid="record-{{label}}-country"
+        [required]="required()" [disabled]="disabled()" [readonly]="readonly()"
+        attr.data-testid="record-{{label()}}-country"
         [formControl]="countryControl"
         [matAutocomplete]="auto">
     <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">

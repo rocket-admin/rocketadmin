@@ -138,7 +138,7 @@ describe('ForeignKeyFilterComponent', () => {
 	beforeEach(() => {
 		fixture = TestBed.createComponent(ForeignKeyFilterComponent);
 		component = fixture.componentInstance;
-		component.relations = fakeRelations;
+		fixture.componentRef.setInput('relations', fakeRelations);
 		tablesService = TestBed.inject(TablesService);
 		connectionsService = TestBed.inject(ConnectionsService);
 		// Mock the connectionID getter before ngOnInit runs
@@ -223,14 +223,14 @@ describe('ForeignKeyFilterComponent', () => {
 		vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(usersTableNetwork));
 
 		component.connectionID = '12345678';
-		component.relations = {
+		fixture.componentRef.setInput('relations', {
 			autocomplete_columns: [],
 			column_name: 'userId',
 			constraint_name: '',
 			referenced_column_name: 'id',
 			referenced_table_name: 'users',
 			column_default: '',
-		};
+		});
 		component.value = '33'; // Must be truthy to trigger currentDisplayedString setting
 
 		await component.ngOnInit();
@@ -313,7 +313,7 @@ describe('ForeignKeyFilterComponent', () => {
 
 		vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(searchSuggestionsNetwork));
 
-		component.relations = fakeRelations;
+		fixture.componentRef.setInput('relations', fakeRelations);
 
 		component.suggestions.set([
 			{
@@ -405,7 +405,7 @@ describe('ForeignKeyFilterComponent', () => {
 
 		const fakeFetchTable = vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(searchSuggestionsNetwork));
 		component.connectionID = '12345678';
-		component.relations = fakeRelations;
+		fixture.componentRef.setInput('relations', fakeRelations);
 
 		component.suggestions.set([
 			{
@@ -429,12 +429,12 @@ describe('ForeignKeyFilterComponent', () => {
 
 		expect(fakeFetchTable).toHaveBeenCalledWith({
 			connectionID: '12345678',
-			tableName: component.relations.referenced_table_name,
+			tableName: component.relations().referenced_table_name,
 			requstedPage: 1,
 			chunkSize: 20,
 			foreignKeyRowName: 'autocomplete',
 			foreignKeyRowValue: component.currentDisplayedString,
-			referencedColumn: component.relations.referenced_column_name,
+			referencedColumn: component.relations().referenced_column_name,
 		});
 
 		expect(component.suggestions()).toEqual([

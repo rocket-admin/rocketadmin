@@ -21,17 +21,18 @@ export class SelectFilterComponent extends BaseFilterFieldComponent {
 	};
 
 	ngOnInit(): void {
-		super.ngOnInit();
-		if (this.widgetStructure) {
-			this.options = this.widgetStructure.widget_params.options;
-			if (this.widgetStructure.widget_params.allow_null) {
+		const ws = this.widgetStructure();
+		const struct = this.structure();
+		if (ws) {
+			this.options = ws.widget_params.options;
+			if (ws.widget_params.allow_null) {
 				this.options = [{ value: null, label: '' }, ...this.options];
 			}
-		} else if (this.structure) {
-			this.options = this.structure.data_type_params.map((option) => {
+		} else if (struct) {
+			this.options = struct.data_type_params.map((option) => {
 				return { value: option, label: option };
 			});
-			if (this.structure.allow_null) {
+			if (struct.allow_null) {
 				this.options = [{ value: null, label: '' }, ...this.options];
 			}
 		}

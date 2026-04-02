@@ -22,10 +22,9 @@ export class JsonEditorFilterComponent extends BaseFilterFieldComponent {
 	};
 
 	ngOnInit(): void {
-		super.ngOnInit();
 		this.mutableCodeModel = {
 			language: 'json',
-			uri: `${this.label}.json`,
+			uri: `${this.label()}.json`,
 			value: JSON.stringify(this.value, undefined, 4) || '{}',
 		};
 	}
