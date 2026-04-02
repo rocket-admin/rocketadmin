@@ -1,4 +1,4 @@
-<div class="email-filter-row">
+<div class="filter-row">
     <mat-form-field class="comparator-field" appearance="outline">
         <mat-select [(ngModel)]="filterMode" (ngModelChange)="onFilterModeChange($event)">
             <mat-option value="eq">equal</mat-option>
@@ -26,7 +26,7 @@
             <input matInput type="text" name="{{label}}-{{key}}"
                 #inputElement
                 [required]="required" [disabled]="disabled" [readonly]="readonly"
-                [(ngModel)]="textValue" (ngModelChange)="onTextChange($event)">
+                [(ngModel)]="value" (ngModelChange)="onValueChange($event)">
         </mat-form-field>
     }
 </div>

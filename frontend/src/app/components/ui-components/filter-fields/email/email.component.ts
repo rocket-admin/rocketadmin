@@ -18,7 +18,6 @@ export class EmailFilterComponent extends BaseFilterFieldComponent implements On
 
 	public filterMode: string = 'eq';
 	public domainValue: string = '';
-	public textValue: string = '';
 
 	ngOnInit(): void {
 		super.ngOnInit();
@@ -26,13 +25,13 @@ export class EmailFilterComponent extends BaseFilterFieldComponent implements On
 		if (this.value?.startsWith('@')) {
 			this.filterMode = 'domain';
 			this.domainValue = this.value.substring(1);
-		} else if (this.value) {
-			this.textValue = this.value;
 		}
 	}
 
 	ngAfterViewInit(): void {
-		this.emitCurrentState();
+		if (this.filterMode !== 'eq') {
+			this.onComparatorChange.emit(this.filterMode === 'domain' ? 'endswith' : this.filterMode);
+		}
 
 		if (this.autofocus && this.inputElement) {
 			setTimeout(() => {
@@ -44,18 +43,13 @@ export class EmailFilterComponent extends BaseFilterFieldComponent implements On
 	onFilterModeChange(mode: string): void {
 		this.filterMode = mode;
 
-		if (mode === 'empty') {
-			this.value = '';
-			this.onFieldChange.emit(this.value);
-			this.onComparatorChange.emit('empty');
-			return;
-		}
-
 		if (mode === 'domain') {
 			this.value = this.domainValue ? `@${this.domainValue}` : '';
 			this.onComparatorChange.emit('endswith');
+		} else if (mode === 'empty') {
+			this.value = '';
+			this.onComparatorChange.emit('empty');
 		} else {
-			this.value = this.textValue;
 			this.onComparatorChange.emit(mode);
 		}
 
@@ -69,14 +63,9 @@ export class EmailFilterComponent extends BaseFilterFieldComponent implements On
 		this.onComparatorChange.emit('endswith');
 	}
 
-	onTextChange(text: string): void {
-		this.textValue = text;
+	onValueChange(text: string): void {
 		this.value = text;
 		this.onFieldChange.emit(this.value);
 		this.onComparatorChange.emit(this.filterMode);
-	}
-
-	private emitCurrentState(): void {
-		this.onComparatorChange.emit(this.filterMode === 'domain' ? 'endswith' : this.filterMode);
 	}
 }

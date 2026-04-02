@@ -14,6 +14,11 @@ interface CountryWithFlag extends Country {
 	flag: string;
 }
 
+const COUNTRIES_WITH_FLAGS: CountryWithFlag[] = COUNTRIES.filter((country) => country.dialCode).map((country) => ({
+	...country,
+	flag: getCountryFlag(country.code),
+}));
+
 @Component({
 	selector: 'app-filter-phone',
 	templateUrl: './phone.component.html',
@@ -32,40 +37,42 @@ export class PhoneFilterComponent extends BaseFilterFieldComponent implements On
 	@Input() value: string;
 
 	public filterMode: string = 'eq';
-	public countries: CountryWithFlag[] = [];
+	public countries: CountryWithFlag[] = COUNTRIES_WITH_FLAGS;
 	public countryControl = new FormControl<CountryWithFlag | string>('');
 	public filteredCountries: Observable<CountryWithFlag[]>;
-	public textValue: string = '';
 
 	getCountryFlag = getCountryFlag;
 
 	ngOnInit(): void {
 		super.ngOnInit();
-		this.loadCountries();
 		this.setupAutocomplete();
-		this.setInitialValue();
+
+		if (this.value) {
+			const country = this.countries.find((c) => c.dialCode === this.value);
+			if (country) {
+				this.filterMode = 'country';
+				this.countryControl.setValue(country);
+			}
+		}
 	}
 
 	ngAfterViewInit(): void {
-		this.emitCurrentState();
+		if (this.filterMode !== 'eq') {
+			this.onComparatorChange.emit(this.filterMode === 'country' ? 'startswith' : this.filterMode);
+		}
 	}
 
 	onFilterModeChange(mode: string): void {
 		this.filterMode = mode;
 
-		if (mode === 'empty') {
-			this.value = '';
-			this.onFieldChange.emit(this.value);
-			this.onComparatorChange.emit('empty');
-			return;
-		}
-
 		if (mode === 'country') {
 			const selected = this.countryControl.value;
 			this.value = typeof selected === 'object' && selected ? selected.dialCode : '';
 			this.onComparatorChange.emit('startswith');
+		} else if (mode === 'empty') {
+			this.value = '';
+			this.onComparatorChange.emit('empty');
 		} else {
-			this.value = this.textValue;
 			this.onComparatorChange.emit(mode);
 		}
 
@@ -78,8 +85,7 @@ export class PhoneFilterComponent extends BaseFilterFieldComponent implements On
 		this.onComparatorChange.emit('startswith');
 	}
 
-	onTextChange(text: string): void {
-		this.textValue = text;
+	onValueChange(text: string): void {
 		this.value = text;
 		this.onFieldChange.emit(this.value);
 		this.onComparatorChange.emit(this.filterMode);
@@ -96,18 +102,6 @@ export class PhoneFilterComponent extends BaseFilterFieldComponent implements On
 		);
 	}
 
-	private setInitialValue(): void {
-		if (this.value) {
-			const country = this.countries.find((c) => c.dialCode === this.value);
-			if (country) {
-				this.filterMode = 'country';
-				this.countryControl.setValue(country);
-			} else {
-				this.textValue = this.value;
-			}
-		}
-	}
-
 	private _filter(value: string): CountryWithFlag[] {
 		const filterValue = value.toLowerCase();
 		return this.countries.filter(
@@ -116,16 +110,5 @@ export class PhoneFilterComponent extends BaseFilterFieldComponent implements On
 				country.code.toLowerCase().includes(filterValue) ||
 				country.dialCode?.includes(filterValue),
 		);
-	}
-
-	private loadCountries(): void {
-		this.countries = COUNTRIES.filter((country) => country.dialCode).map((country) => ({
-			...country,
-			flag: getCountryFlag(country.code),
-		}));
-	}
-
-	private emitCurrentState(): void {
-		this.onComparatorChange.emit(this.filterMode === 'country' ? 'startswith' : this.filterMode);
 	}
 }

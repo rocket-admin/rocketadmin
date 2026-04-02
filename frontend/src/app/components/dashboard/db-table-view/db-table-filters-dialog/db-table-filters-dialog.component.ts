@@ -23,7 +23,6 @@ import { getComparatorsFromUrl, getFiltersFromUrl } from 'src/app/lib/parse-filt
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { TableField, TableForeignKey, Widget } from 'src/app/models/table';
 import { ConnectionsService } from 'src/app/services/connections.service';
-import { TablesService } from 'src/app/services/tables.service';
 import { ContentLoaderComponent } from '../../../ui-components/content-loader/content-loader.component';
 
 @Component({
@@ -65,14 +64,12 @@ export class DbTableFiltersDialogComponent implements OnInit, AfterViewInit {
 	public differ: KeyValueDiffer<string, any>;
 	public tableTypes: Object;
 	public tableWidgets: object;
-	public tableWidgetsList: string[] = [];
 	public UIwidgets = { ...EditUIwidgets, ...FilterUIwidgets };
 	public autofocusField: string | null = null;
 
 	constructor(
 		@Inject(MAT_DIALOG_DATA) public data: any,
 		private _connections: ConnectionsService,
-		private _tables: TablesService,
 		public route: ActivatedRoute,
 		private differs: KeyValueDiffers,
 	) {
@@ -80,7 +77,6 @@ export class DbTableFiltersDialogComponent implements OnInit, AfterViewInit {
 	}
 
 	ngOnInit(): void {
-		this._tables.cast.subscribe();
 		this.tableForeignKeys = { ...this.data.structure.foreignKeys };
 		this.tableRowFields = Object.assign(
 			{},
@@ -90,7 +86,6 @@ export class DbTableFiltersDialogComponent implements OnInit, AfterViewInit {
 		this.fields = this.data.structure.structure
 			.filter((field: TableField) => this.getInputType(field.column_name) !== 'file')
 			.map((field: TableField) => field.column_name);
-		// this.foundFields = [...this.fields];
 		this.tableRowStructure = Object.assign(
 			{},
 			...this.data.structure.structure.map((field: TableField) => {
@@ -98,27 +93,20 @@ export class DbTableFiltersDialogComponent implements OnInit, AfterViewInit {
 			}),
 		);
 
-		// Set autofocus field if provided
 		if (this.data.autofocusField) {
 			this.autofocusField = this.data.autofocusField;
 		}
 
 		const queryParams = this.route.snapshot.queryParams;
 
-		// If saved_filter is present in queryParams, show empty form without applying filters
 		if (queryParams.saved_filter) {
-			// Show empty form without filters
 			this.tableFilters = [];
 			this.tableRowFieldsShown = {};
 			this.tableRowFieldsComparator = {};
 		} else {
-			// Original behavior - parse and apply filters from URL
 			let filters = {};
 			if (queryParams.filters) filters = JsonURL.parse(queryParams.filters);
-			// const filters = JsonURL.parse(queryParams.filters || '{}');
 			const filtersValues = getFiltersFromUrl(filters);
-
-			console.log('Parsed filters from URL:', filtersValues);
 
 			if (Object.keys(filtersValues).length) {
 				this.tableFilters = Object.keys(filtersValues).map((key) => key);
@@ -146,7 +134,6 @@ export class DbTableFiltersDialogComponent implements OnInit, AfterViewInit {
 			this.setWidgets(widgetsArray);
 		}
 
-		// If autofocusField is provided, ensure it's in the filters list
 		if (this.autofocusField && this.tableFilters && !this.tableFilters.includes(this.autofocusField)) {
 			this.tableFilters.push(this.autofocusField);
 			if (!this.tableRowFieldsShown[this.autofocusField]) {
@@ -164,7 +151,6 @@ export class DbTableFiltersDialogComponent implements OnInit, AfterViewInit {
 	}
 
 	ngAfterViewInit(): void {
-		// Set focus on the autofocus field after view is initialized
 		if (this.autofocusField) {
 			setTimeout(() => {
 				this.focusOnField(this.autofocusField);
@@ -173,7 +159,6 @@ export class DbTableFiltersDialogComponent implements OnInit, AfterViewInit {
 	}
 
 	focusOnField(fieldName: string) {
-		// Try multiple selectors to find the input field
 		const selectors = [
 			`input[name*="${fieldName}"]`,
 			`textarea[name*="${fieldName}"]`,
@@ -228,7 +213,6 @@ export class DbTableFiltersDialogComponent implements OnInit, AfterViewInit {
 	}
 
 	setWidgets(widgets: Widget[]) {
-		this.tableWidgetsList = widgets.map((widget: Widget) => widget.field_name);
 		this.tableWidgets = Object.assign(
 			{},
 			...widgets.map((widget: Widget) => {
@@ -248,11 +232,11 @@ export class DbTableFiltersDialogComponent implements OnInit, AfterViewInit {
 	}
 
 	trackByFn(_index: number, item: any) {
-		return item.key; // or item.id
+		return item.key;
 	}
 
 	isWidget(columnName: string) {
-		return this.tableWidgetsList.includes(columnName);
+		return this.tableWidgets && columnName in this.tableWidgets;
 	}
 
 	updateField = (updatedValue: any, field: string) => {

@@ -27,17 +27,25 @@ describe('EmailFilterComponent', () => {
 		expect(component.filterMode).toBe('eq');
 	});
 
-	it('should emit eq comparator by default after view init', () => {
+	it('should not emit comparator in default eq mode', () => {
 		const emitted: string[] = [];
 		component.onComparatorChange.subscribe((v: string) => emitted.push(v));
 
 		component.ngOnInit();
-		const emittedDuringInit = [...emitted];
-
 		component.ngAfterViewInit();
 
-		expect(emittedDuringInit).toEqual([]);
-		expect(emitted).toEqual(['eq']);
+		expect(emitted).toEqual([]);
+	});
+
+	it('should emit endswith comparator when initialized with @domain value', () => {
+		component.value = '@example.com';
+		const emitted: string[] = [];
+		component.onComparatorChange.subscribe((v: string) => emitted.push(v));
+
+		component.ngOnInit();
+		component.ngAfterViewInit();
+
+		expect(emitted).toEqual(['endswith']);
 	});
 
 	it('should prefix domain value with @ on domain change', () => {
@@ -57,7 +65,7 @@ describe('EmailFilterComponent', () => {
 		vi.spyOn(component.onComparatorChange, 'emit');
 		fixture.detectChanges();
 
-		component.textValue = 'user@test.com';
+		component.value = 'user@test.com';
 		component.onFilterModeChange('eq');
 
 		expect(component.onComparatorChange.emit).toHaveBeenCalledWith('eq');

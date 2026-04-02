@@ -1,11 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, Injectable, Input, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { BaseFilterFieldComponent } from '../base-filter-field/base-filter-field.component';
-
-@Injectable()
 
 @Component({
 	selector: 'app-filter-text',

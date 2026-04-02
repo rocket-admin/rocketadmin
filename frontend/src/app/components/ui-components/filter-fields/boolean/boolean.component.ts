@@ -46,7 +46,6 @@ export class BooleanFilterComponent extends BaseFilterFieldComponent {
 			this.booleanValue = this.value;
 		} else if (this.value === null) {
 			this.booleanValue = 'unknown';
-			console.log('i entered condition this.value === null');
 		} else {
 			switch (this.value) {
 				case 0:
@@ -68,7 +67,6 @@ export class BooleanFilterComponent extends BaseFilterFieldComponent {
 	}
 
 	onBooleanChange() {
-		console.log(this.connectionType);
 		let formattedValue;
 		switch (this.connectionType) {
 			case DBtype.MySQL:
