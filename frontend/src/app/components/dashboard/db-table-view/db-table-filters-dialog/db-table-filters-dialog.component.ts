@@ -140,8 +140,10 @@ export class DbTableFiltersDialogComponent implements OnInit, AfterViewInit {
 			}
 		}
 
-		if (this.data.structure.widgets && this.data.structure.widgets.length) {
-			this.setWidgets(this.data.structure.widgets);
+		const widgets = this.data.structure.widgets;
+		const widgetsArray = Array.isArray(widgets) ? widgets : Object.values(widgets || {});
+		if (widgetsArray.length) {
+			this.setWidgets(widgetsArray);
 		}
 
 		// If autofocusField is provided, ensure it's in the filters list
@@ -231,8 +233,10 @@ export class DbTableFiltersDialogComponent implements OnInit, AfterViewInit {
 			{},
 			...widgets.map((widget: Widget) => {
 				let params;
-				if (widget.widget_params !== '// No settings required') {
+				if (typeof widget.widget_params === 'string' && widget.widget_params !== '// No settings required') {
 					params = JSON5.parse(widget.widget_params);
+				} else if (typeof widget.widget_params !== 'string') {
+					params = widget.widget_params;
 				} else {
 					params = '';
 				}

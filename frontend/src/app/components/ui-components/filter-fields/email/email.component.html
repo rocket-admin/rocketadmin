@@ -1,9 +1,32 @@
-<mat-form-field class="email-form-field" appearance="outline">
-    <mat-label>{{normalizedLabel}} (domain)</mat-label>
-    <span matTextPrefix>@&nbsp;</span>
-    <input matInput type="text" name="{{label}}-{{key}}"
-        #inputElement
-        [required]="required" [disabled]="disabled" [readonly]="readonly"
-        placeholder="gmail.com"
-        [(ngModel)]="domainValue" (ngModelChange)="onDomainChange($event)">
-</mat-form-field>
+<div class="email-filter-row">
+    <mat-form-field class="comparator-field" appearance="outline">
+        <mat-select [(ngModel)]="filterMode" (ngModelChange)="onFilterModeChange($event)">
+            <mat-option value="eq">equal</mat-option>
+            <mat-option value="domain">domain equal</mat-option>
+            <mat-option value="contains">contains</mat-option>
+            <mat-option value="startswith">starts with</mat-option>
+            <mat-option value="endswith">ends with</mat-option>
+            <mat-option value="empty">is empty</mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    @if (filterMode === 'domain') {
+        <mat-form-field class="value-field" appearance="outline">
+            <mat-label>{{normalizedLabel}} (domain)</mat-label>
+            <span matTextPrefix>@&nbsp;</span>
+            <input matInput type="text" name="{{label}}-{{key}}"
+                #inputElement
+                [required]="required" [disabled]="disabled" [readonly]="readonly"
+                placeholder="gmail.com"
+                [(ngModel)]="domainValue" (ngModelChange)="onDomainChange($event)">
+        </mat-form-field>
+    } @else if (filterMode !== 'empty') {
+        <mat-form-field class="value-field" appearance="outline">
+            <mat-label>{{normalizedLabel}}</mat-label>
+            <input matInput type="text" name="{{label}}-{{key}}"
+                #inputElement
+                [required]="required" [disabled]="disabled" [readonly]="readonly"
+                [(ngModel)]="textValue" (ngModelChange)="onTextChange($event)">
+        </mat-form-field>
+    }
+</div>

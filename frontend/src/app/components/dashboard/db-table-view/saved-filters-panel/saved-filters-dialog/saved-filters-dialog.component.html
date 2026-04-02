@@ -90,6 +90,7 @@
                     <mat-icon>close</mat-icon>
                 </button>
                 <div *ngIf="getComparatorType(getInputType(value.key)) === 'nonComparable'; else comparableFilter" class="filter-line">
+                    <span class='mat-body-1 column-name'>{{value.key}}</span>
 
                     <div *ngIf="isWidget(value.key); else defaultTableField">
                         <ndc-dynamic [ndcDynamicComponent]="tableWidgets[value.key].widget_type ? UIwidgets[tableWidgets[value.key].widget_type] : inputs[tableTypes[value.key]]"

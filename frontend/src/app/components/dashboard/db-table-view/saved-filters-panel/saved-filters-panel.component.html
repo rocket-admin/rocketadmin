@@ -39,11 +39,11 @@
             </mat-chip-option>
         </mat-chip-listbox>
         <mat-menu #filterMenu="matMenu">
-            <button mat-menu-item (click)="handleEditFilter(currentFilterForMenu)">
+            <button mat-menu-item type="button" (click)="handleEditFilter(currentFilterForMenu)">
                 <mat-icon fontSet="material-symbols-outlined">create</mat-icon>
                 <span>Edit</span>
             </button>
-            <button mat-menu-item (click)="handleDeleteFilter(currentFilterForMenu)">
+            <button mat-menu-item type="button" (click)="handleDeleteFilter(currentFilterForMenu)">
                 <mat-icon fontSet="material-symbols-outlined">delete</mat-icon>
                 <span>Delete</span>
             </button>
@@ -58,7 +58,7 @@
         <form *ngIf="savedFilterMap[selectedFilterSetId]?.dynamicColumn"
             class="dynamic-column-editor"
             (ngSubmit)="applyDynamicColumnChanges()">
-            <span class="column-name mat-body-1" *ngIf="getComparatorType(getInputType(savedFilterMap[selectedFilterSetId]?.dynamicColumn.column)) !== 'nonComparable'">
+            <span class="column-name mat-body-1">
                 <strong>{{ savedFilterMap[selectedFilterSetId]?.dynamicColumn.column }}</strong>
                 <span *ngIf="getComparatorType(getInputType(savedFilterMap[selectedFilterSetId]?.dynamicColumn.column)) === 'text'" class="comparator-text">
                     {{ {startswith: 'starts with', endswith: 'ends with', eq: 'equal', contains: 'contains', icontains: 'not contains', empty: 'is empty'}[savedFilterMap[selectedFilterSetId].dynamicColumn.operator] }}
@@ -138,7 +138,8 @@
                             autofocus: shouldAutofocus
                         }"
                         [ndcDynamicOutputs]="{
-                            onFieldChange: { handler: updateDynamicColumnValue, args: ['$event'] }
+                            onFieldChange: { handler: updateDynamicColumnValue, args: ['$event'] },
+                            onComparatorChange: { handler: updateDynamicColumnComparator, args: ['$event'] }
                         }"
                     ></ndc-dynamic>
                 </div>
@@ -154,7 +155,8 @@
                             autofocus: shouldAutofocus
                         }"
                         [ndcDynamicOutputs]="{
-                            onFieldChange: { handler: updateDynamicColumnValue, args: ['$event'] }
+                            onFieldChange: { handler: updateDynamicColumnValue, args: ['$event'] },
+                            onComparatorChange: { handler: updateDynamicColumnComparator, args: ['$event'] }
                         }"
                     ></ndc-dynamic>
                 </ng-template>

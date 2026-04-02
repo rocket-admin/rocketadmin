@@ -17,8 +17,8 @@ import { Angulartics2OnModule } from 'angulartics2';
 import { DynamicModule } from 'ng-dynamic-component';
 import posthog from 'posthog-js';
 import { PlaceholderSavedFiltersComponent } from 'src/app/components/skeletons/placeholder-saved-filters/placeholder-saved-filters.component';
-import { filterTypes } from 'src/app/consts/filter-types';
-import { UIwidgets } from 'src/app/consts/record-edit-types';
+import { UIwidgets as FilterUIwidgets, filterTypes } from 'src/app/consts/filter-types';
+import { UIwidgets as EditUIwidgets } from 'src/app/consts/record-edit-types';
 import { normalizeTableName } from 'src/app/lib/normalize';
 import { TableField, TableForeignKey } from 'src/app/models/table';
 import { AccessLevel } from 'src/app/models/user';
@@ -76,7 +76,7 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
 	public tableRowFieldsShown: { [key: string]: any } = {};
 	public tableRowStructure: { [key: string]: any } = {};
 	public tableWidgetsList: string[] = [];
-	public UIwidgets = UIwidgets;
+	public UIwidgets = { ...EditUIwidgets, ...FilterUIwidgets };
 
 	public displayedComparators = {
 		eq: '=',
@@ -243,6 +243,9 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
 	ngOnChanges() {
 		if (this.resetSelection) {
 			this.selectedFilterSetId = null;
+		}
+		if (this.tableWidgets) {
+			this.tableWidgetsList = Object.keys(this.tableWidgets);
 		}
 	}
 

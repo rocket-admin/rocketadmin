@@ -1,16 +1,37 @@
-<mat-form-field class="phone-form-field" appearance="outline">
-    <mat-label>{{normalizedLabel}} (country)</mat-label>
-    <input type="text" matInput
-        [required]="required" [disabled]="disabled" [readonly]="readonly"
-        [formControl]="countryControl"
-        [matAutocomplete]="auto">
-    <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
-        <mat-option *ngFor="let country of filteredCountries | async"
-            [value]="country"
-            (onSelectionChange)="country && onCountrySelected(country)">
-            <span *ngIf="country.flag" class="country-flag">{{country.flag}}</span>
-            <span class="country-name">{{country.name}}</span>
-            <span class="country-dial-code">({{country.dialCode}})</span>
-        </mat-option>
-    </mat-autocomplete>
-</mat-form-field>
+<div class="phone-filter-row">
+    <mat-form-field class="comparator-field" appearance="outline">
+        <mat-select [(ngModel)]="filterMode" (ngModelChange)="onFilterModeChange($event)">
+            <mat-option value="eq">equal</mat-option>
+            <mat-option value="country">country code</mat-option>
+            <mat-option value="startswith">starts with</mat-option>
+            <mat-option value="contains">contains</mat-option>
+            <mat-option value="empty">is empty</mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    @if (filterMode === 'country') {
+        <mat-form-field class="value-field" appearance="outline">
+            <mat-label>{{normalizedLabel}} (country)</mat-label>
+            <input type="text" matInput
+                [required]="required" [disabled]="disabled" [readonly]="readonly"
+                [formControl]="countryControl"
+                [matAutocomplete]="auto">
+            <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
+                @for (country of filteredCountries | async; track country.code) {
+                    <mat-option [value]="country" (onSelectionChange)="country && onCountrySelected(country)">
+                        <span class="country-flag">{{country.flag}}</span>
+                        <span class="country-name">{{country.name}}</span>
+                        <span class="country-dial-code">({{country.dialCode}})</span>
+                    </mat-option>
+                }
+            </mat-autocomplete>
+        </mat-form-field>
+    } @else if (filterMode !== 'empty') {
+        <mat-form-field class="value-field" appearance="outline">
+            <mat-label>{{normalizedLabel}}</mat-label>
+            <input matInput type="text" name="{{label}}-{{key}}"
+                [required]="required" [disabled]="disabled" [readonly]="readonly"
+                [(ngModel)]="textValue" (ngModelChange)="onTextChange($event)">
+        </mat-form-field>
+    }
+</div>

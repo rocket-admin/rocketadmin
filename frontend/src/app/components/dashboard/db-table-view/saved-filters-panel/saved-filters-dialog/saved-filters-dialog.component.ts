@@ -140,9 +140,11 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
 			}),
 		);
 
-		// Setup widgets if available
-		if (this.data.tableWidgets?.length) {
-			this.setWidgets(this.data.tableWidgets);
+		// Setup widgets - data comes pre-processed as object { field_name: { widget_type, widget_params, ... } }
+		const tableWidgets = this.data.tableWidgets;
+		if (tableWidgets && Object.keys(tableWidgets).length) {
+			this.tableWidgetsList = Object.keys(tableWidgets);
+			this.tableWidgets = tableWidgets;
 		}
 
 		this.foundFields = this.fieldSearchControl.valueChanges.pipe(
@@ -196,12 +198,14 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
 			{},
 			...widgets.map((widget: any) => {
 				let params;
-				if (widget.widget_params !== '// No settings required') {
+				if (typeof widget.widget_params === 'string' && widget.widget_params !== '// No settings required') {
 					try {
 						params = JSON.parse(widget.widget_params);
 					} catch (_e) {
 						params = '';
 					}
+				} else if (typeof widget.widget_params !== 'string') {
+					params = widget.widget_params;
 				} else {
 					params = '';
 				}
