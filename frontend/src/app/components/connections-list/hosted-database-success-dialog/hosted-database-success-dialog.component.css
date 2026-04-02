@@ -130,6 +130,13 @@
 	height: 20px;
 }
 
+.hosted-dialog__copy-check {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+	margin-right: 4px;
+}
+
 .hosted-dialog__actions {
 	gap: 8px;
 	padding-top: 8px;

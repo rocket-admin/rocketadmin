@@ -81,6 +81,11 @@
 		cdkFocusInitial
 		[cdkCopyToClipboard]="credentialsText"
 		(cdkCopyToClipboardCopied)="handleCredentialsCopied()">
-		Copy connection string
+		@if (copied) {
+			<mat-icon class="hosted-dialog__copy-check">check</mat-icon>
+			Credentials copied
+		} @else {
+			Copy connection string
+		}
 	</button>
 </mat-dialog-actions>

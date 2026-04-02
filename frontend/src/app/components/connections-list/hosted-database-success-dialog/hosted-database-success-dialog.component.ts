@@ -78,9 +78,12 @@ export class HostedDatabaseSuccessDialogComponent {
 		return `postgres://${username}:${password}@${hostname}:${port}/${databaseName}`;
 	}
 
+	public copied = false;
+
 	handleCredentialsCopied(): void {
 		posthog.capture('Connections: hosted PostgreSQL credentials copied');
 		this._notifications.showSuccessSnackbar('Hosted database credentials were copied to clipboard.');
+		this.copied = true;
 	}
 
 	handlePrimaryActionClick(): void {
