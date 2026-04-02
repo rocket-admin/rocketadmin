@@ -53,6 +53,10 @@
 	.hosted-dialog__name-input::placeholder {
 		color: rgba(255, 255, 255, 0.3);
 	}
+
+	.hosted-dialog__label {
+		color: rgba(255, 255, 255, 0.7);
+	}
 }
 
 .hosted-dialog__content {
@@ -134,11 +138,11 @@
 @media (prefers-color-scheme: dark) {
 	.hosted-dialog__credentials {
 		background: transparent;
-		border-color: var(--color-accentedPalette-400);
+		border-color: rgba(255, 255, 255, 0.12);
 	}
 
 	.hosted-dialog__credentials code {
-		background: var(--color-accentedPalette-600);
+		background: rgba(255, 255, 255, 0.06);
 	}
 
 	.hosted-dialog__hint {

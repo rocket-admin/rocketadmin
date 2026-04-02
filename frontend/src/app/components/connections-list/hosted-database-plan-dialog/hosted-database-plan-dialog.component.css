@@ -59,8 +59,8 @@
 	}
 
 	.plan-dialog__option:hover {
-		border-color: var(--color-accentedPalette-500);
-		background: var(--color-accentedPalette-700);
+		border-color: color-mix(in srgb, var(--color-accentedPalette-500), transparent 65%);
+		background: color-mix(in srgb, var(--color-accentedPalette-500), transparent 92%);
 	}
 
 	.plan-dialog__option-description {
