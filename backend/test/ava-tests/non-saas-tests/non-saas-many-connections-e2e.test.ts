@@ -61,9 +61,6 @@ test.serial(
 	`> GET /connections > should return all connections without OOM when user has ${TOTAL_CONNECTIONS_COUNT} connections (${VALID_CONNECTIONS_COUNT} valid + ${INVALID_CONNECTIONS_COUNT} invalid)`,
 	async (t) => {
 		const { token, email, password } = await registerUserAndReturnUserInfo(app);
-		console.log('🚀 ~ token:\n', token, '\n');
-		console.log('🚀 ~ password:', password);
-		console.log('🚀 ~ email:', email);
 
 		const dataSource = app.get<DataSource>(BaseType.DATA_SOURCE);
 		const connectionRepository = dataSource.getRepository(ConnectionEntity);
