@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, Input, OnInit, output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -16,8 +16,6 @@ import { BaseFilterFieldComponent } from '../base-filter-field/base-filter-field
 export class DateTimeFilterComponent extends BaseFilterFieldComponent implements OnInit, AfterViewInit {
 	@Input() value: string;
 	@ViewChild('inputElement') inputElement: ElementRef<HTMLInputElement>;
-
-	override readonly onFieldChange = output<any>();
 
 	public filterMode: string = 'last_day';
 	public date: string;
@@ -68,7 +66,7 @@ export class DateTimeFilterComponent extends BaseFilterFieldComponent implements
 	}
 
 	onDateChange(): void {
-		if (!this.time) this.time = '00:00';
+		if (!this.time) this.time = '00:00:00';
 		const datetime = `${this.date}T${this.time}Z`;
 		this.onFieldChange.emit(datetime);
 		this.onComparatorChange.emit(this.filterMode);
@@ -108,6 +106,6 @@ export class DateTimeFilterComponent extends BaseFilterFieldComponent implements
 				targetDate = now;
 		}
 
-		return format(targetDate, "yyyy-MM-dd'T'HH:mm:ss'Z'");
+		return targetDate.toISOString().replace(/\.\d{3}Z$/, 'Z');
 	}
 }

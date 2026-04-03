@@ -124,7 +124,7 @@ describe('DateTimeFilterComponent', () => {
 		const fieldEvent = vi.spyOn(component.onFieldChange, 'emit');
 		component.onDateChange();
 
-		expect(component.time).toEqual('00:00');
-		expect(fieldEvent).toHaveBeenCalledWith('2021-08-26T00:00Z');
+		expect(component.time).toEqual('00:00:00');
+		expect(fieldEvent).toHaveBeenCalledWith('2021-08-26T00:00:00Z');
 	});
 });
