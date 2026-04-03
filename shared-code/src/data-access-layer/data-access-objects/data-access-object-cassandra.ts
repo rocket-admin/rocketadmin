@@ -291,6 +291,16 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
 								params.push(...inValues);
 								break;
 							}
+							case FilterCriteriaEnum.between: {
+								const betweenValues = Array.isArray(filter.value)
+									? filter.value
+									: String(filter.value)
+											.split(',')
+											.map((v) => v.trim());
+								whereConditions.push(`${filter.field.toLowerCase()} >= ? AND ${filter.field.toLowerCase()} <= ?`);
+								params.push(betweenValues[0], betweenValues[1]);
+								break;
+							}
 							default:
 								break;
 						}

@@ -293,6 +293,17 @@ export class DataAccessObjectElasticsearch extends BasicDataAccessObject impleme
 						searchQuery.query.bool.must.push({ terms: { [field]: inValues } });
 						break;
 					}
+					case FilterCriteriaEnum.between: {
+						const betweenValues = Array.isArray(value)
+							? value
+							: String(value)
+									.split(',')
+									.map((v) => v.trim());
+						searchQuery.query.bool.must.push({
+							range: { [field]: { gte: betweenValues[0], lte: betweenValues[1] } },
+						});
+						break;
+					}
 				}
 			}
 		}

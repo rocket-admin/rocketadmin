@@ -359,6 +359,21 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
 						});
 						break;
 					}
+					case FilterCriteriaEnum.between: {
+						const betweenValues = Array.isArray(value)
+							? value
+							: String(value)
+									.split(',')
+									.map((v) => v.trim());
+						filterExpression += ` AND #${field} BETWEEN ${uniquePlaceholder}_low AND ${uniquePlaceholder}_high`;
+						expressionAttributeValues[`${uniquePlaceholder}_low`] = isNumberField
+							? { N: String(betweenValues[0]) }
+							: { S: String(betweenValues[0]) };
+						expressionAttributeValues[`${uniquePlaceholder}_high`] = isNumberField
+							? { N: String(betweenValues[1]) }
+							: { S: String(betweenValues[1]) };
+						break;
+					}
 					default:
 						break;
 				}

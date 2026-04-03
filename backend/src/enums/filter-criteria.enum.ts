@@ -10,4 +10,5 @@ export enum FilterCriteriaEnum {
 	eq = 'eq',
 	empty = 'empty',
 	in = 'in',
+	between = 'between',
 }

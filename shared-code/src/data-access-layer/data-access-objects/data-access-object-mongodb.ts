@@ -284,6 +284,15 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
 						acc[field] = { $in: inValues };
 						break;
 					}
+					case FilterCriteriaEnum.between: {
+						const betweenValues = Array.isArray(value)
+							? value
+							: String(value)
+									.split(',')
+									.map((v) => v.trim());
+						acc[field] = { $gte: betweenValues[0], $lte: betweenValues[1] };
+						break;
+					}
 					default:
 						break;
 				}

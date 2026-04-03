@@ -100,6 +100,19 @@ export function findFilteringFieldsUtil(
 							.map((v) => v.trim()),
 			});
 		}
+
+		if (isObjectPropertyExists(filters, `f_${fieldname}__between`)) {
+			const rawValue = filters[`f_${fieldname}__between`];
+			filteringItems.push({
+				field: fieldname,
+				criteria: FilterCriteriaEnum.between,
+				value: Array.isArray(rawValue)
+					? rawValue
+					: String(rawValue)
+							.split(',')
+							.map((v) => v.trim()),
+			});
+		}
 	}
 	return filteringItems;
 }

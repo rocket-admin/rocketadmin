@@ -266,6 +266,13 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
 										.split(',')
 										.map((v) => v.trim());
 							builder.whereIn(field, inValues);
+						} else if (criteria === FilterCriteriaEnum.between) {
+							const betweenValues = Array.isArray(value)
+								? value
+								: String(value)
+										.split(',')
+										.map((v) => v.trim());
+							builder.whereBetween(field, [betweenValues[0], betweenValues[1]]);
 						} else {
 							builder.where(field, operators[criteria], values[criteria] || value);
 						}
@@ -657,6 +664,13 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
 										.split(',')
 										.map((v) => v.trim());
 							builder.whereIn(field, inValues);
+						} else if (criteria === FilterCriteriaEnum.between) {
+							const betweenValues = Array.isArray(value)
+								? value
+								: String(value)
+										.split(',')
+										.map((v) => v.trim());
+							builder.whereBetween(field, [betweenValues[0], betweenValues[1]]);
 						} else {
 							builder.where(field, operators[criteria], values[criteria] || value);
 						}

@@ -271,6 +271,17 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
 							whereClauses.push(`${escapedField} IN (${sanitizedValues})`);
 							break;
 						}
+						case FilterCriteriaEnum.between: {
+							const betweenValues = Array.isArray(value)
+								? value
+								: String(value)
+										.split(',')
+										.map((v) => v.trim());
+							whereClauses.push(
+								`${escapedField} BETWEEN ${this.sanitizeValue(betweenValues[0])} AND ${this.sanitizeValue(betweenValues[1])}`,
+							);
+							break;
+						}
 					}
 				}
 			}

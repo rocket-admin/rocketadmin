@@ -1858,6 +1858,15 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
 							result = inValues.some((v) => String(rowValue) === String(v));
 							break;
 						}
+						case FilterCriteriaEnum.between: {
+							const betweenValues = Array.isArray(value)
+								? value
+								: String(value)
+										.split(',')
+										.map((v) => v.trim());
+							result = Number(rowValue) >= Number(betweenValues[0]) && Number(rowValue) <= Number(betweenValues[1]);
+							break;
+						}
 						default:
 							result = true;
 							break;
