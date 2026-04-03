@@ -115,28 +115,29 @@ export class FindAllConnectionsUseCase
 			}, {} as FilteredConnection);
 		};
 
-		const connectionsWithPermissions = await Promise.all(
-			allFoundUserConnections.map(async (connection) => {
-				const accessLevel = await this.cedarPermissions.getUserConnectionAccessLevel(
-					user.id,
-					connection.id,
-				);
-				let filteredConnection: FilteredConnection = connection;
-
-				if (accessLevel === AccessLevelEnum.none) {
-					filteredConnection = filterConnectionKeys(connection, Constants.CONNECTION_KEYS_NONE_PERMISSION);
-				} else if (accessLevel !== AccessLevelEnum.edit) {
-					// eslint-disable-next-line @typescript-eslint/no-unused-vars
-					const { signing_key, ...rest } = connection;
-					filteredConnection = rest;
-				}
-
-				return {
-					connection: buildFoundConnectionDs(filteredConnection),
-					accessLevel: accessLevel,
-				};
-			}),
+		const connectionIds = allFoundUserConnections.map((c) => c.id);
+		const accessLevelsMap = await this.cedarPermissions.getUserConnectionAccessLevelsForMultipleConnections(
+			user.id,
+			connectionIds,
 		);
+
+		const connectionsWithPermissions = allFoundUserConnections.map((connection) => {
+			const accessLevel = accessLevelsMap.get(connection.id) ?? AccessLevelEnum.none;
+			let filteredConnection: FilteredConnection = connection;
+
+			if (accessLevel === AccessLevelEnum.none) {
+				filteredConnection = filterConnectionKeys(connection, Constants.CONNECTION_KEYS_NONE_PERMISSION);
+			} else if (accessLevel !== AccessLevelEnum.edit) {
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
+				const { signing_key, ...rest } = connection;
+				filteredConnection = rest;
+			}
+
+			return {
+				connection: buildFoundConnectionDs(filteredConnection),
+				accessLevel: accessLevel,
+			};
+		});
 
 		await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.connectionListReceived, user.id);
 		return {

@@ -2,6 +2,7 @@ import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
+import { decryptConnectionsCredentialsAsync } from '../../../entities/connection/utils/decrypt-connection-credentials-async.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { SuccessResponse } from '../data-structures/common-responce.ds.js';
 import { UpdateHostedConnectionPasswordDto } from '../data-structures/update-hosted-connection-password.dto.js';
@@ -31,6 +32,7 @@ export class UpdateHostedConnectionPasswordUseCase
 		const companyConnections = await this._dbContext.connectionRepository.find({
 			where: { company: { id: companyId } },
 		});
+		await decryptConnectionsCredentialsAsync(companyConnections);
 		const connection = companyConnections.find((conn) => conn.database === databaseName);
 		if (!connection) {
 			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
