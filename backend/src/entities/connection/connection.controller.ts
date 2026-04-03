@@ -41,6 +41,7 @@ import { GetGroupsInConnectionDs } from './application/data-structures/get-group
 import { GetPermissionsInConnectionDs } from './application/data-structures/get-permissions-in-connection.ds.js';
 import { RestoredConnectionDs } from './application/data-structures/restored-connection.ds.js';
 import { UpdateConnectionDs } from './application/data-structures/update-connection.ds.js';
+import { UpdateConnectionTitleDs } from './application/data-structures/update-connection-title.ds.js';
 import { UpdateMasterPasswordDs } from './application/data-structures/update-master-password.ds.js';
 import { ValidateConnectionMasterPasswordDs } from './application/data-structures/validate-connection-master-password.ds.js';
 import { CreateConnectionDto } from './application/dto/create-connection.dto.js';
@@ -51,6 +52,7 @@ import { DeleteGroupFromConnectionDTO } from './application/dto/delete-group-fro
 import { FoundUserGroupsInConnectionDTO } from './application/dto/found-user-groups-in-connection.dto.js';
 import { ConnectionTokenResponseDTO } from './application/dto/new-connection-token-response.dto.js';
 import { TestConnectionResponseDTO } from './application/dto/test-connection-response.dto.js';
+import { UpdateConnectionTitleDto } from './application/dto/update-connection-title.dto.js';
 import { UpdateMasterPasswordRequestBodyDto } from './application/dto/update-master-password-request-body.dto.js';
 import { UpdatedConnectionResponseDTO } from './application/dto/updated-connection-response.dto.js';
 import { ValidationResultRo } from './application/dto/validation-result.ro.js';
@@ -69,6 +71,7 @@ import {
 	ITestConnection,
 	IUnfreezeConnection,
 	IUpdateConnection,
+	IUpdateConnectionTitle,
 	IUpdateMasterPassword,
 	IValidateConnectionMasterPassword,
 	IValidateConnectionToken,
@@ -120,6 +123,8 @@ export class ConnectionController {
 		private readonly validateConnectionMasterPasswordUseCase: IValidateConnectionMasterPassword,
 		@Inject(UseCaseType.UNFREEZE_CONNECTION)
 		private readonly unfreezeConnectionUseCase: IUnfreezeConnection,
+		@Inject(UseCaseType.UPDATE_CONNECTION_TITLE)
+		private readonly updateConnectionTitleUseCase: IUpdateConnectionTitle,
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
 		private readonly amplitudeService: AmplitudeService,
@@ -684,5 +689,30 @@ export class ConnectionController {
 			throw new BadRequestException(Messages.CONNECTION_ID_MISSING);
 		}
 		return await this.unfreezeConnectionUseCase.execute({ connectionId, userId }, InTransactionEnum.ON);
+	}
+
+	@ApiOperation({ summary: 'Update connection title' })
+	@ApiBody({ type: UpdateConnectionTitleDto })
+	@ApiResponse({
+		status: 200,
+		type: SuccessResponse,
+		description: 'Connection title was updated.',
+	})
+	@UseGuards(ConnectionEditGuard)
+	@Put('/connection/title/:connectionId')
+	async updateConnectionTitle(
+		@Body() titleData: UpdateConnectionTitleDto,
+		@SlugUuid('connectionId') connectionId: string,
+		@UserId() userId: string,
+	): Promise<SuccessResponse> {
+		if (!connectionId) {
+			throw new BadRequestException(Messages.CONNECTION_ID_MISSING);
+		}
+		const inputData: UpdateConnectionTitleDs = {
+			connectionId,
+			userId,
+			title: titleData.title,
+		};
+		return await this.updateConnectionTitleUseCase.execute(inputData, InTransactionEnum.ON);
 	}
 }

@@ -18,6 +18,7 @@ import { TestConnectionResultDs } from '../application/data-structures/test-conn
 import { TokenDs } from '../application/data-structures/token.ds.js';
 import { UnfreezeConnectionDs } from '../application/data-structures/unfreeze-connection.ds.js';
 import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
+import { UpdateConnectionTitleDs } from '../application/data-structures/update-connection-title.ds.js';
 import { UpdateMasterPasswordDs } from '../application/data-structures/update-master-password.ds.js';
 import { ValidateConnectionMasterPasswordDs } from '../application/data-structures/validate-connection-master-password.ds.js';
 import { CreatedConnectionDTO } from '../application/dto/created-connection.dto.js';
@@ -100,4 +101,8 @@ export interface IValidateConnectionMasterPassword {
 
 export interface IUnfreezeConnection {
 	execute(inputData: UnfreezeConnectionDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+}
+
+export interface IUpdateConnectionTitle {
+	execute(inputData: UpdateConnectionTitleDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
