@@ -79,11 +79,14 @@ export class HostedDatabaseSuccessDialogComponent {
 	}
 
 	public copied = false;
+	public canClose = false;
 
 	handleCredentialsCopied(): void {
 		posthog.capture('Connections: hosted PostgreSQL credentials copied');
 		this._notifications.showSuccessSnackbar('Hosted database credentials were copied to clipboard.');
 		this.copied = true;
+		this.canClose = true;
+		setTimeout(() => { this.copied = false; }, 2000);
 	}
 
 	handlePrimaryActionClick(): void {
