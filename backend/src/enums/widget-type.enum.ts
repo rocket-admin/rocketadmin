@@ -22,4 +22,5 @@ export enum WidgetTypeEnum {
 	Range = 'Range',
 	Timezone = 'Timezone',
 	S3 = 'S3',
+	Email = 'Email',
 }

@@ -13,9 +13,3 @@
 .value-field {
 	flex: 1;
 }
-
-.field-couple {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	grid-column-gap: 16px;
-}

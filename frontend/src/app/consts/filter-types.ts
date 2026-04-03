@@ -6,11 +6,13 @@ import { TextFilterComponent } from 'src/app/components/ui-components/filter-fie
 import { CountryFilterComponent } from '../components/ui-components/filter-fields/country/country.component';
 import { DateFilterComponent } from '../components/ui-components/filter-fields/date/date.component';
 import { DateTimeFilterComponent } from '../components/ui-components/filter-fields/date-time/date-time.component';
+import { EmailFilterComponent } from '../components/ui-components/filter-fields/email/email.component';
 import { FileFilterComponent } from '../components/ui-components/filter-fields/file/file.component';
 import { ForeignKeyFilterComponent } from '../components/ui-components/filter-fields/foreign-key/foreign-key.component';
 import { IdFilterComponent } from '../components/ui-components/filter-fields/id/id.component';
 import { JsonEditorFilterComponent } from '../components/ui-components/filter-fields/json-editor/json-editor.component';
 import { PasswordFilterComponent } from '../components/ui-components/filter-fields/password/password.component';
+import { PhoneFilterComponent } from '../components/ui-components/filter-fields/phone/phone.component';
 import { SelectFilterComponent } from '../components/ui-components/filter-fields/select/select.component';
 import { StaticTextFilterComponent } from '../components/ui-components/filter-fields/static-text/static-text.component';
 import { TimeFilterComponent } from '../components/ui-components/filter-fields/time/time.component';
@@ -37,6 +39,8 @@ export const UIwidgets = {
 	Timezone: TimezoneFilterComponent,
 	Point: PointFilterComponent,
 	ID: IdFilterComponent,
+	Phone: PhoneFilterComponent,
+	Email: EmailFilterComponent,
 };
 
 export const filterTypes = {

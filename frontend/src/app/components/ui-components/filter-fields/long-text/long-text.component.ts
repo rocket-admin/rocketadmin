@@ -19,16 +19,16 @@ export class LongTextFilterComponent extends BaseFilterFieldComponent implements
 	public rowsCount: string;
 
 	ngOnInit(): void {
-		super.ngOnInit();
-		if (this.widgetStructure?.widget_params) {
-			this.rowsCount = this.widgetStructure.widget_params.rows;
+		const ws = this.widgetStructure();
+		if (ws?.widget_params) {
+			this.rowsCount = ws.widget_params.rows;
 		} else {
 			this.rowsCount = '4';
 		}
 	}
 
 	ngAfterViewInit(): void {
-		if (this.autofocus && this.inputElement) {
+		if (this.autofocus() && this.inputElement) {
 			setTimeout(() => {
 				this.inputElement.nativeElement.focus();
 			}, 100);

@@ -20,6 +20,7 @@ export class BaseEditFieldComponent implements OnInit {
 	readonly relations = input<TableForeignKey>();
 
 	readonly onFieldChange = output<any>();
+	readonly onComparatorChange = output<string>();
 
 	readonly normalizedLabel = computed(() => normalizeFieldName(this.label() || ''));
 

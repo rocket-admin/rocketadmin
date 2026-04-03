@@ -79,6 +79,7 @@ export const UIwidgets = {
 	URL: UrlEditComponent,
 	UUID: UuidEditComponent,
 	S3: S3EditComponent,
+	Email: TextEditComponent,
 };
 
 export const recordEditTypes = {

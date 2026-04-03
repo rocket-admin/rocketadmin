@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -15,10 +15,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import JsonURL from '@jsonurl/jsonurl';
 import { Angulartics2OnModule } from 'angulartics2';
 import { DynamicModule } from 'ng-dynamic-component';
+import { SignalComponentIoModule } from 'ng-dynamic-component/signal-component-io';
 import posthog from 'posthog-js';
 import { PlaceholderSavedFiltersComponent } from 'src/app/components/skeletons/placeholder-saved-filters/placeholder-saved-filters.component';
-import { filterTypes } from 'src/app/consts/filter-types';
-import { UIwidgets } from 'src/app/consts/record-edit-types';
+import { UIwidgets as FilterUIwidgets, filterTypes } from 'src/app/consts/filter-types';
+import { UIwidgets as EditUIwidgets } from 'src/app/consts/record-edit-types';
 import { normalizeTableName } from 'src/app/lib/normalize';
 import { TableField, TableForeignKey } from 'src/app/models/table';
 import { AccessLevel } from 'src/app/models/user';
@@ -32,6 +33,7 @@ import { SavedFiltersDialogComponent } from './saved-filters-dialog/saved-filter
 		CommonModule,
 		FormsModule,
 		DynamicModule,
+		SignalComponentIoModule,
 		MatButtonModule,
 		MatIconModule,
 		MatChipsModule,
@@ -56,7 +58,6 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
 	@Input() structure: any;
 	@Input() tableForeignKeys: TableForeignKey[] = [];
 	@Input() tableWidgets: any = {};
-	// @Input() savedFilterData: any;
 	@Output() filterSelected = new EventEmitter<any>();
 	@Input() resetSelection: boolean = false;
 
@@ -75,8 +76,7 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
 	public tableStructure: any = null;
 	public tableRowFieldsShown: { [key: string]: any } = {};
 	public tableRowStructure: { [key: string]: any } = {};
-	public tableWidgetsList: string[] = [];
-	public UIwidgets = UIwidgets;
+	public UIwidgets = { ...EditUIwidgets, ...FilterUIwidgets };
 
 	public displayedComparators = {
 		eq: '=',
@@ -240,8 +240,8 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
 		});
 	}
 
-	ngOnChanges() {
-		if (this.resetSelection) {
+	ngOnChanges(changes: SimpleChanges) {
+		if (changes.resetSelection && this.resetSelection) {
 			this.selectedFilterSetId = null;
 		}
 	}
@@ -270,9 +270,6 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
 						},
 			},
 		});
-
-		// No need to handle URL updates here - it's now handled in the tables.cast subscription
-		// when 'filters set updated' is received
 	}
 
 	setCurrentFilter(filter: any) {
@@ -288,9 +285,7 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
 	handleDeleteFilter(filter: any) {
 		if (filter) {
 			this._tables.deleteSavedFilter(this.connectionID, this.selectedTableName, filter.id).subscribe({
-				next: () => {
-					// The deletion will trigger 'delete saved filters' event which will refresh the list
-				},
+				next: () => {},
 				error: (error) => {
 					console.error('Error deleting filter:', error);
 				},
@@ -367,7 +362,6 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
 	}
 
 	selectFiltersSet(selectedFilterSetId: string): void {
-		console.log('selectFiltersSet ID:', selectedFilterSetId);
 		if (this.selectedFilterSetId === selectedFilterSetId) {
 			this.selectedFilterSetId = null;
 			this.filterSelected.emit(null);
@@ -395,7 +389,6 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
 			const queryParams = this.buildQueryParams(additionalParams);
 			this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams });
 
-			// Reset autofocus after the component has been rendered
 			setTimeout(() => {
 				this.shouldAutofocus = false;
 			}, 500);
@@ -446,7 +439,7 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
 	}
 
 	isWidget(columnName: string) {
-		return this.tableWidgetsList.includes(columnName);
+		return this.tableWidgets && columnName in this.tableWidgets;
 	}
 
 	getInputType(field: string) {
@@ -467,28 +460,6 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
 		} else {
 			return 'nonComparable';
 		}
-	}
-
-	setWidgets(widgets: any[]) {
-		this.tableWidgetsList = widgets.map((widget: any) => widget.field_name);
-		this.tableWidgets = Object.assign(
-			{},
-			...widgets.map((widget: any) => {
-				let params;
-				if (widget.widget_params !== '// No settings required') {
-					try {
-						params = JSON.parse(widget.widget_params);
-					} catch (_e) {
-						params = '';
-					}
-				} else {
-					params = '';
-				}
-				return {
-					[widget.field_name]: { ...widget, widget_params: params },
-				};
-			}),
-		);
 	}
 
 	trackByFn(_index: number, item: any) {
@@ -546,8 +517,6 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
 			return;
 		}
 
-		console.log(value, 'value in updateDynamicColumnValue');
-
 		selectedFilter.dynamicColumn.value = value;
 
 		if (this.dynamicColumnValueDebounceTimer) {
@@ -563,8 +532,6 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
 		if (!this.selectedFilterSetId) return;
 
 		const selectedFilter = this.savedFilterMap[this.selectedFilterSetId];
-
-		console.log('Applying dynamic column changes for filter selectedFilter:', selectedFilter);
 
 		if (!selectedFilter || !selectedFilter.dynamicColumn) return;
 
@@ -590,9 +557,6 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
 			}
 		}
 
-		console.log('applyDynamicColumnChanges, filters:', filters);
-
-		// Build filter-related params using the helper method
 		const additionalParams: any = {
 			filters: JsonURL.stringify(filters),
 			dynamic_column: JsonURL.stringify(dynamicColumn),
