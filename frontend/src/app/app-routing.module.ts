@@ -1,19 +1,17 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { provideZxvbnServiceForPSM } from 'angular-password-strength-meter/zxcvbn';
-import { AuthGuard } from './auth.guard';
+import { AuthGuard } from './guards/auth.guard';
 import { configurationGuard } from './guards/configuration.guard';
+import { noAuthGuard } from './guards/no-auth.guard';
 import { setupGuard } from './guards/setup.guard';
 
 const routes: Routes = [
 	{ path: '', redirectTo: '/connections-list', pathMatch: 'full' },
 	{
-		path: 'loader',
-		loadComponent: () => import('./components/page-loader/page-loader.component').then((m) => m.PageLoaderComponent),
-	},
-	{
 		path: 'registration',
 		loadChildren: () => import('./routes/registration.routes').then((m) => m.REGISTRATION_ROUTES),
+		canActivate: [noAuthGuard],
 	},
 	{
 		path: 'setup',
@@ -25,8 +23,13 @@ const routes: Routes = [
 	{
 		path: 'login',
 		loadComponent: () => import('./components/login/login.component').then((m) => m.LoginComponent),
-		canActivate: [configurationGuard],
+		canActivate: [noAuthGuard, configurationGuard],
 		title: 'Login | Rocketadmin',
+	},
+	{
+		path: 'demo',
+		loadComponent: () => import('./components/demo-login/demo-login.component').then((m) => m.DemoLoginComponent),
+		title: 'Demo | Rocketadmin',
 	},
 	{
 		path: 'forget-password',

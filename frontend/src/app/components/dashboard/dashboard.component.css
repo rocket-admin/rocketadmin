@@ -180,6 +180,118 @@
 	}
 }
 
+/* ── Status banner ── */
+
+.status-banner {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 12px 20px;
+	width: 100%;
+	border: none;
+	border-left: 3px solid var(--color-accentedPalette-500);
+	border-radius: 0;
+	background: var(--color-accentedPalette-50);
+	font-size: 13px;
+}
+
+.status-banner__icon {
+	flex-shrink: 0;
+	color: var(--color-accentedPalette-500);
+	font-size: 20px;
+	width: 20px;
+	height: 20px;
+}
+
+.status-banner__body {
+	flex: 1;
+	display: flex;
+	align-items: baseline;
+	gap: 6px;
+	min-width: 0;
+}
+
+.status-banner__title {
+	color: var(--color-accentedPalette-900);
+	white-space: nowrap;
+}
+
+.status-banner__subtitle {
+	color: var(--color-accentedPalette-700);
+}
+
+.status-banner__link {
+	color: var(--color-accentedPalette-500);
+	text-decoration: underline;
+}
+
+.status-banner__link:hover {
+	color: var(--color-accentedPalette-700);
+}
+
+.status-banner__progress {
+	flex-shrink: 0;
+	width: 80px;
+	height: 3px;
+	border-radius: 2px;
+	background: var(--color-accentedPalette-100);
+	overflow: hidden;
+}
+
+.status-banner__progress-fill {
+	width: 40%;
+	height: 100%;
+	border-radius: 2px;
+	background: var(--color-accentedPalette-500);
+	animation: banner-indeterminate 1.5s ease-in-out infinite;
+}
+
+@keyframes banner-indeterminate {
+	0% { transform: translateX(-100%); }
+	100% { transform: translateX(350%); }
+}
+
+@media (prefers-color-scheme: dark) {
+	.status-banner {
+		background: var(--color-accentedPalette-900);
+	}
+
+	.status-banner__title {
+		color: var(--color-accentedPalette-100);
+	}
+
+	.status-banner__subtitle {
+		color: var(--color-accentedPalette-200);
+	}
+
+	.status-banner__link {
+		color: var(--color-accentedPalette-500);
+	}
+
+	.status-banner__link:hover {
+		color: var(--color-accentedPalette-200);
+	}
+
+	.status-banner__icon {
+		color: var(--color-accentedPalette-500);
+	}
+
+	.status-banner__progress {
+		background: var(--color-accentedPalette-800);
+	}
+
+	.status-banner__progress-fill {
+		background: var(--color-accentedPalette-300);
+	}
+}
+
+@media (width <= 600px) {
+	.status-banner__body {
+		flex-direction: column;
+		gap: 2px;
+	}
+}
+
 .error-details {
 	margin-top: 8px;
 }

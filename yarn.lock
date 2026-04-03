@@ -5570,7 +5570,7 @@ __metadata:
     lru-cache: ^11.2.7
     nanoid: 5.1.7
     nock: ^14.0.11
-    nodemailer: ^8.0.2
+    nodemailer: ^8.0.4
     nunjucks: ^3.2.4
     openai: ^6.32.0
     otplib: ^12.0.1
@@ -9778,10 +9778,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nodemailer@npm:^8.0.2":
-  version: 8.0.2
-  resolution: "nodemailer@npm:8.0.2"
-  checksum: c1f25222bd9131b1850e50ca3bbdb7884ec909a1341dfe3ec9048666316d359afb5bcb52b857ecffc1bc54fad2779babae001a2e05b6b3c44183e54f74e48730
+"nodemailer@npm:^8.0.4":
+  version: 8.0.4
+  resolution: "nodemailer@npm:8.0.4"
+  checksum: 5c038b8ac8154d12cc5de01a70489de6a05a80ef5576b1ced3ec17670dcf04f9d2cc81dd44c4e23e1d81c20c4b0a6b97cf45f32f52593e5125eb522e2bbdea21
   languageName: node
   linkType: hard
 
