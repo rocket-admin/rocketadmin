@@ -24,9 +24,11 @@ import { UserEntity } from '../../entities/user/user.entity.js';
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
+import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
 import { CreatedConnectionResponse, SuccessResponse } from './data-structures/common-responce.ds.js';
 import { CreateConnectionForHostedDbDto } from './data-structures/create-connecttion-for-selfhosted-db.dto.js';
 import { DeleteConnectionForHostedDbDto } from './data-structures/delete-connection-for-hosted-db.dto.js';
+import { GetConnectionsInfoByIdsDS } from './data-structures/get-connections-info-by-ids.ds.js';
 import { RegisterCompanyWebhookDS } from './data-structures/register-company.ds.js';
 import { RegisteredCompanyDS } from './data-structures/registered-company.ds.js';
 import { SaasRegisterUserWithGithub } from './data-structures/saas-register-user-with-github.js';
@@ -38,6 +40,7 @@ import {
 	ICreateConnectionForHostedDb,
 	IDeleteConnectionForHostedDb,
 	IFreezeConnectionsInCompany,
+	IGetConnectionsInfoByIds,
 	IGetUserInfo,
 	ILoginUserWithGitHub,
 	ILoginUserWithGoogle,
@@ -95,6 +98,8 @@ export class SaasController {
 		private readonly deleteConnectionForHostedDbUseCase: IDeleteConnectionForHostedDb,
 		@Inject(UseCaseType.SAAS_UPDATE_HOSTED_CONNECTION_PASSWORD)
 		private readonly updateHostedConnectionPasswordUseCase: IUpdateHostedConnectionPassword,
+		@Inject(UseCaseType.SAAS_GET_CONNECTIONS_INFO_BY_IDS)
+		private readonly getConnectionsInfoByIdsUseCase: IGetConnectionsInfoByIds,
 	) {}
 
 	@ApiOperation({ summary: 'Company registered webhook' })
@@ -325,5 +330,18 @@ export class SaasController {
 		@Body() updatePasswordData: UpdateHostedConnectionPasswordDto,
 	): Promise<SuccessResponse> {
 		return await this.updateHostedConnectionPasswordUseCase.execute(updatePasswordData);
+	}
+
+	@ApiOperation({ summary: 'Get connections info by ids' })
+	@ApiBody({ type: GetConnectionsInfoByIdsDS })
+	@ApiResponse({
+		status: 200,
+		type: [ConnectionEntity],
+	})
+	@Post('/connections/info')
+	async getConnectionsInfoByIds(
+		@Body() connectionsData: GetConnectionsInfoByIdsDS,
+	): Promise<Array<ConnectionEntity>> {
+		return await this.getConnectionsInfoByIdsUseCase.execute(connectionsData);
 	}
 }
