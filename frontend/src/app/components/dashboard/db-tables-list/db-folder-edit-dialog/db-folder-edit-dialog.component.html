@@ -5,13 +5,12 @@
 <mat-dialog-content class="dialog-body">
     <!-- Folder Name Section -->
     <div class="folder-name-section">
-        <h4>Folder name</h4>
         <mat-form-field appearance="outline" class="folder-name-field">
+            <mat-label>Folder name</mat-label>
             <input matInput
                    type="text"
                    [(ngModel)]="folder.name"
                    [disabled]="isAllTablesFolder()"
-                   placeholder="Enter folder name"
                    required
                    #nameInput>
             <mat-hint *ngIf="isAllTablesFolder()">The "All Tables" folder cannot be renamed</mat-hint>
