@@ -40,15 +40,8 @@ export class HostedDatabaseRenameDialogComponent {
 
 		this.saving = true;
 		try {
-			// Fetch the current connection to preserve all fields
-			const res = await firstValueFrom(
-				this._http.get<any>(`/connection/one/${this.data.connectionId}`),
-			);
-			const connection = res.connection;
-			connection.title = title;
-
 			await firstValueFrom(
-				this._http.put(`/connection/${this.data.connectionId}`, connection),
+				this._connectionsService.updateConnectionSettings(this.data.connectionId, { company_name: title }),
 			);
 			this._connectionsService.fetchConnections().subscribe();
 			this._dialogRef.close(title);
