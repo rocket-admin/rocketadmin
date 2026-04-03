@@ -1,4 +1,5 @@
 import { Constants } from '../../../helpers/constants/constants.js';
+import { decryptConnectionsCredentialsAsync } from '../../connection/utils/decrypt-connection-credentials-async.js';
 import { CreateUserDs } from '../application/data-structures/create-user.ds.js';
 import { RegisterUserDs } from '../application/data-structures/register-user-ds.js';
 import { ExternalRegistrationProviderEnum } from '../enums/external-registration-provider.enum.js';
@@ -152,10 +153,14 @@ export const userCustomRepositoryExtension: IUserRepository = {
 	},
 
 	async findUserWithConnections(userId: string): Promise<UserEntity> {
-		return await this.findOne({
+		const user = await this.findOne({
 			where: { id: userId },
 			relations: ['connections'],
 		});
+		if (user?.connections?.length) {
+			await decryptConnectionsCredentialsAsync(user.connections);
+		}
+		return user;
 	},
 
 	async findUsersWithoutLogs(): Promise<Array<UserEntity>> {
