@@ -1,6 +1,6 @@
 import { CompanyInfoEntity } from '../../../entities/company-info/company-info.entity.js';
 import { CreatedConnectionDTO } from '../../../entities/connection/application/dto/created-connection.dto.js';
-import { ConnectionEntity } from '../../../entities/connection/connection.entity.js';
+import { FoundConnectionInfoRO } from '../data-structures/found-connection-info.ro.js';
 import { SaaSRegisterDemoUserAccountDS } from '../../../entities/user/application/data-structures/demo-user-account-register.ds.js';
 import { SaasUsualUserRegisterDS } from '../../../entities/user/application/data-structures/usual-register-user.ds.js';
 import { FoundUserDto } from '../../../entities/user/dto/found-user.dto.js';
@@ -86,5 +86,5 @@ export interface IUpdateHostedConnectionPassword {
 }
 
 export interface IGetConnectionsInfoByIds {
-	execute(inputData: GetConnectionsInfoByIdsDS): Promise<Array<ConnectionEntity>>;
+	execute(inputData: GetConnectionsInfoByIdsDS): Promise<Array<FoundConnectionInfoRO>>;
 }

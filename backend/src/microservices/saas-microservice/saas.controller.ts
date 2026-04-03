@@ -24,8 +24,8 @@ import { UserEntity } from '../../entities/user/user.entity.js';
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
-import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
 import { CreatedConnectionResponse, SuccessResponse } from './data-structures/common-responce.ds.js';
+import { FoundConnectionInfoRO } from './data-structures/found-connection-info.ro.js';
 import { CreateConnectionForHostedDbDto } from './data-structures/create-connecttion-for-selfhosted-db.dto.js';
 import { DeleteConnectionForHostedDbDto } from './data-structures/delete-connection-for-hosted-db.dto.js';
 import { GetConnectionsInfoByIdsDS } from './data-structures/get-connections-info-by-ids.ds.js';
@@ -336,12 +336,12 @@ export class SaasController {
 	@ApiBody({ type: GetConnectionsInfoByIdsDS })
 	@ApiResponse({
 		status: 200,
-		type: [ConnectionEntity],
+		type: [FoundConnectionInfoRO],
 	})
 	@Post('/connections/info')
 	async getConnectionsInfoByIds(
 		@Body() connectionsData: GetConnectionsInfoByIdsDS,
-	): Promise<Array<ConnectionEntity>> {
+	): Promise<Array<FoundConnectionInfoRO>> {
 		return await this.getConnectionsInfoByIdsUseCase.execute(connectionsData);
 	}
 }
