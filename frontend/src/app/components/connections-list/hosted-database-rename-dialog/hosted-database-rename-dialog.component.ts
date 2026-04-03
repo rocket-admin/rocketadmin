@@ -1,4 +1,3 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, Inject, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -21,7 +20,6 @@ export interface HostedDatabaseRenameDialogData {
 	imports: [MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule, FormsModule],
 })
 export class HostedDatabaseRenameDialogComponent {
-	private _http = inject(HttpClient);
 	private _connectionsService = inject(ConnectionsService);
 
 	title = '';
@@ -41,7 +39,7 @@ export class HostedDatabaseRenameDialogComponent {
 		this.saving = true;
 		try {
 			await firstValueFrom(
-				this._connectionsService.updateConnectionSettings(this.data.connectionId, { company_name: title }),
+				this._connectionsService.updateConnectionTitle(this.data.connectionId, title),
 			);
 			this._connectionsService.fetchConnections().subscribe();
 			this._dialogRef.close(title);

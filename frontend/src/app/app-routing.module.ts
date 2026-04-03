@@ -8,10 +8,6 @@ import { setupGuard } from './guards/setup.guard';
 const routes: Routes = [
 	{ path: '', redirectTo: '/connections-list', pathMatch: 'full' },
 	{
-		path: 'loader',
-		loadComponent: () => import('./components/page-loader/page-loader.component').then((m) => m.PageLoaderComponent),
-	},
-	{
 		path: 'registration',
 		loadChildren: () => import('./routes/registration.routes').then((m) => m.REGISTRATION_ROUTES),
 	},
