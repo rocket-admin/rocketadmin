@@ -9,4 +9,5 @@ export enum FilterCriteriaEnum {
 	icontains = 'icontains',
 	eq = 'eq',
 	empty = 'empty',
+	in = 'in',
 }

@@ -1849,6 +1849,15 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
 						case FilterCriteriaEnum.empty:
 							result = rowValue === null || rowValue === undefined || rowValue === '';
 							break;
+						case FilterCriteriaEnum.in: {
+							const inValues = Array.isArray(value)
+								? value
+								: String(value)
+										.split(',')
+										.map((v) => v.trim());
+							result = inValues.some((v) => String(rowValue) === String(v));
+							break;
+						}
 						default:
 							result = true;
 							break;

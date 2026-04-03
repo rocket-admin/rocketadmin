@@ -4,19 +4,19 @@ import * as csv from 'csv';
 import { Readable, Stream } from 'stream';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
+import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
+import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
 import { ForeignKeyDS } from '../shared/data-structures/foreign-key.ds.js';
 import { FoundRowsDS } from '../shared/data-structures/found-rows.ds.js';
 import { PrimaryKeyDS } from '../shared/data-structures/primary-key.ds.js';
 import { ReferencedTableNamesAndColumnsDS } from '../shared/data-structures/referenced-table-names-columns.ds.js';
+import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TableSettingsDS } from '../shared/data-structures/table-settings.ds.js';
 import { TableStructureDS } from '../shared/data-structures/table-structure.ds.js';
-import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
-import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
-import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
 
 export class DataAccessObjectElasticsearch extends BasicDataAccessObject implements IDataAccessObject {
@@ -284,6 +284,15 @@ export class DataAccessObjectElasticsearch extends BasicDataAccessObject impleme
 							exists: { field },
 						});
 						break;
+					case FilterCriteriaEnum.in: {
+						const inValues = Array.isArray(value)
+							? value
+							: String(value)
+									.split(',')
+									.map((v) => v.trim());
+						searchQuery.query.bool.must.push({ terms: { [field]: inValues } });
+						break;
+					}
 				}
 			}
 		}

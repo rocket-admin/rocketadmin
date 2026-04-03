@@ -13,7 +13,7 @@ export class FilteringFieldsDs {
 	criteria: FilterCriteriaEnum;
 
 	@ApiProperty()
-	value: string;
+	value: unknown;
 }
 
 export class ForeignKeyDSInfo {

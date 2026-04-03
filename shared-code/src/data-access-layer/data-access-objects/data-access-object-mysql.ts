@@ -1,33 +1,34 @@
 /* eslint-disable security/detect-object-injection */
+
+import { Readable, Stream } from 'node:stream';
+import * as csv from 'csv';
+import { Knex } from 'knex';
+import { nanoid } from 'nanoid';
 import { LRUStorage } from '../../caching/lru-storage.js';
 import { checkFieldAutoincrement } from '../../helpers/check-field-autoincrement.js';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
+import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
+import { getNumbersFromString } from '../../helpers/get-numbers-from-string.js';
 import { getPropertyValueByDescriptor } from '../../helpers/get-property-value-by-descriptor.js';
+import { isMySQLDateStringByRegexp, isMySqlDateOrTimeType } from '../../helpers/is-database-date.js';
+import { objectKeysToLowercase } from '../../helpers/object-kyes-to-lowercase.js';
+import { renameObjectKeyName } from '../../helpers/rename-object-keyname.js';
 import { setPropertyValue } from '../../helpers/set-property-value.js';
+import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
+import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
+import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
 import { ForeignKeyDS } from '../shared/data-structures/foreign-key.ds.js';
 import { FoundRowsDS } from '../shared/data-structures/found-rows.ds.js';
 import { PrimaryKeyDS } from '../shared/data-structures/primary-key.ds.js';
 import { ReferencedTableNamesAndColumnsDS } from '../shared/data-structures/referenced-table-names-columns.ds.js';
+import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TableSettingsDS } from '../shared/data-structures/table-settings.ds.js';
 import { TableStructureDS } from '../shared/data-structures/table-structure.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
-import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
-import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
-import { objectKeysToLowercase } from '../../helpers/object-kyes-to-lowercase.js';
-import { Knex } from 'knex';
-import { renameObjectKeyName } from '../../helpers/rename-object-keyname.js';
-import { getNumbersFromString } from '../../helpers/get-numbers-from-string.js';
-import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
-import { TableDS } from '../shared/data-structures/table.ds.js';
-import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
-import { Stream, Readable } from 'node:stream';
-import * as csv from 'csv';
-import { isMySqlDateOrTimeType, isMySQLDateStringByRegexp } from '../../helpers/is-database-date.js';
-import { nanoid } from 'nanoid';
 
 export class DataAccessObjectMysql extends BasicDataAccessObject implements IDataAccessObject {
 	public async addRowInTable(
@@ -258,7 +259,16 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
 							[FilterCriteriaEnum.icontains]: `%${value}%`,
 							[FilterCriteriaEnum.empty]: null,
 						};
-						builder.where(field, operators[criteria], values[criteria] || value);
+						if (criteria === FilterCriteriaEnum.in) {
+							const inValues = Array.isArray(value)
+								? value
+								: String(value)
+										.split(',')
+										.map((v) => v.trim());
+							builder.whereIn(field, inValues);
+						} else {
+							builder.where(field, operators[criteria], values[criteria] || value);
+						}
 					}
 				}
 				return builder;
@@ -640,7 +650,16 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
 							[FilterCriteriaEnum.icontains]: `%${value}%`,
 							[FilterCriteriaEnum.empty]: null,
 						};
-						builder.where(field, operators[criteria], values[criteria] || value);
+						if (criteria === FilterCriteriaEnum.in) {
+							const inValues = Array.isArray(value)
+								? value
+								: String(value)
+										.split(',')
+										.map((v) => v.trim());
+							builder.whereIn(field, inValues);
+						} else {
+							builder.where(field, operators[criteria], values[criteria] || value);
+						}
 					}
 				}
 			})
