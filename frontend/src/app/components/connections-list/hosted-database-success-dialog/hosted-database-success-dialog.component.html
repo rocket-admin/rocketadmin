@@ -3,26 +3,6 @@
 </h1>
 
 <mat-dialog-content class="hosted-dialog__content">
-	<div class="hosted-dialog__name-field">
-		<label class="hosted-dialog__name-label">Connection name</label>
-		<div class="hosted-dialog__name-row">
-			<input
-				class="hosted-dialog__name-input"
-				[(ngModel)]="connectionTitle"
-				placeholder="e.g. Production DB, Staging, My App"
-				(keyup.enter)="saveTitle()">
-			<button
-				type="button"
-				mat-flat-button
-				color="accent"
-				class="hosted-dialog__name-save"
-				[disabled]="!titleChanged || _saving"
-				(click)="saveTitle()">
-				{{ _saving ? 'Saving...' : 'Save' }}
-			</button>
-		</div>
-	</div>
-
 	@if (data.connectionId) {
 		<p class="hosted-dialog__description">
 			Your hosted PostgreSQL database is provisioned and already connected to RocketAdmin.

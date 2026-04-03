@@ -23,6 +23,10 @@ import {
 	HostedDatabasePlanDialogComponent,
 } from '../hosted-database-plan-dialog/hosted-database-plan-dialog.component';
 import {
+	HostedDatabaseRenameDialogComponent,
+	HostedDatabaseRenameDialogData,
+} from '../hosted-database-rename-dialog/hosted-database-rename-dialog.component';
+import {
 	HostedDatabaseSuccessDialogComponent,
 	HostedDatabaseSuccessDialogData,
 } from '../hosted-database-success-dialog/hosted-database-success-dialog.component';
@@ -218,11 +222,28 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 	}
 
 	private _openHostedDatabaseDialog(data: HostedDatabaseSuccessDialogData): void {
-		this._dialog.open(HostedDatabaseSuccessDialogComponent, {
+		const dialogRef = this._dialog.open(HostedDatabaseSuccessDialogComponent, {
 			width: '42em',
 			maxWidth: '95vw',
 			data,
 			disableClose: true,
+		});
+
+		dialogRef.afterClosed().subscribe(() => {
+			if (data.connectionId) {
+				this._openRenameDialog({
+					connectionId: data.connectionId,
+					hostedDatabase: data.hostedDatabase,
+				});
+			}
+		});
+	}
+
+	private _openRenameDialog(data: HostedDatabaseRenameDialogData): void {
+		this._dialog.open(HostedDatabaseRenameDialogComponent, {
+			width: '28em',
+			maxWidth: '95vw',
+			data,
 		});
 	}
 
