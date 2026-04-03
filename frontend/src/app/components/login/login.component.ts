@@ -6,9 +6,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import { accounts } from 'google-one-tap';
 import posthog from 'posthog-js';
@@ -37,7 +36,6 @@ declare var google: any;
 		MatSelectModule,
 		MatIconModule,
 		MatButtonModule,
-		MatProgressSpinnerModule,
 		EmailValidationDirective,
 		AlertComponent,
 		Angulartics2OnModule,
@@ -59,7 +57,6 @@ export class LoginComponent implements OnInit, AfterViewInit {
 	public submitting: boolean;
 	public isPasswordFieldShown: boolean = false;
 	public is2FAShown: boolean = false;
-	public isDemoMode: boolean = false;
 	public errors = {
 		'No_user_registered_with_this_GitHub_account.': 'No user registered with this GitHub account.',
 		'GitHub_login_failed._Please_contact_our_support_team.': 'GitHub login failed. Please contact our support team.',
@@ -68,7 +65,6 @@ export class LoginComponent implements OnInit, AfterViewInit {
 	constructor(
 		private _auth: AuthService,
 		public router: Router,
-		private _route: ActivatedRoute,
 		private angulartics2: Angulartics2,
 		private ngZone: NgZone,
 		private _notifications: NotificationsService,
@@ -77,7 +73,6 @@ export class LoginComponent implements OnInit, AfterViewInit {
 	) {}
 
 	ngOnInit(): void {
-		this.isDemoMode = this._route.snapshot.queryParams['mode'] === 'demo';
 		this.isCustomDomain = this._company.isCustomDomain() && this.isSaas;
 
 		const error = new URLSearchParams(location.search).get('error');
@@ -92,7 +87,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
 	}
 
 	ngAfterViewInit() {
-		if (this.isSaas && !this.isDemoMode) {
+		if (this.isSaas) {
 			const gAccounts: accounts = google.accounts;
 			gAccounts.id.initialize({
 				client_id: '681163285738-e4l0lrv5vv7m616ucrfhnhso9r396lum.apps.googleusercontent.com',

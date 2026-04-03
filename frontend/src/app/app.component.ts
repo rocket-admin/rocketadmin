@@ -13,7 +13,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
 import { User } from '@sentry/angular';
 import amplitude from 'amplitude-js';
-import { Angulartics2, Angulartics2Amplitude, Angulartics2OnModule } from 'angulartics2';
+import { Angulartics2Amplitude, Angulartics2OnModule } from 'angulartics2';
 import { differenceInMilliseconds } from 'date-fns';
 import posthog from 'posthog-js';
 import { Subject } from 'rxjs';
@@ -95,7 +95,6 @@ export class AppComponent {
 		_tables: TablesService,
 		private _uiSettings: UiSettingsService,
 		angulartics2Amplitude: Angulartics2Amplitude,
-		private angulartics2: Angulartics2,
 		private domSanitizer: DomSanitizer,
 		private matIconRegistry: MatIconRegistry,
 		_posthog: PosthogService,
@@ -168,16 +167,6 @@ export class AppComponent {
 			this.page = this.router.routerState.snapshot.url.split('?')[0];
 
 			console.log('Navigated to page:', this.page);
-
-			if (this.router.routerState.snapshot.root.queryParams.mode === 'demo') {
-				console.log('App component, demo mode search params found');
-				this._auth.loginToDemoAccount().subscribe(() => {
-					this.angulartics2.eventTrack.next({
-						action: 'Demo account is logged in',
-					});
-					posthog.capture('Demo account is logged in');
-				});
-			}
 		});
 
 		const expirationDateFromURL = new URLSearchParams(location.search).get('expires');
