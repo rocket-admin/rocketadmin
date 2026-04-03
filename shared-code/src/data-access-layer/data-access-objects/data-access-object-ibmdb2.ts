@@ -316,6 +316,25 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
 							return `${filterObject.field} NOT LIKE ?`;
 						case FilterCriteriaEnum.empty:
 							return `(${filterObject.field} IS NULL)`;
+						case FilterCriteriaEnum.in: {
+							const inValues = Array.isArray(filterObject.value)
+								? filterObject.value
+								: String(filterObject.value)
+										.split(',')
+										.map((v) => v.trim());
+							const placeholders = inValues.map(() => '?').join(', ');
+							queryParams.push(...(inValues as SQLParam[]));
+							return `${filterObject.field} IN (${placeholders})`;
+						}
+						case FilterCriteriaEnum.between: {
+							const betweenValues = Array.isArray(filterObject.value)
+								? filterObject.value
+								: String(filterObject.value)
+										.split(',')
+										.map((v) => v.trim());
+							queryParams.push(betweenValues[0] as SQLParam, betweenValues[1] as SQLParam);
+							return `${filterObject.field} BETWEEN ? AND ?`;
+						}
 					}
 				})
 				.join(' AND ');

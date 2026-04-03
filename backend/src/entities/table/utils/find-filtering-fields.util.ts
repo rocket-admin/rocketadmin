@@ -87,6 +87,32 @@ export function findFilteringFieldsUtil(
 				value: filters[`f_${fieldname}__empty`],
 			});
 		}
+
+		if (isObjectPropertyExists(filters, `f_${fieldname}__in`)) {
+			const rawValue = filters[`f_${fieldname}__in`];
+			filteringItems.push({
+				field: fieldname,
+				criteria: FilterCriteriaEnum.in,
+				value: Array.isArray(rawValue)
+					? rawValue
+					: String(rawValue)
+							.split(',')
+							.map((v) => v.trim()),
+			});
+		}
+
+		if (isObjectPropertyExists(filters, `f_${fieldname}__between`)) {
+			const rawValue = filters[`f_${fieldname}__between`];
+			filteringItems.push({
+				field: fieldname,
+				criteria: FilterCriteriaEnum.between,
+				value: Array.isArray(rawValue)
+					? rawValue
+					: String(rawValue)
+							.split(',')
+							.map((v) => v.trim()),
+			});
+		}
 	}
 	return filteringItems;
 }
@@ -99,7 +125,7 @@ export function parseFilteringFieldsFromBodyData(
 	const rowNames = tableStructure.map((el) => el.column_name);
 	rowNames.forEach((rowName) => {
 		if (isObjectPropertyExists(filtersDataFromBody, rowName)) {
-			const filterData = filtersDataFromBody[rowName] as Record<string, string>;
+			const filterData = filtersDataFromBody[rowName] as Record<string, unknown>;
 			for (const key in filterData) {
 				if (!validateStringWithEnum(key, FilterCriteriaEnum)) {
 					throw new Error(`Invalid filter criteria: "${key}".`);
