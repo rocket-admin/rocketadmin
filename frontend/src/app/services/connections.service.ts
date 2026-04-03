@@ -556,6 +556,21 @@ export class ConnectionsService {
 		);
 	}
 
+	updateConnectionTitle(connectionID: string, title: string) {
+		return this._http.put(`/connection/title/${connectionID}`, { title }).pipe(
+			map((res) => {
+				this._notifications.showSuccessSnackbar('Connection title has been updated successfully.');
+				return res;
+			}),
+			catchError((err) => {
+				console.log(err);
+				const errorMessage = err.error?.message || 'Unknown error';
+				this._notifications.showErrorSnackbar(`${errorMessage}.`);
+				return EMPTY;
+			}),
+		);
+	}
+
 	deleteConnectionSettings(connectionID: string) {
 		return this._http.delete(`/connection/properties/${connectionID}`).pipe(
 			map(() => {

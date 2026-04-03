@@ -1,0 +1,21 @@
+.rename-dialog__content {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	min-width: min(100%, 28rem);
+}
+
+.rename-dialog__description {
+	margin: 0;
+	opacity: 0.65;
+	font-size: 14px;
+}
+
+.rename-dialog__field {
+	width: 100%;
+}
+
+.rename-dialog__actions {
+	gap: 8px;
+	padding-top: 8px;
+}
