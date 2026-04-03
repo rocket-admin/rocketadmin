@@ -1822,3 +1822,141 @@ test.serial(`${currentTest} should unfreeze connection`, async (t) => {
 	const result = findOneResponce.body.connection;
 	t.is(result.isFrozen, false);
 });
+
+currentTest = 'PUT /connection/title';
+test.serial(`${currentTest} should return success when updating connection title`, async (t) => {
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const newPgConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
+
+	const createConnectionResult = await request(app.getHttpServer())
+		.post('/connection')
+		.send(newPgConnection)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(createConnectionResult.status, 201);
+
+	const createConnectionRO = JSON.parse(createConnectionResult.text);
+	const { id } = createConnectionRO;
+
+	const newTitle = 'Renamed Connection';
+	const updateTitleResponse = await request(app.getHttpServer())
+		.put(`/connection/title/${id}`)
+		.send({ title: newTitle })
+		.set('Content-Type', 'application/json')
+		.set('Cookie', token)
+		.set('Accept', 'application/json');
+
+	t.is(updateTitleResponse.status, 200);
+	t.is(updateTitleResponse.body.success, true);
+
+	const findOneResponse = await request(app.getHttpServer())
+		.get(`/connection/one/${id}`)
+		.set('Content-Type', 'application/json')
+		.set('Cookie', token)
+		.set('Accept', 'application/json');
+
+	t.is(findOneResponse.status, 200);
+	t.is(findOneResponse.body.connection.title, newTitle);
+});
+
+test.serial(`${currentTest} should throw error when title is empty`, async (t) => {
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const newPgConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
+
+	const createConnectionResult = await request(app.getHttpServer())
+		.post('/connection')
+		.send(newPgConnection)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(createConnectionResult.status, 201);
+
+	const createConnectionRO = JSON.parse(createConnectionResult.text);
+
+	const updateTitleResponse = await request(app.getHttpServer())
+		.put(`/connection/title/${createConnectionRO.id}`)
+		.send({ title: '' })
+		.set('Content-Type', 'application/json')
+		.set('Cookie', token)
+		.set('Accept', 'application/json');
+
+	t.is(updateTitleResponse.status, 400);
+});
+
+test.serial(`${currentTest} should throw error when title is not provided`, async (t) => {
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const newPgConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
+
+	const createConnectionResult = await request(app.getHttpServer())
+		.post('/connection')
+		.send(newPgConnection)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(createConnectionResult.status, 201);
+
+	const createConnectionRO = JSON.parse(createConnectionResult.text);
+
+	const updateTitleResponse = await request(app.getHttpServer())
+		.put(`/connection/title/${createConnectionRO.id}`)
+		.send({})
+		.set('Content-Type', 'application/json')
+		.set('Cookie', token)
+		.set('Accept', 'application/json');
+
+	t.is(updateTitleResponse.status, 400);
+});
+
+test.serial(
+	`${currentTest} should update title of encrypted connection and connection should still work`,
+	async (t) => {
+		const { token } = await registerUserAndReturnUserInfo(app);
+		const newPgConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
+		newPgConnection.masterEncryption = true;
+
+		const createConnectionResult = await request(app.getHttpServer())
+			.post('/connection')
+			.send(newPgConnection)
+			.set('masterpwd', 'ahalaimahalai')
+			.set('Cookie', token)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(createConnectionResult.status, 201);
+
+		const createConnectionRO = JSON.parse(createConnectionResult.text);
+		const { id } = createConnectionRO;
+
+		const newTitle = 'Renamed Encrypted Connection';
+		const updateTitleResponse = await request(app.getHttpServer())
+			.put(`/connection/title/${id}`)
+			.send({ title: newTitle })
+			.set('Content-Type', 'application/json')
+			.set('Cookie', token)
+			.set('Accept', 'application/json');
+
+		t.is(updateTitleResponse.status, 200);
+		t.is(updateTitleResponse.body.success, true);
+
+		const findOneResponse = await request(app.getHttpServer())
+			.get(`/connection/one/${id}`)
+			.set('Content-Type', 'application/json')
+			.set('masterpwd', 'ahalaimahalai')
+			.set('Cookie', token)
+			.set('Accept', 'application/json');
+
+		t.is(findOneResponse.status, 200);
+		t.is(findOneResponse.body.connection.title, newTitle);
+
+		const findTablesResponse = await request(app.getHttpServer())
+			.get(`/connection/tables/${id}`)
+			.set('Content-Type', 'application/json')
+			.set('masterpwd', 'ahalaimahalai')
+			.set('Cookie', token)
+			.set('Accept', 'application/json');
+
+		t.is(findTablesResponse.status, 200);
+		const tables = JSON.parse(findTablesResponse.text);
+		t.is(tables.length > 0, true);
+	},
+);
