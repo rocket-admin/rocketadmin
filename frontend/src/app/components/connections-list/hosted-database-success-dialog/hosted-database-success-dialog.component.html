@@ -71,9 +71,11 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" class="hosted-dialog__actions">
-	<button type="button" mat-stroked-button mat-dialog-close>
-		Close
-	</button>
+	@if (copied) {
+		<button type="button" mat-stroked-button mat-dialog-close>
+			Close
+		</button>
+	}
 	<button
 		type="button"
 		mat-flat-button
