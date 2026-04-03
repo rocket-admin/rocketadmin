@@ -40,21 +40,15 @@ export class HostedDatabaseRenameDialogComponent {
 
 		this.saving = true;
 		try {
-			const db = this.data.hostedDatabase;
+			// Fetch the current connection to preserve all fields
+			const res = await firstValueFrom(
+				this._http.get<any>(`/connection/one/${this.data.connectionId}`),
+			);
+			const connection = res.connection;
+			connection.title = title;
+
 			await firstValueFrom(
-				this._http.put(`/connection/${this.data.connectionId}`, {
-					title,
-					host: db.hostname,
-					port: db.port,
-					database: db.databaseName,
-					username: db.username,
-					type: 'postgres',
-					ssl: false,
-					ssh: false,
-					masterEncryption: false,
-					azure_encryption: false,
-					connectionType: 'direct',
-				}),
+				this._http.put(`/connection/${this.data.connectionId}`, connection),
 			);
 			this._connectionsService.fetchConnections().subscribe();
 			this._dialogRef.close(title);
