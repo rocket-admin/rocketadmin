@@ -24,8 +24,8 @@ describe('CedarPolicyListComponent', () => {
 
 		fixture = TestBed.createComponent(CedarPolicyListComponent);
 		component = fixture.componentInstance;
-		component.availableTables = fakeTables;
-		component.availableDashboards = fakeDashboards;
+		fixture.componentRef.setInput('availableTables', fakeTables);
+		fixture.componentRef.setInput('availableDashboards', fakeDashboards);
 		fixture.detectChanges();
 	});
 
@@ -34,70 +34,89 @@ describe('CedarPolicyListComponent', () => {
 	});
 
 	it('should add a policy', () => {
-		const emitSpy = vi.spyOn(component.policiesChange, 'emit');
+		let emitted: { action: string; tableName?: string; dashboardId?: string }[] | null = null;
+		component.policiesChange.subscribe((v) => (emitted = v));
+
 		component.showAddForm = true;
 		component.newAction = 'connection:read';
 		component.addPolicy();
 
-		expect(component.policies.length).toBe(1);
-		expect(component.policies[0].action).toBe('connection:read');
-		expect(emitSpy).toHaveBeenCalled();
+		expect(emitted).not.toBeNull();
+		expect(emitted!.length).toBe(1);
+		expect(emitted![0].action).toBe('connection:read');
 		expect(component.showAddForm).toBe(false);
 	});
 
 	it('should add a table policy with tableName', () => {
+		let emitted: { action: string; tableName?: string; dashboardId?: string }[] | null = null;
+		component.policiesChange.subscribe((v) => (emitted = v));
+
 		component.showAddForm = true;
 		component.newAction = 'table:read';
 		component.newTableName = 'customers';
 		component.addPolicy();
 
-		expect(component.policies.length).toBe(1);
-		expect(component.policies[0].action).toBe('table:read');
-		expect(component.policies[0].tableName).toBe('customers');
+		expect(emitted!.length).toBe(1);
+		expect(emitted![0].action).toBe('table:read');
+		expect(emitted![0].tableName).toBe('customers');
 	});
 
 	it('should add a table policy with wildcard tableName', () => {
+		let emitted: { action: string; tableName?: string; dashboardId?: string }[] | null = null;
+		component.policiesChange.subscribe((v) => (emitted = v));
+
 		component.showAddForm = true;
 		component.newAction = 'table:edit';
 		component.newTableName = '*';
 		component.addPolicy();
 
-		expect(component.policies.length).toBe(1);
-		expect(component.policies[0].action).toBe('table:edit');
-		expect(component.policies[0].tableName).toBe('*');
+		expect(emitted!.length).toBe(1);
+		expect(emitted![0].action).toBe('table:edit');
+		expect(emitted![0].tableName).toBe('*');
 	});
 
 	it('should not add policy without action', () => {
+		let emitted = false;
+		component.policiesChange.subscribe(() => (emitted = true));
+
 		component.showAddForm = true;
 		component.newAction = '';
 		component.addPolicy();
 
-		expect(component.policies.length).toBe(0);
+		expect(emitted).toBe(false);
 	});
 
 	it('should not add table policy without table name', () => {
+		let emitted = false;
+		component.policiesChange.subscribe(() => (emitted = true));
+
 		component.showAddForm = true;
 		component.newAction = 'table:read';
 		component.newTableName = '';
 		component.addPolicy();
 
-		expect(component.policies.length).toBe(0);
+		expect(emitted).toBe(false);
 	});
 
 	it('should remove a policy', () => {
-		component.policies = [{ action: 'connection:read' }, { action: 'group:read' }];
-		const emitSpy = vi.spyOn(component.policiesChange, 'emit');
+		fixture.componentRef.setInput('policies', [{ action: 'connection:read' }, { action: 'group:read' }]);
+		fixture.detectChanges();
+
+		let emitted: { action: string; tableName?: string; dashboardId?: string }[] | null = null;
+		component.policiesChange.subscribe((v) => (emitted = v));
 
 		component.removePolicy(0);
 
-		expect(component.policies.length).toBe(1);
-		expect(component.policies[0].action).toBe('group:read');
-		expect(emitSpy).toHaveBeenCalled();
+		expect(emitted!.length).toBe(1);
+		expect(emitted![0].action).toBe('group:read');
 	});
 
 	it('should start and save edit', () => {
-		component.policies = [{ action: 'connection:read' }];
-		const emitSpy = vi.spyOn(component.policiesChange, 'emit');
+		fixture.componentRef.setInput('policies', [{ action: 'connection:read' }]);
+		fixture.detectChanges();
+
+		let emitted: { action: string; tableName?: string; dashboardId?: string }[] | null = null;
+		component.policiesChange.subscribe((v) => (emitted = v));
 
 		component.startEdit(0);
 		expect(component.editingIndex).toBe(0);
@@ -106,19 +125,20 @@ describe('CedarPolicyListComponent', () => {
 		component.editAction = 'connection:edit';
 		component.saveEdit(0);
 
-		expect(component.policies[0].action).toBe('connection:edit');
+		expect(emitted![0].action).toBe('connection:edit');
 		expect(component.editingIndex).toBeNull();
-		expect(emitSpy).toHaveBeenCalled();
 	});
 
 	it('should cancel edit', () => {
-		component.policies = [{ action: 'connection:read' }];
+		fixture.componentRef.setInput('policies', [{ action: 'connection:read' }]);
+		fixture.detectChanges();
+
 		component.startEdit(0);
 		component.editAction = 'connection:edit';
 		component.cancelEdit();
 
 		expect(component.editingIndex).toBeNull();
-		expect(component.policies[0].action).toBe('connection:read');
+		expect(component.policies()[0].action).toBe('connection:read');
 	});
 
 	it('should return correct action labels', () => {
@@ -157,23 +177,29 @@ describe('CedarPolicyListComponent', () => {
 	});
 
 	it('should add a dashboard policy with dashboardId', () => {
+		let emitted: { action: string; tableName?: string; dashboardId?: string }[] | null = null;
+		component.policiesChange.subscribe((v) => (emitted = v));
+
 		component.showAddForm = true;
 		component.newAction = 'dashboard:read';
 		component.newDashboardId = 'dash-1';
 		component.addPolicy();
 
-		expect(component.policies.length).toBe(1);
-		expect(component.policies[0].action).toBe('dashboard:read');
-		expect(component.policies[0].dashboardId).toBe('dash-1');
+		expect(emitted!.length).toBe(1);
+		expect(emitted![0].action).toBe('dashboard:read');
+		expect(emitted![0].dashboardId).toBe('dash-1');
 	});
 
 	it('should not add dashboard policy without dashboard id', () => {
+		let emitted = false;
+		component.policiesChange.subscribe(() => (emitted = true));
+
 		component.showAddForm = true;
 		component.newAction = 'dashboard:edit';
 		component.newDashboardId = '';
 		component.addPolicy();
 
-		expect(component.policies.length).toBe(0);
+		expect(emitted).toBe(false);
 	});
 
 	it('should detect needsDashboard correctly', () => {

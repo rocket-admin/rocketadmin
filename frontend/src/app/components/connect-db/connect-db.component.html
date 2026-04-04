@@ -333,7 +333,7 @@
         </div>
 
         <!-- edit connection actions -->
-        <div class="actions" *ngIf="accessLevel && db.id && accessLevel === 'edit' && !db.isTestConnection">
+        <div class="actions" *ngIf="canEditConnection() && db.id && !db.isTestConnection">
             <button type="button" mat-button color="warn"
                 class="delete-button"
                 data-testid="edit-connection-actions-delete-button"

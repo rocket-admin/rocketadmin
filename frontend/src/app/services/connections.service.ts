@@ -7,8 +7,10 @@ import { catchError, filter, map } from 'rxjs/operators';
 import { AlertActionType, AlertType } from '../models/alert';
 import { Connection, ConnectionSettings, ConnectionType, DBtype } from '../models/connection';
 import { AccessLevel } from '../models/user';
+import { CedarPermissionService } from './cedar-permission.service';
 import { MasterPasswordService } from './master-password.service';
 import { NotificationsService } from './notifications.service';
+import { UsersService } from './users.service';
 
 interface LogParams {
 	connectionID: string;
@@ -81,6 +83,8 @@ export class ConnectionsService {
 		private router: Router,
 		private _notifications: NotificationsService,
 		private _masterPassword: MasterPasswordService,
+		private _usersService: UsersService,
+		private _permissions: CedarPermissionService,
 		public _themeService: NgxThemeService<IColorConfig<Palettes, Colors>>,
 	) {
 		this.connection = { ...this.connectionInitialState };
@@ -96,6 +100,9 @@ export class ConnectionsService {
 				this.currentPage = this.router.routerState.snapshot.root.firstChild.url[0].path;
 				this.setConnectionID(urlConnectionID);
 				this.setConnectionInfo(urlConnectionID);
+				if (urlConnectionID) {
+					this._usersService.setActiveConnection(urlConnectionID);
+				}
 				this._notifications.resetAlert();
 			});
 	}
@@ -128,10 +135,17 @@ export class ConnectionsService {
 		return this.currentPage;
 	}
 
+	canEditConnection() {
+		return this._permissions.canI('connection:edit', 'Connection', this.connectionID)();
+	}
+
 	get visibleTabs() {
-		let tabs = ['dashboard', 'dashboards', 'audit'];
-		if (this.groupsAccessLevel) tabs.push('permissions');
-		if (this.isPermitted(this.connectionAccessLevel)) tabs.push('connection-settings', 'edit-db');
+		const tabs = ['dashboard', 'audit'];
+		if (this._permissions.canIAny('dashboard:read', 'Dashboard')()) tabs.push('dashboards');
+		if (this._permissions.canIAny('group:read', 'Group')()) tabs.push('permissions');
+		if (this.canEditConnection()) {
+			tabs.push('connection-settings', 'edit-db');
+		}
 		return tabs;
 	}
 

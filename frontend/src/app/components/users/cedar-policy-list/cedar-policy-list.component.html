@@ -1,141 +1,179 @@
 <div class="policy-list">
-    <app-content-loader *ngIf="loading"></app-content-loader>
+    @if (loading()) {
+        <app-content-loader></app-content-loader>
+    }
 
-    <div *ngIf="!loading && policies.length === 0 && !showAddForm" class="empty-state">
-        No policies defined. Add a policy to grant permissions.
-    </div>
-
-    <div *ngFor="let group of groupedPolicies; trackBy: trackByGroup" class="policy-group">
-        <div class="policy-group__header" (click)="toggleGroup(group.label)">
-            <div class="policy-group__icon-box policy-group__icon-box--{{ group.colorClass }}">
-                <mat-icon>{{ group.icon }}</mat-icon>
-            </div>
-            <span class="policy-group__label">{{ group.label }}</span>
-            <span class="policy-group__count">{{ group.policies.length }}</span>
-            <mat-icon class="policy-group__chevron" [class.policy-group__chevron--collapsed]="isCollapsed(group.label)">expand_more</mat-icon>
+    @if (!loading() && policies().length === 0 && !showAddForm) {
+        <div class="empty-state">
+            No policies defined. Add a policy to grant permissions.
         </div>
+    }
 
-        <div class="policy-group__items" *ngIf="!isCollapsed(group.label)">
-            <div *ngFor="let entry of group.policies; trackBy: trackByPolicy" class="policy-item">
-                <!-- Display mode -->
-                <ng-container *ngIf="editingIndex !== entry.originalIndex">
-                    <div class="policy-item__content">
-                        <mat-icon class="policy-item__action-icon" [matTooltip]="getActionLabel(entry.item.action)">{{ getActionIcon(entry.item.action) }}</mat-icon>
-                        <span class="policy-item__label">{{ getShortActionLabel(entry.item.action) }}</span>
-                        <span *ngIf="entry.item.tableName" class="policy-item__table">
-                            {{ getTableDisplayName(entry.item.tableName) }}
-                        </span>
-                        <span *ngIf="entry.item.dashboardId" class="policy-item__table">
-                            {{ getDashboardDisplayName(entry.item.dashboardId) }}
-                        </span>
-                    </div>
-                    <div class="policy-item__actions">
-                        <button mat-icon-button type="button" (click)="startEdit(entry.originalIndex)" matTooltip="Edit">
-                            <mat-icon>edit</mat-icon>
-                        </button>
-                        <button mat-icon-button type="button" (click)="removePolicy(entry.originalIndex)" matTooltip="Delete">
-                            <mat-icon>delete</mat-icon>
-                        </button>
-                    </div>
-                </ng-container>
+    @for (group of groupedPolicies(); track group.label) {
+        <div class="policy-group">
+            <div class="policy-group__header" (click)="toggleGroup(group.label)">
+                <div class="policy-group__icon-box policy-group__icon-box--{{ group.colorClass }}">
+                    <mat-icon>{{ group.icon }}</mat-icon>
+                </div>
+                <span class="policy-group__label">{{ group.label }}</span>
+                <span class="policy-group__count">{{ group.policies.length }}</span>
+                <mat-icon class="policy-group__chevron" [class.policy-group__chevron--collapsed]="isCollapsed(group.label)">expand_more</mat-icon>
+            </div>
 
-                <!-- Edit mode -->
-                <ng-container *ngIf="editingIndex === entry.originalIndex">
-                    <div class="policy-item__edit-form">
-                        <mat-form-field appearance="outline" class="policy-field">
-                            <mat-label>Action</mat-label>
-                            <mat-select [(ngModel)]="editAction" [ngModelOptions]="{standalone: true}">
-                                <mat-optgroup *ngFor="let actionGroup of editActionGroups; trackBy: trackByActionGroup" [label]="actionGroup.group">
-                                    <mat-option *ngFor="let action of actionGroup.actions; trackBy: trackByAction" [value]="action.value">
+            @if (!isCollapsed(group.label)) {
+                <div class="policy-group__items">
+                    @for (entry of group.policies; track entry.originalIndex) {
+                        <div class="policy-item">
+                            @if (editingIndex !== entry.originalIndex) {
+                                <!-- Display mode -->
+                                <div class="policy-item__content">
+                                    <mat-icon class="policy-item__action-icon" [matTooltip]="getActionLabel(entry.item.action)">{{ getActionIcon(entry.item.action) }}</mat-icon>
+                                    <span class="policy-item__label">{{ getShortActionLabel(entry.item.action) }}</span>
+                                    @if (entry.item.tableName) {
+                                        <span class="policy-item__table">
+                                            {{ getTableDisplayName(entry.item.tableName) }}
+                                        </span>
+                                    }
+                                    @if (entry.item.dashboardId) {
+                                        <span class="policy-item__table">
+                                            {{ getDashboardDisplayName(entry.item.dashboardId) }}
+                                        </span>
+                                    }
+                                </div>
+                                <div class="policy-item__actions">
+                                    <button mat-icon-button type="button" (click)="startEdit(entry.originalIndex)" matTooltip="Edit">
+                                        <mat-icon>edit</mat-icon>
+                                    </button>
+                                    <button mat-icon-button type="button" (click)="removePolicy(entry.originalIndex)" matTooltip="Delete">
+                                        <mat-icon>delete</mat-icon>
+                                    </button>
+                                </div>
+                            } @else {
+                                <!-- Edit mode -->
+                                <div class="policy-item__edit-form">
+                                    <mat-form-field appearance="outline" class="policy-field">
+                                        <mat-label>Action</mat-label>
+                                        <mat-select [(ngModel)]="editAction" [ngModelOptions]="{standalone: true}">
+                                            @for (actionGroup of editActionGroups; track actionGroup.group) {
+                                                <mat-optgroup [label]="actionGroup.group">
+                                                    @for (action of actionGroup.actions; track action.value) {
+                                                        <mat-option [value]="action.value">
+                                                            {{ action.label }}
+                                                        </mat-option>
+                                                    }
+                                                </mat-optgroup>
+                                            }
+                                        </mat-select>
+                                    </mat-form-field>
+
+                                    @if (editNeedsTable) {
+                                        <mat-form-field appearance="outline" class="policy-field">
+                                            <mat-label>Table</mat-label>
+                                            <mat-select [(ngModel)]="editTableName" [ngModelOptions]="{standalone: true}">
+                                                <mat-option value="*">All tables</mat-option>
+                                                @for (table of availableTables(); track table.tableName) {
+                                                    <mat-option [value]="table.tableName"
+                                                        [class.policy-option--used]="usedTables().has(table.tableName)"
+                                                        [attr.data-hint]="getTableUsedHint(table.tableName) || null">
+                                                        {{ table.displayName }}
+                                                    </mat-option>
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    }
+
+                                    @if (editNeedsDashboard) {
+                                        <mat-form-field appearance="outline" class="policy-field">
+                                            <mat-label>Dashboard</mat-label>
+                                            <mat-select [(ngModel)]="editDashboardId" [ngModelOptions]="{standalone: true}">
+                                                <mat-option value="*">All dashboards</mat-option>
+                                                @for (dashboard of availableDashboards(); track dashboard.id) {
+                                                    <mat-option [value]="dashboard.id"
+                                                        [class.policy-option--used]="usedDashboards().has(dashboard.id)"
+                                                        [attr.data-hint]="getDashboardUsedHint(dashboard.id) || null">
+                                                        {{ dashboard.name }}
+                                                    </mat-option>
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                    }
+
+                                    <div class="policy-item__edit-actions">
+                                        <button mat-button color="primary" type="button" (click)="saveEdit(entry.originalIndex)"
+                                            [disabled]="!editAction || (editNeedsTable && !editTableName) || (editNeedsDashboard && !editDashboardId)">
+                                            Save
+                                        </button>
+                                        <button mat-button type="button" (click)="cancelEdit()">Cancel</button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+
+    <!-- Add form -->
+    @if (showAddForm) {
+        <div class="policy-item policy-item--add">
+            <div class="policy-item__edit-form">
+                <mat-form-field appearance="outline" class="policy-field">
+                    <mat-label>Action</mat-label>
+                    <mat-select [(ngModel)]="newAction" [ngModelOptions]="{standalone: true}">
+                        @for (group of addActionGroups(); track group.group) {
+                            <mat-optgroup [label]="group.group">
+                                @for (action of group.actions; track action.value) {
+                                    <mat-option [value]="action.value">
                                         {{ action.label }}
                                     </mat-option>
-                                </mat-optgroup>
-                            </mat-select>
-                        </mat-form-field>
+                                }
+                            </mat-optgroup>
+                        }
+                    </mat-select>
+                </mat-form-field>
 
-                        <mat-form-field *ngIf="editNeedsTable" appearance="outline" class="policy-field">
-                            <mat-label>Table</mat-label>
-                            <mat-select [(ngModel)]="editTableName" [ngModelOptions]="{standalone: true}">
-                                <mat-option value="*">All tables</mat-option>
-                                <mat-option *ngFor="let table of availableTables" [value]="table.tableName"
-                                    [class.policy-option--used]="usedTables.has(table.tableName)"
+                @if (needsTable) {
+                    <mat-form-field appearance="outline" class="policy-field">
+                        <mat-label>Table</mat-label>
+                        <mat-select [(ngModel)]="newTableName" [ngModelOptions]="{standalone: true}">
+                            <mat-option value="*">All tables</mat-option>
+                            @for (table of availableTables(); track table.tableName) {
+                                <mat-option [value]="table.tableName"
+                                    [class.policy-option--used]="usedTables().has(table.tableName)"
                                     [attr.data-hint]="getTableUsedHint(table.tableName) || null">
                                     {{ table.displayName }}
                                 </mat-option>
-                            </mat-select>
-                        </mat-form-field>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                }
 
-                        <mat-form-field *ngIf="editNeedsDashboard" appearance="outline" class="policy-field">
-                            <mat-label>Dashboard</mat-label>
-                            <mat-select [(ngModel)]="editDashboardId" [ngModelOptions]="{standalone: true}">
-                                <mat-option value="*">All dashboards</mat-option>
-                                <mat-option *ngFor="let dashboard of availableDashboards" [value]="dashboard.id"
-                                    [class.policy-option--used]="usedDashboards.has(dashboard.id)"
+                @if (needsDashboard) {
+                    <mat-form-field appearance="outline" class="policy-field">
+                        <mat-label>Dashboard</mat-label>
+                        <mat-select [(ngModel)]="newDashboardId" [ngModelOptions]="{standalone: true}">
+                            <mat-option value="*">All dashboards</mat-option>
+                            @for (dashboard of availableDashboards(); track dashboard.id) {
+                                <mat-option [value]="dashboard.id"
+                                    [class.policy-option--used]="usedDashboards().has(dashboard.id)"
                                     [attr.data-hint]="getDashboardUsedHint(dashboard.id) || null">
                                     {{ dashboard.name }}
                                 </mat-option>
-                            </mat-select>
-                        </mat-form-field>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                }
 
-                        <div class="policy-item__edit-actions">
-                            <button mat-button color="primary" type="button" (click)="saveEdit(entry.originalIndex)"
-                                [disabled]="!editAction || (editNeedsTable && !editTableName) || (editNeedsDashboard && !editDashboardId)">
-                                Save
-                            </button>
-                            <button mat-button type="button" (click)="cancelEdit()">Cancel</button>
-                        </div>
-                    </div>
-                </ng-container>
+                <div class="policy-item__edit-actions">
+                    <button mat-button color="primary" type="button" (click)="addPolicy()"
+                        [disabled]="!newAction || (needsTable && !newTableName) || (needsDashboard && !newDashboardId)">
+                        Add
+                    </button>
+                    <button mat-button type="button" (click)="resetAddForm()">Cancel</button>
+                </div>
             </div>
         </div>
-    </div>
-
-    <!-- Add form -->
-    <div *ngIf="showAddForm" class="policy-item policy-item--add">
-        <div class="policy-item__edit-form">
-            <mat-form-field appearance="outline" class="policy-field">
-                <mat-label>Action</mat-label>
-                <mat-select [(ngModel)]="newAction" [ngModelOptions]="{standalone: true}">
-                    <mat-optgroup *ngFor="let group of addActionGroups; trackBy: trackByActionGroup" [label]="group.group">
-                        <mat-option *ngFor="let action of group.actions; trackBy: trackByAction" [value]="action.value">
-                            {{ action.label }}
-                        </mat-option>
-                    </mat-optgroup>
-                </mat-select>
-            </mat-form-field>
-
-            <mat-form-field *ngIf="needsTable" appearance="outline" class="policy-field">
-                <mat-label>Table</mat-label>
-                <mat-select [(ngModel)]="newTableName" [ngModelOptions]="{standalone: true}">
-                    <mat-option value="*">All tables</mat-option>
-                    <mat-option *ngFor="let table of availableTables" [value]="table.tableName"
-                        [class.policy-option--used]="usedTables.has(table.tableName)"
-                        [attr.data-hint]="getTableUsedHint(table.tableName) || null">
-                        {{ table.displayName }}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
-
-            <mat-form-field *ngIf="needsDashboard" appearance="outline" class="policy-field">
-                <mat-label>Dashboard</mat-label>
-                <mat-select [(ngModel)]="newDashboardId" [ngModelOptions]="{standalone: true}">
-                    <mat-option value="*">All dashboards</mat-option>
-                    <mat-option *ngFor="let dashboard of availableDashboards" [value]="dashboard.id"
-                        [class.policy-option--used]="usedDashboards.has(dashboard.id)"
-                        [attr.data-hint]="getDashboardUsedHint(dashboard.id) || null">
-                        {{ dashboard.name }}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
-
-            <div class="policy-item__edit-actions">
-                <button mat-button color="primary" type="button" (click)="addPolicy()"
-                    [disabled]="!newAction || (needsTable && !newTableName) || (needsDashboard && !newDashboardId)">
-                    Add
-                </button>
-                <button mat-button type="button" (click)="resetAddForm()">Cancel</button>
-            </div>
-        </div>
-    </div>
+    }
 
 </div>

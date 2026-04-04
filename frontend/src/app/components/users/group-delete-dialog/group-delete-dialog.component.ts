@@ -1,5 +1,4 @@
-import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { Angulartics2 } from 'angulartics2';
@@ -10,37 +9,29 @@ import { UsersService } from 'src/app/services/users.service';
 	selector: 'app-group-delete-dialog',
 	templateUrl: './group-delete-dialog.component.html',
 	styleUrls: ['./group-delete-dialog.component.css'],
-	imports: [CommonModule, MatDialogModule, MatButtonModule],
+	imports: [MatDialogModule, MatButtonModule],
 })
-export class GroupDeleteDialogComponent implements OnInit {
-	public submitting: boolean = false;
+export class GroupDeleteDialogComponent {
+	private _usersService = inject(UsersService);
+	private _angulartics2 = inject(Angulartics2);
+	protected dialogRef = inject<MatDialogRef<GroupDeleteDialogComponent>>(MatDialogRef);
 
-	constructor(
-		@Inject(MAT_DIALOG_DATA) public data: any,
-		private _usersService: UsersService,
-		public dialogRef: MatDialogRef<GroupDeleteDialogComponent>,
-		private angulartics2: Angulartics2,
-	) {}
+	protected submitting = signal(false);
 
-	ngOnInit(): void {
-		this._usersService.cast.subscribe();
-	}
+	// biome-ignore lint/suspicious/noExplicitAny: legacy dialog data type
+	constructor(@Inject(MAT_DIALOG_DATA) public data: any) {}
 
-	deleteUsersGroup(id: string) {
-		this.submitting = true;
-		this._usersService.deleteUsersGroup(id).subscribe(
-			() => {
-				this.dialogRef.close();
-				this.submitting = false;
-				this.angulartics2.eventTrack.next({
-					action: 'User groups: user group was deleted successfully',
-				});
-				posthog.capture('User groups: user group was deleted successfully');
-			},
-			() => {},
-			() => {
-				this.submitting = false;
-			},
-		);
+	async deleteUsersGroup(id: string) {
+		this.submitting.set(true);
+		try {
+			await this._usersService.deleteGroup(id);
+			this.dialogRef.close();
+			this._angulartics2.eventTrack.next({
+				action: 'User groups: user group was deleted successfully',
+			});
+			posthog.capture('User groups: user group was deleted successfully');
+		} finally {
+			this.submitting.set(false);
+		}
 	}
 }

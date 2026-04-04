@@ -21,7 +21,6 @@ import { filterTypes } from 'src/app/consts/filter-types';
 import { UIwidgets } from 'src/app/consts/record-edit-types';
 import { normalizeTableName } from 'src/app/lib/normalize';
 import { TableField, TableForeignKey } from 'src/app/models/table';
-import { AccessLevel } from 'src/app/models/user';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { SavedFiltersDialogComponent } from './saved-filters-dialog/saved-filters-dialog.component';
@@ -60,7 +59,7 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
 	@Output() filterSelected = new EventEmitter<any>();
 	@Input() resetSelection: boolean = false;
 
-	@Input() accessLevel: AccessLevel;
+	protected canEditConnection = () => this._connections.canEditConnection();
 
 	private dynamicColumnValueDebounceTimer: any = null;
 

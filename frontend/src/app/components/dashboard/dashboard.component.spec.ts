@@ -24,6 +24,7 @@ describe('DashboardComponent', () => {
 			return AccessLevel.None;
 		},
 		getTablesFolders: () => of([]),
+		canEditConnection: () => false,
 	};
 	const fakeRouter = {
 		navigate: vi.fn().mockReturnValue(Promise.resolve('')),

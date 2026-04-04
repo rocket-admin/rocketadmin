@@ -1,5 +1,4 @@
-import { NgIf } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -12,42 +11,31 @@ import { UsersService } from 'src/app/services/users.service';
 
 @Component({
 	selector: 'app-group-add-dialog',
-	imports: [NgIf, FormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule],
+	imports: [FormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatButtonModule],
 	templateUrl: './group-add-dialog.component.html',
 	styleUrls: ['./group-add-dialog.component.css'],
 })
-export class GroupAddDialogComponent implements OnInit {
-	public connectionID: string;
-	public groupTitle: string = '';
-	public submitting: boolean = false;
+export class GroupAddDialogComponent {
+	private _connections = inject(ConnectionsService);
+	private _usersService = inject(UsersService);
+	private _angulartics2 = inject(Angulartics2);
+	protected dialogRef = inject<MatDialogRef<GroupAddDialogComponent>>(MatDialogRef);
 
-	constructor(
-		private _connections: ConnectionsService,
-		public _usersService: UsersService,
-		public dialogRef: MatDialogRef<GroupAddDialogComponent>,
-		private angulartics2: Angulartics2,
-	) {}
+	protected connectionID = this._connections.currentConnectionID;
+	protected groupTitle = '';
+	protected submitting = signal(false);
 
-	ngOnInit(): void {
-		this.connectionID = this._connections.currentConnectionID;
-		this._usersService.cast.subscribe();
-	}
-
-	addGroup() {
-		this.submitting = true;
-		this._usersService.createUsersGroup(this.connectionID, this.groupTitle).subscribe(
-			(res) => {
-				this.submitting = false;
-				this.dialogRef.close(res);
-				this.angulartics2.eventTrack.next({
-					action: 'User groups: user groups was created successfully',
-				});
-				posthog.capture('User groups: user groups was created successfully');
-			},
-			() => {},
-			() => {
-				this.submitting = false;
-			},
-		);
+	async addGroup() {
+		this.submitting.set(true);
+		try {
+			const res = await this._usersService.createGroup(this.connectionID, this.groupTitle);
+			this.dialogRef.close(res);
+			this._angulartics2.eventTrack.next({
+				action: 'User groups: user groups was created successfully',
+			});
+			posthog.capture('User groups: user groups was created successfully');
+		} finally {
+			this.submitting.set(false);
+		}
 	}
 }

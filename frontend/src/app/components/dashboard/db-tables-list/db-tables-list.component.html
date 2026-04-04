@@ -59,7 +59,7 @@
             </div>
 
             <!-- Bottom section with add folder button (fixed at bottom) -->
-            <div class="collapsed-bottom-section" *ngIf="accessLevel === 'edit'">
+            <div class="collapsed-bottom-section" *ngIf="canEditConnection()">
                 <!-- Add folder button -->
                 <div class="collapsed-add-button"
                     (click)="onAddFolder()"
@@ -82,8 +82,8 @@
             </mat-form-field>
 
             <!-- Add Folder button (position controlled by CSS order) -->
-            <div *ngIf="accessLevel === 'edit'" class="add-folder-button-container">
-                <button mat-stroked-button color="primary" class="add-folder-button" (click)="onAddFolder()">
+            <div *ngIf="canEditConnection()" class="add-folder-button-container">
+                <button type="button" mat-stroked-button color="primary" class="add-folder-button" (click)="onAddFolder()">
                     <mat-icon>add</mat-icon>
                     Add folder
                 </button>
@@ -95,10 +95,10 @@
                         <div *ngIf="shouldShowFolder(folder)"
                             class="folder-item"
                             [class.expanded]="folder.expanded"
-                            [class.drag-over]="accessLevel === 'edit' && dragOverFolder !== 'all-tables-kitten' && dragOverFolder === folder.id"
-                            (dragover)="accessLevel === 'edit' && onFolderDragOver($event, folder.id)"
-                            (dragleave)="accessLevel === 'edit' && onFolderDragLeave($event, folder.id)"
-                            (drop)="accessLevel === 'edit' && onFolderDrop($event, folder)">
+                            [class.drag-over]="canEditConnection() && dragOverFolder !== 'all-tables-kitten' && dragOverFolder === folder.id"
+                            (dragover)="canEditConnection() && onFolderDragOver($event, folder.id)"
+                            (dragleave)="canEditConnection() && onFolderDragLeave($event, folder.id)"
+                            (drop)="canEditConnection() && onFolderDrop($event, folder)">
                             <div class="folder-header"
                                 [class.expanded]="folder.expanded"
                                 (click)="toggleFolder(folder.id)">
@@ -115,7 +115,7 @@
                                 </div>
 
                                 <div class="folder-actions">
-                                    <button *ngIf="folder.id !== 'all-tables-kitten' && accessLevel === 'edit'"
+                                    <button type="button" *ngIf="folder.id !== 'all-tables-kitten' && canEditConnection()"
                                         mat-icon-button class="more-folder-button"
                                         [matMenuTriggerFor]="folderMenu"
                                         (click)="$event.stopPropagation()"
@@ -129,11 +129,11 @@
                                         chevron_right
                                     </mat-icon>
                                     <mat-menu #folderMenu="matMenu">
-                                        <button mat-menu-item (click)="showEditTablesDialog(folder)">
+                                        <button type="button" mat-menu-item (click)="showEditTablesDialog(folder)">
                                             <mat-icon fontSet="material-symbols-outlined">edit_note</mat-icon>
                                             <span>Edit</span>
                                         </button>
-                                        <button mat-menu-item (click)="deleteFolder(folder)">
+                                        <button type="button" mat-menu-item (click)="deleteFolder(folder)">
                                             <mat-icon fontSet="material-symbols-outlined">delete</mat-icon>
                                             <span>Delete</span>
                                         </button>
@@ -157,9 +157,9 @@
                                             routerLink="/dashboard/{{connectionID}}/{{table.table}}"
                                             [queryParams]="{page_index: 0, page_size: 30}"
                                             [ngClass]="{'table-link_active': selectedTable === table.table}"
-                                            [draggable]="accessLevel === 'edit'"
-                                            (dragstart)="accessLevel === 'edit' && onTableDragStart($event, table)"
-                                            (dragend)="accessLevel === 'edit' && onTableDragEnd($event)"
+                                            [draggable]="canEditConnection()"
+                                            (dragstart)="canEditConnection() && onTableDragStart($event, table)"
+                                            (dragend)="canEditConnection() && onTableDragEnd($event)"
                                             (click)="closeSidebar()">
                                             <span class="table-name">{{getTableName(table)}}</span>
                                         </a>
@@ -169,7 +169,7 @@
                                 <ng-template #noTablesInCollection>
                                     <div class="no-tables-message" [class.empty-folder-message]="folder.isEmpty">
                                         <p *ngIf="!folder.isEmpty">No tables in this folder</p>
-                                        <button mat-stroked-button
+                                        <button type="button" mat-stroked-button
                                             color="primary"
                                             [class.empty-folder-button]="folder.isEmpty"
                                             (click)="showEditTablesDialog(folder)">
