@@ -2,13 +2,15 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { IColorConfig, NgxThemeService } from '@brumeilde/ngx-theme';
-import { BehaviorSubject, EMPTY, throwError } from 'rxjs';
+import { BehaviorSubject, EMPTY, firstValueFrom, throwError } from 'rxjs';
 import { catchError, filter, map } from 'rxjs/operators';
 import { AlertActionType, AlertType } from '../models/alert';
 import { Connection, ConnectionSettings, ConnectionType, DBtype } from '../models/connection';
 import { AccessLevel } from '../models/user';
+import { HostedDatabaseService } from './hosted-database.service';
 import { MasterPasswordService } from './master-password.service';
 import { NotificationsService } from './notifications.service';
+import { UserService } from './user.service';
 
 interface LogParams {
 	connectionID: string;
@@ -69,6 +71,8 @@ export class ConnectionsService {
 	public defaultDisplayTable: string;
 	public ownConnections: Connection[] = null;
 	public testConnections: Connection[] = null;
+	public isHostedConnection: boolean = false;
+	private hostedDatabaseHostnames: Set<string> = new Set();
 
 	private connectionNameSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Rocketadmin');
 	private connectionSigningKeySubject: BehaviorSubject<string> = new BehaviorSubject<string>(null);
@@ -76,12 +80,18 @@ export class ConnectionsService {
 
 	public cast = this.connectionsSubject.asObservable();
 
+	invalidateConnections(): void {
+		this.connectionsSubject.next(null);
+	}
+
 	constructor(
 		private _http: HttpClient,
 		private router: Router,
 		private _notifications: NotificationsService,
 		private _masterPassword: MasterPasswordService,
 		public _themeService: NgxThemeService<IColorConfig<Palettes, Colors>>,
+		private _hostedDatabaseService: HostedDatabaseService,
+		private _userService: UserService,
 	) {
 		this.connection = { ...this.connectionInitialState };
 		this.router = router;
@@ -157,6 +167,7 @@ export class ConnectionsService {
 
 	setConnectionInfo(id: string) {
 		this.defaultDisplayTable = null;
+		this.isHostedConnection = false;
 		if (id) {
 			this.fetchConnection(id).subscribe((res) => {
 				this.connection = res.connection;
@@ -194,6 +205,7 @@ export class ConnectionsService {
 						},
 					});
 				}
+				this.checkIfHostedConnection(res.connection.host);
 			});
 		} else {
 			this.connection = { ...this.connectionInitialState };
@@ -556,6 +568,21 @@ export class ConnectionsService {
 		);
 	}
 
+	updateConnectionTitle(connectionID: string, title: string) {
+		return this._http.put(`/connection/title/${connectionID}`, { title }).pipe(
+			map((res) => {
+				this._notifications.showSuccessSnackbar('Connection title has been updated successfully.');
+				return res;
+			}),
+			catchError((err) => {
+				console.log(err);
+				const errorMessage = err.error?.message || 'Unknown error';
+				this._notifications.showErrorSnackbar(`${errorMessage}.`);
+				return EMPTY;
+			}),
+		);
+	}
+
 	deleteConnectionSettings(connectionID: string) {
 		return this._http.delete(`/connection/properties/${connectionID}`).pipe(
 			map(() => {
@@ -568,5 +595,31 @@ export class ConnectionsService {
 				return EMPTY;
 			}),
 		);
+	}
+
+	private async checkIfHostedConnection(connectionHost: string) {
+		if (!connectionHost) {
+			this.isHostedConnection = false;
+			return;
+		}
+		if (this.hostedDatabaseHostnames.size === 0) {
+			await this.loadHostedDatabaseHostnames();
+		}
+		this.isHostedConnection = this.hostedDatabaseHostnames.has(connectionHost);
+	}
+
+	private async loadHostedDatabaseHostnames() {
+		try {
+			const user = await firstValueFrom(this._userService.cast.pipe(filter((u) => !!u?.company?.id)));
+			const databases = await this._hostedDatabaseService.listHostedDatabases(user.company.id);
+			this.hostedDatabaseHostnames.clear();
+			if (databases) {
+				for (const db of databases) {
+					this.hostedDatabaseHostnames.add(db.hostname);
+				}
+			}
+		} catch {
+			// Silently fail - non-hosted path will be used
+		}
 	}
 }
