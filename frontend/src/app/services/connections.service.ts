@@ -68,6 +68,10 @@ export class ConnectionsService {
 
 	public cast = this.connectionsSubject.asObservable();
 
+	invalidateConnections(): void {
+		this.connectionsSubject.next(null);
+	}
+
 	constructor(
 		private _http: HttpClient,
 		private router: Router,
