@@ -20,7 +20,19 @@ interface LogParams {
 	chunkSize?: number;
 }
 
-type Palettes = { primaryPalette: string; accentedPalette: string };
+type Palettes = {
+	primaryPalette?: string;
+	accentedPalette?: string;
+	warnPalette?: string;
+	whitePalette?: string;
+	warnDarkPalette?: string;
+	warningPalette?: string;
+	infoPalette?: string;
+	successPalette?: string;
+	alternativePalette?: string;
+	successDarkPalette?: string;
+	alternativeDarkPalette?: string;
+};
 type Colors = { myColorName: string };
 
 @Injectable({
@@ -170,18 +182,46 @@ export class ConnectionsService {
 						palettes: {
 							primaryPalette: res.connectionProperties.primary_color,
 							accentedPalette: res.connectionProperties.secondary_color,
+							warningPalette: '#f79008',
+							infoPalette: '#296ee9',
+							successPalette: '#1b5e20',
+							alternativePalette: '#6d28d9',
+							successDarkPalette: '#4caf50',
+							alternativeDarkPalette: '#c084fc',
 						},
 					});
 				} else {
 					this.isCustomAccentedColor = false;
-					this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#2563eb' } });
+					this._themeService.updateColors({
+						palettes: {
+							primaryPalette: '#212121',
+							accentedPalette: '#2563eb',
+							warningPalette: '#f79008',
+							infoPalette: '#296ee9',
+							successPalette: '#1b5e20',
+							alternativePalette: '#6d28d9',
+							successDarkPalette: '#4caf50',
+							alternativeDarkPalette: '#c084fc',
+						},
+					});
 				}
 				this.checkIfHostedConnection(res.connection.host);
 			});
 		} else {
 			this.connection = { ...this.connectionInitialState };
 			this.isCustomAccentedColor = false;
-			this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#2563eb' } });
+			this._themeService.updateColors({
+				palettes: {
+					primaryPalette: '#212121',
+					accentedPalette: '#2563eb',
+					warningPalette: '#f79008',
+					infoPalette: '#296ee9',
+					successPalette: '#1b5e20',
+					alternativePalette: '#6d28d9',
+					successDarkPalette: '#4caf50',
+					alternativeDarkPalette: '#c084fc',
+				},
+			});
 		}
 
 		console.log('this.defaultDisplayTable');
@@ -283,11 +323,28 @@ export class ConnectionsService {
 						palettes: {
 							primaryPalette: res.connectionProperties.primary_color,
 							accentedPalette: res.connectionProperties.secondary_color,
+							warningPalette: '#f79008',
+							infoPalette: '#296ee9',
+							successPalette: '#1b5e20',
+							alternativePalette: '#6d28d9',
+							successDarkPalette: '#4caf50',
+							alternativeDarkPalette: '#c084fc',
 						},
 					});
 				} else {
 					this.defaultDisplayTable = null;
-					this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#2563eb' } });
+					this._themeService.updateColors({
+						palettes: {
+							primaryPalette: '#212121',
+							accentedPalette: '#2563eb',
+							warningPalette: '#f79008',
+							infoPalette: '#296ee9',
+							successPalette: '#1b5e20',
+							alternativePalette: '#6d28d9',
+							successDarkPalette: '#4caf50',
+							alternativeDarkPalette: '#c084fc',
+						},
+					});
 				}
 				return { ...res, connection };
 			}),
@@ -458,7 +515,16 @@ export class ConnectionsService {
 			map((res: any) => {
 				if (res) {
 					this._themeService.updateColors({
-						palettes: { primaryPalette: res.primary_color, accentedPalette: res.secondary_color },
+						palettes: {
+							primaryPalette: res.primary_color,
+							accentedPalette: res.secondary_color,
+							warningPalette: '#f79008',
+							infoPalette: '#296ee9',
+							successPalette: '#1b5e20',
+							alternativePalette: '#6d28d9',
+							successDarkPalette: '#4caf50',
+							alternativeDarkPalette: '#c084fc',
+						},
 					});
 				}
 				return res;

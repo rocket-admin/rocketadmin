@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { provideZxvbnServiceForPSM } from 'angular-password-strength-meter/zxcvbn';
-import { AuthGuard } from '../auth.guard';
+import { AuthGuard } from '../guards/auth.guard';
 
 export const PASSWORD_CHANGE_ROUTES: Routes = [
 	{

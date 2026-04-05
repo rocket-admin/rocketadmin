@@ -58,6 +58,69 @@ export class CedarPermissionsService implements IUserAccessRepository {
 		return AccessLevelEnum.none;
 	}
 
+	async getUserConnectionAccessLevelsForMultipleConnections(
+		userId: string,
+		connectionIds: Array<string>,
+	): Promise<Map<string, AccessLevelEnum>> {
+		const result = new Map<string, AccessLevelEnum>();
+		if (connectionIds.length === 0) return result;
+
+		const allGroups = await this.globalDbContext.groupRepository.findAllUserGroupsInConnections(connectionIds, userId);
+
+		const groupsByConnection = new Map<string, Array<GroupEntity>>();
+		for (const group of allGroups) {
+			const connId = group.connection?.id;
+			if (!connId) continue;
+			if (!groupsByConnection.has(connId)) {
+				groupsByConnection.set(connId, []);
+			}
+			groupsByConnection.get(connId).push(group);
+		}
+
+		for (const connectionId of connectionIds) {
+			const userGroups = groupsByConnection.get(connectionId);
+			if (!userGroups || userGroups.length === 0) {
+				result.set(connectionId, AccessLevelEnum.none);
+				continue;
+			}
+
+			const policies = userGroups.map((g) => g.cedarPolicy).filter(Boolean);
+			if (policies.length === 0) {
+				result.set(connectionId, AccessLevelEnum.none);
+				continue;
+			}
+
+			const entities = buildCedarEntities(userId, userGroups, connectionId);
+			if (
+				this.evaluatePolicies(
+					userId,
+					CedarAction.ConnectionEdit,
+					CedarResourceType.Connection,
+					connectionId,
+					policies,
+					entities,
+				)
+			) {
+				result.set(connectionId, AccessLevelEnum.edit);
+			} else if (
+				this.evaluatePolicies(
+					userId,
+					CedarAction.ConnectionRead,
+					CedarResourceType.Connection,
+					connectionId,
+					policies,
+					entities,
+				)
+			) {
+				result.set(connectionId, AccessLevelEnum.readonly);
+			} else {
+				result.set(connectionId, AccessLevelEnum.none);
+			}
+		}
+
+		return result;
+	}
+
 	async checkUserConnectionRead(cognitoUserName: string, connectionId: string): Promise<boolean> {
 		const ctx = await this.loadContext(connectionId, cognitoUserName);
 		if (!ctx) return false;

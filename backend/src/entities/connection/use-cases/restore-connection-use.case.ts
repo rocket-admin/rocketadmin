@@ -8,6 +8,7 @@ import { isConnectionEntityAgent } from '../../../helpers/index.js';
 import { RestoredConnectionDs } from '../application/data-structures/restored-connection.ds.js';
 import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
 import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds.js';
+import { decryptConnectionCredentialsAsync } from '../utils/decrypt-connection-credentials-async.js';
 import { isHostAllowed } from '../utils/is-host-allowed.js';
 import { isHostTest } from '../utils/is-test-connection-util.js';
 import { updateConnectionEntityForRestoration } from '../utils/update-connection-entity-for-restoration.js';
@@ -73,6 +74,7 @@ export class RestoreConnectionUseCase
 		const foundConnectionAfterSave = await this._dbContext.connectionRepository.findOne({
 			where: { id: savedConnection.id },
 		});
+		await decryptConnectionCredentialsAsync(foundConnectionAfterSave);
 		const token = updatedConnection.agent?.token || null;
 		return {
 			connection: buildCreatedConnectionDs(foundConnectionAfterSave, token, connectionData.update_info.masterPwd),
