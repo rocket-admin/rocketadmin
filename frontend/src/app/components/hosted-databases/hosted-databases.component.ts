@@ -66,6 +66,7 @@ export class HostedDatabasesComponent implements OnInit {
 			width: '32em',
 			maxWidth: '95vw',
 			data: db,
+			disableClose: true,
 		});
 	}
 
