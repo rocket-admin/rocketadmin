@@ -26,7 +26,7 @@
 						@for (db of databases(); track db.id) {
 							<div class="db-card">
 								<div class="db-card__info">
-									<div class="db-card__name">{{ db.databaseName }}</div>
+									<div class="db-card__name">{{ db.title || db.databaseName }}</div>
 									<div class="db-card__details">
 										<span class="db-card__detail">
 											<span class="db-card__detail-label">Host:</span>
@@ -35,6 +35,10 @@
 										<span class="db-card__detail">
 											<span class="db-card__detail-label">Port:</span>
 											{{ db.port }}
+										</span>
+										<span class="db-card__detail">
+											<span class="db-card__detail-label">Database name:</span>
+											{{ db.databaseName }}
 										</span>
 										<span class="db-card__detail">
 											<span class="db-card__detail-label">User:</span>
