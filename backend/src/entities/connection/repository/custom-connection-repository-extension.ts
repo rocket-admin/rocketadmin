@@ -39,7 +39,8 @@ export const customConnectionRepositoryExtension: IConnectionRepository &
 			.leftJoinAndSelect('connection.groups', 'group')
 			.leftJoinAndSelect('group.users', 'user')
 			.leftJoinAndSelect('connection.connection_properties', 'connection_properties')
-			.andWhere('user.id = :userId', { userId: userId });
+			.andWhere('user.id = :userId', { userId: userId })
+			.orderBy('connection.createdAt', 'DESC');
 		if (!includeTestConnections) {
 			connectionQb.andWhere('connection.isTestConnection = :isTest', { isTest: false });
 		}
@@ -54,7 +55,8 @@ export const customConnectionRepositoryExtension: IConnectionRepository &
 			.leftJoinAndSelect('group.users', 'user')
 			.leftJoinAndSelect('connection.connection_properties', 'connection_properties')
 			.andWhere('user.id = :userId', { userId: userId })
-			.andWhere('connection.isTestConnection = :isTest', { isTest: true });
+			.andWhere('connection.isTestConnection = :isTest', { isTest: true })
+			.orderBy('connection.createdAt', 'DESC');
 		const connections = await connectionQb.getMany();
 		await decryptConnectionsCredentialsAsync(connections);
 		return connections;
