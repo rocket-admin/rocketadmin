@@ -18,6 +18,7 @@ import { UpdateConnectionDs } from '../application/data-structures/update-connec
 import { ConnectionEntity } from '../connection.entity.js';
 import { isHostAllowed } from '../utils/is-host-allowed.js';
 import { processAWSConnection } from '../utils/process-aws-connection.util.js';
+import { decryptConnectionCredentialsAsync } from '../utils/decrypt-connection-credentials-async.js';
 import { ITestConnection } from './use-cases.interfaces.js';
 
 @Injectable()
@@ -56,6 +57,7 @@ export class TestConnectionUseCase
 						message: Messages.CONNECTION_NOT_FOUND,
 					};
 				}
+				await decryptConnectionCredentialsAsync(toUpdate);
 				if (toUpdate?.masterEncryption && !masterPwd) {
 					return {
 						result: false,

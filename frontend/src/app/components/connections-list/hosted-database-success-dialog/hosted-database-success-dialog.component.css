@@ -49,9 +49,33 @@
 	overflow-wrap: anywhere;
 }
 
-.hosted-dialog__hint {
-	color: rgba(0, 0, 0, 0.64);
+.hosted-dialog__warning {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 14px;
+	border-radius: 8px;
+	border-left: 3px solid var(--warning-color);
+	background: var(--warning-background-color);
 	font-size: 13px;
+	color: inherit;
+}
+
+.hosted-dialog__warning-icon {
+	flex-shrink: 0;
+	color: var(--warning-color);
+	font-size: 20px;
+	width: 20px;
+	height: 20px;
+}
+
+.hosted-dialog__copy-check {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+	margin-right: 4px;
+	vertical-align: middle;
+	line-height: 1;
 }
 
 .hosted-dialog__actions {
@@ -62,11 +86,11 @@
 @media (prefers-color-scheme: dark) {
 	.hosted-dialog__credentials {
 		background: transparent;
-		border-color: var(--color-accentedPalette-400);
+		border-color: rgba(255, 255, 255, 0.12);
 	}
 
 	.hosted-dialog__credentials code {
-		background: var(--color-accentedPalette-600);
+		background: rgba(255, 255, 255, 0.06);
 	}
 
 	.hosted-dialog__hint {

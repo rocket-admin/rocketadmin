@@ -5,6 +5,10 @@ import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { isConnectionTypeAgent } from '../../../helpers/index.js';
 import { UserEntity } from '../../user/user.entity.js';
 import { ConnectionEntity } from '../connection.entity.js';
+import {
+	decryptConnectionCredentialsAsync,
+	decryptConnectionsCredentialsAsync,
+} from '../utils/decrypt-connection-credentials-async.js';
 import { isTestConnectionUtil } from '../utils/is-test-connection-util.js';
 import { IConnectionRepository } from './connection.repository.interface.js';
 
@@ -26,6 +30,7 @@ export const customConnectionRepositoryExtension: IConnectionRepository &
 				savedConnection.cert = this.decryptConnectionField(savedConnection.cert);
 			}
 		}
+		savedConnection.credentialsDecrypted = true;
 		return savedConnection;
 	},
 
@@ -34,11 +39,14 @@ export const customConnectionRepositoryExtension: IConnectionRepository &
 			.leftJoinAndSelect('connection.groups', 'group')
 			.leftJoinAndSelect('group.users', 'user')
 			.leftJoinAndSelect('connection.connection_properties', 'connection_properties')
-			.andWhere('user.id = :userId', { userId: userId });
+			.andWhere('user.id = :userId', { userId: userId })
+			.orderBy('connection.createdAt', 'DESC');
 		if (!includeTestConnections) {
 			connectionQb.andWhere('connection.isTestConnection = :isTest', { isTest: false });
 		}
-		return await connectionQb.getMany();
+		const connections = await connectionQb.getMany();
+		await decryptConnectionsCredentialsAsync(connections);
+		return connections;
 	},
 
 	async findAllUserTestConnections(userId: string): Promise<Array<ConnectionEntity>> {
@@ -47,8 +55,11 @@ export const customConnectionRepositoryExtension: IConnectionRepository &
 			.leftJoinAndSelect('group.users', 'user')
 			.leftJoinAndSelect('connection.connection_properties', 'connection_properties')
 			.andWhere('user.id = :userId', { userId: userId })
-			.andWhere('connection.isTestConnection = :isTest', { isTest: true });
-		return await connectionQb.getMany();
+			.andWhere('connection.isTestConnection = :isTest', { isTest: true })
+			.orderBy('connection.createdAt', 'DESC');
+		const connections = await connectionQb.getMany();
+		await decryptConnectionsCredentialsAsync(connections);
+		return connections;
 	},
 
 	async findAllUserNonTestsConnections(userId: string): Promise<Array<ConnectionEntity>> {
@@ -81,6 +92,7 @@ export const customConnectionRepositoryExtension: IConnectionRepository &
 			connection.signing_key = Encryptor.generateRandomString(40);
 			await this.save(connection);
 		}
+		await decryptConnectionCredentialsAsync(connection);
 		return connection;
 	},
 
@@ -96,6 +108,7 @@ export const customConnectionRepositoryExtension: IConnectionRepository &
 			connection.signing_key = Encryptor.generateRandomString(40);
 			await this.save(connection);
 		}
+		await decryptConnectionCredentialsAsync(connection);
 
 		if (connection.masterEncryption && !masterPwd) {
 			throw new Error(Messages.MASTER_PASSWORD_MISSING);
@@ -121,11 +134,15 @@ export const customConnectionRepositoryExtension: IConnectionRepository &
 		const qb = this.createQueryBuilder('connection')
 			.leftJoinAndSelect('connection.groups', 'group')
 			.andWhere('connection.id = :connectionId', { connectionId: connectionId });
-		return await qb.getOne();
+		const connection = await qb.getOne();
+		if (connection) {
+			await decryptConnectionCredentialsAsync(connection);
+		}
+		return connection;
 	},
 
 	async getWorkedConnectionsInTwoWeeks(): Promise<Array<ConnectionEntity>> {
-		const freshNonTestConnectionsWithLogs = await this.createQueryBuilder('connection')
+		const connections = await this.createQueryBuilder('connection')
 			.leftJoinAndSelect('connection.author', 'author')
 			.leftJoin('connection.logs', 'logs')
 			.where('connection.createdAt > :date', { date: Constants.TWO_WEEKS_AGO() })
@@ -133,7 +150,8 @@ export const customConnectionRepositoryExtension: IConnectionRepository &
 			.andWhere('connection.isTestConnection = :isTest', { isTest: false })
 			.andWhere('logs.id IS NOT NULL')
 			.getMany();
-		return freshNonTestConnectionsWithLogs;
+		await decryptConnectionsCredentialsAsync(connections);
+		return connections;
 	},
 
 	async getConnectionByGroupIdWithCompanyAndUsersInCompany(groupId: string): Promise<ConnectionEntity | null> {
@@ -142,17 +160,29 @@ export const customConnectionRepositoryExtension: IConnectionRepository &
 			.leftJoinAndSelect('connection.company', 'company')
 			.leftJoinAndSelect('company.users', 'user');
 		qb.andWhere('group.id = :groupId', { groupId: groupId });
-		return await qb.getOne();
+		const connection = await qb.getOne();
+		if (connection) {
+			await decryptConnectionCredentialsAsync(connection);
+		}
+		return connection;
 	},
 
 	async findOneById(connectionId: string): Promise<ConnectionEntity | null> {
-		return await this.findOne({ where: { id: connectionId } });
+		const connection = await this.findOne({ where: { id: connectionId } });
+		if (connection) {
+			await decryptConnectionCredentialsAsync(connection);
+		}
+		return connection;
 	},
 
 	async findOneAgentConnectionByToken(connectionToken: string): Promise<ConnectionEntity | null> {
 		const qb = this.createQueryBuilder('connection').leftJoinAndSelect('connection.agent', 'agent');
 		qb.andWhere('agent.token = :agentToken', { agentToken: connectionToken });
-		return await qb.getOne();
+		const connection = await qb.getOne();
+		if (connection) {
+			await decryptConnectionCredentialsAsync(connection);
+		}
+		return connection;
 	},
 
 	async isTestConnectionById(connectionId: string): Promise<boolean> {
@@ -179,13 +209,12 @@ export const customConnectionRepositoryExtension: IConnectionRepository &
 
 	async findAllCompanyUsersNonTestsConnections(companyId: string): Promise<Array<ConnectionEntity>> {
 		const connectionQb = this.createQueryBuilder('connection')
-			.leftJoin('connection.groups', 'group')
-			.leftJoin('group.users', 'user')
-			.leftJoin('user.company', 'company')
 			.leftJoinAndSelect('connection.connection_properties', 'connection_properties')
 			.where('connection.isTestConnection = :isTest', { isTest: false })
-			.andWhere('company.id = :companyId', { companyId: companyId });
-		return await connectionQb.getMany();
+			.andWhere('connection.companyId = :companyId', { companyId: companyId });
+		const connections = await connectionQb.getMany();
+		await decryptConnectionsCredentialsAsync(connections);
+		return connections;
 	},
 
 	async freezeConnections(connectionsIds: Array<string>): Promise<void> {
@@ -210,7 +239,9 @@ export const customConnectionRepositoryExtension: IConnectionRepository &
 			.where('user.id = :userId', { userId: userId })
 			.andWhere('connection.isTestConnection = :isTest', { isTest: true })
 			.andWhere('connection.company IS NULL');
-		return await qb.getMany();
+		const connections = await qb.getMany();
+		await decryptConnectionsCredentialsAsync(connections);
+		return connections;
 	},
 
 	decryptConnectionField(field: string): string {

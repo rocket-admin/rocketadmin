@@ -49,6 +49,12 @@ const colorConfig: IColorConfig<Palettes, Colors> = {
 		warnPalette: '#B71C1C',
 		whitePalette: '#FFFFFF',
 		warnDarkPalette: '#E53935',
+		warningPalette: '#f79008',
+		infoPalette: '#296ee9',
+		successPalette: '#1b5e20',
+		alternativePalette: '#6d28d9',
+		successDarkPalette: '#4caf50',
+		alternativeDarkPalette: '#c084fc',
 	},
 	simpleColors: { myColorName: '#2e959a' },
 };
@@ -58,6 +64,12 @@ type Palettes = {
 	warnPalette: string;
 	whitePalette: string;
 	warnDarkPalette: string;
+	warningPalette: string;
+	infoPalette: string;
+	successPalette: string;
+	alternativePalette: string;
+	successDarkPalette: string;
+	alternativeDarkPalette: string;
 };
 type Colors = { myColorName: string };
 
