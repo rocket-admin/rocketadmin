@@ -1,7 +1,7 @@
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { Expose } from 'class-transformer';
 import { nanoid } from 'nanoid';
 import {
-	AfterLoad,
 	BeforeInsert,
 	BeforeUpdate,
 	Column,
@@ -13,8 +13,6 @@ import {
 	PrimaryColumn,
 	Relation,
 } from 'typeorm';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
-import { Constants } from '../../helpers/constants/constants.js';
 import { Encryptor } from '../../helpers/encryption/encryptor.js';
 import { isConnectionTypeAgent } from '../../helpers/index.js';
 import { AgentEntity } from '../agent/agent.entity.js';
@@ -118,9 +116,18 @@ export class ConnectionEntity {
 	@Column({ default: null })
 	master_hash?: string | null;
 
+	/**
+	 * Non-persisted flag indicating whether credentials are currently in decrypted state.
+	 * Used by @BeforeUpdate to decide whether encryption is needed.
+	 */
+	credentialsDecrypted = false;
+
 	@BeforeUpdate()
 	updateTimestampEncryptCredentials(): void {
 		this.updatedAt = new Date();
+		if (!this.credentialsDecrypted) {
+			return;
+		}
 		if (!isConnectionTypeAgent(this.type)) {
 			this.host = Encryptor.encryptData(this.host);
 			this.database = Encryptor.encryptData(this.database);
@@ -138,6 +145,7 @@ export class ConnectionEntity {
 				this.cert = Encryptor.encryptData(this.cert);
 			}
 		}
+		this.credentialsDecrypted = false;
 	}
 
 	@BeforeInsert()
@@ -168,51 +176,8 @@ export class ConnectionEntity {
 		}
 	}
 
-	@AfterLoad()
-	decryptCredentials(): void {
-		if (this.isTestConnection) {
-			const testConnectionsArray = Constants.getTestConnectionsArr();
-			const foundTestConnectionByType = testConnectionsArray.find(
-				(testConnection) => testConnection.type === this.type,
-			);
-			if (foundTestConnectionByType) {
-				this.host = foundTestConnectionByType.host;
-				this.database = foundTestConnectionByType.database;
-				this.username = foundTestConnectionByType.username;
-				this.password = foundTestConnectionByType.password;
-				this.port = foundTestConnectionByType.port;
-				this.ssh = foundTestConnectionByType.ssh;
-				this.privateSSHKey = foundTestConnectionByType.privateSSHKey;
-				this.sshHost = foundTestConnectionByType.sshHost;
-				this.sshPort = foundTestConnectionByType.sshPort;
-				this.sshUsername = foundTestConnectionByType.sshUsername;
-				this.ssl = foundTestConnectionByType.ssl;
-				this.cert = foundTestConnectionByType.cert;
-				this.authSource = foundTestConnectionByType.authSource;
-				this.sid = foundTestConnectionByType.sid;
-				this.schema = foundTestConnectionByType.schema;
-				this.azure_encryption = foundTestConnectionByType.azure_encryption;
-			}
-		} else {
-			if (!isConnectionTypeAgent(this.type)) {
-				this.host = Encryptor.decryptData(this.host);
-				this.database = Encryptor.decryptData(this.database);
-				this.password = Encryptor.decryptData(this.password);
-				this.username = Encryptor.decryptData(this.username);
-				if (this.authSource) {
-					this.authSource = Encryptor.decryptData(this.authSource);
-				}
-				if (this.ssh) {
-					this.privateSSHKey = Encryptor.decryptData(this.privateSSHKey);
-					this.sshHost = Encryptor.decryptData(this.sshHost);
-					this.sshUsername = Encryptor.decryptData(this.sshUsername);
-				}
-				if (this.ssl && this.cert) {
-					this.cert = Encryptor.decryptData(this.cert);
-				}
-			}
-		}
-	}
+	// Decryption moved to async utility: decrypt-connection-credentials-async.ts
+	// All repository methods must call decryptConnectionCredentialsAsync() after loading.
 
 	@ManyToOne(
 		(_) => UserEntity,

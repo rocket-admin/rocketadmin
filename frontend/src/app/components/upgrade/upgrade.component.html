@@ -112,25 +112,22 @@
 
             <h2 class="mat-header-2">Hosted Instances</h2>
 
-            <table mat-table [dataSource]="hostedInstances" class="plansTable mat-elevation-z2">
+            <table class="plansTable plansTable--hosted mat-elevation-z2">
                 <colgroup>
                     <col style="width: 28%">
                     <col style="width: 24%">
-                    <col style="width: 24%">
-                    <col style="width: 24%">
+                    <col style="width: 48%">
                 </colgroup>
-
-                <ng-container *ngFor="let plan of plans" [matColumnDef]="plan.key">
-                    <td mat-cell *matCellDef="let element"
-                        [ngClass]="{'cell_centered': plan.key !== 'title', cell_current: plan.key === currentPlan.key}">
-                        <span *ngIf="plan.key === 'title'" class="row-title">{{element[plan.key]}}</span>
-                        <ng-container *ngIf="plan.key !== 'title'">
-
-                            {{element[plan.key]}}
-                        </ng-container>
-                    </td>
-                </ng-container>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                <tbody>
+                    <tr>
+                        <td class="row-title">Hosted PostgreSQL</td>
+                        <td class="cell_centered" [class.cell_current]="currentPlan.key === 'free'">Tiny node (0.1 CPU, 100 MB)</td>
+                        <td class="cell_centered" [class.cell_current]="currentPlan.key === 'team' || currentPlan.key === 'enterprise'">
+                            <strong>Scalable node</strong><br>
+                            <span class="hosted-pricing-details">$0.04/CPU/min · $0.2/GB/mo · <span style="white-space: nowrap">$0.04/M&nbsp;IOPS</span></span>
+                        </td>
+                    </tr>
+                </tbody>
             </table>
 
             <h2 class="mat-header-2">Users</h2>

@@ -23,6 +23,10 @@ import {
 	HostedDatabasePlanDialogComponent,
 } from '../hosted-database-plan-dialog/hosted-database-plan-dialog.component';
 import {
+	HostedDatabaseRenameDialogComponent,
+	HostedDatabaseRenameDialogData,
+} from '../hosted-database-rename-dialog/hosted-database-rename-dialog.component';
+import {
 	HostedDatabaseSuccessDialogComponent,
 	HostedDatabaseSuccessDialogData,
 } from '../hosted-database-success-dialog/hosted-database-success-dialog.component';
@@ -48,6 +52,7 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 	public hasMultipleMembers: boolean = false;
 	public isDarkMode: boolean = false;
 	public creatingHostedDatabase = signal(false);
+	public hostedDbCount: number = 0;
 
 	constructor(
 		private _uiSettings: UiSettingsService,
@@ -72,8 +77,12 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 
 		this._uiSettings.getUiSettings().subscribe((settings: UiSettings) => {
 			this.connectionsListCollapsed = settings?.globalSettings?.connectionsListCollapsed;
-			this.displayedCardCount = this.connectionsListCollapsed ? 3 : (this.connections?.length || 3);
+			this.displayedCardCount = this.connectionsListCollapsed ? 3 : this.connections?.length || 3;
 		});
+	}
+
+	get hostedDbLimitReached(): boolean {
+		return this.hostedDbCount >= 3;
 	}
 
 	ngOnChanges(changes: SimpleChanges) {
@@ -81,6 +90,12 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 			this._companyService.fetchCompanyMembers(this.companyId).subscribe((members: CompanyMember[]) => {
 				this.hasMultipleMembers = members && members.length > 1;
 			});
+
+			if (this.isSaas) {
+				this._hostedDatabaseService.listHostedDatabases(this.companyId).then((dbs) => {
+					this.hostedDbCount = dbs?.length || 0;
+				});
+			}
 		}
 
 		if (changes.connections && this.connections && !this.connectionsListCollapsed) {
@@ -115,6 +130,11 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 			return;
 		}
 
+		if (this.hostedDbLimitReached) {
+			this._router.navigate(['/upgrade']);
+			return;
+		}
+
 		const subscriptionLevel = this.currentUser.subscriptionLevel;
 		const isFreePlan = !subscriptionLevel || subscriptionLevel === SubscriptionPlans.free;
 		console.log('[HostedDB] subscriptionLevel:', subscriptionLevel, 'isFreePlan:', isFreePlan);
@@ -136,6 +156,11 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 		this.creatingHostedDatabase.set(true);
 		posthog.capture('Connections: hosted PostgreSQL creation started');
 
+		// Remember existing connection IDs before creation
+		const existingIds = new Set(
+			(this._connectionsService.ownConnectionsList || []).map((c: any) => c.connection?.id || c.id),
+		);
+
 		try {
 			const hostedDatabase = await this._hostedDatabaseService.createHostedDatabase(companyId);
 
@@ -144,11 +169,31 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 			}
 
 			posthog.capture('Connections: hosted PostgreSQL provisioned successfully');
-			this._connectionsService.fetchConnections().subscribe();
 			this._notifications.showSuccessSnackbar('Hosted PostgreSQL database is ready.');
+			this.hostedDbCount++;
+
+			// Fetch connections and find the newly created one by diffing
+			let connectionId: string | null = null;
+			try {
+				await new Promise<void>((resolve) => {
+					this._connectionsService.fetchConnections().subscribe({
+						next: () => {
+							const list = this._connectionsService.ownConnectionsList || [];
+							const newConn = list.find((c: any) => {
+								const id = c.connection?.id || c.id;
+								return !existingIds.has(id);
+							});
+							connectionId = (newConn as any)?.connection?.id || newConn?.id || null;
+							resolve();
+						},
+						error: () => resolve(),
+					});
+				});
+			} catch {}
+
 			this._openHostedDatabaseDialog({
 				hostedDatabase,
-				connectionId: null,
+				connectionId,
 			});
 		} catch (error) {
 			const errorMessage = this._getErrorMessage(error);
@@ -177,11 +222,28 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 	}
 
 	private _openHostedDatabaseDialog(data: HostedDatabaseSuccessDialogData): void {
-		this._dialog.open(HostedDatabaseSuccessDialogComponent, {
+		const dialogRef = this._dialog.open(HostedDatabaseSuccessDialogComponent, {
 			width: '42em',
 			maxWidth: '95vw',
 			data,
 			disableClose: true,
+		});
+
+		dialogRef.afterClosed().subscribe(() => {
+			if (data.connectionId) {
+				this._openRenameDialog({
+					connectionId: data.connectionId,
+					hostedDatabase: data.hostedDatabase,
+				});
+			}
+		});
+	}
+
+	private _openRenameDialog(data: HostedDatabaseRenameDialogData): void {
+		this._dialog.open(HostedDatabaseRenameDialogComponent, {
+			width: '28em',
+			maxWidth: '95vw',
+			data,
 		});
 	}
 

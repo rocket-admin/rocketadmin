@@ -61,4 +61,9 @@ export class CreateConnectionForHostedDbDto {
 	@IsString()
 	@IsNotEmpty()
 	password: string;
+
+	@ApiProperty()
+	@IsString()
+	@IsNotEmpty()
+	hostedDatabaseId: string;
 }

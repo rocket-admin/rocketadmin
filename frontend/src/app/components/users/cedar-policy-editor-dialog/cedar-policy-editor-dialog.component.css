@@ -21,11 +21,11 @@
 	align-items: center;
 	gap: 16px;
 	padding: 12px 16px;
-	border: 1px solid var(--warning-color);
+	border: 1px solid var(--color-warningPalette-500);
 	margin-bottom: 12px;
 	border-radius: 4px;
 	background: var(--warning-background-color);
-	color: var(--warning-color);
+	color: var(--color-warningPalette-500);
 	font-size: 13px;
 }
 

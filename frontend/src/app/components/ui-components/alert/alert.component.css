@@ -33,22 +33,22 @@
 }
 
 .alert_error {
-	--alert-theme-color: var(--error-color);
+	--alert-theme-color: var(--color-warnPalette-500);
 	--bg-color: var(--error-background-color);
 }
 
 .alert_warning {
-	--alert-theme-color: var(--warning-color);
+	--alert-theme-color: var(--color-warningPalette-500);
 	--bg-color: var(--warning-background-color);
 }
 
 .alert_info {
-	--alert-theme-color: var(--info-color);
+	--alert-theme-color: var(--color-infoPalette-500);
 	--bg-color: var(--info-background-color);
 }
 
 .alert_success {
-	--alert-theme-color: var(--success-color);
+	--alert-theme-color: var(--color-successPalette-500);
 	--bg-color: var(--success-background-color);
 }
 
@@ -64,7 +64,6 @@
 	opacity: 0.9;
 	width: 36px;
 }
-
 
 .alert__message {
 	flex: 1;

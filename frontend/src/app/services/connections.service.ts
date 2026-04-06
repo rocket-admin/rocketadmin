@@ -2,14 +2,16 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { IColorConfig, NgxThemeService } from '@brumeilde/ngx-theme';
-import { BehaviorSubject, EMPTY, throwError } from 'rxjs';
+import { BehaviorSubject, EMPTY, firstValueFrom, throwError } from 'rxjs';
 import { catchError, filter, map } from 'rxjs/operators';
 import { AlertActionType, AlertType } from '../models/alert';
 import { Connection, ConnectionSettings, ConnectionType, DBtype } from '../models/connection';
 import { AccessLevel } from '../models/user';
 import { CedarPermissionService } from './cedar-permission.service';
+import { HostedDatabaseService } from './hosted-database.service';
 import { MasterPasswordService } from './master-password.service';
 import { NotificationsService } from './notifications.service';
+import { UserService } from './user.service';
 import { UsersService } from './users.service';
 
 interface LogParams {
@@ -20,7 +22,19 @@ interface LogParams {
 	chunkSize?: number;
 }
 
-type Palettes = { primaryPalette: string; accentedPalette: string };
+type Palettes = {
+	primaryPalette?: string;
+	accentedPalette?: string;
+	warnPalette?: string;
+	whitePalette?: string;
+	warnDarkPalette?: string;
+	warningPalette?: string;
+	infoPalette?: string;
+	successPalette?: string;
+	alternativePalette?: string;
+	successDarkPalette?: string;
+	alternativeDarkPalette?: string;
+};
 type Colors = { myColorName: string };
 
 @Injectable({
@@ -59,12 +73,18 @@ export class ConnectionsService {
 	public defaultDisplayTable: string;
 	public ownConnections: Connection[] = null;
 	public testConnections: Connection[] = null;
+	public isHostedConnection: boolean = false;
+	private hostedDatabaseHostnames: Set<string> = new Set();
 
 	private connectionNameSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Rocketadmin');
 	private connectionSigningKeySubject: BehaviorSubject<string> = new BehaviorSubject<string>(null);
 	private connectionsSubject: BehaviorSubject<Connection[]> = new BehaviorSubject<Connection[]>([]);
 
 	public cast = this.connectionsSubject.asObservable();
+
+	invalidateConnections(): void {
+		this.connectionsSubject.next(null);
+	}
 
 	constructor(
 		private _http: HttpClient,
@@ -74,6 +94,8 @@ export class ConnectionsService {
 		private _usersService: UsersService,
 		private _permissions: CedarPermissionService,
 		public _themeService: NgxThemeService<IColorConfig<Palettes, Colors>>,
+		private _hostedDatabaseService: HostedDatabaseService,
+		private _userService: UserService,
 	) {
 		this.connection = { ...this.connectionInitialState };
 		this.router = router;
@@ -159,6 +181,7 @@ export class ConnectionsService {
 
 	setConnectionInfo(id: string) {
 		this.defaultDisplayTable = null;
+		this.isHostedConnection = false;
 		if (id) {
 			this.fetchConnection(id).subscribe((res) => {
 				this.connection = res.connection;
@@ -173,17 +196,46 @@ export class ConnectionsService {
 						palettes: {
 							primaryPalette: res.connectionProperties.primary_color,
 							accentedPalette: res.connectionProperties.secondary_color,
+							warningPalette: '#f79008',
+							infoPalette: '#296ee9',
+							successPalette: '#1b5e20',
+							alternativePalette: '#6d28d9',
+							successDarkPalette: '#4caf50',
+							alternativeDarkPalette: '#c084fc',
 						},
 					});
 				} else {
 					this.isCustomAccentedColor = false;
-					this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#2563eb' } });
+					this._themeService.updateColors({
+						palettes: {
+							primaryPalette: '#212121',
+							accentedPalette: '#2563eb',
+							warningPalette: '#f79008',
+							infoPalette: '#296ee9',
+							successPalette: '#1b5e20',
+							alternativePalette: '#6d28d9',
+							successDarkPalette: '#4caf50',
+							alternativeDarkPalette: '#c084fc',
+						},
+					});
 				}
+				this.checkIfHostedConnection(res.connection.host);
 			});
 		} else {
 			this.connection = { ...this.connectionInitialState };
 			this.isCustomAccentedColor = false;
-			this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#2563eb' } });
+			this._themeService.updateColors({
+				palettes: {
+					primaryPalette: '#212121',
+					accentedPalette: '#2563eb',
+					warningPalette: '#f79008',
+					infoPalette: '#296ee9',
+					successPalette: '#1b5e20',
+					alternativePalette: '#6d28d9',
+					successDarkPalette: '#4caf50',
+					alternativeDarkPalette: '#c084fc',
+				},
+			});
 		}
 
 		console.log('this.defaultDisplayTable');
@@ -285,11 +337,28 @@ export class ConnectionsService {
 						palettes: {
 							primaryPalette: res.connectionProperties.primary_color,
 							accentedPalette: res.connectionProperties.secondary_color,
+							warningPalette: '#f79008',
+							infoPalette: '#296ee9',
+							successPalette: '#1b5e20',
+							alternativePalette: '#6d28d9',
+							successDarkPalette: '#4caf50',
+							alternativeDarkPalette: '#c084fc',
 						},
 					});
 				} else {
 					this.defaultDisplayTable = null;
-					this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#2563eb' } });
+					this._themeService.updateColors({
+						palettes: {
+							primaryPalette: '#212121',
+							accentedPalette: '#2563eb',
+							warningPalette: '#f79008',
+							infoPalette: '#296ee9',
+							successPalette: '#1b5e20',
+							alternativePalette: '#6d28d9',
+							successDarkPalette: '#4caf50',
+							alternativeDarkPalette: '#c084fc',
+						},
+					});
 				}
 				return { ...res, connection };
 			}),
@@ -460,7 +529,16 @@ export class ConnectionsService {
 			map((res: any) => {
 				if (res) {
 					this._themeService.updateColors({
-						palettes: { primaryPalette: res.primary_color, accentedPalette: res.secondary_color },
+						palettes: {
+							primaryPalette: res.primary_color,
+							accentedPalette: res.secondary_color,
+							warningPalette: '#f79008',
+							infoPalette: '#296ee9',
+							successPalette: '#1b5e20',
+							alternativePalette: '#6d28d9',
+							successDarkPalette: '#4caf50',
+							alternativeDarkPalette: '#c084fc',
+						},
 					});
 				}
 				return res;
@@ -504,6 +582,21 @@ export class ConnectionsService {
 		);
 	}
 
+	updateConnectionTitle(connectionID: string, title: string) {
+		return this._http.put(`/connection/title/${connectionID}`, { title }).pipe(
+			map((res) => {
+				this._notifications.showSuccessSnackbar('Connection title has been updated successfully.');
+				return res;
+			}),
+			catchError((err) => {
+				console.log(err);
+				const errorMessage = err.error?.message || 'Unknown error';
+				this._notifications.showErrorSnackbar(`${errorMessage}.`);
+				return EMPTY;
+			}),
+		);
+	}
+
 	deleteConnectionSettings(connectionID: string) {
 		return this._http.delete(`/connection/properties/${connectionID}`).pipe(
 			map(() => {
@@ -516,5 +609,31 @@ export class ConnectionsService {
 				return EMPTY;
 			}),
 		);
+	}
+
+	private async checkIfHostedConnection(connectionHost: string) {
+		if (!connectionHost) {
+			this.isHostedConnection = false;
+			return;
+		}
+		if (this.hostedDatabaseHostnames.size === 0) {
+			await this.loadHostedDatabaseHostnames();
+		}
+		this.isHostedConnection = this.hostedDatabaseHostnames.has(connectionHost);
+	}
+
+	private async loadHostedDatabaseHostnames() {
+		try {
+			const user = await firstValueFrom(this._userService.cast.pipe(filter((u) => !!u?.company?.id)));
+			const databases = await this._hostedDatabaseService.listHostedDatabases(user.company.id);
+			this.hostedDatabaseHostnames.clear();
+			if (databases) {
+				for (const db of databases) {
+					this.hostedDatabaseHostnames.add(db.hostname);
+				}
+			}
+		} catch {
+			// Silently fail - non-hosted path will be used
+		}
 	}
 }

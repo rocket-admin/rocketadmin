@@ -1,14 +1,14 @@
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatRadioModule } from '@angular/material/radio';
@@ -121,9 +121,21 @@ export class DbTableActionsComponent implements OnInit {
 	];
 
 	public triggerMeta: Record<string, { icon: string; desc: string; color: string }> = {
-		[EventType.AddRow]: { icon: 'add_circle_outline', desc: 'Fires when a new row is inserted', color: '#4caf50' },
-		[EventType.UpdateRow]: { icon: 'edit', desc: 'Fires when an existing row is modified', color: '#2196f3' },
-		[EventType.DeleteRow]: { icon: 'delete_outline', desc: 'Fires when a row is removed', color: '#e53935' },
+		[EventType.AddRow]: {
+			icon: 'add_circle_outline',
+			desc: 'Fires when a new row is inserted',
+			color: 'var(--color-successPalette-500)',
+		},
+		[EventType.UpdateRow]: {
+			icon: 'edit',
+			desc: 'Fires when an existing row is modified',
+			color: 'var(--color-infoPalette-500)',
+		},
+		[EventType.DeleteRow]: {
+			icon: 'delete_outline',
+			desc: 'Fires when a row is removed',
+			color: 'var(--color-warnPalette-500)',
+		},
 		[EventType.Custom]: { icon: 'tune', desc: 'Manual trigger with custom button', color: '#9c27b0' },
 	};
 	public selectedEvents: string[] = [];

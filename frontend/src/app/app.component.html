@@ -124,7 +124,7 @@
 
             <div *ngIf="connectionID" class="menu">
                 <a mat-button *ngFor="let tab of visibleTabs" attr.data-testid="{{tab}}-header-link"
-                    routerLink="{{tab}}/{{connectionID}}"
+                    routerLink="{{tab === 'edit-db' && isHostedConnection ? '/hosted-databases' : tab + '/' + connectionID}}"
                     routerLinkActive="nav-bar__button_active"
                     class="nav-bar__button">
                     <span *ngIf="tab !== 'edit-db' ">{{navigationTabs[tab].caption}}</span>
@@ -135,7 +135,7 @@
                 </a>
             </div>
 
-            <button mat-icon-button *ngIf="userLoggedIn === true" color="primary" class="menu-button" (click)="drawer.toggle()">
+            <button type="button" mat-icon-button *ngIf="userLoggedIn === true" color="primary" class="menu-button" (click)="drawer.toggle()">
                 <mat-icon>menu</mat-icon>
             </button>
 
@@ -198,7 +198,7 @@
                         <mat-icon fontSet="material-symbols-outlined">help</mat-icon>
                         <span>Help center</span>
                     </a>
-                    <button mat-menu-item (click)="logOut()" data-testid="logout-button-account-menu">
+                    <button type="button" mat-menu-item (click)="logOut()" data-testid="logout-button-account-menu">
                         <mat-icon>logout</mat-icon>
                         <span>Log out</span>
                     </button>

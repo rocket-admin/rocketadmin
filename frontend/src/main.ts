@@ -49,6 +49,12 @@ const colorConfig: IColorConfig<Palettes, Colors> = {
 		warnPalette: '#B71C1C',
 		whitePalette: '#FFFFFF',
 		warnDarkPalette: '#E53935',
+		warningPalette: '#f79008',
+		infoPalette: '#296ee9',
+		successPalette: '#1b5e20',
+		alternativePalette: '#6d28d9',
+		successDarkPalette: '#4caf50',
+		alternativeDarkPalette: '#c084fc',
 	},
 	simpleColors: { myColorName: '#2e959a' },
 };
@@ -58,6 +64,12 @@ type Palettes = {
 	warnPalette: string;
 	whitePalette: string;
 	warnDarkPalette: string;
+	warningPalette: string;
+	infoPalette: string;
+	successPalette: string;
+	alternativePalette: string;
+	successDarkPalette: string;
+	alternativeDarkPalette: string;
 };
 type Colors = { myColorName: string };
 
@@ -70,7 +82,7 @@ if (environment.production) {
 	enableProdMode();
 }
 
-if ((environment as any).saas) {
+if ((environment as Record<string, unknown>).saas) {
 	Sentry.init({
 		dsn: 'https://4d774c4c2c8a8f733cb4d43599cc0dc6@o4506084700389376.ingest.sentry.io/4506084702486528',
 		integrations: [Sentry.browserTracingIntegration()],
@@ -128,7 +140,7 @@ bootstrapApplication(AppComponent, {
 		{
 			provide: APP_INITIALIZER,
 			useFactory: () => () => {},
-			deps: (environment as any).saas ? [Sentry.TraceService] : [],
+			deps: (environment as Record<string, unknown>).saas ? [Sentry.TraceService] : [],
 			multi: true,
 		},
 		{

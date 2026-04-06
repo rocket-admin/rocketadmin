@@ -1,4 +1,4 @@
-/** biome-ignore-all lint/complexity/noStaticOnlyClass: <explanation> */
+/** biome-ignore-all lint/complexity/noStaticOnlyClass: utility class with only static encryption methods */
 import argon2 from 'argon2';
 import bcrypt from 'bcrypt';
 import crypto, { createHmac, randomBytes, scrypt } from 'crypto';
@@ -21,6 +21,15 @@ export class Encryptor {
 
 	private static deriveKey(passphrase: string, salt: Buffer): Buffer {
 		return crypto.pbkdf2Sync(passphrase, salt, KDF_ITERATIONS, KEY_LENGTH, 'sha256');
+	}
+
+	private static deriveKeyAsync(passphrase: string, salt: Buffer): Promise<Buffer> {
+		return new Promise((resolve, reject) => {
+			crypto.pbkdf2(passphrase, salt, KDF_ITERATIONS, KEY_LENGTH, 'sha256', (err, key) => {
+				if (err) reject(err);
+				else resolve(key);
+			});
+		});
 	}
 
 	private static encryptDataV2(data: string, passphrase: string): string {
@@ -58,6 +67,24 @@ export class Encryptor {
 		return decrypted.toString('utf8');
 	}
 
+	private static async decryptDataV2Async(encryptedData: string, passphrase: string): Promise<string> {
+		const dataWithoutPrefix = encryptedData.substring(ENCRYPTION_VERSION_PREFIX.length);
+		const parts = dataWithoutPrefix.split('.');
+		if (parts.length !== 4) {
+			throw new Error('Invalid V2 encrypted data format');
+		}
+		const [saltB64, ivB64, authTagB64, encryptedB64] = parts;
+		const salt = Buffer.from(saltB64, 'base64');
+		const iv = Buffer.from(ivB64, 'base64');
+		const authTag = Buffer.from(authTagB64, 'base64');
+		const encrypted = Buffer.from(encryptedB64, 'base64');
+		const key = await Encryptor.deriveKeyAsync(passphrase, salt);
+		const decipher = crypto.createDecipheriv(ENCRYPTION_ALGORITHM, key, iv);
+		decipher.setAuthTag(authTag);
+		const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
+		return decrypted.toString('utf8');
+	}
+
 	private static decryptDataV1Legacy(encryptedData: string, passphrase: string): string {
 		const bytes = CryptoJS.AES.decrypt(encryptedData, passphrase);
 		return bytes.toString(CryptoJS.enc.Utf8);
@@ -89,6 +116,23 @@ export class Encryptor {
 
 			if (Encryptor.isV2Format(encryptedData)) {
 				return Encryptor.decryptDataV2(encryptedData, privateKey);
+			}
+
+			return Encryptor.decryptDataV1Legacy(encryptedData, privateKey);
+		} catch (e) {
+			throw new Error('Data decryption failed with error: ' + e);
+		}
+	}
+
+	static async decryptDataAsync(encryptedData: string): Promise<string> {
+		if (encryptedData === null || encryptedData === undefined) {
+			return encryptedData;
+		}
+		try {
+			const privateKey = Encryptor.getPrivateKey();
+
+			if (Encryptor.isV2Format(encryptedData)) {
+				return await Encryptor.decryptDataV2Async(encryptedData, privateKey);
 			}
 
 			return Encryptor.decryptDataV1Legacy(encryptedData, privateKey);
@@ -250,7 +294,7 @@ export class Encryptor {
 		}
 	}
 
-	static async scryptHash(data: string): Promise<string> {
+	static scryptHash(data: string): Promise<string> {
 		return new Promise((resolve, reject) => {
 			const salt = randomBytes(16).toString('hex');
 			scrypt(data, salt, 64, (err, derivedData) => {
@@ -260,7 +304,7 @@ export class Encryptor {
 		});
 	}
 
-	static async hashUserPassword(password: string): Promise<string> {
+	static hashUserPassword(password: string): Promise<string> {
 		if (!password || password.length <= 0) return password;
 		return new Promise<string>((resolve, reject) => {
 			const salt = crypto.randomBytes(Constants.PASSWORD_SALT_LENGTH).toString(Constants.BYTE_TO_STRING_ENCODING);

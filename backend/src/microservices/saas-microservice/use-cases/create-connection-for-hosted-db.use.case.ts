@@ -27,7 +27,7 @@ export class CreateConnectionForHostedDbUseCase
 	}
 
 	protected async implementation(inputData: CreateConnectionForHostedDbDto): Promise<CreatedConnectionResponse> {
-		const { companyId, userId, databaseName, hostname, port, username, password } = inputData;
+		const { companyId, userId, databaseName, hostname, port, username, password, hostedDatabaseId } = inputData;
 
 		const connectionAuthor = await this._dbContext.userRepository.findOneUserById(userId);
 		if (!connectionAuthor) {
@@ -63,6 +63,7 @@ export class CreateConnectionForHostedDbUseCase
 		await dao.testConnect();
 
 		const connection = new ConnectionEntity();
+		connection.id = hostedDatabaseId;
 		connection.type = ConnectionTypesEnum.postgres;
 		connection.host = hostname;
 		connection.port = port;

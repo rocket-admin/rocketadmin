@@ -33,6 +33,7 @@ import { TestConnectionUseCase } from './use-cases/test-connection.use.case.js';
 import { UnfreezeConnectionUseCase } from './use-cases/unfreeze-connection.use.case.js';
 import { UpdateConnectionUseCase } from './use-cases/update-connection.use.case.js';
 import { UpdateConnectionMasterPasswordUseCase } from './use-cases/update-connection-master-password.use.case.js';
+import { UpdateConnectionTitleUseCase } from './use-cases/update-connection-title.use.case.js';
 import { ValidateConnectionMasterPasswordUseCase } from './use-cases/validate-connection-master-password.use.case.js';
 import { ValidateConnectionTokenUseCase } from './use-cases/validate-connection-token.use.case.js';
 
@@ -130,6 +131,10 @@ import { ValidateConnectionTokenUseCase } from './use-cases/validate-connection-
 			provide: UseCaseType.UNFREEZE_CONNECTION,
 			useClass: UnfreezeConnectionUseCase,
 		},
+		{
+			provide: UseCaseType.UPDATE_CONNECTION_TITLE,
+			useClass: UpdateConnectionTitleUseCase,
+		},
 	],
 	controllers: [ConnectionController],
 })
@@ -156,6 +161,7 @@ export class ConnectionModule implements NestModule {
 				{ path: '/connection/token/refresh/:connectionId', method: RequestMethod.GET },
 				{ path: '/connection/masterpwd/verify/:connectionId', method: RequestMethod.GET },
 				{ path: '/connection/unfreeze/:connectionId', method: RequestMethod.PUT },
+				{ path: '/connection/title/:connectionId', method: RequestMethod.PUT },
 			)
 			.apply(AuthWithApiMiddleware)
 			.forRoutes({ path: 'connections', method: RequestMethod.GET });

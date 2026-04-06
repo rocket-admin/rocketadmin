@@ -7,13 +7,13 @@
 	align-items: flex-start;
 	gap: 12px;
 	padding: 12px 16px;
-	background-color: color-mix(in hsl, #296ee9, transparent 95%);
+	background-color: var(--color-infoPalette-50);
 	border-radius: 4px;
 	margin-bottom: 20px;
 }
 
 .info-icon {
-	color: #296ee9;
+	color: var(--color-infoPalette-500);
 	font-size: 20px;
 	width: 20px;
 	height: 20px;
@@ -30,14 +30,10 @@
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
 	.folder-info {
-		background-color: color-mix(in hsl, #296ee9, transparent 75%);
-	}
-
-	.info-icon {
-		color: #296ee9;
+		background-color: var(--color-infoPalette-800);
 	}
 
 	.info-text {
-		color: #e0e0e0;
+		color: rgba(255, 255, 255, 0.72);
 	}
 }

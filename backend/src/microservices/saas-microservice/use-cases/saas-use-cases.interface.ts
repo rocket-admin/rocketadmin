@@ -8,7 +8,9 @@ import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { CreatedConnectionResponse, SuccessResponse } from '../data-structures/common-responce.ds.js';
 import { CreateConnectionForHostedDbDto } from '../data-structures/create-connecttion-for-selfhosted-db.dto.js';
 import { DeleteConnectionForHostedDbDto } from '../data-structures/delete-connection-for-hosted-db.dto.js';
+import { FoundConnectionInfoRO } from '../data-structures/found-connection-info.ro.js';
 import { FreezeConnectionsInCompanyDS } from '../data-structures/freeze-connections-in-company.ds.js';
+import { GetConnectionsInfoByIdsDS } from '../data-structures/get-connections-info-by-ids.ds.js';
 import { GetUserInfoByIdDS } from '../data-structures/get-user-info.ds.js';
 import { GetUsersInfosByEmailDS } from '../data-structures/get-users-infos-by-email.ds.js';
 import { RegisterCompanyWebhookDS } from '../data-structures/register-company.ds.js';
@@ -81,4 +83,8 @@ export interface IDeleteConnectionForHostedDb {
 
 export interface IUpdateHostedConnectionPassword {
 	execute(inputData: UpdateHostedConnectionPasswordDto): Promise<SuccessResponse>;
+}
+
+export interface IGetConnectionsInfoByIds {
+	execute(inputData: GetConnectionsInfoByIdsDS): Promise<Array<FoundConnectionInfoRO>>;
 }
