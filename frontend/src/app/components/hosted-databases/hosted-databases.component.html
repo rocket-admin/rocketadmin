@@ -48,6 +48,11 @@
 								</div>
 								<div class="db-card__actions">
 									<button type="button" mat-icon-button
+										matTooltip="Change connection title"
+										(click)="renameDatabase(db)">
+										<mat-icon>edit</mat-icon>
+									</button>
+									<button type="button" mat-icon-button
 										matTooltip="Reset password"
 										(click)="resetPassword(db)">
 										<mat-icon>lock_reset</mat-icon>
