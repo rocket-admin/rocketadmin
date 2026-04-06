@@ -74,6 +74,16 @@ export const groupCustomRepositoryExtension: IGroupRepository = {
 		return await qb.getOne();
 	},
 
+	async findAllUserGroupsInConnections(connectionIds: Array<string>, userId: string): Promise<Array<GroupEntity>> {
+		if (connectionIds.length === 0) return [];
+		const qb = this.createQueryBuilder('group')
+			.leftJoinAndSelect('group.connection', 'connection')
+			.leftJoinAndSelect('group.users', 'user')
+			.andWhere('connection.id IN (:...connectionIds)', { connectionIds })
+			.andWhere('user.id = :userId', { userId });
+		return await qb.getMany();
+	},
+
 	async findAllUsersInGroupsWhereUserIsAdmin(userId: string, connectionId: string): Promise<Array<UserEntity>> {
 		// Find groups where the user is a member, in the given connection,
 		// and the Cedar policy grants group:edit access (wildcard or explicit)

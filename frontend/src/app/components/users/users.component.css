@@ -69,8 +69,8 @@ header {
 	letter-spacing: 0.5px;
 	padding: 2px 6px;
 	border-radius: 10px;
-	background: color-mix(in srgb, var(--alternative-color), transparent 88%);
-	color: var(--alternative-color);
+	background: color-mix(in srgb, var(--color-alternativePalette-500), transparent 88%);
+	color: var(--color-alternativePalette-500);
 	margin-left: 8px;
 }
 

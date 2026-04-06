@@ -442,7 +442,7 @@
 
 .example-flow__badge--when {
 	background: #ede9fe;
-	color: #6d28d9;
+	color: var(--color-alternativePalette-500);
 }
 
 .example-flow__badge--action {
@@ -504,30 +504,30 @@
 }
 
 .example-trigger__icon-box--add {
-	background: color-mix(in srgb, var(--success-color), transparent 80%);
-	color: var(--success-color);
+	background: color-mix(in srgb, var(--color-successPalette-500), transparent 80%);
+	color: var(--color-successPalette-500);
 }
 
 .example-trigger__icon-box--update {
-	background: color-mix(in srgb, var(--info-color), transparent 80%);
-	color: var(--info-color);
+	background: color-mix(in srgb, var(--color-infoPalette-500), transparent 80%);
+	color: var(--color-infoPalette-500);
 }
 
 .example-trigger__icon-box--delete {
-	background: color-mix(in srgb, var(--error-color), transparent 80%);
-	color: var(--error-color);
+	background: color-mix(in srgb, var(--color-warnPalette-500), transparent 80%);
+	color: var(--color-warnPalette-500);
 }
 
 .example-trigger__icon-box--custom {
-	background: color-mix(in srgb, var(--alternative-color), transparent 80%);
-	color: var(--alternative-color);
+	background: color-mix(in srgb, var(--color-alternativePalette-500), transparent 80%);
+	color: var(--color-alternativePalette-500);
 }
 
 @media (prefers-color-scheme: dark) {
-	.example-trigger__icon-box--add { background: color-mix(in srgb, var(--success-color), transparent 88%); color: var(--success-color); }
-	.example-trigger__icon-box--update { background: color-mix(in srgb, var(--info-color), transparent 88%); color: var(--info-color); }
-	.example-trigger__icon-box--delete { background: color-mix(in srgb, var(--error-color), transparent 88%); color: var(--error-color); }
-	.example-trigger__icon-box--custom { background: color-mix(in srgb, var(--alternative-color), transparent 88%); color: var(--alternative-color); }
+	.example-trigger__icon-box--add { background: color-mix(in srgb, var(--color-successPalette-500), transparent 88%); color: var(--color-successPalette-500); }
+	.example-trigger__icon-box--update { background: color-mix(in srgb, var(--color-infoPalette-500), transparent 88%); color: var(--color-infoPalette-500); }
+	.example-trigger__icon-box--delete { background: color-mix(in srgb, var(--color-warnPalette-500), transparent 88%); color: var(--color-warnPalette-500); }
+	.example-trigger__icon-box--custom { background: color-mix(in srgb, var(--color-alternativePalette-500), transparent 88%); color: var(--color-alternativePalette-500); }
 }
 
 .example-trigger__text {
@@ -862,24 +862,24 @@
 .trigger-pills__or {
 	font-size: 11px;
 	font-weight: 500;
-	color: #5a5a70;
+	color: rgba(255, 255, 255, 0.24);
 	text-transform: uppercase;
 	letter-spacing: 0.03em;
 }
 
 @media (prefers-color-scheme: light) {
 	.trigger-pills__or {
-		color: #94a3b8;
+		color: rgba(0, 0, 0, 0.32);
 	}
 }
 
 .trigger-pill {
 	display: inline-flex;
 	align-items: center;
-	gap: 7px;
+	gap: 8px;
 	padding: 7px 14px;
-	border-radius: 8px;
-	border: 1px solid #2a2a3a;
+	border-radius: 4px;
+	border: 1px solid var(--mat-button-outlined-outline-color);
 	background: #0f0f18;
 	font-size: 12px;
 	font-weight: 600;
@@ -900,91 +900,83 @@
 }
 
 /* Default colored text & icons per type (muted when not selected) */
-.trigger-pill--add-row { color: color-mix(in srgb, var(--success-color), transparent 40%); }
-.trigger-pill--update-row { color: color-mix(in srgb, var(--info-color), transparent 40%); }
-.trigger-pill--delete-row { color: color-mix(in srgb, var(--error-color), transparent 40%); }
-.trigger-pill--custom { color: #8660b0; }
-
-/* Full saturation when active */
-.trigger-pill--add-row.trigger-pill--active { color: var(--success-color); }
-.trigger-pill--update-row.trigger-pill--active { color: var(--info-color); }
-.trigger-pill--delete-row.trigger-pill--active { color: var(--error-color); }
-.trigger-pill--custom.trigger-pill--active { color: #c084fc; }
+.trigger-pill--add-row { color: var(--color-successDarkPalette-700); }
+.trigger-pill--update-row { color: var(--color-infoPalette-700); }
+.trigger-pill--delete-row { color: var(--color-warnDarkPalette-700); }
+.trigger-pill--custom { color: var(--color-alternativeDarkPalette-700); }
 
 .trigger-pill:hover {
-	border-color: #3a3a50;
-	background: #161620;
+	background: rgba(255, 255, 255, 0.036);
 }
 
 /* Active states */
 .trigger-pill--add-row.trigger-pill--active {
-	border-color: var(--success-color);
-	background: color-mix(in srgb, var(--success-color), transparent 90%);
-	box-shadow: 0 0 0 1px color-mix(in srgb, var(--success-color), transparent 75%), 0 0 12px color-mix(in srgb, var(--success-color), transparent 92%);
+	border-color: var(--color-successDarkPalette-500);
+	background: var(--color-successDarkPalette-900);
+	box-shadow: 0 0 0 1px var(--color-successDarkPalette-800), 0 0 12px var(--color-successDarkPalette-900);
+	color: var(--color-successDarkPalette-500);
 }
 
 .trigger-pill--update-row.trigger-pill--active {
-	border-color: var(--info-color);
-	background: color-mix(in srgb, var(--info-color), transparent 90%);
-	box-shadow: 0 0 0 1px color-mix(in srgb, var(--info-color), transparent 75%), 0 0 12px color-mix(in srgb, var(--info-color), transparent 92%);
+	border-color: var(--color-infoPalette-500);
+	background: var(--color-infoPalette-900);
+	box-shadow: 0 0 0 1px var(--color-infoPalette-800), 0 0 12px var(--color-infoPalette-900);
+	color: var(--color-infoPalette-500);
 }
 
 .trigger-pill--delete-row.trigger-pill--active {
-	border-color: var(--error-color);
-	background: color-mix(in srgb, var(--error-color), transparent 90%);
-	box-shadow: 0 0 0 1px color-mix(in srgb, var(--error-color), transparent 75%), 0 0 12px color-mix(in srgb, var(--error-color), transparent 92%);
+	border-color: var(--color-warnDarkPalette-500);
+	background: var(--color-warnDarkPalette-900);
+	box-shadow: 0 0 0 1px var(--color-warnDarkPalette-800), 0 0 12px var(--color-warnDarkPalette-900);
+	color: var(--color-warnDarkPalette-500);
 }
 
 .trigger-pill--custom.trigger-pill--active {
-	border-color: #c084fc;
-	background: color-mix(in srgb, #c084fc, transparent 90%);
-	box-shadow: 0 0 0 1px rgba(192, 132, 252, 0.25), 0 0 12px rgba(192, 132, 252, 0.08);
+	border-color: var(--color-alternativeDarkPalette-500);
+	background: var(--color-alternativeDarkPalette-900);
+	box-shadow: 0 0 0 1px var(--color-alternativeDarkPalette-800), 0 0 12px var(--color-alternativeDarkPalette-900);
+	color: var(--color-alternativeDarkPalette-500);
 }
 
 /* Light mode overrides */
 @media (prefers-color-scheme: light) {
-	.trigger-pill {
-		background: #ffffff;
-		border-color: #e2e8f0;
-	}
-
-	.trigger-pill--add-row { color: color-mix(in srgb, var(--success-color), transparent 35%); }
-	.trigger-pill--update-row { color: color-mix(in srgb, var(--info-color), transparent 35%); }
-	.trigger-pill--delete-row { color: color-mix(in srgb, var(--error-color), transparent 35%); }
-	.trigger-pill--custom { color: #9878bf; }
-
-	.trigger-pill--add-row.trigger-pill--active { color: var(--success-color); }
-	.trigger-pill--update-row.trigger-pill--active { color: var(--info-color); }
-	.trigger-pill--delete-row.trigger-pill--active { color: var(--error-color); }
-	.trigger-pill--custom.trigger-pill--active { color: #9333ea; }
+	/* Default colored text & icons per type (muted when not selected) */
+	.trigger-pill--add-row { color: var(--color-successPalette-300); background-color: transparent; }
+	.trigger-pill--update-row { color: var(--color-infoPalette-300); background-color: transparent; }
+	.trigger-pill--delete-row { color: var(--color-warnPalette-300); background-color: transparent; }
+	.trigger-pill--custom { color: var(--color-alternativePalette-300); background-color: transparent; }
 
 	.trigger-pill:hover {
-		border-color: #cbd5e1;
-		background: #f8fafc;
+		background: rgba(255, 255, 255, 0.036);
 	}
 
+	/* Active states */
 	.trigger-pill--add-row.trigger-pill--active {
-		border-color: var(--success-color);
-		background: color-mix(in srgb, var(--success-color), transparent 92%);
-		box-shadow: 0 0 0 1px color-mix(in srgb, var(--success-color), transparent 75%);
+		border-color: var(--color-successPalette-500);
+		background: var(--color-successPalette-100);
+		box-shadow: 0 0 0 1px var(--color-successPalette-100), 0 0 12px var(--color-successPalette-50);
+		color: var(--color-successPalette-500);
 	}
 
 	.trigger-pill--update-row.trigger-pill--active {
-		border-color: var(--info-color);
-		background: color-mix(in srgb, var(--info-color), transparent 92%);
-		box-shadow: 0 0 0 1px color-mix(in srgb, var(--info-color), transparent 75%);
+		border-color: var(--color-infoPalette-500);
+		background: var(--color-infoPalette-100);
+		box-shadow: 0 0 0 1px var(--color-infoPalette-100), 0 0 12px var(--color-infoPalette-50);
+		color: var(--color-infoPalette-500);
 	}
 
 	.trigger-pill--delete-row.trigger-pill--active {
-		border-color: var(--error-color);
-		background: color-mix(in srgb, var(--error-color), transparent 92%);
-		box-shadow: 0 0 0 1px color-mix(in srgb, var(--error-color), transparent 75%);
+		border-color: var(--color-warnPalette-500);
+		background: var(--color-warnPalette-100);
+		box-shadow: 0 0 0 1px var(--color-warnPalette-100), 0 0 12px var(--color-warnPalette-50);
+		color: var(--color-warnPalette-500);
 	}
 
 	.trigger-pill--custom.trigger-pill--active {
-		border-color: #9333ea;
-		background: #faf5ff;
-		box-shadow: 0 0 0 1px rgba(147, 51, 234, 0.25);
+		border-color: var(--color-alternativePalette-500);
+		background: var(--color-alternativePalette-100);
+		box-shadow: 0 0 0 1px var(--color-alternativePalette-100), 0 0 12px var(--color-alternativePalette-50);
+		color: var(--color-alternativePalette-500);
 	}
 }
 
@@ -1038,6 +1030,14 @@
 .action-methods ::ng-deep .mat-button-toggle-checked {
 	background-color: var(--color-accentedPalette-100);
 	color: var(--color-accentedPalette-100-contrast);
+}
+
+@media (prefers-color-scheme: dark) {
+	.affects-row ::ng-deep .mat-button-toggle-checked,
+	.action-methods ::ng-deep .mat-button-toggle-checked {
+		background-color: var(--color-accentedPalette-800);
+		color: var(--color-accentedPalette-800-contrast);
+	}
 }
 
 /* ── Action methods ── */

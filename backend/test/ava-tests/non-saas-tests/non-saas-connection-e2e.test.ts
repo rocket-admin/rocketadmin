@@ -1517,3 +1517,136 @@ currentTest = 'GET /connection/user/permissions';
 //     throw e;
 //   }
 // });
+
+currentTest = 'PUT /connection/title';
+test.serial(`${currentTest} should return success when updating connection title`, async (t) => {
+	const { newConnection } = getTestData();
+	const { token } = await registerUserAndReturnUserInfo(app);
+
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(newConnection)
+		.set('Content-Type', 'application/json')
+		.set('Cookie', token)
+		.set('Accept', 'application/json');
+
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+	const newTitle = 'New Connection Title';
+	const updateTitleResponse = await request(app.getHttpServer())
+		.put(`/connection/title/${createConnectionRO.id}`)
+		.send({ title: newTitle })
+		.set('Content-Type', 'application/json')
+		.set('Cookie', token)
+		.set('Accept', 'application/json');
+
+	t.is(updateTitleResponse.status, 200);
+	const result = updateTitleResponse.body;
+	t.is(result.success, true);
+
+	const getConnectionResponse = await request(app.getHttpServer())
+		.get(`/connection/one/${createConnectionRO.id}`)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(getConnectionResponse.status, 200);
+	const connectionResult = JSON.parse(getConnectionResponse.text);
+	t.is(connectionResult.connection.title, newTitle);
+
+	t.pass();
+});
+
+test.serial(`${currentTest} should throw error when title is empty`, async (t) => {
+	const { newConnection } = getTestData();
+	const { token } = await registerUserAndReturnUserInfo(app);
+
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(newConnection)
+		.set('Content-Type', 'application/json')
+		.set('Cookie', token)
+		.set('Accept', 'application/json');
+
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+	const updateTitleResponse = await request(app.getHttpServer())
+		.put(`/connection/title/${createConnectionRO.id}`)
+		.send({ title: '' })
+		.set('Content-Type', 'application/json')
+		.set('Cookie', token)
+		.set('Accept', 'application/json');
+
+	t.is(updateTitleResponse.status, 400);
+
+	t.pass();
+});
+
+test.serial(`${currentTest} should throw error when title is not provided`, async (t) => {
+	const { newConnection } = getTestData();
+	const { token } = await registerUserAndReturnUserInfo(app);
+
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(newConnection)
+		.set('Content-Type', 'application/json')
+		.set('Cookie', token)
+		.set('Accept', 'application/json');
+
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+	const updateTitleResponse = await request(app.getHttpServer())
+		.put(`/connection/title/${createConnectionRO.id}`)
+		.send({})
+		.set('Content-Type', 'application/json')
+		.set('Cookie', token)
+		.set('Accept', 'application/json');
+
+	t.is(updateTitleResponse.status, 400);
+
+	t.pass();
+});
+
+test.serial(
+	`${currentTest} should update title of encrypted connection and connection should still work`,
+	async (t) => {
+		const { newConnection } = getTestData();
+		const { token } = await registerUserAndReturnUserInfo(app);
+		newConnection.masterEncryption = true;
+
+		const createConnectionResponse = await request(app.getHttpServer())
+			.post('/connection')
+			.send(newConnection)
+			.set('masterpwd', 'ahalaimahalai')
+			.set('Content-Type', 'application/json')
+			.set('Cookie', token)
+			.set('Accept', 'application/json');
+
+		t.is(createConnectionResponse.status, 201);
+		const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+		const newTitle = 'Renamed Encrypted Connection';
+		const updateTitleResponse = await request(app.getHttpServer())
+			.put(`/connection/title/${createConnectionRO.id}`)
+			.send({ title: newTitle })
+			.set('Content-Type', 'application/json')
+			.set('Cookie', token)
+			.set('Accept', 'application/json');
+
+		t.is(updateTitleResponse.status, 200);
+		t.is(updateTitleResponse.body.success, true);
+
+		const findOneResponse = await request(app.getHttpServer())
+			.get(`/connection/one/${createConnectionRO.id}`)
+			.set('Content-Type', 'application/json')
+			.set('masterpwd', 'ahalaimahalai')
+			.set('Cookie', token)
+			.set('Accept', 'application/json');
+
+		t.is(findOneResponse.status, 200);
+		const connectionResult = findOneResponse.body.connection;
+		t.is(connectionResult.title, newTitle);
+
+		t.pass();
+	},
+);
