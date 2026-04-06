@@ -2,22 +2,10 @@
 	transform: scale(0.85);
 }
 
-@media (prefers-color-scheme: light) {
-	.boolean-icon-true {
-		color: #1b5e20;
-	}
-
-	.boolean-icon-false {
-		color: #b71c1c;
-	}
+.boolean-icon-true {
+	color: var(--color-successPalette-500);
 }
 
-@media (prefers-color-scheme: dark) {
-	.boolean-icon-true {
-		color: #4caf50;
-	}
-
-	.boolean-icon-false {
-		color: #e53935;
-	}
+.boolean-icon-false {
+	color: var(--color-warnPalette-500);
 }

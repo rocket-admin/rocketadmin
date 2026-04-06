@@ -64,13 +64,13 @@
 }
 
 .policy-group__icon-box--general {
-	background: color-mix(in srgb, var(--warning-color), transparent 85%);
-	color: var(--warning-color);
+	background: var(--color-warningPalette-100);
+	color: var(--color-warningPalette-500);
 }
 
 .policy-group__icon-box--connection {
-	background: color-mix(in srgb, var(--alternative-color), transparent 85%);
-	color: var(--alternative-color);
+	background: var(--color-alternativePalette-100);
+	color: var(--color-alternativePalette-500);
 }
 
 .policy-group__icon-box--group {
@@ -79,21 +79,33 @@
 }
 
 .policy-group__icon-box--table {
-	background: color-mix(in srgb, var(--success-color), transparent 85%);
-	color: var(--success-color);
+	background: var(--color-successPalette-100);
+	color: var(--color-successPalette-500);
 }
 
 .policy-group__icon-box--dashboard {
-	background: color-mix(in srgb, var(--info-color), transparent 85%);
-	color: var(--info-color);
+	background: var(--color-infoPalette-100);
+	color: var(--color-infoPalette-500);
 }
 
 @media (prefers-color-scheme: dark) {
-	.policy-group__icon-box--general { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
-	.policy-group__icon-box--connection { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
+	.policy-group__icon-box--general { 
+		background: var(--color-warningPalette-900);
+		color: var(--color-warningPalette-500);
+	}
+	.policy-group__icon-box--connection { 
+		background: var(--color-alternativeDarkPalette-900);
+		color: var(--color-alternativeDarkPalette-500);
+	}
 	.policy-group__icon-box--group { background: rgba(6, 182, 212, 0.15); color: #22d3ee; }
-	.policy-group__icon-box--table { background: rgba(16, 185, 129, 0.15); color: #34d399; }
-	.policy-group__icon-box--dashboard { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+	.policy-group__icon-box--table { 
+		background: var(--color-successDarkPalette-900);
+		color: var(--color-successDarkPalette-500);
+	 }
+	.policy-group__icon-box--dashboard { 
+		background: var(--color-infoPalette-900); 
+		color: var(--color-infoPalette-500); 
+	}
 }
 
 .policy-group__label {

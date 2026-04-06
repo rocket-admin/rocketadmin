@@ -1,0 +1,16 @@
+<h1 mat-dialog-title>Rename <strong>{{ data.databaseName }}</strong></h1>
+<mat-dialog-content>
+	<mat-form-field appearance="outline" class="rename-dialog__field">
+		<mat-label>Connection name</mat-label>
+		<input matInput [(ngModel)]="title" placeholder="e.g. Production DB, Staging, My App"
+			(keyup.enter)="save()" cdkFocusInitial>
+	</mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+	<button type="button" mat-flat-button mat-dialog-close>Cancel</button>
+	<button type="button" mat-flat-button color="accent"
+		[disabled]="!title.trim() || submitting()"
+		(click)="save()">
+		{{ submitting() ? 'Saving...' : 'Save' }}
+	</button>
+</mat-dialog-actions>

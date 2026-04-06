@@ -1,5 +1,6 @@
 import { Constants } from '../../../helpers/constants/constants.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { decryptConnectionsCredentialsAsync } from '../../connection/utils/decrypt-connection-credentials-async.js';
 import { CompanyInfoEntity } from '../company-info.entity.js';
 import { ICompanyInfoRepository } from './company-info-repository.interface.js';
 
@@ -19,11 +20,15 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
 	},
 
 	async findOneCompanyInfoByUserIdWithConnections(userId: string): Promise<CompanyInfoEntity> {
-		return await this.createQueryBuilder('company_info')
+		const result = await this.createQueryBuilder('company_info')
 			.leftJoinAndSelect('company_info.users', 'users')
 			.leftJoinAndSelect('company_info.connections', 'connections')
 			.where('users.id = :userId', { userId })
 			.getOne();
+		if (result?.connections?.length) {
+			await decryptConnectionsCredentialsAsync(result.connections);
+		}
+		return result;
 	},
 
 	async findCompanyInfoByUserId(userId: string): Promise<CompanyInfoEntity> {
@@ -55,7 +60,7 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
 
 	// returns groups and connections where user is invited
 	async findFullCompanyInfoByUserId(userId: string): Promise<CompanyInfoEntity> {
-		return await this.createQueryBuilder('company_info')
+		const result = await this.createQueryBuilder('company_info')
 			.leftJoinAndSelect('company_info.logo', 'logo')
 			.leftJoinAndSelect('company_info.favicon', 'favicon')
 			.leftJoinAndSelect('company_info.tab_title', 'tab_title')
@@ -68,6 +73,10 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
 			.leftJoinAndSelect('groups.users', 'groups_users')
 			.where('current_user.id = :userId', { userId })
 			.getOne();
+		if (result?.connections?.length) {
+			await decryptConnectionsCredentialsAsync(result.connections);
+		}
+		return result;
 	},
 
 	async findCompanyInfosByUserEmail(userEmail: string): Promise<CompanyInfoEntity[]> {
@@ -87,10 +96,12 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
 			.andWhere('connections.isTestConnection IS FALSE')
 			.andWhere('connections.is_frozen IS FALSE')
 			.getMany();
-		return foundCompaniesWithPaidConnections
+		const connections = foundCompaniesWithPaidConnections
 			.map((companyInfo: CompanyInfoEntity) => companyInfo.connections)
 			.filter(Boolean)
 			.flat();
+		await decryptConnectionsCredentialsAsync(connections);
+		return connections;
 	},
 
 	async findCompanyFrozenPaidConnections(companyIds: Array<string>): Promise<Array<ConnectionEntity>> {
@@ -102,10 +113,12 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
 			.andWhere('connections.isTestConnection IS FALSE')
 			.andWhere('connections.is_frozen IS TRUE')
 			.getMany();
-		return foundCompaniesWithPaidConnections
+		const connections = foundCompaniesWithPaidConnections
 			.map((companyInfo: CompanyInfoEntity) => companyInfo.connections)
 			.filter(Boolean)
 			.flat();
+		await decryptConnectionsCredentialsAsync(connections);
+		return connections;
 	},
 
 	async findCompanyWithLogo(companyId: string): Promise<CompanyInfoEntity> {

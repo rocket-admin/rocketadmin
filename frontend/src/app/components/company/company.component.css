@@ -109,23 +109,11 @@
 }
 
 .company-member-cell_accessed {
-	color: #1b5e20;
-}
-
-@media (prefers-color-scheme: dark) {
-	.company-member-cell_accessed {
-		color: #4caf50;
-	}
+	color: var(--color-successPalette-500);
 }
 
 .company-member-cell_not-accessed {
-	color: #b71c1c;
-}
-
-@media (prefers-color-scheme: dark) {
-	.company-member-cell_not-accessed {
-		color: #e53935;
-	}
+	color: var(--color-warnPalette-500);
 }
 
 .company-member-cell_content-center {

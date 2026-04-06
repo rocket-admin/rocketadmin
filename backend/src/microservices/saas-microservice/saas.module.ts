@@ -23,6 +23,7 @@ import { SaasUsualRegisterUseCase } from './use-cases/saas-usual-register-user.u
 import { SuspendUsersUseCase } from './use-cases/suspend-users.use.case.js';
 import { SuspendUsersOverLimitUseCase } from './use-cases/suspend-users-over-limit.use.case.js';
 import { UnFreezeConnectionsInCompanyUseCase } from './use-cases/unfreeze-connections-in-company-use.case.js';
+import { GetConnectionsInfoByIdsUseCase } from './use-cases/get-connections-info-by-ids.use.case.js';
 import { UpdateHostedConnectionPasswordUseCase } from './use-cases/update-hosted-connection-password.use.case.js';
 
 @Module({
@@ -100,6 +101,10 @@ import { UpdateHostedConnectionPasswordUseCase } from './use-cases/update-hosted
 			provide: UseCaseType.SAAS_UPDATE_HOSTED_CONNECTION_PASSWORD,
 			useClass: UpdateHostedConnectionPasswordUseCase,
 		},
+		{
+			provide: UseCaseType.SAAS_GET_CONNECTIONS_INFO_BY_IDS,
+			useClass: GetConnectionsInfoByIdsUseCase,
+		},
 		SignInAuditService,
 	],
 	controllers: [SaasController],
@@ -126,6 +131,7 @@ export class SaasModule {
 				{ path: 'saas/connection/hosted', method: RequestMethod.POST },
 				{ path: 'saas/connection/hosted/delete', method: RequestMethod.POST },
 				{ path: 'saas/connection/hosted/password', method: RequestMethod.POST },
+				{ path: 'saas/connections/info', method: RequestMethod.POST },
 			);
 	}
 }

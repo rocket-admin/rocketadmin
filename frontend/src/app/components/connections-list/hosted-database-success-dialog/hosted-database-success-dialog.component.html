@@ -21,6 +21,11 @@
 		</p>
 	}
 
+	<div class="hosted-dialog__warning">
+		<mat-icon class="hosted-dialog__warning-icon">warning</mat-icon>
+		<span>Copy the connection string before closing.</span>
+	</div>
+
 	<div class="hosted-dialog__credentials ph-no-capture">
 		<div class="hosted-dialog__row">
 			<span class="hosted-dialog__label">Database</span>
@@ -43,40 +48,26 @@
 			<code>{{ data.hostedDatabase.password }}</code>
 		</div>
 	</div>
-
-	<p class="hosted-dialog__hint">
-		The generated password cannot be recovered from this screen later.
-	</p>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" class="hosted-dialog__actions">
-	<button type="button" mat-stroked-button mat-dialog-close>
-		Close
-	</button>
+	@if (canClose) {
+		<button type="button" mat-stroked-button mat-dialog-close>
+			Close
+		</button>
+	}
 	<button
 		type="button"
 		mat-flat-button
 		color="accent"
+		cdkFocusInitial
 		[cdkCopyToClipboard]="credentialsText"
 		(cdkCopyToClipboardCopied)="handleCredentialsCopied()">
-		Copy credentials
+		@if (copied) {
+			<mat-icon class="hosted-dialog__copy-check">check</mat-icon>
+			Credentials copied
+		} @else {
+			Copy connection string
+		}
 	</button>
-	@if (data.connectionId) {
-		<a
-			mat-button
-			[routerLink]="['/dashboard', data.connectionId]"
-			mat-dialog-close
-			(click)="handleSecondaryActionClick()">
-			Open tables
-		</a>
-		<a
-			mat-flat-button
-			color="primary"
-			[routerLink]="['/auto-configure', data.connectionId]"
-			mat-dialog-close
-			cdkFocusInitial
-			(click)="handlePrimaryActionClick()">
-			Set up dashboard
-		</a>
-	}
 </mat-dialog-actions>
