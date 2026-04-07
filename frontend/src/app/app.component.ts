@@ -272,6 +272,10 @@ export class AppComponent {
 		return this._connections.currentConnection?.isTestConnection || false;
 	}
 
+	get isHostedConnection() {
+		return this._connections.isHostedConnection;
+	}
+
 	get visibleTabs() {
 		return this._connections.visibleTabs;
 	}

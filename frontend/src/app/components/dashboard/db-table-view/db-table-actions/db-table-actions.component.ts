@@ -121,9 +121,9 @@ export class DbTableActionsComponent implements OnInit {
 	];
 
 	public triggerMeta: Record<string, { icon: string; desc: string; color: string }> = {
-		[EventType.AddRow]: { icon: 'add_circle_outline', desc: 'Fires when a new row is inserted', color: '#4caf50' },
-		[EventType.UpdateRow]: { icon: 'edit', desc: 'Fires when an existing row is modified', color: '#2196f3' },
-		[EventType.DeleteRow]: { icon: 'delete_outline', desc: 'Fires when a row is removed', color: '#e53935' },
+		[EventType.AddRow]: { icon: 'add_circle_outline', desc: 'Fires when a new row is inserted', color: 'var(--color-successPalette-500)' },
+		[EventType.UpdateRow]: { icon: 'edit', desc: 'Fires when an existing row is modified', color: 'var(--color-infoPalette-500)' },
+		[EventType.DeleteRow]: { icon: 'delete_outline', desc: 'Fires when a row is removed', color: 'var(--color-warnPalette-500)' },
 		[EventType.Custom]: { icon: 'tune', desc: 'Manual trigger with custom button', color: '#9c27b0' },
 	};
 	public selectedEvents: string[] = [];

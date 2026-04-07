@@ -17,4 +17,5 @@ export interface FoundHostedDatabase {
 	port: number;
 	username: string;
 	createdAt: string;
+	title?: string;
 }

@@ -46,8 +46,8 @@ export class UpgradeComponent implements OnInit {
 		{
 			title: 'Hosted PostgreSQL',
 			free: 'Tiny node (0.1 CPU, 100 MB)',
-			team: 'Scalable (pay as you go)',
-			enterprise: 'Scalable (pay as you go)',
+			team: 'Scalable node — $0.04/CPU/min, $0.2/GB/mo, $0.04/M IOPS',
+			enterprise: 'Scalable node — $0.04/CPU/min, $0.2/GB/mo, $0.04/M IOPS',
 		},
 	];
 

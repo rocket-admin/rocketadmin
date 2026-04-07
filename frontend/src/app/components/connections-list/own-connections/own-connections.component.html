@@ -47,23 +47,36 @@
     @if (showHostedDatabaseEntry) {
         <div class="section">
             <span class="section__label">Hosted by Rocketadmin</span>
-            <button
-                type="button"
-                class="hosted-banner"
-                data-testid="create-hosted-database-button"
-                [disabled]="creatingHostedDatabase()"
-                (click)="createHostedDatabase()">
-                <div class="hosted-banner__iconBox">
-                    <mat-icon svgIcon="ai_rocket" class="hosted-banner__icon"></mat-icon>
-                </div>
-                <div class="hosted-banner__text">
-                    <span class="hosted-banner__title">
-                        {{ creatingHostedDatabase() ? 'Creating hosted PostgreSQL...' : 'Hosted PostgreSQL' }}
-                    </span>
-                    <span class="hosted-banner__subtitle">Provision a managed database in one click</span>
-                </div>
-                <span class="hosted-banner__badge">&#10022; Quickstart</span>
-            </button>
+            @if (hostedDbLimitReached) {
+                <a routerLink="/upgrade" class="hosted-banner hosted-banner--upgrade">
+                    <div class="hosted-banner__iconBox">
+                        <mat-icon svgIcon="ai_rocket" class="hosted-banner__icon"></mat-icon>
+                    </div>
+                    <div class="hosted-banner__text">
+                        <span class="hosted-banner__title">Upgrade to host more</span>
+                        <span class="hosted-banner__subtitle">You've reached the limit of 3 hosted databases</span>
+                    </div>
+                    <span class="hosted-banner__badge">&#10022; Upgrade</span>
+                </a>
+            } @else {
+                <button
+                    type="button"
+                    class="hosted-banner"
+                    data-testid="create-hosted-database-button"
+                    [disabled]="creatingHostedDatabase()"
+                    (click)="createHostedDatabase()">
+                    <div class="hosted-banner__iconBox">
+                        <mat-icon svgIcon="ai_rocket" class="hosted-banner__icon"></mat-icon>
+                    </div>
+                    <div class="hosted-banner__text">
+                        <span class="hosted-banner__title">
+                            {{ creatingHostedDatabase() ? 'Creating hosted PostgreSQL...' : 'Hosted PostgreSQL' }}
+                        </span>
+                        <span class="hosted-banner__subtitle">Provision a managed database in one click</span>
+                    </div>
+                    <span class="hosted-banner__badge">&#10022; Quickstart</span>
+                </button>
+            }
         </div>
     }
 
@@ -97,17 +110,24 @@
 @if (connections?.length) {
     <div class="fabActions">
         @if (showHostedDatabaseEntry) {
-            <button
-                mat-stroked-button
-                type="button"
-                color="primary"
-                class="fabHostedButton"
-                data-testid="create-hosted-database-fab-button"
-                [disabled]="creatingHostedDatabase()"
-                (click)="createHostedDatabase()">
-                <mat-icon>cloud_queue</mat-icon>
-                {{ creatingHostedDatabase() ? 'Creating...' : 'Create hosted PostgreSQL' }}
-            </button>
+            @if (hostedDbLimitReached) {
+                <a mat-stroked-button color="primary" class="fabHostedButton" routerLink="/upgrade">
+                    <mat-icon>cloud_queue</mat-icon>
+                    Upgrade to host more
+                </a>
+            } @else {
+                <button
+                    mat-stroked-button
+                    type="button"
+                    color="primary"
+                    class="fabHostedButton"
+                    data-testid="create-hosted-database-fab-button"
+                    [disabled]="creatingHostedDatabase()"
+                    (click)="createHostedDatabase()">
+                    <mat-icon>cloud_queue</mat-icon>
+                    {{ creatingHostedDatabase() ? 'Creating...' : 'Create hosted PostgreSQL' }}
+                </button>
+            }
         }
         @if (currentUser?.role === 'ADMIN' || currentUser?.role === 'DB_ADMIN') {
             <a mat-flat-button

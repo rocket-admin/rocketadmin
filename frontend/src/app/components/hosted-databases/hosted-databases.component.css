@@ -149,9 +149,10 @@
 .db-card__details {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 16px;
+	gap: 0 16px;
 	color: rgba(0, 0, 0, 0.64);
 	font-size: 13px;
+	margin-top: 8px;
 }
 
 @media (prefers-color-scheme: dark) {

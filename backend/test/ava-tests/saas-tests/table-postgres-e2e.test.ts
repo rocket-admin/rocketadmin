@@ -4550,3 +4550,131 @@ test.serial(`${currentTest} should throw exception whe csv import is disabled`, 
 	const { message } = JSON.parse(importCsvResponse.text);
 	t.is(message, Messages.CSV_IMPORT_DISABLED);
 });
+
+currentTest = 'POST /table/rows/find/:slug';
+
+test.serial(`${currentTest} should return rows filtered by IN operator in body`, async (t) => {
+	const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+	const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+	const { testTableName } = await createTestTable(connectionToTestDB);
+
+	testTables.push(testTableName);
+
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(connectionToTestDB)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+	t.is(createConnectionResponse.status, 201);
+
+	const filters = {
+		id: { in: ['1', '22', '38'] },
+	};
+
+	const getTableRowsResponse = await request(app.getHttpServer())
+		.post(`/table/rows/find/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=20`)
+		.send({ filters })
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+	t.is(getTableRowsResponse.status, 200);
+	t.is(getTableRowsRO.rows.length, 3);
+	const returnedIds = getTableRowsRO.rows.map((row) => row.id).sort((a, b) => a - b);
+	t.deepEqual(returnedIds, [1, 22, 38]);
+});
+
+test.serial(`${currentTest} should return rows filtered by IN operator in query params`, async (t) => {
+	const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+	const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+	const { testTableName } = await createTestTable(connectionToTestDB);
+
+	testTables.push(testTableName);
+
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(connectionToTestDB)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+	t.is(createConnectionResponse.status, 201);
+
+	const getTableRowsResponse = await request(app.getHttpServer())
+		.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=20&f_id__in=1,22,38`)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+	t.is(getTableRowsResponse.status, 200);
+	t.is(getTableRowsRO.rows.length, 3);
+	const returnedIds = getTableRowsRO.rows.map((row) => row.id).sort((a, b) => a - b);
+	t.deepEqual(returnedIds, [1, 22, 38]);
+});
+
+test.serial(`${currentTest} should return rows filtered by BETWEEN operator in body`, async (t) => {
+	const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+	const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+	const { testTableName } = await createTestTable(connectionToTestDB);
+
+	testTables.push(testTableName);
+
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(connectionToTestDB)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+	t.is(createConnectionResponse.status, 201);
+
+	const filters = {
+		id: { between: ['20', '25'] },
+	};
+
+	const getTableRowsResponse = await request(app.getHttpServer())
+		.post(`/table/rows/find/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=20`)
+		.send({ filters })
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+	t.is(getTableRowsResponse.status, 200);
+	t.is(getTableRowsRO.rows.length, 6);
+	const returnedIds = getTableRowsRO.rows.map((row) => row.id).sort((a, b) => a - b);
+	t.deepEqual(returnedIds, [20, 21, 22, 23, 24, 25]);
+});
+
+test.serial(`${currentTest} should return rows filtered by BETWEEN operator in query params`, async (t) => {
+	const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+	const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+	const { testTableName } = await createTestTable(connectionToTestDB);
+
+	testTables.push(testTableName);
+
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(connectionToTestDB)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+	t.is(createConnectionResponse.status, 201);
+
+	const getTableRowsResponse = await request(app.getHttpServer())
+		.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=20&f_id__between=20,25`)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+	t.is(getTableRowsResponse.status, 200);
+	t.is(getTableRowsRO.rows.length, 6);
+	const returnedIds = getTableRowsRO.rows.map((row) => row.id).sort((a, b) => a - b);
+	t.deepEqual(returnedIds, [20, 21, 22, 23, 24, 25]);
+});

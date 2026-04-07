@@ -9,8 +9,10 @@ import { AlertActionType, AlertType } from '../models/alert';
 import { ConnectionType, DBtype } from '../models/connection';
 import { AccessLevel } from '../models/user';
 import { ConnectionsService } from './connections.service';
+import { HostedDatabaseService } from './hosted-database.service';
 import { MasterPasswordService } from './master-password.service';
 import { NotificationsService } from './notifications.service';
+import { UserService } from './user.service';
 
 describe('ConnectionsService', () => {
 	let httpMock: HttpTestingController;
@@ -18,6 +20,8 @@ describe('ConnectionsService', () => {
 
 	let fakeNotifications;
 	let fakeMasterPassword;
+	let fakeHostedDatabaseService;
+	let fakeUserService;
 
 	const connectionCredsApp = {
 		title: 'Test connection via SSH tunnel to mySQL',
@@ -102,6 +106,12 @@ describe('ConnectionsService', () => {
 			showMasterPasswordDialog: vi.fn(),
 			checkMasterPassword: vi.fn(),
 		};
+		fakeHostedDatabaseService = {
+			listHostedDatabases: vi.fn().mockResolvedValue([]),
+		};
+		fakeUserService = {
+			cast: of({ company: { id: 'test-company-id' } }),
+		};
 
 		TestBed.configureTestingModule({
 			imports: [MatSnackBarModule, MatDialogModule],
@@ -117,6 +127,14 @@ describe('ConnectionsService', () => {
 				{
 					provide: MasterPasswordService,
 					useValue: fakeMasterPassword,
+				},
+				{
+					provide: HostedDatabaseService,
+					useValue: fakeHostedDatabaseService,
+				},
+				{
+					provide: UserService,
+					useValue: fakeUserService,
 				},
 			],
 		});
@@ -650,7 +668,16 @@ describe('ConnectionsService', () => {
 		const res = await promise;
 		expect(res).toEqual(connectionSettingsNetwork);
 		expect(mockThemeService.updateColors).toHaveBeenCalledWith({
-			palettes: { primaryPalette: '#123456', accentedPalette: '#654321' },
+			palettes: {
+				primaryPalette: '#123456',
+				accentedPalette: '#654321',
+				warningPalette: '#f79008',
+				infoPalette: '#296ee9',
+				successPalette: '#1b5e20',
+				alternativePalette: '#6d28d9',
+				successDarkPalette: '#4caf50',
+				alternativeDarkPalette: '#c084fc',
+			},
 		});
 	});
 

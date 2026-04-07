@@ -127,7 +127,7 @@ export class FilteringFieldsDs {
 	field: string;
 
 	@ApiProperty()
-	value: string;
+	value: unknown;
 }
 
 export class AutocompleteFieldsDs {

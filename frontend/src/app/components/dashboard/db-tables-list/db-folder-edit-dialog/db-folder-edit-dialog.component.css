@@ -6,15 +6,9 @@
 
 .folder-name-section {
 	margin-bottom: 20px;
+	margin-top: 20px;
 	padding-bottom: 16px;
-	border-bottom: 1px solid #e0e0e0;
-}
-
-.folder-name-section h4 {
-	margin: 0 0 12px 0;
-	font-size: 14px;
-	font-weight: 500;
-	color: #666;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.12);
 }
 
 .folder-name-field {
@@ -24,14 +18,14 @@
 .folder-color-section {
 	margin-bottom: 20px;
 	padding-bottom: 16px;
-	border-bottom: 1px solid #e0e0e0;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.12);
 }
 
 .folder-color-section h4 {
 	margin: 0 0 12px 0;
 	font-size: 14px;
 	font-weight: 500;
-	color: #666;
+	color: rgba(0, 0, 0, 0.64);
 }
 
 .color-radio-group {
@@ -98,7 +92,7 @@
 	margin: 0 0 12px 0;
 	font-size: 14px;
 	font-weight: 500;
-	color: #666;
+	color: rgba(0, 0, 0, 0.64);
 }
 
 .table-list {
@@ -110,7 +104,7 @@
 	justify-content: space-between;
 	align-items: center;
 	padding: 12px 8px;
-	border-bottom: 1px solid #e0e0e0;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.12);
 	transition: background-color 0.2s ease;
 }
 
@@ -125,7 +119,6 @@
 .table-name {
 	flex: 1;
 	font-size: 14px;
-	color: #333;
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -142,40 +135,36 @@
 }
 
 .add-button {
-	color: #4caf50;
+	color: var(--color-successPalette-500);
 	background-color: transparent;
 }
 
 .add-button:hover {
-	background-color: rgba(76, 175, 80, 0.1);
+	background-color: var(--color-successPalette-50);
 }
 
 .remove-button {
-	color: #f44336;
+	color: var(--color-warnPalette-500);
 	background-color: transparent;
 }
 
 .remove-button:hover {
-	background-color: rgba(244, 67, 54, 0.1);
+	background-color: var(--color-warnPalette-50);
 }
 
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
 	.folder-name-section {
-		border-bottom-color: #424242;
-	}
-
-	.folder-name-section h4 {
-		color: #999;
+		border-bottom-color: rgba(255, 255, 255, 0.12);
 	}
 
 	.folder-color-section {
-		border-bottom-color: #424242;
+		border-bottom-color: rgba(255, 255, 255, 0.12);
 	}
 
 	.folder-color-section h4,
 	.tables-section h4 {
-		color: #999;
+		color: rgba(255, 255, 255, 0.72);
 	}
 
 	.color-swatch {
@@ -199,14 +188,26 @@
 	}
 
 	.table-item {
-		border-bottom-color: #424242;
+		border-bottom-color: rgba(255, 255, 255, 0.12);
 	}
 
 	.table-item:hover {
 		background-color: rgba(255, 255, 255, 0.04);
 	}
 
-	.table-name {
-		color: #ccc;
+	.add-button {
+		color: var(--color-successDarkPalette-500);
+	}
+
+	.add-button:hover {
+		background-color: var(--color-successDarkPalette-900);
+	}
+
+	.remove-button {
+		color: var(--color-warnDarkPalette-500);
+	}
+
+	.remove-button:hover {
+		background-color: var(--color-warnDarkPalette-900);
 	}
 }

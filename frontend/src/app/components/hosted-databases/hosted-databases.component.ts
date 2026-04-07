@@ -8,12 +8,14 @@ import { Title } from '@angular/platform-browser';
 import posthog from 'posthog-js';
 import { FoundHostedDatabase } from 'src/app/models/hosted-database';
 import { CompanyService } from 'src/app/services/company.service';
+import { ConnectionsService } from 'src/app/services/connections.service';
 import { HostedDatabaseService } from 'src/app/services/hosted-database.service';
 
 import { UserService } from 'src/app/services/user.service';
 import { ProfileSidebarComponent } from '../profile/profile-sidebar/profile-sidebar.component';
 import { AlertComponent } from '../ui-components/alert/alert.component';
 import { HostedDatabaseDeleteDialogComponent } from './hosted-database-delete-dialog/hosted-database-delete-dialog.component';
+import { HostedDatabasesRenameDialogComponent } from './hosted-database-rename-dialog/hosted-database-rename-dialog.component';
 import { HostedDatabaseResetPasswordDialogComponent } from './hosted-database-reset-password-dialog/hosted-database-reset-password-dialog.component';
 
 @Component({
@@ -24,6 +26,7 @@ import { HostedDatabaseResetPasswordDialogComponent } from './hosted-database-re
 })
 export class HostedDatabasesComponent implements OnInit {
 	private _hostedDatabaseService = inject(HostedDatabaseService);
+	private _connectionsService = inject(ConnectionsService);
 	private _userService = inject(UserService);
 	private _company = inject(CompanyService);
 	private _dialog = inject(MatDialog);
@@ -56,6 +59,21 @@ export class HostedDatabasesComponent implements OnInit {
 		dialogRef.afterClosed().subscribe(async (action) => {
 			if (action === 'delete') {
 				posthog.capture('Hosted Databases: database deleted successfully');
+				this._connectionsService.invalidateConnections();
+				await this._loadDatabases();
+			}
+		});
+	}
+
+	renameDatabase(db: FoundHostedDatabase): void {
+		const dialogRef = this._dialog.open(HostedDatabasesRenameDialogComponent, {
+			width: '28em',
+			maxWidth: '95vw',
+			data: db,
+		});
+
+		dialogRef.afterClosed().subscribe(async (newTitle) => {
+			if (newTitle) {
 				await this._loadDatabases();
 			}
 		});
@@ -66,6 +84,7 @@ export class HostedDatabasesComponent implements OnInit {
 			width: '32em',
 			maxWidth: '95vw',
 			data: db,
+			disableClose: true,
 		});
 	}
 
