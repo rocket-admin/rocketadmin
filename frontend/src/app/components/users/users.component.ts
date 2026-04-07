@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
+import { RouterLink } from '@angular/router';
 import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import { differenceBy } from 'lodash-es';
 import posthog from 'posthog-js';
@@ -35,6 +36,7 @@ import { UserDeleteDialogComponent } from './user-delete-dialog/user-delete-dial
 		MatExpansionModule,
 		MatAccordion,
 		MatTooltipModule,
+		RouterLink,
 		Angulartics2OnModule,
 		PlaceholderUserGroupsComponent,
 		PlaceholderUserGroupComponent,

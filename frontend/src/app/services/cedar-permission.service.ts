@@ -4,6 +4,7 @@ import { User } from '../models/user';
 import { CedarWasmService } from './cedar-wasm.service';
 import { UserService } from './user.service';
 import { UsersService } from './users.service';
+import { ViewAsService } from './view-as.service';
 
 type CedarWasmModule = typeof import('@cedar-policy/cedar-wasm/web');
 
@@ -12,22 +13,55 @@ export class CedarPermissionService {
 	private _cedarWasm = inject(CedarWasmService);
 	private _userService = inject(UserService);
 	private _usersService = inject(UsersService);
+	private _viewAs = inject(ViewAsService);
 
 	private _currentUser = toSignal(this._userService.cast, { initialValue: null as User | null });
 	private _userId = computed(() => this._currentUser()?.id || null);
 	private _wasmModule = signal<CedarWasmModule | null>(null);
 
 	private _mergedPolicies = computed(() => {
-		const userId = this._userId();
+		const cedar = this._wasmModule();
 		const groups = this._usersService.groups();
-		if (!userId || !groups.length) return '';
+		const viewAsId = this._viewAs.viewAsGroupId();
 
-		const userGroups = groups.filter((gi) => gi.group.users?.some((u) => u.id === userId));
+		const candidates: string[] = [];
 
-		return userGroups
-			.map((gi) => gi.group.cedarPolicy)
-			.filter((p): p is string => !!p && p.trim().length > 0)
-			.join('\n\n');
+		if (viewAsId) {
+			// View-as mode: evaluate against the target group's policy only,
+			// regardless of which groups the current user actually belongs to.
+			const target = groups.find((gi) => gi.group.id === viewAsId);
+			const policy = target?.group.cedarPolicy?.trim();
+			if (policy) candidates.push(policy);
+		} else {
+			const userId = this._userId();
+			if (!userId || !groups.length) return '';
+
+			for (const gi of groups) {
+				if (!gi.group.users?.some((u) => u.id === userId)) continue;
+				const policy = gi.group.cedarPolicy;
+				if (policy && policy.trim().length > 0) candidates.push(policy);
+			}
+		}
+
+		if (candidates.length === 0) return '';
+
+		// Filter out individually-unparseable policies. Without this, a single
+		// malformed group policy would poison the merged set and Cedar would
+		// reject the whole authorization request, denying the user everything.
+		// We only filter when WASM is available; before then we return the raw
+		// merge — `ready` already gates evaluation on `_wasmModule`.
+		if (!cedar) return candidates.join('\n\n');
+
+		const valid: string[] = [];
+		for (const policy of candidates) {
+			const result = cedar.checkParsePolicySet({ staticPolicies: policy, templates: {} });
+			if (result.type === 'success') {
+				valid.push(policy);
+			} else {
+				console.warn('Cedar: dropping unparseable group policy', result.errors);
+			}
+		}
+		return valid.join('\n\n');
 	});
 
 	public readonly ready = computed(() => !!this._wasmModule() && !!this._mergedPolicies() && !!this._userId());

@@ -51,6 +51,17 @@
                             }
                         </mat-panel-title>
                         <mat-panel-description (click)="$event.stopPropagation();" class="group-actions">
+                            <a mat-icon-button
+                                [routerLink]="['/permissions', connectionID]"
+                                [queryParams]="{ viewAs: groupItem.group.id }"
+                                target="_blank"
+                                rel="noopener"
+                                angulartics2On="click"
+                                angularticsAction="Users access: view as group is clicked"
+                                matTooltip="View as group (opens in new tab)"
+                                (click)="posthog.capture('Users access: view as group is clicked')">
+                                <mat-icon fontSet="material-symbols-outlined">visibility</mat-icon>
+                            </a>
                             @if (canManage() && groupItem.group.title !== 'Admin') {
                                 <button type="button" mat-icon-button
                                     angulartics2On="click"
