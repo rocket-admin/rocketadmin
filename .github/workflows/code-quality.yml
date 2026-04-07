@@ -1,7 +1,6 @@
 name: Code quality
 
 on:
-  push:
   pull_request:
 
 jobs:
@@ -14,6 +13,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           persist-credentials: false
+          fetch-depth: 0
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -25,5 +25,16 @@ jobs:
         uses: biomejs/setup-biome@v2
         with:
           version: 2.4.0
+      - name: Get changed backend files
+        id: changed
+        run: |
+          files=$(git diff --name-only --diff-filter=ACMR \
+            "${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}" \
+            -- 'backend/' \
+            | grep -E '\.(ts|tsx|js|jsx|json)$' \
+            | tr '\n' ' ' || true)
+          echo "files=$files" >> "$GITHUB_OUTPUT"
+          echo "Changed backend files: $files"
       - name: Run Biome
-        run: biome ci --formatter-enabled=false --assist-enabled=false .
+        if: steps.changed.outputs.files != ''
+        run: biome ci --formatter-enabled=false --assist-enabled=false ${{ steps.changed.outputs.files }}

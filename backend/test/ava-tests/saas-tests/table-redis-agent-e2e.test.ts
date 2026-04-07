@@ -1361,7 +1361,7 @@ should return all found rows with search, pagination: page=1, perPage=10 and DES
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
 				.set('Accept', 'application/json');
-			t.is(getTableRowsResponse.status, 201);
+			t.is(getTableRowsResponse.status, 200);
 
 			const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 			t.is(typeof getTableRowsRO, 'object');
@@ -1448,7 +1448,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
 				.set('Cookie', firstUserToken)
 				.set('Content-Type', 'application/json')
 				.set('Accept', 'application/json');
-			t.is(getTableRowsResponse.status, 201);
+			t.is(getTableRowsResponse.status, 200);
 
 			const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 

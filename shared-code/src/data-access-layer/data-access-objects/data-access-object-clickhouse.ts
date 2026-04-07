@@ -1,28 +1,28 @@
 /* eslint-disable security/detect-object-injection */
-import { createClient, ClickHouseClient } from '@clickhouse/client';
+import { ClickHouseClient, createClient } from '@clickhouse/client';
+import { NodeClickHouseClientConfigOptions } from '@clickhouse/client/dist/config.js';
 import * as csv from 'csv';
 import getPort from 'get-port';
 import { Readable, Stream } from 'stream';
 import { LRUStorage } from '../../caching/lru-storage.js';
-import { getTunnel } from '../../helpers/get-ssh-tunnel.js';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
+import { getTunnel } from '../../helpers/get-ssh-tunnel.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
+import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
+import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
 import { ForeignKeyDS } from '../shared/data-structures/foreign-key.ds.js';
 import { FoundRowsDS } from '../shared/data-structures/found-rows.ds.js';
 import { PrimaryKeyDS } from '../shared/data-structures/primary-key.ds.js';
 import { ReferencedTableNamesAndColumnsDS } from '../shared/data-structures/referenced-table-names-columns.ds.js';
+import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TableSettingsDS } from '../shared/data-structures/table-settings.ds.js';
 import { TableStructureDS } from '../shared/data-structures/table-structure.ds.js';
-import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
-import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
-import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
-import { NodeClickHouseClientConfigOptions } from '@clickhouse/client/dist/config.js';
 
 export class DataAccessObjectClickHouse extends BasicDataAccessObject implements IDataAccessObject {
 	public async addRowInTable(tableName: string, row: Record<string, unknown>): Promise<Record<string, unknown>> {
@@ -261,6 +261,27 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
 						case FilterCriteriaEnum.empty:
 							whereClauses.push(`${escapedField} IS NULL`);
 							break;
+						case FilterCriteriaEnum.in: {
+							const inValues = Array.isArray(value)
+								? value
+								: String(value)
+										.split(',')
+										.map((v) => v.trim());
+							const sanitizedValues = inValues.map((v) => this.sanitizeValue(v)).join(', ');
+							whereClauses.push(`${escapedField} IN (${sanitizedValues})`);
+							break;
+						}
+						case FilterCriteriaEnum.between: {
+							const betweenValues = Array.isArray(value)
+								? value
+								: String(value)
+										.split(',')
+										.map((v) => v.trim());
+							whereClauses.push(
+								`${escapedField} BETWEEN ${this.sanitizeValue(betweenValues[0])} AND ${this.sanitizeValue(betweenValues[1])}`,
+							);
+							break;
+						}
 					}
 				}
 			}
