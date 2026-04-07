@@ -11,7 +11,7 @@ const TEST_CONNECTION = {
   username: process.env.UPSTREAM_PG_USERNAME || 'postgres',
   password: process.env.UPSTREAM_PG_PASSWORD || 'proxy_test_123',
   companyId: 'test-company-001',
-  subscriptionLevel: 'pro',
+  subscriptionLevel: 'TEAM_PLAN',
 };
 
 const server = http.createServer((req, res) => {
