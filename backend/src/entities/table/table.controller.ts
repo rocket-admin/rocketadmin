@@ -3,6 +3,7 @@ import {
 	Controller,
 	Delete,
 	Get,
+	HttpCode,
 	HttpException,
 	HttpStatus,
 	Inject,
@@ -248,6 +249,7 @@ export class TableController {
 	@ApiQuery({ name: 'search', required: false })
 	@UseGuards(TableReadGuard)
 	@Timeout(TimeoutDefaults.EXTENDED)
+	@HttpCode(HttpStatus.OK)
 	@Post('/table/rows/find/:connectionId')
 	async findAllRowsWithBodyFilter(
 		@QueryTableName() tableName: string,
