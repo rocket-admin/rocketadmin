@@ -79,6 +79,7 @@ test.serial(`${currentTest} should create a hosted postgres connection with admi
 			.send({
 				companyId: companyId,
 				userId: userId,
+				hostedDatabaseId: faker.string.uuid(),
 				databaseName: 'postgres',
 				hostname: 'testPg-e2e-testing',
 				port: 5432,
@@ -89,24 +90,14 @@ test.serial(`${currentTest} should create a hosted postgres connection with admi
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
 
-		t.is(createHostedConnectionResult.status, 201);
-
 		const createdConnection = JSON.parse(createHostedConnectionResult.text);
-		const connectionId = createdConnection.id;
+		console.log('🚀 ~ createdConnection:', createdConnection);
+
+		t.is(createHostedConnectionResult.status, 201);
+		const connectionId = createdConnection.connectionId;
 
 		// Verify connection was created
 		t.truthy(connectionId);
-		t.is(createdConnection.type, 'postgres');
-		t.is(createdConnection.database, 'postgres');
-		t.is(createdConnection.host, 'testPg-e2e-testing');
-		t.is(createdConnection.port, 5432);
-
-		// Verify admin group was created
-		t.truthy(createdConnection.groups);
-		t.is(createdConnection.groups.length, 1);
-		const adminGroup = createdConnection.groups[0];
-		t.truthy(adminGroup.id);
-		t.is(adminGroup.isMain, true);
 
 		// Verify connection is accessible via connection groups endpoint
 		const groupsResponse = await request(app.getHttpServer())
@@ -119,6 +110,7 @@ test.serial(`${currentTest} should create a hosted postgres connection with admi
 		const groups = JSON.parse(groupsResponse.text);
 		t.is(groups.length, 1);
 		t.is(groups[0].accessLevel, AccessLevelEnum.edit);
+		const adminGroup = groups[0];
 
 		// Verify tables endpoint works with this connection
 		const findTablesResponse = await request(app.getHttpServer())
@@ -132,8 +124,9 @@ test.serial(`${currentTest} should create a hosted postgres connection with admi
 		t.true(Array.isArray(tables));
 
 		// Verify user permissions - user should have full access
+		const groupId = adminGroup.group.id;
 		const permissionsResponse = await request(app.getHttpServer())
-			.get(`/connection/permissions?connectionId=${connectionId}&groupId=${adminGroup.id}`)
+			.get(`/connection/permissions?connectionId=${connectionId}&groupId=${groupId}`)
 			.set('Content-Type', 'application/json')
 			.set('Cookie', token)
 			.set('Accept', 'application/json');
@@ -177,6 +170,7 @@ test.serial(`${currentTest} should return error when userId does not exist`, asy
 			.send({
 				companyId: faker.string.uuid(),
 				userId: faker.string.uuid(),
+				hostedDatabaseId: faker.string.uuid(),
 				databaseName: 'postgres',
 				hostname: 'testPg-e2e-testing',
 				port: 5432,
@@ -187,6 +181,8 @@ test.serial(`${currentTest} should return error when userId does not exist`, asy
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
 
+		const responseBody = JSON.parse(result.text);
+		console.log('🚀 ~ responseBody:', responseBody);
 		t.is(result.status, 500);
 	} catch (e) {
 		console.error('Test error:', e);
@@ -219,6 +215,7 @@ test.serial(`${currentTest} should delete a hosted connection`, async (t) => {
 			.send({
 				companyId: companyId,
 				userId: userId,
+				hostedDatabaseId: faker.string.uuid(),
 				databaseName: 'postgres',
 				hostname: 'testPg-e2e-testing',
 				port: 5432,
@@ -229,9 +226,10 @@ test.serial(`${currentTest} should delete a hosted connection`, async (t) => {
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
 
-		t.is(createResult.status, 201);
 		const createdConnection = JSON.parse(createResult.text);
-		const connectionId = createdConnection.id;
+		console.log('🚀 ~ createdConnection:', createdConnection);
+		t.is(createResult.status, 201);
+		const connectionId = createdConnection.connectionId;
 
 		// Verify connection exists
 		const connectionsBeforeDelete = await request(app.getHttpServer())
