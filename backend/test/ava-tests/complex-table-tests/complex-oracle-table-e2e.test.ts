@@ -844,7 +844,7 @@ test.serial(`POST /table/rows/find/:connectionId - Should return filtered rows f
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
 
-		t.is(findRowsResponse.status, 201);
+		t.is(findRowsResponse.status, 200);
 		const findRowsRO = JSON.parse(findRowsResponse.text);
 		t.truthy(findRowsRO.rows);
 		t.is(findRowsRO.rows.length, 1);
@@ -886,7 +886,7 @@ test.serial(
 				.set('Content-Type', 'application/json')
 				.set('Accept', 'application/json');
 
-			t.is(findRowsResponse.status, 201);
+			t.is(findRowsResponse.status, 200);
 			const findRowsRO = JSON.parse(findRowsResponse.text);
 			t.truthy(findRowsRO.rows);
 			for (const row of findRowsRO.rows) {

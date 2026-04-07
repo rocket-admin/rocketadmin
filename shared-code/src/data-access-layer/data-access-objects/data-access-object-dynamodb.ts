@@ -1,12 +1,12 @@
 /* eslint-disable security/detect-object-injection */
 import {
+	BatchGetItemCommand,
 	DeleteItemCommand,
 	DynamoDB,
 	GetItemCommand,
 	PutItemCommand,
 	ScanCommand,
 	UpdateItemCommand,
-	BatchGetItemCommand,
 } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
@@ -16,20 +16,20 @@ import { binaryToHex, hexToBinary } from '../../helpers/binary-hex-string-conver
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { isObjectEmpty } from '../../helpers/is-object-empty.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
+import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
+import { QueryOrderingEnum } from '../../shared/enums/query-ordering.enum.js';
+import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
 import { ForeignKeyDS } from '../shared/data-structures/foreign-key.ds.js';
 import { FoundRowsDS } from '../shared/data-structures/found-rows.ds.js';
 import { PrimaryKeyDS } from '../shared/data-structures/primary-key.ds.js';
 import { ReferencedTableNamesAndColumnsDS } from '../shared/data-structures/referenced-table-names-columns.ds.js';
+import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TableSettingsDS } from '../shared/data-structures/table-settings.ds.js';
 import { DynamoDBType, TableStructureDS } from '../shared/data-structures/table-structure.ds.js';
-import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
-import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
-import { QueryOrderingEnum } from '../../shared/enums/query-ordering.enum.js';
-import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
 
 export type DdAndClient = {
@@ -344,6 +344,36 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
 					case FilterCriteriaEnum.empty:
 						filterExpression += ` AND attribute_not_exists(#${field})`;
 						break;
+					case FilterCriteriaEnum.in: {
+						const inValues = Array.isArray(value)
+							? value
+							: String(value)
+									.split(',')
+									.map((v) => v.trim());
+						const placeholders = inValues.map((_, i) => `${uniquePlaceholder}_${i}`);
+						filterExpression += ` AND #${field} IN (${placeholders.join(', ')})`;
+						inValues.forEach((val, i) => {
+							expressionAttributeValues[`${uniquePlaceholder}_${i}`] = isNumberField
+								? { N: String(val) }
+								: { S: String(val) };
+						});
+						break;
+					}
+					case FilterCriteriaEnum.between: {
+						const betweenValues = Array.isArray(value)
+							? value
+							: String(value)
+									.split(',')
+									.map((v) => v.trim());
+						filterExpression += ` AND #${field} BETWEEN ${uniquePlaceholder}_low AND ${uniquePlaceholder}_high`;
+						expressionAttributeValues[`${uniquePlaceholder}_low`] = isNumberField
+							? { N: String(betweenValues[0]) }
+							: { S: String(betweenValues[0]) };
+						expressionAttributeValues[`${uniquePlaceholder}_high`] = isNumberField
+							? { N: String(betweenValues[1]) }
+							: { S: String(betweenValues[1]) };
+						break;
+					}
 					default:
 						break;
 				}

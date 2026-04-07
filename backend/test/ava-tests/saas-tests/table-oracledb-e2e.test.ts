@@ -1613,7 +1613,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
 				.set('Accept', 'application/json');
 
 			const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-			t.is(getTableRowsResponse.status, 201);
+			t.is(getTableRowsResponse.status, 200);
 			t.is(typeof getTableRowsRO, 'object');
 			t.is(Object.hasOwn(getTableRowsRO, 'rows'), true);
 			t.is(Object.hasOwn(getTableRowsRO, 'primaryColumns'), true);
