@@ -65,6 +65,7 @@
 
     <mat-sidenav-content class="main-menu-content"
         [ngClass]="{'main-menu-content_exterior': userLoggedIn === false, 'main-menu-content_interior': userLoggedIn === true}">
+        <app-view-as-banner></app-view-as-banner>
         <mat-toolbar color="primary" class="nav-bar"
             [ngClass]="{'nav-bar_home': !connectionID, 'nav-bar_connection': connectionID,
                 'nav-bar_exterior': userLoggedIn === false, 'nav-bar_interior': userLoggedIn === true}">
@@ -135,7 +136,7 @@
                 </a>
             </div>
 
-            <button mat-icon-button *ngIf="userLoggedIn === true" color="primary" class="menu-button" (click)="drawer.toggle()">
+            <button type="button" mat-icon-button *ngIf="userLoggedIn === true" color="primary" class="menu-button" (click)="drawer.toggle()">
                 <mat-icon>menu</mat-icon>
             </button>
 
@@ -198,7 +199,7 @@
                         <mat-icon fontSet="material-symbols-outlined">help</mat-icon>
                         <span>Help center</span>
                     </a>
-                    <button mat-menu-item (click)="logOut()" data-testid="logout-button-account-menu">
+                    <button type="button" mat-menu-item (click)="logOut()" data-testid="logout-button-account-menu">
                         <mat-icon>logout</mat-icon>
                         <span>Log out</span>
                     </button>

@@ -1,7 +1,7 @@
 <div class="saved-filters-container">
     <app-placeholder-saved-filters *ngIf="savedFilterData === null"></app-placeholder-saved-filters>
     <div *ngIf="savedFilterData" class="saved-filters-list">
-        <button *ngIf="accessLevel === 'edit' && savedFilterData?.length === 0"
+        <button *ngIf="canEditConnection() && savedFilterData?.length === 0"
             class="saved-filters-list__first-time-button"
             mat-button type="button"
             angulartics2On="click"
@@ -11,7 +11,7 @@
             Create fast filter
         </button>
 
-        <button *ngIf="accessLevel === 'edit' && savedFilterData.length !== 0"
+        <button *ngIf="canEditConnection() && savedFilterData.length !== 0"
             mat-icon-button type="button"
             class="create-filter-button"
             matTooltip="Create new fast filter"
@@ -27,7 +27,7 @@
                 (click)="selectFiltersSet(filter.id)"
                 class="filter-chip-wrapper">
                 <span class="filter-chip-content">{{ filter.name }}</span>
-                <button *ngIf="accessLevel === 'edit'"
+                <button *ngIf="canEditConnection()"
                     mat-icon-button
                     type="button"
                     class="filter-chip-menu-button"
@@ -39,11 +39,11 @@
             </mat-chip-option>
         </mat-chip-listbox>
         <mat-menu #filterMenu="matMenu">
-            <button mat-menu-item (click)="handleEditFilter(currentFilterForMenu)">
+            <button type="button" mat-menu-item (click)="handleEditFilter(currentFilterForMenu)">
                 <mat-icon fontSet="material-symbols-outlined">create</mat-icon>
                 <span>Edit</span>
             </button>
-            <button mat-menu-item (click)="handleDeleteFilter(currentFilterForMenu)">
+            <button type="button" mat-menu-item (click)="handleDeleteFilter(currentFilterForMenu)">
                 <mat-icon fontSet="material-symbols-outlined">delete</mat-icon>
                 <span>Delete</span>
             </button>

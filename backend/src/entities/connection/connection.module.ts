@@ -31,9 +31,9 @@ import { RefreshConnectionAgentTokenUseCase } from './use-cases/refresh-connecti
 import { RestoreConnectionUseCase } from './use-cases/restore-connection-use.case.js';
 import { TestConnectionUseCase } from './use-cases/test-connection.use.case.js';
 import { UnfreezeConnectionUseCase } from './use-cases/unfreeze-connection.use.case.js';
-import { UpdateConnectionTitleUseCase } from './use-cases/update-connection-title.use.case.js';
 import { UpdateConnectionUseCase } from './use-cases/update-connection.use.case.js';
 import { UpdateConnectionMasterPasswordUseCase } from './use-cases/update-connection-master-password.use.case.js';
+import { UpdateConnectionTitleUseCase } from './use-cases/update-connection-title.use.case.js';
 import { ValidateConnectionMasterPasswordUseCase } from './use-cases/validate-connection-master-password.use.case.js';
 import { ValidateConnectionTokenUseCase } from './use-cases/validate-connection-token.use.case.js';
 

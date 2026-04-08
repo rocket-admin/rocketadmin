@@ -45,7 +45,7 @@ export const userCustomRepositoryExtension: IUserRepository = {
 		return await userQb.getOne();
 	},
 
-	async findOneUserByEmail(
+	findOneUserByEmail(
 		email: string,
 		externalRegistrationProvider: ExternalRegistrationProviderEnum = null,
 		samlNameId: string = null,

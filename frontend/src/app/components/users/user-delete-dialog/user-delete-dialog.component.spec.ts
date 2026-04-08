@@ -1,18 +1,25 @@
 import { provideHttpClient } from '@angular/common/http';
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { of } from 'rxjs';
 import { UsersService } from 'src/app/services/users.service';
 import { UserDeleteDialogComponent } from './user-delete-dialog.component';
+
+type UserDeleteTestable = UserDeleteDialogComponent & {
+	submitting: ReturnType<typeof signal<boolean>>;
+};
 
 describe('UserDeleteDialogComponent', () => {
 	let component: UserDeleteDialogComponent;
 	let fixture: ComponentFixture<UserDeleteDialogComponent>;
-	let usersService: UsersService;
 
 	const mockDialogRef = {
-		close: () => {},
+		close: vi.fn(),
+	};
+
+	const mockUsersService: Partial<UsersService> = {
+		deleteGroupUser: vi.fn().mockResolvedValue(undefined),
 	};
 
 	beforeEach(async () => {
@@ -22,6 +29,7 @@ describe('UserDeleteDialogComponent', () => {
 				provideHttpClient(),
 				{ provide: MAT_DIALOG_DATA, useValue: { user: { email: 'user@test.com' }, group: { id: '12345678-123' } } },
 				{ provide: MatDialogRef, useValue: mockDialogRef },
+				{ provide: UsersService, useValue: mockUsersService },
 			],
 		}).compileComponents();
 	});
@@ -29,7 +37,6 @@ describe('UserDeleteDialogComponent', () => {
 	beforeEach(() => {
 		fixture = TestBed.createComponent(UserDeleteDialogComponent);
 		component = fixture.componentInstance;
-		usersService = TestBed.inject(UsersService);
 		fixture.detectChanges();
 	});
 
@@ -37,13 +44,12 @@ describe('UserDeleteDialogComponent', () => {
 		expect(component).toBeTruthy();
 	});
 
-	it('should call delete user service', () => {
-		const fakeDeleteUser = vi.spyOn(usersService, 'deleteGroupUser').mockReturnValue(of());
-		vi.spyOn(mockDialogRef, 'close');
+	it('should call delete user service', async () => {
+		const testable = component as unknown as UserDeleteTestable;
 
-		component.deleteGroupUser();
-		expect(fakeDeleteUser).toHaveBeenCalledWith('user@test.com', '12345678-123');
-		// expect(component.dialogRef.close).toHaveBeenCalled();
-		expect(component.submitting).toBe(false);
+		await testable.deleteGroupUser();
+
+		expect(mockUsersService.deleteGroupUser).toHaveBeenCalledWith('user@test.com', '12345678-123');
+		expect(testable.submitting()).toBe(false);
 	});
 });

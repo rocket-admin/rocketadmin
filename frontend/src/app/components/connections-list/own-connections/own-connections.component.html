@@ -36,7 +36,7 @@
         }
     </ul>
 
-    @if (displayedCardCount < connections?.length) {
+    @if ((connections?.length ?? 0) > displayedCardCount) {
         <button type="button" mat-button color="accent" class="showAllButton" (click)="showMore()">Show all</button>
     }
     @if (displayedCardCount > 3) {

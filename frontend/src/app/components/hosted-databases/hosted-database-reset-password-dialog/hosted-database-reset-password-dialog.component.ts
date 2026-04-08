@@ -50,6 +50,8 @@ export class HostedDatabaseResetPasswordDialogComponent {
 		this._notifications.showSuccessSnackbar('New credentials were copied to clipboard.');
 		this.copied.set(true);
 		this.canClose.set(true);
-		setTimeout(() => { this.copied.set(false); }, 2000);
+		setTimeout(() => {
+			this.copied.set(false);
+		}, 2000);
 	}
 }

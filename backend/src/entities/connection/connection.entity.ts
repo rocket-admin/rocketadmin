@@ -1,3 +1,4 @@
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { Expose } from 'class-transformer';
 import { nanoid } from 'nanoid';
 import {
@@ -12,7 +13,6 @@ import {
 	PrimaryColumn,
 	Relation,
 } from 'typeorm';
-import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { Encryptor } from '../../helpers/encryption/encryptor.js';
 import { isConnectionTypeAgent } from '../../helpers/index.js';
 import { AgentEntity } from '../agent/agent.entity.js';

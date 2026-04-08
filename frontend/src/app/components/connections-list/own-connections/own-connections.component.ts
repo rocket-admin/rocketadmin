@@ -77,7 +77,7 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 
 		this._uiSettings.getUiSettings().subscribe((settings: UiSettings) => {
 			this.connectionsListCollapsed = settings?.globalSettings?.connectionsListCollapsed;
-			this.displayedCardCount = this.connectionsListCollapsed ? 3 : (this.connections?.length || 3);
+			this.displayedCardCount = this.connectionsListCollapsed ? 3 : this.connections?.length || 3;
 		});
 	}
 

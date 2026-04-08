@@ -1,0 +1,40 @@
+.view-as-banner {
+	position: sticky;
+	top: 0;
+	z-index: 1100;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 8px 16px;
+	background-color: var(--color-warningPalette-500);
+	color: #fff;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+	font-size: 14px;
+}
+
+.view-as-banner__icon {
+	flex-shrink: 0;
+	font-size: 20px;
+	width: 20px;
+	height: 20px;
+	line-height: 20px;
+}
+
+.view-as-banner__text {
+	flex: 1;
+	min-width: 0;
+}
+
+.view-as-banner__text strong {
+	font-weight: 600;
+}
+
+.view-as-banner__exit.mat-mdc-outlined-button {
+	--mdc-outlined-button-label-text-color: #fff;
+	--mdc-outlined-button-outline-color: rgba(255, 255, 255, 0.7);
+	flex-shrink: 0;
+}
+
+.view-as-banner__exit.mat-mdc-outlined-button:hover {
+	background-color: rgba(255, 255, 255, 0.12);
+}
