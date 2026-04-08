@@ -305,7 +305,7 @@ export class Encryptor {
 	}
 
 	static hashUserPassword(password: string): Promise<string> {
-		if (!password || password.length <= 0) return password;
+		if (!password || password.length <= 0) return Promise.resolve(password);
 		return new Promise<string>((resolve, reject) => {
 			const salt = crypto.randomBytes(Constants.PASSWORD_SALT_LENGTH).toString(Constants.BYTE_TO_STRING_ENCODING);
 			crypto.pbkdf2(
