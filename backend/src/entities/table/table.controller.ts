@@ -63,6 +63,7 @@ import {
 	IImportCSVFinTable,
 	IUpdateRowInTable,
 } from './use-cases/table-use-cases.interface.js';
+import { Throttle } from '@nestjs/throttler';
 
 @UseInterceptors(SentryInterceptor)
 @Timeout()
@@ -187,6 +188,7 @@ export class TableController {
 	@ApiQuery({ name: 'perPage', required: false })
 	@ApiQuery({ name: 'search', required: false })
 	@Timeout(TimeoutDefaults.EXTENDED)
+	@Throttle({ default: { limit: 300, ttl: 60000 } })
 	@Get('/table/rows/:connectionId')
 	async findAllRows(
 		@QueryTableName() tableName: string,
@@ -249,6 +251,7 @@ export class TableController {
 	@ApiQuery({ name: 'search', required: false })
 	@UseGuards(TableReadGuard)
 	@Timeout(TimeoutDefaults.EXTENDED)
+	@Throttle({ default: { limit: 300, ttl: 60000 } })
 	@HttpCode(HttpStatus.OK)
 	@Post('/table/rows/find/:connectionId')
 	async findAllRowsWithBodyFilter(
