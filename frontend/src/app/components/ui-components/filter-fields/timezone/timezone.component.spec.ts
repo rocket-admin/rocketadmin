@@ -42,9 +42,9 @@ describe('TimezoneFilterComponent', () => {
 	});
 
 	it('should add null option when allow_null is true', () => {
-		component.widgetStructure = {
+		fixture.componentRef.setInput('widgetStructure', {
 			widget_params: { allow_null: true },
-		} as any;
+		});
 		component.ngOnInit();
 		const nullOption = component.timezones.find((tz) => tz.value === null);
 		expect(nullOption).toBeDefined();

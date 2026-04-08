@@ -1,8 +1,8 @@
 <mat-form-field class="select-form-field" appearance="outline">
-    <mat-label>{{normalizedLabel}}</mat-label>
-    <mat-select name="{{label}}-{{key}}"
-        [required]="required" [disabled]="disabled" [readonly]="readonly"
-        attr.data-testid="record-{{label}}-select"
+    <mat-label>{{normalizedLabel()}}</mat-label>
+    <mat-select name="{{label()}}-{{key()}}"
+        [required]="required()" [disabled]="disabled()" [readonly]="readonly()"
+        attr.data-testid="record-{{label()}}-select"
         [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
         <mat-option *ngFor="let option of options"
             [value]="option.value">

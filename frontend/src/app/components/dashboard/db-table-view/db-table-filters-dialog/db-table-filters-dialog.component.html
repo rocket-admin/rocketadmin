@@ -26,6 +26,7 @@
 
             <ng-container *ngFor="let value of tableRowFieldsShown | keyvalue; trackBy:trackByFn">
                 <div *ngIf="getComparatorType(getInputType(value.key)) === 'nonComparable'; else comparableFilter" class="filter-line">
+                    <span class='mat-body-1 column-name'>{{value.key}}</span>
 
                     <div *ngIf="isWidget(value.key); else defaultTableField">
                         <ndc-dynamic [ndcDynamicComponent]="tableWidgets[value.key].widget_type ? UIwidgets[tableWidgets[value.key].widget_type] : inputs[tableTypes[value.key]]"
@@ -38,7 +39,8 @@
                                 autofocus: autofocusField === value.key
                             }"
                             [ndcDynamicOutputs]="{
-                                onFieldChange: { handler: updateField, args: ['$event', value.key] }
+                                onFieldChange: { handler: updateField, args: ['$event', value.key] },
+                            onComparatorChange: { handler: updateComparatorFromComponent, args: ['$event', value.key] }
                             }"
                         ></ndc-dynamic>
                     </div>
@@ -54,7 +56,8 @@
                                 autofocus: autofocusField === value.key
                             }"
                             [ndcDynamicOutputs]="{
-                                onFieldChange: { handler: updateField, args: ['$event', value.key] }
+                                onFieldChange: { handler: updateField, args: ['$event', value.key] },
+                                onComparatorChange: { handler: updateComparatorFromComponent, args: ['$event', value.key] }
                             }"
                         ></ndc-dynamic>
                     </ng-template>
@@ -146,6 +149,7 @@
             Reset
         </button>
         <button mat-flat-button mat-dialog-close
+            type="button"
             angulartics2On="click"
             angularticsAction="Filters: cancel is clicked"
             (click)="posthog.capture('Filters: cancel is clicked')">

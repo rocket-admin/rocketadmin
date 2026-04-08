@@ -179,4 +179,46 @@ describe('DbTableFiltersDialogComponent', () => {
 		const comparatorType = component.getComparatorType(undefined);
 		expect(comparatorType).toEqual('nonComparable');
 	});
+
+	it('should receive comparator from EmailFilterComponent after it renders', async () => {
+		component.setWidgets([
+			{
+				field_name: 'FirstName',
+				widget_type: 'Email',
+				widget_params: '// No settings required',
+				name: '',
+				description: '',
+			},
+		]);
+
+		component.addFilter({ option: { value: 'FirstName' } });
+
+		// Default comparator is 'eq' from addFilter
+		expect(component.tableRowFieldsComparator['FirstName']).toEqual('eq');
+
+		// Trigger change detection so ndc-dynamic renders EmailFilterComponent
+		fixture.detectChanges();
+		await fixture.whenStable();
+
+		// EmailFilterComponent emits 'eq' (default mode) in ngAfterViewInit,
+		// which updateComparatorFromComponent receives
+		expect(component.tableRowFieldsComparator['FirstName']).toEqual('eq');
+	});
+
+	it('should recognize widgets when passed as object (real app format)', () => {
+		const widgetsObject = {
+			FirstName: {
+				field_name: 'FirstName',
+				widget_type: 'Email',
+				widget_params: {},
+				name: '',
+				description: '',
+			},
+		};
+
+		component.data.structure.widgets = widgetsObject;
+		component.ngOnInit();
+
+		expect(component.isWidget('FirstName')).toBe(true);
+	});
 });

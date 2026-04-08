@@ -1,0 +1,35 @@
+.filter-row {
+	display: flex;
+	gap: 8px;
+	align-items: flex-start;
+	width: 100%;
+}
+
+.comparator-field {
+	flex: 0 0 auto;
+	min-width: 150px;
+}
+
+.value-field {
+	flex: 1;
+}
+
+.country-flag {
+	margin-right: 8px;
+	font-size: 16px;
+}
+
+.country-name {
+	flex: 1;
+}
+
+.country-dial-code {
+	margin-left: 8px;
+	opacity: 0.7;
+	font-size: 12px;
+}
+
+mat-option {
+	display: flex;
+	align-items: center;
+}

@@ -28,8 +28,6 @@ export class TimeIntervalFilterComponent extends BaseFilterFieldComponent {
 	};
 
 	ngOnInit(): void {
-		super.ngOnInit();
-
 		if (this.value) this.interval = this.parseIntervalString(this.value);
 	}
 

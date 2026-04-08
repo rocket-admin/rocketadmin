@@ -9,6 +9,18 @@ import { map, startWith } from 'rxjs/operators';
 import { COUNTRIES, getCountryFlag } from '../../../../consts/countries';
 import { BaseFilterFieldComponent } from '../base-filter-field/base-filter-field.component';
 
+interface CountryOption {
+	value: string | null;
+	label: string;
+	flag: string;
+}
+
+const BASE_COUNTRIES: CountryOption[] = COUNTRIES.map((country) => ({
+	value: country.code,
+	label: country.name,
+	flag: getCountryFlag(country.code),
+}));
+
 @Component({
 	selector: 'app-filter-country',
 	templateUrl: './country.component.html',
@@ -19,9 +31,9 @@ import { BaseFilterFieldComponent } from '../base-filter-field/base-filter-field
 export class CountryFilterComponent extends BaseFilterFieldComponent {
 	@Input() value: string;
 
-	public countries: { value: string | null; label: string; flag: string }[] = [];
-	public countryControl = new FormControl<{ value: string | null; label: string; flag: string } | string>('');
-	public filteredCountries: Observable<{ value: string | null; label: string; flag: string }[]>;
+	public countries: CountryOption[] = [];
+	public countryControl = new FormControl<CountryOption | string>('');
+	public filteredCountries: Observable<CountryOption[]>;
 
 	originalOrder = () => {
 		return 0;
@@ -30,10 +42,25 @@ export class CountryFilterComponent extends BaseFilterFieldComponent {
 	getCountryFlag = getCountryFlag;
 
 	ngOnInit(): void {
-		super.ngOnInit();
-		this.loadCountries();
+		const ws = this.widgetStructure();
+		const struct = this.structure();
+		if (ws?.widget_params?.allow_null || struct?.allow_null) {
+			this.countries = [{ value: null, label: '', flag: '' }, ...BASE_COUNTRIES];
+		} else {
+			this.countries = BASE_COUNTRIES;
+		}
+
 		this.setupAutocomplete();
 		this.setInitialValue();
+	}
+
+	onCountrySelected(selectedCountry: CountryOption): void {
+		this.value = selectedCountry.value;
+		this.onFieldChange.emit(this.value);
+	}
+
+	displayFn(country: any): string {
+		return country ? country.label : '';
 	}
 
 	private setupAutocomplete(): void {
@@ -52,32 +79,11 @@ export class CountryFilterComponent extends BaseFilterFieldComponent {
 		}
 	}
 
-	private _filter(value: string): { value: string | null; label: string; flag: string }[] {
+	private _filter(value: string): CountryOption[] {
 		const filterValue = value.toLowerCase();
 		return this.countries.filter(
 			(country) =>
 				country.label?.toLowerCase().includes(filterValue) || country.value?.toLowerCase().includes(filterValue),
 		);
-	}
-
-	onCountrySelected(selectedCountry: { value: string | null; label: string; flag: string }): void {
-		this.value = selectedCountry.value;
-		this.onFieldChange.emit(this.value);
-	}
-
-	displayFn(country: any): string {
-		return country ? country.label : '';
-	}
-
-	private loadCountries(): void {
-		this.countries = COUNTRIES.map((country) => ({
-			value: country.code,
-			label: country.name,
-			flag: getCountryFlag(country.code),
-		}));
-
-		if (this.widgetStructure?.widget_params?.allow_null || this.structure?.allow_null) {
-			this.countries = [{ value: null, label: '', flag: '' }, ...this.countries];
-		}
 	}
 }

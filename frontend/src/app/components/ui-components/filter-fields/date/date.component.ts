@@ -20,7 +20,6 @@ export class DateFilterComponent extends BaseFilterFieldComponent implements Aft
 	public date: string;
 
 	ngOnInit(): void {
-		super.ngOnInit();
 		if (this.value) {
 			const datetime = new Date(this.value);
 			this.date = format(datetime, 'yyyy-MM-dd');
@@ -28,7 +27,7 @@ export class DateFilterComponent extends BaseFilterFieldComponent implements Aft
 	}
 
 	ngAfterViewInit(): void {
-		if (this.autofocus && this.inputElement) {
+		if (this.autofocus() && this.inputElement) {
 			setTimeout(() => {
 				this.inputElement.nativeElement.focus();
 			}, 100);

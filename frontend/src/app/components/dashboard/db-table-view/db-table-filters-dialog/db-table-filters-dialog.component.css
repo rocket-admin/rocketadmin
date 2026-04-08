@@ -19,6 +19,21 @@
 
 .filter-line {
 	grid-column: 1 / span 4;
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+}
+
+.filter-line > div,
+.filter-line > ng-template,
+.filter-line > ndc-dynamic {
+	flex: 1;
+	min-width: 0;
+}
+
+.filter-line > .column-name {
+	flex: 0 0 auto;
+	white-space: nowrap;
 }
 
 ::ng-deep .mat-dialog-container > .ng-star-inserted {

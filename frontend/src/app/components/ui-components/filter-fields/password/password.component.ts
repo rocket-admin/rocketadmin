@@ -19,13 +19,12 @@ export class PasswordFilterComponent extends BaseFilterFieldComponent implements
 	public clearPassword: boolean;
 
 	ngOnInit(): void {
-		super.ngOnInit();
 		if (this.value === '***') this.value = '';
 		this.onFieldChange.emit(this.value);
 	}
 
 	ngAfterViewInit(): void {
-		if (this.autofocus && this.inputElement) {
+		if (this.autofocus() && this.inputElement) {
 			setTimeout(() => {
 				this.inputElement.nativeElement.focus();
 			}, 100);

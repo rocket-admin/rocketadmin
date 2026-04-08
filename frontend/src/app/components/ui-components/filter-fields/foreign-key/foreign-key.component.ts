@@ -63,18 +63,18 @@ export class ForeignKeyFilterComponent extends BaseFilterFieldComponent {
 	}
 
 	async ngOnInit(): Promise<void> {
-		super.ngOnInit();
 		this.connectionID = this._connections.currentConnectionID;
+		const rels = this.relations();
 
-		if (this.relations) {
+		if (rels) {
 			try {
 				const res = (await firstValueFrom(
 					this._tables.fetchTable({
 						connectionID: this.connectionID,
-						tableName: this.relations.referenced_table_name,
+						tableName: rels.referenced_table_name,
 						requstedPage: 1,
 						chunkSize: 10,
-						foreignKeyRowName: this.relations.referenced_column_name,
+						foreignKeyRowName: rels.referenced_column_name,
 						foreignKeyRowValue: this.value,
 					}),
 				)) as FetchTableResponse;
@@ -90,7 +90,7 @@ export class ForeignKeyFilterComponent extends BaseFilterFieldComponent {
 							: Object.values(modifiedRow)
 									.filter((value) => value)
 									.join(' | ');
-						this.currentFieldValue = res.rows[0][this.relations.referenced_column_name];
+						this.currentFieldValue = res.rows[0][rels.referenced_column_name];
 						this.currentFieldQueryParams = Object.assign(
 							{},
 							...res.primaryColumns.map((primaeyKey) => ({
@@ -104,12 +104,12 @@ export class ForeignKeyFilterComponent extends BaseFilterFieldComponent {
 				const suggestionsRes = (await firstValueFrom(
 					this._tables.fetchTable({
 						connectionID: this.connectionID,
-						tableName: this.relations.referenced_table_name,
+						tableName: rels.referenced_table_name,
 						requstedPage: 1,
 						chunkSize: 20,
 						foreignKeyRowName: 'autocomplete',
 						foreignKeyRowValue: '',
-						referencedColumn: this.relations.referenced_column_name,
+						referencedColumn: rels.referenced_column_name,
 					}),
 				)) as FetchTableResponse;
 
@@ -131,7 +131,7 @@ export class ForeignKeyFilterComponent extends BaseFilterFieldComponent {
 									[primaeyKey.column_name]: row[primaeyKey.column_name],
 								})),
 							),
-							fieldValue: row[this.relations.referenced_column_name],
+							fieldValue: row[rels.referenced_column_name],
 						};
 					}),
 				);
@@ -155,6 +155,7 @@ export class ForeignKeyFilterComponent extends BaseFilterFieldComponent {
 		const currentRow = this.suggestions()?.find(
 			(suggestion) => suggestion.displayString === this.currentDisplayedString,
 		);
+		const rels = this.relations();
 		if (currentRow !== undefined) {
 			this.currentFieldValue = currentRow.fieldValue;
 			this.onFieldChange.emit(this.currentFieldValue);
@@ -164,12 +165,12 @@ export class ForeignKeyFilterComponent extends BaseFilterFieldComponent {
 				const res = (await firstValueFrom(
 					this._tables.fetchTable({
 						connectionID: this.connectionID,
-						tableName: this.relations.referenced_table_name,
+						tableName: rels.referenced_table_name,
 						requstedPage: 1,
 						chunkSize: 20,
 						foreignKeyRowName: 'autocomplete',
 						foreignKeyRowValue: this.currentDisplayedString,
-						referencedColumn: this.relations.referenced_column_name,
+						referencedColumn: rels.referenced_column_name,
 					}),
 				)) as FetchTableResponse;
 
@@ -198,7 +199,7 @@ export class ForeignKeyFilterComponent extends BaseFilterFieldComponent {
 										[primaeyKey.column_name]: row[primaeyKey.column_name],
 									})),
 								),
-								fieldValue: row[this.relations.referenced_column_name],
+								fieldValue: row[rels.referenced_column_name],
 							};
 						}),
 					);
@@ -212,11 +213,11 @@ export class ForeignKeyFilterComponent extends BaseFilterFieldComponent {
 	}
 
 	getModifiedRow(row: Record<string, unknown>): Record<string, unknown> {
+		const rels = this.relations();
 		let modifiedRow: Record<string, unknown>;
-		if (this.relations.autocomplete_columns && this.relations.autocomplete_columns.length > 0) {
-			let autocompleteColumns = [...this.relations.autocomplete_columns];
-			if (this.identityColumn)
-				autocompleteColumns.splice(this.relations.autocomplete_columns.indexOf(this.identityColumn), 1);
+		if (rels.autocomplete_columns && rels.autocomplete_columns.length > 0) {
+			let autocompleteColumns = [...rels.autocomplete_columns];
+			if (this.identityColumn) autocompleteColumns.splice(rels.autocomplete_columns.indexOf(this.identityColumn), 1);
 			modifiedRow = autocompleteColumns.reduce<Record<string, unknown>>(
 				(rowObject, columnName) => ((rowObject[columnName] = row[columnName]), rowObject),
 				{},

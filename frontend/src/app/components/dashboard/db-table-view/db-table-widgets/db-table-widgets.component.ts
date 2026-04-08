@@ -254,6 +254,7 @@ export class DbTableWidgetsComponent implements OnInit {
   "name": ""
 }
 `,
+		Email: `// No settings required`,
 		S3: `// Configure AWS S3 widget for file storage
 // bucket: S3 bucket name (required)
 // prefix: Optional path prefix for uploaded files

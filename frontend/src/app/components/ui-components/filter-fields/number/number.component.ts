@@ -18,7 +18,7 @@ export class NumberFilterComponent extends BaseFilterFieldComponent implements A
 	static type = 'number';
 
 	ngAfterViewInit(): void {
-		if (this.autofocus && this.inputElement) {
+		if (this.autofocus() && this.inputElement) {
 			setTimeout(() => {
 				this.inputElement.nativeElement.focus();
 			}, 100);
