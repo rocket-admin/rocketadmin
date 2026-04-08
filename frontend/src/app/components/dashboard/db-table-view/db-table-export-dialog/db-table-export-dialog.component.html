@@ -23,8 +23,8 @@
         </mat-radio-group>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-        <button mat-flat-button mat-dialog-close>Cancel</button>
-        <button mat-flat-button type="" color="primary" mat-dialog-close="export">
+        <button type="button" mat-flat-button mat-dialog-close>Cancel</button>
+        <button type="submit" mat-flat-button color="primary" [disabled]="submitting">
             Export
         </button>
     </mat-dialog-actions>

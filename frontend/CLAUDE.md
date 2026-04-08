@@ -172,6 +172,21 @@ Database configurations are defined in `src/app/consts/databases.ts`.
 - Example: `@if (condition) { ... }` instead of `<div *ngIf="condition">...</div>`
 - Example: `@for (item of items; track item.id) { ... }` instead of `<div *ngFor="let item of items">...</div>`
 
+### Mat-Dialog Forms
+- **When a `mat-dialog` contains form elements and presumes form submission, `mat-dialog-content` and `mat-dialog-actions` MUST be wrapped in a `<form>` tag with an `(ngSubmit)` handler, and the primary action button inside `mat-dialog-actions` must use `type="submit"`.** This ensures the dialog properly supports keyboard submission (Enter key) and follows accessibility best practices.
+- Example:
+  ```html
+  <form [formGroup]="myForm" (ngSubmit)="handleSubmit()">
+    <mat-dialog-content>
+      <!-- form fields -->
+    </mat-dialog-content>
+    <mat-dialog-actions>
+      <button mat-button type="button" mat-dialog-close>Cancel</button>
+      <button mat-flat-button type="submit" color="primary">Submit</button>
+    </mat-dialog-actions>
+  </form>
+  ```
+
 ### Naming Conventions
 - **Files**: `kebab-case.component.ts`
 - **Classes**: `PascalCase` (e.g., `DbTableSettingsComponent`)

@@ -1,16 +1,18 @@
 <h1 mat-dialog-title>Name your connection</h1>
 
+<form (ngSubmit)="save()">
 <mat-dialog-content class="rename-dialog__content">
 	<p class="rename-dialog__description">Give your hosted database a friendly title so you can find it easily.</p>
 	<mat-form-field appearance="outline" class="rename-dialog__field">
 		<mat-label>Connection title</mat-label>
-		<input matInput [(ngModel)]="title" placeholder="e.g. Production DB, Staging, My App" (keyup.enter)="save()" cdkFocusInitial>
+		<input matInput [(ngModel)]="title" name="title" placeholder="e.g. Production DB, Staging, My App" cdkFocusInitial>
 	</mat-form-field>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" class="rename-dialog__actions">
 	<button type="button" mat-button mat-dialog-close>Skip</button>
-	<button type="button" mat-flat-button color="accent" [disabled]="!title.trim() || saving" (click)="save()">
+	<button type="submit" mat-flat-button color="accent" [disabled]="!title.trim() || saving">
 		{{ saving ? 'Saving...' : 'Save' }}
 	</button>
 </mat-dialog-actions>
+</form>

@@ -1,36 +1,35 @@
 <h1 mat-dialog-title>Delete <strong>{{ userEmail }}</strong> account</h1>
+<form #deleteConnectionForm="ngForm" class="form" (ngSubmit)="openDeleteConfirmation()">
 <mat-dialog-content>
     <p class="mat-body">
         Tell us why are you deleting your account.
     </p>
     <br>
-    <form action="" #deleteConnectionForm="ngForm" class="form">
-        <mat-radio-group required
-            name="reasons"
-            class="radio-group"
-            [(ngModel)]="reason">
-            <div *ngFor="let reasonItem of reasonsList">
-                <mat-radio-button [value]="reasonItem.id" class="radio-button">
-                    {{ reasonItem.caption }}
-                </mat-radio-button>
-                <p *ngIf="reasonItem.message && reason === reasonItem.id"
-                    [innerHtml]="reasonItem.message"
-                    class="mat-body-1 radio-group__message">
-                </p>
-            </div>
-        </mat-radio-group>
-        <mat-form-field appearance="outline" class="message">
-            <mat-label>Anything you want to share? (optional)</mat-label>
-            <textarea matInput resizeToFitContent rows="3" name="message"
-                [(ngModel)]="message"
-            ></textarea>
-        </mat-form-field>
-    </form>
+    <mat-radio-group required
+        name="reasons"
+        class="radio-group"
+        [(ngModel)]="reason">
+        <div *ngFor="let reasonItem of reasonsList">
+            <mat-radio-button [value]="reasonItem.id" class="radio-button">
+                {{ reasonItem.caption }}
+            </mat-radio-button>
+            <p *ngIf="reasonItem.message && reason === reasonItem.id"
+                [innerHtml]="reasonItem.message"
+                class="mat-body-1 radio-group__message">
+            </p>
+        </div>
+    </mat-radio-group>
+    <mat-form-field appearance="outline" class="message">
+        <mat-label>Anything you want to share? (optional)</mat-label>
+        <textarea matInput resizeToFitContent rows="3" name="message"
+            [(ngModel)]="message"
+        ></textarea>
+    </mat-form-field>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-flat-button mat-dialog-close mat-dialog-close="cancel">Abort</button>
-  <button mat-flat-button color="warn"
-    (click)="openDeleteConfirmation()">
+  <button type="button" mat-flat-button mat-dialog-close mat-dialog-close="cancel">Abort</button>
+  <button type="submit" mat-flat-button color="warn">
     Delete
   </button>
 </mat-dialog-actions>
+</form>
