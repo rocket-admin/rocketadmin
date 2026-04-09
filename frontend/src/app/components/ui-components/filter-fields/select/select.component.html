@@ -1,12 +1,11 @@
 <mat-form-field class="select-form-field" appearance="outline">
     <mat-label>{{normalizedLabel()}}</mat-label>
-    <mat-select name="{{label()}}-{{key()}}"
-        [required]="required()" [disabled]="disabled()" [readonly]="readonly()"
+    <mat-select name="{{label()}}-{{key()}}" multiple
+        [required]="required()" [disabled]="disabled()"
         attr.data-testid="record-{{label()}}-select"
-        [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
-        <mat-option *ngFor="let option of options"
-            [value]="option.value">
-            {{option.label}}
-        </mat-option>
+        [(ngModel)]="selectedValues" (ngModelChange)="onSelectionChange($event)">
+        @for (option of options; track option.value) {
+            <mat-option [value]="option.value">{{option.label}}</mat-option>
+        }
     </mat-select>
 </mat-form-field>

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { AfterViewInit, Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { DBtype } from 'src/app/models/connection';
@@ -12,12 +12,12 @@ import { BaseFilterFieldComponent } from '../base-filter-field/base-filter-field
 	styleUrls: ['./boolean.component.css'],
 	imports: [CommonModule, FormsModule, MatButtonToggleModule],
 })
-export class BooleanFilterComponent extends BaseFilterFieldComponent {
+export class BooleanFilterComponent extends BaseFilterFieldComponent implements AfterViewInit {
 	@Input() value;
 
 	public isRadiogroup: boolean;
-	private connectionType: DBtype;
 	public booleanValue: boolean | 'unknown';
+	private connectionType: DBtype;
 
 	constructor(private _connections: ConnectionsService) {
 		super();
@@ -36,28 +36,36 @@ export class BooleanFilterComponent extends BaseFilterFieldComponent {
 		this.isRadiogroup = this.structure()?.allow_null || !!parsedParams?.allow_null;
 	}
 
+	ngAfterViewInit(): void {
+		this.onComparatorChange.emit('eq');
+	}
+
 	setBooleanValue() {
 		if (typeof this.value === 'boolean') {
 			this.booleanValue = this.value;
-		} else if (this.value === null) {
+			return;
+		}
+
+		if (this.value === null || this.value === undefined || this.value === '') {
 			this.booleanValue = 'unknown';
-		} else {
-			switch (this.value) {
-				case 0:
-				case '0':
-				case 'F':
-				case 'N':
-				case 'false':
-					this.booleanValue = false;
-					break;
-				case 1:
-				case '1':
-				case 'T':
-				case 'Y':
-				case 'true':
-					this.booleanValue = true;
-					break;
-			}
+			return;
+		}
+
+		switch (this.value) {
+			case 0:
+			case '0':
+			case 'F':
+			case 'N':
+			case 'false':
+				this.booleanValue = false;
+				break;
+			case 1:
+			case '1':
+			case 'T':
+			case 'Y':
+			case 'true':
+				this.booleanValue = true;
+				break;
 		}
 	}
 
@@ -74,5 +82,6 @@ export class BooleanFilterComponent extends BaseFilterFieldComponent {
 		}
 
 		this.onFieldChange.emit(formattedValue);
+		this.onComparatorChange.emit('eq');
 	}
 }
