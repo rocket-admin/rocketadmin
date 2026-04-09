@@ -12,6 +12,7 @@ export function buildCedarEntities(
 	connectionId: string,
 	tableName?: string,
 	dashboardId?: string,
+	panelId?: string,
 ): Array<CedarEntityRecord> {
 	const entities: Array<CedarEntityRecord> = [];
 
@@ -53,6 +54,14 @@ export function buildCedarEntities(
 	if (dashboardId) {
 		entities.push({
 			uid: { type: 'RocketAdmin::Dashboard', id: `${connectionId}/${dashboardId}` },
+			attrs: { connectionId: connectionId },
+			parents: [{ type: 'RocketAdmin::Connection', id: connectionId }],
+		});
+	}
+
+	if (panelId) {
+		entities.push({
+			uid: { type: 'RocketAdmin::Panel', id: `${connectionId}/${panelId}` },
 			attrs: { connectionId: connectionId },
 			parents: [{ type: 'RocketAdmin::Connection', id: connectionId }],
 		});

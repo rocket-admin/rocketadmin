@@ -2,6 +2,8 @@ import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../../common/data-injection.tokens.js';
+import { CedarAction } from '../../../cedar-authorization/cedar-action-map.js';
+import { CedarAuthorizationService } from '../../../cedar-authorization/cedar-authorization.service.js';
 import { Messages } from '../../../../exceptions/text/messages.js';
 import { FindAllPanelsDs } from '../data-structures/find-all-panels.ds.js';
 import { FoundPanelDto } from '../dto/found-saved-db-query.dto.js';
@@ -16,12 +18,13 @@ export class FindAllSavedDbQueriesUseCase
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
+		private readonly cedarAuthService: CedarAuthorizationService,
 	) {
 		super();
 	}
 
 	public async implementation(inputData: FindAllPanelsDs): Promise<FoundPanelDto[]> {
-		const { connectionId, masterPassword } = inputData;
+		const { connectionId, masterPassword, userId } = inputData;
 
 		const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
 			connectionId,
@@ -34,6 +37,17 @@ export class FindAllSavedDbQueriesUseCase
 
 		const foundQueries = await this._dbContext.panelRepository.findAllQueriesByConnectionId(connectionId);
 
-		return foundQueries.map((query) => buildFoundPanelDto(query));
+		const accessChecks = await Promise.all(
+			foundQueries.map((query) =>
+				this.cedarAuthService.validate({
+					userId,
+					action: CedarAction.PanelRead,
+					connectionId,
+					panelId: query.id,
+				}),
+			),
+		);
+
+		return foundQueries.filter((_, index) => accessChecks[index]).map((query) => buildFoundPanelDto(query));
 	}
 }

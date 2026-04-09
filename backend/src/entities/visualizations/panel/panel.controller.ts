@@ -22,8 +22,9 @@ import { Timeout } from '../../../decorators/timeout.decorator.js';
 import { UserId } from '../../../decorators/user-id.decorator.js';
 import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { ConnectionEditGuard } from '../../../guards/connection-edit.guard.js';
 import { ConnectionReadGuard } from '../../../guards/connection-read.guard.js';
+import { PanelEditGuard } from '../../../guards/panel-edit.guard.js';
+import { PanelReadGuard } from '../../../guards/panel-read.guard.js';
 import { SentryInterceptor } from '../../../interceptors/sentry.interceptor.js';
 import { CreatePanelDs } from './data-structures/create-panel.ds.js';
 import { ExecuteSavedDbQueryDs } from './data-structures/execute-saved-db-query.ds.js';
@@ -79,11 +80,12 @@ export class SavedDbQueryController {
 		isArray: true,
 	})
 	@ApiParam({ name: 'connectionId', required: true })
-	@UseGuards(ConnectionReadGuard)
+	@UseGuards(PanelReadGuard)
 	@Get('/connection/:connectionId/saved-queries')
 	async findAll(
 		@SlugUuid('connectionId') connectionId: string,
 		@MasterPassword() masterPwd: string,
+		@UserId() userId: string,
 	): Promise<FoundPanelDto[]> {
 		if (!connectionId) {
 			throw new HttpException(
@@ -96,6 +98,7 @@ export class SavedDbQueryController {
 		const inputData: FindAllPanelsDs = {
 			connectionId,
 			masterPassword: masterPwd,
+			userId,
 		};
 		return await this.findAllSavedDbQueriesUseCase.execute(inputData, InTransactionEnum.OFF);
 	}
@@ -108,7 +111,7 @@ export class SavedDbQueryController {
 	})
 	@ApiParam({ name: 'connectionId', required: true })
 	@ApiParam({ name: 'queryId', required: true })
-	@UseGuards(ConnectionReadGuard)
+	@UseGuards(PanelReadGuard)
 	@Get('/connection/:connectionId/saved-query/:queryId')
 	async findOne(
 		@SlugUuid('connectionId') connectionId: string,
@@ -139,7 +142,7 @@ export class SavedDbQueryController {
 	})
 	@ApiBody({ type: CreateSavedDbQueryDto })
 	@ApiParam({ name: 'connectionId', required: true })
-	@UseGuards(ConnectionEditGuard)
+	@UseGuards(PanelEditGuard)
 	@Post('/connection/:connectionId/saved-query')
 	async create(
 		@SlugUuid('connectionId') connectionId: string,
@@ -176,7 +179,7 @@ export class SavedDbQueryController {
 	@ApiBody({ type: UpdateSavedDbQueryDto })
 	@ApiParam({ name: 'connectionId', required: true })
 	@ApiParam({ name: 'queryId', required: true })
-	@UseGuards(ConnectionEditGuard)
+	@UseGuards(PanelEditGuard)
 	@Put('/connection/:connectionId/saved-query/:queryId')
 	async update(
 		@SlugUuid('connectionId') connectionId: string,
@@ -214,7 +217,7 @@ export class SavedDbQueryController {
 	})
 	@ApiParam({ name: 'connectionId', required: true })
 	@ApiParam({ name: 'queryId', required: true })
-	@UseGuards(ConnectionEditGuard)
+	@UseGuards(PanelEditGuard)
 	@Delete('/connection/:connectionId/saved-query/:queryId')
 	async delete(
 		@SlugUuid('connectionId') connectionId: string,
@@ -245,7 +248,7 @@ export class SavedDbQueryController {
 	})
 	@ApiParam({ name: 'connectionId', required: true })
 	@ApiParam({ name: 'queryId', required: true })
-	@UseGuards(ConnectionReadGuard)
+	@UseGuards(PanelReadGuard)
 	@Post('/connection/:connectionId/saved-query/:queryId/execute')
 	async execute(
 		@SlugUuid('connectionId') connectionId: string,

@@ -45,6 +45,15 @@ export const CEDAR_SCHEMA = {
 					},
 				},
 			},
+			Panel: {
+				memberOfTypes: ['Connection'],
+				shape: {
+					type: 'Record',
+					attributes: {
+						connectionId: { type: 'String' },
+					},
+				},
+			},
 		},
 		actions: {
 			'connection:read': {
@@ -117,6 +126,30 @@ export const CEDAR_SCHEMA = {
 				appliesTo: {
 					principalTypes: ['User'],
 					resourceTypes: ['Dashboard'],
+				},
+			},
+			'panel:read': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Panel'],
+				},
+			},
+			'panel:create': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Panel'],
+				},
+			},
+			'panel:edit': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Panel'],
+				},
+			},
+			'panel:delete': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Panel'],
 				},
 			},
 		},
