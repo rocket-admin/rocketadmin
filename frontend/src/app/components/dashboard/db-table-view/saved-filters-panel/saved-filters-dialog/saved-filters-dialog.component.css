@@ -34,7 +34,6 @@
 .filter-line > .column-name {
 	flex: 0 0 auto;
 	white-space: nowrap;
-	margin-top: 18px;
 }
 
 .empty-conditions-container {
