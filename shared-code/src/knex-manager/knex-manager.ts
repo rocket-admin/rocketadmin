@@ -125,7 +125,7 @@ export class KnexManager {
 	}
 
 	private static getPostgresKnex(connection: ConnectionParams): Knex<any, any[]> {
-		const { host, username, password, database, port, type, cert, ssl, id } = connection;
+		const { host, username, password, database, port, type, cert, ssl } = connection;
 		if (process.env.NODE_ENV === 'test') {
 			const newKnex = knex({
 				client: type,
@@ -135,7 +135,7 @@ export class KnexManager {
 					password: password,
 					database: database,
 					port: port,
-					application_name: id,
+					application_name: 'rocketadmin',
 				},
 			});
 			return newKnex;
@@ -150,7 +150,7 @@ export class KnexManager {
 					password: password,
 					database: database,
 					port: port,
-					application_name: id,
+					application_name: 'rocketadmin',
 					ssl: {
 						rejectUnauthorized: false,
 					},
@@ -166,7 +166,7 @@ export class KnexManager {
 				password: password,
 				database: database,
 				port: port,
-				application_name: id,
+				application_name: 'rocketadmin',
 				ssl: ssl ? { ca: cert ?? undefined, rejectUnauthorized: !cert } : false,
 			},
 		});
