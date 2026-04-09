@@ -87,6 +87,46 @@ export function generateCedarPolicyForGroup(
 		}
 	}
 
+	if (permissions.panels) {
+		let hasPanelCreatePermission = false;
+		let hasPanelReadPermission = false;
+		for (const panel of permissions.panels) {
+			const panelRef = `RocketAdmin::Panel::"${connectionId}/${panel.panelId}"`;
+			const access = panel.accessLevel;
+
+			if (access.read) {
+				hasPanelReadPermission = true;
+				policies.push(
+					`permit(\n  principal,\n  action == RocketAdmin::Action::"panel:read",\n  resource == ${panelRef}\n);`,
+				);
+			}
+			if (access.create) {
+				hasPanelCreatePermission = true;
+			}
+			if (access.edit) {
+				policies.push(
+					`permit(\n  principal,\n  action == RocketAdmin::Action::"panel:edit",\n  resource == ${panelRef}\n);`,
+				);
+			}
+			if (access.delete) {
+				policies.push(
+					`permit(\n  principal,\n  action == RocketAdmin::Action::"panel:delete",\n  resource == ${panelRef}\n);`,
+				);
+			}
+		}
+		const newPanelRef = `RocketAdmin::Panel::"${connectionId}/__new__"`;
+		if (hasPanelReadPermission) {
+			policies.push(
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"panel:read",\n  resource == ${newPanelRef}\n);`,
+			);
+		}
+		if (hasPanelCreatePermission) {
+			policies.push(
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"panel:create",\n  resource == ${newPanelRef}\n);`,
+			);
+		}
+	}
+
 	for (const table of permissions.tables) {
 		const tableRef = `RocketAdmin::Table::"${connectionId}/${table.tableName}"`;
 		const access = table.accessLevel;
