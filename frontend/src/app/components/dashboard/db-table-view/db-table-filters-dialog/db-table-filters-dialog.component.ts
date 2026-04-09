@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, Inject, KeyValueDiffer, KeyValueDiffers, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Inject, KeyValueDiffer, KeyValueDiffers, OnInit, Type } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,7 +7,6 @@ import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import JsonURL from '@jsonurl/jsonurl';
 import { Angulartics2OnModule } from 'angulartics2';
@@ -24,6 +23,7 @@ import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { TableField, TableForeignKey, Widget } from 'src/app/models/table';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { ContentLoaderComponent } from '../../../ui-components/content-loader/content-loader.component';
+import { DefaultFilterComponent } from '../../../ui-components/filter-fields/default-filter/default-filter.component';
 
 @Component({
 	selector: 'app-db-table-filters-dialog',
@@ -38,7 +38,6 @@ import { ContentLoaderComponent } from '../../../ui-components/content-loader/co
 		MatInputModule,
 		MatButtonModule,
 		MatIconModule,
-		MatSelectModule,
 		DynamicModule,
 		SignalComponentIoModule,
 		RouterModule,
@@ -52,8 +51,8 @@ export class DbTableFiltersDialogComponent implements OnInit, AfterViewInit {
 	public tableFilters = [];
 	public fieldSearchControl = new FormControl('');
 
-	public fields: string[];
-	public foundFields: Observable<string[]>;
+	public fields: { key: string; label: string }[];
+	public foundFields: Observable<{ key: string; label: string }[]>;
 
 	public tableRowFields: Object;
 	public tableRowStructure: Object;
@@ -83,9 +82,6 @@ export class DbTableFiltersDialogComponent implements OnInit, AfterViewInit {
 			...this.data.structure.structure.map((field: TableField) => ({ [field.column_name]: undefined })),
 		);
 		this.tableTypes = getTableTypes(this.data.structure.structure, this.data.structure.foreignKeysList);
-		this.fields = this.data.structure.structure
-			.filter((field: TableField) => this.getInputType(field.column_name) !== 'file')
-			.map((field: TableField) => field.column_name);
 		this.tableRowStructure = Object.assign(
 			{},
 			...this.data.structure.structure.map((field: TableField) => {
@@ -133,6 +129,13 @@ export class DbTableFiltersDialogComponent implements OnInit, AfterViewInit {
 		if (widgetsArray.length) {
 			this.setWidgets(widgetsArray);
 		}
+
+		this.fields = this.data.structure.structure
+			.filter((field: TableField) => this.getInputType(field.column_name) !== 'file')
+			.map((field: TableField) => ({
+				key: field.column_name,
+				label: this.getFieldLabel(field.column_name),
+			}));
 
 		if (this.autofocusField && this.tableFilters && !this.tableFilters.includes(this.autofocusField)) {
 			this.tableFilters.push(this.autofocusField);
@@ -197,8 +200,53 @@ export class DbTableFiltersDialogComponent implements OnInit, AfterViewInit {
 		}
 	}
 
-	private _filter(value: string): string[] {
-		return this.fields.filter((field: string) => field.toLowerCase().includes(value.toLowerCase()));
+	isFieldAlreadyFiltered(key: string): boolean {
+		return Object.hasOwn(this.tableRowFieldsShown, key);
+	}
+
+	getFieldLabel(key: string): string {
+		return this.tableWidgets?.[key]?.name || key;
+	}
+
+	getFilterComponent(field: string): Type<any> {
+		const valueComponent = this.resolveValueComponent(field);
+		const innerType = (valueComponent as { type?: string })?.type;
+		if (innerType === 'text' || innerType === 'number' || innerType === 'datetime') {
+			return DefaultFilterComponent;
+		}
+		return valueComponent;
+	}
+
+	getFilterInputs(field: string): Record<string, any> {
+		const valueComponent = this.resolveValueComponent(field);
+		const innerType = (valueComponent as { type?: string })?.type;
+		const baseInputs: Record<string, any> = {
+			key: field,
+			label: this.getFieldLabel(field),
+			value: this.tableRowFieldsShown[field],
+			structure: this.tableRowStructure[field],
+			relations: this.tableTypes[field] === 'foreign key' ? this.tableForeignKeys[field] : undefined,
+			autofocus: this.autofocusField === field,
+		};
+
+		if (innerType === 'text' || innerType === 'number' || innerType === 'datetime') {
+			return {
+				...baseInputs,
+				valueComponent,
+				comparator: this.tableRowFieldsComparator[field] || 'eq',
+			};
+		}
+
+		if (this.isWidget(field)) {
+			return { ...baseInputs, widgetStructure: this.tableWidgets[field] };
+		}
+
+		return baseInputs;
+	}
+
+	private _filter(value: string): { key: string; label: string }[] {
+		const v = value.toLowerCase();
+		return this.fields.filter((field) => field.key.toLowerCase().includes(v) || field.label.toLowerCase().includes(v));
 	}
 
 	ngDoCheck() {
@@ -231,10 +279,6 @@ export class DbTableFiltersDialogComponent implements OnInit, AfterViewInit {
 		);
 	}
 
-	trackByFn(_index: number, item: any) {
-		return item.key;
-	}
-
 	isWidget(columnName: string) {
 		return this.tableWidgets && columnName in this.tableWidgets;
 	}
@@ -255,10 +299,6 @@ export class DbTableFiltersDialogComponent implements OnInit, AfterViewInit {
 			[key]: this.tableRowFieldsComparator[key] || 'eq',
 		};
 		this.fieldSearchControl.setValue('');
-	}
-
-	updateComparator(event, fieldName: string) {
-		if (event === 'empty') this.tableRowFieldsShown[fieldName] = '';
 	}
 
 	resetFilters() {
@@ -289,5 +329,15 @@ export class DbTableFiltersDialogComponent implements OnInit, AfterViewInit {
 	removeFilter(field) {
 		delete this.tableRowFieldsShown[field];
 		delete this.tableRowFieldsComparator[field];
+	}
+
+	private resolveValueComponent(field: string): Type<any> {
+		if (this.isWidget(field)) {
+			const widgetType = this.tableWidgets[field].widget_type;
+			if (widgetType && this.UIwidgets[widgetType]) {
+				return this.UIwidgets[widgetType];
+			}
+		}
+		return this.inputs[this.tableTypes[field]];
 	}
 }

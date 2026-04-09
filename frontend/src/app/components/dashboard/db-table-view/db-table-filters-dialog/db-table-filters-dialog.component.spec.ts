@@ -111,7 +111,11 @@ describe('DbTableFiltersDialogComponent', () => {
 		await fixture.whenStable();
 
 		expect(component.tableForeignKeys).toEqual(mockStructureForFilterDialog.foreignKeys);
-		expect(component.fields).toEqual(['FirstName', 'Id', 'bool']);
+		expect(component.fields).toEqual([
+			{ key: 'FirstName', label: 'FirstName' },
+			{ key: 'Id', label: 'Id' },
+			{ key: 'bool', label: 'bool' },
+		]);
 		expect(component.tableRowStructure).toEqual({
 			FirstName: fakeFirstName,
 			Id: fakeId,
@@ -220,5 +224,26 @@ describe('DbTableFiltersDialogComponent', () => {
 		component.ngOnInit();
 
 		expect(component.isWidget('FirstName')).toBe(true);
+	});
+
+	it('should report fields with active filters as already filtered', () => {
+		component.tableRowFieldsShown = { FirstName: 'John' };
+		expect(component.isFieldAlreadyFiltered('FirstName')).toBe(true);
+		expect(component.isFieldAlreadyFiltered('Id')).toBe(false);
+	});
+
+	it('should use widget name as field label when widget has a name', () => {
+		component.data.structure.widgets = {
+			FirstName: {
+				field_name: 'FirstName',
+				widget_type: 'Email',
+				widget_params: {},
+				name: 'Customer Email',
+				description: '',
+			},
+		};
+		component.ngOnInit();
+
+		expect(component.fields).toEqual(expect.arrayContaining([{ key: 'FirstName', label: 'Customer Email' }]));
 	});
 });
