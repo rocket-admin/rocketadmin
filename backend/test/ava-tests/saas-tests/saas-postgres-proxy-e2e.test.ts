@@ -4,6 +4,7 @@ import { Test } from '@nestjs/testing';
 import test from 'ava';
 import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
+import http from 'http';
 import net from 'net';
 import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
@@ -27,6 +28,8 @@ let skipAll = false;
 
 const PROXY_HOST = process.env.POSTGRES_PROXY_HOST || 'postgres-proxy';
 const PROXY_PORT = parseInt(process.env.POSTGRES_PROXY_PORT || '5432', 10);
+const MOCK_API_HOST = process.env.PROXY_MOCK_API_HOST || 'proxy-mock-api';
+const MOCK_API_PORT = parseInt(process.env.PROXY_MOCK_API_PORT || '3333', 10);
 
 // Direct connection to the upstream Postgres (for seeding test data)
 const upstreamConnectionParams = {
@@ -69,6 +72,45 @@ async function isProxyReachable(): Promise<boolean> {
     });
     socket.connect(PROXY_PORT, PROXY_HOST);
   });
+}
+
+// Helper to call mock API test endpoints
+function mockApiRequest(method: string, path: string, body?: any): Promise<any> {
+  return new Promise((resolve, reject) => {
+    const options = {
+      hostname: MOCK_API_HOST,
+      port: MOCK_API_PORT,
+      path,
+      method,
+      headers: { 'Content-Type': 'application/json' },
+    };
+    const req = http.request(options, (res) => {
+      let data = '';
+      res.on('data', (chunk: string) => (data += chunk));
+      res.on('end', () => {
+        try {
+          resolve(JSON.parse(data));
+        } catch {
+          resolve(data);
+        }
+      });
+    });
+    req.on('error', reject);
+    if (body) req.write(JSON.stringify(body));
+    req.end();
+  });
+}
+
+async function getUsageReports(): Promise<any[]> {
+  return mockApiRequest('GET', '/api/test/usage-reports');
+}
+
+async function setSubscriptionLevel(level: string): Promise<void> {
+  await mockApiRequest('PUT', '/api/test/subscription-level', { subscriptionLevel: level });
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 test.before(async () => {
@@ -399,6 +441,142 @@ test.serial(
     } catch (e) {
       console.error(e);
       throw e;
+    }
+  },
+);
+
+// ─── Usage reporting test ───────────────────────────────────────────────────
+//
+// Verifies that the proxy actually reports usage metrics back to the backend
+// (mock API) after queries. Uses a baseline/delta approach so it doesn't
+// conflict with any state accumulated by earlier tests in the same run.
+//
+// Requires the proxy-mock-api container to be rebuilt with the test-only
+// endpoints (/api/test/usage-reports). If not available, test is skipped.
+
+test.serial(
+  'should report usage metrics to mock API after queries through proxy',
+  async (t) => {
+    if (maybeSkip(t)) return;
+    try {
+      // Probe mock API capability — skip if test endpoints are absent (old mock build)
+      const probe = await getUsageReports();
+      if (!Array.isArray(probe)) {
+        t.pass('skipped: proxy-mock-api does not expose test endpoints (rebuild required)');
+        return;
+      }
+      const baselineReportCount = probe.length;
+
+      const { testTableName } = await createTestTable(upstreamConnectionParams, 3);
+      const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+      const proxyConnectionDto = createProxyConnectionDto();
+
+      const createConnectionResponse = await request(app.getHttpServer())
+        .post('/connection')
+        .send(proxyConnectionDto)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(createConnectionResponse.status, 201);
+      const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+      // A single query is enough — the proxy reports usage periodically regardless
+      const getRowsResponse = await request(app.getHttpServer())
+        .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(getRowsResponse.status, 200);
+
+      // Wait for the proxy's usage report interval (configured at 10s in docker-compose)
+      // plus a small buffer for the HTTP call to complete
+      await sleep(12000);
+
+      const reports = await getUsageReports();
+      t.true(Array.isArray(reports), 'Usage reports should be an array');
+      t.true(
+        reports.length > baselineReportCount,
+        `Expected new usage reports after queries (baseline=${baselineReportCount}, got=${reports.length})`,
+      );
+
+      // Check structure of the latest reports
+      const latestReports = reports.slice(baselineReportCount);
+      const relevantReports = latestReports.filter((r: any) => r.connectionId === 'test-connection-001');
+      t.true(relevantReports.length > 0, 'Should have at least one report for test-connection-001');
+
+      const report = relevantReports[0];
+      t.true(Object.hasOwn(report, 'connectionId'));
+      t.true(Object.hasOwn(report, 'companyId'));
+      t.true(Object.hasOwn(report, 'queryTimeMs'));
+      t.true(Object.hasOwn(report, 'queryCount'));
+      t.true(Object.hasOwn(report, 'timestamp'));
+      t.is(report.companyId, 'test-company-001');
+
+      // Total query count across the new reports should reflect our queries
+      const totalQueryCount = relevantReports.reduce((sum: number, r: any) => sum + r.queryCount, 0);
+      t.true(totalQueryCount > 0, `Expected positive query count, got ${totalQueryCount}`);
+
+      // Total query time should be non-negative (could be 0 for very fast queries,
+      // but with millisecond resolution a real query should register some time)
+      const totalQueryTimeMs = relevantReports.reduce((sum: number, r: any) => sum + r.queryTimeMs, 0);
+      t.true(totalQueryTimeMs >= 0, `Expected non-negative query time, got ${totalQueryTimeMs}`);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
+
+// ─── Frozen plan / connection rejection test ────────────────────────────────
+//
+// This test MUST run LAST because it flips the mock-api into `frozen` state.
+// After this test, no further proxy tests will succeed until the mock-api is
+// reset. By running last, we avoid polluting state for other tests.
+//
+// Requires the proxy-mock-api container to be rebuilt with the test-only
+// endpoints. If not available, test is skipped.
+
+test.serial(
+  '[zzz-last] should reject connection when subscription plan is frozen',
+  async (t) => {
+    if (maybeSkip(t)) return;
+
+    // Probe mock API capability — skip if test endpoints are absent
+    const probe = await mockApiRequest('GET', '/api/test/usage-reports');
+    if (!Array.isArray(probe)) {
+      t.pass('skipped: proxy-mock-api does not expose test endpoints (rebuild required)');
+      return;
+    }
+
+    try {
+      // Set plan to frozen via mock API
+      await setSubscriptionLevel('frozen');
+
+      const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+      const proxyConnectionDto = createProxyConnectionDto();
+      proxyConnectionDto.title = 'Frozen-plan test connection';
+
+      const createConnectionResponse = await request(app.getHttpServer())
+        .post('/connection')
+        .send(proxyConnectionDto)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(createConnectionResponse.status, 201);
+      const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+      // Attempting to list tables should fail because the proxy rejects the connection
+      const getTablesResponse = await request(app.getHttpServer())
+        .get(`/connection/tables/${createConnectionRO.id}`)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      // The proxy should refuse the connection, resulting in an error from the backend
+      t.not(getTablesResponse.status, 200, 'Should not succeed with frozen plan');
+    } finally {
+      // Best-effort restore so manual runs of the full file behave sanely
+      await setSubscriptionLevel('TEAM_PLAN').catch(() => undefined);
     }
   },
 );

@@ -22,11 +22,49 @@ const TEST_CONNECTION = {
   subscriptionLevel: 'TEAM_PLAN',
 };
 
+// Configurable subscription level — e2e tests can change this at runtime
+// to test throttling / frozen plan behaviour.
+let currentSubscriptionLevel = TEST_CONNECTION.subscriptionLevel;
+
+// Store received usage reports so tests can verify them via GET /api/proxy/usage-reports
+const usageReports = [];
+
 const server = http.createServer((req, res) => {
   // Health check endpoint (no auth required)
   if (req.url === '/healthz') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ status: 'ok' }));
+    return;
+  }
+
+  const parsedUrl = url.parse(req.url, true);
+
+  // Test-only: configure subscription level at runtime (no auth required)
+  if (req.method === 'PUT' && parsedUrl.pathname === '/api/test/subscription-level') {
+    let body = '';
+    req.on('data', (chunk) => (body += chunk));
+    req.on('end', () => {
+      const parsed = JSON.parse(body);
+      currentSubscriptionLevel = parsed.subscriptionLevel;
+      console.log(`[mock-api] Subscription level changed to: ${currentSubscriptionLevel}`);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: true, subscriptionLevel: currentSubscriptionLevel }));
+    });
+    return;
+  }
+
+  // Test-only: get collected usage reports (no auth required)
+  if (req.method === 'GET' && parsedUrl.pathname === '/api/test/usage-reports') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(usageReports));
+    return;
+  }
+
+  // Test-only: clear collected usage reports (no auth required)
+  if (req.method === 'DELETE' && parsedUrl.pathname === '/api/test/usage-reports') {
+    usageReports.length = 0;
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ ok: true }));
     return;
   }
 
@@ -37,8 +75,6 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  const parsedUrl = url.parse(req.url, true);
-
   // GET /api/proxy/connections?username=X&database=Y
   if (req.method === 'GET' && parsedUrl.pathname === '/api/proxy/connections') {
     const { username, database } = parsedUrl.query;
@@ -46,7 +82,7 @@ const server = http.createServer((req, res) => {
 
     if (username === PROXY_USERNAME && database === PROXY_DATABASE) {
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(TEST_CONNECTION));
+      res.end(JSON.stringify({ ...TEST_CONNECTION, subscriptionLevel: currentSubscriptionLevel }));
     } else {
       res.writeHead(404, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Connection not found' }));
@@ -60,6 +96,16 @@ const server = http.createServer((req, res) => {
     req.on('data', (chunk) => (body += chunk));
     req.on('end', () => {
       console.log(`[mock-api] POST usage: ${body}`);
+      try {
+        const reports = JSON.parse(body);
+        if (Array.isArray(reports)) {
+          usageReports.push(...reports);
+        } else {
+          usageReports.push(reports);
+        }
+      } catch (e) {
+        console.error(`[mock-api] Failed to parse usage body: ${e.message}`);
+      }
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ ok: true }));
     });
