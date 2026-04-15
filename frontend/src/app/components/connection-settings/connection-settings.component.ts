@@ -15,7 +15,6 @@ import { take } from 'rxjs';
 import { ServerError } from 'src/app/models/alert';
 import { ConnectionSettings } from 'src/app/models/connection';
 import { TableProperties } from 'src/app/models/table';
-import { AccessLevel } from 'src/app/models/user';
 import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { TablesService } from 'src/app/services/tables.service';
@@ -113,9 +112,7 @@ export class ConnectionSettingsComponent implements OnInit {
 		return this._connections.currentConnection.title || this._connections.currentConnection.database;
 	}
 
-	get accessLevel(): AccessLevel {
-		return this._connections.currentConnectionAccessLevel;
-	}
+	protected canEditConnection = () => this._connections.canEditConnection();
 
 	getSettings() {
 		this._connections.getConnectionSettings(this.connectionID).subscribe((res: any) => {

@@ -89,22 +89,25 @@
 }
 
 @media (prefers-color-scheme: dark) {
-	.policy-group__icon-box--general { 
+	.policy-group__icon-box--general {
 		background: var(--color-warningPalette-900);
 		color: var(--color-warningPalette-500);
 	}
-	.policy-group__icon-box--connection { 
+	.policy-group__icon-box--connection {
 		background: var(--color-alternativeDarkPalette-900);
 		color: var(--color-alternativeDarkPalette-500);
 	}
-	.policy-group__icon-box--group { background: rgba(6, 182, 212, 0.15); color: #22d3ee; }
-	.policy-group__icon-box--table { 
+	.policy-group__icon-box--group {
+		background: rgba(6, 182, 212, 0.15);
+		color: #22d3ee;
+	}
+	.policy-group__icon-box--table {
 		background: var(--color-successDarkPalette-900);
 		color: var(--color-successDarkPalette-500);
-	 }
-	.policy-group__icon-box--dashboard { 
-		background: var(--color-infoPalette-900); 
-		color: var(--color-infoPalette-500); 
+	}
+	.policy-group__icon-box--dashboard {
+		background: var(--color-infoPalette-900);
+		color: var(--color-infoPalette-500);
 	}
 }
 

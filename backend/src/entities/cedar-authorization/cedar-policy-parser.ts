@@ -2,6 +2,7 @@ import { AccessLevelEnum } from '../../enums/index.js';
 import {
 	IComplexPermission,
 	IDashboardPermissionData,
+	IPanelPermissionData,
 	ITablePermissionData,
 } from '../permission/permission.interface.js';
 
@@ -24,10 +25,12 @@ export function parseCedarPolicyToClassicalPermissions(
 		group: { groupId, accessLevel: AccessLevelEnum.none },
 		tables: [],
 		dashboards: [],
+		panels: [],
 	};
 
 	const tableMap = new Map<string, ITablePermissionData>();
 	const dashboardMap = new Map<string, IDashboardPermissionData>();
+	const panelMap = new Map<string, IPanelPermissionData>();
 
 	for (const permit of permits) {
 		if (permit.isWildcard) {
@@ -75,6 +78,16 @@ export function parseCedarPolicyToClassicalPermissions(
 				applyDashboardAction(dashboardEntry, permit.action);
 				break;
 			}
+			case 'panel:read':
+			case 'panel:create':
+			case 'panel:edit':
+			case 'panel:delete': {
+				const panelId = extractPanelId(permit.resourceId, connectionId);
+				if (!panelId) break;
+				const panelEntry = getOrCreatePanelEntry(panelMap, panelId);
+				applyPanelAction(panelEntry, permit.action);
+				break;
+			}
 		}
 	}
 
@@ -84,6 +97,7 @@ export function parseCedarPolicyToClassicalPermissions(
 		a.readonly = a.visibility && !a.add && !a.edit && !a.delete;
 	}
 	result.dashboards = Array.from(dashboardMap.values());
+	result.panels = Array.from(panelMap.values());
 
 	return result;
 }
@@ -264,6 +278,52 @@ function applyDashboardAction(entry: IDashboardPermissionData, action: string): 
 			entry.accessLevel.edit = true;
 			break;
 		case 'dashboard:delete':
+			entry.accessLevel.delete = true;
+			break;
+	}
+}
+
+function extractPanelId(resourceId: string | null, connectionId: string): string | null {
+	if (!resourceId) return null;
+	const prefix = `${connectionId}/`;
+	if (resourceId.startsWith(prefix)) {
+		return resourceId.slice(prefix.length);
+	}
+	return resourceId;
+}
+
+function getOrCreatePanelEntry(
+	map: Map<string, IPanelPermissionData>,
+	panelId: string,
+): IPanelPermissionData {
+	let entry = map.get(panelId);
+	if (!entry) {
+		entry = {
+			panelId,
+			accessLevel: {
+				read: false,
+				create: false,
+				edit: false,
+				delete: false,
+			},
+		};
+		map.set(panelId, entry);
+	}
+	return entry;
+}
+
+function applyPanelAction(entry: IPanelPermissionData, action: string): void {
+	switch (action) {
+		case 'panel:read':
+			entry.accessLevel.read = true;
+			break;
+		case 'panel:create':
+			entry.accessLevel.create = true;
+			break;
+		case 'panel:edit':
+			entry.accessLevel.edit = true;
+			break;
+		case 'panel:delete':
 			entry.accessLevel.delete = true;
 			break;
 	}

@@ -20,7 +20,7 @@
             </mat-select>
         </mat-form-field>
 
-        <button mat-icon-button (click)="loadRowsPage()">
+        <button type="button" mat-icon-button (click)="loadRowsPage()">
             <mat-icon>refresh</mat-icon>
         </button>
     </div>
@@ -32,11 +32,11 @@
                     {{action.title}}
                 </button>
             </ng-container>
-            <button mat-button *ngIf="tableData && tableData.isExportAllowed"
+            <button type="button" mat-button *ngIf="tableData && tableData.isExportAllowed"
                 (click)="exportData()">
                 Export to CSV
             </button>
-            <button mat-button *ngIf="tableData && tableData.permissions && tableData.permissions.delete && tableData.canDelete"
+            <button type="button" mat-button *ngIf="tableData && canDeleteRow() && tableData.canDelete"
                 (click)="handleActions({title: 'Delete rows', type: 'multiple',  require_confirmation: true})">
                 Delete
             </button>
@@ -70,7 +70,7 @@
                     AI insights
                 </button>
 
-                <a mat-button *ngIf="tableData && tableData.permissions && tableData.permissions.add && (!tableData.isEmptyTable || searchString || getFiltersCount(activeFilters))"
+                <a mat-button *ngIf="tableData && canAddRow() && (!tableData.isEmptyTable || searchString || getFiltersCount(activeFilters))"
                     routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
                     data-testid="table-add-record-link"
                     angulartics2On="click"
@@ -89,7 +89,7 @@
                     Filter
                 </button>
                 <div *ngIf="tableData" class="db-table-manage-columns-button">
-                    <button *ngIf="tableData.displayedColumns && tableData.columns" mat-button [matMenuTriggerFor]="menu"
+                    <button type="button" *ngIf="tableData.displayedColumns && tableData.columns" mat-button [matMenuTriggerFor]="menu"
                         angulartics2On="click"
                         angularticsAction="Dashboard: columns multiselect is clicked"
                         (click)="posthog.capture('Dashboard: columns multiselect is clicked')">
@@ -103,8 +103,10 @@
                     </button>
                     <mat-menu #menu="matMenu" class="columns-menu">
                         <div cdkDropList (cdkDropListDropped)="onColumnsMenuDrop($event)" class="columns-list">
-                            <button mat-menu-item
+                            <button type="button" mat-menu-item
                                 role="menuitemcheckbox"
+                                aria-checked="false"
+                                [attr.aria-checked]="column.selected"
                                 *ngFor="let column of sortedColumns"
                                 cdkDrag
                                 [cdkDragData]="column"
@@ -122,7 +124,7 @@
                     </mat-menu>
                 </div>
                 <button mat-icon-button type="button"
-                    *ngIf="accessLevel === 'edit' && tableData && (tableData.isImportAllowed || tableData.isExportAllowed)"
+                    *ngIf="canEditConnection() && tableData && (tableData.isImportAllowed || tableData.isExportAllowed)"
                     matTooltip="Import / Export"
                     [matMenuTriggerFor]="transferDataMenu"
                     angulartics2On="click"
@@ -145,7 +147,7 @@
                     </button>
                 </mat-menu>
                 <button mat-icon-button type="button"
-                    *ngIf="accessLevel === 'edit'"
+                    *ngIf="canEditConnection()"
                     [matMenuTriggerFor]="settingsMenu"
                     angulartics2On="click"
                     angularticsAction="Dashboard: settings dropdown is clicked"
@@ -173,7 +175,7 @@
                             Primary keys are required.
                         </span>
                     </a>
-                    <a mat-menu-item *ngIf="accessLevel === 'edit'"
+                    <a mat-menu-item *ngIf="canEditConnection()"
                         routerLink="/dashboard/{{connectionID}}/{{name}}/settings"
                         angulartics2On="click"
                         angularticsAction="Dashboard: settings is clicked"
@@ -192,7 +194,7 @@
         (removed)="removeFilter.emit(activeFilter.key)"
         (click)="handleActiveFilterClick(activeFilter.key)">
         {{ getFilter(activeFilter) }}
-        <button matChipRemove
+        <button type="button" matChipRemove
             (click)="$event.stopPropagation()">
             <mat-icon>cancel</mat-icon>
         </button>
@@ -207,7 +209,6 @@
     [tableWidgets]="tableData.widgets"
     [tableForeignKeys]="tableData.foreignKeys"
     [tableTypes]="tableData.tableTypes"
-    [accessLevel]="accessLevel"
     (filterSelected)="onFilterSelected($event)"
 ></app-saved-filters-panel>
 
@@ -220,9 +221,9 @@
     <div class="table-box">
         <mat-table matSort [dataSource]="tableData" NgMatTableQueryReflector
             class="db-table"
-            [ngClass]="tableData.actionsColumnWidth === '0' ? 'db-table_withoutActions' : 'db-table_withActions'"
+            [ngClass]="actionsColumnWidth === '0' ? 'db-table_withoutActions' : 'db-table_withActions'"
             [style.--colCount]="tableData.displayedDataColumns?.length"
-            [style.--lastColumnWidth]="tableData.actionsColumnWidth">
+            [style.--lastColumnWidth]="actionsColumnWidth">
 
             <ng-container matColumnDef="select">
                 <th mat-header-cell *matHeaderCellDef>
@@ -249,7 +250,7 @@
                 <mat-header-cell *matHeaderCellDef class="sortable-header" [class.sortable-header_active]="sort.active === column">
                     <div class="sortable-header__content">
                         <span class="sortable-header__text">{{ tableData.dataNormalizedColumns[column] }}</span>
-                        <button *ngIf="isSortable(column)"
+                        <button type="button" *ngIf="isSortable(column)"
                             mat-icon-button
                             class="sortable-header__button"
                             [matMenuTriggerFor]="sortMenu">
@@ -259,14 +260,14 @@
                         </button>
                     </div>
                     <mat-menu #sortMenu="matMenu" class="sort-menu">
-                        <button mat-menu-item (click)="applySort(column, 'asc'); $event.stopPropagation()"
+                        <button type="button" mat-menu-item (click)="applySort(column, 'asc'); $event.stopPropagation()"
                             class="sort-menu__item">
                             <span class="sort-menu__item-content" [class.sort-menu__item-content_active]="sort.active === column && sort.direction === 'asc'">
                                 <mat-icon>arrow_upward</mat-icon>
                                 <span>Ascending (A-Z)</span>
                             </span>
                         </button>
-                        <button mat-menu-item (click)="applySort(column, 'desc'); $event.stopPropagation()"
+                        <button type="button" mat-menu-item (click)="applySort(column, 'desc'); $event.stopPropagation()"
                             class="sort-menu__item">
                             <span class="sort-menu__item-content" [class.sort-menu__item-content_active]="sort.active === column && sort.direction === 'desc'">
                                 <mat-icon>arrow_downward</mat-icon>
@@ -274,7 +275,7 @@
                             </span>
                         </button>
                         <mat-divider></mat-divider>
-                        <button mat-menu-item (click)="toggleDefaultSort(column); $event.stopPropagation()"
+                        <button type="button" mat-menu-item (click)="toggleDefaultSort(column); $event.stopPropagation()"
                             class="sort-menu__item"
                             [disabled]="(sort.active !== column || !sort.direction) && !isDefaultSort(column)"
                             [matTooltip]="(sort.active !== column || !sort.direction) && !isDefaultSort(column) ? 'Select sort order first' : ''"
@@ -341,7 +342,7 @@
                             </mat-icon>
                         </button>
                     </ng-container>
-                    <a mat-icon-button *ngIf="tableData.permissions.edit"
+                    <a mat-icon-button *ngIf="canEditRow()"
                         routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
                         [queryParams]="tableData.getQueryParams(element)"
                         class="db-table-cell-action-button"
@@ -354,7 +355,7 @@
                         (click)="stashUrlParams(); posthog.capture('Dashboard: edit row is clicked')">
                         <mat-icon fontSet="material-symbols-outlined">create</mat-icon>
                     </a>
-                    <a mat-icon-button *ngIf="tableData.permissions.add"
+                    <a mat-icon-button *ngIf="canAddRow()"
                         routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
                         [queryParams]="tableData.getQueryParams(element, 'dub')"
                         class="db-table-cell-action-button"
@@ -367,7 +368,7 @@
                         (click)="stashUrlParams(); posthog.capture('Dashboard: duplicate row is clicked')">
                         <mat-icon fontSet="material-symbols-outlined">difference</mat-icon>
                     </a>
-                    <button type="button" mat-icon-button *ngIf="tableData.permissions.delete && tableData.canDelete"
+                    <button type="button" mat-icon-button *ngIf="canDeleteRow() && tableData.canDelete"
                         class="db-table-cell-action-button"
                         attr.data-testid="table-delete-record-{{i}}-button"
                         angulartics2On="click"
@@ -380,10 +381,10 @@
             </ng-container>
 
             <mat-header-row
-                *matHeaderRowDef="tableData.actionsColumnWidth === '0' ? tableData.displayedDataColumns : tableData.displayedColumns"
+                *matHeaderRowDef="actionsColumnWidth === '0' ? tableData.displayedDataColumns : tableData.displayedColumns"
                 class="db-table-header-row">
             ></mat-header-row>
-            <mat-row *matRowDef="let row; columns: tableData.actionsColumnWidth === '0' ? tableData.displayedDataColumns : tableData.displayedColumns;"
+            <mat-row *matRowDef="let row; columns: actionsColumnWidth === '0' ? tableData.displayedDataColumns : tableData.displayedColumns;"
                 class="db-table-row"
                 [ngClass]="{'db-table-row_selected': isRowSelected(tableData.getQueryParams(row))}"
                 (click)="handleViewRow(row)">

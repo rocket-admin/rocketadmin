@@ -193,7 +193,7 @@ export const customConnectionRepositoryExtension: IConnectionRepository &
 		return isTestConnectionUtil(foundConnection);
 	},
 
-	async saveUpdatedConnection(connection: ConnectionEntity): Promise<ConnectionEntity> {
+	saveUpdatedConnection(connection: ConnectionEntity): Promise<ConnectionEntity> {
 		return this.save(connection);
 	},
 

@@ -169,6 +169,8 @@ export class ConnectDBComponent implements OnInit {
 		return this._connections.currentConnection;
 	}
 
+	protected canEditConnection = () => this._connections.canEditConnection();
+
 	get accessLevel(): AccessLevel {
 		return this._connections.currentConnectionAccessLevel;
 	}

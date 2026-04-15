@@ -1,4 +1,4 @@
-/** biome-ignore-all lint/complexity/noStaticOnlyClass: <explanation> */
+/** biome-ignore-all lint/complexity/noStaticOnlyClass: utility class with only static encryption methods */
 import argon2 from 'argon2';
 import bcrypt from 'bcrypt';
 import crypto, { createHmac, randomBytes, scrypt } from 'crypto';
@@ -294,7 +294,7 @@ export class Encryptor {
 		}
 	}
 
-	static async scryptHash(data: string): Promise<string> {
+	static scryptHash(data: string): Promise<string> {
 		return new Promise((resolve, reject) => {
 			const salt = randomBytes(16).toString('hex');
 			scrypt(data, salt, 64, (err, derivedData) => {
@@ -304,8 +304,8 @@ export class Encryptor {
 		});
 	}
 
-	static async hashUserPassword(password: string): Promise<string> {
-		if (!password || password.length <= 0) return password;
+	static hashUserPassword(password: string): Promise<string> {
+		if (!password || password.length <= 0) return Promise.resolve(password);
 		return new Promise<string>((resolve, reject) => {
 			const salt = crypto.randomBytes(Constants.PASSWORD_SALT_LENGTH).toString(Constants.BYTE_TO_STRING_ENCODING);
 			crypto.pbkdf2(

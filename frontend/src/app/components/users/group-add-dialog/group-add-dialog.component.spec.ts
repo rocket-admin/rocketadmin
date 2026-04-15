@@ -1,23 +1,32 @@
 import { provideHttpClient } from '@angular/common/http';
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import { Angulartics2Module } from 'angulartics2';
-import { of } from 'rxjs';
 import { UsersService } from 'src/app/services/users.service';
 import { GroupAddDialogComponent } from './group-add-dialog.component';
+
+type GroupAddTestable = GroupAddDialogComponent & {
+	submitting: ReturnType<typeof signal<boolean>>;
+	connectionID: string;
+	groupTitle: string;
+	addGroup: () => Promise<void>;
+};
 
 describe('GroupAddDialogComponent', () => {
 	let component: GroupAddDialogComponent;
 	let fixture: ComponentFixture<GroupAddDialogComponent>;
-	let usersService: UsersService;
 
 	const mockDialogRef = {
-		close: () => {},
+		close: vi.fn(),
+	};
+
+	const mockUsersService: Partial<UsersService> = {
+		createGroup: vi.fn().mockResolvedValue({ id: 'new-group', title: 'Sellers' }),
 	};
 
 	beforeEach(() => {
@@ -35,6 +44,7 @@ describe('GroupAddDialogComponent', () => {
 				provideRouter([]),
 				{ provide: MAT_DIALOG_DATA, useValue: {} },
 				{ provide: MatDialogRef, useValue: mockDialogRef },
+				{ provide: UsersService, useValue: mockUsersService },
 			],
 		}).compileComponents();
 	});
@@ -42,7 +52,6 @@ describe('GroupAddDialogComponent', () => {
 	beforeEach(() => {
 		fixture = TestBed.createComponent(GroupAddDialogComponent);
 		component = fixture.componentInstance;
-		usersService = TestBed.inject(UsersService);
 		fixture.detectChanges();
 	});
 
@@ -50,15 +59,14 @@ describe('GroupAddDialogComponent', () => {
 		expect(component).toBeTruthy();
 	});
 
-	it('should call create user group service', () => {
-		component.groupTitle = 'Sellers';
-		component.connectionID = '12345678';
-		const fakeCreateUsersGroup = vi.spyOn(usersService, 'createUsersGroup').mockReturnValue(of());
-		vi.spyOn(mockDialogRef, 'close');
+	it('should call create group service', async () => {
+		const testable = component as unknown as GroupAddTestable;
+		testable.connectionID = '12345678';
+		testable.groupTitle = 'Sellers';
 
-		component.addGroup();
+		await testable.addGroup();
 
-		expect(fakeCreateUsersGroup).toHaveBeenCalledWith('12345678', 'Sellers');
-		expect(component.submitting).toBe(false);
+		expect(mockUsersService.createGroup).toHaveBeenCalledWith('12345678', 'Sellers');
+		expect(testable.submitting()).toBe(false);
 	});
 });

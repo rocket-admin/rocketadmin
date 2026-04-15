@@ -43,7 +43,6 @@
 	margin: 8px 12px;
 }
 
-
 .no-actions {
 	display: flex;
 	flex-direction: column;
@@ -524,10 +523,22 @@
 }
 
 @media (prefers-color-scheme: dark) {
-	.example-trigger__icon-box--add { background: color-mix(in srgb, var(--color-successPalette-500), transparent 88%); color: var(--color-successPalette-500); }
-	.example-trigger__icon-box--update { background: color-mix(in srgb, var(--color-infoPalette-500), transparent 88%); color: var(--color-infoPalette-500); }
-	.example-trigger__icon-box--delete { background: color-mix(in srgb, var(--color-warnPalette-500), transparent 88%); color: var(--color-warnPalette-500); }
-	.example-trigger__icon-box--custom { background: color-mix(in srgb, var(--color-alternativePalette-500), transparent 88%); color: var(--color-alternativePalette-500); }
+	.example-trigger__icon-box--add {
+		background: color-mix(in srgb, var(--color-successPalette-500), transparent 88%);
+		color: var(--color-successPalette-500);
+	}
+	.example-trigger__icon-box--update {
+		background: color-mix(in srgb, var(--color-infoPalette-500), transparent 88%);
+		color: var(--color-infoPalette-500);
+	}
+	.example-trigger__icon-box--delete {
+		background: color-mix(in srgb, var(--color-warnPalette-500), transparent 88%);
+		color: var(--color-warnPalette-500);
+	}
+	.example-trigger__icon-box--custom {
+		background: color-mix(in srgb, var(--color-alternativePalette-500), transparent 88%);
+		color: var(--color-alternativePalette-500);
+	}
 }
 
 .example-trigger__text {
@@ -543,11 +554,13 @@
 
 .example-trigger__desc {
 	font-size: 11px;
-	color: rgba(0,0,0,0.64);
+	color: rgba(0, 0, 0, 0.64);
 }
 
 @media (prefers-color-scheme: dark) {
-	.example-trigger__desc { color: rgba(255,255,255,0.64); }
+	.example-trigger__desc {
+		color: rgba(255, 255, 255, 0.64);
+	}
 }
 
 /* ── Connector ── */
@@ -640,7 +653,6 @@
 	font-weight: 600;
 }
 
-
 /* ── Creation flow ── */
 
 .creation-flow {
@@ -669,7 +681,7 @@
 /* ── Card connector (line + arrow) ── */
 
 .creation-card--trigger::after {
-	content: '';
+	content: "";
 	position: absolute;
 	bottom: -3px;
 	left: 50%;
@@ -691,13 +703,13 @@
 }
 
 .card-connector::before {
-	content: '';
+	content: "";
 	flex: 1;
 	border-left: 1px solid var(--color-accentedPalette-300);
 }
 
 .card-connector::after {
-	content: '';
+	content: "";
 	width: 0;
 	height: 0;
 	border-left: 4px solid transparent;
@@ -822,14 +834,26 @@
 }
 
 @keyframes card-pulse {
-	0%, 100% { border-color: rgba(0, 0, 0, 0.12); }
-	25%, 75% { border-color: var(--color-accentedPalette-500); }
+	0%,
+	100% {
+		border-color: rgba(0, 0, 0, 0.12);
+	}
+	25%,
+	75% {
+		border-color: var(--color-accentedPalette-500);
+	}
 }
 
 @media (prefers-color-scheme: dark) {
 	@keyframes card-pulse {
-		0%, 100% { border-color: rgba(255, 255, 255, 0.12); }
-		25%, 75% { border-color: var(--color-accentedPalette-500); }
+		0%,
+		100% {
+			border-color: rgba(255, 255, 255, 0.12);
+		}
+		25%,
+		75% {
+			border-color: var(--color-accentedPalette-500);
+		}
 	}
 }
 
@@ -884,7 +908,10 @@
 	font-size: 12px;
 	font-weight: 600;
 	cursor: pointer;
-	transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+	transition:
+		border-color 0.2s,
+		background-color 0.2s,
+		box-shadow 0.2s;
 }
 
 .trigger-pill__checkbox {
@@ -900,10 +927,18 @@
 }
 
 /* Default colored text & icons per type (muted when not selected) */
-.trigger-pill--add-row { color: var(--color-successDarkPalette-700); }
-.trigger-pill--update-row { color: var(--color-infoPalette-700); }
-.trigger-pill--delete-row { color: var(--color-warnDarkPalette-700); }
-.trigger-pill--custom { color: var(--color-alternativeDarkPalette-700); }
+.trigger-pill--add-row {
+	color: var(--color-successDarkPalette-700);
+}
+.trigger-pill--update-row {
+	color: var(--color-infoPalette-700);
+}
+.trigger-pill--delete-row {
+	color: var(--color-warnDarkPalette-700);
+}
+.trigger-pill--custom {
+	color: var(--color-alternativeDarkPalette-700);
+}
 
 .trigger-pill:hover {
 	background: rgba(255, 255, 255, 0.036);
@@ -913,38 +948,58 @@
 .trigger-pill--add-row.trigger-pill--active {
 	border-color: var(--color-successDarkPalette-500);
 	background: var(--color-successDarkPalette-900);
-	box-shadow: 0 0 0 1px var(--color-successDarkPalette-800), 0 0 12px var(--color-successDarkPalette-900);
+	box-shadow:
+		0 0 0 1px var(--color-successDarkPalette-800),
+		0 0 12px var(--color-successDarkPalette-900);
 	color: var(--color-successDarkPalette-500);
 }
 
 .trigger-pill--update-row.trigger-pill--active {
 	border-color: var(--color-infoPalette-500);
 	background: var(--color-infoPalette-900);
-	box-shadow: 0 0 0 1px var(--color-infoPalette-800), 0 0 12px var(--color-infoPalette-900);
+	box-shadow:
+		0 0 0 1px var(--color-infoPalette-800),
+		0 0 12px var(--color-infoPalette-900);
 	color: var(--color-infoPalette-500);
 }
 
 .trigger-pill--delete-row.trigger-pill--active {
 	border-color: var(--color-warnDarkPalette-500);
 	background: var(--color-warnDarkPalette-900);
-	box-shadow: 0 0 0 1px var(--color-warnDarkPalette-800), 0 0 12px var(--color-warnDarkPalette-900);
+	box-shadow:
+		0 0 0 1px var(--color-warnDarkPalette-800),
+		0 0 12px var(--color-warnDarkPalette-900);
 	color: var(--color-warnDarkPalette-500);
 }
 
 .trigger-pill--custom.trigger-pill--active {
 	border-color: var(--color-alternativeDarkPalette-500);
 	background: var(--color-alternativeDarkPalette-900);
-	box-shadow: 0 0 0 1px var(--color-alternativeDarkPalette-800), 0 0 12px var(--color-alternativeDarkPalette-900);
+	box-shadow:
+		0 0 0 1px var(--color-alternativeDarkPalette-800),
+		0 0 12px var(--color-alternativeDarkPalette-900);
 	color: var(--color-alternativeDarkPalette-500);
 }
 
 /* Light mode overrides */
 @media (prefers-color-scheme: light) {
 	/* Default colored text & icons per type (muted when not selected) */
-	.trigger-pill--add-row { color: var(--color-successPalette-300); background-color: transparent; }
-	.trigger-pill--update-row { color: var(--color-infoPalette-300); background-color: transparent; }
-	.trigger-pill--delete-row { color: var(--color-warnPalette-300); background-color: transparent; }
-	.trigger-pill--custom { color: var(--color-alternativePalette-300); background-color: transparent; }
+	.trigger-pill--add-row {
+		color: var(--color-successPalette-300);
+		background-color: transparent;
+	}
+	.trigger-pill--update-row {
+		color: var(--color-infoPalette-300);
+		background-color: transparent;
+	}
+	.trigger-pill--delete-row {
+		color: var(--color-warnPalette-300);
+		background-color: transparent;
+	}
+	.trigger-pill--custom {
+		color: var(--color-alternativePalette-300);
+		background-color: transparent;
+	}
 
 	.trigger-pill:hover {
 		background: rgba(255, 255, 255, 0.036);
@@ -954,28 +1009,36 @@
 	.trigger-pill--add-row.trigger-pill--active {
 		border-color: var(--color-successPalette-500);
 		background: var(--color-successPalette-100);
-		box-shadow: 0 0 0 1px var(--color-successPalette-100), 0 0 12px var(--color-successPalette-50);
+		box-shadow:
+			0 0 0 1px var(--color-successPalette-100),
+			0 0 12px var(--color-successPalette-50);
 		color: var(--color-successPalette-500);
 	}
 
 	.trigger-pill--update-row.trigger-pill--active {
 		border-color: var(--color-infoPalette-500);
 		background: var(--color-infoPalette-100);
-		box-shadow: 0 0 0 1px var(--color-infoPalette-100), 0 0 12px var(--color-infoPalette-50);
+		box-shadow:
+			0 0 0 1px var(--color-infoPalette-100),
+			0 0 12px var(--color-infoPalette-50);
 		color: var(--color-infoPalette-500);
 	}
 
 	.trigger-pill--delete-row.trigger-pill--active {
 		border-color: var(--color-warnPalette-500);
 		background: var(--color-warnPalette-100);
-		box-shadow: 0 0 0 1px var(--color-warnPalette-100), 0 0 12px var(--color-warnPalette-50);
+		box-shadow:
+			0 0 0 1px var(--color-warnPalette-100),
+			0 0 12px var(--color-warnPalette-50);
 		color: var(--color-warnPalette-500);
 	}
 
 	.trigger-pill--custom.trigger-pill--active {
 		border-color: var(--color-alternativePalette-500);
 		background: var(--color-alternativePalette-100);
-		box-shadow: 0 0 0 1px var(--color-alternativePalette-100), 0 0 12px var(--color-alternativePalette-50);
+		box-shadow:
+			0 0 0 1px var(--color-alternativePalette-100),
+			0 0 12px var(--color-alternativePalette-50);
 		color: var(--color-alternativePalette-500);
 	}
 }

@@ -1,8 +1,8 @@
 import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
 import { Component, Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import posthog from 'posthog-js';
 import { CreatedHostedDatabase } from 'src/app/models/hosted-database';
 import { NotificationsService } from 'src/app/services/notifications.service';
@@ -38,6 +38,8 @@ export class HostedDatabaseSuccessDialogComponent {
 		this._notifications.showSuccessSnackbar('Hosted database credentials were copied to clipboard.');
 		this.copied = true;
 		this.canClose = true;
-		setTimeout(() => { this.copied = false; }, 2000);
+		setTimeout(() => {
+			this.copied = false;
+		}, 2000);
 	}
 }

@@ -1,5 +1,8 @@
 import { TableActionEventEnum } from '../../../../enums/table-action-event-enum.js';
-import { decryptConnectionCredentialsAsync, decryptConnectionsCredentialsAsync } from '../../../connection/utils/decrypt-connection-credentials-async.js';
+import {
+	decryptConnectionCredentialsAsync,
+	decryptConnectionsCredentialsAsync,
+} from '../../../connection/utils/decrypt-connection-credentials-async.js';
 import { ActionRulesEntity } from '../action-rules.entity.js';
 import { IActionRulesRepository } from './action-rules-custom-repository.interface.js';
 

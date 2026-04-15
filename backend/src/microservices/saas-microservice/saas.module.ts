@@ -10,6 +10,7 @@ import { SaasController } from './saas.controller.js';
 import { CreateConnectionForHostedDbUseCase } from './use-cases/create-connection-for-hosted-db.use.case.js';
 import { DeleteConnectionForHostedDbUseCase } from './use-cases/delete-connection-for-hosted-db.use.case.js';
 import { FreezeConnectionsInCompanyUseCase } from './use-cases/freeze-connections-in-company.use.case.js';
+import { GetConnectionsInfoByIdsUseCase } from './use-cases/get-connections-info-by-ids.use.case.js';
 import { GetFullCompanyInfoByUserIdUseCase } from './use-cases/get-full-company-info-by-user-id.use.case.js';
 import { GetUserInfoUseCase } from './use-cases/get-user-info.use.case.js';
 import { GetUsersCountInCompanyByIdUseCase } from './use-cases/get-users-count-in-company.use.case.js';
@@ -23,7 +24,6 @@ import { SaasUsualRegisterUseCase } from './use-cases/saas-usual-register-user.u
 import { SuspendUsersUseCase } from './use-cases/suspend-users.use.case.js';
 import { SuspendUsersOverLimitUseCase } from './use-cases/suspend-users-over-limit.use.case.js';
 import { UnFreezeConnectionsInCompanyUseCase } from './use-cases/unfreeze-connections-in-company-use.case.js';
-import { GetConnectionsInfoByIdsUseCase } from './use-cases/get-connections-info-by-ids.use.case.js';
 import { UpdateHostedConnectionPasswordUseCase } from './use-cases/update-hosted-connection-password.use.case.js';
 
 @Module({

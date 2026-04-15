@@ -34,7 +34,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 	}
 
 	async validate(request: CedarValidationRequest): Promise<boolean> {
-		const { userId, action, groupId, tableName, dashboardId } = request;
+		const { userId, action, groupId, tableName, dashboardId, panelId } = request;
 		let { connectionId } = request;
 
 		const actionPrefix = action.split(':')[0];
@@ -61,13 +61,20 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 				const needsSentinel = action === CedarAction.DashboardCreate || !dashboardId;
 				const effectiveDashboardId = needsSentinel ? '__new__' : dashboardId;
 				resourceId = `${connectionId}/${effectiveDashboardId}`;
-				return this.evaluate(userId, connectionId, action, resourceType, resourceId, tableName, effectiveDashboardId);
+				return this.evaluate(userId, connectionId, action, resourceType, resourceId, tableName, effectiveDashboardId, undefined);
+			}
+			case 'panel': {
+				resourceType = CedarResourceType.Panel;
+				const needsSentinel = action === CedarAction.PanelCreate || !panelId;
+				const effectivePanelId = needsSentinel ? '__new__' : panelId;
+				resourceId = `${connectionId}/${effectivePanelId}`;
+				return this.evaluate(userId, connectionId, action, resourceType, resourceId, tableName, undefined, effectivePanelId);
 			}
 			default:
 				return false;
 		}
 
-		return this.evaluate(userId, connectionId, action, resourceType, resourceId, tableName, dashboardId);
+		return this.evaluate(userId, connectionId, action, resourceType, resourceId, tableName, dashboardId, undefined);
 	}
 
 	invalidatePolicyCacheForConnection(connectionId: string): void {
@@ -169,6 +176,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 		resourceId: string,
 		tableName?: string,
 		dashboardId?: string,
+		panelId?: string,
 	): Promise<boolean> {
 		await this.assertUserNotSuspended(userId);
 
@@ -178,7 +186,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 		const groupPolicies = this.loadPoliciesPerGroup(userGroups);
 		if (groupPolicies.length === 0) return false;
 
-		const entities = buildCedarEntities(userId, userGroups, connectionId, tableName, dashboardId);
+		const entities = buildCedarEntities(userId, userGroups, connectionId, tableName, dashboardId, panelId);
 
 		for (const policy of groupPolicies) {
 			const call = {
@@ -297,6 +305,19 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 
 		for (const dashboardRef of dashboardResourceIds) {
 			if (!dashboardRef.startsWith(`${connectionId}/`)) {
+				throw new HttpException(
+					{ message: Messages.CEDAR_POLICY_REFERENCES_FOREIGN_CONNECTION },
+					HttpStatus.BAD_REQUEST,
+				);
+			}
+		}
+
+		const panelResourceIds = [...cedarPolicy.matchAll(/resource\s*==\s*RocketAdmin::Panel::"([^"]+)"/g)].map(
+			(m) => m[1],
+		);
+
+		for (const panelRef of panelResourceIds) {
+			if (!panelRef.startsWith(`${connectionId}/`)) {
 				throw new HttpException(
 					{ message: Messages.CEDAR_POLICY_REFERENCES_FOREIGN_CONNECTION },
 					HttpStatus.BAD_REQUEST,

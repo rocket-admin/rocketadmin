@@ -18,6 +18,7 @@ import { Timeout, TimeoutDefaults } from '../../../decorators/timeout.decorator.
 import { UserId } from '../../../decorators/user-id.decorator.js';
 import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { ConnectionEditGuard } from '../../../guards/connection-edit.guard.js';
+import { DashboardEditGuard } from '../../../guards/dashboard-edit.guard.js';
 import { SentryInterceptor } from '../../../interceptors/sentry.interceptor.js';
 import { CreatePanelPositionDs } from './data-structures/create-panel-position.ds.js';
 import { DeletePanelPositionDs } from './data-structures/delete-panel-position.ds.js';
@@ -67,7 +68,7 @@ export class DashboardWidgetController {
 	@ApiBody({ type: CreatePanelPositionDto })
 	@ApiParam({ name: 'dashboardId', required: true })
 	@ApiParam({ name: 'connectionId', required: true })
-	@UseGuards(ConnectionEditGuard)
+	@UseGuards(DashboardEditGuard)
 	@Post('/dashboard/:dashboardId/widget/:connectionId')
 	async createWidget(
 		@SlugUuid('connectionId') connectionId: string,
@@ -100,7 +101,7 @@ export class DashboardWidgetController {
 	@ApiParam({ name: 'dashboardId', required: true })
 	@ApiParam({ name: 'widgetId', required: true })
 	@ApiParam({ name: 'connectionId', required: true })
-	@UseGuards(ConnectionEditGuard)
+	@UseGuards(DashboardEditGuard)
 	@Put('/dashboard/:dashboardId/widget/:widgetId/:connectionId')
 	async updateWidget(
 		@SlugUuid('connectionId') connectionId: string,
@@ -134,7 +135,7 @@ export class DashboardWidgetController {
 	@ApiParam({ name: 'dashboardId', required: true })
 	@ApiParam({ name: 'widgetId', required: true })
 	@ApiParam({ name: 'connectionId', required: true })
-	@UseGuards(ConnectionEditGuard)
+	@UseGuards(DashboardEditGuard)
 	@Delete('/dashboard/:dashboardId/widget/:widgetId/:connectionId')
 	async deleteWidget(
 		@SlugUuid('connectionId') connectionId: string,

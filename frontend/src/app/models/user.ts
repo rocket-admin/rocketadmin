@@ -41,6 +41,7 @@ export interface GroupUser {
 	isActive: boolean;
 	stripeId: string;
 	email: string;
+	name?: string;
 }
 
 export enum SubscriptionPlans {
