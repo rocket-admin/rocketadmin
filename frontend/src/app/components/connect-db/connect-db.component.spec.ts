@@ -38,6 +38,7 @@ describe('ConnectDBComponent', () => {
 		updateConnection: vi.fn(),
 		getCurrentConnectionTitle: vi.fn(),
 		currentConnectionID: '9d5f6d0f-9516-4598-91c4-e4fe6330b4d4',
+		canEditConnection: vi.fn().mockReturnValue(true),
 	};
 
 	const connectionCredsApp = {

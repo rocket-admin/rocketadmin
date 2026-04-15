@@ -1,16 +1,16 @@
+import * as cedarWasm from '@cedar-policy/cedar-wasm/nodejs';
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
+import { BaseType } from '../../common/data-injection.tokens.js';
 import { AccessLevelEnum } from '../../enums/index.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { Cacher } from '../../helpers/cache/cacher.js';
-import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
-import { BaseType } from '../../common/data-injection.tokens.js';
 import { GroupEntity } from '../group/group.entity.js';
 import { ITablePermissionData } from '../permission/permission.interface.js';
-import { CedarAction, CedarResourceType, CEDAR_ACTION_TYPE, CEDAR_USER_TYPE } from './cedar-action-map.js';
+import { IUserAccessRepository } from '../user-access/repository/user-access.repository.interface.js';
+import { CEDAR_ACTION_TYPE, CEDAR_USER_TYPE, CedarAction, CedarResourceType } from './cedar-action-map.js';
 import { buildCedarEntities } from './cedar-entity-builder.js';
 import { CEDAR_SCHEMA } from './cedar-schema.js';
-import * as cedarWasm from '@cedar-policy/cedar-wasm/nodejs';
-import { IUserAccessRepository } from '../user-access/repository/user-access.repository.interface.js';
 
 interface EvalContext {
 	userGroups: Array<GroupEntity>;
@@ -435,5 +435,4 @@ export class CedarPermissionsService implements IUserAccessRepository {
 
 		return { userGroups, policies };
 	}
-
 }

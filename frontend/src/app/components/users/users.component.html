@@ -1,127 +1,138 @@
 <div class="wrapper">
     <header>
             <h1 class="mat-h1">User groups</h1>
-            <button type="button" mat-stroked-button *ngIf="connectionAccessLevel !== 'none'"
-                color="primary" class="add-group-button"
-                angulartics2On="click"
-                angularticsAction="Users access: add group is clicked"
-                (click)="openCreateUsersGroupDialog($event); posthog.capture('Users access: add group is clicked')">
-                New group
-            </button>
+            @if (canCreateGroup()) {
+                <button type="button" mat-stroked-button
+                    color="primary" class="add-group-button"
+                    angulartics2On="click"
+                    angularticsAction="Users access: add group is clicked"
+                    (click)="openCreateUsersGroupDialog($event); posthog.capture('Users access: add group is clicked')">
+                    New group
+                </button>
+            }
     </header>
 
-    <app-placeholder-user-groups *ngIf="groups === null"></app-placeholder-user-groups>
+    @if (groups() === null) {
+        <app-placeholder-user-groups></app-placeholder-user-groups>
+    }
 
-    <mat-accordion multi="true" *ngIf="groups">
-        <mat-expansion-panel *ngFor="let groupItem of groups" expanded="true"
-            [ngClass]="{'expansion-panel_admin': groupItem.group.title === 'Admin'}">
-            <mat-expansion-panel-header class="group-item">
-                <mat-panel-title>
-                    <span>{{ groupItem.group.title }}</span>
-                    <span *ngIf="groupItem.group.title === 'Admin'" class="group-system-badge">system</span>
-                    <button type="button" mat-icon-button *ngIf="isPermitted(groupItem.accessLevel) && groupItem.group.title !== 'Admin'"
-                        class="title-edit-button"
-                        angulartics2On="click"
-                        angularticsAction="Users access: edit group name is clicked"
-                        matTooltip="Edit group name"
-                        (click)="openEditGroupNameDialog($event, groupItem.group); posthog.capture('Users access: edit group name is clicked')">
-                        <mat-icon fontSet="material-symbols-outlined">edit</mat-icon>
-                    </button>
-                    <span class="group-members-preview" *ngIf="getGroupUsers(groupItem.group.id) as groupUsers">
-                        <span class="group-avatar" *ngFor="let user of groupUsers.slice(0, 3)"
-                            [matTooltip]="user.name || user.email">
-                            {{ getUserInitials(user) }}
-                        </span>
-                        <span class="group-members-count">{{ groupUsers.length }} {{ groupUsers.length === 1 ? 'member' : 'members' }}</span>
-                    </span>
-                </mat-panel-title>
-                <mat-panel-description (click)="$event.stopPropagation();" class="group-actions">
-                    <button type="button" mat-icon-button *ngIf="isPermitted(groupItem.accessLevel) && groupItem.group.title !== 'Admin'"
-                        angulartics2On="click"
-                        angularticsAction="Users access: cedar policy is clicked"
-                        matTooltip="Edit policy"
-                        (click)="openCedarPolicyDialog(groupItem.group); posthog.capture('Users access: cedar policy is clicked')">
-                        <mat-icon fontSet="material-symbols-outlined">vpn_key</mat-icon>
-                    </button>
-                    <button type="button" mat-icon-button *ngIf="isPermitted(groupItem.accessLevel) && groupItem.group.title !== 'Admin'"
-                        angulartics2On="click"
-                        angularticsAction="Users access: delete group is clicked"
-                        matTooltip="Delete group"
-                        (click)="openDeleteGroupDialog(groupItem.group); posthog.capture('Users access: delete group is clicked')">
-                        <mat-icon>delete</mat-icon>
-                    </button>
-                    <button type="button" mat-icon-button *ngIf="isPermitted(groupItem.accessLevel)"
-                        angulartics2On="click"
-                        angularticsAction="Users access: add user is clicked"
-                        matTooltip="Add user"
-                        (click)="openAddUserDialog(groupItem.group); posthog.capture('Users access: add user is clicked')">
-                        <mat-icon fontSet="material-symbols-outlined">person_add</mat-icon>
-                    </button>
-                </mat-panel-description>
-            </mat-expansion-panel-header>
+    @if (groups(); as groupsList) {
+        <mat-accordion multi="true">
+            @for (groupItem of groupsList; track groupItem.group.id) {
+                @let canManage = canManageGroup(groupItem.group.id);
+                <mat-expansion-panel expanded="true"
+                    [class.expansion-panel_admin]="groupItem.group.title === 'Admin'">
+                    <mat-expansion-panel-header class="group-item">
+                        <mat-panel-title>
+                            <span>{{ groupItem.group.title }}</span>
+                            @if (groupItem.group.title === 'Admin') {
+                                <span class="group-system-badge">system</span>
+                            }
+                            @if (canManage() && groupItem.group.title !== 'Admin') {
+                                <button type="button" mat-icon-button
+                                    class="title-edit-button"
+                                    angulartics2On="click"
+                                    angularticsAction="Users access: edit group name is clicked"
+                                    matTooltip="Edit group name"
+                                    (click)="openEditGroupNameDialog($event, groupItem.group); posthog.capture('Users access: edit group name is clicked')">
+                                    <mat-icon fontSet="material-symbols-outlined">edit</mat-icon>
+                                </button>
+                            }
+                            @if (getGroupUsers(groupItem.group.id); as groupUsersList) {
+                                <span class="group-members-preview">
+                                    @for (user of groupUsersList.slice(0, 3); track user.email) {
+                                        <span class="group-avatar"
+                                            [matTooltip]="user.name || user.email">
+                                            {{ getUserInitials(user) }}
+                                        </span>
+                                    }
+                                    <span class="group-members-count">{{ groupUsersList.length }} {{ groupUsersList.length === 1 ? 'member' : 'members' }}</span>
+                                </span>
+                            }
+                        </mat-panel-title>
+                        <mat-panel-description (click)="$event.stopPropagation();" class="group-actions">
+                            <a mat-icon-button
+                                [routerLink]="['/permissions', connectionID]"
+                                [queryParams]="{ viewAs: groupItem.group.id }"
+                                target="_blank"
+                                rel="noopener"
+                                angulartics2On="click"
+                                angularticsAction="Users access: view as group is clicked"
+                                matTooltip="View as group (opens in new tab)"
+                                (click)="posthog.capture('Users access: view as group is clicked')">
+                                <mat-icon fontSet="material-symbols-outlined">visibility</mat-icon>
+                            </a>
+                            @if (canManage() && groupItem.group.title !== 'Admin') {
+                                <button type="button" mat-icon-button
+                                    angulartics2On="click"
+                                    angularticsAction="Users access: cedar policy is clicked"
+                                    matTooltip="Edit policy"
+                                    (click)="openCedarPolicyDialog(groupItem.group); posthog.capture('Users access: cedar policy is clicked')">
+                                    <mat-icon fontSet="material-symbols-outlined">vpn_key</mat-icon>
+                                </button>
+                                <button type="button" mat-icon-button
+                                    angulartics2On="click"
+                                    angularticsAction="Users access: delete group is clicked"
+                                    matTooltip="Delete group"
+                                    (click)="openDeleteGroupDialog(groupItem.group); posthog.capture('Users access: delete group is clicked')">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            }
+                            @if (canManage()) {
+                                <button type="button" mat-icon-button
+                                    angulartics2On="click"
+                                    angularticsAction="Users access: add user is clicked"
+                                    matTooltip="Add user"
+                                    (click)="openAddUserDialog(groupItem.group); posthog.capture('Users access: add user is clicked')">
+                                    <mat-icon fontSet="material-symbols-outlined">person_add</mat-icon>
+                                </button>
+                            }
+                        </mat-panel-description>
+                    </mat-expansion-panel-header>
 
-            <app-placeholder-user-group *ngIf="users[groupItem.group.id] === null"></app-placeholder-user-group>
-            <p class="body-2" *ngIf="users[groupItem.group.id] === 'empty'">No users in the group</p>
-            <mat-list role="list">
-                <mat-list-item role="listitem" *ngFor="let user of users[groupItem.group.id]">
-                    <div class="user">
-                        <span *ngIf="user.name; else userEmail">{{user.name}} ({{user.email}})</span>
-                        <ng-template #userEmail>
-                            <span>{{user.email}}</span>
-                        </ng-template>
-                        <button type="button" mat-icon-button *ngIf="(currentUser?.email !== user.email) && isPermitted(groupItem.accessLevel)"
-                            angulartics2On="click"
-                            angularticsAction="Users access: delete user is clicked"
-                            matTooltip="Delete user"
-                            (click)="openDeleteUserDialog(user, groupItem.group); posthog.capture('Users access: delete user is clicked')">
-                            <mat-icon>person_remove</mat-icon>
-                        </button>
-                    </div>
-                </mat-list-item>
-            </mat-list>
-        </mat-expansion-panel>
-    </mat-accordion>
+                    @if (groupUsers()[groupItem.group.id] === undefined) {
+                        <app-placeholder-user-group></app-placeholder-user-group>
+                    }
+                    @if (groupUsers()[groupItem.group.id] === 'empty') {
+                        <p class="body-2">No users in the group</p>
+                    }
+                    <mat-list role="list">
+                        @if (getGroupUsers(groupItem.group.id); as usersList) {
+                            @for (user of usersList; track user.email) {
+                                <mat-list-item role="listitem">
+                                    <div class="user">
+                                        @if (user.name) {
+                                            <span>{{user.name}} ({{user.email}})</span>
+                                        } @else {
+                                            <span>{{user.email}}</span>
+                                        }
+                                        @if (currentUser()?.email !== user.email && canManage()) {
+                                            <button type="button" mat-icon-button
+                                                angulartics2On="click"
+                                                angularticsAction="Users access: delete user is clicked"
+                                                matTooltip="Delete user"
+                                                (click)="openDeleteUserDialog(user, groupItem.group); posthog.capture('Users access: delete user is clicked')">
+                                                <mat-icon>person_remove</mat-icon>
+                                            </button>
+                                        }
+                                    </div>
+                                </mat-list-item>
+                            }
+                        }
+                    </mat-list>
+                </mat-expansion-panel>
+            }
+        </mat-accordion>
+    }
 
-    <div *ngIf="companyMembersWithoutAccess.length > 0" class="no-access mat-body-1">
-        Company members who do NOT have access to this connection:
-        <span *ngFor="let member of companyMembersWithoutAccess; let last = last">
-            <strong>{{member.name}}</strong> ({{member.email}}) {{!last ? ', ' : ''}}
-        </span>
-    </div>
-
-    <!-- <table mat-table [dataSource]="users" class="mat-elevation-z8">
-        <ng-container matColumnDef="superuser">
-            <th mat-header-cell *matHeaderCellDef> Superuser </th>
-            <td mat-cell *matCellDef="let element">
-                <div *ngIf="element.email === 'andrey@kostenko.com' " class="aloisovich">
-                    <mat-icon>face</mat-icon>
-                    <div class="mustache"></div>
-                </div>
-                <mat-icon *ngIf="element.superuser" color="accent">star</mat-icon>
-            </td>
-        </ng-container>
-
-        <ng-container matColumnDef="email">
-            <th mat-header-cell *matHeaderCellDef> Email </th>
-            <td mat-cell *matCellDef="let element"> {{element.email}} </td>
-        </ng-container>
-
-        <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef> Name </th>
-            <td mat-cell *matCellDef="let element"> {{element.name}} </td>
-        </ng-container>
-
-        <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let element">
-                <a routerLink="{{element.id}}" mat-button color="primary">Edit</a>&nbsp;
-                <button mat-button color="warn" (click)="confirmDeleteUser(element)">Delete</button>
-            </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table> -->
+    @if (companyMembersWithoutAccess().length > 0) {
+        <div class="no-access mat-body-1">
+            Company members who do NOT have access to this connection:
+            @for (member of companyMembersWithoutAccess(); track member.id; let last = $last) {
+                <span>
+                    <strong>{{member.name}}</strong> ({{member.email}}) {{!last ? ', ' : ''}}
+                </span>
+            }
+        </div>
+    }
 </div>
-
-

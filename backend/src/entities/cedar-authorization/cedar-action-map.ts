@@ -11,6 +11,10 @@ export enum CedarAction {
 	DashboardCreate = 'dashboard:create',
 	DashboardEdit = 'dashboard:edit',
 	DashboardDelete = 'dashboard:delete',
+	PanelRead = 'panel:read',
+	PanelCreate = 'panel:create',
+	PanelEdit = 'panel:edit',
+	PanelDelete = 'panel:delete',
 }
 
 export enum CedarResourceType {
@@ -18,6 +22,7 @@ export enum CedarResourceType {
 	Group = 'RocketAdmin::Group',
 	Table = 'RocketAdmin::Table',
 	Dashboard = 'RocketAdmin::Dashboard',
+	Panel = 'RocketAdmin::Panel',
 }
 
 export const CEDAR_ACTION_TYPE = 'RocketAdmin::Action';
@@ -31,4 +36,5 @@ export interface CedarValidationRequest {
 	groupId?: string;
 	tableName?: string;
 	dashboardId?: string;
+	panelId?: string;
 }

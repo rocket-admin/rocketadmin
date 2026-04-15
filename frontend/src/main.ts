@@ -82,7 +82,7 @@ if (environment.production) {
 	enableProdMode();
 }
 
-if ((environment as any).saas) {
+if ((environment as Record<string, unknown>).saas) {
 	Sentry.init({
 		dsn: 'https://4d774c4c2c8a8f733cb4d43599cc0dc6@o4506084700389376.ingest.sentry.io/4506084702486528',
 		integrations: [Sentry.browserTracingIntegration()],
@@ -140,7 +140,7 @@ bootstrapApplication(AppComponent, {
 		{
 			provide: APP_INITIALIZER,
 			useFactory: () => () => {},
-			deps: (environment as any).saas ? [Sentry.TraceService] : [],
+			deps: (environment as Record<string, unknown>).saas ? [Sentry.TraceService] : [],
 			multi: true,
 		},
 		{

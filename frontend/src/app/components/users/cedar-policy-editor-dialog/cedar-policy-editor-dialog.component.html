@@ -2,28 +2,30 @@
 <form (ngSubmit)="savePolicy()">
     <mat-dialog-content #dialogContent>
         <div class="editor-mode-toggle">
-            <mat-button-toggle-group [value]="editorMode" (change)="onEditorModeChange($event.value)">
+            <mat-button-toggle-group [value]="editorMode()" (change)="onEditorModeChange($event.value)">
                 <mat-button-toggle value="form">Form</mat-button-toggle>
                 <mat-button-toggle value="code">Code</mat-button-toggle>
             </mat-button-toggle-group>
         </div>
 
-        <div *ngIf="formParseError" class="form-parse-warning">
-            <mat-icon>warning</mat-icon>
-            <span>This policy uses advanced Cedar syntax that cannot be represented in form mode. Please use the code editor.</span>
-        </div>
+        @if (formParseError()) {
+            <div class="form-parse-warning">
+                <mat-icon>warning</mat-icon>
+                <span>This policy uses advanced Cedar syntax that cannot be represented in form mode. Please use the code editor.</span>
+            </div>
+        }
 
-        <div *ngIf="editorMode === 'form' && !formParseError">
+        @if (editorMode() === 'form' && !formParseError()) {
             <app-cedar-policy-list
-                [policies]="policyItems"
-                [availableTables]="availableTables"
-                [availableDashboards]="availableDashboards"
-                [loading]="loading"
+                [policies]="policyItems()"
+                [availableTables]="availableTables()"
+                [availableDashboards]="availableDashboards()"
+                [loading]="loading()"
                 (policiesChange)="onPolicyItemsChange($event)">
             </app-cedar-policy-list>
-        </div>
+        }
 
-        <div *ngIf="editorMode === 'code'">
+        @if (editorMode() === 'code') {
             <p class="cedar-hint">Edit policy in <a href="https://www.cedarpolicy.com/en" target="_blank" rel="noopener">Cedar</a> format</p>
             <div class="code-editor-box">
                 <ngs-code-editor
@@ -33,18 +35,29 @@
                     (valueChanged)="onCedarPolicyChange($event)">
                 </ngs-code-editor>
             </div>
-        </div>
+            @if (validationErrors().length > 0) {
+                <div class="cedar-validation-errors">
+                    <mat-icon>error</mat-icon>
+                    <div class="cedar-validation-errors__messages">
+                        @for (error of validationErrors(); track error) {
+                            <span>{{ error }}</span>
+                        }
+                    </div>
+                </div>
+            }
+        }
     </mat-dialog-content>
     <mat-dialog-actions>
-        <button *ngIf="editorMode === 'form' && !formParseError && !loading && !policyList?.showAddForm"
-            type="button" mat-button color="primary"
-            (click)="onAddPolicyClick()">
-            <mat-icon>add</mat-icon> Add policy
-        </button>
+        @if (editorMode() === 'form' && !formParseError() && !loading() && !policyList?.showAddForm) {
+            <button type="button" mat-button color="primary"
+                (click)="onAddPolicyClick()">
+                <mat-icon>add</mat-icon> Add policy
+            </button>
+        }
         <span class="dialog-actions-spacer"></span>
         <button type="button" mat-flat-button (click)="confirmClose()">Cancel</button>
         <button type="submit" mat-flat-button color="primary"
-            [disabled]="submitting">
+            [disabled]="submitting()">
             Save
         </button>
     </mat-dialog-actions>

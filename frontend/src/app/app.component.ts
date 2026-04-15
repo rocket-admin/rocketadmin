@@ -20,6 +20,7 @@ import { Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { environment } from '../environments/environment';
 import { FeatureNotificationComponent } from './components/feature-notification/feature-notification.component';
+import { ViewAsBannerComponent } from './components/view-as-banner/view-as-banner.component';
 import { Connection } from './models/connection';
 import { AuthService } from './services/auth.service';
 import { CompanyService } from './services/company.service';
@@ -52,6 +53,7 @@ amplitude.getInstance().init('9afd282be91f94da735c11418d5ff4f5');
 		MatTooltipModule,
 		Angulartics2OnModule,
 		FeatureNotificationComponent,
+		ViewAsBannerComponent,
 	],
 })
 export class AppComponent {

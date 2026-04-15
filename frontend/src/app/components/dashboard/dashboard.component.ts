@@ -117,6 +117,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		private angulartics2: Angulartics2,
 	) {}
 
+	protected canEditConnection = () => this._connections.canEditConnection();
+
 	get currentConnectionAccessLevel() {
 		return this._connections.currentConnectionAccessLevel;
 	}
@@ -166,66 +168,68 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	getData() {
 		console.log('getData');
 
-		this._tables.fetchTablesFolders(this.connectionID).subscribe((res) => {
-			const tables = res.find((item) => item.category_id === 'all-tables-kitten')?.tables || [];
+		this._tables.fetchTablesFolders(this.connectionID).subscribe(
+			(res) => {
+				const tables = res.find((item) => item.category_id === 'all-tables-kitten')?.tables || [];
 
-			this.tableFolders = res;
+				this.tableFolders = res;
 
-			if (tables && tables.length === 0) {
-				this.noTablesError = true;
-				this.loading = false;
-				this.title.setTitle(`No tables | ${this._company.companyTabTitle || 'Rocketadmin'}`);
-			} else if (tables) {
-				this.formatTableNames();
-				this.route.paramMap
-					.pipe(
-						map((params: ParamMap) => {
-							let tableName = params.get('table-name');
-							if (tableName) {
-								this.selectedTableName = tableName;
-								this.setTable(tableName);
-								console.log('setTable from getData paramMap');
-								this.title.setTitle(
-									`${this.selectedTableDisplayName} table | ${this._company.companyTabTitle || 'Rocketadmin'}`,
-								);
-								this.selection.clear();
-							} else {
-								if (this.defaultTableToOpen) {
-									tableName = this.defaultTableToOpen;
+				if (tables && tables.length === 0) {
+					this.noTablesError = true;
+					this.loading = false;
+					this.title.setTitle(`No tables | ${this._company.companyTabTitle || 'Rocketadmin'}`);
+				} else if (tables) {
+					this.formatTableNames();
+					this.route.paramMap
+						.pipe(
+							map((params: ParamMap) => {
+								let tableName = params.get('table-name');
+								if (tableName) {
+									this.selectedTableName = tableName;
+									this.setTable(tableName);
+									console.log('setTable from getData paramMap');
+									this.title.setTitle(
+										`${this.selectedTableDisplayName} table | ${this._company.companyTabTitle || 'Rocketadmin'}`,
+									);
+									this.selection.clear();
 								} else {
-									tableName = this.allTables[0]?.table;
+									if (this.defaultTableToOpen) {
+										tableName = this.defaultTableToOpen;
+									} else {
+										tableName = this.allTables[0]?.table;
+									}
+									this.router.navigate([`/dashboard/${this.connectionID}/${tableName}`], { replaceUrl: true });
+									this.selectedTableName = tableName;
 								}
-								this.router.navigate([`/dashboard/${this.connectionID}/${tableName}`], { replaceUrl: true });
-								this.selectedTableName = tableName;
-							}
-						}),
-					)
-					.subscribe();
-				this._tableRow.cast.subscribe((arg) => {
-					if (arg === 'delete row' && this.selectedTableName) {
-						this.setTable(this.selectedTableName);
-						console.log('setTable from getData _tableRow cast');
-						this.selection.clear();
-					}
-				});
-				this._tables.cast.subscribe((arg) => {
-					if ((arg === 'delete rows' || arg === 'import') && this.selectedTableName) {
-						this.setTable(this.selectedTableName);
-						console.log('setTable from getData _tables cast');
-						this.selection.clear();
-					}
-					if (arg === 'activate actions') {
-						this.selection.clear();
-					}
-				});
-			}
-		},
-		(err) => {	
-			this.isServerError = true;
-			this.serverError = { abstract: err.error?.message || err.message, details: err.error?.originalMessage };
-			this.loading = false;
-			this.title.setTitle(`Error | ${this._company.companyTabTitle || 'Rocketadmin'}`);
-		});
+							}),
+						)
+						.subscribe();
+					this._tableRow.cast.subscribe((arg) => {
+						if (arg === 'delete row' && this.selectedTableName) {
+							this.setTable(this.selectedTableName);
+							console.log('setTable from getData _tableRow cast');
+							this.selection.clear();
+						}
+					});
+					this._tables.cast.subscribe((arg) => {
+						if ((arg === 'delete rows' || arg === 'import') && this.selectedTableName) {
+							this.setTable(this.selectedTableName);
+							console.log('setTable from getData _tables cast');
+							this.selection.clear();
+						}
+						if (arg === 'activate actions') {
+							this.selection.clear();
+						}
+					});
+				}
+			},
+			(err) => {
+				this.isServerError = true;
+				this.serverError = { abstract: err.error?.message || err.message, details: err.error?.originalMessage };
+				this.loading = false;
+				this.title.setTitle(`Error | ${this._company.companyTabTitle || 'Rocketadmin'}`);
+			},
+		);
 	}
 
 	formatTableNames() {

@@ -1,12 +1,10 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { applicationConfig, type Meta, type StoryObj } from '@storybook/angular';
-import { of } from 'rxjs';
 import { UsersService } from 'src/app/services/users.service';
 import { UserDeleteDialogComponent } from './user-delete-dialog.component';
 
 const mockUsersService: Partial<UsersService> = {
-	cast: of([]),
-	deleteGroupUser: () => of(null as any),
+	deleteGroupUser: () => Promise.resolve(),
 };
 
 const meta: Meta<UserDeleteDialogComponent> = {

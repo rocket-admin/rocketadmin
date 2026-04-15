@@ -16,9 +16,9 @@ import { CreateConnectionDs } from '../application/data-structures/create-connec
 import { TestConnectionResultDs } from '../application/data-structures/test-connection-result.ds.js';
 import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
 import { ConnectionEntity } from '../connection.entity.js';
+import { decryptConnectionCredentialsAsync } from '../utils/decrypt-connection-credentials-async.js';
 import { isHostAllowed } from '../utils/is-host-allowed.js';
 import { processAWSConnection } from '../utils/process-aws-connection.util.js';
-import { decryptConnectionCredentialsAsync } from '../utils/decrypt-connection-credentials-async.js';
 import { ITestConnection } from './use-cases.interfaces.js';
 
 @Injectable()

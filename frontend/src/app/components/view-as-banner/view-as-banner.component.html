@@ -1,0 +1,11 @@
+@if (isActive()) {
+    <div class="view-as-banner" role="status" aria-live="polite">
+        <mat-icon class="view-as-banner__icon" fontSet="material-symbols-outlined">visibility</mat-icon>
+        <span class="view-as-banner__text">
+            Viewing as group <strong>{{ groupLabel() }}</strong>
+        </span>
+        <button type="button" mat-stroked-button class="view-as-banner__exit" (click)="exit()">
+            Exit view mode
+        </button>
+    </div>
+}

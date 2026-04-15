@@ -1,9 +1,9 @@
 import { Component, Inject, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { firstValueFrom } from 'rxjs';
 import { CreatedHostedDatabase } from 'src/app/models/hosted-database';
 import { ConnectionsService } from 'src/app/services/connections.service';
@@ -38,9 +38,7 @@ export class HostedDatabaseRenameDialogComponent {
 
 		this.saving = true;
 		try {
-			await firstValueFrom(
-				this._connectionsService.updateConnectionTitle(this.data.connectionId, title),
-			);
+			await firstValueFrom(this._connectionsService.updateConnectionTitle(this.data.connectionId, title));
 			this._connectionsService.fetchConnections().subscribe();
 			this._dialogRef.close(title);
 		} catch {

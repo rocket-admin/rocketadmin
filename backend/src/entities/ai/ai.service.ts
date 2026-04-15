@@ -301,12 +301,26 @@ IMPORTANT:
 			const tableInfo = tablesInformation.find((t) => t.table_name === tableSettings.table_name);
 			const validColumnNames = tableInfo?.structure.map((col) => col.column_name) || [];
 
+			const requiredFieldsWithoutDefault = new Set(
+				tableInfo?.structure
+					.filter((col) => !col.allow_null && col.column_default === null && !checkFieldAutoincrement(col.column_default, col.extra))
+					.map((col) => col.column_name) || [],
+			);
+
 			const settings = new TableSettingsEntity();
 			settings.table_name = tableSettings.table_name;
 			settings.display_name = tableSettings.display_name;
 			settings.search_fields = this.filterValidColumns(tableSettings.search_fields, validColumnNames);
-			settings.readonly_fields = this.filterValidColumns(tableSettings.readonly_fields, validColumnNames);
-			settings.columns_view = this.filterValidColumns(tableSettings.columns_view, validColumnNames);
+			settings.readonly_fields = this.filterValidColumns(tableSettings.readonly_fields, validColumnNames).filter(
+				(field) => !requiredFieldsWithoutDefault.has(field),
+			);
+			const filteredColumnsView = this.filterValidColumns(tableSettings.columns_view, validColumnNames);
+			for (const requiredField of requiredFieldsWithoutDefault) {
+				if (!filteredColumnsView.includes(requiredField)) {
+					filteredColumnsView.push(requiredField);
+				}
+			}
+			settings.columns_view = filteredColumnsView;
 			settings.ordering = this.mapOrdering(tableSettings.ordering);
 			settings.ordering_field = validColumnNames.includes(tableSettings.ordering_field)
 				? tableSettings.ordering_field

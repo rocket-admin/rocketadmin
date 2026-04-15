@@ -1,7 +1,6 @@
 import { MatDialogRef } from '@angular/material/dialog';
 import { applicationConfig, type Meta, type StoryObj } from '@storybook/angular';
 import { Angulartics2 } from 'angulartics2';
-import { of } from 'rxjs';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { UsersService } from 'src/app/services/users.service';
 import { GroupAddDialogComponent } from './group-add-dialog.component';
@@ -11,8 +10,7 @@ const mockConnectionsService: Partial<ConnectionsService> = {
 };
 
 const mockUsersService: Partial<UsersService> = {
-	cast: of([]),
-	createUsersGroup: () => of(null as any),
+	createGroup: () => Promise.resolve(null),
 };
 
 const mockAngulartics: Partial<Angulartics2> = {

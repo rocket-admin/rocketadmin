@@ -79,7 +79,7 @@
     </app-turnstile>
     <mat-dialog-actions align="end">
         <button type="button" mat-flat-button mat-dialog-close>Cancel</button>
-        <button mat-flat-button color="primary"
+        <button type="submit" mat-flat-button color="primary"
             [disabled]="submitting || addUserForm.form.invalid || (isSaas && !turnstileToken)">
             Add
         </button>
