@@ -1,14 +1,33 @@
 const http = require('http');
 const url = require('url');
+const crypto = require('crypto');
 
 const PORT = process.env.MOCK_API_PORT || 3333;
 const EXPECTED_API_KEY = process.env.PROXY_API_KEY || 'test-proxy-api-key';
 
-// The client (rocketadmin) connects to the proxy with these credentials.
-// The proxy extracts username+database from the startup message and looks up the
-// real upstream connection info here.
-const PROXY_USERNAME = process.env.PROXY_CLIENT_USERNAME || 'proxy_user';
+// Client → proxy credential pattern.
+// Tests use unique usernames like `proxy_user_<token>` so each test gets its
+// own derived companyId (and therefore its own limiter slot).
+const PROXY_USERNAME_PREFIX = process.env.PROXY_CLIENT_USERNAME_PREFIX || 'proxy_user';
 const PROXY_DATABASE = process.env.PROXY_CLIENT_DATABASE || 'postgres';
+
+function deriveCompanyId(username) {
+  // Single-username case (e.g. plain "proxy_user") keeps the legacy id so existing
+  // tests/clients that don't randomize still hit a stable companyId.
+  if (username === PROXY_USERNAME_PREFIX) {
+    return 'test-company-001';
+  }
+  const hash = crypto.createHash('sha1').update(username).digest('hex').slice(0, 12);
+  return `test-company-${hash}`;
+}
+
+function deriveConnectionId(username) {
+  if (username === PROXY_USERNAME_PREFIX) {
+    return 'test-connection-001';
+  }
+  const hash = crypto.createHash('sha1').update(username).digest('hex').slice(0, 12);
+  return `test-connection-${hash}`;
+}
 
 // Upstream connection info returned when the proxy asks for the above client credentials
 const TEST_CONNECTION = {
@@ -80,10 +99,28 @@ const server = http.createServer((req, res) => {
     const { username, database } = parsedUrl.query;
     console.log(`[mock-api] GET connection: username=${username}, database=${database}`);
 
-    if (username === PROXY_USERNAME && database === PROXY_DATABASE) {
+    const usernameMatches =
+      username === PROXY_USERNAME_PREFIX || (typeof username === 'string' && username.startsWith(PROXY_USERNAME_PREFIX + '_'));
+
+    if (usernameMatches && database === PROXY_DATABASE) {
+      const companyId = deriveCompanyId(username);
+      const connectionId = deriveConnectionId(username);
+      console.log(
+        `[mock-api] -> returning connection, companyId=${companyId} connectionId=${connectionId} subscriptionLevel=${currentSubscriptionLevel}`,
+      );
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ ...TEST_CONNECTION, subscriptionLevel: currentSubscriptionLevel }));
+      res.end(
+        JSON.stringify({
+          ...TEST_CONNECTION,
+          connectionId,
+          companyId,
+          subscriptionLevel: currentSubscriptionLevel,
+        }),
+      );
     } else {
+      console.log(
+        `[mock-api] -> 404: username/database mismatch (expected ${PROXY_USERNAME_PREFIX}[_*]/${PROXY_DATABASE})`,
+      );
       res.writeHead(404, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Connection not found' }));
     }
