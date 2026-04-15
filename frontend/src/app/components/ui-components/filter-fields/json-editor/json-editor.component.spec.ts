@@ -23,7 +23,7 @@ describe('JsonEditorFilterComponent', () => {
 	beforeEach(() => {
 		fixture = TestBed.createComponent(JsonEditorFilterComponent);
 		component = fixture.componentInstance;
-		component.label = 'config';
+		fixture.componentRef.setInput('label', 'config');
 		component.value = { key: 'value', nested: { data: 123 } };
 		fixture.detectChanges();
 	});
@@ -69,8 +69,7 @@ describe('JsonEditorFilterComponent', () => {
 	});
 
 	it('should normalize label from base class', () => {
-		component.label = 'user_config_data';
-		component.ngOnInit();
-		expect(component.normalizedLabel).toBeDefined();
+		fixture.componentRef.setInput('label', 'user_config_data');
+		expect(component.normalizedLabel()).toBeDefined();
 	});
 });

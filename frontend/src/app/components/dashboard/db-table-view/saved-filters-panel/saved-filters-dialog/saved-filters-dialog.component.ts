@@ -17,11 +17,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import { DynamicModule } from 'ng-dynamic-component';
+import { SignalComponentIoModule } from 'ng-dynamic-component/signal-component-io';
 import posthog from 'posthog-js';
 import { map, Observable, startWith } from 'rxjs';
 import { ContentLoaderComponent } from 'src/app/components/ui-components/content-loader/content-loader.component';
-import { filterTypes } from 'src/app/consts/filter-types';
-import { UIwidgets } from 'src/app/consts/record-edit-types';
+import { UIwidgets as FilterUIwidgets, filterTypes } from 'src/app/consts/filter-types';
+import { UIwidgets as EditUIwidgets } from 'src/app/consts/record-edit-types';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { TableField } from 'src/app/models/table';
 import { ConnectionsService } from 'src/app/services/connections.service';
@@ -44,6 +45,7 @@ import { TablesService } from 'src/app/services/tables.service';
 		MatCheckboxModule,
 		MatRadioModule,
 		DynamicModule,
+		SignalComponentIoModule,
 		RouterModule,
 		MatDialogModule,
 		MatSnackBarModule,
@@ -55,11 +57,6 @@ import { TablesService } from 'src/app/services/tables.service';
 	styleUrl: './saved-filters-dialog.component.css',
 })
 export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
-	// @Input() connectionID: string;
-	// @Input() tableName: string;
-	// @Input() displayTableName: string;
-	// @Input() filtersSet: any;
-
 	public tableFilters = [];
 	public fieldSearchControl = new FormControl('');
 	public fields: string[];
@@ -69,12 +66,10 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
 	public tableRowStructure: Object;
 	public tableRowFieldsShown: Object = {};
 	public tableRowFieldsComparator: Object = {};
-	// public tableForeignKeys: {[key: string]: TableForeignKey};
 	public tableFiltersCount: number = 0;
 	public tableTypes: Object;
 	public tableWidgets: object;
-	public tableWidgetsList: string[] = [];
-	public UIwidgets = UIwidgets;
+	public UIwidgets = { ...EditUIwidgets, ...FilterUIwidgets };
 	public dynamicColumn: string | null = null;
 	public showAddConditionField = false;
 	public showNameError = false;
@@ -93,8 +88,6 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
 	) {}
 
 	ngOnInit(): void {
-		this._tables.cast.subscribe();
-
 		if (this.data.filtersSet) {
 			this.tableRowFieldsShown = Object.entries(this.data.filtersSet.filters).reduce((acc, [field, conditions]) => {
 				const [_comparator, value] = Object.entries(conditions)[0];
@@ -111,7 +104,6 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
 				{},
 			);
 
-			// Initialize dynamic column if it exists in the filters set
 			if (this.data.filtersSet.dynamic_column?.column_name) {
 				this.tableRowFieldsShown[this.data.filtersSet.dynamic_column.column_name] = null;
 				this.tableRowFieldsComparator[this.data.filtersSet.dynamic_column.column_name] =
@@ -120,7 +112,6 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
 			}
 		}
 
-		// this.tableForeignKeys = {...this.data.structure.foreignKeys};
 		this.tableRowFields = Object.assign(
 			{},
 			...this.data.structure.map((field: TableField) => ({ [field.column_name]: undefined })),
@@ -138,9 +129,9 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
 			}),
 		);
 
-		// Setup widgets if available
-		if (this.data.tableWidgets?.length) {
-			this.setWidgets(this.data.tableWidgets);
+		const tableWidgets = this.data.tableWidgets;
+		if (tableWidgets && Object.keys(tableWidgets).length) {
+			this.tableWidgets = tableWidgets;
 		}
 
 		this.foundFields = this.fieldSearchControl.valueChanges.pipe(
@@ -150,7 +141,6 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
 	}
 
 	ngAfterViewInit(): void {
-		// If editing an existing filter (has id), remove focus from the filter name input
 		if (this.data.filtersSet && this.data.filtersSet.id) {
 			setTimeout(() => {
 				const nameInput = this.elementRef.nativeElement.querySelector(
@@ -188,40 +178,21 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
 		return filterTypes[this._connections.currentConnection.type];
 	}
 
-	setWidgets(widgets: any[]) {
-		this.tableWidgetsList = widgets.map((widget: any) => widget.field_name);
-		this.tableWidgets = Object.assign(
-			{},
-			...widgets.map((widget: any) => {
-				let params;
-				if (widget.widget_params !== '// No settings required') {
-					try {
-						params = JSON.parse(widget.widget_params);
-					} catch (_e) {
-						params = '';
-					}
-				} else {
-					params = '';
-				}
-				return {
-					[widget.field_name]: { ...widget, widget_params: params },
-				};
-			}),
-		);
-	}
-
 	trackByFn(_index: number, item: any) {
 		return item.key;
 	}
 
 	isWidget(columnName: string) {
-		return this.tableWidgetsList.includes(columnName);
+		return this.tableWidgets && columnName in this.tableWidgets;
 	}
+
+	updateComparatorFromComponent = (comparator: string, field: string) => {
+		this.tableRowFieldsComparator[field] = comparator;
+	};
 
 	updateField = (updatedValue: any, field: string) => {
 		this.tableRowFieldsShown[field] = updatedValue;
 		this.updateFiltersCount();
-		// Reset conditions error when a filter is added
 		if (this.showConditionsError && Object.keys(this.tableRowFieldsShown).length > 0) {
 			this.showConditionsError = false;
 		}
@@ -236,7 +207,6 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
 		};
 		this.fieldSearchControl.setValue('');
 		this.updateFiltersCount();
-		// Reset conditions error when a filter is added
 		this.showConditionsError = false;
 		if (this.hasSelectedFilters) {
 			this.showAddConditionField = false;
@@ -244,7 +214,6 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
 	}
 
 	handleInputBlur(): void {
-		// Hide the field if it's empty when it loses focus
 		if (!this.fieldSearchControl.value || this.fieldSearchControl.value.trim() === '') {
 			setTimeout(() => {
 				if (!this.fieldSearchControl.value || this.fieldSearchControl.value.trim() === '') {
@@ -255,7 +224,6 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
 	}
 
 	updateComparator(event, fieldName: string) {
-		console.log('Updating comparator for field:', fieldName, 'obj', this.tableRowFieldsComparator);
 		if (event === 'empty') this.tableRowFieldsShown[fieldName] = '';
 	}
 
@@ -314,7 +282,6 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
 			this.dynamicColumn = null;
 		}
 		this.updateFiltersCount();
-		// Reset conditions error when filters are removed (will be re-validated on save)
 		this.showConditionsError = false;
 		if (!this.hasSelectedFilters) {
 			this.showAddConditionField = false;
@@ -334,11 +301,9 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
 	}
 
 	handleSaveFilters() {
-		// Reset error flags
 		this.showNameError = false;
 		this.showConditionsError = false;
 
-		// Validate filter name
 		if (!this.data.filtersSet.name || this.data.filtersSet.name.trim() === '') {
 			this.showNameError = true;
 			setTimeout(() => {
@@ -353,19 +318,13 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
 			return;
 		}
 
-		// Validate conditions - check if there are any filters
-		// A valid filter must have a comparator defined
-		// Either regular filters OR dynamic column with comparator should exist
 		const hasRegularFilters = Object.keys(this.tableRowFieldsShown).some((key) => {
-			// Skip dynamic column for regular filter check
 			if (key === this.dynamicColumn) {
 				return false;
 			}
-			// Check if comparator is defined (even if value is empty/null, comparator must exist)
 			return this.tableRowFieldsComparator[key] !== undefined && this.tableRowFieldsComparator[key] !== null;
 		});
 
-		// Check if dynamic column has a comparator (it counts as a valid filter condition)
 		const hasDynamicColumnFilter =
 			this.dynamicColumn &&
 			this.tableRowFieldsComparator[this.dynamicColumn] !== undefined &&
@@ -381,7 +340,6 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
 					conditionInput.focus();
 					conditionInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
 				} else {
-					// If input is not visible, show the add condition button area
 					const addButton = this.elementRef.nativeElement.querySelector('.add-condition-footer button') as HTMLElement;
 					if (addButton) {
 						addButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -396,13 +354,11 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
 			let filters = {};
 
 			for (const key in this.tableRowFieldsShown) {
-				// Skip fields that are marked as dynamic column
 				if (key === this.dynamicColumn) {
 					continue;
 				}
 
 				if (this.tableRowFieldsComparator[key] !== undefined) {
-					// If value is empty or undefined, use null
 					const value =
 						this.tableRowFieldsShown[key] === '' || this.tableRowFieldsShown[key] === undefined
 							? null
@@ -414,15 +370,12 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
 				}
 			}
 
-			// const filters = JsonURL.stringify( this.filters );
 			payload = {
 				name: this.data.filtersSet.name,
 				filters,
 			};
 
-			// Only add dynamic_column if one is selected
 			if (this.dynamicColumn) {
-				// Create object with column_name and comparator properties
 				payload.dynamic_column = {
 					column_name: this.dynamicColumn,
 					comparator: this.tableRowFieldsComparator[this.dynamicColumn] || '',
@@ -461,16 +414,5 @@ export class SavedFiltersDialogComponent implements OnInit, AfterViewInit {
 				);
 			}
 		}
-
-		// saveFilter() {
-
-		//     this._tables.createSavedFilter(this.data.connectionID, this.data.tableName, payload)
-		//       .subscribe(() => {
-		//         this.dialogRef.close(true);
-		//       }, (error) => {
-		//         console.error('Error saving filter:', error);
-		//         this.snackBar.open('Error saving filter', 'Close', { duration: 3000 });
-		//       });
-		//   }
 	}
 }

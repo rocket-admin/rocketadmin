@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { AfterViewInit, Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { DBtype } from 'src/app/models/connection';
@@ -12,63 +12,64 @@ import { BaseFilterFieldComponent } from '../base-filter-field/base-filter-field
 	styleUrls: ['./boolean.component.css'],
 	imports: [CommonModule, FormsModule, MatButtonToggleModule],
 })
-export class BooleanFilterComponent extends BaseFilterFieldComponent {
+export class BooleanFilterComponent extends BaseFilterFieldComponent implements AfterViewInit {
 	@Input() value;
 
 	public isRadiogroup: boolean;
-	private connectionType: DBtype;
 	public booleanValue: boolean | 'unknown';
+	private connectionType: DBtype;
 
 	constructor(private _connections: ConnectionsService) {
 		super();
 	}
 
 	ngOnInit(): void {
-		super.ngOnInit();
 		this.connectionType = this._connections.currentConnection.type;
 		this.setBooleanValue();
 
-		// Parse widget parameters if available
 		let parsedParams = null;
-		if (this.widgetStructure?.widget_params) {
-			parsedParams =
-				typeof this.widgetStructure.widget_params === 'string'
-					? JSON.parse(this.widgetStructure.widget_params)
-					: this.widgetStructure.widget_params;
+		const ws = this.widgetStructure();
+		if (ws?.widget_params) {
+			parsedParams = typeof ws.widget_params === 'string' ? JSON.parse(ws.widget_params) : ws.widget_params;
 		}
 
-		// Check allow_null from either structure or widget params
-		this.isRadiogroup = this.structure?.allow_null || !!parsedParams?.allow_null;
+		this.isRadiogroup = this.structure()?.allow_null || !!parsedParams?.allow_null;
+	}
+
+	ngAfterViewInit(): void {
+		this.onComparatorChange.emit('eq');
 	}
 
 	setBooleanValue() {
 		if (typeof this.value === 'boolean') {
 			this.booleanValue = this.value;
-		} else if (this.value === null) {
+			return;
+		}
+
+		if (this.value === null || this.value === undefined || this.value === '') {
 			this.booleanValue = 'unknown';
-			console.log('i entered condition this.value === null');
-		} else {
-			switch (this.value) {
-				case 0:
-				case '0':
-				case 'F':
-				case 'N':
-				case 'false':
-					this.booleanValue = false;
-					break;
-				case 1:
-				case '1':
-				case 'T':
-				case 'Y':
-				case 'true':
-					this.booleanValue = true;
-					break;
-			}
+			return;
+		}
+
+		switch (this.value) {
+			case 0:
+			case '0':
+			case 'F':
+			case 'N':
+			case 'false':
+				this.booleanValue = false;
+				break;
+			case 1:
+			case '1':
+			case 'T':
+			case 'Y':
+			case 'true':
+				this.booleanValue = true;
+				break;
 		}
 	}
 
 	onBooleanChange() {
-		console.log(this.connectionType);
 		let formattedValue;
 		switch (this.connectionType) {
 			case DBtype.MySQL:
@@ -81,5 +82,6 @@ export class BooleanFilterComponent extends BaseFilterFieldComponent {
 		}
 
 		this.onFieldChange.emit(formattedValue);
+		this.onComparatorChange.emit('eq');
 	}
 }
