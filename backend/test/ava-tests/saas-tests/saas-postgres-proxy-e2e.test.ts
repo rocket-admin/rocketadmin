@@ -537,13 +537,88 @@ test.serial('should report usage metrics to mock API after queries through proxy
 		const totalQueryCount = relevantReports.reduce((sum: number, r: any) => sum + r.queryCount, 0);
 		t.true(totalQueryCount > 0, `Expected positive query count, got ${totalQueryCount}`);
 
-		// Total query time should be non-negative (could be 0 for very fast queries,
-		// but with millisecond resolution a real query should register some time)
+		// Total query time must be strictly positive — /table/rows runs several
+		// metadata queries plus the row fetch, which must register more than a
+		// single millisecond of billed time. A zero here would indicate the
+		// timer never fired or was dropped on disconnect.
 		const totalQueryTimeMs = relevantReports.reduce((sum: number, r: any) => sum + r.queryTimeMs, 0);
-		t.true(totalQueryTimeMs >= 0, `Expected non-negative query time, got ${totalQueryTimeMs}`);
+		t.true(totalQueryTimeMs > 0, `Expected positive query time, got ${totalQueryTimeMs}`);
+		// Sanity upper bound: a single API call should not accrue minutes of
+		// proxy-measured time. Guards against a Pop(ok=false)-style regression
+		// where time.Since(zeroTime) could produce decade-scale elapsed.
+		t.true(
+			totalQueryTimeMs < 60000,
+			`Expected <60s total query time for a single API call, got ${totalQueryTimeMs} (overbilling?)`,
+		);
 	} catch (e) {
 		console.error(e);
 		throw e;
+	}
+});
+
+// ─── Budget exhaustion via rocketadmin API ──────────────────────────────────
+//
+// Drives the token bucket to negative balance under the TEST_TINY_PLAN (a
+// deliberately tiny 2s/hour budget used only for tests). Uses supertest —
+// each /connection/tables call fans out into several metadata queries, which
+// is more than enough to exhaust 2 seconds of cumulative query time across a
+// few calls. The next API call should surface the proxy's 53400 rejection.
+
+test.serial('should reject queries once query-time budget is exhausted', async (t) => {
+	if (maybeSkip(t)) return;
+	t.timeout(60000);
+
+	const probe = await getUsageReports();
+	if (!Array.isArray(probe)) {
+		t.pass('skipped: proxy-mock-api does not expose test endpoints (rebuild required)');
+		return;
+	}
+
+	await setSubscriptionLevel('TEST_TINY_PLAN');
+	try {
+		const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+		const proxyConnectionDto = createProxyConnectionDto();
+
+		const createConnectionResponse = await request(app.getHttpServer())
+			.post('/connection')
+			.send(proxyConnectionDto)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(createConnectionResponse.status, 201);
+		const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+		// Burn through the 2-second budget by repeatedly listing tables. Each
+		// call executes several introspection queries; within a handful of calls
+		// the post-consume balance goes negative and subsequent calls hit the
+		// pre-query CheckBudget rejection.
+		let rejected = false;
+		let lastStatus = 0;
+		let lastBody = '';
+		for (let i = 0; i < 30; i++) {
+			const resp = await request(app.getHttpServer())
+				.get(`/connection/tables/${createConnectionRO.id}`)
+				.set('Cookie', firstUserToken)
+				.set('Accept', 'application/json');
+			lastStatus = resp.status;
+			lastBody = resp.text || '';
+			if (resp.status !== 200) {
+				rejected = true;
+				break;
+			}
+		}
+
+		t.true(
+			rejected,
+			`expected a 30-call burst under TEST_TINY_PLAN to hit a budget rejection; last status=${lastStatus}`,
+		);
+		t.regex(
+			lastBody,
+			/budget|exceeded|plan|53400/i,
+			`rejection response should mention budget/plan, got status=${lastStatus} body=${lastBody.slice(0, 200)}`,
+		);
+	} finally {
+		await setSubscriptionLevel('TEAM_PLAN');
 	}
 });
 
