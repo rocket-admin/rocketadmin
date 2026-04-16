@@ -19,6 +19,7 @@ import { DeleteDomainDialogComponent } from '../company/delete-domain-dialog/del
 import { ProfileSidebarComponent } from '../profile/profile-sidebar/profile-sidebar.component';
 import { PlaceholderBrandingComponent } from '../skeletons/placeholder-branding/placeholder-branding.component';
 import { AlertComponent } from '../ui-components/alert/alert.component';
+import { RouterModule } from '@angular/router';
 
 @Component({
 	selector: 'app-branding',
@@ -32,6 +33,7 @@ import { AlertComponent } from '../ui-components/alert/alert.component';
 		MatButtonModule,
 		MatIconModule,
 		MatTooltipModule,
+		RouterModule,
 		Angulartics2OnModule,
 		AlertComponent,
 		ProfileSidebarComponent,
