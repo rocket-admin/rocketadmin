@@ -23,4 +23,5 @@ export enum TableWidgetTypeEnum {
 	Range = 'Range',
 	Timezone = 'Timezone',
 	S3 = 'S3',
+	Binary = 'Binary',
 }

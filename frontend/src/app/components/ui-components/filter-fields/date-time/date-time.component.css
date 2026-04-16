@@ -19,3 +19,9 @@
 	grid-template-columns: 1fr 1fr;
 	grid-column-gap: 16px;
 }
+
+.between-fields {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}

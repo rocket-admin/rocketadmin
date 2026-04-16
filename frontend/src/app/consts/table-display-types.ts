@@ -1,6 +1,7 @@
 import { BooleanDisplayComponent } from 'src/app/components/ui-components/table-display-fields/boolean/boolean.component';
 import { LongTextDisplayComponent } from 'src/app/components/ui-components/table-display-fields/long-text/long-text.component';
 import { TextDisplayComponent } from 'src/app/components/ui-components/table-display-fields/text/text.component';
+import { BinaryDisplayComponent } from '../components/ui-components/table-display-fields/binary/binary.component';
 import { CodeDisplayComponent } from '../components/ui-components/table-display-fields/code/code.component';
 import { ColorDisplayComponent } from '../components/ui-components/table-display-fields/color/color.component';
 import { CountryDisplayComponent } from '../components/ui-components/table-display-fields/country/country.component';
@@ -36,6 +37,7 @@ export const UIwidgets = {
 	Country: CountryDisplayComponent,
 	Date: DateDisplayComponent,
 	DateTime: DateTimeDisplayComponent,
+	Binary: BinaryDisplayComponent,
 	File: FileDisplayComponent,
 	Foreign_key: ForeignKeyDisplayComponent,
 	Image: ImageDisplayComponent,
@@ -102,8 +104,8 @@ export const tableDisplayTypes = {
 		jsonb: JsonEditorDisplayComponent,
 		ARRAY: JsonEditorDisplayComponent,
 
-		//file
-		bytea: FileDisplayComponent,
+		//binary
+		bytea: BinaryDisplayComponent,
 
 		//etc
 		money: MoneyDisplayComponent,
@@ -155,13 +157,13 @@ export const tableDisplayTypes = {
 		//select (select)
 		enum: SelectDisplayComponent,
 
-		//file
-		binary: FileDisplayComponent,
-		varbinary: FileDisplayComponent,
-		blob: FileDisplayComponent,
-		tinyblob: FileDisplayComponent,
-		mediumblob: FileDisplayComponent,
-		longblob: FileDisplayComponent,
+		//binary
+		binary: BinaryDisplayComponent,
+		varbinary: BinaryDisplayComponent,
+		blob: BinaryDisplayComponent,
+		tinyblob: BinaryDisplayComponent,
+		mediumblob: BinaryDisplayComponent,
+		longblob: BinaryDisplayComponent,
 
 		//etc
 		set: TextDisplayComponent,
@@ -191,12 +193,12 @@ export const tableDisplayTypes = {
 		VARCHAR: TextDisplayComponent,
 		NVARCHAR2: TextDisplayComponent,
 
-		//file
-		BLOB: FileDisplayComponent,
-		BFILE: FileDisplayComponent,
-		RAW: FileDisplayComponent,
-		'LONG RAW': FileDisplayComponent,
-		LONG: FileDisplayComponent,
+		//binary
+		BLOB: BinaryDisplayComponent,
+		BFILE: BinaryDisplayComponent,
+		RAW: BinaryDisplayComponent,
+		'LONG RAW': BinaryDisplayComponent,
+		LONG: BinaryDisplayComponent,
 
 		'foreign key': ForeignKeyDisplayComponent,
 	},
@@ -229,9 +231,9 @@ export const tableDisplayTypes = {
 		smalldatetime: DateTimeDisplayComponent,
 		timestamp: DateTimeDisplayComponent,
 
-		//file
-		binary: FileDisplayComponent,
-		varbinary: FileDisplayComponent,
+		//binary
+		binary: BinaryDisplayComponent,
+		varbinary: BinaryDisplayComponent,
 		image: ImageDisplayComponent,
 
 		// etc
@@ -260,8 +262,8 @@ export const tableDisplayTypes = {
 		regexp: TextDisplayComponent,
 		objectid: TextDisplayComponent,
 
-		//file
-		binary: FileDisplayComponent,
+		//binary
+		binary: BinaryDisplayComponent,
 
 		//json
 		object: JsonEditorDisplayComponent,
@@ -279,7 +281,7 @@ export const tableDisplayTypes = {
 		null: StaticTextDisplayComponent,
 		array: JsonEditorDisplayComponent,
 		json: JsonEditorDisplayComponent,
-		binary: FileDisplayComponent,
+		binary: BinaryDisplayComponent,
 	},
 	cassandra: {
 		int: NumberDisplayComponent,
@@ -322,7 +324,7 @@ export const tableDisplayTypes = {
 		date: DateDisplayComponent,
 		object: JsonEditorDisplayComponent,
 		array: JsonEditorDisplayComponent,
-		binary: FileDisplayComponent,
+		binary: BinaryDisplayComponent,
 	},
 	clickhouse: {
 		string: TextDisplayComponent,

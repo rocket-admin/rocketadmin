@@ -1,6 +1,7 @@
 import { BooleanRecordViewComponent } from 'src/app/components/ui-components/record-view-fields/boolean/boolean.component';
 import { LongTextRecordViewComponent } from 'src/app/components/ui-components/record-view-fields/long-text/long-text.component';
 import { TextRecordViewComponent } from 'src/app/components/ui-components/record-view-fields/text/text.component';
+import { BinaryRecordViewComponent } from '../components/ui-components/record-view-fields/binary/binary.component';
 import { CodeRecordViewComponent } from '../components/ui-components/record-view-fields/code/code.component';
 import { ColorRecordViewComponent } from '../components/ui-components/record-view-fields/color/color.component';
 import { CountryRecordViewComponent } from '../components/ui-components/record-view-fields/country/country.component';
@@ -43,6 +44,7 @@ export const UIwidgets = {
 	Number: NumberRecordViewComponent,
 	Select: SelectRecordViewComponent,
 	Password: PasswordRecordViewComponent,
+	Binary: BinaryRecordViewComponent,
 	File: FileRecordViewComponent,
 	Code: CodeRecordViewComponent,
 	Image: ImageRecordViewComponent,
@@ -101,8 +103,8 @@ export const recordViewFieldTypes = {
 		jsonb: JsonEditorRecordViewComponent,
 		ARRAY: JsonEditorRecordViewComponent,
 
-		//file
-		bytea: FileRecordViewComponent,
+		//binary
+		bytea: BinaryRecordViewComponent,
 
 		//etc
 		money: MoneyRecordViewComponent,
@@ -154,13 +156,13 @@ export const recordViewFieldTypes = {
 		//select (select)
 		enum: SelectRecordViewComponent,
 
-		//file
-		binary: FileRecordViewComponent,
-		varbinary: FileRecordViewComponent,
-		blob: FileRecordViewComponent,
-		tinyblob: FileRecordViewComponent,
-		mediumblob: FileRecordViewComponent,
-		longblob: FileRecordViewComponent,
+		//binary
+		binary: BinaryRecordViewComponent,
+		varbinary: BinaryRecordViewComponent,
+		blob: BinaryRecordViewComponent,
+		tinyblob: BinaryRecordViewComponent,
+		mediumblob: BinaryRecordViewComponent,
+		longblob: BinaryRecordViewComponent,
 
 		//etc
 		set: TextRecordViewComponent,
@@ -190,12 +192,12 @@ export const recordViewFieldTypes = {
 		VARCHAR: TextRecordViewComponent,
 		NVARCHAR2: TextRecordViewComponent,
 
-		//file
-		BLOB: FileRecordViewComponent,
-		BFILE: FileRecordViewComponent,
-		RAW: FileRecordViewComponent,
-		'LONG RAW': FileRecordViewComponent,
-		LONG: FileRecordViewComponent,
+		//binary
+		BLOB: BinaryRecordViewComponent,
+		BFILE: BinaryRecordViewComponent,
+		RAW: BinaryRecordViewComponent,
+		'LONG RAW': BinaryRecordViewComponent,
+		LONG: BinaryRecordViewComponent,
 
 		'foreign key': ForeignKeyRecordViewComponent,
 	},
@@ -228,9 +230,9 @@ export const recordViewFieldTypes = {
 		smalldatetime: DateTimeRecordViewComponent,
 		timestamp: DateTimeRecordViewComponent,
 
-		//file
-		binary: FileRecordViewComponent,
-		varbinary: FileRecordViewComponent,
+		//binary
+		binary: BinaryRecordViewComponent,
+		varbinary: BinaryRecordViewComponent,
 		image: ImageRecordViewComponent,
 
 		// etc
@@ -259,8 +261,8 @@ export const recordViewFieldTypes = {
 		regexp: TextRecordViewComponent,
 		objectid: TextRecordViewComponent,
 
-		//file
-		binary: FileRecordViewComponent,
+		//binary
+		binary: BinaryRecordViewComponent,
 
 		//json
 		object: JsonEditorRecordViewComponent,
@@ -278,7 +280,7 @@ export const recordViewFieldTypes = {
 		null: StaticTextRecordViewComponent,
 		array: JsonEditorRecordViewComponent,
 		json: JsonEditorRecordViewComponent,
-		binary: FileRecordViewComponent,
+		binary: BinaryRecordViewComponent,
 	},
 	cassandra: {
 		int: NumberRecordViewComponent,
@@ -321,7 +323,7 @@ export const recordViewFieldTypes = {
 		date: DateRecordViewComponent,
 		object: JsonEditorRecordViewComponent,
 		array: JsonEditorRecordViewComponent,
-		binary: FileRecordViewComponent,
+		binary: BinaryRecordViewComponent,
 	},
 	clickhouse: {
 		string: TextRecordViewComponent,

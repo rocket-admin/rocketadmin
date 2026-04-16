@@ -3,6 +3,7 @@ import { LongTextEditComponent } from 'src/app/components/ui-components/record-e
 import { NumberEditComponent } from 'src/app/components/ui-components/record-edit-fields/number/number.component';
 import { PointEditComponent } from 'src/app/components/ui-components/record-edit-fields/point/point.component';
 import { TextEditComponent } from 'src/app/components/ui-components/record-edit-fields/text/text.component';
+import { BinaryEditComponent } from '../components/ui-components/record-edit-fields/binary/binary.component';
 import { CodeEditComponent } from '../components/ui-components/record-edit-fields/code/code.component';
 import { ColorEditComponent } from '../components/ui-components/record-edit-fields/color/color.component';
 import { CountryEditComponent } from '../components/ui-components/record-edit-fields/country/country.component';
@@ -59,6 +60,7 @@ export const UIwidgets = {
 	Country: CountryEditComponent,
 	Date: DateEditComponent,
 	DateTime: DateTimeEditComponent,
+	Binary: BinaryEditComponent,
 	File: FileEditComponent,
 	Foreign_key: ForeignKeyEditComponent,
 	Image: ImageEditComponent,
@@ -125,8 +127,8 @@ export const recordEditTypes = {
 		jsonb: JsonEditorEditComponent, //json-editor
 		ARRAY: JsonEditorEditComponent,
 
-		//file
-		bytea: FileEditComponent,
+		//binary
+		bytea: BinaryEditComponent,
 
 		//etc
 		money: MoneyEditComponent,
@@ -178,13 +180,13 @@ export const recordEditTypes = {
 		//select (select)
 		enum: SelectEditComponent,
 
-		//file
-		binary: FileEditComponent,
-		varbinary: FileEditComponent,
-		blob: FileEditComponent,
-		tinyblob: FileEditComponent,
-		mediumblob: FileEditComponent,
-		longblob: FileEditComponent,
+		//binary
+		binary: BinaryEditComponent,
+		varbinary: BinaryEditComponent,
+		blob: BinaryEditComponent,
+		tinyblob: BinaryEditComponent,
+		mediumblob: BinaryEditComponent,
+		longblob: BinaryEditComponent,
 
 		//etc
 		set: TextEditComponent, //(text)
@@ -214,12 +216,12 @@ export const recordEditTypes = {
 		VARCHAR: TextEditComponent,
 		NVARCHAR2: TextEditComponent,
 
-		//file
-		BLOB: FileEditComponent,
-		BFILE: FileEditComponent,
-		RAW: FileEditComponent,
-		'LONG RAW': FileEditComponent,
-		LONG: FileEditComponent,
+		//binary
+		BLOB: BinaryEditComponent,
+		BFILE: BinaryEditComponent,
+		RAW: BinaryEditComponent,
+		'LONG RAW': BinaryEditComponent,
+		LONG: BinaryEditComponent,
 
 		'foreign key': ForeignKeyEditComponent,
 	},
@@ -252,10 +254,10 @@ export const recordEditTypes = {
 		smalldatetime: DateTimeEditComponent,
 		timestamp: DateTimeEditComponent,
 
-		//file
-		binary: FileEditComponent,
-		varbinary: FileEditComponent,
-		image: FileEditComponent,
+		//binary
+		binary: BinaryEditComponent,
+		varbinary: BinaryEditComponent,
+		image: BinaryEditComponent,
 
 		// etc
 		money: MoneyEditComponent,
@@ -283,8 +285,8 @@ export const recordEditTypes = {
 		regexp: TextEditComponent,
 		objectid: TextEditComponent,
 
-		//file
-		binary: FileEditComponent,
+		//binary
+		binary: BinaryEditComponent,
 
 		//json
 		object: JsonEditorEditComponent,
@@ -302,7 +304,7 @@ export const recordEditTypes = {
 		null: StaticTextEditComponent,
 		array: JsonEditorEditComponent,
 		json: JsonEditorEditComponent,
-		binary: FileEditComponent,
+		binary: BinaryEditComponent,
 	},
 	cassandra: {
 		int: NumberEditComponent,
@@ -345,7 +347,7 @@ export const recordEditTypes = {
 		date: DateEditComponent,
 		object: JsonEditorEditComponent,
 		array: JsonEditorEditComponent,
-		binary: FileEditComponent,
+		binary: BinaryEditComponent,
 	},
 	clickhouse: {
 		string: TextEditComponent,

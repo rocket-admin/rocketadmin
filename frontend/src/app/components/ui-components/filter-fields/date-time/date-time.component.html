@@ -11,10 +11,55 @@
             <mat-option value="lt">before</mat-option>
             <mat-option value="gte">on or after</mat-option>
             <mat-option value="lte">on or before</mat-option>
+            <mat-option value="between">between</mat-option>
+            <mat-option value="in">in</mat-option>
         </mat-select>
     </mat-form-field>
 
-    @if (!isPresetMode()) {
+    @if (filterMode === 'between') {
+        <div class="value-field between-fields">
+            <div class="field-couple">
+                <mat-form-field appearance="outline">
+                    <mat-label>{{normalizedLabel()}} (from date)</mat-label>
+                    <input type="date" matInput name="{{label()}}-{{key()}}-lower-date"
+                        [required]="required()" [disabled]="disabled()"
+                        [(ngModel)]="lowerDate" (change)="onBetweenLowerChange()">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>(from time)</mat-label>
+                    <input type="time" matInput name="{{label()}}-{{key()}}-lower-time"
+                        [required]="required()" [disabled]="disabled()"
+                        [(ngModel)]="lowerTime" (change)="onBetweenLowerChange()">
+                </mat-form-field>
+            </div>
+
+            <div class="field-couple">
+                <mat-form-field appearance="outline">
+                    <mat-label>{{normalizedLabel()}} (to date)</mat-label>
+                    <input type="date" matInput name="{{label()}}-{{key()}}-upper-date"
+                        [required]="required()" [disabled]="disabled()"
+                        [(ngModel)]="upperDate" (change)="onBetweenUpperChange()">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>(to time)</mat-label>
+                    <input type="time" matInput name="{{label()}}-{{key()}}-upper-time"
+                        [required]="required()" [disabled]="disabled()"
+                        [(ngModel)]="upperTime" (change)="onBetweenUpperChange()">
+                </mat-form-field>
+            </div>
+        </div>
+    } @else if (filterMode === 'in') {
+        <mat-form-field class="value-field" appearance="outline">
+            <mat-label>{{normalizedLabel()}} (comma-separated ISO datetimes)</mat-label>
+            <input matInput name="{{label()}}-{{key()}}-in"
+                #inputElement
+                placeholder="2024-01-01T00:00:00Z, 2024-02-01T00:00:00Z"
+                [required]="required()" [disabled]="disabled()"
+                [(ngModel)]="inValueText" (ngModelChange)="onInTextChange($event)">
+        </mat-form-field>
+    } @else if (!isPresetMode()) {
         <div class="value-field field-couple">
             <mat-form-field appearance="outline">
                 <mat-label>{{normalizedLabel()}} (date)</mat-label>
