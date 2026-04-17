@@ -21,10 +21,11 @@ describe('BinaryEditComponent', () => {
 		expect(component).toBeTruthy();
 	});
 
-	it('converts an incoming hex string to Buffer-JSON on init', () => {
+	it('parses a server string as char-code-per-byte and emits Buffer-JSON on init', () => {
 		vi.spyOn(component.onFieldChange, 'emit');
-		fixture.componentRef.setInput('value', '48656c6c6f');
+		fixture.componentRef.setInput('value', 'Hello');
 		component.ngOnInit();
+		// 'Hello' -> bytes 48 65 6c 6c 6f -> hex '48656c6c6f'
 		expect(component.hexData).toBe('48656c6c6f');
 		expect(component.onFieldChange.emit).toHaveBeenCalledWith({
 			type: 'Buffer',
@@ -32,7 +33,7 @@ describe('BinaryEditComponent', () => {
 		});
 	});
 
-	it('re-emits an incoming Buffer-JSON value unchanged on init', () => {
+	it('re-emits an incoming Buffer-JSON value as Buffer-JSON on init', () => {
 		vi.spyOn(component.onFieldChange, 'emit');
 		fixture.componentRef.setInput('value', { type: 'Buffer', data: [0x48, 0x65, 0x6c] });
 		component.ngOnInit();
@@ -51,7 +52,7 @@ describe('BinaryEditComponent', () => {
 		expect(component.onFieldChange.emit).toHaveBeenCalledWith(null);
 	});
 
-	it('emits Buffer-JSON on valid hex change', () => {
+	it('emits Buffer-JSON when the user types valid hex', () => {
 		vi.spyOn(component.onFieldChange, 'emit');
 		component.hexData = '48656c6c6f';
 		component.onHexChange();
@@ -69,7 +70,7 @@ describe('BinaryEditComponent', () => {
 		expect(component.onFieldChange.emit).toHaveBeenCalledWith(null);
 	});
 
-	it('marks invalid and emits raw string when hex is malformed', () => {
+	it('marks invalid and emits raw string when the user types malformed hex', () => {
 		vi.spyOn(component.onFieldChange, 'emit');
 		component.hexData = 'zz';
 		component.onHexChange();

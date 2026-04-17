@@ -4,6 +4,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { HexValidationDirective } from 'src/app/directives/hexValidator.directive';
+import { bytesToHex, hexStringToBytes } from 'src/app/lib/binary';
 import { BaseFilterFieldComponent } from '../base-filter-field/base-filter-field.component';
 
 export type BinaryFilterMode = 'eq' | 'contains' | 'startswith' | 'empty';
@@ -22,7 +23,7 @@ export class BinaryFilterComponent extends BaseFilterFieldComponent implements O
 	public hexValue = '';
 
 	override ngOnInit(): void {
-		if (this.value) this.hexValue = this.value;
+		this.hexValue = bytesToHex(hexStringToBytes(this.value ?? ''));
 	}
 
 	ngAfterViewInit(): void {

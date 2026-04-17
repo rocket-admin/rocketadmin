@@ -25,29 +25,23 @@ describe('BinaryDisplayComponent', () => {
 		expect(component.displayText()).toBe('\u2014');
 	});
 
-	it('shows hex as-is when short', () => {
-		fixture.componentRef.setInput('value', 'abcdef');
+	it('parses a server string as char-code-per-byte', () => {
+		fixture.componentRef.setInput('value', 'Hel');
 		fixture.detectChanges();
-		expect(component.displayText()).toBe('abcdef');
-	});
-
-	it('truncates long hex at 20 chars', () => {
-		const longHex = 'a'.repeat(30);
-		fixture.componentRef.setInput('value', longHex);
-		fixture.detectChanges();
-		expect(component.displayText()).toBe('a'.repeat(20) + '\u2026');
-	});
-
-	it('converts Buffer-JSON to hex', () => {
-		fixture.componentRef.setInput('value', { type: 'Buffer', data: [0x48, 0x65, 0x6c] });
-		fixture.detectChanges();
+		expect(component.bytes()).toEqual([0x48, 0x65, 0x6c]);
 		expect(component.hexValue()).toBe('48656c');
 	});
 
-	it('exposes the full hex via hexValue', () => {
-		const longHex = 'a'.repeat(60);
-		fixture.componentRef.setInput('value', longHex);
+	it('parses a Buffer-JSON value to a byte array', () => {
+		fixture.componentRef.setInput('value', { type: 'Buffer', data: [0x48, 0x65, 0x6c] });
 		fixture.detectChanges();
-		expect(component.hexValue()).toBe(longHex);
+		expect(component.bytes()).toEqual([0x48, 0x65, 0x6c]);
+		expect(component.hexValue()).toBe('48656c');
+	});
+
+	it('truncates long hex at 20 chars', () => {
+		fixture.componentRef.setInput('value', '\u00aa'.repeat(30));
+		fixture.detectChanges();
+		expect(component.displayText()).toBe('aa'.repeat(10) + '\u2026');
 	});
 });

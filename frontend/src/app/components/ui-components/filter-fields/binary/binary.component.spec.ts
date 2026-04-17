@@ -26,10 +26,16 @@ describe('BinaryFilterComponent', () => {
 		expect(component.hexValue).toBe('');
 	});
 
-	it('populates hexValue from the @Input value on init', () => {
+	it('normalizes the incoming hex value through bytes on init', () => {
 		component.value = '48656c6c6f';
 		component.ngOnInit();
 		expect(component.hexValue).toBe('48656c6c6f');
+	});
+
+	it('drops a malformed incoming hex value to empty on init', () => {
+		component.value = 'zz';
+		component.ngOnInit();
+		expect(component.hexValue).toBe('');
 	});
 
 	it('emits the hex string and current comparator on hex change', () => {
