@@ -611,11 +611,17 @@ export class DbTableRowEditComponent implements OnInit {
 	}
 
 	updateField = (updatedValue: any, field: string) => {
-		if (typeof updatedValue === 'object' && updatedValue !== null) {
-			for (const prop of Object.getOwnPropertyNames(this.tableRowValues[field])) {
-				delete this.tableRowValues[field][prop];
+		const existing = this.tableRowValues[field];
+		if (
+			typeof updatedValue === 'object' &&
+			updatedValue !== null &&
+			typeof existing === 'object' &&
+			existing !== null
+		) {
+			for (const prop of Object.getOwnPropertyNames(existing)) {
+				delete existing[prop];
 			}
-			Object.assign(this.tableRowValues[field], updatedValue);
+			Object.assign(existing, updatedValue);
 		} else {
 			this.tableRowValues[field] = updatedValue;
 		}

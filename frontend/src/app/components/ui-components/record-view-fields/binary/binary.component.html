@@ -1,0 +1,14 @@
+<div class="binary-view">
+    <span class="field-view-value binary-view-value"
+        [matTooltip]="isTruncated() ? hexValue() : ''"
+        matTooltipPosition="above">{{ displayText() }}</span>
+    @if (hexValue()) {
+        <button type="button" mat-icon-button
+            class="binary-view-copy"
+            matTooltip="Copy hex"
+            [cdkCopyToClipboard]="hexValue()"
+            (cdkCopyToClipboardCopied)="onCopyToClipboard.emit('Binary data was copied to clipboard.')">
+            <mat-icon>content_copy</mat-icon>
+        </button>
+    }
+</div>

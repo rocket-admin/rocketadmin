@@ -11,22 +11,24 @@ import { ExceptionOperations } from '../../../exceptions/custom-exceptions/excep
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { compareArrayElements } from '../../../helpers/index.js';
+import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { buildActionEventDto } from '../../table-actions/table-action-rules-module/utils/build-found-action-event-dto.util.js';
 import { GetRowByPrimaryKeyDs } from '../application/data-structures/get-row-by-primary-key.ds.js';
 import { ReferencedTableNamesAndColumnsDs, TableRowRODs } from '../table-datastructures.js';
-import { convertBinaryDataInRowUtil } from '../utils/convert-binary-data-in-row.util.js';
+import { attachForeignColumnNames } from '../utils/attach-foreign-column-names.util.js';
+import { buildTableSettingsForResponse } from '../utils/build-table-settings-for-response.util.js';
 import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util.js';
-import { findAvailableFields } from '../utils/find-available-fields.utils.js';
-import { formFullTableStructure } from '../utils/form-full-table-structure.js';
-import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util.js';
-import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
-import { IGetRowByPrimaryKey } from './table-use-cases.interface.js';
-import { validateConnection, getUserEmailForAgent } from '../utils/validate-connection.util.js';
 import { extractForeignKeysFromWidgets } from '../utils/extract-foreign-keys-from-widgets.util.js';
 import { filterForeignKeysByReadPermission } from '../utils/filter-foreign-keys-by-permission.util.js';
-import { attachForeignColumnNames } from '../utils/attach-foreign-column-names.util.js';
-import { filterReferencedTablesByPermission, enrichReferencedTablesWithDisplayNames } from '../utils/process-referenced-tables.util.js';
-import { buildTableSettingsForResponse } from '../utils/build-table-settings-for-response.util.js';
+import { findAvailableFields } from '../utils/find-available-fields.utils.js';
+import { formFullTableStructure } from '../utils/form-full-table-structure.js';
+import {
+	enrichReferencedTablesWithDisplayNames,
+	filterReferencedTablesByPermission,
+} from '../utils/process-referenced-tables.util.js';
+import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util.js';
+import { getUserEmailForAgent, validateConnection } from '../utils/validate-connection.util.js';
+import { IGetRowByPrimaryKey } from './table-use-cases.interface.js';
 
 @Injectable()
 export class GetRowByPrimaryKeyUseCase
@@ -102,7 +104,11 @@ export class GetRowByPrimaryKeyUseCase
 
 		tableForeignKeys = tableForeignKeys.concat(foreignKeysFromWidgets);
 		tableForeignKeys = await filterForeignKeysByReadPermission(
-			tableForeignKeys, userId, connectionId, masterPwd, this.cedarPermissions,
+			tableForeignKeys,
+			userId,
+			connectionId,
+			masterPwd,
+			this.cedarPermissions,
 		);
 
 		let foreignKeysWithAutocompleteColumns: Array<ForeignKeyWithAutocompleteColumnsDS> = [];
@@ -110,7 +116,10 @@ export class GetRowByPrimaryKeyUseCase
 			foreignKeysWithAutocompleteColumns = await Promise.all(
 				tableForeignKeys.map((el) =>
 					attachForeignColumnNames(
-						el, userEmail, connectionId, dao,
+						el,
+						userEmail,
+						connectionId,
+						dao,
 						this._dbContext.tableSettingsRepository.findTableSettings.bind(this._dbContext.tableSettingsRepository),
 					).catch(() => el as ForeignKeyWithAutocompleteColumnsDS),
 				),
@@ -133,10 +142,15 @@ export class GetRowByPrimaryKeyUseCase
 			);
 		}
 		rowData = removePasswordsFromRowsUtil(rowData, tableWidgets);
-		rowData = convertBinaryDataInRowUtil(rowData, tableStructure);
 		const formedTableStructure = formFullTableStructure(tableStructure, tableSettings);
 
-		await filterReferencedTablesByPermission(referencedTableNamesAndColumns, userId, connectionId, masterPwd, this.cedarPermissions);
+		await filterReferencedTablesByPermission(
+			referencedTableNamesAndColumns,
+			userId,
+			connectionId,
+			masterPwd,
+			this.cedarPermissions,
+		);
 		const referencedTableNamesAndColumnsWithTablesDisplayNames = await enrichReferencedTablesWithDisplayNames(
 			referencedTableNamesAndColumns,
 			connectionId,

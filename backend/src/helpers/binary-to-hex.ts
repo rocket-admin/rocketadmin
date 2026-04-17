@@ -20,6 +20,19 @@ export function hexToBinary(hexSource: string): Buffer {
 	return Buffer.from(hexSource, 'hex');
 }
 
+export function toBinaryBuffer(value: unknown): Buffer {
+	if (Buffer.isBuffer(value)) return value;
+	if (value instanceof Uint8Array) return Buffer.from(value);
+	if (typeof value === 'string') return hexToBinary(value);
+	if (value && typeof value === 'object') {
+		const v = value as { type?: string; data?: unknown };
+		if (v.type === 'Buffer' && Array.isArray(v.data)) return Buffer.from(v.data as number[]);
+		if (Array.isArray(v.data)) return Buffer.from(v.data as number[]);
+		return Buffer.from(Object.values(value as Record<string, number>));
+	}
+	return hexToBinary(String(value));
+}
+
 export function isBinary(type: string): boolean {
 	return Constants.BINARY_DATATYPES.includes(type.toLowerCase());
 }

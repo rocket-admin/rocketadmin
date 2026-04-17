@@ -1,0 +1,11 @@
+.binary-view {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.binary-view-value {
+	font-family: monospace;
+	font-size: 13px;
+	word-break: break-all;
+}
