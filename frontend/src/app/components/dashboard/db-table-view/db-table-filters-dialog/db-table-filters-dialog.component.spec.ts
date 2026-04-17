@@ -111,7 +111,11 @@ describe('DbTableFiltersDialogComponent', () => {
 		await fixture.whenStable();
 
 		expect(component.tableForeignKeys).toEqual(mockStructureForFilterDialog.foreignKeys);
-		expect(component.fields).toEqual(['FirstName', 'Id', 'bool']);
+		expect(component.fields).toEqual([
+			{ key: 'FirstName', label: 'FirstName' },
+			{ key: 'Id', label: 'Id' },
+			{ key: 'bool', label: 'bool' },
+		]);
 		expect(component.tableRowStructure).toEqual({
 			FirstName: fakeFirstName,
 			Id: fakeId,
@@ -178,5 +182,68 @@ describe('DbTableFiltersDialogComponent', () => {
 	it('should return nonComparable type of comparator select if data type neither text nor number', () => {
 		const comparatorType = component.getComparatorType(undefined);
 		expect(comparatorType).toEqual('nonComparable');
+	});
+
+	it('should receive comparator from EmailFilterComponent after it renders', async () => {
+		component.setWidgets([
+			{
+				field_name: 'FirstName',
+				widget_type: 'Email',
+				widget_params: '// No settings required',
+				name: '',
+				description: '',
+			},
+		]);
+
+		component.addFilter({ option: { value: 'FirstName' } });
+
+		// Default comparator is 'eq' from addFilter
+		expect(component.tableRowFieldsComparator['FirstName']).toEqual('eq');
+
+		// Trigger change detection so ndc-dynamic renders EmailFilterComponent
+		fixture.detectChanges();
+		await fixture.whenStable();
+
+		// EmailFilterComponent emits 'eq' (default mode) in ngAfterViewInit,
+		// which updateComparatorFromComponent receives
+		expect(component.tableRowFieldsComparator['FirstName']).toEqual('eq');
+	});
+
+	it('should recognize widgets when passed as object (real app format)', () => {
+		const widgetsObject = {
+			FirstName: {
+				field_name: 'FirstName',
+				widget_type: 'Email',
+				widget_params: {},
+				name: '',
+				description: '',
+			},
+		};
+
+		component.data.structure.widgets = widgetsObject;
+		component.ngOnInit();
+
+		expect(component.isWidget('FirstName')).toBe(true);
+	});
+
+	it('should report fields with active filters as already filtered', () => {
+		component.tableRowFieldsShown = { FirstName: 'John' };
+		expect(component.isFieldAlreadyFiltered('FirstName')).toBe(true);
+		expect(component.isFieldAlreadyFiltered('Id')).toBe(false);
+	});
+
+	it('should use widget name as field label when widget has a name', () => {
+		component.data.structure.widgets = {
+			FirstName: {
+				field_name: 'FirstName',
+				widget_type: 'Email',
+				widget_params: {},
+				name: 'Customer Email',
+				description: '',
+			},
+		};
+		component.ngOnInit();
+
+		expect(component.fields).toEqual(expect.arrayContaining([{ key: 'FirstName', label: 'Customer Email' }]));
 	});
 });

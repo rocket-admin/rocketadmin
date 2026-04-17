@@ -1,0 +1,19 @@
+<div class="filter-row">
+    <mat-form-field class="comparator-field" appearance="outline">
+        <mat-select [(ngModel)]="comparator" (ngModelChange)="onComparatorSelect($event)">
+            @for (option of comparatorOptions; track option.value) {
+                <mat-option [value]="option.value">{{ option.label }}</mat-option>
+            }
+        </mat-select>
+    </mat-form-field>
+
+    <div class="value-field">
+        <ndc-dynamic
+            [ndcDynamicComponent]="valueComponent"
+            [ndcDynamicInputs]="innerInputs"
+            [ndcDynamicOutputs]="{
+                onFieldChange: { handler: onValueChange, args: ['$event'] }
+            }"
+        ></ndc-dynamic>
+    </div>
+</div>

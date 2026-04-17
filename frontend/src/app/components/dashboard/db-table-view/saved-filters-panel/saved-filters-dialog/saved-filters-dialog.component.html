@@ -90,6 +90,7 @@
                     <mat-icon>close</mat-icon>
                 </button>
                 <div *ngIf="getComparatorType(getInputType(value.key)) === 'nonComparable'; else comparableFilter" class="filter-line">
+                    <span class='mat-body-1 column-name'>{{value.key}}</span>
 
                     <div *ngIf="isWidget(value.key); else defaultTableField">
                         <ndc-dynamic [ndcDynamicComponent]="tableWidgets[value.key].widget_type ? UIwidgets[tableWidgets[value.key].widget_type] : inputs[tableTypes[value.key]]"
@@ -101,7 +102,8 @@
                                 relations: tableTypes[value.key] === 'foreign key' ? data.tableForeignKeys[value.key] : undefined
                             }"
                             [ndcDynamicOutputs]="{
-                                onFieldChange: { handler: updateField, args: ['$event', value.key] }
+                                onFieldChange: { handler: updateField, args: ['$event', value.key] },
+                                onComparatorChange: { handler: updateComparatorFromComponent, args: ['$event', value.key] }
                             }"
                         ></ndc-dynamic>
                     </div>
@@ -116,7 +118,8 @@
                                 relations: tableTypes[value.key] === 'foreign key' ? data.tableForeignKeys[value.key] : undefined
                             }"
                             [ndcDynamicOutputs]="{
-                                onFieldChange: { handler: updateField, args: ['$event', value.key] }
+                                onFieldChange: { handler: updateField, args: ['$event', value.key] },
+                                onComparatorChange: { handler: updateComparatorFromComponent, args: ['$event', value.key] }
                             }"
                         ></ndc-dynamic>
                     </ng-template>
@@ -197,7 +200,8 @@
                             relations: tableTypes[value.key] === 'foreign key' ? data.tableForeignKeys[value.key] : undefined
                         }"
                         [ndcDynamicOutputs]="{
-                            onFieldChange: { handler: updateField, args: ['$event', value.key] }
+                            onFieldChange: { handler: updateField, args: ['$event', value.key] },
+                            onComparatorChange: { handler: updateComparatorFromComponent, args: ['$event', value.key] }
                         }"
                     ></ndc-dynamic>
                 </ng-template>
@@ -259,7 +263,7 @@
             (click)="removeFilters()">
             Remove
         </button>
-        <button mat-flat-button mat-dialog-close>
+        <button mat-flat-button mat-dialog-close type="button">
             Cancel
         </button>
         <button mat-flat-button color="primary" type="submit">

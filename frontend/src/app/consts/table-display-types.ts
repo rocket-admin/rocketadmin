@@ -56,6 +56,7 @@ export const UIwidgets = {
 	URL: UrlDisplayComponent,
 	UUID: UuidDisplayComponent,
 	S3: S3DisplayComponent,
+	Email: TextDisplayComponent,
 };
 
 export const tableDisplayTypes = {

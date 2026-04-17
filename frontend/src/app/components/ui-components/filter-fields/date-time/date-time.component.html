@@ -1,18 +1,37 @@
-<div class="field-couple">
-    <mat-form-field class="" appearance="outline">
-        <mat-label>{{normalizedLabel}} (date)</mat-label>
-        <input type="date" matInput name="{{label}}-{{key}}-date"
-            #inputElement
-            [required]="required" [disabled]="disabled" [readonly]="readonly"
-            attr.data-testid="record-{{label}}-date"
-            [(ngModel)]="date" (change)="onDateChange()">
+<div class="filter-row">
+    <mat-form-field class="comparator-field" appearance="outline">
+        <mat-select [(ngModel)]="filterMode" (ngModelChange)="onFilterModeChange($event)">
+            <mat-option value="last_hour">last hour</mat-option>
+            <mat-option value="last_day">last day</mat-option>
+            <mat-option value="last_week">last week</mat-option>
+            <mat-option value="last_month">last month</mat-option>
+            <mat-option value="last_year">last year</mat-option>
+            <mat-option value="eq">on</mat-option>
+            <mat-option value="gt">after</mat-option>
+            <mat-option value="lt">before</mat-option>
+            <mat-option value="gte">on or after</mat-option>
+            <mat-option value="lte">on or before</mat-option>
+        </mat-select>
     </mat-form-field>
 
-    <mat-form-field class="" appearance="outline">
-        <mat-label>{{normalizedLabel}} (time)</mat-label>
-        <input type="time" matInput name="{{label}}-{{key}}-time"
-            [required]="required" [disabled]="disabled" [readonly]="readonly"
-            attr.data-testid="record-{{label}}-time"
-            [(ngModel)]="time" (change)="onTimeChange()">
-    </mat-form-field>
+    @if (!isPresetMode()) {
+        <div class="value-field field-couple">
+            <mat-form-field appearance="outline">
+                <mat-label>{{normalizedLabel()}} (date)</mat-label>
+                <input type="date" matInput name="{{label()}}-{{key()}}-date"
+                    #inputElement
+                    [required]="required()" [disabled]="disabled()" [readonly]="readonly()"
+                    attr.data-testid="record-{{label()}}-date"
+                    [(ngModel)]="date" (change)="onDateChange()">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>{{normalizedLabel()}} (time)</mat-label>
+                <input type="time" matInput name="{{label()}}-{{key()}}-time"
+                    [required]="required()" [disabled]="disabled()" [readonly]="readonly()"
+                    attr.data-testid="record-{{label()}}-time"
+                    [(ngModel)]="time" (change)="onTimeChange()">
+            </mat-form-field>
+        </div>
+    }
 </div>

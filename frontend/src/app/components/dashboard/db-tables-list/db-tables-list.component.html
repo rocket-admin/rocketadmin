@@ -39,22 +39,23 @@
 
                 <!-- Collapsed table list for any folder -->
                 <div *ngIf="showCollapsedTableList" class="collapsed-tables-list">
-                    <a *ngFor="let tableItem of getCollapsedTableList()"
-                        class="collapsed-table-item"
-                        routerLink="/dashboard/{{connectionID}}/{{tableItem.table}}"
-                        [queryParams]="{page_index: 0, page_size: 30}"
-                        [ngClass]="{'collapsed-table-item_active': selectedTable === tableItem.table}"
+                    <div *ngFor="let tableItem of getCollapsedTableList()"
                         [matTooltip]="getTableName(tableItem)"
-                        matTooltipPosition="right"
-                        (click)="closeSidebar()">
-                        <!-- Show icon if available, otherwise show initials -->
-                        <mat-icon *ngIf="tableItem.icon; else tableNameInitials" class="table-list-icon">
-                            {{tableItem.icon}}
-                        </mat-icon>
-                        <ng-template #tableNameInitials>
-                            {{tableItem.initials}}
-                        </ng-template>
-                    </a>
+                        matTooltipPosition="right">
+                        <a class="collapsed-table-item"
+                            routerLink="/dashboard/{{connectionID}}/{{tableItem.table}}"
+                            [queryParams]="{page_index: 0, page_size: 30}"
+                            [ngClass]="{'collapsed-table-item_active': selectedTable === tableItem.table}"
+                            (click)="closeSidebar()">
+                            <!-- Show icon if available, otherwise show initials -->
+                            <mat-icon *ngIf="tableItem.icon; else tableNameInitials" class="table-list-icon">
+                                {{tableItem.icon}}
+                            </mat-icon>
+                            <ng-template #tableNameInitials>
+                                {{tableItem.initials}}
+                            </ng-template>
+                        </a>
+                    </div>
                 </div>
             </div>
 
@@ -110,7 +111,9 @@
                                     class="material-symbols-outlined folder-icon"
                                     [style.color]="folder.iconColor || null">folder</span>
 
-                                <div class="folder-name">
+                                <div class="folder-name"
+                                    [matTooltip]="folder.name"
+                                    [matTooltipDisabled]="folder.name.length <= 18">
                                     {{folder.name}}
                                 </div>
 
@@ -148,6 +151,8 @@
                                     (cdkDropListDropped)="onTableReorder($event, folder)">
                                     <div *ngFor="let table of getFolderTables(folder)"
                                         class="selected-table-item"
+                                        [matTooltip]="getTableName(table)"
+                                        [matTooltipDisabled]="getTableNameLength(getTableName(table)) <= 18"
                                         cdkDrag
                                         [cdkDragDisabled]="!isReorderingEnabled(folder)">
                                         <mat-icon *ngIf="isReorderingEnabled(folder)"
