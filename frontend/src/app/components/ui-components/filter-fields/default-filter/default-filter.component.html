@@ -7,13 +7,43 @@
         </mat-select>
     </mat-form-field>
 
-    <div class="value-field">
-        <ndc-dynamic
-            [ndcDynamicComponent]="valueComponent"
-            [ndcDynamicInputs]="innerInputs"
-            [ndcDynamicOutputs]="{
-                onFieldChange: { handler: onValueChange, args: ['$event'] }
-            }"
-        ></ndc-dynamic>
-    </div>
+    @if (comparator === 'in') {
+        <mat-form-field class="value-field" appearance="outline">
+            <mat-label>{{ normalizedLabel() }} (comma-separated)</mat-label>
+            <input matInput
+                name="{{ label() }}-{{ key() }}-in"
+                placeholder="value1, value2, value3"
+                [required]="required()"
+                [disabled]="disabled()"
+                [(ngModel)]="inValueText"
+                (ngModelChange)="onInTextChange($event)">
+        </mat-form-field>
+    } @else if (comparator === 'between') {
+        <div class="value-field between-fields">
+            <ndc-dynamic
+                [ndcDynamicComponent]="valueComponent"
+                [ndcDynamicInputs]="lowerInputs"
+                [ndcDynamicOutputs]="{
+                    onFieldChange: { handler: onBetweenLowerChange, args: ['$event'] }
+                }"
+            ></ndc-dynamic>
+            <ndc-dynamic
+                [ndcDynamicComponent]="valueComponent"
+                [ndcDynamicInputs]="upperInputs"
+                [ndcDynamicOutputs]="{
+                    onFieldChange: { handler: onBetweenUpperChange, args: ['$event'] }
+                }"
+            ></ndc-dynamic>
+        </div>
+    } @else {
+        <div class="value-field">
+            <ndc-dynamic
+                [ndcDynamicComponent]="valueComponent"
+                [ndcDynamicInputs]="innerInputs"
+                [ndcDynamicOutputs]="{
+                    onFieldChange: { handler: onValueChange, args: ['$event'] }
+                }"
+            ></ndc-dynamic>
+        </div>
+    }
 </div>

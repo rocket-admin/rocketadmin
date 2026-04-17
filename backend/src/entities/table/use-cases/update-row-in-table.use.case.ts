@@ -6,39 +6,34 @@ import { buildDAOsTableSettingsDs } from '@rocketadmin/shared-code/dist/src/help
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import {
-	AmplitudeEventTypeEnum,
-	LogOperationTypeEnum,
-	OperationResultStatusEnum,
-} from '../../../enums/index.js';
+import { AmplitudeEventTypeEnum, LogOperationTypeEnum, OperationResultStatusEnum } from '../../../enums/index.js';
 import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import {
-	compareArrayElements,
-	isObjectEmpty,
-	toPrettyErrorsMsg,
-} from '../../../helpers/index.js';
+import { compareArrayElements, isObjectEmpty, toPrettyErrorsMsg } from '../../../helpers/index.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
+import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util.js';
 import { TableActionActivationService } from '../../table-actions/table-actions-module/table-action-activation.service.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { UpdateRowInTableDs } from '../application/data-structures/update-row-in-table.ds.js';
 import { ReferencedTableNamesAndColumnsDs, TableRowRODs } from '../table-datastructures.js';
-import { convertBinaryDataInRowUtil } from '../utils/convert-binary-data-in-row.util.js';
-import { formFullTableStructure } from '../utils/form-full-table-structure.js';
-import { hashPasswordsInRowUtil } from '../utils/hash-passwords-in-row.util.js';
-import { processUuidsInRowUtil } from '../utils/process-uuids-in-row-util.js';
-import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util.js';
-import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
-import { IUpdateRowInTable } from './table-use-cases.interface.js';
-import { validateConnection, getUserEmailForAgent } from '../utils/validate-connection.util.js';
+import { attachForeignColumnNames } from '../utils/attach-foreign-column-names.util.js';
+import { buildTableSettingsForResponse } from '../utils/build-table-settings-for-response.util.js';
+import { convertHexDataInRowUtil } from '../utils/convert-hex-data-in-row.util.js';
 import { extractForeignKeysFromWidgets } from '../utils/extract-foreign-keys-from-widgets.util.js';
 import { filterForeignKeysByReadPermission } from '../utils/filter-foreign-keys-by-permission.util.js';
-import { attachForeignColumnNames } from '../utils/attach-foreign-column-names.util.js';
-import { filterReferencedTablesByPermission, enrichReferencedTablesWithDisplayNames } from '../utils/process-referenced-tables.util.js';
-import { buildTableSettingsForResponse } from '../utils/build-table-settings-for-response.util.js';
+import { formFullTableStructure } from '../utils/form-full-table-structure.js';
+import { hashPasswordsInRowUtil } from '../utils/hash-passwords-in-row.util.js';
+import {
+	enrichReferencedTablesWithDisplayNames,
+	filterReferencedTablesByPermission,
+} from '../utils/process-referenced-tables.util.js';
+import { processUuidsInRowUtil } from '../utils/process-uuids-in-row-util.js';
+import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util.js';
+import { getUserEmailForAgent, validateConnection } from '../utils/validate-connection.util.js';
+import { IUpdateRowInTable } from './table-use-cases.interface.js';
 
 @Injectable()
 export class UpdateRowInTableUseCase
@@ -101,7 +96,13 @@ export class UpdateRowInTableUseCase
 
 		const builtDAOsTableSettings = buildDAOsTableSettingsDs(tableSettings, personalTableSettings);
 
-		await filterReferencedTablesByPermission(referencedTableNamesAndColumns, userId, connectionId, masterPwd, this.cedarPermissions);
+		await filterReferencedTablesByPermission(
+			referencedTableNamesAndColumns,
+			userId,
+			connectionId,
+			masterPwd,
+			this.cedarPermissions,
+		);
 		const referencedTableNamesAndColumnsWithTablesDisplayNames = await enrichReferencedTablesWithDisplayNames(
 			referencedTableNamesAndColumns,
 			connectionId,
@@ -132,14 +133,21 @@ export class UpdateRowInTableUseCase
 
 		let foreignKeysWithAutocompleteColumns: Array<ForeignKeyWithAutocompleteColumnsDS> = [];
 		tableForeignKeys = await filterForeignKeysByReadPermission(
-			tableForeignKeys, userId, connectionId, masterPwd, this.cedarPermissions,
+			tableForeignKeys,
+			userId,
+			connectionId,
+			masterPwd,
+			this.cedarPermissions,
 		);
 
 		if (tableForeignKeys && tableForeignKeys.length > 0) {
 			foreignKeysWithAutocompleteColumns = await Promise.all(
 				tableForeignKeys.map((el) =>
 					attachForeignColumnNames(
-						el, userEmail, connectionId, dao,
+						el,
+						userEmail,
+						connectionId,
+						dao,
 						this._dbContext.tableSettingsRepository.findTableSettings.bind(this._dbContext.tableSettingsRepository),
 					).catch(() => el as ForeignKeyWithAutocompleteColumnsDS),
 				),
@@ -196,11 +204,11 @@ export class UpdateRowInTableUseCase
 		try {
 			row = await hashPasswordsInRowUtil(row, tableWidgets);
 			row = processUuidsInRowUtil(row, tableWidgets);
+			row = convertHexDataInRowUtil(row, tableStructure);
 			await dao.updateRowInTable(tableName, row, primaryKey, userEmail);
 			operationResult = OperationResultStatusEnum.successfully;
 			let updatedRow = await dao.getRowByPrimaryKey(tableName, futurePrimaryKey, builtDAOsTableSettings, userEmail);
 			updatedRow = removePasswordsFromRowsUtil(updatedRow, tableWidgets);
-			updatedRow = convertBinaryDataInRowUtil(updatedRow, tableStructure);
 			return {
 				row: updatedRow,
 				foreignKeys: foreignKeysWithAutocompleteColumns,
@@ -252,5 +260,4 @@ export class UpdateRowInTableUseCase
 			);
 		}
 	}
-
 }

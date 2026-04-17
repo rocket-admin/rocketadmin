@@ -14,3 +14,18 @@
 	flex: 1;
 	min-width: 0;
 }
+
+.between-fields {
+	display: flex;
+	gap: 8px;
+	align-items: flex-start;
+}
+
+.between-fields ::ng-deep > ndc-dynamic {
+	flex: 1;
+	min-width: 0;
+}
+
+.between-fields ::ng-deep mat-form-field {
+	width: 100%;
+}
