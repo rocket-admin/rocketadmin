@@ -19,10 +19,10 @@ export class GetHostedConnectionCredentialsUseCase
 		super();
 	}
 
-	protected async implementation(
-		inputData: GetHostedConnectionCredentialsDto,
-	): Promise<HostedConnectionCredentialsRO> {
-		const connection = await this._dbContext.connectionRepository.findOneById(inputData.hostedDatabaseId);
+	protected async implementation(inputData: GetHostedConnectionCredentialsDto): Promise<HostedConnectionCredentialsRO> {
+		const connection = await this._dbContext.connectionRepository.findOne({
+			where: { id: inputData.hostedDatabaseId },
+		});
 		if (!connection) {
 			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
 		}
