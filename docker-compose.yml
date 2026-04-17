@@ -95,10 +95,17 @@ services:
   rocketadmin-private-microservice:
     build:
       context: ../rocketadmin-saas
-      dockerfile: ../rocketadmin-saas/Dockerfile
+      dockerfile: Dockerfile.test
     ports:
       - 3001:3001
     env_file: ../rocketadmin-saas/.env
+    environment:
+      # Path to the Go proxy's contract fixture (mounted below). Lets the
+      # SaaS contract test find it regardless of on-disk layout.
+      PROXY_CONTRACT_FIXTURE: /contract/fixtures.json
+    volumes:
+      # Shared wire-contract source of truth with the Go postgres-proxy.
+      - ../postgres-proxy/contract:/contract:ro
     links:
       - backend
       - rocketadmin-private-microservice-test-database
