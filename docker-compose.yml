@@ -37,7 +37,7 @@ services:
       - test-cassandra-e2e-testing
       - test-redis-e2e-testing
       - clickhouse-e2e-testing
-    command: ["yarn", "start"]
+    command: ["pnpm", "start"]
 
   testMySQL-e2e-testing:
     image: mysql:8.0.23
@@ -104,7 +104,7 @@ services:
       - rocketadmin-private-microservice-test-database
     depends_on:
       - rocketadmin-private-microservice-test-database
-    command: ["yarn", "start"]
+    command: ["pnpm", "start"]
 
   rocketadmin-private-microservice-test-database:
     image: postgres
@@ -252,7 +252,7 @@ services:
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.mongodb_test_agent_config.txt
-    command: ["yarn", "start:dev"]
+    command: ["pnpm", "start:dev"]
 
   rocketadmin-agent_ibmdb2:
     build:
@@ -290,7 +290,7 @@ services:
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.oracle_test_agent_config.txt
-    command: ["yarn", "start:dev"]
+    command: ["pnpm", "start:dev"]
 
   rocketadmin-agent_postgres:
     build:
@@ -308,7 +308,7 @@ services:
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.postgres_test_agent_config.txt
-    command: ["yarn", "start:dev"]
+    command: ["pnpm", "start:dev"]
 
   rocketadmin-agent_mysql:
     build:
@@ -326,7 +326,7 @@ services:
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.mysql_test_agent_config.txt
-    command: ["yarn", "start:dev"]
+    command: ["pnpm", "start:dev"]
 
   rocketadmin-agent_mssql:
     build:
@@ -344,7 +344,7 @@ services:
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.mssql_test_agent_config.txt
-    command: ["yarn", "start:dev"]
+    command: ["pnpm", "start:dev"]
 
   rocketadmin-agent_cassandra:
     build:
@@ -368,7 +368,7 @@ services:
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.cassandra_test_agent_config.txt
-    command: ["yarn", "start:dev"]
+    command: ["pnpm", "start:dev"]
 
   rocketadmin-agent_redis:
     build:
@@ -388,7 +388,7 @@ services:
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.redis_test_agent_config.txt
-    command: ["yarn", "start:dev"]
+    command: ["pnpm", "start:dev"]
 
   rocketadmin-agent_clickhouse:
     build:
@@ -408,4 +408,4 @@ services:
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.clickhouse_test_agent_config.txt
-    command: ["yarn", "start:dev"]
+    command: ["pnpm", "start:dev"]

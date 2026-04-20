@@ -2,13 +2,15 @@ FROM node:24-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json yarn.lock ./
-RUN yarn install
+RUN npm install -g pnpm@10.33.0
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN pnpm install --frozen-lockfile
 
 COPY tsconfig.json ./
 COPY src ./src
 
-RUN yarn build
+RUN pnpm build
 
 FROM node:24-alpine
 
@@ -17,8 +19,10 @@ WORKDIR /app
 RUN addgroup -g 1001 -S nodejs && \
   adduser -S nodejs -u 1001
 
-COPY package.json yarn.lock ./
-RUN yarn install --production && yarn cache clean
+RUN npm install -g pnpm@10.33.0
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN pnpm install --prod --frozen-lockfile
 
 COPY --from=builder /app/dist ./dist
 

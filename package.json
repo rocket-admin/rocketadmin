@@ -1,18 +1,9 @@
 {
 	"name": "root",
 	"private": true,
-	"workspaces": [
-		"backend",
-		"rocketadmin-agent",
-		"shared-code"
-	],
-	"packageManager": "yarn@3.4.1",
+	"packageManager": "pnpm@10.33.0",
 	"dependencies": {
 		"monaco-editor": "^0.53.0"
-	},
-	"resolutions": {
-		"cipher-base": "1.0.7",
-		"tar-fs": "1.16.6"
 	},
 	"scripts": {
 		"lint": "biome lint",
@@ -26,6 +17,27 @@
 	"lint-staged": {
 		"*.{js,ts,jsx,tsx,json,html,css}": [
 			"biome check --write"
+		]
+	},
+	"pnpm": {
+		"overrides": {
+			"cipher-base": "1.0.7",
+			"tar-fs": "1.16.6"
+		},
+		"packageExtensions": {
+			"ibm_db": {
+				"dependencies": {
+					"node-gyp": "^11.5.0"
+				}
+			}
+		},
+		"onlyBuiltDependencies": [
+			"argon2",
+			"bcrypt",
+			"cpu-features",
+			"ibm_db",
+			"oracledb",
+			"ssh2"
 		]
 	}
 }

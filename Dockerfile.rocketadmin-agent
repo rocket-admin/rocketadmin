@@ -5,13 +5,13 @@ RUN groupadd -r -g 1001 appuser && useradd -r -u 1001 -g appuser -d /app -s /sbi
 WORKDIR /app
 RUN apt-get update && apt-get install -y netcat-openbsd make gcc g++ python3 libxml2
 
-COPY package.json .yarnrc.yml yarn.lock /app/
+RUN npm install -g pnpm@10.33.0
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc /app/
 COPY shared-code /app/shared-code
 COPY rocketadmin-agent /app/rocketadmin-agent
-COPY .yarn /app/.yarn
-RUN yarn install --network-timeout 1000000
+RUN pnpm install --frozen-lockfile
 RUN cd shared-code && ../node_modules/.bin/tsc
-RUN cd rocketadmin-agent && yarn run build
+RUN cd rocketadmin-agent && pnpm run build
 
 RUN chown -R appuser:appuser /app
 

@@ -3,6 +3,7 @@
 	"version": "1.0.0",
 	"type": "module",
 	"license": "UNLICENSED",
+	"packageManager": "pnpm@10.33.0",
 	"scripts": {
 		"dev": "tsx watch src/index.ts",
 		"build": "tsc",
@@ -27,5 +28,10 @@
 		"@types/ws": "^8.18.1",
 		"tsx": "^4.21.0",
 		"typescript": "^5.9.3"
+	},
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"esbuild"
+		]
 	}
 }
