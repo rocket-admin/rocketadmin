@@ -1,6 +1,6 @@
 import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
-import { Component, ComponentRef, DoCheck, NgZone, OnDestroy, OnInit, Type, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, DoCheck, NgZone, OnInit, Type } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -13,6 +13,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { Router, RouterModule } from '@angular/router';
+import { DynamicAttributesDirective, DynamicModule } from 'ng-dynamic-component';
 import { Angulartics2, Angulartics2Module } from 'angulartics2';
 import * as ipaddr from 'ipaddr.js';
 import posthog from 'posthog-js';
@@ -70,12 +71,12 @@ import { RedisCredentialsFormComponent } from './db-credentials-forms/redis-cred
 		AlertComponent,
 		Angulartics2Module,
 		ConnectionStringValidatorDirective,
+		DynamicModule,
+		DynamicAttributesDirective,
 	],
 })
-export class ConnectDBComponent implements OnInit, DoCheck, OnDestroy {
+export class ConnectDBComponent implements OnInit, DoCheck {
 	protected posthog = posthog;
-
-	@ViewChild('credentialsFormContainer', { read: ViewContainerRef }) credentialsFormContainer: ViewContainerRef;
 
 	public isSaas = (environment as any).saas;
 	public connectionID: string | null = null;
@@ -458,11 +459,7 @@ export class ConnectDBComponent implements OnInit, DoCheck, OnDestroy {
 	}
 
 	ngDoCheck() {
-		this._updateCredentialsForm();
-	}
-
-	ngOnDestroy() {
-		this._destroyCredentialsForm();
+		this._updateCredentialsFormInputs();
 	}
 
 	applyConnectionString() {
@@ -518,59 +515,28 @@ export class ConnectDBComponent implements OnInit, DoCheck, OnDestroy {
 		return provider;
 	}
 
-	private _credentialsFormRef: ComponentRef<BaseCredentialsFormComponent> | null = null;
-	private _credentialsFormType: Type<BaseCredentialsFormComponent> | null = null;
-	private _outputSubscriptions: { switchToAgent?: any; masterKeyChange?: any } = {};
+	public credentialsFormComponent: Type<BaseCredentialsFormComponent> | null = null;
+	public credentialsFormInputs: Record<string, any> = {};
+	public credentialsFormOutputs: Record<string, any> = {
+		switchToAgent: () => this.switchToAgent(),
+		masterKeyChange: (key: string) => this.handleMasterKeyChange(key),
+	};
+	public credentialsFormAttributes: Record<string, string> = { class: 'credentials-fieldset' };
 
-	private _updateCredentialsForm() {
-		if (!this.credentialsFormContainer) {
-			return;
-		}
-
+	private _updateCredentialsFormInputs() {
 		const isConnectionStringMode = this.connectionInputMode === 'connectionString' && this.db.connectionType === 'direct' && !this.db.id;
 		const targetType = (!isConnectionStringMode && this.db.connectionType === 'direct' && this.credentialsFormMap[this.db.type]) || null;
 
-		if (targetType !== this._credentialsFormType) {
-			this._destroyCredentialsForm();
+		this.credentialsFormComponent = targetType;
 
-			if (targetType) {
-				this._credentialsFormRef = this.credentialsFormContainer.createComponent(targetType);
-				this._credentialsFormType = targetType;
-
-				const instance = this._credentialsFormRef.instance;
-				this._outputSubscriptions.switchToAgent = instance.switchToAgent.subscribe(() => this.switchToAgent());
-				this._outputSubscriptions.masterKeyChange = instance.masterKeyChange.subscribe((key: string) =>
-					this.handleMasterKeyChange(key),
-				);
-			}
-		}
-
-		if (this._credentialsFormRef) {
-			const instance = this._credentialsFormRef.instance;
-			instance.connection = this.db;
-			instance.submitting = this.submitting;
-			instance.accessLevel = this.accessLevel;
-			instance.masterKey = this.masterKey;
-			instance.readonly = !!((this.accessLevel === 'readonly' || this.db.isTestConnection) && this.db.id);
-
-			const hostEl = this._credentialsFormRef.location.nativeElement as HTMLElement;
-			hostEl.classList.add('credentials-fieldset');
-		}
-	}
-
-	private _destroyCredentialsForm() {
-		this._outputSubscriptions.switchToAgent?.unsubscribe();
-		this._outputSubscriptions.masterKeyChange?.unsubscribe();
-		this._outputSubscriptions = {};
-
-		if (this._credentialsFormRef) {
-			this._credentialsFormRef.destroy();
-			this._credentialsFormRef = null;
-			this._credentialsFormType = null;
-		}
-
-		if (this.credentialsFormContainer) {
-			this.credentialsFormContainer.clear();
+		if (targetType) {
+			this.credentialsFormInputs = {
+				connection: this.db,
+				submitting: this.submitting,
+				accessLevel: this.accessLevel,
+				masterKey: this.masterKey,
+				readonly: !!((this.accessLevel === 'readonly' || this.db.isTestConnection) && this.db.id),
+			};
 		}
 	}
 }

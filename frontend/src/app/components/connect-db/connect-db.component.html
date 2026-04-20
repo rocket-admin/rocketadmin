@@ -114,7 +114,12 @@
             </div>
         }
 
-        <ng-container #credentialsFormContainer></ng-container>
+        <ndc-dynamic
+            [ndcDynamicComponent]="credentialsFormComponent"
+            [ndcDynamicInputs]="credentialsFormInputs"
+            [ndcDynamicOutputs]="credentialsFormOutputs"
+            [ndcDynamicAttributes]="credentialsFormAttributes"
+        ></ndc-dynamic>
 
         <div *ngIf="db.connectionType === 'agent'" class="connectForm__fullLine instruction">
 
