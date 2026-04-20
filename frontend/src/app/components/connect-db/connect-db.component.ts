@@ -1,6 +1,6 @@
 import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
-import { Component, NgZone, OnInit } from '@angular/core';
+import { Component, ComponentRef, DoCheck, NgZone, OnDestroy, OnInit, Type, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -28,6 +28,9 @@ import { NotificationsService } from 'src/app/services/notifications.service';
 import { UserService } from 'src/app/services/user.service';
 import { environment } from 'src/environments/environment';
 import isIP from 'validator/lib/isIP';
+import { ConnectionStringValidatorDirective } from '../../directives/connection-string-validator.directive';
+import { parseConnectionString } from '../../validators/connection-string.validator';
+import { BaseCredentialsFormComponent } from './db-credentials-forms/base-credentials-form/base-credentials-form.component';
 import { AlertComponent } from '../ui-components/alert/alert.component';
 import { IpAddressButtonComponent } from '../ui-components/ip-address-button/ip-address-button.component';
 import { DbConnectionConfirmDialogComponent } from './db-connection-confirm-dialog/db-connection-confirm-dialog.component';
@@ -63,24 +66,16 @@ import { RedisCredentialsFormComponent } from './db-credentials-forms/redis-cred
 		MatDialogModule,
 		MatCheckboxModule,
 		MatSlideToggleModule,
-		Db2CredentialsFormComponent,
-		DynamodbCredentialsFormComponent,
-		CassandraCredentialsFormComponent,
-		MongodbCredentialsFormComponent,
-		MssqlCredentialsFormComponent,
-		MysqlCredentialsFormComponent,
-		OracledbCredentialsFormComponent,
-		PostgresCredentialsFormComponent,
-		RedisCredentialsFormComponent,
-		ElasticCredentialsFormComponent,
-		ClickhouseCredentialsFormComponent,
 		IpAddressButtonComponent,
 		AlertComponent,
 		Angulartics2Module,
+		ConnectionStringValidatorDirective,
 	],
 })
-export class ConnectDBComponent implements OnInit {
+export class ConnectDBComponent implements OnInit, DoCheck, OnDestroy {
 	protected posthog = posthog;
+
+	@ViewChild('credentialsFormContainer', { read: ViewContainerRef }) credentialsFormContainer: ViewContainerRef;
 
 	public isSaas = (environment as any).saas;
 	public connectionID: string | null = null;
@@ -92,6 +87,23 @@ export class ConnectDBComponent implements OnInit {
 		id: 10000000,
 		type: AlertType.Warning,
 		message: null,
+	};
+
+	public connectionInputMode: 'manual' | 'connectionString' = 'manual';
+	public connectionString: string = '';
+
+	public credentialsFormMap: Record<string, Type<BaseCredentialsFormComponent>> = {
+		[DBtype.MySQL]: MysqlCredentialsFormComponent,
+		[DBtype.Postgres]: PostgresCredentialsFormComponent,
+		[DBtype.Mongo]: MongodbCredentialsFormComponent,
+		[DBtype.Dynamo]: DynamodbCredentialsFormComponent,
+		[DBtype.Cassandra]: CassandraCredentialsFormComponent,
+		[DBtype.Oracle]: OracledbCredentialsFormComponent,
+		[DBtype.MSSQL]: MssqlCredentialsFormComponent,
+		[DBtype.Redis]: RedisCredentialsFormComponent,
+		[DBtype.Elasticsearch]: ElasticCredentialsFormComponent,
+		[DBtype.ClickHouse]: ClickhouseCredentialsFormComponent,
+		[DBtype.DB2]: Db2CredentialsFormComponent,
 	};
 
 	public supportedOrderedDatabases = supportedOrderedDatabases;
@@ -445,6 +457,47 @@ export class ConnectDBComponent implements OnInit {
 		this.masterKey = newMasterKey;
 	}
 
+	ngDoCheck() {
+		this._updateCredentialsForm();
+	}
+
+	ngOnDestroy() {
+		this._destroyCredentialsForm();
+	}
+
+	applyConnectionString() {
+		if (!this.connectionString.trim()) {
+			return;
+		}
+
+		try {
+			const parsed = parseConnectionString(this.connectionString);
+
+			this.db.type = parsed.dbType;
+			this.db.host = parsed.host;
+			this.db.port = parsed.port;
+			this.db.username = parsed.username;
+			this.db.password = parsed.password;
+			this.db.database = parsed.database;
+
+			if (parsed.authSource) {
+				this.db.authSource = parsed.authSource;
+			}
+			if (parsed.schema) {
+				this.db.schema = parsed.schema;
+			}
+			if (parsed.ssl) {
+				this.db.ssl = true;
+			}
+
+			this.connectionInputMode = 'manual';
+			this.connectionString = '';
+			this._notifications.showSuccessSnackbar('Connection string parsed successfully');
+		} catch (_e) {
+			// Validation directive handles error display
+		}
+	}
+
 	getProvider() {
 		let provider: string = null;
 		if (this.db.host.endsWith('.amazonaws.com')) provider = 'amazon';
@@ -463,5 +516,61 @@ export class ConnectDBComponent implements OnInit {
 			}
 		}
 		return provider;
+	}
+
+	private _credentialsFormRef: ComponentRef<BaseCredentialsFormComponent> | null = null;
+	private _credentialsFormType: Type<BaseCredentialsFormComponent> | null = null;
+	private _outputSubscriptions: { switchToAgent?: any; masterKeyChange?: any } = {};
+
+	private _updateCredentialsForm() {
+		if (!this.credentialsFormContainer) {
+			return;
+		}
+
+		const isConnectionStringMode = this.connectionInputMode === 'connectionString' && this.db.connectionType === 'direct' && !this.db.id;
+		const targetType = (!isConnectionStringMode && this.db.connectionType === 'direct' && this.credentialsFormMap[this.db.type]) || null;
+
+		if (targetType !== this._credentialsFormType) {
+			this._destroyCredentialsForm();
+
+			if (targetType) {
+				this._credentialsFormRef = this.credentialsFormContainer.createComponent(targetType);
+				this._credentialsFormType = targetType;
+
+				const instance = this._credentialsFormRef.instance;
+				this._outputSubscriptions.switchToAgent = instance.switchToAgent.subscribe(() => this.switchToAgent());
+				this._outputSubscriptions.masterKeyChange = instance.masterKeyChange.subscribe((key: string) =>
+					this.handleMasterKeyChange(key),
+				);
+			}
+		}
+
+		if (this._credentialsFormRef) {
+			const instance = this._credentialsFormRef.instance;
+			instance.connection = this.db;
+			instance.submitting = this.submitting;
+			instance.accessLevel = this.accessLevel;
+			instance.masterKey = this.masterKey;
+			instance.readonly = !!((this.accessLevel === 'readonly' || this.db.isTestConnection) && this.db.id);
+
+			const hostEl = this._credentialsFormRef.location.nativeElement as HTMLElement;
+			hostEl.classList.add('credentials-fieldset');
+		}
+	}
+
+	private _destroyCredentialsForm() {
+		this._outputSubscriptions.switchToAgent?.unsubscribe();
+		this._outputSubscriptions.masterKeyChange?.unsubscribe();
+		this._outputSubscriptions = {};
+
+		if (this._credentialsFormRef) {
+			this._credentialsFormRef.destroy();
+			this._credentialsFormRef = null;
+			this._credentialsFormType = null;
+		}
+
+		if (this.credentialsFormContainer) {
+			this.credentialsFormContainer.clear();
+		}
 	}
 }

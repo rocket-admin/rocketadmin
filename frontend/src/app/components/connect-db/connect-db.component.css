@@ -24,7 +24,7 @@
 	}
 }
 
-.credentials-fieldset {
+:host ::ng-deep .credentials-fieldset {
 	display: grid;
 	grid-template-columns: subgrid;
 	grid-template-rows: subgrid;
@@ -32,14 +32,24 @@
 	grid-row: 5 / span 4;
 }
 
+:host ::ng-deep .connectForm__typeSwitch + .credentials-fieldset {
+	grid-row: 4 / span 4;
+}
+
+:host ::ng-deep .connectForm__warningMessage + .connectForm__credentialsModeSwitch + .credentials-fieldset {
+	grid-row: 6 / span 4;
+}
+
+
+
 @media (width <= 600px) {
-	.credentials-fieldset {
+	:host ::ng-deep .credentials-fieldset {
 		display: flex;
 		flex-direction: column;
 	}
 }
 
-.credentials-fieldset-no-warning {
+/* :host ::ng-deep .credentials-fieldset-no-warning {
 	display: grid;
 	grid-template-columns: subgrid;
 	grid-template-rows: subgrid;
@@ -48,11 +58,11 @@
 }
 
 @media (width <= 600px) {
-	.credentials-fieldset-no-warning {
+	:host ::ng-deep .credentials-fieldset-no-warning {
 		display: flex;
 		flex-direction: column;
 	}
-}
+} */
 
 .mat-h1 {
 	margin-top: 2vw;
@@ -87,7 +97,8 @@
 }
 
 .connectForm__ipAlert {
-	--alert-margin: 0;
+	--alert-margin: 0 !important;
+	margin-bottom: 12px;
 }
 
 .connectForm__title {
@@ -103,11 +114,11 @@
 	grid-column: 1 / span 4;
 }
 
-.connectForm__typeSwitch {
+.connectForm__toggle {
 	margin-bottom: 12px;
 }
 
-.connectForm__typeSwitch ::ng-deep .mat-button-toggle-checked {
+.connectForm__toggle ::ng-deep .mat-button-toggle-checked {
 	background-color: rgba(0, 0, 0, 0.08) !important;
 }
 
@@ -198,6 +209,16 @@
 	background: rgba(0, 0, 0, 0.04);
 	border-radius: 4px;
 	padding: 8px 12px;
+}
+
+.connectForm__connectionString {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+}
+
+.connectForm__connectionString button {
+	margin-top: 4px;
 }
 
 .agent-token {
