@@ -46,6 +46,7 @@
 		"chart.js": "^4.5.1",
 		"chartjs-adapter-date-fns": "^3.0.0",
 		"color-string": "^2.0.1",
+		"connection-string-parser": "^1.0.4",
 		"convert": "^5.12.0",
 		"date-fns": "^4.1.0",
 		"ipaddr.js": "^2.2.0",
