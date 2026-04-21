@@ -1,6 +1,38 @@
 import { faker } from '@faker-js/faker';
 import { getTestKnex } from '../get-test-knex.js';
 
+export type SimpleTypedKeyTableCreationResult = {
+	main_table: {
+		table_name: string;
+		column_names: string[];
+		primary_key_column_names: string[];
+		primary_key_type: 'uuid' | 'date' | 'integer';
+		sample_primary_key_values: any[];
+	};
+	first_referenced_table: {
+		table_name: string;
+		column_names: string[];
+		primary_key_column_names: string[];
+		foreign_key_column_names: string[];
+	};
+};
+
+export type CompositeTypedKeyTableCreationResult = {
+	main_table: {
+		table_name: string;
+		column_names: string[];
+		primary_key_column_names: string[];
+		primary_key_types: Array<'uuid' | 'date' | 'integer'>;
+		sample_primary_key_rows: Array<Record<string, any>>;
+	};
+	first_referenced_table: {
+		table_name: string;
+		column_names: string[];
+		primary_key_column_names: string[];
+		foreign_key_column_names: string[];
+	};
+};
+
 export const createTestTablesWithComplexPFKeys = async (connectionParams: any) => {
 	const connectionParamsCopy = {
 		...connectionParams,
@@ -294,6 +326,498 @@ export const createTestTablesWithSimplePFKeys = async (connectionParams: any) =>
 			column_names: Object.keys(secondReferencedTableColumnData),
 			primary_key_column_names: ['shipment_id'],
 			foreign_key_column_names: ['order_id'],
+		},
+	};
+};
+
+export const createTestTablesWithSimpleAutoIncrementKeys = async (
+	connectionParams: any,
+): Promise<SimpleTypedKeyTableCreationResult> => {
+	const connectionParamsCopy = { ...connectionParams };
+	if (connectionParams.type === 'mysql') {
+		connectionParamsCopy.type = 'mysql2';
+	}
+	const knex = getTestKnex(connectionParamsCopy);
+
+	const mainTableName = 'Products_AutoInc_Simple';
+	const firstReferencedTableName = 'ProductReviews_AutoInc_Simple';
+
+	await knex.schema.dropTableIfExists(firstReferencedTableName);
+	await knex.schema.dropTableIfExists(mainTableName);
+
+	await knex.schema.createTable(mainTableName, (table) => {
+		table.increments('product_id').primary();
+		table.string('product_name', 100);
+		table.string('sku', 50);
+		table.decimal('price', 10, 2);
+	});
+
+	await knex.schema.createTable(firstReferencedTableName, (table) => {
+		table.increments('review_id').primary();
+		table.integer('product_id').notNullable();
+		table.integer('rating');
+		table.text('comment');
+		table.foreign('product_id').references('product_id').inTable(mainTableName);
+	});
+
+	const testEntitiesCount = 20;
+	const mainTableInserts: Array<{ product_name: string; sku: string; price: number }> = [];
+
+	for (let i = 0; i < testEntitiesCount; i++) {
+		mainTableInserts.push({
+			product_name: faker.commerce.productName(),
+			sku: `SKU-${faker.string.alphanumeric(8).toUpperCase()}`,
+			price: parseFloat(faker.commerce.price({ min: 5, max: 1000, dec: 2 })),
+		});
+	}
+
+	const insertedProductIds = await knex(mainTableName).insert(mainTableInserts).returning('product_id');
+	const productIds = insertedProductIds.map((r: any) => (typeof r === 'object' ? r.product_id : r));
+
+	const firstReferencedTableInserts: Array<{
+		product_id: number;
+		rating: number;
+		comment: string;
+	}> = [];
+	for (let i = 0; i < testEntitiesCount; i++) {
+		firstReferencedTableInserts.push({
+			product_id: productIds[i],
+			rating: faker.number.int({ min: 1, max: 5 }),
+			comment: faker.lorem.sentence(),
+		});
+	}
+	await knex(firstReferencedTableName).insert(firstReferencedTableInserts);
+
+	const mainColumnData = await knex(mainTableName).columnInfo();
+	const firstReferencedColumnData = await knex(firstReferencedTableName).columnInfo();
+
+	return {
+		main_table: {
+			table_name: mainTableName,
+			column_names: Object.keys(mainColumnData),
+			primary_key_column_names: ['product_id'],
+			primary_key_type: 'integer',
+			sample_primary_key_values: productIds.slice(0, 5),
+		},
+		first_referenced_table: {
+			table_name: firstReferencedTableName,
+			column_names: Object.keys(firstReferencedColumnData),
+			primary_key_column_names: ['review_id'],
+			foreign_key_column_names: ['product_id'],
+		},
+	};
+};
+
+export const createTestTablesWithSimpleUUIDKeys = async (
+	connectionParams: any,
+): Promise<SimpleTypedKeyTableCreationResult> => {
+	const connectionParamsCopy = { ...connectionParams };
+	if (connectionParams.type === 'mysql') {
+		connectionParamsCopy.type = 'mysql2';
+	}
+	const knex = getTestKnex(connectionParamsCopy);
+
+	const mainTableName = 'Users_UUID_Simple';
+	const firstReferencedTableName = 'Posts_UUID_Simple';
+
+	await knex.schema.dropTableIfExists(firstReferencedTableName);
+	await knex.schema.dropTableIfExists(mainTableName);
+
+	await knex.schema.createTable(mainTableName, (table) => {
+		table.uuid('user_id').primary();
+		table.string('name', 100);
+		table.string('email', 100);
+	});
+
+	await knex.schema.createTable(firstReferencedTableName, (table) => {
+		table.uuid('post_id').primary();
+		table.uuid('user_id').notNullable();
+		table.string('title', 150);
+		table.text('content');
+		table.foreign('user_id').references('user_id').inTable(mainTableName);
+	});
+
+	const testEntitiesCount = 20;
+	const mainTableInserts: Array<{ user_id: string; name: string; email: string }> = [];
+	const firstReferencedTableInserts: Array<{
+		post_id: string;
+		user_id: string;
+		title: string;
+		content: string;
+	}> = [];
+
+	for (let i = 0; i < testEntitiesCount; i++) {
+		const userId = faker.string.uuid();
+		mainTableInserts.push({
+			user_id: userId,
+			name: faker.person.fullName(),
+			email: faker.internet.email(),
+		});
+		firstReferencedTableInserts.push({
+			post_id: faker.string.uuid(),
+			user_id: userId,
+			title: faker.lorem.sentence(),
+			content: faker.lorem.paragraph(),
+		});
+	}
+
+	await knex(mainTableName).insert(mainTableInserts);
+	await knex(firstReferencedTableName).insert(firstReferencedTableInserts);
+
+	const mainColumnData = await knex(mainTableName).columnInfo();
+	const firstReferencedColumnData = await knex(firstReferencedTableName).columnInfo();
+
+	return {
+		main_table: {
+			table_name: mainTableName,
+			column_names: Object.keys(mainColumnData),
+			primary_key_column_names: ['user_id'],
+			primary_key_type: 'uuid',
+			sample_primary_key_values: mainTableInserts.slice(0, 5).map((r) => r.user_id),
+		},
+		first_referenced_table: {
+			table_name: firstReferencedTableName,
+			column_names: Object.keys(firstReferencedColumnData),
+			primary_key_column_names: ['post_id'],
+			foreign_key_column_names: ['user_id'],
+		},
+	};
+};
+
+export const createTestTablesWithSimpleDateKeys = async (
+	connectionParams: any,
+): Promise<SimpleTypedKeyTableCreationResult> => {
+	const connectionParamsCopy = { ...connectionParams };
+	if (connectionParams.type === 'mysql') {
+		connectionParamsCopy.type = 'mysql2';
+	}
+	const knex = getTestKnex(connectionParamsCopy);
+
+	const mainTableName = 'Events_Date_Simple';
+	const firstReferencedTableName = 'EventLogs_Date_Simple';
+
+	await knex.schema.dropTableIfExists(firstReferencedTableName);
+	await knex.schema.dropTableIfExists(mainTableName);
+
+	await knex.schema.createTable(mainTableName, (table) => {
+		table.date('event_date').primary();
+		table.string('name', 100);
+		table.string('description', 255);
+	});
+
+	await knex.schema.createTable(firstReferencedTableName, (table) => {
+		table.increments('log_id').primary();
+		table.date('event_date').notNullable();
+		table.string('message', 255);
+		table.foreign('event_date').references('event_date').inTable(mainTableName);
+	});
+
+	const testEntitiesCount = 20;
+	const baseDate = new Date('2025-01-01T00:00:00Z');
+	const mainTableInserts: Array<{ event_date: string; name: string; description: string }> = [];
+	const firstReferencedTableInserts: Array<{ event_date: string; message: string }> = [];
+	const sampleDates: string[] = [];
+
+	for (let i = 0; i < testEntitiesCount; i++) {
+		const date = new Date(baseDate);
+		date.setUTCDate(baseDate.getUTCDate() + i);
+		const dateStr = date.toISOString().split('T')[0];
+		sampleDates.push(dateStr);
+		mainTableInserts.push({
+			event_date: dateStr,
+			name: faker.lorem.words(2),
+			description: faker.lorem.sentence(),
+		});
+		firstReferencedTableInserts.push({
+			event_date: dateStr,
+			message: faker.lorem.sentence(),
+		});
+	}
+
+	await knex(mainTableName).insert(mainTableInserts);
+	await knex(firstReferencedTableName).insert(firstReferencedTableInserts);
+
+	const mainColumnData = await knex(mainTableName).columnInfo();
+	const firstReferencedColumnData = await knex(firstReferencedTableName).columnInfo();
+
+	return {
+		main_table: {
+			table_name: mainTableName,
+			column_names: Object.keys(mainColumnData),
+			primary_key_column_names: ['event_date'],
+			primary_key_type: 'date',
+			sample_primary_key_values: sampleDates.slice(0, 5),
+		},
+		first_referenced_table: {
+			table_name: firstReferencedTableName,
+			column_names: Object.keys(firstReferencedColumnData),
+			primary_key_column_names: ['log_id'],
+			foreign_key_column_names: ['event_date'],
+		},
+	};
+};
+
+export const createTestTablesWithCompositeUUIDKeys = async (
+	connectionParams: any,
+): Promise<CompositeTypedKeyTableCreationResult> => {
+	const connectionParamsCopy = { ...connectionParams };
+	if (connectionParams.type === 'mysql') {
+		connectionParamsCopy.type = 'mysql2';
+	}
+	const knex = getTestKnex(connectionParamsCopy);
+
+	const mainTableName = 'Accounts_UUID_Composite';
+	const firstReferencedTableName = 'AccountActivities_UUID_Composite';
+
+	await knex.schema.dropTableIfExists(firstReferencedTableName);
+	await knex.schema.dropTableIfExists(mainTableName);
+
+	await knex.schema.createTable(mainTableName, (table) => {
+		table.uuid('account_id').notNullable();
+		table.uuid('tenant_id').notNullable();
+		table.string('account_name', 100);
+		table.decimal('balance', 12, 2);
+		table.primary(['account_id', 'tenant_id']);
+	});
+
+	await knex.schema.createTable(firstReferencedTableName, (table) => {
+		table.increments('activity_id').primary();
+		table.uuid('account_id').notNullable();
+		table.uuid('tenant_id').notNullable();
+		table.string('activity_type', 50);
+		table.decimal('amount', 10, 2);
+		table.foreign(['account_id', 'tenant_id']).references(['account_id', 'tenant_id']).inTable(mainTableName);
+	});
+
+	const testEntitiesCount = 20;
+	const mainTableInserts: Array<{
+		account_id: string;
+		tenant_id: string;
+		account_name: string;
+		balance: number;
+	}> = [];
+	const firstReferencedTableInserts: Array<{
+		account_id: string;
+		tenant_id: string;
+		activity_type: string;
+		amount: number;
+	}> = [];
+	const sampleRows: Array<{ account_id: string; tenant_id: string }> = [];
+
+	for (let i = 0; i < testEntitiesCount; i++) {
+		const accountId = faker.string.uuid();
+		const tenantId = faker.string.uuid();
+		sampleRows.push({ account_id: accountId, tenant_id: tenantId });
+		mainTableInserts.push({
+			account_id: accountId,
+			tenant_id: tenantId,
+			account_name: faker.company.name(),
+			balance: parseFloat(faker.commerce.price({ min: 100, max: 10000, dec: 2 })),
+		});
+		firstReferencedTableInserts.push({
+			account_id: accountId,
+			tenant_id: tenantId,
+			activity_type: faker.helpers.arrayElement(['deposit', 'withdrawal', 'transfer', 'fee']),
+			amount: parseFloat(faker.commerce.price({ min: 1, max: 1000, dec: 2 })),
+		});
+	}
+
+	await knex(mainTableName).insert(mainTableInserts);
+	await knex(firstReferencedTableName).insert(firstReferencedTableInserts);
+
+	const mainColumnData = await knex(mainTableName).columnInfo();
+	const firstReferencedColumnData = await knex(firstReferencedTableName).columnInfo();
+
+	return {
+		main_table: {
+			table_name: mainTableName,
+			column_names: Object.keys(mainColumnData),
+			primary_key_column_names: ['account_id', 'tenant_id'],
+			primary_key_types: ['uuid', 'uuid'],
+			sample_primary_key_rows: sampleRows.slice(0, 5),
+		},
+		first_referenced_table: {
+			table_name: firstReferencedTableName,
+			column_names: Object.keys(firstReferencedColumnData),
+			primary_key_column_names: ['activity_id'],
+			foreign_key_column_names: ['account_id', 'tenant_id'],
+		},
+	};
+};
+
+export const createTestTablesWithCompositeUUIDIntKeys = async (
+	connectionParams: any,
+): Promise<CompositeTypedKeyTableCreationResult> => {
+	const connectionParamsCopy = { ...connectionParams };
+	if (connectionParams.type === 'mysql') {
+		connectionParamsCopy.type = 'mysql2';
+	}
+	const knex = getTestKnex(connectionParamsCopy);
+
+	const mainTableName = 'Sessions_UUIDInt_Composite';
+	const firstReferencedTableName = 'SessionEvents_UUIDInt_Composite';
+
+	await knex.schema.dropTableIfExists(firstReferencedTableName);
+	await knex.schema.dropTableIfExists(mainTableName);
+
+	await knex.schema.createTable(mainTableName, (table) => {
+		table.uuid('session_token').notNullable();
+		table.integer('user_id').notNullable();
+		table.timestamp('started_at').defaultTo(knex.fn.now());
+		table.string('device', 100);
+		table.primary(['session_token', 'user_id']);
+	});
+
+	await knex.schema.createTable(firstReferencedTableName, (table) => {
+		table.increments('event_id').primary();
+		table.uuid('session_token').notNullable();
+		table.integer('user_id').notNullable();
+		table.string('event_type', 50);
+		table.text('payload');
+		table.foreign(['session_token', 'user_id']).references(['session_token', 'user_id']).inTable(mainTableName);
+	});
+
+	const testEntitiesCount = 20;
+	const mainTableInserts: Array<{
+		session_token: string;
+		user_id: number;
+		device: string;
+	}> = [];
+	const firstReferencedTableInserts: Array<{
+		session_token: string;
+		user_id: number;
+		event_type: string;
+		payload: string;
+	}> = [];
+	const sampleRows: Array<{ session_token: string; user_id: number }> = [];
+
+	for (let i = 0; i < testEntitiesCount; i++) {
+		const sessionToken = faker.string.uuid();
+		const userId = 1000 + i;
+		sampleRows.push({ session_token: sessionToken, user_id: userId });
+		mainTableInserts.push({
+			session_token: sessionToken,
+			user_id: userId,
+			device: faker.helpers.arrayElement(['iOS', 'Android', 'Web', 'Desktop']),
+		});
+		firstReferencedTableInserts.push({
+			session_token: sessionToken,
+			user_id: userId,
+			event_type: faker.helpers.arrayElement(['login', 'click', 'submit', 'logout']),
+			payload: faker.lorem.sentence(),
+		});
+	}
+
+	await knex(mainTableName).insert(mainTableInserts);
+	await knex(firstReferencedTableName).insert(firstReferencedTableInserts);
+
+	const mainColumnData = await knex(mainTableName).columnInfo();
+	const firstReferencedColumnData = await knex(firstReferencedTableName).columnInfo();
+
+	return {
+		main_table: {
+			table_name: mainTableName,
+			column_names: Object.keys(mainColumnData),
+			primary_key_column_names: ['session_token', 'user_id'],
+			primary_key_types: ['uuid', 'integer'],
+			sample_primary_key_rows: sampleRows.slice(0, 5),
+		},
+		first_referenced_table: {
+			table_name: firstReferencedTableName,
+			column_names: Object.keys(firstReferencedColumnData),
+			primary_key_column_names: ['event_id'],
+			foreign_key_column_names: ['session_token', 'user_id'],
+		},
+	};
+};
+
+export const createTestTablesWithCompositeDateIntKeys = async (
+	connectionParams: any,
+): Promise<CompositeTypedKeyTableCreationResult> => {
+	const connectionParamsCopy = { ...connectionParams };
+	if (connectionParams.type === 'mysql') {
+		connectionParamsCopy.type = 'mysql2';
+	}
+	const knex = getTestKnex(connectionParamsCopy);
+
+	const mainTableName = 'DailyStats_DateInt_Composite';
+	const firstReferencedTableName = 'DailyStatEntries_DateInt_Composite';
+
+	await knex.schema.dropTableIfExists(firstReferencedTableName);
+	await knex.schema.dropTableIfExists(mainTableName);
+
+	await knex.schema.createTable(mainTableName, (table) => {
+		table.date('stat_date').notNullable();
+		table.integer('category_id').notNullable();
+		table.integer('total_count');
+		table.decimal('total_value', 12, 2);
+		table.primary(['stat_date', 'category_id']);
+	});
+
+	await knex.schema.createTable(firstReferencedTableName, (table) => {
+		table.increments('entry_id').primary();
+		table.date('stat_date').notNullable();
+		table.integer('category_id').notNullable();
+		table.string('description', 150);
+		table.decimal('value', 10, 2);
+		table.foreign(['stat_date', 'category_id']).references(['stat_date', 'category_id']).inTable(mainTableName);
+	});
+
+	const testEntitiesCount = 20;
+	const baseDate = new Date('2025-06-01T00:00:00Z');
+	const mainTableInserts: Array<{
+		stat_date: string;
+		category_id: number;
+		total_count: number;
+		total_value: number;
+	}> = [];
+	const firstReferencedTableInserts: Array<{
+		stat_date: string;
+		category_id: number;
+		description: string;
+		value: number;
+	}> = [];
+	const sampleRows: Array<{ stat_date: string; category_id: number }> = [];
+
+	for (let i = 0; i < testEntitiesCount; i++) {
+		const date = new Date(baseDate);
+		date.setUTCDate(baseDate.getUTCDate() + i);
+		const dateStr = date.toISOString().split('T')[0];
+		const categoryId = 500 + i;
+		sampleRows.push({ stat_date: dateStr, category_id: categoryId });
+		mainTableInserts.push({
+			stat_date: dateStr,
+			category_id: categoryId,
+			total_count: faker.number.int({ min: 10, max: 500 }),
+			total_value: parseFloat(faker.commerce.price({ min: 100, max: 5000, dec: 2 })),
+		});
+		firstReferencedTableInserts.push({
+			stat_date: dateStr,
+			category_id: categoryId,
+			description: faker.lorem.words(3),
+			value: parseFloat(faker.commerce.price({ min: 1, max: 100, dec: 2 })),
+		});
+	}
+
+	await knex(mainTableName).insert(mainTableInserts);
+	await knex(firstReferencedTableName).insert(firstReferencedTableInserts);
+
+	const mainColumnData = await knex(mainTableName).columnInfo();
+	const firstReferencedColumnData = await knex(firstReferencedTableName).columnInfo();
+
+	return {
+		main_table: {
+			table_name: mainTableName,
+			column_names: Object.keys(mainColumnData),
+			primary_key_column_names: ['stat_date', 'category_id'],
+			primary_key_types: ['date', 'integer'],
+			sample_primary_key_rows: sampleRows.slice(0, 5),
+		},
+		first_referenced_table: {
+			table_name: firstReferencedTableName,
+			column_names: Object.keys(firstReferencedColumnData),
+			primary_key_column_names: ['entry_id'],
+			foreign_key_column_names: ['stat_date', 'category_id'],
 		},
 	};
 };

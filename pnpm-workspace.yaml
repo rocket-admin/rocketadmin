@@ -1,0 +1,4 @@
+packages:
+  - backend
+  - rocketadmin-agent
+  - shared-code

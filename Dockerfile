@@ -35,14 +35,14 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY package.json .yarnrc.yml yarn.lock /app/
+RUN npm install -g pnpm@10.33.0
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc /app/
 COPY backend /app/backend
 COPY shared-code /app/shared-code
 COPY rocketadmin-agent /app/rocketadmin-agent
-COPY .yarn /app/.yarn
-RUN --mount=type=cache,target=/root/.yarn YARN_CACHE_FOLDER=/root/.yarn yarn install --network-timeout 1000000 --immutable --silent
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile
 RUN cd shared-code && ../node_modules/.bin/tsc
-RUN cd backend && ../node_modules/.bin/tsc && yarn run nest build
+RUN cd backend && ../node_modules/.bin/tsc && pnpm exec nest build
 COPY --from=front_builder /app/frontend/dist/rocketadmin/browser /var/www/html
 COPY frontend/nginx/default.conf /etc/nginx/sites-enabled/default
 RUN mkdir -p /app/backend/node_modules/.cache && chown -R appuser:appuser /app/backend/node_modules/.cache

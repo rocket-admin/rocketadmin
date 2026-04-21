@@ -7255,6 +7255,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"connection-string-parser@npm:^1.0.4":
+  version: 1.0.4
+  resolution: "connection-string-parser@npm:1.0.4"
+  dependencies:
+    tslib: ^2.0.0
+  checksum: 9424a8b58c1f8eb68c51c7c8254a666f20b405659e3c02c07c2b6b975da643c4b1842704a600bb0448e8f78ad8b6c133a2aadad42493462e382af04ef6900267
+  languageName: node
+  linkType: hard
+
 "content-disposition@npm:^1.0.0":
   version: 1.0.1
   resolution: "content-disposition@npm:1.0.1"
@@ -12778,6 +12787,7 @@ __metadata:
     chart.js: ^4.5.1
     chartjs-adapter-date-fns: ^3.0.0
     color-string: ^2.0.1
+    connection-string-parser: ^1.0.4
     convert: ^5.12.0
     date-fns: ^4.1.0
     ipaddr.js: ^2.2.0
