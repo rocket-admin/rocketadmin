@@ -29,15 +29,11 @@
 	grid-template-columns: subgrid;
 	grid-template-rows: subgrid;
 	grid-column: 1 / span 4;
-	grid-row: 5 / span 4;
-}
-
-:host ::ng-deep .connectForm__typeSwitch + .credentials-fieldset {
-	grid-row: 4 / span 4;
-}
-
-:host ::ng-deep .connectForm__warningMessage + .connectForm__credentialsModeSwitch + .credentials-fieldset {
 	grid-row: 6 / span 4;
+}
+
+:host ::ng-deep .connectForm__typeSwitch + ndc-dynamic + .credentials-fieldset {
+	grid-row: 4 / span 4;
 }
 
 
@@ -219,6 +215,7 @@
 
 .connectForm__connectionString button {
 	margin-top: 4px;
+	margin-left: -80px;
 }
 
 .agent-token {

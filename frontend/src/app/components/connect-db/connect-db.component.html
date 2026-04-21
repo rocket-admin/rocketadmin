@@ -72,18 +72,6 @@
         </div>
 
         @if (db.connectionType === 'direct' && !db.id) {
-            <div class="connectForm__fullLine connectForm__toggle connectForm__credentialsModeSwitch">
-                <mat-button-toggle-group name="connectionInputMode"
-                    data-testid="connection-input-mode-toggle"
-                    [disabled]="submitting"
-                    [(ngModel)]="connectionInputMode">
-                    <mat-button-toggle value="manual">Manual</mat-button-toggle>
-                    <mat-button-toggle value="connectionString">Connection string</mat-button-toggle>
-                </mat-button-toggle-group>
-            </div>
-        }
-
-        @if (connectionInputMode === 'connectionString' && db.connectionType === 'direct' && !db.id) {
             <div class="connectForm__fullLine connectForm__connectionString">
                 <mat-form-field appearance="outline" style="width: 100%">
                     <mat-label>Connection string</mat-label>
@@ -105,7 +93,8 @@
                         <mat-error>Failed to parse connection string</mat-error>
                     }
                 </mat-form-field>
-                <button type="button" mat-flat-button color="primary"
+                <button type="button" mat-button color="primary"
+                    class="connectForm__connectionStringApplyButton"
                     data-testid="connection-string-apply-button"
                     [disabled]="submitting || !connectionString.trim() || connectionStringInput.invalid"
                     (click)="applyConnectionString()">
@@ -114,12 +103,21 @@
             </div>
         }
 
-        <ndc-dynamic
-            [ndcDynamicComponent]="credentialsFormComponent"
-            [ndcDynamicInputs]="credentialsFormInputs"
-            [ndcDynamicOutputs]="credentialsFormOutputs"
-            [ndcDynamicAttributes]="credentialsFormAttributes"
-        ></ndc-dynamic>
+        @if (db.connectionType === 'direct') {
+            <ndc-dynamic
+                [ndcDynamicComponent]="credentialsFormComponent"
+                [ndcDynamicInputs]="{
+                    connection: db,
+                    submitting: submitting,
+                    accessLevel: accessLevel,
+                    masterKey: masterKey,
+                    readonly: !!((accessLevel === 'readonly' || db.isTestConnection) && db.id)
+                }"
+                [ndcDynamicOutputs]="credentialsFormOutputs"
+                [ndcDynamicAttributes]="credentialsFormAttributes"
+            ></ndc-dynamic>
+        }
+        
 
         <div *ngIf="db.connectionType === 'agent'" class="connectForm__fullLine instruction">
 

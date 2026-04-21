@@ -1,6 +1,6 @@
 import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
-import { Component, DoCheck, NgZone, OnInit, Type } from '@angular/core';
+import { Component, NgZone, OnInit, Type } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -75,7 +75,7 @@ import { RedisCredentialsFormComponent } from './db-credentials-forms/redis-cred
 		DynamicAttributesDirective,
 	],
 })
-export class ConnectDBComponent implements OnInit, DoCheck {
+export class ConnectDBComponent implements OnInit {
 	protected posthog = posthog;
 
 	public isSaas = (environment as any).saas;
@@ -90,7 +90,6 @@ export class ConnectDBComponent implements OnInit, DoCheck {
 		message: null,
 	};
 
-	public connectionInputMode: 'manual' | 'connectionString' = 'manual';
 	public connectionString: string = '';
 
 	public credentialsFormMap: Record<string, Type<BaseCredentialsFormComponent>> = {
@@ -132,6 +131,14 @@ export class ConnectDBComponent implements OnInit, DoCheck {
 			"This is a DEMO SESSION! It will disappear after you log out. Don't use databases you're actively using or that contain information you wish to retain.",
 	};
 
+	public credentialsFormComponent: Type<BaseCredentialsFormComponent> | null = null;
+	public credentialsFormInputs: Record<string, any> = {};
+	public credentialsFormOutputs: Record<string, any> = {
+		switchToAgent: () => this.switchToAgent(),
+		masterKeyChange: (key: string) => this.handleMasterKeyChange(key),
+	};
+	public credentialsFormAttributes: Record<string, string> = { class: 'credentials-fieldset' };
+
 	constructor(
 		private _connections: ConnectionsService,
 		private _notifications: NotificationsService,
@@ -157,6 +164,8 @@ export class ConnectDBComponent implements OnInit, DoCheck {
 			this.db.type = databaseType;
 			this.db.port = this.ports[databaseType];
 		}
+
+		this.credentialsFormComponent = this.credentialsFormMap[this.db.type] || null;
 
 		this._connections
 			.getCurrentConnectionTitle()
@@ -190,6 +199,7 @@ export class ConnectDBComponent implements OnInit, DoCheck {
 
 	dbTypeChange() {
 		this.db.port = this.ports[this.db.type];
+		this.credentialsFormComponent = this.credentialsFormMap[this.db.type] || null;
 	}
 
 	testConnection() {
@@ -458,10 +468,6 @@ export class ConnectDBComponent implements OnInit, DoCheck {
 		this.masterKey = newMasterKey;
 	}
 
-	ngDoCheck() {
-		this._updateCredentialsFormInputs();
-	}
-
 	applyConnectionString() {
 		if (!this.connectionString.trim()) {
 			return;
@@ -487,7 +493,6 @@ export class ConnectDBComponent implements OnInit, DoCheck {
 				this.db.ssl = true;
 			}
 
-			this.connectionInputMode = 'manual';
 			this.connectionString = '';
 			this._notifications.showSuccessSnackbar('Connection string parsed successfully');
 		} catch (_e) {
@@ -513,30 +518,5 @@ export class ConnectDBComponent implements OnInit, DoCheck {
 			}
 		}
 		return provider;
-	}
-
-	public credentialsFormComponent: Type<BaseCredentialsFormComponent> | null = null;
-	public credentialsFormInputs: Record<string, any> = {};
-	public credentialsFormOutputs: Record<string, any> = {
-		switchToAgent: () => this.switchToAgent(),
-		masterKeyChange: (key: string) => this.handleMasterKeyChange(key),
-	};
-	public credentialsFormAttributes: Record<string, string> = { class: 'credentials-fieldset' };
-
-	private _updateCredentialsFormInputs() {
-		const isConnectionStringMode = this.connectionInputMode === 'connectionString' && this.db.connectionType === 'direct' && !this.db.id;
-		const targetType = (!isConnectionStringMode && this.db.connectionType === 'direct' && this.credentialsFormMap[this.db.type]) || null;
-
-		this.credentialsFormComponent = targetType;
-
-		if (targetType) {
-			this.credentialsFormInputs = {
-				connection: this.db,
-				submitting: this.submitting,
-				accessLevel: this.accessLevel,
-				masterKey: this.masterKey,
-				readonly: !!((this.accessLevel === 'readonly' || this.db.isTestConnection) && this.db.id),
-			};
-		}
 	}
 }
