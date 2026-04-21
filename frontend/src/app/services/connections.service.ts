@@ -2,16 +2,15 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { IColorConfig, NgxThemeService } from '@brumeilde/ngx-theme';
-import { BehaviorSubject, EMPTY, firstValueFrom, throwError } from 'rxjs';
+import { BehaviorSubject, EMPTY, throwError } from 'rxjs';
 import { catchError, filter, map } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 import { AlertActionType, AlertType } from '../models/alert';
 import { Connection, ConnectionSettings, ConnectionType, DBtype } from '../models/connection';
 import { AccessLevel } from '../models/user';
 import { CedarPermissionService } from './cedar-permission.service';
-import { HostedDatabaseService } from './hosted-database.service';
 import { MasterPasswordService } from './master-password.service';
 import { NotificationsService } from './notifications.service';
-import { UserService } from './user.service';
 import { UsersService } from './users.service';
 
 interface LogParams {
@@ -74,7 +73,6 @@ export class ConnectionsService {
 	public ownConnections: Connection[] = null;
 	public testConnections: Connection[] = null;
 	public isHostedConnection: boolean = false;
-	private hostedDatabaseHostnames: Set<string> = new Set();
 
 	private connectionNameSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Rocketadmin');
 	private connectionSigningKeySubject: BehaviorSubject<string> = new BehaviorSubject<string>(null);
@@ -94,8 +92,6 @@ export class ConnectionsService {
 		private _usersService: UsersService,
 		private _permissions: CedarPermissionService,
 		public _themeService: NgxThemeService<IColorConfig<Palettes, Colors>>,
-		private _hostedDatabaseService: HostedDatabaseService,
-		private _userService: UserService,
 	) {
 		this.connection = { ...this.connectionInitialState };
 		this.router = router;
@@ -611,29 +607,7 @@ export class ConnectionsService {
 		);
 	}
 
-	private async checkIfHostedConnection(connectionHost: string) {
-		if (!connectionHost) {
-			this.isHostedConnection = false;
-			return;
-		}
-		if (this.hostedDatabaseHostnames.size === 0) {
-			await this.loadHostedDatabaseHostnames();
-		}
-		this.isHostedConnection = this.hostedDatabaseHostnames.has(connectionHost);
-	}
-
-	private async loadHostedDatabaseHostnames() {
-		try {
-			const user = await firstValueFrom(this._userService.cast.pipe(filter((u) => !!u?.company?.id)));
-			const databases = await this._hostedDatabaseService.listHostedDatabases(user.company.id);
-			this.hostedDatabaseHostnames.clear();
-			if (databases) {
-				for (const db of databases) {
-					this.hostedDatabaseHostnames.add(db.hostname);
-				}
-			}
-		} catch {
-			// Silently fail - non-hosted path will be used
-		}
+	private checkIfHostedConnection(connectionHost: string) {
+		this.isHostedConnection = !!environment.saas && !!connectionHost && connectionHost.endsWith('.db.rocketadmin.com');
 	}
 }
