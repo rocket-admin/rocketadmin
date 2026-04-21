@@ -1,6 +1,6 @@
 import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
-import { Component, NgZone, OnInit } from '@angular/core';
+import { Component, NgZone, OnInit, Type } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -13,6 +13,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
 import { Router, RouterModule } from '@angular/router';
+import { DynamicAttributesDirective, DynamicModule } from 'ng-dynamic-component';
 import { Angulartics2, Angulartics2Module } from 'angulartics2';
 import * as ipaddr from 'ipaddr.js';
 import posthog from 'posthog-js';
@@ -28,6 +29,9 @@ import { NotificationsService } from 'src/app/services/notifications.service';
 import { UserService } from 'src/app/services/user.service';
 import { environment } from 'src/environments/environment';
 import isIP from 'validator/lib/isIP';
+import { ConnectionStringValidatorDirective } from '../../directives/connection-string-validator.directive';
+import { parseConnectionString } from '../../validators/connection-string.validator';
+import { BaseCredentialsFormComponent } from './db-credentials-forms/base-credentials-form/base-credentials-form.component';
 import { AlertComponent } from '../ui-components/alert/alert.component';
 import { IpAddressButtonComponent } from '../ui-components/ip-address-button/ip-address-button.component';
 import { DbConnectionConfirmDialogComponent } from './db-connection-confirm-dialog/db-connection-confirm-dialog.component';
@@ -63,20 +67,12 @@ import { RedisCredentialsFormComponent } from './db-credentials-forms/redis-cred
 		MatDialogModule,
 		MatCheckboxModule,
 		MatSlideToggleModule,
-		Db2CredentialsFormComponent,
-		DynamodbCredentialsFormComponent,
-		CassandraCredentialsFormComponent,
-		MongodbCredentialsFormComponent,
-		MssqlCredentialsFormComponent,
-		MysqlCredentialsFormComponent,
-		OracledbCredentialsFormComponent,
-		PostgresCredentialsFormComponent,
-		RedisCredentialsFormComponent,
-		ElasticCredentialsFormComponent,
-		ClickhouseCredentialsFormComponent,
 		IpAddressButtonComponent,
 		AlertComponent,
 		Angulartics2Module,
+		ConnectionStringValidatorDirective,
+		DynamicModule,
+		DynamicAttributesDirective,
 	],
 })
 export class ConnectDBComponent implements OnInit {
@@ -92,6 +88,22 @@ export class ConnectDBComponent implements OnInit {
 		id: 10000000,
 		type: AlertType.Warning,
 		message: null,
+	};
+
+	public connectionString: string = '';
+
+	public credentialsFormMap: Record<string, Type<BaseCredentialsFormComponent>> = {
+		[DBtype.MySQL]: MysqlCredentialsFormComponent,
+		[DBtype.Postgres]: PostgresCredentialsFormComponent,
+		[DBtype.Mongo]: MongodbCredentialsFormComponent,
+		[DBtype.Dynamo]: DynamodbCredentialsFormComponent,
+		[DBtype.Cassandra]: CassandraCredentialsFormComponent,
+		[DBtype.Oracle]: OracledbCredentialsFormComponent,
+		[DBtype.MSSQL]: MssqlCredentialsFormComponent,
+		[DBtype.Redis]: RedisCredentialsFormComponent,
+		[DBtype.Elasticsearch]: ElasticCredentialsFormComponent,
+		[DBtype.ClickHouse]: ClickhouseCredentialsFormComponent,
+		[DBtype.DB2]: Db2CredentialsFormComponent,
 	};
 
 	public supportedOrderedDatabases = supportedOrderedDatabases;
@@ -119,6 +131,14 @@ export class ConnectDBComponent implements OnInit {
 			"This is a DEMO SESSION! It will disappear after you log out. Don't use databases you're actively using or that contain information you wish to retain.",
 	};
 
+	public credentialsFormComponent: Type<BaseCredentialsFormComponent> | null = null;
+	public credentialsFormInputs: Record<string, any> = {};
+	public credentialsFormOutputs: Record<string, any> = {
+		switchToAgent: () => this.switchToAgent(),
+		masterKeyChange: (key: string) => this.handleMasterKeyChange(key),
+	};
+	public credentialsFormAttributes: Record<string, string> = { class: 'credentials-fieldset' };
+
 	constructor(
 		private _connections: ConnectionsService,
 		private _notifications: NotificationsService,
@@ -144,6 +164,8 @@ export class ConnectDBComponent implements OnInit {
 			this.db.type = databaseType;
 			this.db.port = this.ports[databaseType];
 		}
+
+		this.credentialsFormComponent = this.credentialsFormMap[this.db.type] || null;
 
 		this._connections
 			.getCurrentConnectionTitle()
@@ -177,6 +199,7 @@ export class ConnectDBComponent implements OnInit {
 
 	dbTypeChange() {
 		this.db.port = this.ports[this.db.type];
+		this.credentialsFormComponent = this.credentialsFormMap[this.db.type] || null;
 	}
 
 	testConnection() {
@@ -443,6 +466,38 @@ export class ConnectDBComponent implements OnInit {
 
 	handleMasterKeyChange(newMasterKey: string): void {
 		this.masterKey = newMasterKey;
+	}
+
+	applyConnectionString() {
+		if (!this.connectionString.trim()) {
+			return;
+		}
+
+		try {
+			const parsed = parseConnectionString(this.connectionString);
+
+			this.db.type = parsed.dbType;
+			this.db.host = parsed.host;
+			this.db.port = parsed.port;
+			this.db.username = parsed.username;
+			this.db.password = parsed.password;
+			this.db.database = parsed.database;
+
+			if (parsed.authSource) {
+				this.db.authSource = parsed.authSource;
+			}
+			if (parsed.schema) {
+				this.db.schema = parsed.schema;
+			}
+			if (parsed.ssl) {
+				this.db.ssl = true;
+			}
+
+			this.connectionString = '';
+			this._notifications.showSuccessSnackbar('Connection string parsed successfully');
+		} catch (_e) {
+			// Validation directive handles error display
+		}
 	}
 
 	getProvider() {
