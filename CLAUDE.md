@@ -18,12 +18,12 @@ RocketAdmin is a database administration panel that allows users to manage datab
 
 ```bash
 cd backend
-yarn start:dev          # Start dev server with hot reload
-yarn build              # Build for production
-yarn lint               # ESLint with auto-fix
-yarn test               # Run non-saas AVA tests (serial)
-yarn test-all           # Run all AVA tests (5min timeout, serial)
-yarn test-saas          # Run SaaS-specific tests
+pnpm start:dev          # Start dev server with hot reload
+pnpm build              # Build for production
+pnpm lint               # ESLint with auto-fix
+pnpm test               # Run non-saas AVA tests (serial)
+pnpm test-all           # Run all AVA tests (5min timeout, serial)
+pnpm test-saas          # Run SaaS-specific tests
 ```
 
 ### Frontend
@@ -52,17 +52,17 @@ This spins up test databases (MySQL, PostgreSQL, MSSQL, Oracle, IBM DB2, MongoDB
 
 ```bash
 cd backend
-yarn build              # Must build first
-yarn migration:generate src/migrations/MigrationName  # Generate migration
-yarn migration:run      # Run pending migrations
-yarn migration:revert   # Revert last migration
+pnpm build              # Must build first
+pnpm migration:generate src/migrations/MigrationName  # Generate migration
+pnpm migration:run      # Run pending migrations
+pnpm migration:revert   # Revert last migration
 ```
 
 ## Architecture
 
 ### Monorepo Structure
 
-- Uses Yarn workspaces with packages: `backend`, `rocketadmin-agent`, `shared-code`
+- Uses pnpm workspaces with packages: `backend`, `rocketadmin-agent`, `shared-code`
 - `shared-code` is imported as `@rocketadmin/shared-code` workspace dependency
 - Frontend is a separate Angular project (not a workspace member)
 

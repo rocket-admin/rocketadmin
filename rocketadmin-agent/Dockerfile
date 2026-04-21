@@ -1,11 +1,11 @@
 FROM node:22-slim
 WORKDIR /app
 RUN apt-get update && apt-get install -y netcat-openbsd make gcc g++ python3 libxml2
-COPY package.json ./yarn.lock .yarnrc.yml /app/
-COPY ./.yarn /app/.yarn
+RUN npm install -g pnpm@10.33.0
+COPY package.json ./pnpm-lock.yaml ./pnpm-workspace.yaml ./.npmrc /app/
 COPY ./rocketadmin-agent/package.json /app/rocketadmin-agent/
 COPY shared-code/package.json /app/shared-code/
-RUN yarn install --network-timeout 1000000
+RUN pnpm install --frozen-lockfile
 COPY ./rocketadmin-agent/src /app/rocketadmin-agent/src
 COPY ./rocketadmin-agent/storage /app/rocketadmin-agent/storage
 COPY ./rocketadmin-agent/tsconfig.json /app/rocketadmin-agent/
@@ -23,6 +23,7 @@ COPY ./rocketadmin-agent/.clickhouse_test_agent_config.txt /app/rocketadmin-agen
 COPY shared-code /app/shared-code
 COPY ./rocketadmin-agent/ssl-cert.txt /app/rocketadmin-agent/
 RUN cd shared-code && ../node_modules/.bin/tsc
-RUN cd rocketadmin-agent && yarn run build
+RUN cd rocketadmin-agent && pnpm run build
 COPY ./rocketadmin-agent/wait-for-db2.js /app/
-CMD [ "node", "rocketadmin-agent/dist/main.js"]
+WORKDIR /app/rocketadmin-agent
+CMD [ "node", "dist/main.js"]
