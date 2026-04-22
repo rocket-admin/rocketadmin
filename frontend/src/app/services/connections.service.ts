@@ -72,7 +72,6 @@ export class ConnectionsService {
 	public defaultDisplayTable: string;
 	public ownConnections: Connection[] = null;
 	public testConnections: Connection[] = null;
-	public isHostedConnection: boolean = false;
 
 	private connectionNameSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Rocketadmin');
 	private connectionSigningKeySubject: BehaviorSubject<string> = new BehaviorSubject<string>(null);
@@ -141,6 +140,11 @@ export class ConnectionsService {
 		return this.currentPage;
 	}
 
+	get isHostedConnection(): boolean {
+		const host = this.connection?.host;
+		return !!environment.saas && !!host && host.endsWith('.db.rocketadmin.com');
+	}
+
 	canEditConnection() {
 		return this._permissions.canI('connection:edit', 'Connection', this.connectionID)();
 	}
@@ -177,7 +181,6 @@ export class ConnectionsService {
 
 	setConnectionInfo(id: string) {
 		this.defaultDisplayTable = null;
-		this.isHostedConnection = false;
 		if (id) {
 			this.fetchConnection(id).subscribe((res) => {
 				this.connection = res.connection;
@@ -215,7 +218,6 @@ export class ConnectionsService {
 						},
 					});
 				}
-				this.checkIfHostedConnection(res.connection.host);
 			});
 		} else {
 			this.connection = { ...this.connectionInitialState };
@@ -233,9 +235,6 @@ export class ConnectionsService {
 				},
 			});
 		}
-
-		console.log('this.defaultDisplayTable');
-		console.log(this.defaultDisplayTable);
 	}
 
 	isPermitted(accessLevel: AccessLevel) {
@@ -605,9 +604,5 @@ export class ConnectionsService {
 				return EMPTY;
 			}),
 		);
-	}
-
-	private checkIfHostedConnection(connectionHost: string) {
-		this.isHostedConnection = !!environment.saas && !!connectionHost && connectionHost.endsWith('.db.rocketadmin.com');
 	}
 }
