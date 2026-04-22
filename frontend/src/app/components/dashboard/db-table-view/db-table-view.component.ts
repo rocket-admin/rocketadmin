@@ -417,6 +417,7 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 	}
 
 	getCellValue(foreignKey: TableForeignKey, cell) {
+		if (cell == null) return null;
 		const identityColumnName = Object.keys(cell).find((key) => key !== foreignKey.referenced_column_name);
 		if (identityColumnName) {
 			return cell[identityColumnName];
@@ -680,6 +681,7 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 	}
 
 	isForeignKeySelected(record, foreignKey: TableForeignKey) {
+		if (record == null) return false;
 		const primaryKeyValue = record[foreignKey.referenced_column_name];
 
 		if (this.selectedRowType === 'foreignKey' && this.selectedRow && this.selectedRow.record !== null) {

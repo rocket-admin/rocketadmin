@@ -1,8 +1,12 @@
-<a
-  [routerLink]="link()"
-  [queryParams]="foreignKeyURLParams"
-  class="field-view-value foreign-key-link"
-  (click)="onForeignKeyClick.emit({ foreignKey: primaryKeysParams(), value: displayValue() })">
-  <span>{{displayValue()}}</span>
-  <mat-icon fontSet="material-symbols-outlined" class="field-view-icon">visibility</mat-icon>
-</a>
+@if (displayValue() == null) {
+  <span class="field-view-value">—</span>
+} @else {
+  <a
+    [routerLink]="link()"
+    [queryParams]="foreignKeyURLParams"
+    class="field-view-value foreign-key-link"
+    (click)="onForeignKeyClick.emit({ foreignKey: primaryKeysParams(), value: displayValue() })">
+    <span>{{displayValue()}}</span>
+    <mat-icon fontSet="material-symbols-outlined" class="field-view-icon">visibility</mat-icon>
+  </a>
+}
