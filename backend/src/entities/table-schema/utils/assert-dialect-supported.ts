@@ -1,20 +1,23 @@
 import { BadRequestException } from '@nestjs/common';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 
-const PHASE_1_DIALECTS: ReadonlySet<ConnectionTypesEnum> = new Set([
+const SUPPORTED_DIALECTS: ReadonlySet<ConnectionTypesEnum> = new Set([
 	ConnectionTypesEnum.postgres,
 	ConnectionTypesEnum.mysql,
 	ConnectionTypesEnum.mysql2,
+	ConnectionTypesEnum.mssql,
+	ConnectionTypesEnum.oracledb,
+	ConnectionTypesEnum.ibmdb2,
 ]);
 
 export function isDialectSupported(connectionType: ConnectionTypesEnum): boolean {
-	return PHASE_1_DIALECTS.has(connectionType);
+	return SUPPORTED_DIALECTS.has(connectionType);
 }
 
 export function assertDialectSupported(connectionType: ConnectionTypesEnum): void {
 	if (!isDialectSupported(connectionType)) {
 		throw new BadRequestException(
-			`Schema changes via AI are not yet supported for "${connectionType}". Supported: PostgreSQL, MySQL.`,
+			`Schema changes via AI are not yet supported for "${connectionType}". Supported: PostgreSQL, MySQL, Microsoft SQL Server, Oracle DB, IBM DB2.`,
 		);
 	}
 }
@@ -27,6 +30,8 @@ const SQL_PARSER_DIALECTS: Record<string, string> = {
 	[ConnectionTypesEnum.agent_mysql]: 'MySQL',
 	[ConnectionTypesEnum.mssql]: 'TransactSQL',
 	[ConnectionTypesEnum.agent_mssql]: 'TransactSQL',
+	[ConnectionTypesEnum.ibmdb2]: 'DB2',
+	[ConnectionTypesEnum.agent_ibmdb2]: 'DB2',
 };
 
 export function connectionTypeToParserDialect(connectionType: ConnectionTypesEnum): string {

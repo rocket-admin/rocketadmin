@@ -35,7 +35,6 @@ export class GenerateSchemaChangeUseCase
 
 	protected async implementation(inputData: GenerateSchemaChangeDs): Promise<SchemaChangeResponseDto> {
 		const { connectionId, userPrompt, userId, masterPassword } = inputData;
-		this.logger.log(`generate start: connectionId=${connectionId}, promptLen=${userPrompt.length}`);
 
 		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(
 			connectionId,
@@ -44,7 +43,6 @@ export class GenerateSchemaChangeUseCase
 		if (!connection) {
 			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
 		}
-		this.logger.log(`generate: connection type=${connection.type}, masterEncryption=${connection.masterEncryption}`);
 
 		const connectionType = connection.type as ConnectionTypesEnum;
 		assertDialectSupported(connectionType);
@@ -63,8 +61,6 @@ export class GenerateSchemaChangeUseCase
 		const messages = new MessageBuilder().system(systemPrompt).human(userPrompt).build();
 		const tools = createSchemaChangeTools();
 
-		this.logger.log(`generate: tables=${tableNames.length}, invoking AI provider=${this.provider}`);
-
 		let proposal;
 		try {
 			const result = await runSchemaChangeAiLoop({
@@ -81,9 +77,6 @@ export class GenerateSchemaChangeUseCase
 			this.logger.error(`AI loop failed: ${(err as Error).message}`);
 			throw new BadRequestException(`AI generation failed: ${(err as Error).message}`);
 		}
-		this.logger.log(
-			`generate: proposal received forwardSql=${proposal.forwardSql.slice(0, 80)}..., changeType=${proposal.changeType}`,
-		);
 
 		validateProposedDdl({
 			sql: proposal.forwardSql,

@@ -164,9 +164,6 @@ test.serial('generate → approve creates the table in the target DB', async (t)
 		.set('Cookie', token)
 		.set('Content-Type', 'application/json')
 		.send({ userPrompt: `create a ${tableName} table with id and name` });
-	if (generateResp.status !== 201) {
-		console.error('generate failed:', generateResp.status, generateResp.text);
-	}
 	t.is(generateResp.status, 201);
 	const change = JSON.parse(generateResp.text);
 	t.is(change.status, SchemaChangeStatusEnum.PENDING);
@@ -371,4 +368,321 @@ test.serial('destructive change requires confirmedDestructive=true', async (t) =
 	t.is(secondApproveResp.status, 200);
 	t.is(JSON.parse(secondApproveResp.text).status, SchemaChangeStatusEnum.APPLIED);
 	t.false(await knex.schema.hasTable(seedTableName));
+});
+
+test.serial('ADD COLUMN: approve adds the column; rollback removes it', async (t) => {
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const connectionId = await createConnection(token);
+	const tableName = `ra_addcol_${faker.string.alphanumeric(6).toLowerCase()}`;
+	testTables.push(tableName);
+
+	const knex = getTestKnex(getTestData(mockFactory).connectionToPostgres);
+	await knex.schema.createTable(tableName, (table) => {
+		table.increments();
+	});
+
+	nextProposal = {
+		forwardSql: `ALTER TABLE "${tableName}" ADD COLUMN "phone" VARCHAR(255)`,
+		rollbackSql: `ALTER TABLE "${tableName}" DROP COLUMN "phone"`,
+		changeType: SchemaChangeTypeEnum.ADD_COLUMN,
+		targetTableName: tableName,
+		isReversible: true,
+		summary: 'add phone column',
+		reasoning: '',
+	};
+
+	const generateResp = await request(app.getHttpServer())
+		.post(`/table-schema/${connectionId}/generate`)
+		.set('Cookie', token)
+		.send({ userPrompt: 'add phone column' });
+	t.is(generateResp.status, 201);
+	const changeId = JSON.parse(generateResp.text).id;
+
+	const approveResp = await request(app.getHttpServer())
+		.post(`/table-schema/change/${changeId}/approve`)
+		.set('Cookie', token)
+		.send({});
+	t.is(approveResp.status, 200);
+	t.is(JSON.parse(approveResp.text).status, SchemaChangeStatusEnum.APPLIED);
+	t.true(await knex.schema.hasColumn(tableName, 'phone'));
+
+	const rollbackResp = await request(app.getHttpServer())
+		.post(`/table-schema/change/${changeId}/rollback`)
+		.set('Cookie', token)
+		.send();
+	t.is(rollbackResp.status, 200);
+	t.is(JSON.parse(rollbackResp.text).status, SchemaChangeStatusEnum.ROLLED_BACK);
+	t.false(await knex.schema.hasColumn(tableName, 'phone'));
+});
+
+test.serial('DROP COLUMN: blocked without confirmedDestructive, succeeds with it', async (t) => {
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const connectionId = await createConnection(token);
+	const tableName = `ra_dropcol_${faker.string.alphanumeric(6).toLowerCase()}`;
+	testTables.push(tableName);
+
+	const knex = getTestKnex(getTestData(mockFactory).connectionToPostgres);
+	await knex.schema.createTable(tableName, (table) => {
+		table.increments();
+		table.string('phone', 255);
+	});
+
+	nextProposal = {
+		forwardSql: `ALTER TABLE "${tableName}" DROP COLUMN "phone"`,
+		rollbackSql: `ALTER TABLE "${tableName}" ADD COLUMN "phone" VARCHAR(255)`,
+		changeType: SchemaChangeTypeEnum.DROP_COLUMN,
+		targetTableName: tableName,
+		isReversible: false,
+		summary: 'drop phone column',
+		reasoning: 'destructive drop',
+	};
+
+	const generateResp = await request(app.getHttpServer())
+		.post(`/table-schema/${connectionId}/generate`)
+		.set('Cookie', token)
+		.send({ userPrompt: 'drop phone column' });
+	const changeId = JSON.parse(generateResp.text).id;
+
+	const firstApproveResp = await request(app.getHttpServer())
+		.post(`/table-schema/change/${changeId}/approve`)
+		.set('Cookie', token)
+		.send({});
+	t.is(firstApproveResp.status, 400);
+	t.is(firstApproveResp.body?.type, 'destructive_confirmation_required');
+	t.true(await knex.schema.hasColumn(tableName, 'phone'));
+
+	const secondApproveResp = await request(app.getHttpServer())
+		.post(`/table-schema/change/${changeId}/approve`)
+		.set('Cookie', token)
+		.send({ confirmedDestructive: true });
+	t.is(secondApproveResp.status, 200);
+	t.is(JSON.parse(secondApproveResp.text).status, SchemaChangeStatusEnum.APPLIED);
+	t.false(await knex.schema.hasColumn(tableName, 'phone'));
+});
+
+test.serial('userModifiedSql is validated and applied in place of AI SQL', async (t) => {
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const connectionId = await createConnection(token);
+	const tableName = `ra_um_${faker.string.alphanumeric(6).toLowerCase()}`;
+	testTables.push(tableName);
+
+	nextProposal = {
+		forwardSql: `CREATE TABLE "${tableName}" (id SERIAL PRIMARY KEY, foo TEXT)`,
+		rollbackSql: `DROP TABLE "${tableName}"`,
+		changeType: SchemaChangeTypeEnum.CREATE_TABLE,
+		targetTableName: tableName,
+		isReversible: true,
+		summary: 'ai original',
+		reasoning: '',
+	};
+
+	const generateResp = await request(app.getHttpServer())
+		.post(`/table-schema/${connectionId}/generate`)
+		.set('Cookie', token)
+		.send({ userPrompt: 'create table' });
+	const changeId = JSON.parse(generateResp.text).id;
+
+	const editedSql = `CREATE TABLE "${tableName}" (id SERIAL PRIMARY KEY, bar TEXT)`;
+	const approveResp = await request(app.getHttpServer())
+		.post(`/table-schema/change/${changeId}/approve`)
+		.set('Cookie', token)
+		.send({ userModifiedSql: editedSql });
+	t.is(approveResp.status, 200);
+	const applied = JSON.parse(approveResp.text);
+	t.is(applied.status, SchemaChangeStatusEnum.APPLIED);
+	t.is(applied.userModifiedSql, editedSql);
+
+	const knex = getTestKnex(getTestData(mockFactory).connectionToPostgres);
+	t.true(await knex.schema.hasColumn(tableName, 'bar'));
+	t.false(await knex.schema.hasColumn(tableName, 'foo'));
+});
+
+test.serial('userModifiedSql with a forbidden construct is rejected', async (t) => {
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const connectionId = await createConnection(token);
+	const tableName = `ra_umbad_${faker.string.alphanumeric(6).toLowerCase()}`;
+
+	nextProposal = {
+		forwardSql: `CREATE TABLE "${tableName}" (id SERIAL PRIMARY KEY)`,
+		rollbackSql: `DROP TABLE "${tableName}"`,
+		changeType: SchemaChangeTypeEnum.CREATE_TABLE,
+		targetTableName: tableName,
+		isReversible: true,
+		summary: 'valid ai proposal',
+		reasoning: '',
+	};
+
+	const generateResp = await request(app.getHttpServer())
+		.post(`/table-schema/${connectionId}/generate`)
+		.set('Cookie', token)
+		.send({ userPrompt: 'create table' });
+	const changeId = JSON.parse(generateResp.text).id;
+
+	const approveResp = await request(app.getHttpServer())
+		.post(`/table-schema/change/${changeId}/approve`)
+		.set('Cookie', token)
+		.send({ userModifiedSql: `GRANT ALL ON "${tableName}" TO PUBLIC` });
+	t.is(approveResp.status, 400);
+
+	const getResp = await request(app.getHttpServer()).get(`/table-schema/change/${changeId}`).set('Cookie', token);
+	t.is(JSON.parse(getResp.text).status, SchemaChangeStatusEnum.PENDING);
+
+	const knex = getTestKnex(getTestData(mockFactory).connectionToPostgres);
+	t.false(await knex.schema.hasTable(tableName));
+});
+
+test.serial('ADD INDEX approve creates a named index; rollback drops it', async (t) => {
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const connectionId = await createConnection(token);
+	const tableName = `ra_idx_${faker.string.alphanumeric(6).toLowerCase()}`;
+	const indexName = `ix_${tableName}_email`;
+	testTables.push(tableName);
+
+	const knex = getTestKnex(getTestData(mockFactory).connectionToPostgres);
+	await knex.schema.createTable(tableName, (table) => {
+		table.increments();
+		table.string('email', 255);
+	});
+
+	nextProposal = {
+		forwardSql: `CREATE INDEX "${indexName}" ON "${tableName}" ("email")`,
+		rollbackSql: `DROP INDEX "${indexName}"`,
+		changeType: SchemaChangeTypeEnum.ADD_INDEX,
+		targetTableName: tableName,
+		isReversible: true,
+		summary: 'add email index',
+		reasoning: '',
+	};
+
+	const generateResp = await request(app.getHttpServer())
+		.post(`/table-schema/${connectionId}/generate`)
+		.set('Cookie', token)
+		.send({ userPrompt: 'add index' });
+	t.is(generateResp.status, 201);
+	const changeId = JSON.parse(generateResp.text).id;
+
+	const approveResp = await request(app.getHttpServer())
+		.post(`/table-schema/change/${changeId}/approve`)
+		.set('Cookie', token)
+		.send({});
+	t.is(approveResp.status, 200);
+
+	const afterAdd = await knex.raw(`SELECT COUNT(*)::int AS c FROM pg_indexes WHERE indexname = ?`, [indexName]);
+	t.is(Number(afterAdd.rows[0].c), 1);
+
+	const rollbackResp = await request(app.getHttpServer())
+		.post(`/table-schema/change/${changeId}/rollback`)
+		.set('Cookie', token)
+		.send();
+	t.is(rollbackResp.status, 200);
+
+	const afterRollback = await knex.raw(`SELECT COUNT(*)::int AS c FROM pg_indexes WHERE indexname = ?`, [indexName]);
+	t.is(Number(afterRollback.rows[0].c), 0);
+});
+
+test.serial('ADD FOREIGN KEY cross-table reference; rollback drops it', async (t) => {
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const connectionId = await createConnection(token);
+	const parentName = `ra_par_${faker.string.alphanumeric(6).toLowerCase()}`;
+	const childName = `ra_ch_${faker.string.alphanumeric(6).toLowerCase()}`;
+	const fkName = `fk_${childName}_parent`;
+	testTables.push(parentName, childName);
+
+	const knex = getTestKnex(getTestData(mockFactory).connectionToPostgres);
+	await knex.schema.createTable(parentName, (table) => {
+		table.increments();
+	});
+	await knex.schema.createTable(childName, (table) => {
+		table.increments();
+		table.integer('parent_id').notNullable();
+	});
+
+	nextProposal = {
+		forwardSql: `ALTER TABLE "${childName}" ADD CONSTRAINT "${fkName}" FOREIGN KEY ("parent_id") REFERENCES "${parentName}" ("id")`,
+		rollbackSql: `ALTER TABLE "${childName}" DROP CONSTRAINT "${fkName}"`,
+		changeType: SchemaChangeTypeEnum.ADD_FOREIGN_KEY,
+		targetTableName: childName,
+		isReversible: true,
+		summary: 'add fk',
+		reasoning: '',
+	};
+
+	const generateResp = await request(app.getHttpServer())
+		.post(`/table-schema/${connectionId}/generate`)
+		.set('Cookie', token)
+		.send({ userPrompt: 'add fk' });
+	t.is(generateResp.status, 201);
+	const changeId = JSON.parse(generateResp.text).id;
+
+	const approveResp = await request(app.getHttpServer())
+		.post(`/table-schema/change/${changeId}/approve`)
+		.set('Cookie', token)
+		.send({});
+	t.is(approveResp.status, 200);
+
+	const afterAdd = await knex.raw(`SELECT COUNT(*)::int AS c FROM pg_constraint WHERE conname = ? AND contype = 'f'`, [
+		fkName,
+	]);
+	t.is(Number(afterAdd.rows[0].c), 1);
+
+	const rollbackResp = await request(app.getHttpServer())
+		.post(`/table-schema/change/${changeId}/rollback`)
+		.set('Cookie', token)
+		.send();
+	t.is(rollbackResp.status, 200);
+
+	const afterRollback = await knex.raw(
+		`SELECT COUNT(*)::int AS c FROM pg_constraint WHERE conname = ? AND contype = 'f'`,
+		[fkName],
+	);
+	t.is(Number(afterRollback.rows[0].c), 0);
+});
+
+test.serial('ALTER COLUMN widens VARCHAR → TEXT while preserving row data', async (t) => {
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const connectionId = await createConnection(token);
+	const tableName = `ra_alt_${faker.string.alphanumeric(6).toLowerCase()}`;
+	testTables.push(tableName);
+
+	const knex = getTestKnex(getTestData(mockFactory).connectionToPostgres);
+	await knex.schema.createTable(tableName, (table) => {
+		table.increments();
+		table.string('name', 32);
+	});
+	await knex(tableName).insert([{ name: 'alice' }, { name: 'bob' }, { name: 'carol' }]);
+
+	nextProposal = {
+		forwardSql: `ALTER TABLE "${tableName}" ALTER COLUMN "name" TYPE TEXT`,
+		rollbackSql: `ALTER TABLE "${tableName}" ALTER COLUMN "name" TYPE VARCHAR(32)`,
+		changeType: SchemaChangeTypeEnum.ALTER_COLUMN,
+		targetTableName: tableName,
+		isReversible: true,
+		summary: 'widen name column to text',
+		reasoning: '',
+	};
+
+	const generateResp = await request(app.getHttpServer())
+		.post(`/table-schema/${connectionId}/generate`)
+		.set('Cookie', token)
+		.send({ userPrompt: 'widen name to text' });
+	t.is(generateResp.status, 201);
+	const changeId = JSON.parse(generateResp.text).id;
+
+	const approveResp = await request(app.getHttpServer())
+		.post(`/table-schema/change/${changeId}/approve`)
+		.set('Cookie', token)
+		.send({});
+	t.is(approveResp.status, 200);
+
+	const typeRow = await knex.raw(
+		`SELECT data_type FROM information_schema.columns WHERE table_name = ? AND column_name = 'name'`,
+		[tableName],
+	);
+	t.is(typeRow.rows[0].data_type, 'text');
+
+	const rows = (await knex(tableName).select('name').orderBy('id')) as Array<{ name: string }>;
+	t.deepEqual(
+		rows.map((r) => r.name),
+		['alice', 'bob', 'carol'],
+	);
 });

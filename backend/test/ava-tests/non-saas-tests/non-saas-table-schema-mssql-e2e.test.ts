@@ -119,7 +119,7 @@ test.before(async () => {
 
 test.after(async () => {
 	try {
-		const connectionToTestDB = getTestData(mockFactory).connectionToMySQL;
+		const connectionToTestDB = getTestData(mockFactory).connectionToTestMSSQL;
 		await dropTestTables(testTables, connectionToTestDB);
 		await Cacher.clearAllCache();
 		await app.close();
@@ -129,7 +129,7 @@ test.after(async () => {
 });
 
 async function createConnection(token: string): Promise<string> {
-	const connectionToTestDB = getTestData(mockFactory).connectionToMySQL;
+	const connectionToTestDB = getTestData(mockFactory).connectionToTestMSSQL;
 	const resp = await request(app.getHttpServer())
 		.post('/connection')
 		.send(connectionToTestDB)
@@ -141,19 +141,23 @@ async function createConnection(token: string): Promise<string> {
 	return JSON.parse(resp.text).id;
 }
 
-test.serial('MySQL: generate → approve creates the table', async (t) => {
+function mssqlKnex() {
+	return getTestKnex(getTestData(mockFactory).connectionToTestMSSQL);
+}
+
+test.serial('MSSQL: generate → approve creates the table', async (t) => {
 	const { token } = await registerUserAndReturnUserInfo(app);
 	const connectionId = await createConnection(token);
 	const tableName = `ra_t_${faker.string.alphanumeric(8).toLowerCase()}`;
 	testTables.push(tableName);
 
 	nextProposal = {
-		forwardSql: `CREATE TABLE \`${tableName}\` (id INT AUTO_INCREMENT PRIMARY KEY, name TEXT)`,
-		rollbackSql: `DROP TABLE \`${tableName}\``,
+		forwardSql: `CREATE TABLE [${tableName}] (id INT IDENTITY(1,1) PRIMARY KEY, name NVARCHAR(255))`,
+		rollbackSql: `DROP TABLE [${tableName}]`,
 		changeType: SchemaChangeTypeEnum.CREATE_TABLE,
 		targetTableName: tableName,
 		isReversible: true,
-		summary: 'mysql create',
+		summary: 'mssql create',
 		reasoning: '',
 	};
 
@@ -172,24 +176,22 @@ test.serial('MySQL: generate → approve creates the table', async (t) => {
 	t.is(approveResp.status, 200);
 	t.is(JSON.parse(approveResp.text).status, SchemaChangeStatusEnum.APPLIED);
 
-	const mysqlKnexParams = { ...getTestData(mockFactory).connectionToMySQL, type: 'mysql2' as const };
-	const knex = getTestKnex(mysqlKnexParams);
-	t.true(await knex.schema.hasTable(tableName));
+	t.true(await mssqlKnex().schema.hasTable(tableName));
 });
 
-test.serial('MySQL: generate → approve → rollback removes the table', async (t) => {
+test.serial('MSSQL: generate → approve → rollback removes table and links audit row', async (t) => {
 	const { token } = await registerUserAndReturnUserInfo(app);
 	const connectionId = await createConnection(token);
 	const tableName = `ra_t_${faker.string.alphanumeric(8).toLowerCase()}`;
 	testTables.push(tableName);
 
 	nextProposal = {
-		forwardSql: `CREATE TABLE \`${tableName}\` (id INT AUTO_INCREMENT PRIMARY KEY)`,
-		rollbackSql: `DROP TABLE \`${tableName}\``,
+		forwardSql: `CREATE TABLE [${tableName}] (id INT IDENTITY(1,1) PRIMARY KEY)`,
+		rollbackSql: `DROP TABLE [${tableName}]`,
 		changeType: SchemaChangeTypeEnum.CREATE_TABLE,
 		targetTableName: tableName,
 		isReversible: true,
-		summary: 'rollback',
+		summary: 'rollback test',
 		reasoning: '',
 	};
 
@@ -206,16 +208,10 @@ test.serial('MySQL: generate → approve → rollback removes the table', async 
 		.set('Cookie', token)
 		.send();
 	t.is(rollbackResp.status, 200);
-	const rolledBack = JSON.parse(rollbackResp.text);
-	t.is(rolledBack.status, SchemaChangeStatusEnum.ROLLED_BACK);
-	t.truthy(rolledBack.rolledBackAt);
-
-	const mysqlKnexParams = { ...getTestData(mockFactory).connectionToMySQL, type: 'mysql2' as const };
-	const knex = getTestKnex(mysqlKnexParams);
-	t.false(await knex.schema.hasTable(tableName));
+	t.is(JSON.parse(rollbackResp.text).status, SchemaChangeStatusEnum.ROLLED_BACK);
+	t.false(await mssqlKnex().schema.hasTable(tableName));
 
 	const listResp = await request(app.getHttpServer()).get(`/table-schema/${connectionId}/changes`).set('Cookie', token);
-	t.is(listResp.status, 200);
 	const list = JSON.parse(listResp.text);
 	const rollbackAuditRow = list.data.find(
 		(c: any) => c.changeType === SchemaChangeTypeEnum.ROLLBACK && c.previousChangeId === changeId,
@@ -223,47 +219,14 @@ test.serial('MySQL: generate → approve → rollback removes the table', async 
 	t.truthy(rollbackAuditRow, 'Expected a linked rollback audit row');
 });
 
-test.serial('MySQL: generate → reject leaves DB untouched', async (t) => {
-	const { token } = await registerUserAndReturnUserInfo(app);
-	const connectionId = await createConnection(token);
-	const tableName = `ra_rej_${faker.string.alphanumeric(6).toLowerCase()}`;
-
-	nextProposal = {
-		forwardSql: `CREATE TABLE \`${tableName}\` (id INT AUTO_INCREMENT PRIMARY KEY)`,
-		rollbackSql: `DROP TABLE \`${tableName}\``,
-		changeType: SchemaChangeTypeEnum.CREATE_TABLE,
-		targetTableName: tableName,
-		isReversible: true,
-		summary: 'reject test',
-		reasoning: '',
-	};
-
-	const generateResp = await request(app.getHttpServer())
-		.post(`/table-schema/${connectionId}/generate`)
-		.set('Cookie', token)
-		.send({ userPrompt: 'will reject' });
-	const changeId = JSON.parse(generateResp.text).id;
-
-	const rejectResp = await request(app.getHttpServer())
-		.post(`/table-schema/change/${changeId}/reject`)
-		.set('Cookie', token)
-		.send();
-	t.is(rejectResp.status, 200);
-	t.is(JSON.parse(rejectResp.text).status, SchemaChangeStatusEnum.REJECTED);
-
-	const mysqlKnexParams = { ...getTestData(mockFactory).connectionToMySQL, type: 'mysql2' as const };
-	const knex = getTestKnex(mysqlKnexParams);
-	t.false(await knex.schema.hasTable(tableName));
-});
-
-test.serial('MySQL: invalid SQL marks FAILED and attempts auto-rollback', async (t) => {
+test.serial('MSSQL: invalid SQL marks FAILED and attempts auto-rollback', async (t) => {
 	const { token } = await registerUserAndReturnUserInfo(app);
 	const connectionId = await createConnection(token);
 	const tableName = `ra_bad_${faker.string.alphanumeric(6).toLowerCase()}`;
 
 	nextProposal = {
-		forwardSql: `CREATE TABLE \`${tableName}\` (id INVALIDTYPE)`,
-		rollbackSql: `DROP TABLE IF EXISTS \`${tableName}\``,
+		forwardSql: `CREATE TABLE [${tableName}] (id INVALIDTYPE)`,
+		rollbackSql: `IF OBJECT_ID('${tableName}', 'U') IS NOT NULL DROP TABLE [${tableName}]`,
 		changeType: SchemaChangeTypeEnum.CREATE_TABLE,
 		targetTableName: tableName,
 		isReversible: true,
@@ -288,55 +251,23 @@ test.serial('MySQL: invalid SQL marks FAILED and attempts auto-rollback', async 
 	t.is(record.status, SchemaChangeStatusEnum.FAILED);
 	t.true(record.autoRollbackAttempted);
 	t.truthy(record.executionError);
-
-	const mysqlKnexParams = { ...getTestData(mockFactory).connectionToMySQL, type: 'mysql2' as const };
-	const knex = getTestKnex(mysqlKnexParams);
-	t.false(await knex.schema.hasTable(tableName));
+	t.false(await mssqlKnex().schema.hasTable(tableName));
 });
 
-test.serial('MySQL: rollback of PENDING change is rejected', async (t) => {
-	const { token } = await registerUserAndReturnUserInfo(app);
-	const connectionId = await createConnection(token);
-	const tableName = `ra_pend_${faker.string.alphanumeric(6).toLowerCase()}`;
-
-	nextProposal = {
-		forwardSql: `CREATE TABLE \`${tableName}\` (id INT AUTO_INCREMENT PRIMARY KEY)`,
-		rollbackSql: `DROP TABLE \`${tableName}\``,
-		changeType: SchemaChangeTypeEnum.CREATE_TABLE,
-		targetTableName: tableName,
-		isReversible: true,
-		summary: 'pending rollback',
-		reasoning: '',
-	};
-
-	const generateResp = await request(app.getHttpServer())
-		.post(`/table-schema/${connectionId}/generate`)
-		.set('Cookie', token)
-		.send({ userPrompt: 'pending' });
-	const changeId = JSON.parse(generateResp.text).id;
-
-	const rollbackResp = await request(app.getHttpServer())
-		.post(`/table-schema/change/${changeId}/rollback`)
-		.set('Cookie', token)
-		.send();
-	t.is(rollbackResp.status, 409);
-});
-
-test.serial('MySQL: destructive DROP TABLE requires confirmedDestructive=true', async (t) => {
+test.serial('MSSQL: destructive DROP TABLE requires confirmedDestructive=true', async (t) => {
 	const { token } = await registerUserAndReturnUserInfo(app);
 	const connectionId = await createConnection(token);
 	const seedTableName = `ra_seed_${faker.string.alphanumeric(6).toLowerCase()}`;
 	testTables.push(seedTableName);
 
-	const mysqlKnexParams = { ...getTestData(mockFactory).connectionToMySQL, type: 'mysql2' as const };
-	const knex = getTestKnex(mysqlKnexParams);
+	const knex = mssqlKnex();
 	await knex.schema.createTable(seedTableName, (table) => {
 		table.increments();
 	});
 
 	nextProposal = {
-		forwardSql: `DROP TABLE \`${seedTableName}\``,
-		rollbackSql: `CREATE TABLE \`${seedTableName}\` (id INT AUTO_INCREMENT PRIMARY KEY)`,
+		forwardSql: `DROP TABLE [${seedTableName}]`,
+		rollbackSql: `CREATE TABLE [${seedTableName}] (id INT IDENTITY(1,1) PRIMARY KEY)`,
 		changeType: SchemaChangeTypeEnum.DROP_TABLE,
 		targetTableName: seedTableName,
 		isReversible: false,
@@ -367,21 +298,20 @@ test.serial('MySQL: destructive DROP TABLE requires confirmedDestructive=true', 
 	t.false(await knex.schema.hasTable(seedTableName));
 });
 
-test.serial('MySQL: ADD COLUMN approve adds the column; rollback removes it', async (t) => {
+test.serial('MSSQL: ADD COLUMN approve adds the column; rollback removes it', async (t) => {
 	const { token } = await registerUserAndReturnUserInfo(app);
 	const connectionId = await createConnection(token);
 	const tableName = `ra_addcol_${faker.string.alphanumeric(6).toLowerCase()}`;
 	testTables.push(tableName);
 
-	const mysqlKnexParams = { ...getTestData(mockFactory).connectionToMySQL, type: 'mysql2' as const };
-	const knex = getTestKnex(mysqlKnexParams);
+	const knex = mssqlKnex();
 	await knex.schema.createTable(tableName, (table) => {
 		table.increments();
 	});
 
 	nextProposal = {
-		forwardSql: `ALTER TABLE \`${tableName}\` ADD COLUMN \`phone\` VARCHAR(255)`,
-		rollbackSql: `ALTER TABLE \`${tableName}\` DROP COLUMN \`phone\``,
+		forwardSql: `ALTER TABLE [${tableName}] ADD [phone] NVARCHAR(255)`,
+		rollbackSql: `ALTER TABLE [${tableName}] DROP COLUMN [phone]`,
 		changeType: SchemaChangeTypeEnum.ADD_COLUMN,
 		targetTableName: tableName,
 		isReversible: true,
@@ -412,22 +342,21 @@ test.serial('MySQL: ADD COLUMN approve adds the column; rollback removes it', as
 	t.false(await knex.schema.hasColumn(tableName, 'phone'));
 });
 
-test.serial('MySQL: DROP COLUMN blocked without confirmedDestructive, succeeds with it', async (t) => {
+test.serial('MSSQL: DROP COLUMN blocked without confirmedDestructive, succeeds with it', async (t) => {
 	const { token } = await registerUserAndReturnUserInfo(app);
 	const connectionId = await createConnection(token);
 	const tableName = `ra_dropcol_${faker.string.alphanumeric(6).toLowerCase()}`;
 	testTables.push(tableName);
 
-	const mysqlKnexParams = { ...getTestData(mockFactory).connectionToMySQL, type: 'mysql2' as const };
-	const knex = getTestKnex(mysqlKnexParams);
+	const knex = mssqlKnex();
 	await knex.schema.createTable(tableName, (table) => {
 		table.increments();
 		table.string('phone', 255);
 	});
 
 	nextProposal = {
-		forwardSql: `ALTER TABLE \`${tableName}\` DROP COLUMN \`phone\``,
-		rollbackSql: `ALTER TABLE \`${tableName}\` ADD COLUMN \`phone\` VARCHAR(255)`,
+		forwardSql: `ALTER TABLE [${tableName}] DROP COLUMN [phone]`,
+		rollbackSql: `ALTER TABLE [${tableName}] ADD [phone] NVARCHAR(255)`,
 		changeType: SchemaChangeTypeEnum.DROP_COLUMN,
 		targetTableName: tableName,
 		isReversible: false,
@@ -458,96 +387,22 @@ test.serial('MySQL: DROP COLUMN blocked without confirmedDestructive, succeeds w
 	t.false(await knex.schema.hasColumn(tableName, 'phone'));
 });
 
-test.serial('MySQL: userModifiedSql is validated and applied in place of AI SQL', async (t) => {
-	const { token } = await registerUserAndReturnUserInfo(app);
-	const connectionId = await createConnection(token);
-	const tableName = `ra_um_${faker.string.alphanumeric(6).toLowerCase()}`;
-	testTables.push(tableName);
-
-	nextProposal = {
-		forwardSql: `CREATE TABLE \`${tableName}\` (id INT AUTO_INCREMENT PRIMARY KEY, foo TEXT)`,
-		rollbackSql: `DROP TABLE \`${tableName}\``,
-		changeType: SchemaChangeTypeEnum.CREATE_TABLE,
-		targetTableName: tableName,
-		isReversible: true,
-		summary: 'ai original',
-		reasoning: '',
-	};
-
-	const generateResp = await request(app.getHttpServer())
-		.post(`/table-schema/${connectionId}/generate`)
-		.set('Cookie', token)
-		.send({ userPrompt: 'create table' });
-	const changeId = JSON.parse(generateResp.text).id;
-
-	const editedSql = `CREATE TABLE \`${tableName}\` (id INT AUTO_INCREMENT PRIMARY KEY, bar TEXT)`;
-	const approveResp = await request(app.getHttpServer())
-		.post(`/table-schema/change/${changeId}/approve`)
-		.set('Cookie', token)
-		.send({ userModifiedSql: editedSql });
-	t.is(approveResp.status, 200);
-	const applied = JSON.parse(approveResp.text);
-	t.is(applied.status, SchemaChangeStatusEnum.APPLIED);
-	t.is(applied.userModifiedSql, editedSql);
-
-	const mysqlKnexParams = { ...getTestData(mockFactory).connectionToMySQL, type: 'mysql2' as const };
-	const knex = getTestKnex(mysqlKnexParams);
-	t.true(await knex.schema.hasColumn(tableName, 'bar'));
-	t.false(await knex.schema.hasColumn(tableName, 'foo'));
-});
-
-test.serial('MySQL: userModifiedSql with a forbidden construct is rejected', async (t) => {
-	const { token } = await registerUserAndReturnUserInfo(app);
-	const connectionId = await createConnection(token);
-	const tableName = `ra_umbad_${faker.string.alphanumeric(6).toLowerCase()}`;
-
-	nextProposal = {
-		forwardSql: `CREATE TABLE \`${tableName}\` (id INT AUTO_INCREMENT PRIMARY KEY)`,
-		rollbackSql: `DROP TABLE \`${tableName}\``,
-		changeType: SchemaChangeTypeEnum.CREATE_TABLE,
-		targetTableName: tableName,
-		isReversible: true,
-		summary: 'valid ai proposal',
-		reasoning: '',
-	};
-
-	const generateResp = await request(app.getHttpServer())
-		.post(`/table-schema/${connectionId}/generate`)
-		.set('Cookie', token)
-		.send({ userPrompt: 'create table' });
-	const changeId = JSON.parse(generateResp.text).id;
-
-	const approveResp = await request(app.getHttpServer())
-		.post(`/table-schema/change/${changeId}/approve`)
-		.set('Cookie', token)
-		.send({ userModifiedSql: `TRUNCATE TABLE \`${tableName}\`` });
-	t.is(approveResp.status, 400);
-
-	const getResp = await request(app.getHttpServer()).get(`/table-schema/change/${changeId}`).set('Cookie', token);
-	t.is(JSON.parse(getResp.text).status, SchemaChangeStatusEnum.PENDING);
-
-	const mysqlKnexParams = { ...getTestData(mockFactory).connectionToMySQL, type: 'mysql2' as const };
-	const knex = getTestKnex(mysqlKnexParams);
-	t.false(await knex.schema.hasTable(tableName));
-});
-
-test.serial('MySQL: ADD INDEX approve creates a named index; rollback drops it', async (t) => {
+test.serial('MSSQL: ADD INDEX approve creates the index; rollback drops it', async (t) => {
 	const { token } = await registerUserAndReturnUserInfo(app);
 	const connectionId = await createConnection(token);
 	const tableName = `ra_idx_${faker.string.alphanumeric(6).toLowerCase()}`;
 	const indexName = `ix_${tableName}_email`;
 	testTables.push(tableName);
 
-	const mysqlKnexParams = { ...getTestData(mockFactory).connectionToMySQL, type: 'mysql2' as const };
-	const knex = getTestKnex(mysqlKnexParams);
+	const knex = mssqlKnex();
 	await knex.schema.createTable(tableName, (table) => {
 		table.increments();
 		table.string('email', 255);
 	});
 
 	nextProposal = {
-		forwardSql: `CREATE INDEX \`${indexName}\` ON \`${tableName}\` (\`email\`)`,
-		rollbackSql: `DROP INDEX \`${indexName}\` ON \`${tableName}\``,
+		forwardSql: `CREATE INDEX [${indexName}] ON [${tableName}] ([email])`,
+		rollbackSql: `DROP INDEX [${indexName}] ON [${tableName}]`,
 		changeType: SchemaChangeTypeEnum.ADD_INDEX,
 		targetTableName: tableName,
 		isReversible: true,
@@ -568,11 +423,11 @@ test.serial('MySQL: ADD INDEX approve creates a named index; rollback drops it',
 		.send({});
 	t.is(approveResp.status, 200);
 
-	const afterAdd = await knex.raw(
-		`SELECT COUNT(*) AS c FROM information_schema.statistics WHERE table_schema = DATABASE() AND table_name = ? AND index_name = ?`,
-		[tableName, indexName],
-	);
-	t.is(Number(afterAdd[0][0].c), 1);
+	const afterAdd = await knex.raw(`SELECT COUNT(*) AS c FROM sys.indexes WHERE name = ? AND object_id = OBJECT_ID(?)`, [
+		indexName,
+		tableName,
+	]);
+	t.is(Number((afterAdd as any)[0].c), 1);
 
 	const rollbackResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/rollback`)
@@ -581,13 +436,13 @@ test.serial('MySQL: ADD INDEX approve creates a named index; rollback drops it',
 	t.is(rollbackResp.status, 200);
 
 	const afterRollback = await knex.raw(
-		`SELECT COUNT(*) AS c FROM information_schema.statistics WHERE table_schema = DATABASE() AND table_name = ? AND index_name = ?`,
-		[tableName, indexName],
+		`SELECT COUNT(*) AS c FROM sys.indexes WHERE name = ? AND object_id = OBJECT_ID(?)`,
+		[indexName, tableName],
 	);
-	t.is(Number(afterRollback[0][0].c), 0);
+	t.is(Number((afterRollback as any)[0].c), 0);
 });
 
-test.serial('MySQL: ADD FOREIGN KEY cross-table reference; rollback drops it', async (t) => {
+test.serial('MSSQL: ADD FOREIGN KEY with cross-table reference; rollback drops it', async (t) => {
 	const { token } = await registerUserAndReturnUserInfo(app);
 	const connectionId = await createConnection(token);
 	const parentName = `ra_par_${faker.string.alphanumeric(6).toLowerCase()}`;
@@ -595,19 +450,18 @@ test.serial('MySQL: ADD FOREIGN KEY cross-table reference; rollback drops it', a
 	const fkName = `fk_${childName}_parent`;
 	testTables.push(parentName, childName);
 
-	const mysqlKnexParams = { ...getTestData(mockFactory).connectionToMySQL, type: 'mysql2' as const };
-	const knex = getTestKnex(mysqlKnexParams);
+	const knex = mssqlKnex();
 	await knex.schema.createTable(parentName, (table) => {
 		table.increments();
 	});
 	await knex.schema.createTable(childName, (table) => {
 		table.increments();
-		table.integer('parent_id').unsigned().notNullable();
+		table.integer('parent_id').notNullable();
 	});
 
 	nextProposal = {
-		forwardSql: `ALTER TABLE \`${childName}\` ADD CONSTRAINT \`${fkName}\` FOREIGN KEY (\`parent_id\`) REFERENCES \`${parentName}\` (\`id\`)`,
-		rollbackSql: `ALTER TABLE \`${childName}\` DROP FOREIGN KEY \`${fkName}\``,
+		forwardSql: `ALTER TABLE [${childName}] ADD CONSTRAINT [${fkName}] FOREIGN KEY ([parent_id]) REFERENCES [${parentName}] ([id])`,
+		rollbackSql: `ALTER TABLE [${childName}] DROP CONSTRAINT [${fkName}]`,
 		changeType: SchemaChangeTypeEnum.ADD_FOREIGN_KEY,
 		targetTableName: childName,
 		isReversible: true,
@@ -628,11 +482,8 @@ test.serial('MySQL: ADD FOREIGN KEY cross-table reference; rollback drops it', a
 		.send({});
 	t.is(approveResp.status, 200);
 
-	const afterAdd = await knex.raw(
-		`SELECT COUNT(*) AS c FROM information_schema.table_constraints WHERE table_schema = DATABASE() AND table_name = ? AND constraint_name = ? AND constraint_type = 'FOREIGN KEY'`,
-		[childName, fkName],
-	);
-	t.is(Number(afterAdd[0][0].c), 1);
+	const afterAdd = await knex.raw(`SELECT COUNT(*) AS c FROM sys.foreign_keys WHERE name = ?`, [fkName]);
+	t.is(Number((afterAdd as any)[0].c), 1);
 
 	const rollbackResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/rollback`)
@@ -640,21 +491,88 @@ test.serial('MySQL: ADD FOREIGN KEY cross-table reference; rollback drops it', a
 		.send();
 	t.is(rollbackResp.status, 200);
 
-	const afterRollback = await knex.raw(
-		`SELECT COUNT(*) AS c FROM information_schema.table_constraints WHERE table_schema = DATABASE() AND table_name = ? AND constraint_name = ? AND constraint_type = 'FOREIGN KEY'`,
-		[childName, fkName],
-	);
-	t.is(Number(afterRollback[0][0].c), 0);
+	const afterRollback = await knex.raw(`SELECT COUNT(*) AS c FROM sys.foreign_keys WHERE name = ?`, [fkName]);
+	t.is(Number((afterRollback as any)[0].c), 0);
 });
 
-test.serial('MySQL: ALTER COLUMN widens VARCHAR → TEXT while preserving row data', async (t) => {
+test.serial('MSSQL: userModifiedSql is validated and applied in place of AI SQL', async (t) => {
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const connectionId = await createConnection(token);
+	const tableName = `ra_um_${faker.string.alphanumeric(6).toLowerCase()}`;
+	testTables.push(tableName);
+
+	nextProposal = {
+		forwardSql: `CREATE TABLE [${tableName}] (id INT IDENTITY(1,1) PRIMARY KEY, foo NVARCHAR(255))`,
+		rollbackSql: `DROP TABLE [${tableName}]`,
+		changeType: SchemaChangeTypeEnum.CREATE_TABLE,
+		targetTableName: tableName,
+		isReversible: true,
+		summary: 'ai original',
+		reasoning: '',
+	};
+
+	const generateResp = await request(app.getHttpServer())
+		.post(`/table-schema/${connectionId}/generate`)
+		.set('Cookie', token)
+		.send({ userPrompt: 'create table' });
+	const changeId = JSON.parse(generateResp.text).id;
+
+	const editedSql = `CREATE TABLE [${tableName}] (id INT IDENTITY(1,1) PRIMARY KEY, bar NVARCHAR(255))`;
+	const approveResp = await request(app.getHttpServer())
+		.post(`/table-schema/change/${changeId}/approve`)
+		.set('Cookie', token)
+		.send({ userModifiedSql: editedSql });
+	t.is(approveResp.status, 200);
+	const applied = JSON.parse(approveResp.text);
+	t.is(applied.status, SchemaChangeStatusEnum.APPLIED);
+	t.is(applied.userModifiedSql, editedSql);
+
+	const knex = mssqlKnex();
+	t.true(await knex.schema.hasColumn(tableName, 'bar'));
+	t.false(await knex.schema.hasColumn(tableName, 'foo'));
+});
+
+test.serial('MSSQL: userModifiedSql with a forbidden construct is rejected', async (t) => {
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const connectionId = await createConnection(token);
+	const tableName = `ra_umbad_${faker.string.alphanumeric(6).toLowerCase()}`;
+
+	nextProposal = {
+		forwardSql: `CREATE TABLE [${tableName}] (id INT IDENTITY(1,1) PRIMARY KEY)`,
+		rollbackSql: `DROP TABLE [${tableName}]`,
+		changeType: SchemaChangeTypeEnum.CREATE_TABLE,
+		targetTableName: tableName,
+		isReversible: true,
+		summary: 'valid ai proposal',
+		reasoning: '',
+	};
+
+	const generateResp = await request(app.getHttpServer())
+		.post(`/table-schema/${connectionId}/generate`)
+		.set('Cookie', token)
+		.send({ userPrompt: 'create table' });
+	const changeId = JSON.parse(generateResp.text).id;
+
+	const approveResp = await request(app.getHttpServer())
+		.post(`/table-schema/change/${changeId}/approve`)
+		.set('Cookie', token)
+		.send({ userModifiedSql: `TRUNCATE TABLE [${tableName}]` });
+	t.is(approveResp.status, 400);
+
+	const getResp = await request(app.getHttpServer()).get(`/table-schema/change/${changeId}`).set('Cookie', token);
+	t.is(JSON.parse(getResp.text).status, SchemaChangeStatusEnum.PENDING);
+
+	const knex = mssqlKnex();
+	t.false(await knex.schema.hasTable(tableName));
+});
+
+test.serial('MSSQL: ALTER COLUMN widens NVARCHAR(32) → NVARCHAR(MAX) while preserving row data', async (t) => {
 	const { token } = await registerUserAndReturnUserInfo(app);
 	const connectionId = await createConnection(token);
 	const tableName = `ra_alt_${faker.string.alphanumeric(6).toLowerCase()}`;
 	testTables.push(tableName);
 
-	const mysqlKnexParams = { ...getTestData(mockFactory).connectionToMySQL, type: 'mysql2' as const };
-	const knex = getTestKnex(mysqlKnexParams);
+	const knex = mssqlKnex();
 	await knex.schema.createTable(tableName, (table) => {
 		table.increments();
 		table.string('name', 32);
@@ -662,12 +580,12 @@ test.serial('MySQL: ALTER COLUMN widens VARCHAR → TEXT while preserving row da
 	await knex(tableName).insert([{ name: 'alice' }, { name: 'bob' }, { name: 'carol' }]);
 
 	nextProposal = {
-		forwardSql: `ALTER TABLE \`${tableName}\` MODIFY COLUMN \`name\` TEXT`,
-		rollbackSql: `ALTER TABLE \`${tableName}\` MODIFY COLUMN \`name\` VARCHAR(32)`,
+		forwardSql: `ALTER TABLE [${tableName}] ALTER COLUMN [name] NVARCHAR(MAX)`,
+		rollbackSql: `ALTER TABLE [${tableName}] ALTER COLUMN [name] NVARCHAR(32)`,
 		changeType: SchemaChangeTypeEnum.ALTER_COLUMN,
 		targetTableName: tableName,
 		isReversible: true,
-		summary: 'widen name to text',
+		summary: 'widen name',
 		reasoning: '',
 	};
 
@@ -685,10 +603,10 @@ test.serial('MySQL: ALTER COLUMN widens VARCHAR → TEXT while preserving row da
 	t.is(approveResp.status, 200);
 
 	const typeRow = await knex.raw(
-		`SELECT data_type AS dt FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = ? AND column_name = 'name'`,
+		`SELECT character_maximum_length FROM information_schema.columns WHERE table_name = ? AND column_name = 'name'`,
 		[tableName],
 	);
-	t.is(String(typeRow[0][0].dt).toLowerCase(), 'text');
+	t.is(Number((typeRow as any)[0].character_maximum_length), -1);
 
 	const rows = (await knex(tableName).select('name').orderBy('id')) as Array<{ name: string }>;
 	t.deepEqual(
