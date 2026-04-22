@@ -125,6 +125,7 @@
                                     required: tableRowRequiredValues[value],
                                     readonly: (!canEditRow() && pageAction !== 'dub') || pageMode === 'view',
                                     disabled: isReadonlyField(value),
+                                    structure: tableRowStructure[value],
                                     widgetStructure: tableWidgets[value],
                                     relations: tableTypes[value] === 'foreign key' ? getRelations(value) : undefined,
                                     rowPrimaryKey: keyAttributesFromURL

@@ -438,4 +438,116 @@ describe('ForeignKeyEditComponent', () => {
 			},
 		]);
 	});
+
+	describe('nullable column', () => {
+		const nullableStructure = {
+			column_name: 'userId',
+			column_default: null,
+			data_type: 'integer',
+			isExcluded: false,
+			isSearched: false,
+			auto_increment: false,
+			allow_null: true,
+			character_maximum_length: null,
+		};
+
+		it('appends a "— empty" null option when structure.allow_null is true', async () => {
+			vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(usersTableNetwork));
+
+			component.connectionID = '12345678';
+			fixture.componentRef.setInput('value', '');
+			fixture.componentRef.setInput('structure', nullableStructure);
+
+			await component.ngOnInit();
+			fixture.detectChanges();
+
+			expect(component.allowsNull()).toBe(true);
+			const suggestions = component.suggestions();
+			expect(suggestions).toHaveLength(4);
+			expect(suggestions[suggestions.length - 1]).toEqual({
+				displayString: '— empty',
+				fieldValue: null,
+				isNullOption: true,
+			});
+		});
+
+		it('appends a null option when widget_params.allow_null is true', async () => {
+			vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(usersTableNetwork));
+
+			component.connectionID = '12345678';
+			fixture.componentRef.setInput('value', '');
+			fixture.componentRef.setInput('widgetStructure', {
+				field_name: 'userId',
+				widget_type: 'Foreign_key',
+				widget_params: { ...fakeRelations, allow_null: true },
+				name: '',
+				description: '',
+			});
+
+			await component.ngOnInit();
+			fixture.detectChanges();
+
+			expect(component.allowsNull()).toBe(true);
+			const suggestions = component.suggestions();
+			expect(suggestions[suggestions.length - 1].isNullOption).toBe(true);
+		});
+
+		it('does NOT append a null option when the column is not nullable', async () => {
+			vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of(usersTableNetwork));
+
+			component.connectionID = '12345678';
+			fixture.componentRef.setInput('value', '');
+			fixture.componentRef.setInput('structure', { ...nullableStructure, allow_null: false });
+
+			await component.ngOnInit();
+			fixture.detectChanges();
+
+			expect(component.allowsNull()).toBe(false);
+			expect(component.suggestions().some((s) => s.isNullOption)).toBe(false);
+		});
+
+		it('keeps the null option present when search returns no rows', async () => {
+			fixture.componentRef.setInput('structure', nullableStructure);
+			component.connectionID = '12345678';
+
+			vi.spyOn(tablesService, 'fetchTable').mockReturnValue(of({ rows: [] }));
+			component.currentDisplayedString = 'nomatches';
+			await component.fetchSuggestions();
+
+			expect(component.suggestions()).toEqual([
+				{ displayString: 'No field starts with "nomatches" in foreign entity.' },
+				{ displayString: '— empty', fieldValue: null, isNullOption: true },
+			]);
+		});
+
+		it('emits null and clears the related link when the null option is selected', () => {
+			const emitSpy = vi.spyOn(component.onFieldChange, 'emit');
+			component.suggestions.set([
+				{ displayString: '— empty', fieldValue: null, isNullOption: true },
+				{ displayString: 'Alex | Taylor', primaryKeys: { id: 33 }, fieldValue: 33 },
+			]);
+			component.currentFieldQueryParams = { id: 33 };
+			component.currentFieldValue = 33;
+
+			component.updateRelatedLink({ option: { value: '— empty' } } as any);
+
+			expect(component.currentFieldValue).toBeNull();
+			expect(component.currentFieldQueryParams).toBeUndefined();
+			expect(emitSpy).toHaveBeenCalledWith(null);
+		});
+
+		it('fetchSuggestions emits null when the current display string matches the null option', async () => {
+			const emitSpy = vi.spyOn(component.onFieldChange, 'emit');
+			component.suggestions.set([
+				{ displayString: '— empty', fieldValue: null, isNullOption: true },
+				{ displayString: 'Alex | Taylor', primaryKeys: { id: 33 }, fieldValue: 33 },
+			]);
+			component.currentDisplayedString = '— empty';
+
+			await component.fetchSuggestions();
+
+			expect(component.currentFieldValue).toBeNull();
+			expect(emitSpy).toHaveBeenCalledWith(null);
+		});
+	});
 });

@@ -1,5 +1,3 @@
-<!-- <pre>{{ value() }}</pre> -->
-
 <div class="foreign-key">
     <mat-form-field class="full-width" appearance="outline">
         <mat-label>{{normalizedLabel()}}</mat-label>
@@ -14,7 +12,7 @@
         <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" (optionSelected)="updateRelatedLink($event)">
             @for (suggestion of suggestions(); track suggestion.fieldValue) {
                 <mat-option
-                    [ngClass]="{'disabled': suggestion.displayString === 'No matches'}"
+                    [ngClass]="{'disabled': suggestion.displayString === 'No matches', 'foreign-key__null-option': suggestion.isNullOption}"
                     [value]="suggestion.displayString">
                     {{suggestion.displayString}}
                 </mat-option>
@@ -24,19 +22,17 @@
             <a routerLink="/dashboard/{{connectionID}}/{{relations().referenced_table_name}}/settings" class="hint-link">here</a>
         </mat-hint>
     </mat-form-field>
-    <a routerLink="/dashboard/{{connectionID}}/{{relations().referenced_table_name}}/entry"
-        [queryParams]="currentFieldQueryParams"
-        target="_blank"
-        class="foreign-key__link">
-        <mat-icon
-            class="foreign-key__link-icon"
-            matTooltip="Show related record"
-            matTooltipPosition="above">
-            open_in_new
-        </mat-icon>
-    </a>
+    @if (currentFieldValue != null) {
+        <a routerLink="/dashboard/{{connectionID}}/{{relations().referenced_table_name}}/entry"
+            [queryParams]="currentFieldQueryParams"
+            target="_blank"
+            class="foreign-key__link">
+            <mat-icon
+                class="foreign-key__link-icon"
+                matTooltip="Show related record"
+                matTooltipPosition="above">
+                open_in_new
+            </mat-icon>
+        </a>
+    }
 </div>
-
-<!-- <pre>{{ relations() | json }}</pre> -->
-<!-- <pre>{{ suggestions() | json}}</pre> -->
-<!-- <p>foreign-key component</p> -->

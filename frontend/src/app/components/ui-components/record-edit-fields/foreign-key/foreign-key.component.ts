@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, model, signal } from '@angular/core';
+import { Component, computed, inject, model, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -24,7 +24,16 @@ interface Suggestion {
 	displayString: string;
 	primaryKeys?: Record<string, unknown>;
 	fieldValue?: unknown;
+	isNullOption?: boolean;
 }
+
+const NULL_OPTION_LABEL = '— empty';
+
+const nullSuggestion: Suggestion = {
+	displayString: NULL_OPTION_LABEL,
+	fieldValue: null,
+	isNullOption: true,
+};
 
 @Component({
 	selector: 'app-edit-foreign-key',
@@ -58,6 +67,11 @@ export class ForeignKeyEditComponent extends BaseEditFieldComponent {
 	public primaeyKeys: { data_type: string; column_name: string }[];
 
 	public fkRelations: TableForeignKey = null;
+
+	public allowsNull = computed(() => {
+		const ws = this.widgetStructure();
+		return !!ws?.widget_params?.allow_null || !!this.structure()?.allow_null;
+	});
 
 	private _debounceTimer: ReturnType<typeof setTimeout>;
 
@@ -121,25 +135,27 @@ export class ForeignKeyEditComponent extends BaseEditFieldComponent {
 
 				this.identityColumn = suggestionsRes.identity_column;
 				this.suggestions.set(
-					suggestionsRes.rows.map((row) => {
-						const modifiedRow = this.getModifiedRow(row);
-						return {
-							displayString: this.identityColumn
-								? `${row[this.identityColumn]} (${Object.values(modifiedRow)
-										.filter((value) => value)
-										.join(' | ')})`
-								: Object.values(modifiedRow)
-										.filter((value) => value)
-										.join(' | '),
-							primaryKeys: Object.assign(
-								{},
-								...suggestionsRes.primaryColumns.map((primaeyKey) => ({
-									[primaeyKey.column_name]: row[primaeyKey.column_name],
-								})),
-							),
-							fieldValue: row[this.fkRelations.referenced_column_name],
-						};
-					}),
+					this.withNullOption(
+						suggestionsRes.rows.map((row) => {
+							const modifiedRow = this.getModifiedRow(row);
+							return {
+								displayString: this.identityColumn
+									? `${row[this.identityColumn]} (${Object.values(modifiedRow)
+											.filter((value) => value)
+											.join(' | ')})`
+									: Object.values(modifiedRow)
+											.filter((value) => value)
+											.join(' | '),
+								primaryKeys: Object.assign(
+									{},
+									...suggestionsRes.primaryColumns.map((primaeyKey) => ({
+										[primaeyKey.column_name]: row[primaeyKey.column_name],
+									})),
+								),
+								fieldValue: row[this.fkRelations.referenced_column_name],
+							};
+						}),
+					),
 				);
 				this.fetching.set(false);
 			} catch (error) {
@@ -181,32 +197,36 @@ export class ForeignKeyEditComponent extends BaseEditFieldComponent {
 
 				this.identityColumn = res.identity_column;
 				if (res.rows.length === 0) {
-					this.suggestions.set([
-						{
-							displayString: `No field starts with "${this.currentDisplayedString}" in foreign entity.`,
-						},
-					]);
+					this.suggestions.set(
+						this.withNullOption([
+							{
+								displayString: `No field starts with "${this.currentDisplayedString}" in foreign entity.`,
+							},
+						]),
+					);
 				} else {
 					this.suggestions.set(
-						res.rows.map((row) => {
-							const modifiedRow = this.getModifiedRow(row);
-							return {
-								displayString: this.identityColumn
-									? `${row[this.identityColumn]} (${Object.values(modifiedRow)
-											.filter((value) => value)
-											.join(' | ')})`
-									: Object.values(modifiedRow)
-											.filter((value) => value)
-											.join(' | '),
-								primaryKeys: Object.assign(
-									{},
-									...res.primaryColumns.map((primaeyKey) => ({
-										[primaeyKey.column_name]: row[primaeyKey.column_name],
-									})),
-								),
-								fieldValue: row[this.fkRelations.referenced_column_name],
-							};
-						}),
+						this.withNullOption(
+							res.rows.map((row) => {
+								const modifiedRow = this.getModifiedRow(row);
+								return {
+									displayString: this.identityColumn
+										? `${row[this.identityColumn]} (${Object.values(modifiedRow)
+												.filter((value) => value)
+												.join(' | ')})`
+										: Object.values(modifiedRow)
+												.filter((value) => value)
+												.join(' | '),
+									primaryKeys: Object.assign(
+										{},
+										...res.primaryColumns.map((primaeyKey) => ({
+											[primaeyKey.column_name]: row[primaeyKey.column_name],
+										})),
+									),
+									fieldValue: row[this.fkRelations.referenced_column_name],
+								};
+							}),
+						),
 					);
 				}
 				this.fetching.set(false);
@@ -239,8 +259,17 @@ export class ForeignKeyEditComponent extends BaseEditFieldComponent {
 	}
 
 	updateRelatedLink(e: MatAutocompleteSelectedEvent) {
-		this.currentFieldQueryParams = this.suggestions().find(
-			(suggestion) => suggestion.displayString === e.option.value,
-		).primaryKeys;
+		const selected = this.suggestions().find((suggestion) => suggestion.displayString === e.option.value);
+		if (selected?.isNullOption) {
+			this.currentFieldValue = null;
+			this.currentFieldQueryParams = undefined;
+			this.onFieldChange.emit(null);
+			return;
+		}
+		this.currentFieldQueryParams = selected?.primaryKeys;
+	}
+
+	private withNullOption(suggestions: Suggestion[]): Suggestion[] {
+		return this.allowsNull() ? [...suggestions, nullSuggestion] : suggestions;
 	}
 }
