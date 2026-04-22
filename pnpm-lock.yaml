@@ -195,6 +195,9 @@ importers:
       nanoid:
         specifier: 5.1.7
         version: 5.1.7
+      node-sql-parser:
+        specifier: ^5.3.0
+        version: 5.4.0
       nodemailer:
         specifier: ^8.0.4
         version: 8.0.5
@@ -2348,6 +2351,9 @@ packages:
   '@types/oracledb@6.10.3':
     resolution: {integrity: sha512-8SCGQF/VSiXnifVFTajmRNtjHUDTNxkd9SrBrvG2A/80uwLVee5xmv/juH4hnDNTfU9qxfd6HR4Mfmg2nC3RVw==}
 
+  '@types/pegjs@0.10.6':
+    resolution: {integrity: sha512-eLYXDbZWXh2uxf+w8sXS8d6KSoXTswfps6fvCUuVAGN8eRpfe7h9eSRydxiSJvo9Bf+GzifsDOr9TMQlmJdmkw==}
+
   '@types/pg-copy-streams@1.2.5':
     resolution: {integrity: sha512-7D6/GYW2uHIaVU6S/5omI+6RZnwlZBpLQDZAH83xX1rjxAOK0f6/deKyyUTewxqts145VIGn6XWYz1YGf50G5g==}
 
@@ -4381,6 +4387,10 @@ packages:
 
   node-releases@2.0.37:
     resolution: {integrity: sha512-1h5gKZCF+pO/o3Iqt5Jp7wc9rH3eJJ0+nh/CIoiRwjRxde/hAHyLPXYN4V3CqKAbiZPSeJFSWHmJsbkicta0Eg==}
+
+  node-sql-parser@5.4.0:
+    resolution: {integrity: sha512-jVe6Z61gPcPjCElPZ6j8llB3wnqGcuQzefim1ERsqIakxnEy5JlzV7XKdO1KmacRG5TKwPc4vJTgSRQ0LfkbFw==}
+    engines: {node: '>=8'}
 
   nodemailer@8.0.5:
     resolution: {integrity: sha512-0PF8Yb1yZuQfQbq+5/pZJrtF6WQcjTd5/S4JOHs9PGFxuTqoB/icwuB44pOdURHJbRKX1PPoJZtY7R4VUoCC8w==}
@@ -8291,6 +8301,8 @@ snapshots:
     dependencies:
       '@types/node': 24.12.2
 
+  '@types/pegjs@0.10.6': {}
+
   '@types/pg-copy-streams@1.2.5':
     dependencies:
       '@types/node': 24.12.2
@@ -8719,8 +8731,7 @@ snapshots:
       node-addon-api: 8.7.0
       node-gyp-build: 4.8.4
 
-  big-integer@1.6.52:
-    optional: true
+  big-integer@1.6.52: {}
 
   bindings@1.5.0:
     dependencies:
@@ -10371,6 +10382,11 @@ snapshots:
     optional: true
 
   node-releases@2.0.37: {}
+
+  node-sql-parser@5.4.0:
+    dependencies:
+      '@types/pegjs': 0.10.6
+      big-integer: 1.6.52
 
   nodemailer@8.0.5: {}
 

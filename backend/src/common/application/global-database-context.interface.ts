@@ -38,6 +38,8 @@ import { ITableFiltersCustomRepository } from '../../entities/table-filters/repo
 import { TableFiltersEntity } from '../../entities/table-filters/table-filters.entity.js';
 import { TableInfoEntity } from '../../entities/table-info/table-info.entity.js';
 import { ITableLogsRepository } from '../../entities/table-logs/repository/table-logs-repository.interface.js';
+import { ITableSchemaChangeRepository } from '../../entities/table-schema/repository/table-schema-change.repository.interface.js';
+import { TableSchemaChangeEntity } from '../../entities/table-schema/table-schema-change.entity.js';
 import { ITableSettingsRepository } from '../../entities/table-settings/common-table-settings/repository/table-settings.repository.interface.js';
 import { TableSettingsEntity } from '../../entities/table-settings/common-table-settings/table-settings.entity.js';
 import { PersonalTableSettingsEntity } from '../../entities/table-settings/personal-table-settings/personal-table-settings.entity.js';
@@ -57,10 +59,10 @@ import { ISignInAuditRepository } from '../../entities/user-sign-in-audit/reposi
 import { SignInAuditEntity } from '../../entities/user-sign-in-audit/sign-in-audit.entity.js';
 import { DashboardEntity } from '../../entities/visualizations/dashboard/dashboard.entity.js';
 import { IDashboardRepository } from '../../entities/visualizations/dashboard/repository/dashboard.repository.interface.js';
+import { PanelEntity } from '../../entities/visualizations/panel/panel.entity.js';
+import { IPanelRepository } from '../../entities/visualizations/panel/repository/saved-db-query.repository.interface.js';
 import { PanelPositionEntity } from '../../entities/visualizations/panel-position/panel-position.entity.js';
 import { IPanelPositionRepository } from '../../entities/visualizations/panel-position/repository/panel-position.repository.interface.js';
-import { IPanelRepository } from '../../entities/visualizations/panel/repository/saved-db-query.repository.interface.js';
-import { PanelEntity } from '../../entities/visualizations/panel/panel.entity.js';
 import { ITableWidgetsRepository } from '../../entities/widget/repository/table-widgets-repository.interface.js';
 import { TableWidgetEntity } from '../../entities/widget/table-widget.entity.js';
 import { IDatabaseContext } from '../database-context.interface.js';
@@ -106,4 +108,5 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
 	panelPositionRepository: Repository<PanelPositionEntity> & IPanelPositionRepository;
 	userAiChatRepository: Repository<UserAiChatEntity> & IUserAiChatRepository;
 	aiChatMessageRepository: Repository<AiChatMessageEntity> & IAiChatMessageRepository;
+	tableSchemaChangeRepository: Repository<TableSchemaChangeEntity> & ITableSchemaChangeRepository;
 }
