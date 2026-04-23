@@ -13,6 +13,8 @@ overrides:
   lodash@>=4.0.0 <=4.17.23: '>=4.18.0'
   lodash@<=4.17.23: '>=4.18.0'
   '@nestjs/core@<=11.1.17': '>=11.1.18'
+  fast-xml-parser@<5.7.0: '>=5.7.0'
+  uuid@<14.0.0: '>=14.0.0'
 
 packageExtensionsChecksum: sha256-qM/gPCDCAwbN43hScuRM/oThrQiWcAMxRCqJ3FQdbM0=
 
@@ -250,8 +252,8 @@ importers:
         specifier: ^0.3.4
         version: 0.3.4(@electric-sql/pglite@0.4.4)
       uuid:
-        specifier: ^13.0.0
-        version: 13.0.0
+        specifier: '>=14.0.0'
+        version: 14.0.0
       validator:
         specifier: ^13.15.26
         version: 13.15.35
@@ -1502,6 +1504,9 @@ packages:
   '@noble/hashes@1.8.0':
     resolution: {integrity: sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A==}
     engines: {node: ^14.21.3 || >=16}
+
+  '@nodable/entities@2.1.0':
+    resolution: {integrity: sha512-nyT7T3nbMyBI/lvr6L5TyWbFJAI9FTgVRakNoBqCD+PmID8DzFrrNdLLtHMwMszOtqZa8PAOV24ZqDnQrhQINA==}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -3419,8 +3424,8 @@ packages:
   fast-xml-builder@1.1.5:
     resolution: {integrity: sha512-4TJn/8FKLeslLAH3dnohXqE3QSoxkhvaMzepOIZytwJXZO69Bfz0HBdDHzOTOon6G59Zrk6VQ2bEiv1t61rfkA==}
 
-  fast-xml-parser@5.5.8:
-    resolution: {integrity: sha512-Z7Fh2nVQSb2d+poDViM063ix2ZGt9jmY1nWhPfHBOK2Hgnb/OW3P4Et3P/81SEej0J7QbWtJqxO05h8QYfK7LQ==}
+  fast-xml-parser@5.7.1:
+    resolution: {integrity: sha512-8Cc3f8GUGUULg34pBch/KGyPLglS+OFs05deyOlY7fL2MTagYPKrVQNmR1fLF/yJ9PH5ZSTd3YDF6pnmeZU+zA==}
     hasBin: true
 
   fastq@1.20.1:
@@ -5432,20 +5437,8 @@ packages:
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
-  uuid@10.0.0:
-    resolution: {integrity: sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ==}
-    hasBin: true
-
-  uuid@11.1.0:
-    resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
-    hasBin: true
-
-  uuid@13.0.0:
-    resolution: {integrity: sha512-XQegIaBTVUjSHliKqcnFqYypAd4S+WCYt5NIeRs6w/UAry7z8Y9j5ZwRRL4kzq9U3sD6v+85er9FvkEaBpji2w==}
-    hasBin: true
-
-  uuid@8.3.2:
-    resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+  uuid@14.0.0:
+    resolution: {integrity: sha512-Qo+uWgilfSmAhXCMav1uYFynlQO7fMFiMVZsQqZRMIXp0O7rR7qjkj+cPvBHLgBqi960QCoo/PH2/6ZtVqKvrg==}
     hasBin: true
 
   v8-compile-cache-lib@3.0.1:
@@ -6427,7 +6420,7 @@ snapshots:
   '@aws-sdk/xml-builder@3.972.18':
     dependencies:
       '@smithy/types': 4.14.1
-      fast-xml-parser: 5.5.8
+      fast-xml-parser: 5.7.1
       tslib: 2.8.1
 
   '@aws/lambda-invoke-store@0.2.4': {}
@@ -6574,7 +6567,7 @@ snapshots:
     dependencies:
       '@azure/msal-common': 16.5.0
       jsonwebtoken: 9.0.3
-      uuid: 8.3.2
+      uuid: 14.0.0
 
   '@babel/code-frame@7.29.0':
     dependencies:
@@ -7034,7 +7027,7 @@ snapshots:
       langsmith: 0.5.20(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@2.7.0(@opentelemetry/api@1.9.1))(openai@6.34.0(ws@8.20.0)(zod@4.3.6))(ws@8.20.0)
       mustache: 4.2.0
       p-queue: 6.6.2
-      uuid: 11.1.0
+      uuid: 14.0.0
       zod: 4.3.6
     transitivePeerDependencies:
       - '@opentelemetry/api'
@@ -7046,14 +7039,14 @@ snapshots:
   '@langchain/langgraph-checkpoint@1.0.1(@langchain/core@1.1.40(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@2.7.0(@opentelemetry/api@1.9.1))(openai@6.34.0(ws@8.20.0)(zod@4.3.6))(ws@8.20.0))':
     dependencies:
       '@langchain/core': 1.1.40(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@2.7.0(@opentelemetry/api@1.9.1))(openai@6.34.0(ws@8.20.0)(zod@4.3.6))(ws@8.20.0)
-      uuid: 10.0.0
+      uuid: 14.0.0
 
   '@langchain/langgraph-sdk@1.8.9(@langchain/core@1.1.40(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@2.7.0(@opentelemetry/api@1.9.1))(openai@6.34.0(ws@8.20.0)(zod@4.3.6))(ws@8.20.0))':
     dependencies:
       '@types/json-schema': 7.0.15
       p-queue: 9.1.0
       p-retry: 7.1.1
-      uuid: 13.0.0
+      uuid: 14.0.0
     optionalDependencies:
       '@langchain/core': 1.1.40(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@2.7.0(@opentelemetry/api@1.9.1))(openai@6.34.0(ws@8.20.0)(zod@4.3.6))(ws@8.20.0)
 
@@ -7063,7 +7056,7 @@ snapshots:
       '@langchain/langgraph-checkpoint': 1.0.1(@langchain/core@1.1.40(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@2.7.0(@opentelemetry/api@1.9.1))(openai@6.34.0(ws@8.20.0)(zod@4.3.6))(ws@8.20.0))
       '@langchain/langgraph-sdk': 1.8.9(@langchain/core@1.1.40(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@2.7.0(@opentelemetry/api@1.9.1))(openai@6.34.0(ws@8.20.0)(zod@4.3.6))(ws@8.20.0))
       '@standard-schema/spec': 1.1.0
-      uuid: 10.0.0
+      uuid: 14.0.0
       zod: 4.3.6
     transitivePeerDependencies:
       - react
@@ -7270,6 +7263,8 @@ snapshots:
   '@nestjsx/util@4.6.2': {}
 
   '@noble/hashes@1.8.0': {}
+
+  '@nodable/entities@2.1.0': {}
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -9403,8 +9398,9 @@ snapshots:
     dependencies:
       path-expression-matcher: 1.5.0
 
-  fast-xml-parser@5.5.8:
+  fast-xml-parser@5.7.1:
     dependencies:
+      '@nodable/entities': 2.1.0
       fast-xml-builder: 1.1.5
       path-expression-matcher: 1.5.0
       strnum: 2.2.3
@@ -9985,7 +9981,7 @@ snapshots:
       '@langchain/langgraph': 1.2.9(@langchain/core@1.1.40(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@2.7.0(@opentelemetry/api@1.9.1))(openai@6.34.0(ws@8.20.0)(zod@4.3.6))(ws@8.20.0))(zod@4.3.6)
       '@langchain/langgraph-checkpoint': 1.0.1(@langchain/core@1.1.40(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@2.7.0(@opentelemetry/api@1.9.1))(openai@6.34.0(ws@8.20.0)(zod@4.3.6))(ws@8.20.0))
       langsmith: 0.5.20(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@2.7.0(@opentelemetry/api@1.9.1))(openai@6.34.0(ws@8.20.0)(zod@4.3.6))(ws@8.20.0)
-      uuid: 11.1.0
+      uuid: 14.0.0
       zod: 4.3.6
     transitivePeerDependencies:
       - '@opentelemetry/api'
@@ -10002,7 +9998,7 @@ snapshots:
   langsmith@0.5.20(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@2.7.0(@opentelemetry/api@1.9.1))(openai@6.34.0(ws@8.20.0)(zod@4.3.6))(ws@8.20.0):
     dependencies:
       p-queue: 6.6.2
-      uuid: 10.0.0
+      uuid: 14.0.0
     optionalDependencies:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/sdk-trace-base': 2.7.0(@opentelemetry/api@1.9.1)
@@ -11333,7 +11329,7 @@ snapshots:
       sha.js: 2.4.12
       sql-highlight: 6.1.0
       tslib: 2.8.1
-      uuid: 11.1.0
+      uuid: 14.0.0
       yargs: 17.7.2
     optionalDependencies:
       mysql2: 3.22.1(@types/node@24.12.2)
@@ -11396,13 +11392,7 @@ snapshots:
 
   util-deprecate@1.0.2: {}
 
-  uuid@10.0.0: {}
-
-  uuid@11.1.0: {}
-
-  uuid@13.0.0: {}
-
-  uuid@8.3.2: {}
+  uuid@14.0.0: {}
 
   v8-compile-cache-lib@3.0.1: {}
 
