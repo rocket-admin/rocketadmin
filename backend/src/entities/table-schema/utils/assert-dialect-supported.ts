@@ -8,6 +8,7 @@ const SUPPORTED_DIALECTS: ReadonlySet<ConnectionTypesEnum> = new Set([
 	ConnectionTypesEnum.mssql,
 	ConnectionTypesEnum.oracledb,
 	ConnectionTypesEnum.ibmdb2,
+	ConnectionTypesEnum.mongodb,
 ]);
 
 export function isDialectSupported(connectionType: ConnectionTypesEnum): boolean {
@@ -17,9 +18,13 @@ export function isDialectSupported(connectionType: ConnectionTypesEnum): boolean
 export function assertDialectSupported(connectionType: ConnectionTypesEnum): void {
 	if (!isDialectSupported(connectionType)) {
 		throw new BadRequestException(
-			`Schema changes via AI are not yet supported for "${connectionType}". Supported: PostgreSQL, MySQL, Microsoft SQL Server, Oracle DB, IBM DB2.`,
+			`Schema changes via AI are not yet supported for "${connectionType}". Supported: PostgreSQL, MySQL, Microsoft SQL Server, Oracle DB, IBM DB2, MongoDB.`,
 		);
 	}
+}
+
+export function isMongoDialect(connectionType: ConnectionTypesEnum): boolean {
+	return connectionType === ConnectionTypesEnum.mongodb || connectionType === ConnectionTypesEnum.agent_mongodb;
 }
 
 const SQL_PARSER_DIALECTS: Record<string, string> = {

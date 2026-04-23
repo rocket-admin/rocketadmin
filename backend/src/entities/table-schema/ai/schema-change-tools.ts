@@ -2,7 +2,13 @@ import { AIToolDefinition } from '../../../ai-core/index.js';
 import { SchemaChangeTypeEnum } from '../table-schema-change-enums.js';
 
 export const PROPOSE_SCHEMA_CHANGE_TOOL_NAME = 'proposeSchemaChange';
+export const PROPOSE_MONGO_SCHEMA_CHANGE_TOOL_NAME = 'proposeMongoSchemaChange';
 export const GET_TABLE_STRUCTURE_TOOL_NAME = 'getTableStructure';
+
+export const TERMINAL_PROPOSAL_TOOL_NAMES: ReadonlySet<string> = new Set([
+	PROPOSE_SCHEMA_CHANGE_TOOL_NAME,
+	PROPOSE_MONGO_SCHEMA_CHANGE_TOOL_NAME,
+]);
 
 export interface ProposeSchemaChangeArgs {
 	forwardSql: string;
@@ -15,24 +21,34 @@ export interface ProposeSchemaChangeArgs {
 }
 
 export function createSchemaChangeTools(): AIToolDefinition[] {
-	const getTableStructureTool: AIToolDefinition = {
+	return [createGetTableStructureTool(), createProposeSqlSchemaChangeTool()];
+}
+
+export function createMongoSchemaChangeTools(): AIToolDefinition[] {
+	return [createGetTableStructureTool(), createProposeMongoSchemaChangeTool()];
+}
+
+function createGetTableStructureTool(): AIToolDefinition {
+	return {
 		name: GET_TABLE_STRUCTURE_TOOL_NAME,
 		description:
-			'Inspect an existing table. Returns column names, data types, nullability, primary keys, and foreign keys. Call this BEFORE proposing changes that reference an existing table.',
+			'Inspect an existing table or MongoDB collection. For SQL databases returns column names, data types, nullability, primary keys, and foreign keys. For MongoDB returns inferred field types from sampled documents. Call this BEFORE proposing changes that reference an existing table/collection.',
 		parameters: {
 			type: 'object',
 			properties: {
 				tableName: {
 					type: 'string',
-					description: 'The name of the table to inspect.',
+					description: 'The name of the table or collection to inspect.',
 				},
 			},
 			required: ['tableName'],
 			additionalProperties: false,
 		},
 	};
+}
 
-	const proposeSchemaChangeTool: AIToolDefinition = {
+function createProposeSqlSchemaChangeTool(): AIToolDefinition {
+	return {
 		name: PROPOSE_SCHEMA_CHANGE_TOOL_NAME,
 		description:
 			'Emit the final proposed DDL. Call this exactly ONCE when you are ready with forward SQL and its rollback. Do NOT use it for intermediate thinking. Both statements must be single DDL statements for the declared dialect.',
@@ -51,7 +67,7 @@ export function createSchemaChangeTools(): AIToolDefinition[] {
 				},
 				changeType: {
 					type: 'string',
-					enum: Object.values(SchemaChangeTypeEnum),
+					enum: Object.values(SchemaChangeTypeEnum).filter((v) => !v.startsWith('MONGO_')),
 					description: 'Classification of the change. Match the AST of forwardSql.',
 				},
 				targetTableName: {
@@ -76,6 +92,51 @@ export function createSchemaChangeTools(): AIToolDefinition[] {
 			additionalProperties: false,
 		},
 	};
+}
 
-	return [getTableStructureTool, proposeSchemaChangeTool];
+function createProposeMongoSchemaChangeTool(): AIToolDefinition {
+	return {
+		name: PROPOSE_MONGO_SCHEMA_CHANGE_TOOL_NAME,
+		description:
+			'Emit the final MongoDB schema change. Call this exactly ONCE with forwardOp and rollbackOp as JSON strings. Each JSON string MUST decode to a single object describing one structured operation (createCollection / dropCollection / setValidator / createIndex / dropIndex).',
+		parameters: {
+			type: 'object',
+			properties: {
+				forwardOp: {
+					type: 'string',
+					description:
+						'JSON string describing the forward operation. Single object with "operation" and "collectionName" fields plus op-specific fields (indexSpec, indexName, validatorSchema, etc.).',
+				},
+				rollbackOp: {
+					type: 'string',
+					description:
+						'JSON string describing the compensating operation. Must be a single object in the same form as forwardOp.',
+				},
+				changeType: {
+					type: 'string',
+					enum: Object.values(SchemaChangeTypeEnum).filter((v) => v.startsWith('MONGO_')),
+					description: 'Classification of the Mongo change.',
+				},
+				targetTableName: {
+					type: 'string',
+					description: 'The unqualified collection name the change acts on.',
+				},
+				isReversible: {
+					type: 'boolean',
+					description:
+						'False when rolling back cannot exactly restore state (e.g. dropCollection on a populated collection). True otherwise.',
+				},
+				summary: {
+					type: 'string',
+					description: 'One-sentence human-readable description of the change.',
+				},
+				reasoning: {
+					type: 'string',
+					description: 'Brief explanation: what it does, why this rollback, any caveats.',
+				},
+			},
+			required: ['forwardOp', 'rollbackOp', 'changeType', 'targetTableName', 'isReversible', 'summary', 'reasoning'],
+			additionalProperties: false,
+		},
+	};
 }

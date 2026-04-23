@@ -12,11 +12,12 @@ import {
 	encodeToToon,
 	MessageBuilder,
 } from '../../../ai-core/index.js';
-import { SchemaChangeTypeEnum } from '../table-schema-change-enums.js';
+import { isMongoSchemaChangeType, SchemaChangeTypeEnum } from '../table-schema-change-enums.js';
 import {
 	GET_TABLE_STRUCTURE_TOOL_NAME,
-	PROPOSE_SCHEMA_CHANGE_TOOL_NAME,
+	PROPOSE_MONGO_SCHEMA_CHANGE_TOOL_NAME,
 	ProposeSchemaChangeArgs,
+	TERMINAL_PROPOSAL_TOOL_NAMES,
 } from './schema-change-tools.js';
 
 export interface RunSchemaChangeAiLoopOptions {
@@ -70,7 +71,7 @@ export async function runSchemaChangeAiLoop(opts: RunSchemaChangeAiLoopOptions):
 			`AI loop depth=${depth + 1}: toolCalls=[${pendingToolCalls.map((t) => t.name).join(', ')}], textLen=${accumulatedContent.length}`,
 		);
 
-		const proposalCall = pendingToolCalls.find((tc) => tc.name === PROPOSE_SCHEMA_CHANGE_TOOL_NAME);
+		const proposalCall = pendingToolCalls.find((tc) => TERMINAL_PROPOSAL_TOOL_NAMES.has(tc.name));
 		if (proposalCall) {
 			const proposal = coerceAndValidateProposal(proposalCall);
 			return { proposal, responseId: lastResponseId };
@@ -80,7 +81,9 @@ export async function runSchemaChangeAiLoop(opts: RunSchemaChangeAiLoopOptions):
 			const hint = accumulatedContent
 				? `AI replied with text but no tool call: "${accumulatedContent.slice(0, 200)}"`
 				: 'AI produced no tool calls and no text.';
-			throw new Error(`${hint} The model must call proposeSchemaChange with structured arguments.`);
+			throw new Error(
+				`${hint} The model must call proposeSchemaChange (SQL) or proposeMongoSchemaChange (Mongo) with structured arguments.`,
+			);
 		}
 
 		const toolResults = await executeInspectionToolCalls(pendingToolCalls, dao, userEmail, logger);
@@ -106,18 +109,39 @@ function coerceAndValidateProposal(toolCall: AIToolCall): ProposeSchemaChangeArg
 
 	if (Object.keys(raw).length === 0) {
 		throw new Error(
-			'AI returned proposeSchemaChange with empty arguments — the underlying tool-call JSON likely failed to parse.',
+			`AI returned ${toolCall.name} with empty arguments — the underlying tool-call JSON likely failed to parse.`,
 		);
 	}
 
-	const forwardSql = asNonEmptyString(raw.forwardSql, 'forwardSql');
-	const rollbackSql = asNonEmptyString(raw.rollbackSql, 'rollbackSql');
 	const targetTableName = asNonEmptyString(raw.targetTableName, 'targetTableName');
 	const summary = asString(raw.summary) ?? '';
 	const reasoning = asString(raw.reasoning) ?? '';
 	const changeType = asChangeType(raw.changeType);
 	const isReversible = asBoolean(raw.isReversible, 'isReversible');
 
+	const isMongoTool = toolCall.name === PROPOSE_MONGO_SCHEMA_CHANGE_TOOL_NAME;
+	if (isMongoTool !== isMongoSchemaChangeType(changeType)) {
+		throw new Error(
+			`Tool ${toolCall.name} was called with changeType "${changeType}" which does not match. Mongo tool requires MONGO_* changeType and vice versa.`,
+		);
+	}
+
+	if (isMongoTool) {
+		const forwardOp = asNonEmptyString(raw.forwardOp, 'forwardOp');
+		const rollbackOp = asNonEmptyString(raw.rollbackOp, 'rollbackOp');
+		return {
+			forwardSql: forwardOp,
+			rollbackSql: rollbackOp,
+			changeType,
+			targetTableName,
+			isReversible,
+			summary,
+			reasoning,
+		};
+	}
+
+	const forwardSql = asNonEmptyString(raw.forwardSql, 'forwardSql');
+	const rollbackSql = asNonEmptyString(raw.rollbackSql, 'rollbackSql');
 	return { forwardSql, rollbackSql, changeType, targetTableName, isReversible, summary, reasoning };
 }
 
@@ -170,9 +194,9 @@ async function executeInspectionToolCalls(
 				const structure = await dao.getTableStructure(tableName, userEmail);
 				const foreignKeys = await dao.getTableForeignKeys(tableName, userEmail);
 				result = encodeToToon({ tableName, structure, foreignKeys });
-			} else if (tc.name === PROPOSE_SCHEMA_CHANGE_TOOL_NAME) {
+			} else if (TERMINAL_PROPOSAL_TOOL_NAMES.has(tc.name)) {
 				result = encodeError({
-					error: 'proposeSchemaChange is a terminal tool; it should be the only tool call in the final round.',
+					error: `${tc.name} is a terminal tool; it should be the only tool call in the final round.`,
 				});
 			} else {
 				result = encodeError({ error: `Unknown tool: ${tc.name}` });

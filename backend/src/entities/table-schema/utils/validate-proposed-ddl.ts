@@ -4,7 +4,7 @@ import sqlParser from 'node-sql-parser';
 
 const { Parser } = sqlParser;
 
-import { SchemaChangeTypeEnum } from '../table-schema-change-enums.js';
+import { isMongoSchemaChangeType, SchemaChangeTypeEnum } from '../table-schema-change-enums.js';
 import { connectionTypeToParserDialect } from './assert-dialect-supported.js';
 
 const FORBIDDEN_PATTERNS: ReadonlyArray<RegExp> = [
@@ -47,6 +47,11 @@ const EXPECTED_SHAPES: Record<SchemaChangeTypeEnum, ExpectedShape | null> = {
 	[SchemaChangeTypeEnum.DROP_FOREIGN_KEY]: { type: 'alter', keyword: 'table' },
 	[SchemaChangeTypeEnum.ADD_PRIMARY_KEY]: { type: 'alter', keyword: 'table' },
 	[SchemaChangeTypeEnum.DROP_PRIMARY_KEY]: { type: 'alter', keyword: 'table' },
+	[SchemaChangeTypeEnum.MONGO_CREATE_COLLECTION]: null,
+	[SchemaChangeTypeEnum.MONGO_DROP_COLLECTION]: null,
+	[SchemaChangeTypeEnum.MONGO_SET_VALIDATOR]: null,
+	[SchemaChangeTypeEnum.MONGO_CREATE_INDEX]: null,
+	[SchemaChangeTypeEnum.MONGO_DROP_INDEX]: null,
 	[SchemaChangeTypeEnum.ROLLBACK]: null,
 	[SchemaChangeTypeEnum.OTHER]: null,
 };
@@ -74,6 +79,14 @@ export function validateProposedDdl(opts: ValidateProposedDdlOptions): void {
 	const stripped = trimmed.replace(/;+\s*$/, '');
 	if (/;/.test(stripped)) {
 		throw new BadRequestException('Proposed SQL must be a single statement; multi-statement scripts are rejected.');
+	}
+
+	// MongoDB schema changes are emitted as structured JSON, not SQL. Parsing them with
+	// node-sql-parser is meaningless (and will always fall through to the warn path),
+	// and the AST/target-table checks below don't apply. Richer shape validation runs
+	// in validateProposedMongoOp, which the use-cases call for Mongo dispatch.
+	if (isMongoSchemaChangeType(changeType)) {
+		return;
 	}
 
 	const parser = new Parser();

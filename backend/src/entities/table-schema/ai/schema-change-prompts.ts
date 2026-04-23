@@ -1,7 +1,19 @@
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { convertDbTypeToReadableString } from '../../../ai-core/tools/prompts.js';
+import { isMongoDialect } from '../utils/assert-dialect-supported.js';
 
 export function buildSchemaChangePrompt(
+	connectionType: ConnectionTypesEnum,
+	existingTables: string[],
+	schema: string | null,
+): string {
+	if (isMongoDialect(connectionType)) {
+		return buildMongoSchemaChangePrompt(existingTables);
+	}
+	return buildSqlSchemaChangePrompt(connectionType, existingTables, schema);
+}
+
+function buildSqlSchemaChangePrompt(
 	connectionType: ConnectionTypesEnum,
 	existingTables: string[],
 	schema: string | null,
@@ -46,4 +58,51 @@ Classification (changeType):
 
 Set targetTableName to the unqualified table name the change acts on.
 Set isReversible=true only if executing rollbackSql would fully restore the prior state.`;
+}
+
+function buildMongoSchemaChangePrompt(existingCollections: string[]): string {
+	const collectionList = existingCollections.length > 0 ? existingCollections.join(', ') : '(none)';
+
+	return `You are a MongoDB schema-change generator.
+Existing collections in this database: ${collectionList}.
+
+MongoDB does not use SQL DDL. Instead, schema changes are structured JSON operations that the server will execute via the official MongoDB driver.
+
+Workflow:
+1. If the user's request references an existing collection, call getTableStructure FIRST to inspect a sample of documents. You may call it multiple times for different collections.
+2. Once you have enough context, call proposeMongoSchemaChange EXACTLY ONCE with your final forwardOp and rollbackOp. Do not write free-text explanations outside the tool call.
+
+forwardOp and rollbackOp are JSON strings. Each must decode to exactly one object of the form:
+
+  {
+    "operation": "createCollection" | "dropCollection" | "setValidator" | "createIndex" | "dropIndex",
+    "collectionName": "<unqualified collection name>",
+    "validatorSchema": <optional JSON Schema object>,   // required for setValidator (use null to clear)
+    "validationLevel": "off" | "strict" | "moderate",    // optional for setValidator, default "strict"
+    "validationAction": "warn" | "error",                // optional for setValidator, default "error"
+    "indexName": "<string>",                             // required for dropIndex; required and unique for createIndex
+    "indexSpec": { "field1": 1, "field2": -1 },          // required for createIndex; uses 1 / -1 / "text" / "2dsphere"
+    "indexOptions": { "unique": true, "sparse": false }  // optional for createIndex
+  }
+
+Rules:
+- "collectionName" must be the unqualified name.
+- Each JSON string must be a single object (not an array, not multiple operations).
+- Never propose drop/rename of the entire database, user management, or $where / $function / $accumulator inside a validator.
+- For createCollection, rollback is dropCollection on the same collectionName and is NOT reversible (documents inserted afterward would be lost if we recreated it — but an empty collection drop is safe; set isReversible=true for the initial create-then-drop pair).
+- For dropCollection, isReversible=false (data is lost). Rollback is a best-effort createCollection with no validator.
+- For setValidator, rollback is another setValidator carrying the prior validator (or null to clear). Call getTableStructure to infer the previous shape if you need to.
+- For createIndex, rollback is dropIndex with the same indexName. Always provide an explicit indexName in indexOptions.name AND at the top level so rollback is unambiguous.
+- For dropIndex, rollback is createIndex using the dropped index's spec/options. If you don't know the original spec, set isReversible=false.
+
+Classification (changeType):
+- MONGO_CREATE_COLLECTION
+- MONGO_DROP_COLLECTION
+- MONGO_SET_VALIDATOR
+- MONGO_CREATE_INDEX
+- MONGO_DROP_INDEX
+- OTHER (last resort)
+
+Set targetTableName to the collection name the change acts on.
+Set isReversible=true only if executing rollbackOp would fully restore the prior state.`;
 }

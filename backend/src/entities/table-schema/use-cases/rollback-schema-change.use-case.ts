@@ -15,9 +15,10 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { RollbackSchemaChangeDs } from '../application/data-structures/rollback-schema-change.ds.js';
 import { SchemaChangeResponseDto } from '../application/data-transfer-objects/schema-change-response.dto.js';
-import { SchemaChangeStatusEnum, SchemaChangeTypeEnum } from '../table-schema-change-enums.js';
+import { isMongoSchemaChangeType, SchemaChangeStatusEnum, SchemaChangeTypeEnum } from '../table-schema-change-enums.js';
 import { assertDialectSupported } from '../utils/assert-dialect-supported.js';
 import { mapSchemaChangeToResponseDto } from '../utils/map-schema-change-to-response-dto.js';
+import { executeMongoSchemaOp, validateProposedMongoOp } from '../utils/mongo-schema-op.js';
 import { IRollbackSchemaChange } from './table-schema-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
@@ -61,10 +62,21 @@ export class RollbackSchemaChangeUseCase
 			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
 		}
 
-		const dao = getDataAccessObject(connection);
+		const isMongo = isMongoSchemaChangeType(change.changeType);
 
 		try {
-			await dao.executeRawQuery(change.rollbackSql, change.targetTableName, '');
+			if (isMongo) {
+				const op = validateProposedMongoOp({
+					opJson: change.rollbackSql,
+					changeType: change.changeType,
+					targetTableName: change.targetTableName,
+					allowAnyOperation: true,
+				});
+				await executeMongoSchemaOp(connection, op);
+			} else {
+				const dao = getDataAccessObject(connection);
+				await dao.executeRawQuery(change.rollbackSql, change.targetTableName, '');
+			}
 		} catch (err) {
 			const error = err as Error;
 			this.logger.error(`Rollback failed for change ${change.id}: ${error.message}`);

@@ -15,9 +15,10 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { ApproveSchemaChangeDs } from '../application/data-structures/approve-schema-change.ds.js';
 import { SchemaChangeResponseDto } from '../application/data-transfer-objects/schema-change-response.dto.js';
-import { SchemaChangeStatusEnum } from '../table-schema-change-enums.js';
+import { isMongoSchemaChangeType, SchemaChangeStatusEnum } from '../table-schema-change-enums.js';
 import { assertDialectSupported } from '../utils/assert-dialect-supported.js';
 import { mapSchemaChangeToResponseDto } from '../utils/map-schema-change-to-response-dto.js';
+import { executeMongoSchemaOp, validateProposedMongoOp } from '../utils/mongo-schema-op.js';
 import { validateProposedDdl } from '../utils/validate-proposed-ddl.js';
 import { IApproveSchemaChange } from './table-schema-use-cases.interface.js';
 
@@ -65,14 +66,24 @@ export class ApproveAndApplySchemaChangeUseCase
 			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
 		}
 
+		const isMongo = isMongoSchemaChangeType(change.changeType);
+
 		let sqlToRun = change.forwardSql;
 		if (userModifiedSql && userModifiedSql.trim().length > 0) {
-			validateProposedDdl({
-				sql: userModifiedSql,
-				connectionType,
-				changeType: change.changeType,
-				targetTableName: change.targetTableName,
-			});
+			if (isMongo) {
+				validateProposedMongoOp({
+					opJson: userModifiedSql,
+					changeType: change.changeType,
+					targetTableName: change.targetTableName,
+				});
+			} else {
+				validateProposedDdl({
+					sql: userModifiedSql,
+					connectionType,
+					changeType: change.changeType,
+					targetTableName: change.targetTableName,
+				});
+			}
 			sqlToRun = userModifiedSql;
 			await this._dbContext.tableSchemaChangeRepository.updateStatus(change.id, change.status, {
 				userModifiedSql,
@@ -88,10 +99,18 @@ export class ApproveAndApplySchemaChangeUseCase
 			throw new ConflictException('Schema change state changed concurrently; refresh and retry.');
 		}
 
-		const dao = getDataAccessObject(connection);
-
 		try {
-			await dao.executeRawQuery(sqlToRun, change.targetTableName, null);
+			if (isMongo) {
+				const op = validateProposedMongoOp({
+					opJson: sqlToRun,
+					changeType: change.changeType,
+					targetTableName: change.targetTableName,
+				});
+				await executeMongoSchemaOp(connection, op);
+			} else {
+				const dao = getDataAccessObject(connection);
+				await dao.executeRawQuery(sqlToRun, change.targetTableName, null);
+			}
 			const updated = await this._dbContext.tableSchemaChangeRepository.updateStatus(
 				change.id,
 				SchemaChangeStatusEnum.APPLIED,
@@ -100,13 +119,24 @@ export class ApproveAndApplySchemaChangeUseCase
 			return mapSchemaChangeToResponseDto(updated!);
 		} catch (err) {
 			const error = err as Error;
-			this.logger.error(`Forward SQL failed for change ${change.id}: ${error.message}`);
+			this.logger.error(`Forward ${isMongo ? 'Mongo op' : 'SQL'} failed for change ${change.id}: ${error.message}`);
 
 			let autoRollbackSucceeded = false;
 			let rollbackError: string | null = null;
 			if (change.rollbackSql) {
 				try {
-					await dao.executeRawQuery(change.rollbackSql, change.targetTableName, null);
+					if (isMongo) {
+						const rollbackOp = validateProposedMongoOp({
+							opJson: change.rollbackSql,
+							changeType: change.changeType,
+							targetTableName: change.targetTableName,
+							allowAnyOperation: true,
+						});
+						await executeMongoSchemaOp(connection, rollbackOp);
+					} else {
+						const dao = getDataAccessObject(connection);
+						await dao.executeRawQuery(change.rollbackSql, change.targetTableName, null);
+					}
 					autoRollbackSucceeded = true;
 				} catch (rbErr) {
 					rollbackError = (rbErr as Error).message;

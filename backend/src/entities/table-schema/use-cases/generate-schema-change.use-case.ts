@@ -8,12 +8,13 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { runSchemaChangeAiLoop } from '../ai/run-schema-change-ai-loop.js';
 import { buildSchemaChangePrompt } from '../ai/schema-change-prompts.js';
-import { createSchemaChangeTools } from '../ai/schema-change-tools.js';
+import { createMongoSchemaChangeTools, createSchemaChangeTools } from '../ai/schema-change-tools.js';
 import { GenerateSchemaChangeDs } from '../application/data-structures/generate-schema-change.ds.js';
 import { SchemaChangeResponseDto } from '../application/data-transfer-objects/schema-change-response.dto.js';
-import { SchemaChangeStatusEnum, SchemaChangeTypeEnum } from '../table-schema-change-enums.js';
-import { assertDialectSupported } from '../utils/assert-dialect-supported.js';
+import { isMongoSchemaChangeType, SchemaChangeStatusEnum, SchemaChangeTypeEnum } from '../table-schema-change-enums.js';
+import { assertDialectSupported, isMongoDialect } from '../utils/assert-dialect-supported.js';
 import { mapSchemaChangeToResponseDto } from '../utils/map-schema-change-to-response-dto.js';
+import { validateProposedMongoOp } from '../utils/mongo-schema-op.js';
 import { validateProposedDdl } from '../utils/validate-proposed-ddl.js';
 import { IGenerateSchemaChange } from './table-schema-use-cases.interface.js';
 
@@ -59,7 +60,7 @@ export class GenerateSchemaChangeUseCase
 
 		const systemPrompt = buildSchemaChangePrompt(connectionType, tableNames, connection.schema ?? null);
 		const messages = new MessageBuilder().system(systemPrompt).human(userPrompt).build();
-		const tools = createSchemaChangeTools();
+		const tools = isMongoDialect(connectionType) ? createMongoSchemaChangeTools() : createSchemaChangeTools();
 
 		let proposal;
 		try {
@@ -78,19 +79,35 @@ export class GenerateSchemaChangeUseCase
 			throw new BadRequestException(`AI generation failed: ${(err as Error).message}`);
 		}
 
-		validateProposedDdl({
-			sql: proposal.forwardSql,
-			connectionType,
-			changeType: proposal.changeType,
-			targetTableName: proposal.targetTableName,
-		});
-		if (proposal.rollbackSql) {
-			validateProposedDdl({
-				sql: proposal.rollbackSql,
-				connectionType,
-				changeType: SchemaChangeTypeEnum.ROLLBACK,
+		if (isMongoSchemaChangeType(proposal.changeType)) {
+			validateProposedMongoOp({
+				opJson: proposal.forwardSql,
+				changeType: proposal.changeType,
 				targetTableName: proposal.targetTableName,
 			});
+			if (proposal.rollbackSql) {
+				validateProposedMongoOp({
+					opJson: proposal.rollbackSql,
+					changeType: proposal.changeType,
+					targetTableName: proposal.targetTableName,
+					allowAnyOperation: true,
+				});
+			}
+		} else {
+			validateProposedDdl({
+				sql: proposal.forwardSql,
+				connectionType,
+				changeType: proposal.changeType,
+				targetTableName: proposal.targetTableName,
+			});
+			if (proposal.rollbackSql) {
+				validateProposedDdl({
+					sql: proposal.rollbackSql,
+					connectionType,
+					changeType: SchemaChangeTypeEnum.ROLLBACK,
+					targetTableName: proposal.targetTableName,
+				});
+			}
 		}
 
 		const latestApplied = await this._dbContext.tableSchemaChangeRepository.findLatestAppliedChange(connectionId);
