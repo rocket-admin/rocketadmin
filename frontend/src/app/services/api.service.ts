@@ -19,6 +19,24 @@ export interface ApiResponse<T> {
 	status: number;
 }
 
+export type AiStreamChunk =
+	| { type: 'thinking'; content: string }
+	| { type: 'thinking_reset' }
+	| { type: 'thinking_commit' }
+	| { type: 'text'; content: string };
+
+function tryParseChunk(line: string): AiStreamChunk | null {
+	try {
+		const parsed = JSON.parse(line);
+		if (parsed && typeof parsed.type === 'string') {
+			return parsed as AiStreamChunk;
+		}
+	} catch {
+		// ignore malformed line
+	}
+	return null;
+}
+
 @Injectable({
 	providedIn: 'root',
 })
@@ -51,7 +69,7 @@ export class ApiService {
 		return result?.data ?? null;
 	}
 
-	async postResponse<T>(url: string, body?: unknown, options?: ApiRequestOptions): Promise<ApiResponse<T> | null> {
+	postResponse<T>(url: string, body?: unknown, options?: ApiRequestOptions): Promise<ApiResponse<T> | null> {
 		return this._fetchResponse<T>('POST', url, body, options);
 	}
 
@@ -69,7 +87,7 @@ export class ApiService {
 		url: string,
 		body?: unknown,
 		options?: ApiRequestOptions,
-	): Promise<{ headers: Headers; stream: AsyncGenerator<string> } | null> {
+	): Promise<{ headers: Headers; stream: AsyncGenerator<AiStreamChunk> } | null> {
 		try {
 			const fullUrl = this._buildUrl(url, options?.params);
 			const headers = this._buildHeaders(options?.headers);
@@ -96,19 +114,35 @@ export class ApiService {
 			const reader = response.body.getReader();
 			const decoder = new TextDecoder();
 
-			async function* textStream(): AsyncGenerator<string> {
+			async function* chunkStream(): AsyncGenerator<AiStreamChunk> {
+				let buffer = '';
 				try {
 					while (true) {
 						const { done, value } = await reader.read();
-						if (done) break;
-						yield decoder.decode(value, { stream: true });
+						if (done) {
+							const tail = buffer.trim();
+							if (tail) {
+								const parsed = tryParseChunk(tail);
+								if (parsed) yield parsed;
+							}
+							break;
+						}
+						buffer += decoder.decode(value, { stream: true });
+						let newlineIdx: number;
+						while ((newlineIdx = buffer.indexOf('\n')) >= 0) {
+							const line = buffer.slice(0, newlineIdx).trim();
+							buffer = buffer.slice(newlineIdx + 1);
+							if (!line) continue;
+							const parsed = tryParseChunk(line);
+							if (parsed) yield parsed;
+						}
 					}
 				} finally {
 					reader.releaseLock();
 				}
 			}
 
-			return { headers: response.headers, stream: textStream() };
+			return { headers: response.headers, stream: chunkStream() };
 		} catch (err: unknown) {
 			if ((err as Error).name === 'AbortError') return null;
 			this._handleError(err, options);
@@ -188,7 +222,7 @@ export class ApiService {
 
 		const gclidMatch = document.cookie.match(/(?:^|;\s*)autoadmin_gclid=([^;]*)/);
 		if (gclidMatch?.[1]) {
-			headers['GCLID'] = gclidMatch[1];
+			headers.GCLID = gclidMatch[1];
 		}
 
 		const pathSegments = location.pathname.split('/');
@@ -196,7 +230,7 @@ export class ApiService {
 		if (connectionId) {
 			const masterKey = localStorage.getItem(`${connectionId}__masterKey`);
 			if (masterKey) {
-				headers['masterpwd'] = masterKey;
+				headers.masterpwd = masterKey;
 			}
 		}
 
