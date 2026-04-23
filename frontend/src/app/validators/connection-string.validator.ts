@@ -98,7 +98,11 @@ export function parseConnectionString(connectionString: string): ParsedConnectio
 		if (parsed.options.schema) {
 			result.schema = parsed.options.schema;
 		}
-		if (parsed.options.ssl === 'true' || parsed.options.sslmode === 'require' || parsed.options.sslmode === 'verify-full') {
+		if (
+			parsed.options.ssl === 'true' ||
+			parsed.options.sslmode === 'require' ||
+			parsed.options.sslmode === 'verify-full'
+		) {
 			result.ssl = true;
 		}
 	}

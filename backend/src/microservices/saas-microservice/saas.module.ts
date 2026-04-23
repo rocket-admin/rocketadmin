@@ -12,6 +12,7 @@ import { DeleteConnectionForHostedDbUseCase } from './use-cases/delete-connectio
 import { FreezeConnectionsInCompanyUseCase } from './use-cases/freeze-connections-in-company.use.case.js';
 import { GetConnectionsInfoByIdsUseCase } from './use-cases/get-connections-info-by-ids.use.case.js';
 import { GetFullCompanyInfoByUserIdUseCase } from './use-cases/get-full-company-info-by-user-id.use.case.js';
+import { GetHostedConnectionCredentialsUseCase } from './use-cases/get-hosted-connection-credentials.use.case.js';
 import { GetUserInfoUseCase } from './use-cases/get-user-info.use.case.js';
 import { GetUsersCountInCompanyByIdUseCase } from './use-cases/get-users-count-in-company.use.case.js';
 import { GetUsersInfosByEmailUseCase } from './use-cases/get-users-infos-by-email.use.case.js';
@@ -105,6 +106,10 @@ import { UpdateHostedConnectionPasswordUseCase } from './use-cases/update-hosted
 			provide: UseCaseType.SAAS_GET_CONNECTIONS_INFO_BY_IDS,
 			useClass: GetConnectionsInfoByIdsUseCase,
 		},
+		{
+			provide: UseCaseType.SAAS_GET_HOSTED_CONNECTION_CREDENTIALS,
+			useClass: GetHostedConnectionCredentialsUseCase,
+		},
 		SignInAuditService,
 	],
 	controllers: [SaasController],
@@ -131,6 +136,7 @@ export class SaasModule {
 				{ path: 'saas/connection/hosted', method: RequestMethod.POST },
 				{ path: 'saas/connection/hosted/delete', method: RequestMethod.POST },
 				{ path: 'saas/connection/hosted/password', method: RequestMethod.POST },
+				{ path: 'saas/connection/hosted/credentials', method: RequestMethod.POST },
 				{ path: 'saas/connections/info', method: RequestMethod.POST },
 			);
 	}
