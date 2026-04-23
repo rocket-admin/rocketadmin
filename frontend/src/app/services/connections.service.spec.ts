@@ -11,10 +11,8 @@ import { ConnectionType, DBtype } from '../models/connection';
 import { AccessLevel } from '../models/user';
 import { CedarPermissionService } from './cedar-permission.service';
 import { ConnectionsService } from './connections.service';
-import { HostedDatabaseService } from './hosted-database.service';
 import { MasterPasswordService } from './master-password.service';
 import { NotificationsService } from './notifications.service';
-import { UserService } from './user.service';
 import { UsersService } from './users.service';
 
 describe('ConnectionsService', () => {
@@ -26,8 +24,6 @@ describe('ConnectionsService', () => {
 	let mockCanI: ReturnType<typeof vi.fn>;
 	let mockCanIAny: ReturnType<typeof vi.fn>;
 	let mockPermissions: Partial<CedarPermissionService>;
-	let fakeHostedDatabaseService;
-	let fakeUserService;
 
 	const connectionCredsApp = {
 		title: 'Test connection via SSH tunnel to mySQL',
@@ -119,13 +115,6 @@ describe('ConnectionsService', () => {
 			canIAny: mockCanIAny,
 			ready: signal(false).asReadonly(),
 		};
-		fakeHostedDatabaseService = {
-			listHostedDatabases: vi.fn().mockResolvedValue([]),
-		};
-		fakeUserService = {
-			cast: of({ company: { id: 'test-company-id' } }),
-		};
-
 		TestBed.configureTestingModule({
 			imports: [MatSnackBarModule, MatDialogModule],
 			providers: [
@@ -148,14 +137,6 @@ describe('ConnectionsService', () => {
 				{
 					provide: CedarPermissionService,
 					useValue: mockPermissions,
-				},
-				{
-					provide: HostedDatabaseService,
-					useValue: fakeHostedDatabaseService,
-				},
-				{
-					provide: UserService,
-					useValue: fakeUserService,
 				},
 			],
 		});

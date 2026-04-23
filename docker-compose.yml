@@ -37,7 +37,7 @@ services:
       - test-cassandra-e2e-testing
       - test-redis-e2e-testing
       - clickhouse-e2e-testing
-    command: ["yarn", "start"]
+    command: ["pnpm", "start"]
 
   testMySQL-e2e-testing:
     image: mysql:8.0.23
@@ -95,16 +95,23 @@ services:
   rocketadmin-private-microservice:
     build:
       context: ../rocketadmin-saas
-      dockerfile: ../rocketadmin-saas/Dockerfile
+      dockerfile: Dockerfile.test
     ports:
       - 3001:3001
     env_file: ../rocketadmin-saas/.env
+    environment:
+      # Path to the Go proxy's contract fixture (mounted below). Lets the
+      # SaaS contract test find it regardless of on-disk layout.
+      PROXY_CONTRACT_FIXTURE: /contract/fixtures.json
+    volumes:
+      # Shared wire-contract source of truth with the Go postgres-proxy.
+      - ../postgres-proxy/contract:/contract:ro
     links:
       - backend
       - rocketadmin-private-microservice-test-database
     depends_on:
       - rocketadmin-private-microservice-test-database
-    command: ["yarn", "start"]
+    command: ["pnpm", "start"]
 
   rocketadmin-private-microservice-test-database:
     image: postgres
@@ -236,6 +243,51 @@ services:
       timeout: 10s
       retries: 3
 
+  # === Postgres Proxy E2E Testing ===
+
+  testPg-proxy-e2e:
+    image: postgres:16
+    ports:
+      - 9003:5432
+    environment:
+      POSTGRES_PASSWORD: proxy_test_123
+      POSTGRES_HOST_AUTH_METHOD: md5
+      POSTGRES_INITDB_ARGS: "--auth-host=md5"
+    command: postgres -c 'max_connections=300' -c 'password_encryption=md5'
+
+  proxy-mock-api:
+    build:
+      context: ./test/proxy-mock-api
+    ports:
+      - 3333:3333
+    environment:
+      MOCK_API_PORT: 3333
+      PROXY_API_KEY: test-proxy-api-key
+      UPSTREAM_PG_HOST: testPg-proxy-e2e
+      UPSTREAM_PG_PORT: 5432
+      UPSTREAM_PG_DATABASE: postgres
+      UPSTREAM_PG_USERNAME: postgres
+      UPSTREAM_PG_PASSWORD: proxy_test_123
+    depends_on:
+      - testPg-proxy-e2e
+
+  postgres-proxy:
+    build:
+      context: ../postgres-proxy
+    ports:
+      - 9005:5432
+      - 8085:8080
+    environment:
+      PROXY_LISTEN_ADDR: ":5432"
+      PROXY_HEALTH_ADDR: ":8080"
+      PROXY_BACKEND_API_URL: "http://proxy-mock-api:3333"
+      PROXY_API_KEY: "test-proxy-api-key"
+      PROXY_USAGE_REPORT_INTERVAL: "10s"
+      PROXY_LOG_LEVEL: "debug"
+    depends_on:
+      - proxy-mock-api
+      - testPg-proxy-e2e
+
   rocketadmin-agent_mongo:
     build:
       context: .
@@ -252,7 +304,7 @@ services:
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.mongodb_test_agent_config.txt
-    command: ["yarn", "start:dev"]
+    command: ["pnpm", "start:dev"]
 
   rocketadmin-agent_ibmdb2:
     build:
@@ -290,7 +342,7 @@ services:
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.oracle_test_agent_config.txt
-    command: ["yarn", "start:dev"]
+    command: ["pnpm", "start:dev"]
 
   rocketadmin-agent_postgres:
     build:
@@ -308,7 +360,7 @@ services:
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.postgres_test_agent_config.txt
-    command: ["yarn", "start:dev"]
+    command: ["pnpm", "start:dev"]
 
   rocketadmin-agent_mysql:
     build:
@@ -326,7 +378,7 @@ services:
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.mysql_test_agent_config.txt
-    command: ["yarn", "start:dev"]
+    command: ["pnpm", "start:dev"]
 
   rocketadmin-agent_mssql:
     build:
@@ -344,7 +396,7 @@ services:
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.mssql_test_agent_config.txt
-    command: ["yarn", "start:dev"]
+    command: ["pnpm", "start:dev"]
 
   rocketadmin-agent_cassandra:
     build:
@@ -368,7 +420,7 @@ services:
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.cassandra_test_agent_config.txt
-    command: ["yarn", "start:dev"]
+    command: ["pnpm", "start:dev"]
 
   rocketadmin-agent_redis:
     build:
@@ -388,7 +440,7 @@ services:
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.redis_test_agent_config.txt
-    command: ["yarn", "start:dev"]
+    command: ["pnpm", "start:dev"]
 
   rocketadmin-agent_clickhouse:
     build:
@@ -408,4 +460,4 @@ services:
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.clickhouse_test_agent_config.txt
-    command: ["yarn", "start:dev"]
+    command: ["pnpm", "start:dev"]

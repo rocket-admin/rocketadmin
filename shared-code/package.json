@@ -3,13 +3,6 @@
 	"version": "1.0.0",
 	"description": "shared code for rocketadmin backend and client applications (agent version, cli version)",
 	"type": "module",
-	"packageExtensions": {
-		"ibm_db": {
-			"dependencies": {
-				"node-gyp": "^11.5.0"
-			}
-		}
-	},
 	"dependencies": {
 		"@aws-sdk/client-dynamodb": "^3.1011.0",
 		"@aws-sdk/lib-dynamodb": "^3.1011.0",

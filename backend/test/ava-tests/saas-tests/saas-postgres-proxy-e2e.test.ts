@@ -1,0 +1,674 @@
+import { faker } from '@faker-js/faker';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
+import test from 'ava';
+import { ValidationError } from 'class-validator';
+import cookieParser from 'cookie-parser';
+import { createHash, randomBytes } from 'crypto';
+import http from 'http';
+import net from 'net';
+import request from 'supertest';
+import { ApplicationModule } from '../../../src/app.module.js';
+import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
+import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
+import { Cacher } from '../../../src/helpers/cache/cacher.js';
+import { DatabaseModule } from '../../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../../src/shared/database/database.service.js';
+import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
+import { createTestTable } from '../../utils/create-test-table.js';
+import {
+	createInitialTestUser,
+	registerUserAndReturnUserInfo,
+} from '../../utils/register-user-and-return-user-info.js';
+import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
+import { TestUtils } from '../../utils/test.utils.js';
+
+let app: INestApplication;
+let _testUtils: TestUtils;
+let skipAll = false;
+
+const PROXY_HOST = process.env.POSTGRES_PROXY_HOST || 'postgres-proxy';
+const PROXY_PORT = parseInt(process.env.POSTGRES_PROXY_PORT || '5432', 10);
+const MOCK_API_HOST = process.env.PROXY_MOCK_API_HOST || 'proxy-mock-api';
+const MOCK_API_PORT = parseInt(process.env.PROXY_MOCK_API_PORT || '3333', 10);
+
+// Direct connection to the upstream Postgres (for seeding test data)
+const upstreamConnectionParams = {
+	type: 'postgres',
+	host: process.env.UPSTREAM_PG_HOST || 'testPg-proxy-e2e',
+	port: parseInt(process.env.UPSTREAM_PG_PORT || '5432', 10),
+	username: 'postgres',
+	password: 'proxy_test_123',
+	database: 'postgres',
+	ssh: false,
+};
+
+// Connection DTO that points to the proxy (used in rocketadmin API).
+// Each call returns a unique username so the mock-api derives a unique
+// companyId — this isolates each test's connection pool inside the proxy's
+// per-company concurrency limiter.
+function createProxyConnectionDto(): {
+	title: string;
+	type: string;
+	host: string;
+	port: number;
+	username: string;
+	password: string;
+	database: string;
+	ssh: boolean;
+	ssl: boolean;
+} {
+	const username = `proxy_user_${randomBytes(4).toString('hex')}`;
+	return {
+		title: 'Test connection through Postgres Proxy',
+		type: 'postgres',
+		host: PROXY_HOST,
+		port: PROXY_PORT,
+		username,
+		password: 'proxy_pass',
+		database: 'postgres',
+		ssh: false,
+		ssl: false,
+	};
+}
+
+// Mirrors the mock-api's deriveCompanyId / deriveConnectionId so tests can
+// predict which companyId/connectionId the proxy will see for a username.
+function expectedCompanyId(username: string): string {
+	if (username === 'proxy_user') return 'test-company-001';
+	return `test-company-${createHash('sha1').update(username).digest('hex').slice(0, 12)}`;
+}
+
+function expectedConnectionId(username: string): string {
+	if (username === 'proxy_user') return 'test-connection-001';
+	return `test-connection-${createHash('sha1').update(username).digest('hex').slice(0, 12)}`;
+}
+
+async function isProxyReachable(): Promise<boolean> {
+	return new Promise((resolve) => {
+		const socket = new net.Socket();
+		socket.setTimeout(2000);
+		socket.on('connect', () => {
+			socket.destroy();
+			resolve(true);
+		});
+		socket.on('error', () => resolve(false));
+		socket.on('timeout', () => {
+			socket.destroy();
+			resolve(false);
+		});
+		socket.connect(PROXY_PORT, PROXY_HOST);
+	});
+}
+
+// Helper to call mock API test endpoints
+function mockApiRequest(method: string, path: string, body?: any): Promise<any> {
+	return new Promise((resolve, reject) => {
+		const options = {
+			hostname: MOCK_API_HOST,
+			port: MOCK_API_PORT,
+			path,
+			method,
+			headers: { 'Content-Type': 'application/json' },
+		};
+		const req = http.request(options, (res) => {
+			let data = '';
+			res.on('data', (chunk: string) => (data += chunk));
+			res.on('end', () => {
+				try {
+					resolve(JSON.parse(data));
+				} catch {
+					resolve(data);
+				}
+			});
+		});
+		req.on('error', reject);
+		if (body) req.write(JSON.stringify(body));
+		req.end();
+	});
+}
+
+async function getUsageReports(): Promise<any[]> {
+	return mockApiRequest('GET', '/api/test/usage-reports');
+}
+
+async function setSubscriptionLevel(level: string): Promise<void> {
+	await mockApiRequest('PUT', '/api/test/subscription-level', { subscriptionLevel: level });
+}
+
+function sleep(ms: number): Promise<void> {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+test.before(async () => {
+	const reachable = await isProxyReachable();
+	if (!reachable) {
+		console.log(`[postgres-proxy e2e] Proxy not reachable at ${PROXY_HOST}:${PROXY_PORT}, skipping tests`);
+		skipAll = true;
+		return;
+	}
+
+	setSaasEnvVariable();
+	const moduleFixture = await Test.createTestingModule({
+		imports: [ApplicationModule, DatabaseModule],
+		providers: [DatabaseService, TestUtils],
+	}).compile();
+
+	app = moduleFixture.createNestApplication() as any;
+	_testUtils = moduleFixture.get<TestUtils>(TestUtils);
+
+	app.use(cookieParser());
+	app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
+	app.useGlobalPipes(
+		new ValidationPipe({
+			exceptionFactory(validationErrors: ValidationError[] = []) {
+				return new ValidationException(validationErrors);
+			},
+		}),
+	);
+	await app.init();
+	await createInitialTestUser(app);
+	app.getHttpServer().listen(0);
+});
+
+test.after(async () => {
+	if (skipAll) return;
+	try {
+		await Cacher.clearAllCache();
+		await app.close();
+	} catch (e) {
+		console.error('After tests error ' + e);
+	}
+});
+
+function maybeSkip(t: any): boolean {
+	if (skipAll) {
+		t.pass('skipped: proxy not available');
+		return true;
+	}
+	return false;
+}
+
+test.serial('should list tables through the proxy via rocketadmin API', async (t) => {
+	if (maybeSkip(t)) return;
+	try {
+		// 1. Seed a test table directly on the upstream Postgres
+		const { testTableName } = await createTestTable(upstreamConnectionParams, 5);
+
+		// 2. Register user and create connection pointing to the proxy
+		const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+		const proxyConnectionDto = createProxyConnectionDto();
+
+		const createConnectionResponse = await request(app.getHttpServer())
+			.post('/connection')
+			.send(proxyConnectionDto)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(createConnectionResponse.status, 201);
+		const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+		// 3. Get tables through the proxy
+		const getTablesResponse = await request(app.getHttpServer())
+			.get(`/connection/tables/${createConnectionRO.id}`)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(getTablesResponse.status, 200);
+
+		const tables = JSON.parse(getTablesResponse.text);
+		console.log('🚀 ~ tables:', tables);
+		t.true(Array.isArray(tables));
+		t.true(tables.length > 0);
+
+		const testTable = tables.find((tbl: any) => tbl.table === testTableName);
+		t.truthy(testTable, `Table "${testTableName}" should be visible through the proxy`);
+		t.is(testTable.permissions.visibility, true);
+		t.is(testTable.permissions.readonly, false);
+		t.is(testTable.permissions.add, true);
+		t.is(testTable.permissions.delete, true);
+		t.is(testTable.permissions.edit, true);
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
+});
+
+test.serial('should get table rows through the proxy via rocketadmin API', async (t) => {
+	if (maybeSkip(t)) return;
+	try {
+		const seedCount = 10;
+		const { testTableName, testTableColumnName, testTableSecondColumnName } = await createTestTable(
+			upstreamConnectionParams,
+			seedCount,
+		);
+
+		const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+		const proxyConnectionDto = createProxyConnectionDto();
+
+		const createConnectionResponse = await request(app.getHttpServer())
+			.post('/connection')
+			.send(proxyConnectionDto)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(createConnectionResponse.status, 201);
+		const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+		const getRowsResponse = await request(app.getHttpServer())
+			.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(getRowsResponse.status, 200);
+
+		const rowsRO = JSON.parse(getRowsResponse.text);
+		t.true(Object.hasOwn(rowsRO, 'rows'));
+		t.true(Object.hasOwn(rowsRO, 'primaryColumns'));
+		t.true(Object.hasOwn(rowsRO, 'pagination'));
+		t.is(rowsRO.rows.length, seedCount);
+		t.true(Object.hasOwn(rowsRO.rows[0], 'id'));
+		t.true(Object.hasOwn(rowsRO.rows[0], testTableColumnName));
+		t.true(Object.hasOwn(rowsRO.rows[0], testTableSecondColumnName));
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
+});
+
+test.serial('should add a row through the proxy via rocketadmin API', async (t) => {
+	if (maybeSkip(t)) return;
+	try {
+		const { testTableName, testTableColumnName, testTableSecondColumnName } = await createTestTable(
+			upstreamConnectionParams,
+			3,
+		);
+
+		const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+		const proxyConnectionDto = createProxyConnectionDto();
+
+		const createConnectionResponse = await request(app.getHttpServer())
+			.post('/connection')
+			.send(proxyConnectionDto)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(createConnectionResponse.status, 201);
+		const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+		const newName = faker.person.firstName();
+		const newEmail = faker.internet.email();
+
+		const addRowResponse = await request(app.getHttpServer())
+			.post(`/table/row/${createConnectionRO.id}?tableName=${testTableName}`)
+			.send(
+				JSON.stringify({
+					[testTableColumnName]: newName,
+					[testTableSecondColumnName]: newEmail,
+				}),
+			)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(addRowResponse.status, 201);
+
+		const addRowRO = JSON.parse(addRowResponse.text);
+		t.true(Object.hasOwn(addRowRO, 'row'));
+		t.is(addRowRO.row[testTableColumnName], newName);
+		t.is(addRowRO.row[testTableSecondColumnName], newEmail);
+
+		// Verify row count increased
+		const getRowsResponse = await request(app.getHttpServer())
+			.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(getRowsResponse.status, 200);
+
+		const rowsRO = JSON.parse(getRowsResponse.text);
+		t.is(rowsRO.rows.length, 4); // 3 seeded + 1 added
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
+});
+
+test.serial('should update a row through the proxy via rocketadmin API', async (t) => {
+	if (maybeSkip(t)) return;
+	try {
+		const { testTableName, testTableColumnName, testTableSecondColumnName } = await createTestTable(
+			upstreamConnectionParams,
+			3,
+		);
+
+		const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+		const proxyConnectionDto = createProxyConnectionDto();
+
+		const createConnectionResponse = await request(app.getHttpServer())
+			.post('/connection')
+			.send(proxyConnectionDto)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(createConnectionResponse.status, 201);
+		const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+		const updatedName = faker.person.firstName();
+		const updatedEmail = faker.internet.email();
+
+		const updateRowResponse = await request(app.getHttpServer())
+			.put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=1`)
+			.send(
+				JSON.stringify({
+					[testTableColumnName]: updatedName,
+					[testTableSecondColumnName]: updatedEmail,
+				}),
+			)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(updateRowResponse.status, 200);
+
+		const updateRowRO = JSON.parse(updateRowResponse.text);
+		t.true(Object.hasOwn(updateRowRO, 'row'));
+		t.is(updateRowRO.row[testTableColumnName], updatedName);
+		t.is(updateRowRO.row[testTableSecondColumnName], updatedEmail);
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
+});
+
+test.serial('should delete a row through the proxy via rocketadmin API', async (t) => {
+	if (maybeSkip(t)) return;
+	try {
+		const { testTableName } = await createTestTable(upstreamConnectionParams, 5);
+
+		const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+		const proxyConnectionDto = createProxyConnectionDto();
+
+		const createConnectionResponse = await request(app.getHttpServer())
+			.post('/connection')
+			.send(proxyConnectionDto)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(createConnectionResponse.status, 201);
+		const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+		const deleteRowResponse = await request(app.getHttpServer())
+			.delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=1`)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(deleteRowResponse.status, 200);
+
+		// Verify row count decreased
+		const getRowsResponse = await request(app.getHttpServer())
+			.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(getRowsResponse.status, 200);
+
+		const rowsRO = JSON.parse(getRowsResponse.text);
+		t.is(rowsRO.rows.length, 4); // 5 seeded - 1 deleted
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
+});
+
+test.serial('should get table structure through the proxy via rocketadmin API', async (t) => {
+	if (maybeSkip(t)) return;
+	try {
+		const { testTableName, testTableColumnName, testTableSecondColumnName } = await createTestTable(
+			upstreamConnectionParams,
+			3,
+		);
+
+		const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+		const proxyConnectionDto = createProxyConnectionDto();
+
+		const createConnectionResponse = await request(app.getHttpServer())
+			.post('/connection')
+			.send(proxyConnectionDto)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(createConnectionResponse.status, 201);
+		const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+		const getStructureResponse = await request(app.getHttpServer())
+			.get(`/table/structure/${createConnectionRO.id}?tableName=${testTableName}`)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(getStructureResponse.status, 200);
+
+		const structureRO = JSON.parse(getStructureResponse.text);
+		t.true(typeof structureRO === 'object');
+		t.true(Array.isArray(structureRO.structure));
+		t.true(structureRO.structure.length > 0);
+		t.true(Object.hasOwn(structureRO, 'primaryColumns'));
+		t.true(Object.hasOwn(structureRO, 'foreignKeys'));
+
+		const columnNames = structureRO.structure.map((col: any) => col.column_name);
+		t.true(columnNames.includes('id'));
+		t.true(columnNames.includes(testTableColumnName));
+		t.true(columnNames.includes(testTableSecondColumnName));
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
+});
+
+// ─── Usage reporting test ───────────────────────────────────────────────────
+//
+// Verifies that the proxy actually reports usage metrics back to the backend
+// (mock API) after queries. Uses a baseline/delta approach so it doesn't
+// conflict with any state accumulated by earlier tests in the same run.
+//
+// Requires the proxy-mock-api container to be rebuilt with the test-only
+// endpoints (/api/test/usage-reports). If not available, test is skipped.
+
+test.serial('should report usage metrics to mock API after queries through proxy', async (t) => {
+	if (maybeSkip(t)) return;
+	try {
+		// Probe mock API capability — skip if test endpoints are absent (old mock build)
+		const probe = await getUsageReports();
+		if (!Array.isArray(probe)) {
+			t.pass('skipped: proxy-mock-api does not expose test endpoints (rebuild required)');
+			return;
+		}
+		const baselineReportCount = probe.length;
+
+		const { testTableName } = await createTestTable(upstreamConnectionParams, 3);
+		const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+		const proxyConnectionDto = createProxyConnectionDto();
+		const expectedConnId = expectedConnectionId(proxyConnectionDto.username);
+		const expectedCompId = expectedCompanyId(proxyConnectionDto.username);
+
+		const createConnectionResponse = await request(app.getHttpServer())
+			.post('/connection')
+			.send(proxyConnectionDto)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(createConnectionResponse.status, 201);
+		const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+		// A single query is enough — the proxy reports usage periodically regardless
+		const getRowsResponse = await request(app.getHttpServer())
+			.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		const responseText = JSON.parse(getRowsResponse.text);
+		console.log('🚀 ~ responseText:', responseText);
+		t.is(getRowsResponse.status, 200);
+
+		// Wait for the proxy's usage report interval (configured at 10s in docker-compose)
+		// plus a small buffer for the HTTP call to complete
+		await sleep(12000);
+
+		const reports = await getUsageReports();
+		t.true(Array.isArray(reports), 'Usage reports should be an array');
+		t.true(
+			reports.length > baselineReportCount,
+			`Expected new usage reports after queries (baseline=${baselineReportCount}, got=${reports.length})`,
+		);
+
+		// Filter to reports for THIS test's derived connectionId so we don't pick up
+		// reports from other tests sharing the mock-api.
+		const latestReports = reports.slice(baselineReportCount);
+		const relevantReports = latestReports.filter((r: any) => r.connectionId === expectedConnId);
+		t.true(relevantReports.length > 0, `Should have at least one report for ${expectedConnId}`);
+
+		const report = relevantReports[0];
+		t.true(Object.hasOwn(report, 'connectionId'));
+		t.true(Object.hasOwn(report, 'companyId'));
+		t.true(Object.hasOwn(report, 'queryTimeMs'));
+		t.true(Object.hasOwn(report, 'queryCount'));
+		t.true(Object.hasOwn(report, 'timestamp'));
+		t.is(report.companyId, expectedCompId);
+
+		// Total query count across the new reports should reflect our queries
+		const totalQueryCount = relevantReports.reduce((sum: number, r: any) => sum + r.queryCount, 0);
+		t.true(totalQueryCount > 0, `Expected positive query count, got ${totalQueryCount}`);
+
+		// Total query time must be strictly positive — /table/rows runs several
+		// metadata queries plus the row fetch, which must register more than a
+		// single millisecond of billed time. A zero here would indicate the
+		// timer never fired or was dropped on disconnect.
+		const totalQueryTimeMs = relevantReports.reduce((sum: number, r: any) => sum + r.queryTimeMs, 0);
+		t.true(totalQueryTimeMs > 0, `Expected positive query time, got ${totalQueryTimeMs}`);
+		// Sanity upper bound: a single API call should not accrue minutes of
+		// proxy-measured time. Guards against a Pop(ok=false)-style regression
+		// where time.Since(zeroTime) could produce decade-scale elapsed.
+		t.true(
+			totalQueryTimeMs < 60000,
+			`Expected <60s total query time for a single API call, got ${totalQueryTimeMs} (overbilling?)`,
+		);
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
+});
+
+// ─── Budget exhaustion via rocketadmin API ──────────────────────────────────
+//
+// Drives the token bucket to negative balance under the TEST_TINY_PLAN (a
+// deliberately tiny 2s/hour budget used only for tests). Uses supertest —
+// each /connection/tables call fans out into several metadata queries, which
+// is more than enough to exhaust 2 seconds of cumulative query time across a
+// few calls. The next API call should surface the proxy's 53400 rejection.
+
+test.serial('should reject queries once query-time budget is exhausted', async (t) => {
+	if (maybeSkip(t)) return;
+	t.timeout(60000);
+
+	const probe = await getUsageReports();
+	if (!Array.isArray(probe)) {
+		t.pass('skipped: proxy-mock-api does not expose test endpoints (rebuild required)');
+		return;
+	}
+
+	await setSubscriptionLevel('TEST_TINY_PLAN');
+	try {
+		const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+		const proxyConnectionDto = createProxyConnectionDto();
+
+		const createConnectionResponse = await request(app.getHttpServer())
+			.post('/connection')
+			.send(proxyConnectionDto)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(createConnectionResponse.status, 201);
+		const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+		// Burn through the 2-second budget by repeatedly listing tables. Each
+		// call executes several introspection queries; within a handful of calls
+		// the post-consume balance goes negative and subsequent calls hit the
+		// pre-query CheckBudget rejection.
+		let rejected = false;
+		let lastStatus = 0;
+		let lastBody = '';
+		for (let i = 0; i < 30; i++) {
+			const resp = await request(app.getHttpServer())
+				.get(`/connection/tables/${createConnectionRO.id}`)
+				.set('Cookie', firstUserToken)
+				.set('Accept', 'application/json');
+			lastStatus = resp.status;
+			lastBody = resp.text || '';
+			if (resp.status !== 200) {
+				rejected = true;
+				break;
+			}
+		}
+
+		t.true(
+			rejected,
+			`expected a 30-call burst under TEST_TINY_PLAN to hit a budget rejection; last status=${lastStatus}`,
+		);
+		t.regex(
+			lastBody,
+			/budget|exceeded|plan|53400/i,
+			`rejection response should mention budget/plan, got status=${lastStatus} body=${lastBody.slice(0, 200)}`,
+		);
+	} finally {
+		await setSubscriptionLevel('TEAM_PLAN');
+	}
+});
+
+// ─── Frozen plan / connection rejection test ────────────────────────────────
+//
+// This test MUST run LAST because it flips the mock-api into `frozen` state.
+// After this test, no further proxy tests will succeed until the mock-api is
+// reset. By running last, we avoid polluting state for other tests.
+//
+// Requires the proxy-mock-api container to be rebuilt with the test-only
+// endpoints. If not available, test is skipped.
+
+test.serial('[zzz-last] should reject connection when subscription plan is frozen', async (t) => {
+	if (maybeSkip(t)) return;
+
+	// Probe mock API capability — skip if test endpoints are absent
+	const probe = await mockApiRequest('GET', '/api/test/usage-reports');
+	if (!Array.isArray(probe)) {
+		t.pass('skipped: proxy-mock-api does not expose test endpoints (rebuild required)');
+		return;
+	}
+
+	try {
+		// Set plan to frozen via mock API
+		await setSubscriptionLevel('frozen');
+
+		const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+		const proxyConnectionDto = createProxyConnectionDto();
+		proxyConnectionDto.title = 'Frozen-plan test connection';
+
+		const createConnectionResponse = await request(app.getHttpServer())
+			.post('/connection')
+			.send(proxyConnectionDto)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(createConnectionResponse.status, 201);
+		const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+		// Attempting to list tables should fail because the proxy rejects the connection
+		const getTablesResponse = await request(app.getHttpServer())
+			.get(`/connection/tables/${createConnectionRO.id}`)
+			.set('Cookie', firstUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+
+		// The proxy should refuse the connection, resulting in an error from the backend
+		t.not(getTablesResponse.status, 200, 'Should not succeed with frozen plan');
+	} finally {
+		// Best-effort restore so manual runs of the full file behave sanely
+		await setSubscriptionLevel('TEAM_PLAN').catch(() => undefined);
+	}
+});
