@@ -298,6 +298,21 @@
 	}
 }
 
+.ai-thinking {
+	font-size: 12px;
+	line-height: 1.5;
+	color: rgba(0, 0, 0, 0.5);
+	font-style: italic;
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+@media (prefers-color-scheme: dark) {
+	.ai-thinking {
+		color: rgba(255, 255, 255, 0.5);
+	}
+}
+
 .ai-error-message {
 	border-radius: 8px;
 	padding: 8px 8px 0;
