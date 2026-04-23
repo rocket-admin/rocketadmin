@@ -241,4 +241,31 @@ describe('DbTableViewComponent', () => {
 		const value = component.getCellValue(foreignKey, cell);
 		expect(value).toEqual('John');
 	});
+
+	it('should return null (not throw) when foreign key cell is null', () => {
+		const foreignKey = {
+			autocomplete_columns: ['FirstName'],
+			column_name: 'CustomerId',
+			column_default: null,
+			constraint_name: 'Orders_ibfk_2',
+			referenced_column_name: 'Id',
+			referenced_table_name: 'Customers',
+		};
+
+		expect(component.getCellValue(foreignKey, null)).toBeNull();
+		expect(component.getCellValue(foreignKey, undefined)).toBeNull();
+	});
+
+	it('should not throw in isForeignKeySelected when record is null', () => {
+		const foreignKey = {
+			autocomplete_columns: ['FirstName'],
+			column_name: 'CustomerId',
+			column_default: null,
+			constraint_name: 'Orders_ibfk_2',
+			referenced_column_name: 'Id',
+			referenced_table_name: 'Customers',
+		};
+
+		expect(component.isForeignKeySelected(null, foreignKey)).toBe(false);
+	});
 });

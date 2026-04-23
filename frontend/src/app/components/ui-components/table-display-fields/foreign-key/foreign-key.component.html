@@ -1,6 +1,8 @@
 <div class="field-display">
   <div class="field-value">
-    @if (relations() && value()) {
+    @if (value() == null) {
+      <span>—</span>
+    } @else if (relations()) {
       <button
         class="foreign-key-button"
         [ngClass]="{'foreign-key-button_selected': isSelected()}"
@@ -9,7 +11,7 @@
         {{ value() }}
       </button>
     } @else {
-      <span>{{ value() || '—' }}</span>
+      <span>{{ value() }}</span>
     }
   </div>
   <button type="button"

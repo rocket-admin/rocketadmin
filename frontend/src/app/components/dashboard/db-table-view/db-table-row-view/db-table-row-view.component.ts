@@ -257,33 +257,23 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
 	}
 
 	getForeignKeyValue(field: string) {
-		if (this.selectedRow && typeof this.selectedRow.record[field] === 'object') {
-			const identityColumnName = Object.keys(this.selectedRow.record[field]).find(
-				(key) => key !== this.selectedRow.foreignKeys[field].referenced_column_name,
-			);
+		const cell = this.selectedRow?.record?.[field];
+		if (cell == null) return null;
+		if (typeof cell === 'object') {
 			const referencedColumnName = this.selectedRow.foreignKeys[field].referenced_column_name;
-			if (identityColumnName) {
-				return this.selectedRow.record[field][identityColumnName];
-			}
-			if (referencedColumnName) {
-				return this.selectedRow.record[field][referencedColumnName];
-			}
-			return this.selectedRow.record[field] || '';
+			const identityColumnName = Object.keys(cell).find((key) => key !== referencedColumnName);
+			if (identityColumnName) return cell[identityColumnName];
+			if (referencedColumnName && cell[referencedColumnName] != null) return cell[referencedColumnName];
+			return null;
 		}
-		return this.selectedRow.record[field] || '';
+		return cell;
 	}
 
 	getForeignKeyQueryParams(field: string) {
-		if (this.selectedRow) {
-			const referencedColumnName = this.selectedRow.foreignKeys[field]?.referenced_column_name;
-
-			if (typeof this.selectedRow.record[field] === 'object') {
-				return { [referencedColumnName]: this.selectedRow.record[field][referencedColumnName] };
-			} else {
-				return { [referencedColumnName]: this.selectedRow.record[field] };
-			}
-		}
-		return {};
+		const cell = this.selectedRow?.record?.[field];
+		const referencedColumnName = this.selectedRow?.foreignKeys?.[field]?.referenced_column_name;
+		if (cell == null || !referencedColumnName) return {};
+		return { [referencedColumnName]: typeof cell === 'object' ? cell[referencedColumnName] : cell };
 	}
 
 	isWidget(columnName: string) {
