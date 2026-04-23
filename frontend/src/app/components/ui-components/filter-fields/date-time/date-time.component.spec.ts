@@ -127,4 +127,62 @@ describe('DateTimeFilterComponent', () => {
 		expect(component.time).toEqual('00:00:00');
 		expect(fieldEvent).toHaveBeenCalledWith('2021-08-26T00:00:00Z');
 	});
+
+	it('should emit between comparator with [lower, upper] ISO strings when BETWEEN bounds change', () => {
+		const fieldEvent = vi.spyOn(component.onFieldChange, 'emit');
+		const comparatorEvent = vi.spyOn(component.onComparatorChange, 'emit');
+		component.onFilterModeChange('between');
+
+		component.lowerDate = '2024-01-01';
+		component.lowerTime = '00:00:00';
+		component.onBetweenLowerChange();
+
+		expect(comparatorEvent).toHaveBeenCalledWith('between');
+		expect(fieldEvent).toHaveBeenLastCalledWith(['2024-01-01T00:00:00Z', null]);
+
+		component.upperDate = '2024-01-31';
+		component.upperTime = '23:59:59';
+		component.onBetweenUpperChange();
+
+		expect(fieldEvent).toHaveBeenLastCalledWith(['2024-01-01T00:00:00Z', '2024-01-31T23:59:59Z']);
+	});
+
+	it('should restore BETWEEN bounds from a two-element array on init', () => {
+		component.value = ['2024-01-01T00:00:00Z', '2024-01-31T23:59:59Z'];
+		component.filterMode = 'between';
+		component.ngOnInit();
+
+		expect(component.lowerDate).toEqual('2024-01-01');
+		expect(component.lowerTime).toEqual('00:00:00');
+		expect(component.upperDate).toEqual('2024-01-31');
+		expect(component.upperTime).toEqual('23:59:59');
+	});
+
+	it('should parse comma-separated text into array on IN text change', () => {
+		const fieldEvent = vi.spyOn(component.onFieldChange, 'emit');
+		const comparatorEvent = vi.spyOn(component.onComparatorChange, 'emit');
+		component.onFilterModeChange('in');
+
+		component.onInTextChange('2024-01-01T00:00:00Z, 2024-02-01T00:00:00Z');
+
+		expect(comparatorEvent).toHaveBeenCalledWith('in');
+		expect(fieldEvent).toHaveBeenLastCalledWith(['2024-01-01T00:00:00Z', '2024-02-01T00:00:00Z']);
+	});
+
+	it('should emit undefined when IN text is empty', () => {
+		const fieldEvent = vi.spyOn(component.onFieldChange, 'emit');
+		component.onFilterModeChange('in');
+
+		component.onInTextChange('   ');
+
+		expect(fieldEvent).toHaveBeenLastCalledWith(undefined);
+	});
+
+	it('should restore IN text from array value on init', () => {
+		component.value = ['2024-01-01T00:00:00Z', '2024-02-01T00:00:00Z'];
+		component.filterMode = 'in';
+		component.ngOnInit();
+
+		expect(component.inValueText).toBe('2024-01-01T00:00:00Z, 2024-02-01T00:00:00Z');
+	});
 });

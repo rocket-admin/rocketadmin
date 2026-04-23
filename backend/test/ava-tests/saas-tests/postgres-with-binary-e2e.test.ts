@@ -12,7 +12,7 @@ import { ApplicationModule } from '../../../src/app.module.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
-import { hexToBinary } from '../../../src/helpers/binary-to-hex.js';
+import { binaryToHex, hexToBinary } from '../../../src/helpers/binary-to-hex.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
@@ -112,18 +112,17 @@ test.serial(`${currentTest} should return list of tables in connection`, async (
 		t.is(getTableRowsResponse.status, 200);
 
 		const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+		const searchHex = binaryToHex(getTableRowsRO.rows[0][testTableColumnName]);
 
 		const getTableRowsWithSearchResponse = await request(app.getHttpServer())
-			.get(
-				`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${getTableRowsRO.rows[0][testTableColumnName]}`,
-			)
+			.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${searchHex}`)
 			.set('Cookie', firstUserToken)
 			.set('Content-Type', 'application/json')
 			.set('Accept', 'application/json');
 		t.is(getTableRowsResponse.status, 200);
 		const getTableRowsWithSearchRO = JSON.parse(getTableRowsWithSearchResponse.text);
 		t.is(getTableRowsWithSearchRO.rows.length, 1);
-		t.is(getTableRowsWithSearchRO.rows[0][testTableColumnName], getTableRowsRO.rows[0][testTableColumnName]);
+		t.deepEqual(getTableRowsWithSearchRO.rows[0][testTableColumnName], getTableRowsRO.rows[0][testTableColumnName]);
 
 		t.pass();
 	} catch (e) {

@@ -1,5 +1,5 @@
 import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
-import { hexToBinary } from '../../../helpers/binary-to-hex.js';
+import { toBinaryBuffer } from '../../../helpers/binary-to-hex.js';
 import { isBinary } from '../../../helpers/index.js';
 
 export function convertHexDataInRowUtil(
@@ -10,9 +10,8 @@ export function convertHexDataInRowUtil(
 
 	for (const column of binaryColumns) {
 		const columnValue = row[column.column_name];
-		if (columnValue) {
-			row[column.column_name] = hexToBinary(columnValue as string);
-		}
+		if (columnValue == null || columnValue === '') continue;
+		row[column.column_name] = toBinaryBuffer(columnValue);
 	}
 
 	return row;
