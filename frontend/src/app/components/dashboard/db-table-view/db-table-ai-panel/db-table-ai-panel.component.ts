@@ -19,6 +19,7 @@ import { Angulartics2, Angulartics2Module } from 'angulartics2';
 import { MarkdownModule } from 'ngx-markdown';
 import posthog from 'posthog-js';
 import { AiService } from 'src/app/services/ai.service';
+import { AiStreamChunk } from 'src/app/services/api.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
@@ -53,6 +54,7 @@ export class DbTableAiPanelComponent implements OnInit, AfterViewInit, OnDestroy
 	public messagesChain: {
 		type: string;
 		text: string;
+		thinking?: string;
 	}[] = [];
 	public aiSuggestions: { title: string; prompt: string; completions: string[] }[] = [];
 	public suggestionCategories: {
@@ -69,7 +71,7 @@ export class DbTableAiPanelComponent implements OnInit, AfterViewInit, OnDestroy
 
 	private _aiService = inject(AiService);
 	private _abortController: AbortController | null = null;
-	private _loadingStepsInterval: any = null;
+	private _loadingStepsInterval: ReturnType<typeof setInterval> | null = null;
 	private _loadingSteps: string[] = [
 		'Connecting to database',
 		'Analyzing table structure',
@@ -109,7 +111,7 @@ export class DbTableAiPanelComponent implements OnInit, AfterViewInit, OnDestroy
 
 	async ngAfterViewInit() {
 		const mermaid = await import('mermaid');
-		const mermaidAPI: any = mermaid.default ?? mermaid;
+		const mermaidAPI = (mermaid.default ?? mermaid) as { initialize: (config: Record<string, unknown>) => void };
 		const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 		mermaidAPI.initialize({
 			startOnLoad: false,
@@ -216,7 +218,7 @@ export class DbTableAiPanelComponent implements OnInit, AfterViewInit, OnDestroy
 
 			if (response) {
 				this.threadID = response.threadId;
-				const aiMessage = { type: 'ai', text: '' };
+				const aiMessage = { type: 'ai', text: '', thinking: '' };
 				this.messagesChain.push(aiMessage);
 				this.stopLoadingSteps();
 
@@ -269,7 +271,7 @@ export class DbTableAiPanelComponent implements OnInit, AfterViewInit, OnDestroy
 			);
 
 			if (stream) {
-				const aiMessage = { type: 'ai', text: '' };
+				const aiMessage = { type: 'ai', text: '', thinking: '' };
 				this.messagesChain.push(aiMessage);
 				this.stopLoadingSteps();
 
@@ -296,9 +298,22 @@ export class DbTableAiPanelComponent implements OnInit, AfterViewInit, OnDestroy
 		}
 	}
 
-	private async _consumeStream(stream: AsyncGenerator<string>, message: { type: string; text: string }) {
+	private async _consumeStream(
+		stream: AsyncGenerator<AiStreamChunk>,
+		message: { type: string; text: string; thinking?: string },
+	) {
 		for await (const chunk of stream) {
-			message.text += chunk;
+			if (chunk.type === 'thinking') {
+				message.thinking = (message.thinking ?? '') + chunk.content;
+			} else if (chunk.type === 'thinking_reset') {
+				message.thinking = '';
+			} else if (chunk.type === 'thinking_commit') {
+				message.text += message.thinking ?? '';
+				message.thinking = '';
+			} else if (chunk.type === 'text') {
+				message.text += chunk.content;
+				message.thinking = '';
+			}
 		}
 	}
 

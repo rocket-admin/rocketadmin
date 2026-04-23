@@ -1,9 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { ApiService } from './api.service';
+import { AiStreamChunk, ApiService } from './api.service';
 
 export interface AiStreamResponse {
 	threadId: string;
-	stream: AsyncGenerator<string>;
+	stream: AsyncGenerator<AiStreamChunk>;
 }
 
 @Injectable({
@@ -38,7 +38,7 @@ export class AiService {
 		threadId: string,
 		message: string,
 		signal?: AbortSignal,
-	): Promise<AsyncGenerator<string> | null> {
+	): Promise<AsyncGenerator<AiStreamChunk> | null> {
 		const result = await this._api.postStream(
 			`/ai/v4/request/${connectionId}`,
 			{ user_message: message },

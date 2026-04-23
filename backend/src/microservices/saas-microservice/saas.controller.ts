@@ -29,6 +29,8 @@ import { CreateConnectionForHostedDbDto } from './data-structures/create-connect
 import { DeleteConnectionForHostedDbDto } from './data-structures/delete-connection-for-hosted-db.dto.js';
 import { FoundConnectionInfoRO } from './data-structures/found-connection-info.ro.js';
 import { GetConnectionsInfoByIdsDS } from './data-structures/get-connections-info-by-ids.ds.js';
+import { GetHostedConnectionCredentialsDto } from './data-structures/get-hosted-connection-credentials.dto.js';
+import { HostedConnectionCredentialsRO } from './data-structures/hosted-connection-credentials.ro.js';
 import { RegisterCompanyWebhookDS } from './data-structures/register-company.ds.js';
 import { RegisteredCompanyDS } from './data-structures/registered-company.ds.js';
 import { SaasRegisterUserWithGithub } from './data-structures/saas-register-user-with-github.js';
@@ -41,6 +43,7 @@ import {
 	IDeleteConnectionForHostedDb,
 	IFreezeConnectionsInCompany,
 	IGetConnectionsInfoByIds,
+	IGetHostedConnectionCredentials,
 	IGetUserInfo,
 	ILoginUserWithGitHub,
 	ILoginUserWithGoogle,
@@ -100,6 +103,8 @@ export class SaasController {
 		private readonly updateHostedConnectionPasswordUseCase: IUpdateHostedConnectionPassword,
 		@Inject(UseCaseType.SAAS_GET_CONNECTIONS_INFO_BY_IDS)
 		private readonly getConnectionsInfoByIdsUseCase: IGetConnectionsInfoByIds,
+		@Inject(UseCaseType.SAAS_GET_HOSTED_CONNECTION_CREDENTIALS)
+		private readonly getHostedConnectionCredentialsUseCase: IGetHostedConnectionCredentials,
 	) {}
 
 	@ApiOperation({ summary: 'Company registered webhook' })
@@ -343,5 +348,18 @@ export class SaasController {
 		@Body() connectionsData: GetConnectionsInfoByIdsDS,
 	): Promise<Array<FoundConnectionInfoRO>> {
 		return await this.getConnectionsInfoByIdsUseCase.execute(connectionsData);
+	}
+
+	@ApiOperation({ summary: 'Get decrypted credentials for a hosted connection' })
+	@ApiBody({ type: GetHostedConnectionCredentialsDto })
+	@ApiResponse({
+		status: 200,
+		type: HostedConnectionCredentialsRO,
+	})
+	@Post('/connection/hosted/credentials')
+	async getHostedConnectionCredentials(
+		@Body() data: GetHostedConnectionCredentialsDto,
+	): Promise<HostedConnectionCredentialsRO> {
+		return await this.getHostedConnectionCredentialsUseCase.execute(data);
 	}
 }

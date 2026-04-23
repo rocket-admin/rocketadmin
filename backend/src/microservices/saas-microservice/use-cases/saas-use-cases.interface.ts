@@ -11,6 +11,8 @@ import { DeleteConnectionForHostedDbDto } from '../data-structures/delete-connec
 import { FoundConnectionInfoRO } from '../data-structures/found-connection-info.ro.js';
 import { FreezeConnectionsInCompanyDS } from '../data-structures/freeze-connections-in-company.ds.js';
 import { GetConnectionsInfoByIdsDS } from '../data-structures/get-connections-info-by-ids.ds.js';
+import { GetHostedConnectionCredentialsDto } from '../data-structures/get-hosted-connection-credentials.dto.js';
+import { HostedConnectionCredentialsRO } from '../data-structures/hosted-connection-credentials.ro.js';
 import { GetUserInfoByIdDS } from '../data-structures/get-user-info.ds.js';
 import { GetUsersInfosByEmailDS } from '../data-structures/get-users-infos-by-email.ds.js';
 import { RegisterCompanyWebhookDS } from '../data-structures/register-company.ds.js';
@@ -87,4 +89,8 @@ export interface IUpdateHostedConnectionPassword {
 
 export interface IGetConnectionsInfoByIds {
 	execute(inputData: GetConnectionsInfoByIdsDS): Promise<Array<FoundConnectionInfoRO>>;
+}
+
+export interface IGetHostedConnectionCredentials {
+	execute(inputData: GetHostedConnectionCredentialsDto): Promise<HostedConnectionCredentialsRO>;
 }

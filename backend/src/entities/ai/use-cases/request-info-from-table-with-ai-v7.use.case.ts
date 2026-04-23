@@ -171,9 +171,8 @@ export class RequestInfoFromTableWithAIUseCaseV7
 
 				for await (const chunk of stream) {
 					if (chunk.type === 'text' && chunk.content) {
-						response.write(chunk.content);
 						accumulatedContent += chunk.content;
-						totalAccumulatedResponse += chunk.content;
+						this.writeChunk(response, { type: 'thinking', content: chunk.content });
 					}
 
 					if (chunk.type === 'tool_call' && chunk.toolCall) {
@@ -191,13 +190,15 @@ export class RequestInfoFromTableWithAIUseCaseV7
 				);
 
 				if (pendingToolCalls.length === 0) {
+					this.writeChunk(response, { type: 'thinking_commit' });
+					totalAccumulatedResponse += accumulatedContent;
 					break;
 				}
 
+				this.writeChunk(response, { type: 'thinking_reset' });
+
 				for (const toolCall of pendingToolCalls) {
-					this.logger.log(
-						`Tool call: ${toolCall.name}, arguments=${JSON.stringify(toolCall.arguments)}`,
-					);
+					this.logger.log(`Tool call: ${toolCall.name}, arguments=${JSON.stringify(toolCall.arguments)}`);
 				}
 
 				const toolResults = await this.executeToolCalls(
@@ -209,9 +210,7 @@ export class RequestInfoFromTableWithAIUseCaseV7
 				);
 
 				for (const toolResult of toolResults) {
-					this.logger.log(
-						`Tool result for ${toolResult.toolCallId}: resultLength=${toolResult.result.length}`,
-					);
+					this.logger.log(`Tool result for ${toolResult.toolCallId}: resultLength=${toolResult.result.length}`);
 				}
 
 				if (this.aiProvider === AIProviderType.OPENAI && lastResponseId) {
@@ -227,9 +226,7 @@ export class RequestInfoFromTableWithAIUseCaseV7
 
 				depth++;
 			} catch (loopError) {
-				this.logger.error(
-					`Error in tool loop at depth ${depth + 1}: ${loopError.message}`,
-				);
+				this.logger.error(`Error in tool loop at depth ${depth + 1}: ${loopError.message}`);
 				throw loopError;
 			}
 		}
@@ -238,11 +235,22 @@ export class RequestInfoFromTableWithAIUseCaseV7
 			this.logger.warn(`Tool loop reached max depth (${this.maxDepth})`);
 			const maxDepthMessage =
 				'\n\nYour question is too complex to process at this time. Please try simplifying it or breaking it down into smaller parts.';
-			response.write(maxDepthMessage);
+			this.writeChunk(response, { type: 'text', content: maxDepthMessage });
 			totalAccumulatedResponse += maxDepthMessage;
 		}
 
 		return { lastResponseId, accumulatedResponse: totalAccumulatedResponse };
+	}
+
+	private writeChunk(
+		response: Response,
+		chunk:
+			| { type: 'thinking'; content: string }
+			| { type: 'thinking_reset' }
+			| { type: 'thinking_commit' }
+			| { type: 'text'; content: string },
+	): void {
+		response.write(JSON.stringify(chunk) + '\n');
 	}
 
 	private async executeToolCalls(
@@ -306,9 +314,7 @@ export class RequestInfoFromTableWithAIUseCaseV7
 						result = encodeError({ error: `Unknown tool: ${toolCall.name}` });
 				}
 			} catch (error) {
-				this.logger.error(
-					`Tool call ${toolCall.name} (${toolCall.id}) failed: ${error.message}`,
-				);
+				this.logger.error(`Tool call ${toolCall.name} (${toolCall.id}) failed: ${error.message}`);
 				result = encodeError({ error: error.message });
 			}
 
