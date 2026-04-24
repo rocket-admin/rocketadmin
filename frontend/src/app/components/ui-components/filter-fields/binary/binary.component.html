@@ -10,16 +10,40 @@
 
     @if (filterMode !== 'empty') {
         <mat-form-field class="value-field" appearance="outline">
-            <mat-label>{{normalizedLabel()}} (hex)</mat-label>
-            <input matInput type="text" hexValidator
-                name="{{label()}}-{{key()}}"
-                #inputElement
-                #hexInput="ngModel"
-                [required]="required()" [disabled]="disabled()" [readonly]="readonly()"
-                placeholder="48656c6c6f"
-                [(ngModel)]="hexValue" (ngModelChange)="onHexValueChange($event)">
-            @if (hexInput.errors?.isInvalidHex) {
-                <mat-error>Invalid hex.</mat-error>
+            <mat-label>{{normalizedLabel()}} ({{ encoding() }})</mat-label>
+            @switch (encoding()) {
+                @case ('hex') {
+                    <input matInput type="text" hexValidator
+                        name="{{label()}}-{{key()}}"
+                        #inputElement
+                        #binaryInput="ngModel"
+                        [required]="required()" [disabled]="disabled()" [readonly]="readonly()"
+                        placeholder="48656c6c6f"
+                        [ngModel]="rawInput" (ngModelChange)="onInputChange($event)">
+                    @if (binaryInput.errors?.isInvalidHex) {
+                        <mat-error>Invalid hex.</mat-error>
+                    }
+                }
+                @case ('base64') {
+                    <input matInput type="text" base64Validator
+                        name="{{label()}}-{{key()}}"
+                        #inputElement
+                        #binaryInput="ngModel"
+                        [required]="required()" [disabled]="disabled()" [readonly]="readonly()"
+                        placeholder="SGVsbG8="
+                        [ngModel]="rawInput" (ngModelChange)="onInputChange($event)">
+                    @if (binaryInput.errors?.isInvalidBase64) {
+                        <mat-error>Invalid base64.</mat-error>
+                    }
+                }
+                @case ('ascii') {
+                    <input matInput type="text"
+                        name="{{label()}}-{{key()}}"
+                        #inputElement
+                        [required]="required()" [disabled]="disabled()" [readonly]="readonly()"
+                        placeholder="Hello"
+                        [ngModel]="rawInput" (ngModelChange)="onInputChange($event)">
+                }
             }
         </mat-form-field>
     }

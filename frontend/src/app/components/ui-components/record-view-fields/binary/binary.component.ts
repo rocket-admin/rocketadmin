@@ -3,7 +3,7 @@ import { Component, computed } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { bytesToHex, parseBinaryValue } from 'src/app/lib/binary';
+import { bytesToEncoded, isBinaryEncoding, parseBinaryValue } from 'src/app/lib/binary';
 import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-record-view-field.component';
 
 const MAX_DISPLAY_LENGTH = 80;
@@ -16,13 +16,18 @@ const MAX_DISPLAY_LENGTH = 80;
 })
 export class BinaryRecordViewComponent extends BaseRecordViewFieldComponent {
 	public readonly bytes = computed(() => parseBinaryValue(this.value()));
-	public readonly hexValue = computed(() => bytesToHex(this.bytes()));
+	public readonly encoding = computed(() => {
+		const raw = this.widgetStructure()?.widget_params?.encoding;
+		return isBinaryEncoding(raw) ? raw : 'hex';
+	});
+	public readonly encodedValue = computed(() => bytesToEncoded(this.bytes(), this.encoding()));
+	public readonly copyTooltip = computed(() => `Copy ${this.encoding()}`);
 
 	public readonly displayText = computed(() => {
-		const hex = this.hexValue();
-		if (!hex) return '\u2014';
-		return hex.length > MAX_DISPLAY_LENGTH ? hex.substring(0, MAX_DISPLAY_LENGTH) + '\u2026' : hex;
+		const encoded = this.encodedValue();
+		if (!encoded) return '—';
+		return encoded.length > MAX_DISPLAY_LENGTH ? encoded.substring(0, MAX_DISPLAY_LENGTH) + '…' : encoded;
 	});
 
-	public readonly isTruncated = computed(() => this.hexValue().length > MAX_DISPLAY_LENGTH);
+	public readonly isTruncated = computed(() => this.encodedValue().length > MAX_DISPLAY_LENGTH);
 }
