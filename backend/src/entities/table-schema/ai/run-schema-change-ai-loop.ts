@@ -12,9 +12,14 @@ import {
 	encodeToToon,
 	MessageBuilder,
 } from '../../../ai-core/index.js';
-import { isMongoSchemaChangeType, SchemaChangeTypeEnum } from '../table-schema-change-enums.js';
+import {
+	isDynamoDbSchemaChangeType,
+	isMongoSchemaChangeType,
+	SchemaChangeTypeEnum,
+} from '../table-schema-change-enums.js';
 import {
 	GET_TABLE_STRUCTURE_TOOL_NAME,
+	PROPOSE_DYNAMODB_SCHEMA_CHANGE_TOOL_NAME,
 	PROPOSE_MONGO_SCHEMA_CHANGE_TOOL_NAME,
 	ProposeSchemaChangeArgs,
 	TERMINAL_PROPOSAL_TOOL_NAMES,
@@ -82,7 +87,7 @@ export async function runSchemaChangeAiLoop(opts: RunSchemaChangeAiLoopOptions):
 				? `AI replied with text but no tool call: "${accumulatedContent.slice(0, 200)}"`
 				: 'AI produced no tool calls and no text.';
 			throw new Error(
-				`${hint} The model must call proposeSchemaChange (SQL) or proposeMongoSchemaChange (Mongo) with structured arguments.`,
+				`${hint} The model must call proposeSchemaChange (SQL), proposeMongoSchemaChange (Mongo), or proposeDynamoDbSchemaChange (DynamoDB) with structured arguments.`,
 			);
 		}
 
@@ -120,13 +125,19 @@ function coerceAndValidateProposal(toolCall: AIToolCall): ProposeSchemaChangeArg
 	const isReversible = asBoolean(raw.isReversible, 'isReversible');
 
 	const isMongoTool = toolCall.name === PROPOSE_MONGO_SCHEMA_CHANGE_TOOL_NAME;
+	const isDynamoDbTool = toolCall.name === PROPOSE_DYNAMODB_SCHEMA_CHANGE_TOOL_NAME;
 	if (isMongoTool !== isMongoSchemaChangeType(changeType)) {
 		throw new Error(
 			`Tool ${toolCall.name} was called with changeType "${changeType}" which does not match. Mongo tool requires MONGO_* changeType and vice versa.`,
 		);
 	}
+	if (isDynamoDbTool !== isDynamoDbSchemaChangeType(changeType)) {
+		throw new Error(
+			`Tool ${toolCall.name} was called with changeType "${changeType}" which does not match. DynamoDB tool requires DYNAMODB_* changeType and vice versa.`,
+		);
+	}
 
-	if (isMongoTool) {
+	if (isMongoTool || isDynamoDbTool) {
 		const forwardOp = asNonEmptyString(raw.forwardOp, 'forwardOp');
 		const rollbackOp = asNonEmptyString(raw.rollbackOp, 'rollbackOp');
 		return {

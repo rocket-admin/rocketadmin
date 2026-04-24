@@ -15,9 +15,15 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { RollbackSchemaChangeDs } from '../application/data-structures/rollback-schema-change.ds.js';
 import { SchemaChangeResponseDto } from '../application/data-transfer-objects/schema-change-response.dto.js';
-import { isMongoSchemaChangeType, SchemaChangeStatusEnum, SchemaChangeTypeEnum } from '../table-schema-change-enums.js';
-import { assertDialectSupported, isClickHouseDialect } from '../utils/assert-dialect-supported.js';
+import {
+	isDynamoDbSchemaChangeType,
+	isMongoSchemaChangeType,
+	SchemaChangeStatusEnum,
+	SchemaChangeTypeEnum,
+} from '../table-schema-change-enums.js';
+import { assertDialectSupported, isClickHouseDialect, isDynamoDbDialect } from '../utils/assert-dialect-supported.js';
 import { executeClickHouseDdl } from '../utils/clickhouse-ddl.js';
+import { executeDynamoDbSchemaOp, validateProposedDynamoDbOp } from '../utils/dynamodb-schema-op.js';
 import { mapSchemaChangeToResponseDto } from '../utils/map-schema-change-to-response-dto.js';
 import { executeMongoSchemaOp, validateProposedMongoOp } from '../utils/mongo-schema-op.js';
 import { IRollbackSchemaChange } from './table-schema-use-cases.interface.js';
@@ -64,6 +70,7 @@ export class RollbackSchemaChangeUseCase
 		}
 
 		const isMongo = isMongoSchemaChangeType(change.changeType);
+		const isDynamoDb = isDynamoDbSchemaChangeType(change.changeType) || isDynamoDbDialect(connectionType);
 		const isClickHouse = isClickHouseDialect(connectionType);
 
 		try {
@@ -75,6 +82,14 @@ export class RollbackSchemaChangeUseCase
 					allowAnyOperation: true,
 				});
 				await executeMongoSchemaOp(connection, op);
+			} else if (isDynamoDb) {
+				const op = validateProposedDynamoDbOp({
+					opJson: change.rollbackSql,
+					changeType: change.changeType,
+					targetTableName: change.targetTableName,
+					allowAnyOperation: true,
+				});
+				await executeDynamoDbSchemaOp(connection, op);
 			} else if (isClickHouse) {
 				await executeClickHouseDdl(connection, change.rollbackSql);
 			} else {

@@ -25,10 +25,18 @@ export enum SchemaChangeTypeEnum {
 	MONGO_SET_VALIDATOR = 'MONGO_SET_VALIDATOR',
 	MONGO_CREATE_INDEX = 'MONGO_CREATE_INDEX',
 	MONGO_DROP_INDEX = 'MONGO_DROP_INDEX',
+	DYNAMODB_CREATE_TABLE = 'DYNAMODB_CREATE_TABLE',
+	DYNAMODB_DROP_TABLE = 'DYNAMODB_DROP_TABLE',
+	DYNAMODB_UPDATE_TABLE = 'DYNAMODB_UPDATE_TABLE',
+	DYNAMODB_UPDATE_TTL = 'DYNAMODB_UPDATE_TTL',
 	ROLLBACK = 'ROLLBACK',
 	OTHER = 'OTHER',
 }
 
 export function isMongoSchemaChangeType(changeType: SchemaChangeTypeEnum): boolean {
 	return changeType.startsWith('MONGO_');
+}
+
+export function isDynamoDbSchemaChangeType(changeType: SchemaChangeTypeEnum): boolean {
+	return changeType.startsWith('DYNAMODB_');
 }

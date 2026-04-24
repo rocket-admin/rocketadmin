@@ -8,11 +8,21 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { runSchemaChangeAiLoop } from '../ai/run-schema-change-ai-loop.js';
 import { buildSchemaChangePrompt } from '../ai/schema-change-prompts.js';
-import { createMongoSchemaChangeTools, createSchemaChangeTools } from '../ai/schema-change-tools.js';
+import {
+	createDynamoDbSchemaChangeTools,
+	createMongoSchemaChangeTools,
+	createSchemaChangeTools,
+} from '../ai/schema-change-tools.js';
 import { GenerateSchemaChangeDs } from '../application/data-structures/generate-schema-change.ds.js';
 import { SchemaChangeResponseDto } from '../application/data-transfer-objects/schema-change-response.dto.js';
-import { isMongoSchemaChangeType, SchemaChangeStatusEnum, SchemaChangeTypeEnum } from '../table-schema-change-enums.js';
-import { assertDialectSupported, isMongoDialect } from '../utils/assert-dialect-supported.js';
+import {
+	isDynamoDbSchemaChangeType,
+	isMongoSchemaChangeType,
+	SchemaChangeStatusEnum,
+	SchemaChangeTypeEnum,
+} from '../table-schema-change-enums.js';
+import { assertDialectSupported, isDynamoDbDialect, isMongoDialect } from '../utils/assert-dialect-supported.js';
+import { validateProposedDynamoDbOp } from '../utils/dynamodb-schema-op.js';
 import { mapSchemaChangeToResponseDto } from '../utils/map-schema-change-to-response-dto.js';
 import { validateProposedMongoOp } from '../utils/mongo-schema-op.js';
 import { validateProposedDdl } from '../utils/validate-proposed-ddl.js';
@@ -60,7 +70,11 @@ export class GenerateSchemaChangeUseCase
 
 		const systemPrompt = buildSchemaChangePrompt(connectionType, tableNames, connection.schema ?? null);
 		const messages = new MessageBuilder().system(systemPrompt).human(userPrompt).build();
-		const tools = isMongoDialect(connectionType) ? createMongoSchemaChangeTools() : createSchemaChangeTools();
+		const tools = isMongoDialect(connectionType)
+			? createMongoSchemaChangeTools()
+			: isDynamoDbDialect(connectionType)
+				? createDynamoDbSchemaChangeTools()
+				: createSchemaChangeTools();
 
 		let proposal;
 		try {
@@ -87,6 +101,20 @@ export class GenerateSchemaChangeUseCase
 			});
 			if (proposal.rollbackSql) {
 				validateProposedMongoOp({
+					opJson: proposal.rollbackSql,
+					changeType: proposal.changeType,
+					targetTableName: proposal.targetTableName,
+					allowAnyOperation: true,
+				});
+			}
+		} else if (isDynamoDbSchemaChangeType(proposal.changeType)) {
+			validateProposedDynamoDbOp({
+				opJson: proposal.forwardSql,
+				changeType: proposal.changeType,
+				targetTableName: proposal.targetTableName,
+			});
+			if (proposal.rollbackSql) {
+				validateProposedDynamoDbOp({
 					opJson: proposal.rollbackSql,
 					changeType: proposal.changeType,
 					targetTableName: proposal.targetTableName,

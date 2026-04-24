@@ -52,6 +52,10 @@ const EXPECTED_SHAPES: Record<SchemaChangeTypeEnum, ExpectedShape | null> = {
 	[SchemaChangeTypeEnum.MONGO_SET_VALIDATOR]: null,
 	[SchemaChangeTypeEnum.MONGO_CREATE_INDEX]: null,
 	[SchemaChangeTypeEnum.MONGO_DROP_INDEX]: null,
+	[SchemaChangeTypeEnum.DYNAMODB_CREATE_TABLE]: null,
+	[SchemaChangeTypeEnum.DYNAMODB_DROP_TABLE]: null,
+	[SchemaChangeTypeEnum.DYNAMODB_UPDATE_TABLE]: null,
+	[SchemaChangeTypeEnum.DYNAMODB_UPDATE_TTL]: null,
 	[SchemaChangeTypeEnum.ROLLBACK]: null,
 	[SchemaChangeTypeEnum.OTHER]: null,
 };

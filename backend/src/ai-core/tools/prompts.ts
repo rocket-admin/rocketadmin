@@ -117,6 +117,8 @@ export function convertDbTypeToReadableString(dataType: ConnectionTypesEnum): st
 		case ConnectionTypesEnum.clickhouse:
 		case ConnectionTypesEnum.agent_clickhouse:
 			return 'ClickHouse';
+		case ConnectionTypesEnum.dynamodb:
+			return 'DynamoDB';
 		default:
 			return 'Unknown Database';
 	}

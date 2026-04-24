@@ -11,6 +11,7 @@ const SUPPORTED_DIALECTS: ReadonlySet<ConnectionTypesEnum> = new Set([
 	ConnectionTypesEnum.mongodb,
 	ConnectionTypesEnum.clickhouse,
 	ConnectionTypesEnum.agent_clickhouse,
+	ConnectionTypesEnum.dynamodb,
 ]);
 
 export function isDialectSupported(connectionType: ConnectionTypesEnum): boolean {
@@ -20,7 +21,7 @@ export function isDialectSupported(connectionType: ConnectionTypesEnum): boolean
 export function assertDialectSupported(connectionType: ConnectionTypesEnum): void {
 	if (!isDialectSupported(connectionType)) {
 		throw new BadRequestException(
-			`Schema changes via AI are not yet supported for "${connectionType}". Supported: PostgreSQL, MySQL, Microsoft SQL Server, Oracle DB, IBM DB2, MongoDB, ClickHouse.`,
+			`Schema changes via AI are not yet supported for "${connectionType}". Supported: PostgreSQL, MySQL, Microsoft SQL Server, Oracle DB, IBM DB2, MongoDB, ClickHouse, DynamoDB.`,
 		);
 	}
 }
@@ -31,6 +32,10 @@ export function isMongoDialect(connectionType: ConnectionTypesEnum): boolean {
 
 export function isClickHouseDialect(connectionType: ConnectionTypesEnum): boolean {
 	return connectionType === ConnectionTypesEnum.clickhouse || connectionType === ConnectionTypesEnum.agent_clickhouse;
+}
+
+export function isDynamoDbDialect(connectionType: ConnectionTypesEnum): boolean {
+	return connectionType === ConnectionTypesEnum.dynamodb;
 }
 
 const SQL_PARSER_DIALECTS: Record<string, string> = {

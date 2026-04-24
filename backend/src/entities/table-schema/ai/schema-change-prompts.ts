@@ -1,6 +1,6 @@
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { convertDbTypeToReadableString } from '../../../ai-core/tools/prompts.js';
-import { isMongoDialect } from '../utils/assert-dialect-supported.js';
+import { isDynamoDbDialect, isMongoDialect } from '../utils/assert-dialect-supported.js';
 
 export function buildSchemaChangePrompt(
 	connectionType: ConnectionTypesEnum,
@@ -9,6 +9,9 @@ export function buildSchemaChangePrompt(
 ): string {
 	if (isMongoDialect(connectionType)) {
 		return buildMongoSchemaChangePrompt(existingTables);
+	}
+	if (isDynamoDbDialect(connectionType)) {
+		return buildDynamoDbSchemaChangePrompt(existingTables);
 	}
 	return buildSqlSchemaChangePrompt(connectionType, existingTables, schema);
 }
@@ -59,6 +62,83 @@ Classification (changeType):
 
 Set targetTableName to the unqualified table name the change acts on.
 Set isReversible=true only if executing rollbackSql would fully restore the prior state.`;
+}
+
+function buildDynamoDbSchemaChangePrompt(existingTables: string[]): string {
+	const tableList = existingTables.length > 0 ? existingTables.join(', ') : '(none)';
+
+	return `You are a DynamoDB schema-change generator.
+Existing tables in this database: ${tableList}.
+
+DynamoDB is a NoSQL key-value store with a fixed primary key schema per table and no conventional DDL. Schema changes are expressed as structured JSON operations the server will apply via the AWS SDK (CreateTable, DeleteTable, UpdateTable, UpdateTimeToLive).
+
+Workflow:
+1. If the user's request references an existing table, call getTableStructure FIRST to see its key schema and sampled attributes. You may call it multiple times.
+2. Once you have enough context, call proposeDynamoDbSchemaChange EXACTLY ONCE with your final forwardOp and rollbackOp. Do not write free-text explanations outside the tool call.
+
+forwardOp and rollbackOp are JSON strings. Each must decode to exactly one object of one of these shapes:
+
+  {
+    "operation": "createTable",
+    "tableName": "<unqualified table name>",
+    "attributeDefinitions": [{ "attributeName": "id", "attributeType": "S" | "N" | "B" }, ...],   // required, must cover every key/GSI/LSI key attribute
+    "keySchema": [
+      { "attributeName": "id", "keyType": "HASH" },
+      { "attributeName": "sort", "keyType": "RANGE" }                                             // optional RANGE key
+    ],
+    "billingMode": "PAY_PER_REQUEST" | "PROVISIONED",                                             // default PAY_PER_REQUEST
+    "provisionedThroughput": { "readCapacityUnits": 5, "writeCapacityUnits": 5 },                 // required when billingMode=PROVISIONED
+    "globalSecondaryIndexes": [{ "indexName": "...", "keySchema": [...], "projection": { "projectionType": "ALL" | "KEYS_ONLY" | "INCLUDE", "nonKeyAttributes": ["a", "b"] }, "provisionedThroughput"?: {...} }],
+    "localSecondaryIndexes":  [{ "indexName": "...", "keySchema": [...], "projection": {...} }],
+    "streamSpecification": { "streamEnabled": true, "streamViewType": "NEW_AND_OLD_IMAGES" }      // optional
+  }
+
+  {
+    "operation": "deleteTable",
+    "tableName": "<unqualified table name>"
+  }
+
+  {
+    "operation": "updateTable",
+    "tableName": "<unqualified table name>",
+    "attributeDefinitions"?: [...],                                                               // required when adding a GSI with new key attributes
+    "billingMode"?: "PAY_PER_REQUEST" | "PROVISIONED",
+    "provisionedThroughput"?: { "readCapacityUnits": N, "writeCapacityUnits": N },
+    "globalSecondaryIndexUpdates"?: [
+      { "create": { "indexName": "...", "keySchema": [...], "projection": {...}, "provisionedThroughput"?: {...} } },
+      { "update": { "indexName": "...", "provisionedThroughput": {...} } },
+      { "delete": { "indexName": "..." } }
+    ],
+    "streamSpecification"?: { "streamEnabled": true, "streamViewType": "NEW_IMAGE" }
+  }
+
+  {
+    "operation": "updateTimeToLive",
+    "tableName": "<unqualified table name>",
+    "timeToLiveSpecification": { "enabled": true, "attributeName": "expiresAt" }
+  }
+
+Rules:
+- "tableName" must be the unqualified name and must match the top-level targetTableName.
+- attributeDefinitions in createTable MUST include every attribute referenced by keySchema, GSI keySchema, and LSI keySchema.
+- scalar attributeType is "S" (string), "N" (number), or "B" (binary).
+- Prefer billingMode="PAY_PER_REQUEST" unless the user asks for provisioned capacity.
+- For createTable, rollback is deleteTable on the same tableName. An initial create-then-rollback pair is reversible (set isReversible=true).
+- For deleteTable, isReversible=false (items are lost). Rollback is a best-effort createTable with the prior key schema inferred from getTableStructure if possible; if not, still emit a best-effort createTable and set isReversible=false.
+- For updateTable adding a GSI, rollback is updateTable with a matching delete GSI action on the same indexName (isReversible=true). For updateTable deleting a GSI, rollback is the create action for that GSI with the prior key schema/projection if known (else isReversible=false).
+- For updateTable changing billingMode or provisionedThroughput, rollback is the inverse updateTable with the prior values (isReversible=true if the prior values are known from getTableStructure).
+- For updateTimeToLive enabling TTL on attribute X, rollback is updateTimeToLive with enabled=false on the same attribute X (isReversible=true). AWS requires specifying attributeName on disable as well.
+- Never propose dropping an entire region/replica, IAM actions, or tag operations — those are out of scope for this tool.
+
+Classification (changeType):
+- DYNAMODB_CREATE_TABLE
+- DYNAMODB_DROP_TABLE
+- DYNAMODB_UPDATE_TABLE
+- DYNAMODB_UPDATE_TTL
+- OTHER (last resort)
+
+Set targetTableName to the table name the change acts on.
+Set isReversible=true only if executing rollbackOp would fully restore the prior state.`;
 }
 
 function buildMongoSchemaChangePrompt(existingCollections: string[]): string {

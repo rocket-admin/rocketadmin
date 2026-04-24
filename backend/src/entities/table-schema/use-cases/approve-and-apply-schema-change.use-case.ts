@@ -15,9 +15,14 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { ApproveSchemaChangeDs } from '../application/data-structures/approve-schema-change.ds.js';
 import { SchemaChangeResponseDto } from '../application/data-transfer-objects/schema-change-response.dto.js';
-import { isMongoSchemaChangeType, SchemaChangeStatusEnum } from '../table-schema-change-enums.js';
-import { assertDialectSupported, isClickHouseDialect } from '../utils/assert-dialect-supported.js';
+import {
+	isDynamoDbSchemaChangeType,
+	isMongoSchemaChangeType,
+	SchemaChangeStatusEnum,
+} from '../table-schema-change-enums.js';
+import { assertDialectSupported, isClickHouseDialect, isDynamoDbDialect } from '../utils/assert-dialect-supported.js';
 import { executeClickHouseDdl } from '../utils/clickhouse-ddl.js';
+import { executeDynamoDbSchemaOp, validateProposedDynamoDbOp } from '../utils/dynamodb-schema-op.js';
 import { mapSchemaChangeToResponseDto } from '../utils/map-schema-change-to-response-dto.js';
 import { executeMongoSchemaOp, validateProposedMongoOp } from '../utils/mongo-schema-op.js';
 import { validateProposedDdl } from '../utils/validate-proposed-ddl.js';
@@ -68,12 +73,19 @@ export class ApproveAndApplySchemaChangeUseCase
 		}
 
 		const isMongo = isMongoSchemaChangeType(change.changeType);
+		const isDynamoDb = isDynamoDbSchemaChangeType(change.changeType) || isDynamoDbDialect(connectionType);
 		const isClickHouse = isClickHouseDialect(connectionType);
 
 		let sqlToRun = change.forwardSql;
 		if (userModifiedSql && userModifiedSql.trim().length > 0) {
 			if (isMongo) {
 				validateProposedMongoOp({
+					opJson: userModifiedSql,
+					changeType: change.changeType,
+					targetTableName: change.targetTableName,
+				});
+			} else if (isDynamoDb) {
+				validateProposedDynamoDbOp({
 					opJson: userModifiedSql,
 					changeType: change.changeType,
 					targetTableName: change.targetTableName,
@@ -109,6 +121,13 @@ export class ApproveAndApplySchemaChangeUseCase
 					targetTableName: change.targetTableName,
 				});
 				await executeMongoSchemaOp(connection, op);
+			} else if (isDynamoDb) {
+				const op = validateProposedDynamoDbOp({
+					opJson: sqlToRun,
+					changeType: change.changeType,
+					targetTableName: change.targetTableName,
+				});
+				await executeDynamoDbSchemaOp(connection, op);
 			} else if (isClickHouse) {
 				await executeClickHouseDdl(connection, sqlToRun);
 			} else {
@@ -137,6 +156,14 @@ export class ApproveAndApplySchemaChangeUseCase
 							allowAnyOperation: true,
 						});
 						await executeMongoSchemaOp(connection, rollbackOp);
+					} else if (isDynamoDb) {
+						const rollbackOp = validateProposedDynamoDbOp({
+							opJson: change.rollbackSql,
+							changeType: change.changeType,
+							targetTableName: change.targetTableName,
+							allowAnyOperation: true,
+						});
+						await executeDynamoDbSchemaOp(connection, rollbackOp);
 					} else if (isClickHouse) {
 						await executeClickHouseDdl(connection, change.rollbackSql);
 					} else {
