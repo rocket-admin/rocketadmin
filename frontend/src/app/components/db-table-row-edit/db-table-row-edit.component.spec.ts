@@ -392,6 +392,10 @@ describe('DbTableRowEditComponent', () => {
 			tableRowService = TestBed.inject(TableRowService);
 			const tablesService = TestBed.inject(TablesService);
 
+			// updateRow's success callback navigates; no routes are registered in this
+			// harness, so stub navigate to avoid NG04002 unhandled rejections.
+			vi.spyOn(component.router, 'navigate').mockResolvedValue(true);
+
 			updateTableRowSpy = vi
 				.spyOn(tableRowService, 'updateTableRow')
 				.mockReturnValue(of({ row: { id: '42' }, primaryColumns: [{ column_name: 'id' }] } as any));
