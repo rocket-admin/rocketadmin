@@ -16,7 +16,8 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { ApproveSchemaChangeDs } from '../application/data-structures/approve-schema-change.ds.js';
 import { SchemaChangeResponseDto } from '../application/data-transfer-objects/schema-change-response.dto.js';
 import { isMongoSchemaChangeType, SchemaChangeStatusEnum } from '../table-schema-change-enums.js';
-import { assertDialectSupported } from '../utils/assert-dialect-supported.js';
+import { assertDialectSupported, isClickHouseDialect } from '../utils/assert-dialect-supported.js';
+import { executeClickHouseDdl } from '../utils/clickhouse-ddl.js';
 import { mapSchemaChangeToResponseDto } from '../utils/map-schema-change-to-response-dto.js';
 import { executeMongoSchemaOp, validateProposedMongoOp } from '../utils/mongo-schema-op.js';
 import { validateProposedDdl } from '../utils/validate-proposed-ddl.js';
@@ -67,6 +68,7 @@ export class ApproveAndApplySchemaChangeUseCase
 		}
 
 		const isMongo = isMongoSchemaChangeType(change.changeType);
+		const isClickHouse = isClickHouseDialect(connectionType);
 
 		let sqlToRun = change.forwardSql;
 		if (userModifiedSql && userModifiedSql.trim().length > 0) {
@@ -107,6 +109,8 @@ export class ApproveAndApplySchemaChangeUseCase
 					targetTableName: change.targetTableName,
 				});
 				await executeMongoSchemaOp(connection, op);
+			} else if (isClickHouse) {
+				await executeClickHouseDdl(connection, sqlToRun);
 			} else {
 				const dao = getDataAccessObject(connection);
 				await dao.executeRawQuery(sqlToRun, change.targetTableName, null);
@@ -133,6 +137,8 @@ export class ApproveAndApplySchemaChangeUseCase
 							allowAnyOperation: true,
 						});
 						await executeMongoSchemaOp(connection, rollbackOp);
+					} else if (isClickHouse) {
+						await executeClickHouseDdl(connection, change.rollbackSql);
 					} else {
 						const dao = getDataAccessObject(connection);
 						await dao.executeRawQuery(change.rollbackSql, change.targetTableName, null);
