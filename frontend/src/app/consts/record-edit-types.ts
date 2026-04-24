@@ -328,6 +328,9 @@ export const recordEditTypes = {
 		ascii: TextEditComponent,
 		text: TextEditComponent,
 
+		//binary
+		blob: BinaryEditComponent,
+
 		list: JsonEditorEditComponent,
 		map: JsonEditorEditComponent,
 		set: JsonEditorEditComponent,

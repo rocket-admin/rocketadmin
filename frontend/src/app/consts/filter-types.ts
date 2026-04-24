@@ -284,6 +284,9 @@ export const filterTypes = {
 		ascii: TextFilterComponent,
 		text: TextFilterComponent,
 
+		//binary
+		blob: BinaryFilterComponent,
+
 		list: JsonEditorFilterComponent,
 		map: JsonEditorFilterComponent,
 		set: JsonEditorFilterComponent,

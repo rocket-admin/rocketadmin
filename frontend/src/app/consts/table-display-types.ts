@@ -305,6 +305,9 @@ export const tableDisplayTypes = {
 		ascii: TextDisplayComponent,
 		text: LongTextDisplayComponent,
 
+		//binary
+		blob: BinaryDisplayComponent,
+
 		list: JsonEditorDisplayComponent,
 		map: JsonEditorDisplayComponent,
 		set: JsonEditorDisplayComponent,

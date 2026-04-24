@@ -304,6 +304,9 @@ export const recordViewFieldTypes = {
 		ascii: TextRecordViewComponent,
 		text: LongTextRecordViewComponent,
 
+		//binary
+		blob: BinaryRecordViewComponent,
+
 		list: JsonEditorRecordViewComponent,
 		map: JsonEditorRecordViewComponent,
 		set: JsonEditorRecordViewComponent,

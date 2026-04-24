@@ -69,6 +69,7 @@ export class DbTableWidgetsComponent implements OnInit {
 	};
 	// JSON5-formatted default params
 	public defaultParams = {
+		Binary: `// No settings required`,
 		Boolean: `// Display "Yes/No" buttons with configurable options:
 // - allow_null: Use "false" to require selection, "true" if field can be left unspecified
 // - invert_colors: Swap the color scheme (typically green=Yes, red=No becomes red=Yes, green=No)
