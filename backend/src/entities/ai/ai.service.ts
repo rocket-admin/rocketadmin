@@ -45,6 +45,7 @@ interface AIGeneratedTableSettings {
 	columns_view: string[];
 	ordering: string;
 	ordering_field: string;
+	identity_column: string | null;
 	widgets: Array<{
 		field_name: string;
 		widget_type: string;
@@ -135,6 +136,7 @@ For each table, provide:
 5. ordering: Default sort order - either "ASC" or "DESC" (use "DESC" for tables with timestamps to show newest first)
 6. ordering_field: Column name to sort by default (prefer created_at, updated_at, or primary key)
 7. widgets: For each column, suggest the best widget type from: ${widgetTypes}
+8. identity_column: The column that best identifies a row in human-readable format. This is shown when other tables reference this table via foreign keys, so users see meaningful data instead of just IDs. Choose columns like: name, title, email, username, full_name, label, or any descriptive text field. If no good candidate exists, use null. 
 
 Available widget types and when to use them:
 
@@ -242,6 +244,7 @@ Respond ONLY with valid JSON in this exact format (no markdown, no explanations)
       "columns_view": ["id", "name", "email", "created_at"],
       "ordering": "DESC",
       "ordering_field": "created_at",
+      "identity_column": "name",
       "widgets": [
         {
           "field_name": "id",
@@ -303,7 +306,10 @@ IMPORTANT:
 
 			const requiredFieldsWithoutDefault = new Set(
 				tableInfo?.structure
-					.filter((col) => !col.allow_null && col.column_default === null && !checkFieldAutoincrement(col.column_default, col.extra))
+					.filter(
+						(col) =>
+							!col.allow_null && col.column_default === null && !checkFieldAutoincrement(col.column_default, col.extra),
+					)
 					.map((col) => col.column_name) || [],
 			);
 
@@ -325,6 +331,10 @@ IMPORTANT:
 			settings.ordering_field = validColumnNames.includes(tableSettings.ordering_field)
 				? tableSettings.ordering_field
 				: null;
+			settings.identity_column =
+				tableSettings.identity_column && validColumnNames.includes(tableSettings.identity_column)
+					? tableSettings.identity_column
+					: null;
 			settings.table_widgets = tableSettings.widgets
 				.filter((w) => validColumnNames.includes(w.field_name))
 				.map((widgetData) => {
