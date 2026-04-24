@@ -216,16 +216,11 @@ TIMEZONE WIDGET:
 - Use for: timezone, tz columns
 - Params: {"allow_null": false}
 
-FOREIGN_KEY WIDGET:
-- Use ONLY for columns that reference another table but are NOT detected as foreign keys
-- Skip if foreign key is already detected in table structure
-- Params: {"column_name": "user_id", "referenced_table_name": "users", "referenced_column_name": "id"}
-
 WIDGET SELECTION RULES:
 1. Match widget type to column data type AND column name semantics
-2. For password/hash columns: Always use Password with encrypt:true and detect algorithm from hash pattern
-3. For status/type/category columns: Use Select with sensible options inferred from column name
-4. For columns ending in _id that aren't foreign keys: Consider Foreign_key widget
+2. DO NOT generate widgets for columns that are foreign keys (listed in the Foreign Keys section) - they are handled automatically by the system
+3. For password/hash columns: Always use Password with encrypt:true and detect algorithm from hash pattern
+4. For status/type/category columns: Use Select with sensible options inferred from column name
 5. For columns named email, phone, url, etc.: Use specialized widgets (String with isEmail validator, Phone, URL)
 6. For auto_increment or primary key columns: Use Readonly
 7. Provide widget_params only when the widget type benefits from configuration
@@ -303,6 +298,7 @@ IMPORTANT:
 		return aiResponse.tables.map((tableSettings) => {
 			const tableInfo = tablesInformation.find((t) => t.table_name === tableSettings.table_name);
 			const validColumnNames = tableInfo?.structure.map((col) => col.column_name) || [];
+			const foreignKeyColumns = new Set(tableInfo?.foreignKeys.map((fk) => fk.column_name) || []);
 
 			const requiredFieldsWithoutDefault = new Set(
 				tableInfo?.structure
@@ -336,7 +332,7 @@ IMPORTANT:
 					? tableSettings.identity_column
 					: null;
 			settings.table_widgets = tableSettings.widgets
-				.filter((w) => validColumnNames.includes(w.field_name))
+				.filter((w) => validColumnNames.includes(w.field_name) && !foreignKeyColumns.has(w.field_name))
 				.map((widgetData) => {
 					const widgetType = this.mapWidgetType(widgetData.widget_type);
 					if (!widgetType || widgetType === WidgetTypeEnum.Foreign_key) {
