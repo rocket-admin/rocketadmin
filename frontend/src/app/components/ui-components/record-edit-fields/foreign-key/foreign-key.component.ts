@@ -117,7 +117,6 @@ export class ForeignKeyEditComponent extends BaseEditFieldComponent {
 								[primaeyKey.column_name]: res.rows[0][primaeyKey.column_name],
 							})),
 						);
-						this.onFieldChange.emit(this.currentFieldValue);
 					}
 				}
 

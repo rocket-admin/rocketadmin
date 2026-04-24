@@ -24,7 +24,6 @@ export class BinaryEditComponent extends BaseEditFieldComponent implements OnIni
 	ngOnInit(): void {
 		super.ngOnInit();
 		this.hexData = bytesToHex(parseBinaryValue(this.value()));
-		this.emitCurrentValue();
 	}
 
 	onHexChange(): void {

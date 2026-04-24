@@ -15,6 +15,7 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import JsonURL from '@jsonurl/jsonurl';
 import JSON5 from 'json5';
+import { isEqual } from 'lodash-es';
 import { DynamicModule } from 'ng-dynamic-component';
 import { SignalComponentIoModule } from 'ng-dynamic-component/signal-component-io';
 import { defaultTimestampValues, recordEditTypes, timestampTypes, UIwidgets } from 'src/app/consts/record-edit-types';
@@ -74,6 +75,7 @@ export class DbTableRowEditComponent implements OnInit {
 	public tableName: string | null = null;
 	public dispalyTableName: string | null = null;
 	public tableRowValues: Record<string, any>;
+	private touchedFields = new Set<string>();
 	public tableRowStructure: object;
 	public tableRowRequiredValues: object;
 	public identityColumn: string;
@@ -612,6 +614,9 @@ export class DbTableRowEditComponent implements OnInit {
 
 	updateField = (updatedValue: any, field: string) => {
 		const existing = this.tableRowValues[field];
+		if (!isEqual(updatedValue, existing)) {
+			this.touchedFields.add(field);
+		}
 		if (
 			typeof updatedValue === 'object' &&
 			updatedValue !== null &&
@@ -631,8 +636,10 @@ export class DbTableRowEditComponent implements OnInit {
 		}
 	};
 
-	getFormattedUpdatedRow = () => {
-		let updatedRow = { ...this.tableRowValues };
+	getFormattedUpdatedRow = (onlyTouched: boolean = false) => {
+		let updatedRow = onlyTouched
+			? Object.fromEntries(Object.entries(this.tableRowValues).filter(([key]) => this.touchedFields.has(key)))
+			: { ...this.tableRowValues };
 
 		//crutch, format datetime fields
 		//if no one edit manually datetime field, we have to remove '.000Z', cuz mysql return this format but it doesn't record it
@@ -756,12 +763,13 @@ export class DbTableRowEditComponent implements OnInit {
 	updateRow(continueEditing: boolean) {
 		this.submitting = true;
 
-		const formattedUpdatedRow = this.getFormattedUpdatedRow();
+		const formattedUpdatedRow = this.getFormattedUpdatedRow(true);
 
 		this._tableRow
 			.updateTableRow(this.connectionID, this.tableName, this.keyAttributesFromURL, formattedUpdatedRow)
 			.subscribe(
 				(res) => {
+					this.touchedFields.clear();
 					this.ngZone.run(() => {
 						if (continueEditing) {
 							if (this.isPrimaryKeyUpdated) {
