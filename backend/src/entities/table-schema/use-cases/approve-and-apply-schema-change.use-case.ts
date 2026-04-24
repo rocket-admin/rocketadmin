@@ -20,7 +20,13 @@ import {
 	isMongoSchemaChangeType,
 	SchemaChangeStatusEnum,
 } from '../table-schema-change-enums.js';
-import { assertDialectSupported, isClickHouseDialect, isDynamoDbDialect } from '../utils/assert-dialect-supported.js';
+import {
+	assertDialectSupported,
+	isCassandraDialect,
+	isClickHouseDialect,
+	isDynamoDbDialect,
+} from '../utils/assert-dialect-supported.js';
+import { executeCassandraDdl } from '../utils/cassandra-ddl.js';
 import { executeClickHouseDdl } from '../utils/clickhouse-ddl.js';
 import { executeDynamoDbSchemaOp, validateProposedDynamoDbOp } from '../utils/dynamodb-schema-op.js';
 import { mapSchemaChangeToResponseDto } from '../utils/map-schema-change-to-response-dto.js';
@@ -75,6 +81,7 @@ export class ApproveAndApplySchemaChangeUseCase
 		const isMongo = isMongoSchemaChangeType(change.changeType);
 		const isDynamoDb = isDynamoDbSchemaChangeType(change.changeType) || isDynamoDbDialect(connectionType);
 		const isClickHouse = isClickHouseDialect(connectionType);
+		const isCassandra = isCassandraDialect(connectionType);
 
 		let sqlToRun = change.forwardSql;
 		if (userModifiedSql && userModifiedSql.trim().length > 0) {
@@ -130,6 +137,8 @@ export class ApproveAndApplySchemaChangeUseCase
 				await executeDynamoDbSchemaOp(connection, op);
 			} else if (isClickHouse) {
 				await executeClickHouseDdl(connection, sqlToRun);
+			} else if (isCassandra) {
+				await executeCassandraDdl(connection, sqlToRun);
 			} else {
 				const dao = getDataAccessObject(connection);
 				await dao.executeRawQuery(sqlToRun, change.targetTableName, null);
@@ -166,6 +175,8 @@ export class ApproveAndApplySchemaChangeUseCase
 						await executeDynamoDbSchemaOp(connection, rollbackOp);
 					} else if (isClickHouse) {
 						await executeClickHouseDdl(connection, change.rollbackSql);
+					} else if (isCassandra) {
+						await executeCassandraDdl(connection, change.rollbackSql);
 					} else {
 						const dao = getDataAccessObject(connection);
 						await dao.executeRawQuery(change.rollbackSql, change.targetTableName, null);
