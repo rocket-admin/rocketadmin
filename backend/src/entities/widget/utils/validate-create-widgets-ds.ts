@@ -108,6 +108,17 @@ export async function validateCreateWidgetsDs(
 				errors.push(Messages.WIDGET_REQUIRED_PARAMETER_MISSING('aws_secret_access_key_secret_name'));
 			}
 		}
+
+		if (widget_type && widget_type === WidgetTypeEnum.Binary) {
+			const rawParams = widgetDS.widget_params;
+			if (rawParams) {
+				const widget_params: Record<string, any> =
+					typeof rawParams === 'string' ? JSON5.parse(rawParams) : (rawParams as Record<string, any>);
+				if (widget_params.encoding !== undefined && !['hex', 'base64', 'ascii'].includes(widget_params.encoding)) {
+					errors.push(Messages.WIDGET_PARAMETER_UNSUPPORTED('encoding', WidgetTypeEnum.Binary));
+				}
+			}
+		}
 	}
 	return errors;
 }

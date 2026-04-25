@@ -1,45 +1,56 @@
-import { Component, model, OnInit } from '@angular/core';
+import { Component, computed, model, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { Base64ValidationDirective } from 'src/app/directives/base64Validator.directive';
 import { HexValidationDirective } from 'src/app/directives/hexValidator.directive';
-import { BinaryBufferJson, bytesToHex, hexStringToBytes, parseBinaryValue, toBufferJson } from 'src/app/lib/binary';
-import { hexValidation } from 'src/app/validators/hex.validator';
+import {
+	BinaryBufferJson,
+	bytesToEncoded,
+	encodedToBytes,
+	isBinaryEncoding,
+	parseBinaryValue,
+	toBufferJson,
+} from 'src/app/lib/binary';
 import { BaseEditFieldComponent } from '../base-row-field/base-row-field.component';
 
 @Component({
 	selector: 'app-edit-binary',
 	templateUrl: './binary.component.html',
 	styleUrls: ['./binary.component.css'],
-	imports: [FormsModule, MatFormFieldModule, MatInputModule, HexValidationDirective],
+	imports: [FormsModule, MatFormFieldModule, MatInputModule, HexValidationDirective, Base64ValidationDirective],
 })
 export class BinaryEditComponent extends BaseEditFieldComponent implements OnInit {
 	readonly value = model<string | BinaryBufferJson | null>();
 
 	static type = 'file';
 
-	public hexData = '';
+	public rawInput = '';
 	public isInvalidInput = false;
+
+	public readonly encoding = computed(() => {
+		const raw = this.widgetStructure()?.widget_params?.encoding;
+		return isBinaryEncoding(raw) ? raw : 'hex';
+	});
 
 	ngOnInit(): void {
 		super.ngOnInit();
-		this.hexData = bytesToHex(parseBinaryValue(this.value()));
+		this.rawInput = bytesToEncoded(parseBinaryValue(this.value()), this.encoding());
 	}
 
-	onHexChange(): void {
-		this.isInvalidInput = !!hexValidation()({ value: this.hexData } as never);
-		this.emitCurrentValue();
-	}
-
-	private emitCurrentValue(): void {
-		if (!this.hexData) {
+	onInputChange(): void {
+		if (!this.rawInput) {
+			this.isInvalidInput = false;
 			this.onFieldChange.emit(null);
 			return;
 		}
-		if (this.isInvalidInput) {
-			this.onFieldChange.emit(this.hexData);
+		const bytes = encodedToBytes(this.rawInput, this.encoding());
+		if (bytes === null) {
+			this.isInvalidInput = true;
+			this.onFieldChange.emit(this.rawInput);
 			return;
 		}
-		this.onFieldChange.emit(toBufferJson(hexStringToBytes(this.hexData)));
+		this.isInvalidInput = false;
+		this.onFieldChange.emit(toBufferJson(bytes));
 	}
 }

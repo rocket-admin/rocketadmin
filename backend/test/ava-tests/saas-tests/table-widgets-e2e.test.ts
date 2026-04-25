@@ -1699,3 +1699,112 @@ test.serial(
 		}
 	},
 );
+
+currentTest = 'POST /widget/:slug with Binary widget';
+
+test.serial(`${currentTest} should accept a valid encoding value`, async (t) => {
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const newConnection = getTestData(mockFactory).newEncryptedConnection;
+	const createdConnection = await request(app.getHttpServer())
+		.post('/connection')
+		.send(newConnection)
+		.set('Cookie', token)
+		.set('masterpwd', 'ahalaimahalai')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const connectionId = JSON.parse(createdConnection.text).id;
+
+	const binaryWidgetsDTO: CreateOrUpdateTableWidgetsDto = {
+		widgets: [
+			{
+				widget_type: WidgetTypeEnum.Binary,
+				widget_params: JSON.stringify({ encoding: 'base64' }),
+				field_name: 'id',
+				description: 'binary widget test',
+				name: 'binary widget',
+				widget_options: JSON.stringify({}),
+			},
+		],
+	};
+	const createResponse = await request(app.getHttpServer())
+		.post(`/widget/${connectionId}?tableName=${tableNameForWidgets}`)
+		.send(binaryWidgetsDTO)
+		.set('Cookie', token)
+		.set('masterpwd', 'ahalaimahalai')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(createResponse.status, 201);
+	const ro = JSON.parse(createResponse.text);
+	t.is(ro[0].widget_type, WidgetTypeEnum.Binary);
+	const params = JSON5.parse(ro[0].widget_params);
+	t.is(params.encoding, 'base64');
+});
+
+test.serial(`${currentTest} should reject an invalid encoding value`, async (t) => {
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const newConnection = getTestData(mockFactory).newEncryptedConnection;
+	const createdConnection = await request(app.getHttpServer())
+		.post('/connection')
+		.send(newConnection)
+		.set('Cookie', token)
+		.set('masterpwd', 'ahalaimahalai')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const connectionId = JSON.parse(createdConnection.text).id;
+
+	const binaryWidgetsDTO: CreateOrUpdateTableWidgetsDto = {
+		widgets: [
+			{
+				widget_type: WidgetTypeEnum.Binary,
+				widget_params: JSON.stringify({ encoding: 'utf8' }),
+				field_name: 'id',
+				description: 'binary widget test',
+				name: 'binary widget',
+				widget_options: JSON.stringify({}),
+			},
+		],
+	};
+	const createResponse = await request(app.getHttpServer())
+		.post(`/widget/${connectionId}?tableName=${tableNameForWidgets}`)
+		.send(binaryWidgetsDTO)
+		.set('Cookie', token)
+		.set('masterpwd', 'ahalaimahalai')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(createResponse.status, 400);
+	t.true(createResponse.text.includes(Messages.WIDGET_PARAMETER_UNSUPPORTED('encoding', WidgetTypeEnum.Binary)));
+});
+
+test.serial(`${currentTest} should accept an absent encoding (defaults on the client)`, async (t) => {
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const newConnection = getTestData(mockFactory).newEncryptedConnection;
+	const createdConnection = await request(app.getHttpServer())
+		.post('/connection')
+		.send(newConnection)
+		.set('Cookie', token)
+		.set('masterpwd', 'ahalaimahalai')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const connectionId = JSON.parse(createdConnection.text).id;
+
+	const binaryWidgetsDTO: CreateOrUpdateTableWidgetsDto = {
+		widgets: [
+			{
+				widget_type: WidgetTypeEnum.Binary,
+				widget_params: JSON.stringify({}),
+				field_name: 'id',
+				description: 'binary widget test',
+				name: 'binary widget',
+				widget_options: JSON.stringify({}),
+			},
+		],
+	};
+	const createResponse = await request(app.getHttpServer())
+		.post(`/widget/${connectionId}?tableName=${tableNameForWidgets}`)
+		.send(binaryWidgetsDTO)
+		.set('Cookie', token)
+		.set('masterpwd', 'ahalaimahalai')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(createResponse.status, 201);
+});
