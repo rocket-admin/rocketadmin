@@ -7,7 +7,6 @@ import {
 	NotFoundException,
 	Scope,
 } from '@nestjs/common';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
@@ -15,26 +14,10 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { RollbackSchemaChangeDs } from '../application/data-structures/rollback-schema-change.ds.js';
 import { SchemaChangeResponseDto } from '../application/data-transfer-objects/schema-change-response.dto.js';
-import {
-	isDynamoDbSchemaChangeType,
-	isElasticsearchSchemaChangeType,
-	isMongoSchemaChangeType,
-	SchemaChangeStatusEnum,
-	SchemaChangeTypeEnum,
-} from '../table-schema-change-enums.js';
-import {
-	assertDialectSupported,
-	isCassandraDialect,
-	isClickHouseDialect,
-	isDynamoDbDialect,
-	isElasticsearchDialect,
-} from '../utils/assert-dialect-supported.js';
-import { executeCassandraDdl } from '../utils/cassandra-ddl.js';
-import { executeClickHouseDdl } from '../utils/clickhouse-ddl.js';
-import { executeDynamoDbSchemaOp, validateProposedDynamoDbOp } from '../utils/dynamodb-schema-op.js';
-import { executeElasticsearchSchemaOp, validateProposedElasticsearchOp } from '../utils/elasticsearch-schema-op.js';
+import { SchemaChangeStatusEnum, SchemaChangeTypeEnum } from '../table-schema-change-enums.js';
+import { assertDialectSupported } from '../utils/assert-dialect-supported.js';
+import { executeSchemaChange } from '../utils/execute-schema-change.js';
 import { mapSchemaChangeToResponseDto } from '../utils/map-schema-change-to-response-dto.js';
-import { executeMongoSchemaOp, validateProposedMongoOp } from '../utils/mongo-schema-op.js';
 import { IRollbackSchemaChange } from './table-schema-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
@@ -78,46 +61,15 @@ export class RollbackSchemaChangeUseCase
 			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
 		}
 
-		const isMongo = isMongoSchemaChangeType(change.changeType);
-		const isDynamoDb = isDynamoDbSchemaChangeType(change.changeType) || isDynamoDbDialect(connectionType);
-		const isElasticsearch =
-			isElasticsearchSchemaChangeType(change.changeType) || isElasticsearchDialect(connectionType);
-		const isClickHouse = isClickHouseDialect(connectionType);
-		const isCassandra = isCassandraDialect(connectionType);
-
 		try {
-			if (isMongo) {
-				const op = validateProposedMongoOp({
-					opJson: change.rollbackSql,
-					changeType: change.changeType,
-					targetTableName: change.targetTableName,
-					allowAnyOperation: true,
-				});
-				await executeMongoSchemaOp(connection, op);
-			} else if (isDynamoDb) {
-				const op = validateProposedDynamoDbOp({
-					opJson: change.rollbackSql,
-					changeType: change.changeType,
-					targetTableName: change.targetTableName,
-					allowAnyOperation: true,
-				});
-				await executeDynamoDbSchemaOp(connection, op);
-			} else if (isElasticsearch) {
-				const op = validateProposedElasticsearchOp({
-					opJson: change.rollbackSql,
-					changeType: change.changeType,
-					targetTableName: change.targetTableName,
-					allowAnyOperation: true,
-				});
-				await executeElasticsearchSchemaOp(connection, op);
-			} else if (isClickHouse) {
-				await executeClickHouseDdl(connection, change.rollbackSql);
-			} else if (isCassandra) {
-				await executeCassandraDdl(connection, change.rollbackSql);
-			} else {
-				const dao = getDataAccessObject(connection);
-				await dao.executeRawQuery(change.rollbackSql, change.targetTableName, '');
-			}
+			await executeSchemaChange({
+				connection,
+				connectionType,
+				changeType: change.changeType,
+				targetTableName: change.targetTableName,
+				sql: change.rollbackSql,
+				allowAnyOperation: true,
+			});
 		} catch (err) {
 			const error = err as Error;
 			this.logger.error(`Rollback failed for change ${change.id}: ${error.message}`);

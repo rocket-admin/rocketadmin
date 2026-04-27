@@ -10,6 +10,12 @@ export class SchemaChangeResponseDto {
 	connectionId: string;
 
 	@ApiProperty({ required: false, nullable: true })
+	batchId: string | null;
+
+	@ApiProperty()
+	orderInBatch: number;
+
+	@ApiProperty({ required: false, nullable: true })
 	authorId: string | null;
 
 	@ApiProperty({ required: false, nullable: true })

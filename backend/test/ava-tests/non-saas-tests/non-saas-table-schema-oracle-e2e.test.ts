@@ -49,7 +49,7 @@ function createProposalStream(proposal: ProposedChange) {
 				toolCall: {
 					id: faker.string.uuid(),
 					name: 'proposeSchemaChange',
-					arguments: proposal,
+					arguments: { proposals: [proposal] },
 				},
 				responseId: faker.string.uuid(),
 			};
@@ -170,7 +170,7 @@ test.serial('Oracle: generate → approve creates the table', async (t) => {
 		.set('Cookie', token)
 		.send({ userPrompt: 'create table' });
 	t.is(generateResp.status, 201);
-	const change = JSON.parse(generateResp.text);
+	const change = JSON.parse(generateResp.text).changes[0];
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${change.id}/approve`)
@@ -215,7 +215,7 @@ test.serial('Oracle: ADD COLUMN approve adds the column; rollback removes it', a
 		.set('Cookie', token)
 		.send({ userPrompt: 'add phone' });
 	t.is(generateResp.status, 201);
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -260,7 +260,7 @@ test.serial('Oracle: ALTER COLUMN widens VARCHAR2(32) → VARCHAR2(255) preservi
 		.set('Cookie', token)
 		.send({ userPrompt: 'widen name' });
 	t.is(generateResp.status, 201);
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)

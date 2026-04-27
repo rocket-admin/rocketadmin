@@ -17,7 +17,14 @@ export interface ITableSchemaChangeRepository {
 		data: Partial<TableSchemaChangeEntity>,
 	): Promise<TableSchemaChangeEntity>;
 
+	createPendingBatch(
+		this: Repository<TableSchemaChangeEntity>,
+		items: Partial<TableSchemaChangeEntity>[],
+	): Promise<TableSchemaChangeEntity[]>;
+
 	findByIdWithRelations(this: Repository<TableSchemaChangeEntity>, id: string): Promise<TableSchemaChangeEntity | null>;
+
+	findByBatchId(this: Repository<TableSchemaChangeEntity>, batchId: string): Promise<TableSchemaChangeEntity[]>;
 
 	findByConnectionPaginated(
 		this: Repository<TableSchemaChangeEntity>,

@@ -9,11 +9,16 @@ import { UserEntity } from '../user/user.entity.js';
 import { TableSchemaController } from './table-schema.controller.js';
 import { TableSchemaChangeEntity } from './table-schema-change.entity.js';
 import { ApproveAndApplySchemaChangeUseCase } from './use-cases/approve-and-apply-schema-change.use-case.js';
+import { ApproveBatchSchemaChangesUseCase } from './use-cases/approve-batch-schema-changes.use-case.js';
 import { GenerateSchemaChangeUseCase } from './use-cases/generate-schema-change.use-case.js';
+import { GetBatchSchemaChangesUseCase } from './use-cases/get-batch-schema-changes.use-case.js';
 import { GetSchemaChangeUseCase } from './use-cases/get-schema-change.use-case.js';
 import { ListSchemaChangesUseCase } from './use-cases/list-schema-changes.use-case.js';
+import { RejectBatchSchemaChangesUseCase } from './use-cases/reject-batch-schema-changes.use-case.js';
 import { RejectSchemaChangeUseCase } from './use-cases/reject-schema-change.use-case.js';
+import { RollbackBatchSchemaChangesUseCase } from './use-cases/rollback-batch-schema-changes.use-case.js';
 import { RollbackSchemaChangeUseCase } from './use-cases/rollback-schema-change.use-case.js';
+import { SchemaChangeBatchOwnershipGuard } from './utils/schema-change-batch-ownership.guard.js';
 import { SchemaChangeOwnershipGuard } from './utils/schema-change-ownership.guard.js';
 
 @Module({
@@ -47,7 +52,24 @@ import { SchemaChangeOwnershipGuard } from './utils/schema-change-ownership.guar
 			provide: UseCaseType.GET_SCHEMA_CHANGE,
 			useClass: GetSchemaChangeUseCase,
 		},
+		{
+			provide: UseCaseType.APPROVE_BATCH_SCHEMA_CHANGE,
+			useClass: ApproveBatchSchemaChangesUseCase,
+		},
+		{
+			provide: UseCaseType.REJECT_BATCH_SCHEMA_CHANGE,
+			useClass: RejectBatchSchemaChangesUseCase,
+		},
+		{
+			provide: UseCaseType.ROLLBACK_BATCH_SCHEMA_CHANGE,
+			useClass: RollbackBatchSchemaChangesUseCase,
+		},
+		{
+			provide: UseCaseType.GET_BATCH_SCHEMA_CHANGE,
+			useClass: GetBatchSchemaChangesUseCase,
+		},
 		SchemaChangeOwnershipGuard,
+		SchemaChangeBatchOwnershipGuard,
 	],
 	controllers: [TableSchemaController],
 })
@@ -62,6 +84,10 @@ export class TableSchemaModule implements NestModule {
 				{ path: '/table-schema/change/:changeId/approve', method: RequestMethod.POST },
 				{ path: '/table-schema/change/:changeId/reject', method: RequestMethod.POST },
 				{ path: '/table-schema/change/:changeId/rollback', method: RequestMethod.POST },
+				{ path: '/table-schema/batch/:batchId', method: RequestMethod.GET },
+				{ path: '/table-schema/batch/:batchId/approve', method: RequestMethod.POST },
+				{ path: '/table-schema/batch/:batchId/reject', method: RequestMethod.POST },
+				{ path: '/table-schema/batch/:batchId/rollback', method: RequestMethod.POST },
 			);
 	}
 }

@@ -40,8 +40,15 @@ interface ProposedChange {
 }
 
 let nextProposal: ProposedChange | null = null;
+let nextProposals: ProposedChange[] | null = null;
 
-function createProposalStream(proposal: ProposedChange) {
+function resolveProposals(): ProposedChange[] {
+	if (nextProposals && nextProposals.length > 0) return nextProposals;
+	if (nextProposal) return [nextProposal];
+	throw new Error('Test must set nextProposal or nextProposals before invoking AI.');
+}
+
+function createProposalStream(proposals: ProposedChange[]) {
 	return {
 		*[Symbol.asyncIterator]() {
 			yield {
@@ -49,7 +56,7 @@ function createProposalStream(proposal: ProposedChange) {
 				toolCall: {
 					id: faker.string.uuid(),
 					name: 'proposeSchemaChange',
-					arguments: proposal,
+					arguments: { proposals },
 				},
 				responseId: faker.string.uuid(),
 			};
@@ -58,10 +65,7 @@ function createProposalStream(proposal: ProposedChange) {
 }
 
 const mockAICoreService = {
-	streamChatWithToolsAndProvider: async () => {
-		if (!nextProposal) throw new Error('Test must set nextProposal.');
-		return createProposalStream(nextProposal);
-	},
+	streamChatWithToolsAndProvider: async () => createProposalStream(resolveProposals()),
 	complete: async () => 'mocked',
 	chat: async () => ({ content: 'mocked', responseId: faker.string.uuid() }),
 	streamChat: async () => ({
@@ -70,7 +74,7 @@ const mockAICoreService = {
 		},
 	}),
 	chatWithTools: async () => ({ content: 'mocked', responseId: faker.string.uuid() }),
-	streamChatWithTools: async () => createProposalStream(nextProposal!),
+	streamChatWithTools: async () => createProposalStream(resolveProposals()),
 	chatWithToolsAndProvider: async () => ({ content: 'mocked', responseId: faker.string.uuid() }),
 	streamChatWithProvider: async () => ({
 		*[Symbol.asyncIterator]() {
@@ -80,11 +84,16 @@ const mockAICoreService = {
 	completeWithProvider: async () => 'mocked',
 	chatWithProvider: async () => ({ content: 'mocked', responseId: faker.string.uuid() }),
 	continueAfterToolCall: async () => ({ content: 'mocked', responseId: faker.string.uuid() }),
-	continueStreamingAfterToolCall: async () => createProposalStream(nextProposal!),
+	continueStreamingAfterToolCall: async () => createProposalStream(resolveProposals()),
 	getDefaultProvider: () => 'openai',
 	setDefaultProvider: () => {},
 	getAvailableProviders: () => [],
 };
+
+test.beforeEach(() => {
+	nextProposal = null;
+	nextProposals = null;
+});
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -162,7 +171,7 @@ test.serial('MySQL: generate → approve creates the table', async (t) => {
 		.set('Cookie', token)
 		.send({ userPrompt: 'create table' });
 	t.is(generateResp.status, 201);
-	const change = JSON.parse(generateResp.text);
+	const change = JSON.parse(generateResp.text).changes[0];
 	t.is(change.status, SchemaChangeStatusEnum.PENDING);
 
 	const approveResp = await request(app.getHttpServer())
@@ -197,7 +206,7 @@ test.serial('MySQL: generate → approve → rollback removes the table', async 
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'create' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	await request(app.getHttpServer()).post(`/table-schema/change/${changeId}/approve`).set('Cookie', token).send({});
 
@@ -242,7 +251,7 @@ test.serial('MySQL: generate → reject leaves DB untouched', async (t) => {
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'will reject' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const rejectResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/reject`)
@@ -275,7 +284,7 @@ test.serial('MySQL: invalid SQL marks FAILED and attempts auto-rollback', async 
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'bad sql' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -313,7 +322,7 @@ test.serial('MySQL: rollback of PENDING change is rejected', async (t) => {
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'pending' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const rollbackResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/rollback`)
@@ -348,7 +357,7 @@ test.serial('MySQL: destructive DROP TABLE requires confirmedDestructive=true', 
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'drop it' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const firstApproveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -394,7 +403,7 @@ test.serial('MySQL: ADD COLUMN approve adds the column; rollback removes it', as
 		.set('Cookie', token)
 		.send({ userPrompt: 'add phone column' });
 	t.is(generateResp.status, 201);
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -439,7 +448,7 @@ test.serial('MySQL: DROP COLUMN blocked without confirmedDestructive, succeeds w
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'drop phone column' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const firstApproveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -478,7 +487,7 @@ test.serial('MySQL: userModifiedSql is validated and applied in place of AI SQL'
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'create table' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const editedSql = `CREATE TABLE \`${tableName}\` (id INT AUTO_INCREMENT PRIMARY KEY, bar TEXT)`;
 	const approveResp = await request(app.getHttpServer())
@@ -515,7 +524,7 @@ test.serial('MySQL: userModifiedSql with a forbidden construct is rejected', asy
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'create table' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -560,7 +569,7 @@ test.serial('MySQL: ADD INDEX approve creates a named index; rollback drops it',
 		.set('Cookie', token)
 		.send({ userPrompt: 'add index' });
 	t.is(generateResp.status, 201);
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -620,7 +629,7 @@ test.serial('MySQL: ADD FOREIGN KEY cross-table reference; rollback drops it', a
 		.set('Cookie', token)
 		.send({ userPrompt: 'add fk' });
 	t.is(generateResp.status, 201);
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -676,7 +685,7 @@ test.serial('MySQL: ALTER COLUMN widens VARCHAR → TEXT while preserving row da
 		.set('Cookie', token)
 		.send({ userPrompt: 'widen name' });
 	t.is(generateResp.status, 201);
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -695,4 +704,67 @@ test.serial('MySQL: ALTER COLUMN widens VARCHAR → TEXT while preserving row da
 		rows.map((r) => r.name),
 		['alice', 'bob', 'carol'],
 	);
+});
+
+test.serial('MySQL: multi-table batch generate + approve creates every table in order', async (t) => {
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const connectionId = await createConnection(token);
+	const products = `ra_b_products_${faker.string.alphanumeric(6).toLowerCase()}`;
+	const users = `ra_b_users_${faker.string.alphanumeric(6).toLowerCase()}`;
+	const orders = `ra_b_orders_${faker.string.alphanumeric(6).toLowerCase()}`;
+	testTables.push(orders, users, products);
+
+	nextProposals = [
+		{
+			forwardSql: `CREATE TABLE \`${products}\` (id INT AUTO_INCREMENT PRIMARY KEY, name TEXT)`,
+			rollbackSql: `DROP TABLE \`${products}\``,
+			changeType: SchemaChangeTypeEnum.CREATE_TABLE,
+			targetTableName: products,
+			isReversible: true,
+			summary: 'products',
+			reasoning: '',
+		},
+		{
+			forwardSql: `CREATE TABLE \`${users}\` (id INT AUTO_INCREMENT PRIMARY KEY, email VARCHAR(255))`,
+			rollbackSql: `DROP TABLE \`${users}\``,
+			changeType: SchemaChangeTypeEnum.CREATE_TABLE,
+			targetTableName: users,
+			isReversible: true,
+			summary: 'users',
+			reasoning: '',
+		},
+		{
+			forwardSql: `CREATE TABLE \`${orders}\` (id INT AUTO_INCREMENT PRIMARY KEY, user_id INT, product_id INT, FOREIGN KEY (user_id) REFERENCES \`${users}\`(id), FOREIGN KEY (product_id) REFERENCES \`${products}\`(id))`,
+			rollbackSql: `DROP TABLE \`${orders}\``,
+			changeType: SchemaChangeTypeEnum.CREATE_TABLE,
+			targetTableName: orders,
+			isReversible: true,
+			summary: 'orders',
+			reasoning: '',
+		},
+	];
+
+	const generateResp = await request(app.getHttpServer())
+		.post(`/table-schema/${connectionId}/generate`)
+		.set('Cookie', token)
+		.send({ userPrompt: 'create products, users and orders tables' });
+	t.is(generateResp.status, 201);
+	const batch = JSON.parse(generateResp.text);
+	t.is(batch.changes.length, 3);
+	t.deepEqual(
+		batch.changes.map((c: any) => c.targetTableName),
+		[products, users, orders],
+	);
+
+	const approveResp = await request(app.getHttpServer())
+		.post(`/table-schema/batch/${batch.batchId}/approve`)
+		.set('Cookie', token)
+		.send({});
+	t.is(approveResp.status, 200);
+
+	const mysqlKnexParams = { ...getTestData(mockFactory).connectionToMySQL, type: 'mysql2' as const };
+	const knex = getTestKnex(mysqlKnexParams);
+	t.true(await knex.schema.hasTable(products));
+	t.true(await knex.schema.hasTable(users));
+	t.true(await knex.schema.hasTable(orders));
 });

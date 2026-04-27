@@ -32,11 +32,17 @@ function buildSqlSchemaChangePrompt(
 ${schemaLine}
 Existing tables in this database: ${tableList}.
 
-Your job: translate the user's natural-language request into exactly ONE DDL statement for ${dialect}, and produce a paired rollback statement.
+Your job: translate the user's natural-language request into ONE OR MORE DDL statements for ${dialect}, each paired with a rollback statement. A single user request may legitimately require multiple changes (e.g. "create products, users and orders tables", "add columns a, b, c", "create users plus an index on email"). Emit one proposal per logical change.
 
 Workflow:
 1. If the user's request references an existing table, call getTableStructure FIRST to inspect it. You may call it multiple times for different tables.
-2. Once you have enough context, call proposeSchemaChange EXACTLY ONCE with your final forwardSql and rollbackSql. Do not write free-text explanations outside the tool call.
+2. Once you have enough context, call proposeSchemaChange EXACTLY ONCE with a "proposals" array containing every change required by the user's request. Do not write free-text explanations outside the tool call.
+
+Multi-proposal rules:
+- Order proposals so that any change depending on another comes AFTER its dependency. Tables referenced by foreign keys must be created BEFORE the tables that reference them.
+- Each proposal element must independently satisfy the single-DDL-statement and dialect rules below; the array carries the ordered set, not a multi-statement script.
+- Do NOT bundle unrelated changes the user did not ask for. Only emit proposals that fulfil the user's request.
+- For a single-change request, supply a "proposals" array of length 1 — same content as before.
 
 Rules for the generated SQL:
 - Target dialect is ${dialect}. Use the correct identifier quoting (double quotes for PostgreSQL/Oracle/DB2, backticks for MySQL/ClickHouse, square brackets or double quotes for Microsoft SQL Server) and the correct syntax for data types, autoincrement, and constraints.
@@ -74,11 +80,17 @@ function buildDynamoDbSchemaChangePrompt(existingTables: string[]): string {
 	return `You are a DynamoDB schema-change generator.
 Existing tables in this database: ${tableList}.
 
-DynamoDB is a NoSQL key-value store with a fixed primary key schema per table and no conventional DDL. Schema changes are expressed as structured JSON operations the server will apply via the AWS SDK (CreateTable, DeleteTable, UpdateTable, UpdateTimeToLive).
+DynamoDB is a NoSQL key-value store with a fixed primary key schema per table and no conventional DDL. Schema changes are expressed as structured JSON operations the server will apply via the AWS SDK (CreateTable, DeleteTable, UpdateTable, UpdateTimeToLive). A single user request may legitimately require multiple changes (e.g. "create products, users and orders tables").
 
 Workflow:
 1. If the user's request references an existing table, call getTableStructure FIRST to see its key schema and sampled attributes. You may call it multiple times.
-2. Once you have enough context, call proposeDynamoDbSchemaChange EXACTLY ONCE with your final forwardOp and rollbackOp. Do not write free-text explanations outside the tool call.
+2. Once you have enough context, call proposeDynamoDbSchemaChange EXACTLY ONCE with a "proposals" array containing every change required by the user's request. Do not write free-text explanations outside the tool call.
+
+Multi-proposal rules:
+- Order proposals so dependent changes come after their prerequisites.
+- Each element must independently satisfy the per-operation rules below.
+- Do NOT bundle unrelated changes the user did not ask for.
+- For a single-change request, supply a "proposals" array of length 1.
 
 forwardOp and rollbackOp are JSON strings. Each must decode to exactly one object of one of these shapes:
 
@@ -151,11 +163,17 @@ function buildElasticsearchSchemaChangePrompt(existingIndices: string[]): string
 	return `You are an Elasticsearch schema-change generator.
 Existing indices in this cluster: ${indexList}.
 
-Elasticsearch is a search engine where each "table" is an index with a mapping (the JSON schema of fields). Schema changes are expressed as structured JSON operations the server will apply via the official @elastic/elasticsearch client (indices.create, indices.delete, indices.putMapping).
+Elasticsearch is a search engine where each "table" is an index with a mapping (the JSON schema of fields). Schema changes are expressed as structured JSON operations the server will apply via the official @elastic/elasticsearch client (indices.create, indices.delete, indices.putMapping). A single user request may legitimately require multiple changes (e.g. "create indices for products, users and orders").
 
 Workflow:
 1. If the user's request references an existing index, call getTableStructure FIRST to inspect its sampled fields and inferred types. You may call it multiple times.
-2. Once you have enough context, call proposeElasticsearchSchemaChange EXACTLY ONCE with your final forwardOp and rollbackOp. Do not write free-text explanations outside the tool call.
+2. Once you have enough context, call proposeElasticsearchSchemaChange EXACTLY ONCE with a "proposals" array containing every change required by the user's request. Do not write free-text explanations outside the tool call.
+
+Multi-proposal rules:
+- Order proposals so dependent changes come after their prerequisites.
+- Each element must independently satisfy the per-operation rules below.
+- Do NOT bundle unrelated changes the user did not ask for.
+- For a single-change request, supply a "proposals" array of length 1.
 
 forwardOp and rollbackOp are JSON strings. Each must decode to exactly one object of one of these shapes:
 
@@ -202,11 +220,17 @@ function buildMongoSchemaChangePrompt(existingCollections: string[]): string {
 	return `You are a MongoDB schema-change generator.
 Existing collections in this database: ${collectionList}.
 
-MongoDB does not use SQL DDL. Instead, schema changes are structured JSON operations that the server will execute via the official MongoDB driver.
+MongoDB does not use SQL DDL. Instead, schema changes are structured JSON operations that the server will execute via the official MongoDB driver. A single user request may legitimately require multiple changes (e.g. "create products, users and orders collections", or "add a unique email index plus a products collection").
 
 Workflow:
 1. If the user's request references an existing collection, call getTableStructure FIRST to inspect a sample of documents. You may call it multiple times for different collections.
-2. Once you have enough context, call proposeMongoSchemaChange EXACTLY ONCE with your final forwardOp and rollbackOp. Do not write free-text explanations outside the tool call.
+2. Once you have enough context, call proposeMongoSchemaChange EXACTLY ONCE with a "proposals" array containing every change required by the user's request. Do not write free-text explanations outside the tool call.
+
+Multi-proposal rules:
+- Order proposals so dependent changes come after their prerequisites (e.g. createCollection before createIndex on that collection).
+- Each element must independently satisfy the per-operation rules below.
+- Do NOT bundle unrelated changes the user did not ask for.
+- For a single-change request, supply a "proposals" array of length 1.
 
 forwardOp and rollbackOp are JSON strings. Each must decode to exactly one object of the form:
 

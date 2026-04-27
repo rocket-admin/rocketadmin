@@ -48,7 +48,7 @@ function createElasticProposalStream(proposal: ElasticProposedChange) {
 				toolCall: {
 					id: faker.string.uuid(),
 					name: 'proposeElasticsearchSchemaChange',
-					arguments: proposal,
+					arguments: { proposals: [proposal] },
 				},
 				responseId: faker.string.uuid(),
 			};
@@ -228,7 +228,7 @@ test.serial('Elasticsearch: createIndex → approve creates the index; rollback 
 		.set('Cookie', token)
 		.send({ userPrompt: `create index ${indexName}` });
 	t.is(generateResp.status, 201);
-	const change = JSON.parse(generateResp.text);
+	const change = JSON.parse(generateResp.text).changes[0];
 	t.is(change.status, SchemaChangeStatusEnum.PENDING);
 	t.is(change.changeType, SchemaChangeTypeEnum.ELASTICSEARCH_CREATE_INDEX);
 
@@ -278,7 +278,7 @@ test.serial('Elasticsearch: deleteIndex requires confirmedDestructive', async (t
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'drop the index' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const firstApprove = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -330,7 +330,7 @@ test.serial('Elasticsearch: updateMapping adds a new field; rollback is recorded
 		.set('Cookie', token)
 		.send({ userPrompt: 'add phone field' });
 	t.is(generateResp.status, 201);
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	// Update is destructive in the sense that the rollback can't restore the prior
 	// mapping shape; the use-case requires confirmedDestructive when isReversible=false.
@@ -371,7 +371,7 @@ test.serial('Elasticsearch: invalid op marks FAILED and attempts auto-rollback',
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'update missing index' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -406,7 +406,7 @@ test.serial('Elasticsearch: userModifiedSql JSON op is validated and applied', a
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'create' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const editedOp = JSON.stringify({
 		operation: 'createIndex',
@@ -444,7 +444,7 @@ test.serial('Elasticsearch: userModifiedSql targeting a system index is rejected
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'create' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	// User edits to point at a reserved index, but targetTableName mismatch is checked first;
 	// even if names matched the leading "." would block the system index.

@@ -56,7 +56,7 @@ function createDynamoProposalStream(proposal: DynamoProposedChange) {
 				toolCall: {
 					id: faker.string.uuid(),
 					name: 'proposeDynamoDbSchemaChange',
-					arguments: proposal,
+					arguments: { proposals: [proposal] },
 				},
 				responseId: faker.string.uuid(),
 			};
@@ -262,7 +262,7 @@ test.serial('DynamoDB: generate → approve creates a table', async (t) => {
 		.set('Cookie', token)
 		.send({ userPrompt: `create table ${tableName}` });
 	t.is(generateResp.status, 201);
-	const change = JSON.parse(generateResp.text);
+	const change = JSON.parse(generateResp.text).changes[0];
 	t.is(change.status, SchemaChangeStatusEnum.PENDING);
 	t.is(change.changeType, SchemaChangeTypeEnum.DYNAMODB_CREATE_TABLE);
 
@@ -300,7 +300,7 @@ test.serial('DynamoDB: createTable → rollback drops the table', async (t) => {
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'create then rollback' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	await request(app.getHttpServer()).post(`/table-schema/change/${changeId}/approve`).set('Cookie', token).send({});
 	t.true(await tableExists(tableName));
@@ -349,7 +349,7 @@ test.serial('DynamoDB: deleteTable requires confirmedDestructive', async (t) => 
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'drop table' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const firstApprove = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -412,7 +412,7 @@ test.serial('DynamoDB: updateTable adds GSI; rollback removes it', async (t) => 
 		.set('Cookie', token)
 		.send({ userPrompt: 'add email GSI' });
 	t.is(generateResp.status, 201);
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -463,7 +463,7 @@ test.serial('DynamoDB: updateTimeToLive enables and rolls back', async (t) => {
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'enable ttl' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -510,7 +510,7 @@ test.serial('DynamoDB: userModifiedSql JSON op is validated and applied', async 
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'create table' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const editedOp = JSON.stringify({
 		operation: 'createTable',
@@ -562,7 +562,7 @@ test.serial('DynamoDB: userModifiedSql with mismatched tableName is rejected', a
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'create' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const editedOp = JSON.stringify({
 		operation: 'createTable',
@@ -675,7 +675,7 @@ test.serial('DynamoDB: runtime failure marks FAILED and attempts auto-rollback',
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'delete missing GSI' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)

@@ -16,10 +16,27 @@ export const customTableSchemaChangeRepositoryExtension: ITableSchemaChangeRepos
 		return await this.save(entity);
 	},
 
+	async createPendingBatch(items: Partial<TableSchemaChangeEntity>[]): Promise<TableSchemaChangeEntity[]> {
+		const entities = items.map((item) =>
+			this.create({
+				...item,
+				status: SchemaChangeStatusEnum.PENDING,
+			}),
+		);
+		return await this.save(entities);
+	},
+
 	async findByIdWithRelations(id: string): Promise<TableSchemaChangeEntity | null> {
 		return await this.findOne({
 			where: { id },
 			relations: ['connection', 'author', 'previousChange'],
+		});
+	},
+
+	async findByBatchId(batchId: string): Promise<TableSchemaChangeEntity[]> {
+		return await this.find({
+			where: { batchId },
+			order: { orderInBatch: 'ASC' },
 		});
 	},
 

@@ -48,7 +48,7 @@ function createMongoProposalStream(proposal: MongoProposedChange) {
 				toolCall: {
 					id: faker.string.uuid(),
 					name: 'proposeMongoSchemaChange',
-					arguments: proposal,
+					arguments: { proposals: [proposal] },
 				},
 				responseId: faker.string.uuid(),
 			};
@@ -243,7 +243,7 @@ test.serial('MongoDB: createCollection → drop via rollback', async (t) => {
 		.set('Cookie', token)
 		.send({ userPrompt: `create collection ${collectionName}` });
 	t.is(generateResp.status, 201);
-	const change = JSON.parse(generateResp.text);
+	const change = JSON.parse(generateResp.text).changes[0];
 	t.is(change.status, SchemaChangeStatusEnum.PENDING);
 	t.is(change.changeType, SchemaChangeTypeEnum.MONGO_CREATE_COLLECTION);
 
@@ -287,7 +287,7 @@ test.serial('MongoDB: dropCollection requires confirmedDestructive', async (t) =
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'drop collection' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const firstApprove = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -336,7 +336,7 @@ test.serial('MongoDB: createIndex → rollback drops the index', async (t) => {
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'add unique email index' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -403,7 +403,7 @@ test.serial('MongoDB: setValidator applies a JSON Schema', async (t) => {
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'require email' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -464,7 +464,7 @@ test.serial('MongoDB: userModifiedSql JSON op is validated and applied', async (
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'create collection' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const editedOp = JSON.stringify({ operation: 'createCollection', collectionName });
 	const approveResp = await request(app.getHttpServer())
@@ -499,7 +499,7 @@ test.serial('MongoDB: userModifiedSql with forbidden $where is rejected', async 
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'require shape' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const editedOp = JSON.stringify({
 		operation: 'setValidator',
@@ -542,7 +542,7 @@ test.serial('MongoDB: invalid op marks FAILED and attempts auto-rollback', async
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'drop nonexistent index' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)

@@ -7,12 +7,19 @@ import { SchemaChangeStatusEnum, SchemaChangeTypeEnum } from './table-schema-cha
 @Entity('table_schema_change')
 @Index('IDX_tsc_connection_created', ['connectionId', 'createdAt'])
 @Index('IDX_tsc_previous_change', ['previousChangeId'])
+@Index('IDX_tsc_batch_order', ['batchId', 'orderInBatch'])
 export class TableSchemaChangeEntity {
 	@PrimaryGeneratedColumn('uuid')
 	id: string;
 
 	@Column({ type: 'varchar', length: 38 })
 	connectionId: string;
+
+	@Column({ type: 'varchar', length: 38, nullable: true })
+	batchId: string | null;
+
+	@Column({ type: 'int', default: 0 })
+	orderInBatch: number;
 
 	@ManyToOne(() => ConnectionEntity, { onDelete: 'CASCADE' })
 	@JoinColumn({ name: 'connectionId' })

@@ -48,7 +48,7 @@ function createProposalStream(proposal: ProposedChange) {
 				toolCall: {
 					id: faker.string.uuid(),
 					name: 'proposeSchemaChange',
-					arguments: proposal,
+					arguments: { proposals: [proposal] },
 				},
 				responseId: faker.string.uuid(),
 			};
@@ -237,7 +237,7 @@ test.serial('Cassandra: generate → approve creates a table', async (t) => {
 		.set('Cookie', token)
 		.send({ userPrompt: `create ${tableName}` });
 	t.is(generateResp.status, 201);
-	const change = JSON.parse(generateResp.text);
+	const change = JSON.parse(generateResp.text).changes[0];
 	t.is(change.status, SchemaChangeStatusEnum.PENDING);
 
 	const approveResp = await request(app.getHttpServer())
@@ -269,7 +269,7 @@ test.serial('Cassandra: generate → approve → rollback drops the table', asyn
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'create then rollback' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	await request(app.getHttpServer()).post(`/table-schema/change/${changeId}/approve`).set('Cookie', token).send({});
 
@@ -312,7 +312,7 @@ test.serial('Cassandra: ADD column → approve adds the column; rollback removes
 		.set('Cookie', token)
 		.send({ userPrompt: 'add phone column' });
 	t.is(generateResp.status, 201);
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -351,7 +351,7 @@ test.serial('Cassandra: DROP TABLE requires confirmedDestructive', async (t) => 
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'drop it' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const firstApprove = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -390,7 +390,7 @@ test.serial('Cassandra: invalid CQL marks FAILED and attempts auto-rollback', as
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'bad sql' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -426,7 +426,7 @@ test.serial('Cassandra: userModifiedSql is validated and applied in place of AI 
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'create' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const editedSql = `CREATE TABLE ${tableName} (id UUID PRIMARY KEY, bar TEXT)`;
 	const approveResp = await request(app.getHttpServer())
@@ -458,7 +458,7 @@ test.serial('Cassandra: userModifiedSql with a forbidden construct is rejected',
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'create' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)

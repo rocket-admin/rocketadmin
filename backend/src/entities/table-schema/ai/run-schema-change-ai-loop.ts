@@ -39,7 +39,7 @@ export interface RunSchemaChangeAiLoopOptions {
 }
 
 export interface SchemaChangeAiLoopResult {
-	proposal: ProposeSchemaChangeArgs;
+	proposals: ProposeSchemaChangeArgs[];
 	responseId: string | null;
 }
 
@@ -80,8 +80,8 @@ export async function runSchemaChangeAiLoop(opts: RunSchemaChangeAiLoopOptions):
 
 		const proposalCall = pendingToolCalls.find((tc) => TERMINAL_PROPOSAL_TOOL_NAMES.has(tc.name));
 		if (proposalCall) {
-			const proposal = coerceAndValidateProposal(proposalCall);
-			return { proposal, responseId: lastResponseId };
+			const proposals = coerceAndValidateProposals(proposalCall);
+			return { proposals, responseId: lastResponseId };
 		}
 
 		if (pendingToolCalls.length === 0) {
@@ -110,44 +110,69 @@ export async function runSchemaChangeAiLoop(opts: RunSchemaChangeAiLoopOptions):
 	throw new Error(`AI did not produce a proposal within ${maxDepth} iterations.`);
 }
 
-function coerceAndValidateProposal(toolCall: AIToolCall): ProposeSchemaChangeArgs {
-	const args = toolCall.arguments ?? {};
-	const raw = args as Record<string, unknown>;
+function coerceAndValidateProposals(toolCall: AIToolCall): ProposeSchemaChangeArgs[] {
+	const args = (toolCall.arguments ?? {}) as Record<string, unknown>;
 
-	if (Object.keys(raw).length === 0) {
+	if (Object.keys(args).length === 0) {
 		throw new Error(
 			`AI returned ${toolCall.name} with empty arguments — the underlying tool-call JSON likely failed to parse.`,
 		);
 	}
 
-	const targetTableName = asNonEmptyString(raw.targetTableName, 'targetTableName');
-	const summary = asString(raw.summary) ?? '';
-	const reasoning = asString(raw.reasoning) ?? '';
-	const changeType = asChangeType(raw.changeType);
-	const isReversible = asBoolean(raw.isReversible, 'isReversible');
+	const proposalsRaw = args.proposals;
+	if (!Array.isArray(proposalsRaw) || proposalsRaw.length === 0) {
+		throw new Error(
+			`AI returned ${toolCall.name} without a non-empty "proposals" array. Tool calls must wrap one or more changes in proposals.`,
+		);
+	}
 
 	const isMongoTool = toolCall.name === PROPOSE_MONGO_SCHEMA_CHANGE_TOOL_NAME;
 	const isDynamoDbTool = toolCall.name === PROPOSE_DYNAMODB_SCHEMA_CHANGE_TOOL_NAME;
 	const isElasticsearchTool = toolCall.name === PROPOSE_ELASTICSEARCH_SCHEMA_CHANGE_TOOL_NAME;
+
+	return proposalsRaw.map((entry, index) =>
+		coerceSingleProposal(entry, toolCall.name, index, isMongoTool, isDynamoDbTool, isElasticsearchTool),
+	);
+}
+
+function coerceSingleProposal(
+	entry: unknown,
+	toolName: string,
+	index: number,
+	isMongoTool: boolean,
+	isDynamoDbTool: boolean,
+	isElasticsearchTool: boolean,
+): ProposeSchemaChangeArgs {
+	if (!entry || typeof entry !== 'object') {
+		throw new Error(`${toolName} proposals[${index}] is not an object.`);
+	}
+	const raw = entry as Record<string, unknown>;
+
+	const targetTableName = asNonEmptyString(raw.targetTableName, `proposals[${index}].targetTableName`);
+	const summary = asString(raw.summary) ?? '';
+	const reasoning = asString(raw.reasoning) ?? '';
+	const changeType = asChangeType(raw.changeType, index);
+	const isReversible = asBoolean(raw.isReversible, `proposals[${index}].isReversible`);
+
 	if (isMongoTool !== isMongoSchemaChangeType(changeType)) {
 		throw new Error(
-			`Tool ${toolCall.name} was called with changeType "${changeType}" which does not match. Mongo tool requires MONGO_* changeType and vice versa.`,
+			`Tool ${toolName} proposals[${index}] has changeType "${changeType}" which does not match. Mongo tool requires MONGO_* changeType and vice versa.`,
 		);
 	}
 	if (isDynamoDbTool !== isDynamoDbSchemaChangeType(changeType)) {
 		throw new Error(
-			`Tool ${toolCall.name} was called with changeType "${changeType}" which does not match. DynamoDB tool requires DYNAMODB_* changeType and vice versa.`,
+			`Tool ${toolName} proposals[${index}] has changeType "${changeType}" which does not match. DynamoDB tool requires DYNAMODB_* changeType and vice versa.`,
 		);
 	}
 	if (isElasticsearchTool !== isElasticsearchSchemaChangeType(changeType)) {
 		throw new Error(
-			`Tool ${toolCall.name} was called with changeType "${changeType}" which does not match. Elasticsearch tool requires ELASTICSEARCH_* changeType and vice versa.`,
+			`Tool ${toolName} proposals[${index}] has changeType "${changeType}" which does not match. Elasticsearch tool requires ELASTICSEARCH_* changeType and vice versa.`,
 		);
 	}
 
 	if (isMongoTool || isDynamoDbTool || isElasticsearchTool) {
-		const forwardOp = asNonEmptyString(raw.forwardOp, 'forwardOp');
-		const rollbackOp = asNonEmptyString(raw.rollbackOp, 'rollbackOp');
+		const forwardOp = asNonEmptyString(raw.forwardOp, `proposals[${index}].forwardOp`);
+		const rollbackOp = asNonEmptyString(raw.rollbackOp, `proposals[${index}].rollbackOp`);
 		return {
 			forwardSql: forwardOp,
 			rollbackSql: rollbackOp,
@@ -159,8 +184,8 @@ function coerceAndValidateProposal(toolCall: AIToolCall): ProposeSchemaChangeArg
 		};
 	}
 
-	const forwardSql = asNonEmptyString(raw.forwardSql, 'forwardSql');
-	const rollbackSql = asNonEmptyString(raw.rollbackSql, 'rollbackSql');
+	const forwardSql = asNonEmptyString(raw.forwardSql, `proposals[${index}].forwardSql`);
+	const rollbackSql = asNonEmptyString(raw.rollbackSql, `proposals[${index}].rollbackSql`);
 	return { forwardSql, rollbackSql, changeType, targetTableName, isReversible, summary, reasoning };
 }
 
@@ -185,15 +210,17 @@ function asBoolean(value: unknown, fieldName: string): boolean {
 	throw new Error(`proposeSchemaChange field "${fieldName}" must be a boolean; received ${JSON.stringify(value)}.`);
 }
 
-function asChangeType(value: unknown): SchemaChangeTypeEnum {
+function asChangeType(value: unknown, index: number): SchemaChangeTypeEnum {
 	if (typeof value !== 'string') {
-		throw new Error(`proposeSchemaChange "changeType" must be a string; received ${JSON.stringify(value)}.`);
+		throw new Error(
+			`proposeSchemaChange proposals[${index}].changeType must be a string; received ${JSON.stringify(value)}.`,
+		);
 	}
 	if ((Object.values(SchemaChangeTypeEnum) as string[]).includes(value)) {
 		return value as SchemaChangeTypeEnum;
 	}
 	throw new Error(
-		`proposeSchemaChange "changeType" "${value}" is not one of ${Object.values(SchemaChangeTypeEnum).join(', ')}.`,
+		`proposeSchemaChange proposals[${index}].changeType "${value}" is not one of ${Object.values(SchemaChangeTypeEnum).join(', ')}.`,
 	);
 }
 

@@ -48,7 +48,7 @@ function createProposalStream(proposal: ProposedChange) {
 				toolCall: {
 					id: faker.string.uuid(),
 					name: 'proposeSchemaChange',
-					arguments: proposal,
+					arguments: { proposals: [proposal] },
 				},
 				responseId: faker.string.uuid(),
 			};
@@ -224,7 +224,7 @@ test.serial('DB2: generate → approve creates the table', async (t) => {
 		.set('Cookie', token)
 		.send({ userPrompt: 'create table' });
 	t.is(generateResp.status, 201);
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -262,7 +262,7 @@ test.serial('DB2: ADD COLUMN approve adds the column; rollback removes it', asyn
 		.set('Cookie', token)
 		.send({ userPrompt: 'add phone column' });
 	t.is(generateResp.status, 201);
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -305,7 +305,7 @@ test.serial('DB2: ALTER COLUMN SET DATA TYPE widens VARCHAR(32) → VARCHAR(255)
 		.set('Cookie', token)
 		.send({ userPrompt: 'widen name' });
 	t.is(generateResp.status, 201);
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)

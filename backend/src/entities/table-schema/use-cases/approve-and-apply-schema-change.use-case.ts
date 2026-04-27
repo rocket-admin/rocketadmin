@@ -7,7 +7,6 @@ import {
 	NotFoundException,
 	Scope,
 } from '@nestjs/common';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
@@ -21,19 +20,12 @@ import {
 	isMongoSchemaChangeType,
 	SchemaChangeStatusEnum,
 } from '../table-schema-change-enums.js';
-import {
-	assertDialectSupported,
-	isCassandraDialect,
-	isClickHouseDialect,
-	isDynamoDbDialect,
-	isElasticsearchDialect,
-} from '../utils/assert-dialect-supported.js';
-import { executeCassandraDdl } from '../utils/cassandra-ddl.js';
-import { executeClickHouseDdl } from '../utils/clickhouse-ddl.js';
-import { executeDynamoDbSchemaOp, validateProposedDynamoDbOp } from '../utils/dynamodb-schema-op.js';
-import { executeElasticsearchSchemaOp, validateProposedElasticsearchOp } from '../utils/elasticsearch-schema-op.js';
+import { assertDialectSupported } from '../utils/assert-dialect-supported.js';
+import { validateProposedDynamoDbOp } from '../utils/dynamodb-schema-op.js';
+import { validateProposedElasticsearchOp } from '../utils/elasticsearch-schema-op.js';
+import { executeSchemaChange } from '../utils/execute-schema-change.js';
 import { mapSchemaChangeToResponseDto } from '../utils/map-schema-change-to-response-dto.js';
-import { executeMongoSchemaOp, validateProposedMongoOp } from '../utils/mongo-schema-op.js';
+import { validateProposedMongoOp } from '../utils/mongo-schema-op.js';
 import { validateProposedDdl } from '../utils/validate-proposed-ddl.js';
 import { IApproveSchemaChange } from './table-schema-use-cases.interface.js';
 
@@ -82,11 +74,8 @@ export class ApproveAndApplySchemaChangeUseCase
 		}
 
 		const isMongo = isMongoSchemaChangeType(change.changeType);
-		const isDynamoDb = isDynamoDbSchemaChangeType(change.changeType) || isDynamoDbDialect(connectionType);
-		const isElasticsearch =
-			isElasticsearchSchemaChangeType(change.changeType) || isElasticsearchDialect(connectionType);
-		const isClickHouse = isClickHouseDialect(connectionType);
-		const isCassandra = isCassandraDialect(connectionType);
+		const isDynamoDb = isDynamoDbSchemaChangeType(change.changeType);
+		const isElasticsearch = isElasticsearchSchemaChangeType(change.changeType);
 
 		let sqlToRun = change.forwardSql;
 		if (userModifiedSql && userModifiedSql.trim().length > 0) {
@@ -132,35 +121,13 @@ export class ApproveAndApplySchemaChangeUseCase
 		}
 
 		try {
-			if (isMongo) {
-				const op = validateProposedMongoOp({
-					opJson: sqlToRun,
-					changeType: change.changeType,
-					targetTableName: change.targetTableName,
-				});
-				await executeMongoSchemaOp(connection, op);
-			} else if (isDynamoDb) {
-				const op = validateProposedDynamoDbOp({
-					opJson: sqlToRun,
-					changeType: change.changeType,
-					targetTableName: change.targetTableName,
-				});
-				await executeDynamoDbSchemaOp(connection, op);
-			} else if (isElasticsearch) {
-				const op = validateProposedElasticsearchOp({
-					opJson: sqlToRun,
-					changeType: change.changeType,
-					targetTableName: change.targetTableName,
-				});
-				await executeElasticsearchSchemaOp(connection, op);
-			} else if (isClickHouse) {
-				await executeClickHouseDdl(connection, sqlToRun);
-			} else if (isCassandra) {
-				await executeCassandraDdl(connection, sqlToRun);
-			} else {
-				const dao = getDataAccessObject(connection);
-				await dao.executeRawQuery(sqlToRun, change.targetTableName, null);
-			}
+			await executeSchemaChange({
+				connection,
+				connectionType,
+				changeType: change.changeType,
+				targetTableName: change.targetTableName,
+				sql: sqlToRun,
+			});
 			const updated = await this._dbContext.tableSchemaChangeRepository.updateStatus(
 				change.id,
 				SchemaChangeStatusEnum.APPLIED,
@@ -169,44 +136,20 @@ export class ApproveAndApplySchemaChangeUseCase
 			return mapSchemaChangeToResponseDto(updated!);
 		} catch (err) {
 			const error = err as Error;
-			this.logger.error(`Forward ${isMongo ? 'Mongo op' : 'SQL'} failed for change ${change.id}: ${error.message}`);
+			this.logger.error(`Forward execution failed for change ${change.id}: ${error.message}`);
 
 			let autoRollbackSucceeded = false;
 			let rollbackError: string | null = null;
 			if (change.rollbackSql) {
 				try {
-					if (isMongo) {
-						const rollbackOp = validateProposedMongoOp({
-							opJson: change.rollbackSql,
-							changeType: change.changeType,
-							targetTableName: change.targetTableName,
-							allowAnyOperation: true,
-						});
-						await executeMongoSchemaOp(connection, rollbackOp);
-					} else if (isDynamoDb) {
-						const rollbackOp = validateProposedDynamoDbOp({
-							opJson: change.rollbackSql,
-							changeType: change.changeType,
-							targetTableName: change.targetTableName,
-							allowAnyOperation: true,
-						});
-						await executeDynamoDbSchemaOp(connection, rollbackOp);
-					} else if (isElasticsearch) {
-						const rollbackOp = validateProposedElasticsearchOp({
-							opJson: change.rollbackSql,
-							changeType: change.changeType,
-							targetTableName: change.targetTableName,
-							allowAnyOperation: true,
-						});
-						await executeElasticsearchSchemaOp(connection, rollbackOp);
-					} else if (isClickHouse) {
-						await executeClickHouseDdl(connection, change.rollbackSql);
-					} else if (isCassandra) {
-						await executeCassandraDdl(connection, change.rollbackSql);
-					} else {
-						const dao = getDataAccessObject(connection);
-						await dao.executeRawQuery(change.rollbackSql, change.targetTableName, null);
-					}
+					await executeSchemaChange({
+						connection,
+						connectionType,
+						changeType: change.changeType,
+						targetTableName: change.targetTableName,
+						sql: change.rollbackSql,
+						allowAnyOperation: true,
+					});
 					autoRollbackSucceeded = true;
 				} catch (rbErr) {
 					rollbackError = (rbErr as Error).message;

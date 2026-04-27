@@ -49,7 +49,7 @@ function createProposalStream(proposal: ProposedChange) {
 				toolCall: {
 					id: faker.string.uuid(),
 					name: 'proposeSchemaChange',
-					arguments: proposal,
+					arguments: { proposals: [proposal] },
 				},
 				responseId: faker.string.uuid(),
 			};
@@ -166,7 +166,7 @@ test.serial('MSSQL: generate → approve creates the table', async (t) => {
 		.set('Cookie', token)
 		.send({ userPrompt: 'create table' });
 	t.is(generateResp.status, 201);
-	const change = JSON.parse(generateResp.text);
+	const change = JSON.parse(generateResp.text).changes[0];
 	t.is(change.status, SchemaChangeStatusEnum.PENDING);
 
 	const approveResp = await request(app.getHttpServer())
@@ -199,7 +199,7 @@ test.serial('MSSQL: generate → approve → rollback removes table and links au
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'create' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	await request(app.getHttpServer()).post(`/table-schema/change/${changeId}/approve`).set('Cookie', token).send({});
 
@@ -238,7 +238,7 @@ test.serial('MSSQL: invalid SQL marks FAILED and attempts auto-rollback', async 
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'bad sql' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -279,7 +279,7 @@ test.serial('MSSQL: destructive DROP TABLE requires confirmedDestructive=true', 
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'drop it' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const firstApproveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -324,7 +324,7 @@ test.serial('MSSQL: ADD COLUMN approve adds the column; rollback removes it', as
 		.set('Cookie', token)
 		.send({ userPrompt: 'add phone column' });
 	t.is(generateResp.status, 201);
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -368,7 +368,7 @@ test.serial('MSSQL: DROP COLUMN blocked without confirmedDestructive, succeeds w
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'drop phone column' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const firstApproveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -415,7 +415,7 @@ test.serial('MSSQL: ADD INDEX approve creates the index; rollback drops it', asy
 		.set('Cookie', token)
 		.send({ userPrompt: 'add index' });
 	t.is(generateResp.status, 201);
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -474,7 +474,7 @@ test.serial('MSSQL: ADD FOREIGN KEY with cross-table reference; rollback drops i
 		.set('Cookie', token)
 		.send({ userPrompt: 'add fk' });
 	t.is(generateResp.status, 201);
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -515,7 +515,7 @@ test.serial('MSSQL: userModifiedSql is validated and applied in place of AI SQL'
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'create table' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const editedSql = `CREATE TABLE [${tableName}] (id INT IDENTITY(1,1) PRIMARY KEY, bar NVARCHAR(255))`;
 	const approveResp = await request(app.getHttpServer())
@@ -551,7 +551,7 @@ test.serial('MSSQL: userModifiedSql with a forbidden construct is rejected', asy
 		.post(`/table-schema/${connectionId}/generate`)
 		.set('Cookie', token)
 		.send({ userPrompt: 'create table' });
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -594,7 +594,7 @@ test.serial('MSSQL: ALTER COLUMN widens NVARCHAR(32) → NVARCHAR(MAX) while pre
 		.set('Cookie', token)
 		.send({ userPrompt: 'widen name' });
 	t.is(generateResp.status, 201);
-	const changeId = JSON.parse(generateResp.text).id;
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)

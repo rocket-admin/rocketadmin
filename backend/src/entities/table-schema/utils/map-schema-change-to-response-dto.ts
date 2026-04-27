@@ -5,6 +5,8 @@ export function mapSchemaChangeToResponseDto(entity: TableSchemaChangeEntity): S
 	return {
 		id: entity.id,
 		connectionId: entity.connectionId,
+		batchId: entity.batchId,
+		orderInBatch: entity.orderInBatch,
 		authorId: entity.authorId,
 		previousChangeId: entity.previousChangeId,
 		forwardSql: entity.forwardSql,
