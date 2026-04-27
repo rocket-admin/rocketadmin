@@ -9,12 +9,12 @@ import http from 'http';
 import net from 'net';
 import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
+import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
-import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 import { createTestTable } from '../../utils/create-test-table.js';
 import {
 	createInitialTestUser,
@@ -46,7 +46,9 @@ const upstreamConnectionParams = {
 // Connection DTO that points to the proxy (used in rocketadmin API).
 // Each call returns a unique username so the mock-api derives a unique
 // companyId — this isolates each test's connection pool inside the proxy's
-// per-company concurrency limiter.
+// per-company concurrency limiter. The password must match the upstream
+// password the mock-api hands back to the proxy, since the proxy now
+// verifies client-supplied credentials before forwarding.
 function createProxyConnectionDto(): {
 	title: string;
 	type: string;
@@ -65,7 +67,7 @@ function createProxyConnectionDto(): {
 		host: PROXY_HOST,
 		port: PROXY_PORT,
 		username,
-		password: 'proxy_pass',
+		password: upstreamConnectionParams.password,
 		database: 'postgres',
 		ssh: false,
 		ssl: false,
