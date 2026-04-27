@@ -29,6 +29,9 @@ export enum SchemaChangeTypeEnum {
 	DYNAMODB_DROP_TABLE = 'DYNAMODB_DROP_TABLE',
 	DYNAMODB_UPDATE_TABLE = 'DYNAMODB_UPDATE_TABLE',
 	DYNAMODB_UPDATE_TTL = 'DYNAMODB_UPDATE_TTL',
+	ELASTICSEARCH_CREATE_INDEX = 'ELASTICSEARCH_CREATE_INDEX',
+	ELASTICSEARCH_DELETE_INDEX = 'ELASTICSEARCH_DELETE_INDEX',
+	ELASTICSEARCH_UPDATE_MAPPING = 'ELASTICSEARCH_UPDATE_MAPPING',
 	ROLLBACK = 'ROLLBACK',
 	OTHER = 'OTHER',
 }
@@ -39,4 +42,8 @@ export function isMongoSchemaChangeType(changeType: SchemaChangeTypeEnum): boole
 
 export function isDynamoDbSchemaChangeType(changeType: SchemaChangeTypeEnum): boolean {
 	return changeType.startsWith('DYNAMODB_');
+}
+
+export function isElasticsearchSchemaChangeType(changeType: SchemaChangeTypeEnum): boolean {
+	return changeType.startsWith('ELASTICSEARCH_');
 }

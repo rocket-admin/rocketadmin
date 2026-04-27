@@ -1,6 +1,6 @@
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { convertDbTypeToReadableString } from '../../../ai-core/tools/prompts.js';
-import { isDynamoDbDialect, isMongoDialect } from '../utils/assert-dialect-supported.js';
+import { isDynamoDbDialect, isElasticsearchDialect, isMongoDialect } from '../utils/assert-dialect-supported.js';
 
 export function buildSchemaChangePrompt(
 	connectionType: ConnectionTypesEnum,
@@ -12,6 +12,9 @@ export function buildSchemaChangePrompt(
 	}
 	if (isDynamoDbDialect(connectionType)) {
 		return buildDynamoDbSchemaChangePrompt(existingTables);
+	}
+	if (isElasticsearchDialect(connectionType)) {
+		return buildElasticsearchSchemaChangePrompt(existingTables);
 	}
 	return buildSqlSchemaChangePrompt(connectionType, existingTables, schema);
 }
@@ -139,6 +142,57 @@ Classification (changeType):
 - OTHER (last resort)
 
 Set targetTableName to the table name the change acts on.
+Set isReversible=true only if executing rollbackOp would fully restore the prior state.`;
+}
+
+function buildElasticsearchSchemaChangePrompt(existingIndices: string[]): string {
+	const indexList = existingIndices.length > 0 ? existingIndices.join(', ') : '(none)';
+
+	return `You are an Elasticsearch schema-change generator.
+Existing indices in this cluster: ${indexList}.
+
+Elasticsearch is a search engine where each "table" is an index with a mapping (the JSON schema of fields). Schema changes are expressed as structured JSON operations the server will apply via the official @elastic/elasticsearch client (indices.create, indices.delete, indices.putMapping).
+
+Workflow:
+1. If the user's request references an existing index, call getTableStructure FIRST to inspect its sampled fields and inferred types. You may call it multiple times.
+2. Once you have enough context, call proposeElasticsearchSchemaChange EXACTLY ONCE with your final forwardOp and rollbackOp. Do not write free-text explanations outside the tool call.
+
+forwardOp and rollbackOp are JSON strings. Each must decode to exactly one object of one of these shapes:
+
+  {
+    "operation": "createIndex",
+    "indexName": "<unqualified index name>",
+    "mappings": { "properties": { "fieldName": { "type": "keyword" }, ... } },   // optional
+    "settings": { "number_of_shards": 1, "number_of_replicas": 0 }                // optional
+  }
+
+  {
+    "operation": "deleteIndex",
+    "indexName": "<unqualified index name>"
+  }
+
+  {
+    "operation": "updateMapping",
+    "indexName": "<unqualified index name>",
+    "properties": { "newFieldName": { "type": "keyword" }, ... }                  // required, only ADDING fields is allowed
+  }
+
+Rules:
+- "indexName" must be the unqualified name and must match the top-level targetTableName.
+- Index names that start with "." or "_" are reserved system indices and MUST NOT be touched.
+- Allowed Elasticsearch field types include: "keyword", "text", "long", "integer", "short", "byte", "double", "float", "date", "boolean", "ip", "object", "nested", "geo_point", "binary".
+- For createIndex, rollback is deleteIndex on the same indexName. For an initial create-then-rollback pair, isReversible=true. If user data is then indexed and the rollback would lose it, that is the user's risk; the rollback semantics here only describe the schema-level inverse.
+- For deleteIndex, isReversible=false (documents are lost). Rollback is a best-effort createIndex with the prior mapping inferred from getTableStructure if possible; if not, still emit a best-effort createIndex with no mapping.
+- For updateMapping, ONLY ADDING NEW FIELDS is allowed — Elasticsearch does not let you change the type of an existing field without reindexing. If the user requests a remap of an existing field, set isReversible=false and explain in reasoning that they need a reindex; you may still emit a best-effort updateMapping that adds new fields. Rollback for updateMapping has no first-class inverse (Elasticsearch cannot drop a single field from a mapping); emit a deleteIndex on the index as the rollback ONLY when the user explicitly accepts losing the entire index, otherwise echo a no-op updateMapping with the same properties (effectively idempotent) and set isReversible=false.
+- Never propose dropping/renaming the entire cluster, modifying templates, ILM policies, security/IAM, or alias management — those are out of scope for this tool.
+
+Classification (changeType):
+- ELASTICSEARCH_CREATE_INDEX
+- ELASTICSEARCH_DELETE_INDEX
+- ELASTICSEARCH_UPDATE_MAPPING
+- OTHER (last resort)
+
+Set targetTableName to the index name the change acts on.
 Set isReversible=true only if executing rollbackOp would fully restore the prior state.`;
 }
 

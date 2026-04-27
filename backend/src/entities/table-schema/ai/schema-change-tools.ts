@@ -4,12 +4,14 @@ import { SchemaChangeTypeEnum } from '../table-schema-change-enums.js';
 export const PROPOSE_SCHEMA_CHANGE_TOOL_NAME = 'proposeSchemaChange';
 export const PROPOSE_MONGO_SCHEMA_CHANGE_TOOL_NAME = 'proposeMongoSchemaChange';
 export const PROPOSE_DYNAMODB_SCHEMA_CHANGE_TOOL_NAME = 'proposeDynamoDbSchemaChange';
+export const PROPOSE_ELASTICSEARCH_SCHEMA_CHANGE_TOOL_NAME = 'proposeElasticsearchSchemaChange';
 export const GET_TABLE_STRUCTURE_TOOL_NAME = 'getTableStructure';
 
 export const TERMINAL_PROPOSAL_TOOL_NAMES: ReadonlySet<string> = new Set([
 	PROPOSE_SCHEMA_CHANGE_TOOL_NAME,
 	PROPOSE_MONGO_SCHEMA_CHANGE_TOOL_NAME,
 	PROPOSE_DYNAMODB_SCHEMA_CHANGE_TOOL_NAME,
+	PROPOSE_ELASTICSEARCH_SCHEMA_CHANGE_TOOL_NAME,
 ]);
 
 export interface ProposeSchemaChangeArgs {
@@ -32,6 +34,10 @@ export function createMongoSchemaChangeTools(): AIToolDefinition[] {
 
 export function createDynamoDbSchemaChangeTools(): AIToolDefinition[] {
 	return [createGetTableStructureTool(), createProposeDynamoDbSchemaChangeTool()];
+}
+
+export function createElasticsearchSchemaChangeTools(): AIToolDefinition[] {
+	return [createGetTableStructureTool(), createProposeElasticsearchSchemaChangeTool()];
 }
 
 function createGetTableStructureTool(): AIToolDefinition {
@@ -131,6 +137,53 @@ function createProposeDynamoDbSchemaChangeTool(): AIToolDefinition {
 					type: 'boolean',
 					description:
 						'False when rolling back cannot exactly restore state (e.g. deleteTable on a populated table). True otherwise.',
+				},
+				summary: {
+					type: 'string',
+					description: 'One-sentence human-readable description of the change.',
+				},
+				reasoning: {
+					type: 'string',
+					description: 'Brief explanation: what it does, why this rollback, any caveats.',
+				},
+			},
+			required: ['forwardOp', 'rollbackOp', 'changeType', 'targetTableName', 'isReversible', 'summary', 'reasoning'],
+			additionalProperties: false,
+		},
+	};
+}
+
+function createProposeElasticsearchSchemaChangeTool(): AIToolDefinition {
+	return {
+		name: PROPOSE_ELASTICSEARCH_SCHEMA_CHANGE_TOOL_NAME,
+		description:
+			'Emit the final Elasticsearch schema change. Call this exactly ONCE with forwardOp and rollbackOp as JSON strings. Each JSON string MUST decode to a single object describing one structured operation (createIndex / deleteIndex / updateMapping).',
+		parameters: {
+			type: 'object',
+			properties: {
+				forwardOp: {
+					type: 'string',
+					description:
+						'JSON string describing the forward operation. Single object with "operation" and "indexName" fields plus op-specific fields (mappings, settings, properties).',
+				},
+				rollbackOp: {
+					type: 'string',
+					description:
+						'JSON string describing the compensating operation. Must be a single object in the same form as forwardOp.',
+				},
+				changeType: {
+					type: 'string',
+					enum: Object.values(SchemaChangeTypeEnum).filter((v) => v.startsWith('ELASTICSEARCH_')),
+					description: 'Classification of the Elasticsearch change.',
+				},
+				targetTableName: {
+					type: 'string',
+					description: 'The Elasticsearch index name the change acts on.',
+				},
+				isReversible: {
+					type: 'boolean',
+					description:
+						'False when rolling back cannot exactly restore state (e.g. deleteIndex on a populated index). True otherwise.',
 				},
 				summary: {
 					type: 'string',

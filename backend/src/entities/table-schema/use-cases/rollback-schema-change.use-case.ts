@@ -17,6 +17,7 @@ import { RollbackSchemaChangeDs } from '../application/data-structures/rollback-
 import { SchemaChangeResponseDto } from '../application/data-transfer-objects/schema-change-response.dto.js';
 import {
 	isDynamoDbSchemaChangeType,
+	isElasticsearchSchemaChangeType,
 	isMongoSchemaChangeType,
 	SchemaChangeStatusEnum,
 	SchemaChangeTypeEnum,
@@ -26,10 +27,12 @@ import {
 	isCassandraDialect,
 	isClickHouseDialect,
 	isDynamoDbDialect,
+	isElasticsearchDialect,
 } from '../utils/assert-dialect-supported.js';
 import { executeCassandraDdl } from '../utils/cassandra-ddl.js';
 import { executeClickHouseDdl } from '../utils/clickhouse-ddl.js';
 import { executeDynamoDbSchemaOp, validateProposedDynamoDbOp } from '../utils/dynamodb-schema-op.js';
+import { executeElasticsearchSchemaOp, validateProposedElasticsearchOp } from '../utils/elasticsearch-schema-op.js';
 import { mapSchemaChangeToResponseDto } from '../utils/map-schema-change-to-response-dto.js';
 import { executeMongoSchemaOp, validateProposedMongoOp } from '../utils/mongo-schema-op.js';
 import { IRollbackSchemaChange } from './table-schema-use-cases.interface.js';
@@ -77,6 +80,8 @@ export class RollbackSchemaChangeUseCase
 
 		const isMongo = isMongoSchemaChangeType(change.changeType);
 		const isDynamoDb = isDynamoDbSchemaChangeType(change.changeType) || isDynamoDbDialect(connectionType);
+		const isElasticsearch =
+			isElasticsearchSchemaChangeType(change.changeType) || isElasticsearchDialect(connectionType);
 		const isClickHouse = isClickHouseDialect(connectionType);
 		const isCassandra = isCassandraDialect(connectionType);
 
@@ -97,6 +102,14 @@ export class RollbackSchemaChangeUseCase
 					allowAnyOperation: true,
 				});
 				await executeDynamoDbSchemaOp(connection, op);
+			} else if (isElasticsearch) {
+				const op = validateProposedElasticsearchOp({
+					opJson: change.rollbackSql,
+					changeType: change.changeType,
+					targetTableName: change.targetTableName,
+					allowAnyOperation: true,
+				});
+				await executeElasticsearchSchemaOp(connection, op);
 			} else if (isClickHouse) {
 				await executeClickHouseDdl(connection, change.rollbackSql);
 			} else if (isCassandra) {

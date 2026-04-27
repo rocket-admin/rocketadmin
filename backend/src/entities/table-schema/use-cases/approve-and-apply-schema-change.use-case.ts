@@ -17,6 +17,7 @@ import { ApproveSchemaChangeDs } from '../application/data-structures/approve-sc
 import { SchemaChangeResponseDto } from '../application/data-transfer-objects/schema-change-response.dto.js';
 import {
 	isDynamoDbSchemaChangeType,
+	isElasticsearchSchemaChangeType,
 	isMongoSchemaChangeType,
 	SchemaChangeStatusEnum,
 } from '../table-schema-change-enums.js';
@@ -25,10 +26,12 @@ import {
 	isCassandraDialect,
 	isClickHouseDialect,
 	isDynamoDbDialect,
+	isElasticsearchDialect,
 } from '../utils/assert-dialect-supported.js';
 import { executeCassandraDdl } from '../utils/cassandra-ddl.js';
 import { executeClickHouseDdl } from '../utils/clickhouse-ddl.js';
 import { executeDynamoDbSchemaOp, validateProposedDynamoDbOp } from '../utils/dynamodb-schema-op.js';
+import { executeElasticsearchSchemaOp, validateProposedElasticsearchOp } from '../utils/elasticsearch-schema-op.js';
 import { mapSchemaChangeToResponseDto } from '../utils/map-schema-change-to-response-dto.js';
 import { executeMongoSchemaOp, validateProposedMongoOp } from '../utils/mongo-schema-op.js';
 import { validateProposedDdl } from '../utils/validate-proposed-ddl.js';
@@ -80,6 +83,8 @@ export class ApproveAndApplySchemaChangeUseCase
 
 		const isMongo = isMongoSchemaChangeType(change.changeType);
 		const isDynamoDb = isDynamoDbSchemaChangeType(change.changeType) || isDynamoDbDialect(connectionType);
+		const isElasticsearch =
+			isElasticsearchSchemaChangeType(change.changeType) || isElasticsearchDialect(connectionType);
 		const isClickHouse = isClickHouseDialect(connectionType);
 		const isCassandra = isCassandraDialect(connectionType);
 
@@ -93,6 +98,12 @@ export class ApproveAndApplySchemaChangeUseCase
 				});
 			} else if (isDynamoDb) {
 				validateProposedDynamoDbOp({
+					opJson: userModifiedSql,
+					changeType: change.changeType,
+					targetTableName: change.targetTableName,
+				});
+			} else if (isElasticsearch) {
+				validateProposedElasticsearchOp({
 					opJson: userModifiedSql,
 					changeType: change.changeType,
 					targetTableName: change.targetTableName,
@@ -135,6 +146,13 @@ export class ApproveAndApplySchemaChangeUseCase
 					targetTableName: change.targetTableName,
 				});
 				await executeDynamoDbSchemaOp(connection, op);
+			} else if (isElasticsearch) {
+				const op = validateProposedElasticsearchOp({
+					opJson: sqlToRun,
+					changeType: change.changeType,
+					targetTableName: change.targetTableName,
+				});
+				await executeElasticsearchSchemaOp(connection, op);
 			} else if (isClickHouse) {
 				await executeClickHouseDdl(connection, sqlToRun);
 			} else if (isCassandra) {
@@ -173,6 +191,14 @@ export class ApproveAndApplySchemaChangeUseCase
 							allowAnyOperation: true,
 						});
 						await executeDynamoDbSchemaOp(connection, rollbackOp);
+					} else if (isElasticsearch) {
+						const rollbackOp = validateProposedElasticsearchOp({
+							opJson: change.rollbackSql,
+							changeType: change.changeType,
+							targetTableName: change.targetTableName,
+							allowAnyOperation: true,
+						});
+						await executeElasticsearchSchemaOp(connection, rollbackOp);
 					} else if (isClickHouse) {
 						await executeClickHouseDdl(connection, change.rollbackSql);
 					} else if (isCassandra) {

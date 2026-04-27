@@ -10,6 +10,7 @@ import { runSchemaChangeAiLoop } from '../ai/run-schema-change-ai-loop.js';
 import { buildSchemaChangePrompt } from '../ai/schema-change-prompts.js';
 import {
 	createDynamoDbSchemaChangeTools,
+	createElasticsearchSchemaChangeTools,
 	createMongoSchemaChangeTools,
 	createSchemaChangeTools,
 } from '../ai/schema-change-tools.js';
@@ -17,12 +18,19 @@ import { GenerateSchemaChangeDs } from '../application/data-structures/generate-
 import { SchemaChangeResponseDto } from '../application/data-transfer-objects/schema-change-response.dto.js';
 import {
 	isDynamoDbSchemaChangeType,
+	isElasticsearchSchemaChangeType,
 	isMongoSchemaChangeType,
 	SchemaChangeStatusEnum,
 	SchemaChangeTypeEnum,
 } from '../table-schema-change-enums.js';
-import { assertDialectSupported, isDynamoDbDialect, isMongoDialect } from '../utils/assert-dialect-supported.js';
+import {
+	assertDialectSupported,
+	isDynamoDbDialect,
+	isElasticsearchDialect,
+	isMongoDialect,
+} from '../utils/assert-dialect-supported.js';
 import { validateProposedDynamoDbOp } from '../utils/dynamodb-schema-op.js';
+import { validateProposedElasticsearchOp } from '../utils/elasticsearch-schema-op.js';
 import { mapSchemaChangeToResponseDto } from '../utils/map-schema-change-to-response-dto.js';
 import { validateProposedMongoOp } from '../utils/mongo-schema-op.js';
 import { validateProposedDdl } from '../utils/validate-proposed-ddl.js';
@@ -74,7 +82,9 @@ export class GenerateSchemaChangeUseCase
 			? createMongoSchemaChangeTools()
 			: isDynamoDbDialect(connectionType)
 				? createDynamoDbSchemaChangeTools()
-				: createSchemaChangeTools();
+				: isElasticsearchDialect(connectionType)
+					? createElasticsearchSchemaChangeTools()
+					: createSchemaChangeTools();
 
 		let proposal;
 		try {
@@ -115,6 +125,20 @@ export class GenerateSchemaChangeUseCase
 			});
 			if (proposal.rollbackSql) {
 				validateProposedDynamoDbOp({
+					opJson: proposal.rollbackSql,
+					changeType: proposal.changeType,
+					targetTableName: proposal.targetTableName,
+					allowAnyOperation: true,
+				});
+			}
+		} else if (isElasticsearchSchemaChangeType(proposal.changeType)) {
+			validateProposedElasticsearchOp({
+				opJson: proposal.forwardSql,
+				changeType: proposal.changeType,
+				targetTableName: proposal.targetTableName,
+			});
+			if (proposal.rollbackSql) {
+				validateProposedElasticsearchOp({
 					opJson: proposal.rollbackSql,
 					changeType: proposal.changeType,
 					targetTableName: proposal.targetTableName,

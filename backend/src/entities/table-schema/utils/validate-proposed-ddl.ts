@@ -56,6 +56,9 @@ const EXPECTED_SHAPES: Record<SchemaChangeTypeEnum, ExpectedShape | null> = {
 	[SchemaChangeTypeEnum.DYNAMODB_DROP_TABLE]: null,
 	[SchemaChangeTypeEnum.DYNAMODB_UPDATE_TABLE]: null,
 	[SchemaChangeTypeEnum.DYNAMODB_UPDATE_TTL]: null,
+	[SchemaChangeTypeEnum.ELASTICSEARCH_CREATE_INDEX]: null,
+	[SchemaChangeTypeEnum.ELASTICSEARCH_DELETE_INDEX]: null,
+	[SchemaChangeTypeEnum.ELASTICSEARCH_UPDATE_MAPPING]: null,
 	[SchemaChangeTypeEnum.ROLLBACK]: null,
 	[SchemaChangeTypeEnum.OTHER]: null,
 };

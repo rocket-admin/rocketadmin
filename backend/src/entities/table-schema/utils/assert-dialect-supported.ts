@@ -14,6 +14,7 @@ const SUPPORTED_DIALECTS: ReadonlySet<ConnectionTypesEnum> = new Set([
 	ConnectionTypesEnum.dynamodb,
 	ConnectionTypesEnum.cassandra,
 	ConnectionTypesEnum.agent_cassandra,
+	ConnectionTypesEnum.elasticsearch,
 ]);
 
 export function isDialectSupported(connectionType: ConnectionTypesEnum): boolean {
@@ -23,7 +24,7 @@ export function isDialectSupported(connectionType: ConnectionTypesEnum): boolean
 export function assertDialectSupported(connectionType: ConnectionTypesEnum): void {
 	if (!isDialectSupported(connectionType)) {
 		throw new BadRequestException(
-			`Schema changes via AI are not yet supported for "${connectionType}". Supported: PostgreSQL, MySQL, Microsoft SQL Server, Oracle DB, IBM DB2, MongoDB, ClickHouse, DynamoDB, Cassandra.`,
+			`Schema changes via AI are not yet supported for "${connectionType}". Supported: PostgreSQL, MySQL, Microsoft SQL Server, Oracle DB, IBM DB2, MongoDB, ClickHouse, DynamoDB, Cassandra, Elasticsearch.`,
 		);
 	}
 }
@@ -42,6 +43,10 @@ export function isDynamoDbDialect(connectionType: ConnectionTypesEnum): boolean 
 
 export function isCassandraDialect(connectionType: ConnectionTypesEnum): boolean {
 	return connectionType === ConnectionTypesEnum.cassandra || connectionType === ConnectionTypesEnum.agent_cassandra;
+}
+
+export function isElasticsearchDialect(connectionType: ConnectionTypesEnum): boolean {
+	return connectionType === ConnectionTypesEnum.elasticsearch;
 }
 
 const SQL_PARSER_DIALECTS: Record<string, string> = {

@@ -122,6 +122,8 @@ export function convertDbTypeToReadableString(dataType: ConnectionTypesEnum): st
 		case ConnectionTypesEnum.cassandra:
 		case ConnectionTypesEnum.agent_cassandra:
 			return 'Cassandra';
+		case ConnectionTypesEnum.elasticsearch:
+			return 'Elasticsearch';
 		default:
 			return 'Unknown Database';
 	}
