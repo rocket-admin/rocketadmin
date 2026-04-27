@@ -8,8 +8,8 @@
         [validateType]="validateType"
         [regexPattern]="regexPattern"
         attr.data-testid="record-{{label()}}-text"
-        [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
-    @if (maxLength && maxLength > 0 && value() && (maxLength - value().length) < 100) {
+        [(ngModel)]="value" (ngModelChange)="handleValueChange($event)">
+    @if (maxLength && maxLength > 0 && value() && 100 > (maxLength - value().length)) {
         <div matSuffix class="counter">{{value().length}} / {{maxLength}}</div>
     }
     @if (textField.errors?.['required']) {

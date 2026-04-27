@@ -20,6 +20,7 @@ export class TextEditComponent extends BaseEditFieldComponent implements OnInit 
 	maxLength: number | null = null;
 	validateType: string | null = null;
 	regexPattern: string | null = null;
+	forceSendEmptyString: boolean = false;
 
 	override ngOnInit(): void {
 		super.ngOnInit();
@@ -35,7 +36,16 @@ export class TextEditComponent extends BaseEditFieldComponent implements OnInit 
 
 			this.validateType = params.validate || null;
 			this.regexPattern = params.regex || null;
+			this.forceSendEmptyString = !!params.force_send_empty_string;
 		}
+	}
+
+	handleValueChange(v: string | null): void {
+		if (v === '' && !this.forceSendEmptyString && this.structure()?.allow_null === true) {
+			this.onFieldChange.emit(null);
+			return;
+		}
+		this.onFieldChange.emit(v);
 	}
 
 	getValidationErrorMessage(): string {
