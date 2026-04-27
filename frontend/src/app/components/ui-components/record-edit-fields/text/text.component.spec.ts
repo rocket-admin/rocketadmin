@@ -46,7 +46,9 @@ describe('TextEditComponent', () => {
 	});
 
 	it('should parse regexPattern from widget params', () => {
-		fixture.componentRef.setInput('widgetStructure', { widget_params: { validate: 'regex', regex: '^[a-z]+$' } } as any);
+		fixture.componentRef.setInput('widgetStructure', {
+			widget_params: { validate: 'regex', regex: '^[a-z]+$' },
+		} as any);
 		component.ngOnInit();
 		expect(component.regexPattern).toBe('^[a-z]+$');
 	});
@@ -79,5 +81,50 @@ describe('TextEditComponent', () => {
 	it('should return fallback message for unknown validateType', () => {
 		component.validateType = 'customValidator';
 		expect(component.getValidationErrorMessage()).toBe('Invalid customValidator');
+	});
+
+	it('should default forceSendEmptyString to false when widget_params omits the key', () => {
+		fixture.componentRef.setInput('widgetStructure', { widget_params: { validate: null, regex: null } } as any);
+		component.ngOnInit();
+		expect(component.forceSendEmptyString).toBe(false);
+	});
+
+	it('should emit null on empty input when column is nullable and force_send_empty_string is not set', () => {
+		fixture.componentRef.setInput('structure', { allow_null: true } as any);
+		component.ngOnInit();
+		const emitted: any[] = [];
+		component.onFieldChange.subscribe((v) => emitted.push(v));
+		component.handleValueChange('');
+		expect(emitted).toEqual([null]);
+	});
+
+	it('should emit empty string on empty input when column is not nullable', () => {
+		fixture.componentRef.setInput('structure', { allow_null: false } as any);
+		component.ngOnInit();
+		const emitted: any[] = [];
+		component.onFieldChange.subscribe((v) => emitted.push(v));
+		component.handleValueChange('');
+		expect(emitted).toEqual(['']);
+	});
+
+	it('should emit empty string on empty input when force_send_empty_string is true even on nullable column', () => {
+		fixture.componentRef.setInput('structure', { allow_null: true } as any);
+		fixture.componentRef.setInput('widgetStructure', {
+			widget_params: { force_send_empty_string: true },
+		} as any);
+		component.ngOnInit();
+		const emitted: any[] = [];
+		component.onFieldChange.subscribe((v) => emitted.push(v));
+		component.handleValueChange('');
+		expect(emitted).toEqual(['']);
+	});
+
+	it('should emit non-empty value unchanged regardless of nullability', () => {
+		fixture.componentRef.setInput('structure', { allow_null: true } as any);
+		component.ngOnInit();
+		const emitted: any[] = [];
+		component.onFieldChange.subscribe((v) => emitted.push(v));
+		component.handleValueChange('hello');
+		expect(emitted).toEqual(['hello']);
 	});
 });

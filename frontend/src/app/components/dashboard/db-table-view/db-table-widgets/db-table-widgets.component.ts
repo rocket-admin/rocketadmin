@@ -230,9 +230,12 @@ export class DbTableWidgetsComponent implements OnInit {
 // isCurrency, isBtcAddress, isISO8601, isISO31661Alpha2, isISO31661Alpha3, isISO4217,
 // isDataURI, isMagnetURI, isMimeType, isLatLong, isSlug, isStrongPassword, isTaxID, isVAT
 // OR use "regex" with a regex parameter for custom pattern matching
+// force_send_empty_string: when true, always send "" to the backend on clear,
+// even if the column is nullable. Default false (cleared input becomes NULL on nullable columns).
 {
   "validate": null,
-  "regex": null
+  "regex": null,
+  "force_send_empty_string": false
 }`,
 		Textarea: `// provide number of strings to show.
 {
