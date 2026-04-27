@@ -320,11 +320,12 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 
 					if (!identityColumnsMap) continue;
 
-					const identityForCurrentValue = identityColumnsMap.get(row[element.currentFKeyName]);
+					const originalValue = row[element.currentFKeyName];
+					const identityForCurrentValue = identityColumnsMap.get(originalValue);
 					row[element.currentFKeyName] =
 						typeof identityForCurrentValue === 'object' && identityForCurrentValue !== null
 							? identityForCurrentValue
-							: {};
+							: originalValue;
 				}
 			}
 
