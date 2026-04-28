@@ -8,12 +8,12 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { IRequestWithCognitoInfo } from '../../../authorization/index.js';
-import { Messages } from '../../../exceptions/text/messages.js';
-import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
-import { CedarAction } from '../../cedar-authorization/cedar-action-map.js';
-import { CedarAuthorizationService } from '../../cedar-authorization/cedar-authorization.service.js';
-import { TableSchemaChangeEntity } from '../table-schema-change.entity.js';
+import { IRequestWithCognitoInfo } from '../authorization/index.js';
+import { CedarAction } from '../entities/cedar-authorization/cedar-action-map.js';
+import { CedarAuthorizationService } from '../entities/cedar-authorization/cedar-authorization.service.js';
+import { TableSchemaChangeEntity } from '../entities/table-schema/table-schema-change.entity.js';
+import { Messages } from '../exceptions/text/messages.js';
+import { ValidationHelper } from '../helpers/validators/validation-helper.js';
 
 @Injectable()
 export class SchemaChangeBatchOwnershipGuard implements CanActivate {

@@ -16,7 +16,11 @@ import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { MasterPassword } from '../../decorators/master-password.decorator.js';
 import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
 import { UserId } from '../../decorators/user-id.decorator.js';
-import { ConnectionEditGuard } from '../../guards/index.js';
+import {
+	ConnectionEditGuard,
+	SchemaChangeBatchOwnershipGuard,
+	SchemaChangeOwnershipGuard,
+} from '../../guards/index.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { ApproveBatchSchemaChangeDto } from './application/data-transfer-objects/approve-batch-schema-change.dto.js';
 import { ApproveSchemaChangeDto } from './application/data-transfer-objects/approve-schema-change.dto.js';
@@ -36,8 +40,6 @@ import {
 	IRollbackBatchSchemaChange,
 	IRollbackSchemaChange,
 } from './use-cases/table-schema-use-cases.interface.js';
-import { SchemaChangeBatchOwnershipGuard } from './utils/schema-change-batch-ownership.guard.js';
-import { SchemaChangeOwnershipGuard } from './utils/schema-change-ownership.guard.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()

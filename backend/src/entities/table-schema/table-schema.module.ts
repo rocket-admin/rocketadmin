@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthMiddleware } from '../../authorization/auth.middleware.js';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
+import { SchemaChangeBatchOwnershipGuard, SchemaChangeOwnershipGuard } from '../../guards/index.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
 import { LogOutEntity } from '../log-out/log-out.entity.js';
 import { UserEntity } from '../user/user.entity.js';
@@ -18,8 +19,6 @@ import { RejectBatchSchemaChangesUseCase } from './use-cases/reject-batch-schema
 import { RejectSchemaChangeUseCase } from './use-cases/reject-schema-change.use-case.js';
 import { RollbackBatchSchemaChangesUseCase } from './use-cases/rollback-batch-schema-changes.use-case.js';
 import { RollbackSchemaChangeUseCase } from './use-cases/rollback-schema-change.use-case.js';
-import { SchemaChangeBatchOwnershipGuard } from './utils/schema-change-batch-ownership.guard.js';
-import { SchemaChangeOwnershipGuard } from './utils/schema-change-ownership.guard.js';
 
 @Module({
 	imports: [TypeOrmModule.forFeature([TableSchemaChangeEntity, ConnectionEntity, UserEntity, LogOutEntity])],
