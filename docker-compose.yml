@@ -23,7 +23,7 @@ services:
       - cassandra-init
       - test-cassandra-e2e-testing
       - test-redis-e2e-testing
-      - clickhouse-e2e-testing
+      - test-clickhouse-e2e-testing
     links:
       - postgres
       - testMySQL-e2e-testing
@@ -36,7 +36,7 @@ services:
       - test-elasticsearch-e2e-testing
       - test-cassandra-e2e-testing
       - test-redis-e2e-testing
-      - clickhouse-e2e-testing
+      - test-clickhouse-e2e-testing
     command: ["pnpm", "start"]
 
   testMySQL-e2e-testing:
@@ -170,11 +170,21 @@ services:
       - discovery.type=single-node
       - ELASTIC_PASSWORD=SuperSecretElasticPassword
       - xpack.security.enabled=true
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9200"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s -u elastic:SuperSecretElasticPassword http://localhost:9200/_cluster/health | grep -E '\"status\":\"(green|yellow)\"'",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
 
   test-cassandra-e2e-testing:
     image: cassandra:5.0.4
@@ -223,8 +233,9 @@ services:
       timeout: 10s
       retries: 3
 
-  clickhouse-e2e-testing:
-    image: clickhouse/clickhouse-server:latest
+  test-clickhouse-e2e-testing:
+    image: clickhouse/clickhouse-server:24.8
+    restart: unless-stopped
     ports:
       - 8123:8123
       - 9000:9000
@@ -238,10 +249,18 @@ services:
         soft: 262144
         hard: 262144
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8123/ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      test:
+        [
+          "CMD",
+          "clickhouse-client",
+          "--user=default",
+          "--password=clickhouse_password",
+          "--query=SELECT 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
 
   # === Postgres Proxy E2E Testing ===
 
@@ -453,10 +472,10 @@ services:
       - ./rocketadmin-agent/src:/app/src
     links:
       - autoadmin-ws-server
-      - clickhouse-e2e-testing
+      - test-clickhouse-e2e-testing
     depends_on:
       - autoadmin-ws-server
-      - clickhouse-e2e-testing
+      - test-clickhouse-e2e-testing
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.clickhouse_test_agent_config.txt

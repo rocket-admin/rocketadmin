@@ -108,7 +108,7 @@ export class MockFactory {
 		const dto = new CreateConnectionDto() as any;
 		dto.title = 'Test connection to ClickHouse in Docker';
 		dto.type = 'clickhouse';
-		dto.host = 'clickhouse-e2e-testing';
+		dto.host = 'test-clickhouse-e2e-testing';
 		dto.port = 8123;
 		dto.username = 'default';
 		dto.password = 'clickhouse_password';
