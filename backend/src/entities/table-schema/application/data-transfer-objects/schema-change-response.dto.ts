@@ -63,9 +63,6 @@ export class SchemaChangeResponseDto {
 	@ApiProperty({ required: false, nullable: true })
 	aiReasoning: string | null;
 
-	@ApiProperty({ required: false, nullable: true })
-	aiModelUsed: string | null;
-
 	@ApiProperty()
 	createdAt: Date;
 

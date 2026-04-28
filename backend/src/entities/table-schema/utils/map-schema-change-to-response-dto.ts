@@ -23,7 +23,6 @@ export function mapSchemaChangeToResponseDto(entity: TableSchemaChangeEntity): S
 		userPrompt: entity.userPrompt,
 		aiSummary: entity.aiSummary,
 		aiReasoning: entity.aiReasoning,
-		aiModelUsed: entity.aiModelUsed,
 		createdAt: entity.createdAt,
 		appliedAt: entity.appliedAt,
 		rolledBackAt: entity.rolledBackAt,
