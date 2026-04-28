@@ -6,7 +6,7 @@
     "azure_encryption": false,
     "cert": null,
     "database": "testdb",
-    "host": "clickhouse-e2e-testing",
+    "host": "test-clickhouse-e2e-testing",
     "password": "clickhouse_password",
     "port": 8123,
     "token": "CLICKHOUSE-TEST-AGENT-TOKEN",

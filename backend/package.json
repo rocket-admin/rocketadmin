@@ -79,6 +79,7 @@
 		"langchain": "^1.2.34",
 		"lru-cache": "^11.2.7",
 		"nanoid": "5.1.7",
+		"node-sql-parser": "^5.3.0",
 		"nodemailer": "^8.0.4",
 		"nunjucks": "^3.2.4",
 		"openai": "^6.32.0",
