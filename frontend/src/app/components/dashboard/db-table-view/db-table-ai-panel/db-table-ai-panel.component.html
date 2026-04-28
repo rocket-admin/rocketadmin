@@ -9,10 +9,10 @@
             <span *ngIf="!isExpanded">AI insights</span>
         </h2>
         <div class="ai-panel-sidebar__actions">
-            <button mat-icon-button (click)="toggleExpand()">
+            <button type="button" mat-icon-button (click)="toggleExpand()">
                 <mat-icon>{{isExpanded ? 'close_fullscreen' : 'open_in_full'}}</mat-icon>
             </button>
-            <button mat-icon-button (click)="handleClose()">
+            <button type="button" mat-icon-button (click)="handleClose()">
                 <mat-icon>close</mat-icon>
             </button>
         </div>
@@ -23,7 +23,10 @@
             <div class="ai-message-chain">
                 <div *ngFor="let message of messagesChain" class="{{message.type}}-message">
                     <span style="white-space: pre-wrap" *ngIf="message.type == 'user'">{{message.text}}</span>
-                    <markdown *ngIf="message.type == 'ai'" mermaid [data]="message.text"></markdown>
+                    <ng-container *ngIf="message.type == 'ai'">
+                        <div *ngIf="message.thinking && !message.text" class="ai-thinking">{{ message.thinking }}</div>
+                        <markdown *ngIf="message.text" mermaid [data]="message.text"></markdown>
+                    </ng-container>
                 </div>
             </div>
         </div>
@@ -54,7 +57,7 @@
 
                         <div class="ai-completions" *ngIf="showCompletions && activeCompletions.length"
                             (mouseleave)="onCompletionMouseLeave()">
-                            <button *ngFor="let completion of activeCompletions"
+                            <button type="button" *ngFor="let completion of activeCompletions"
                                 class="ai-completion-item"
                                 (mouseenter)="onCompletionHover(completion)"
                                 (mousedown)="selectCompletion(completion)">
@@ -67,7 +70,7 @@
                         <div class="ai-category" *ngFor="let category of suggestionCategories">
                             <p class="ai-category__title">{{category.title}}</p>
                             <div class="ai-category__chips">
-                                <button *ngFor="let suggestion of category.suggestions"
+                                <button type="button" *ngFor="let suggestion of category.suggestions"
                                     class="suggestion-chip"
                                     [class.suggestion-chip_active]="activeSuggestion?.title === suggestion.title"
                                     (click)="onSuggestionChipClick(suggestion)">

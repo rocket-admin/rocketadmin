@@ -1,0 +1,15 @@
+.filter-row {
+	display: flex;
+	gap: 8px;
+	align-items: flex-start;
+	width: 100%;
+}
+
+.comparator-field {
+	flex: 0 0 auto;
+	min-width: 150px;
+}
+
+.value-field {
+	flex: 1;
+}

@@ -13,11 +13,7 @@ import Sentry from '@sentry/minimal';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import {
-	AmplitudeEventTypeEnum,
-	LogOperationTypeEnum,
-	OperationResultStatusEnum,
-} from '../../../enums/index.js';
+import { AmplitudeEventTypeEnum, LogOperationTypeEnum, OperationResultStatusEnum } from '../../../enums/index.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
@@ -25,6 +21,7 @@ import { hexToBinary, isBinary } from '../../../helpers/binary-to-hex.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { isObjectEmpty } from '../../../helpers/index.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
+import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { buildActionEventDto } from '../../table-actions/table-action-rules-module/utils/build-found-action-event-dto.util.js';
 import { buildCreatedTableFilterRO } from '../../table-filters/utils/build-created-table-filters-response-object.util.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
@@ -33,6 +30,10 @@ import { PersonalTableSettingsEntity } from '../../table-settings/personal-table
 import { FoundTableRowsDs } from '../application/data-structures/found-table-rows.ds.js';
 import { GetTableRowsDs } from '../application/data-structures/get-table-rows.ds.js';
 import { FilteringFieldsDs } from '../table-datastructures.js';
+import { attachForeignColumnNames } from '../utils/attach-foreign-column-names.util.js';
+import { buildTableSettingsForResponse } from '../utils/build-table-settings-for-response.util.js';
+import { extractForeignKeysFromWidgets } from '../utils/extract-foreign-keys-from-widgets.util.js';
+import { filterForeignKeysByReadPermission } from '../utils/filter-foreign-keys-by-permission.util.js';
 import { findAutocompleteFieldsUtil } from '../utils/find-autocomplete-fields.util.js';
 import { findAvailableFields } from '../utils/find-available-fields.utils.js';
 import { findFilteringFieldsUtil, parseFilteringFieldsFromBodyData } from '../utils/find-filtering-fields.util.js';
@@ -40,13 +41,8 @@ import { findOrderingFieldUtil } from '../utils/find-ordering-field.util.js';
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
 import { isHexString } from '../utils/is-hex-string.js';
 import { processRowsUtil } from '../utils/process-found-rows-util.js';
-import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
+import { getUserEmailForAgent, validateConnection } from '../utils/validate-connection.util.js';
 import { IGetTableRows } from './table-use-cases.interface.js';
-import { validateConnection, getUserEmailForAgent } from '../utils/validate-connection.util.js';
-import { extractForeignKeysFromWidgets } from '../utils/extract-foreign-keys-from-widgets.util.js';
-import { filterForeignKeysByReadPermission } from '../utils/filter-foreign-keys-by-permission.util.js';
-import { attachForeignColumnNames } from '../utils/attach-foreign-column-names.util.js';
-import { buildTableSettingsForResponse } from '../utils/build-table-settings-for-response.util.js';
 
 @Injectable()
 export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTableRowsDs> implements IGetTableRows {
@@ -166,22 +162,31 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 				Sentry.captureException(e);
 				throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_ROWS_FROM_TABLE);
 			}
-			rows = processRowsUtil(rows, tableWidgets, tableStructure, tableCustomFields);
+			rows = processRowsUtil(rows, tableWidgets, tableCustomFields);
 
 			const foreignKeysFromWidgets = extractForeignKeysFromWidgets(tableWidgets);
 
 			tableForeignKeys = [...tableForeignKeys, ...foreignKeysFromWidgets];
 
 			tableForeignKeys = await filterForeignKeysByReadPermission(
-				tableForeignKeys, userId, connectionId, masterPwd, this.cedarPermissions,
+				tableForeignKeys,
+				userId,
+				connectionId,
+				masterPwd,
+				this.cedarPermissions,
 			);
 
 			if (tableForeignKeys && tableForeignKeys.length > 0) {
 				tableForeignKeys = await Promise.all(
 					tableForeignKeys.map((el) =>
 						attachForeignColumnNames(
-							el, userEmail, connectionId, dao,
-							this._dbContext.tableSettingsRepository.findTableSettingsPure.bind(this._dbContext.tableSettingsRepository),
+							el,
+							userEmail,
+							connectionId,
+							dao,
+							this._dbContext.tableSettingsRepository.findTableSettingsPure.bind(
+								this._dbContext.tableSettingsRepository,
+							),
 						).catch(() => el),
 					),
 				);
@@ -315,11 +320,12 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 
 					if (!identityColumnsMap) continue;
 
-					const identityForCurrentValue = identityColumnsMap.get(row[element.currentFKeyName]);
+					const originalValue = row[element.currentFKeyName];
+					const identityForCurrentValue = identityColumnsMap.get(originalValue);
 					row[element.currentFKeyName] =
 						typeof identityForCurrentValue === 'object' && identityForCurrentValue !== null
 							? identityForCurrentValue
-							: {};
+							: originalValue;
 				}
 			}
 

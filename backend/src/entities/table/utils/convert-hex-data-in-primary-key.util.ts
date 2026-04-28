@@ -1,5 +1,5 @@
 import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
-import { hexToBinary } from '../../../helpers/binary-to-hex.js';
+import { toBinaryBuffer } from '../../../helpers/binary-to-hex.js';
 import { isBinary } from '../../../helpers/index.js';
 
 export function convertHexDataInPrimaryKeyUtil(
@@ -10,9 +10,8 @@ export function convertHexDataInPrimaryKeyUtil(
 
 	for (const column of binaryColumns) {
 		const columnValue = primaryKey[column.column_name];
-		if (columnValue) {
-			primaryKey[column.column_name] = hexToBinary(columnValue as string);
-		}
+		if (columnValue == null || columnValue === '') continue;
+		primaryKey[column.column_name] = toBinaryBuffer(columnValue);
 	}
 
 	return primaryKey;

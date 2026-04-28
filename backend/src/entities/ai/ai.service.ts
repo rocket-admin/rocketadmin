@@ -45,6 +45,7 @@ interface AIGeneratedTableSettings {
 	columns_view: string[];
 	ordering: string;
 	ordering_field: string;
+	identity_column: string | null;
 	widgets: Array<{
 		field_name: string;
 		widget_type: string;
@@ -135,6 +136,7 @@ For each table, provide:
 5. ordering: Default sort order - either "ASC" or "DESC" (use "DESC" for tables with timestamps to show newest first)
 6. ordering_field: Column name to sort by default (prefer created_at, updated_at, or primary key)
 7. widgets: For each column, suggest the best widget type from: ${widgetTypes}
+8. identity_column: The column that best identifies a row in human-readable format. This is shown when other tables reference this table via foreign keys, so users see meaningful data instead of just IDs. Choose columns like: name, title, email, username, full_name, label, or any descriptive text field. If no good candidate exists, use null. 
 
 Available widget types and when to use them:
 
@@ -214,16 +216,11 @@ TIMEZONE WIDGET:
 - Use for: timezone, tz columns
 - Params: {"allow_null": false}
 
-FOREIGN_KEY WIDGET:
-- Use ONLY for columns that reference another table but are NOT detected as foreign keys
-- Skip if foreign key is already detected in table structure
-- Params: {"column_name": "user_id", "referenced_table_name": "users", "referenced_column_name": "id"}
-
 WIDGET SELECTION RULES:
 1. Match widget type to column data type AND column name semantics
-2. For password/hash columns: Always use Password with encrypt:true and detect algorithm from hash pattern
-3. For status/type/category columns: Use Select with sensible options inferred from column name
-4. For columns ending in _id that aren't foreign keys: Consider Foreign_key widget
+2. DO NOT generate widgets for columns that are foreign keys (listed in the Foreign Keys section) - they are handled automatically by the system
+3. For password/hash columns: Always use Password with encrypt:true and detect algorithm from hash pattern
+4. For status/type/category columns: Use Select with sensible options inferred from column name
 5. For columns named email, phone, url, etc.: Use specialized widgets (String with isEmail validator, Phone, URL)
 6. For auto_increment or primary key columns: Use Readonly
 7. Provide widget_params only when the widget type benefits from configuration
@@ -242,6 +239,7 @@ Respond ONLY with valid JSON in this exact format (no markdown, no explanations)
       "columns_view": ["id", "name", "email", "created_at"],
       "ordering": "DESC",
       "ordering_field": "created_at",
+      "identity_column": "name",
       "widgets": [
         {
           "field_name": "id",
@@ -300,10 +298,14 @@ IMPORTANT:
 		return aiResponse.tables.map((tableSettings) => {
 			const tableInfo = tablesInformation.find((t) => t.table_name === tableSettings.table_name);
 			const validColumnNames = tableInfo?.structure.map((col) => col.column_name) || [];
+			const foreignKeyColumns = new Set(tableInfo?.foreignKeys.map((fk) => fk.column_name) || []);
 
 			const requiredFieldsWithoutDefault = new Set(
 				tableInfo?.structure
-					.filter((col) => !col.allow_null && col.column_default === null && !checkFieldAutoincrement(col.column_default, col.extra))
+					.filter(
+						(col) =>
+							!col.allow_null && col.column_default === null && !checkFieldAutoincrement(col.column_default, col.extra),
+					)
 					.map((col) => col.column_name) || [],
 			);
 
@@ -325,8 +327,12 @@ IMPORTANT:
 			settings.ordering_field = validColumnNames.includes(tableSettings.ordering_field)
 				? tableSettings.ordering_field
 				: null;
+			settings.identity_column =
+				tableSettings.identity_column && validColumnNames.includes(tableSettings.identity_column)
+					? tableSettings.identity_column
+					: null;
 			settings.table_widgets = tableSettings.widgets
-				.filter((w) => validColumnNames.includes(w.field_name))
+				.filter((w) => validColumnNames.includes(w.field_name) && !foreignKeyColumns.has(w.field_name))
 				.map((widgetData) => {
 					const widgetType = this.mapWidgetType(widgetData.widget_type);
 					if (!widgetType || widgetType === WidgetTypeEnum.Foreign_key) {

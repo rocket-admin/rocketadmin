@@ -3,6 +3,7 @@ import { LongTextFilterComponent } from 'src/app/components/ui-components/filter
 import { NumberFilterComponent } from 'src/app/components/ui-components/filter-fields/number/number.component';
 import { PointFilterComponent } from 'src/app/components/ui-components/filter-fields/point/point.component';
 import { TextFilterComponent } from 'src/app/components/ui-components/filter-fields/text/text.component';
+import { BinaryFilterComponent } from '../components/ui-components/filter-fields/binary/binary.component';
 import { CountryFilterComponent } from '../components/ui-components/filter-fields/country/country.component';
 import { DateFilterComponent } from '../components/ui-components/filter-fields/date/date.component';
 import { DateTimeFilterComponent } from '../components/ui-components/filter-fields/date-time/date-time.component';
@@ -25,6 +26,7 @@ export const UIwidgets = {
 	Country: CountryFilterComponent,
 	Date: DateFilterComponent,
 	DateTime: DateTimeFilterComponent,
+	Binary: BinaryFilterComponent,
 	File: FileFilterComponent,
 	Foreign_key: ForeignKeyFilterComponent,
 	JSON: JsonEditorFilterComponent,
@@ -83,8 +85,8 @@ export const filterTypes = {
 		json: JsonEditorFilterComponent, //json-editor
 		jsonb: JsonEditorFilterComponent, //json-editor
 
-		//file
-		bytea: FileFilterComponent,
+		//binary
+		bytea: BinaryFilterComponent,
 
 		//etc
 		money: TextFilterComponent,
@@ -136,13 +138,13 @@ export const filterTypes = {
 		//select (select)
 		enum: SelectFilterComponent,
 
-		//file
-		binary: FileFilterComponent,
-		varbinary: FileFilterComponent,
-		blob: FileFilterComponent,
-		tinyblob: FileFilterComponent,
-		mediumblob: FileFilterComponent,
-		longblob: FileFilterComponent,
+		//binary
+		binary: BinaryFilterComponent,
+		varbinary: BinaryFilterComponent,
+		blob: BinaryFilterComponent,
+		tinyblob: BinaryFilterComponent,
+		mediumblob: BinaryFilterComponent,
+		longblob: BinaryFilterComponent,
 
 		//etc
 		set: TextFilterComponent, //(text)
@@ -172,12 +174,12 @@ export const filterTypes = {
 		VARCHAR: TextFilterComponent,
 		NVARCHAR2: TextFilterComponent,
 
-		//file
-		BLOB: FileFilterComponent,
-		BFILE: FileFilterComponent,
-		RAW: FileFilterComponent,
-		'LONG RAW': FileFilterComponent,
-		LONG: FileFilterComponent,
+		//binary
+		BLOB: BinaryFilterComponent,
+		BFILE: BinaryFilterComponent,
+		RAW: BinaryFilterComponent,
+		'LONG RAW': BinaryFilterComponent,
+		LONG: BinaryFilterComponent,
 
 		'foreign key': ForeignKeyFilterComponent,
 	},
@@ -210,10 +212,10 @@ export const filterTypes = {
 		smalldatetime: DateTimeFilterComponent,
 		timestamp: DateTimeFilterComponent,
 
-		//file
-		binary: FileFilterComponent,
-		varbinary: FileFilterComponent,
-		image: FileFilterComponent,
+		//binary
+		binary: BinaryFilterComponent,
+		varbinary: BinaryFilterComponent,
+		image: BinaryFilterComponent,
 
 		// etc
 		money: TextFilterComponent,
@@ -241,8 +243,8 @@ export const filterTypes = {
 		regexp: TextFilterComponent,
 		objectid: TextFilterComponent,
 
-		//file
-		binary: FileFilterComponent,
+		//binary
+		binary: BinaryFilterComponent,
 
 		//json
 		//json
@@ -258,7 +260,7 @@ export const filterTypes = {
 		null: StaticTextFilterComponent,
 		array: JsonEditorFilterComponent,
 		json: JsonEditorFilterComponent,
-		binary: FileFilterComponent,
+		binary: BinaryFilterComponent,
 	},
 	cassandra: {
 		int: NumberFilterComponent,
@@ -281,6 +283,9 @@ export const filterTypes = {
 		inet: TextFilterComponent,
 		ascii: TextFilterComponent,
 		text: TextFilterComponent,
+
+		//binary
+		blob: BinaryFilterComponent,
 
 		list: JsonEditorFilterComponent,
 		map: JsonEditorFilterComponent,

@@ -135,6 +135,7 @@ export class KnexManager {
 					password: password,
 					database: database,
 					port: port,
+					application_name: 'rocketadmin',
 				},
 			});
 			return newKnex;

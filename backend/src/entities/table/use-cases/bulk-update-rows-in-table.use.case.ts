@@ -9,13 +9,14 @@ import { OperationResultStatusEnum } from '../../../enums/operation-result-statu
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { validateConnection, getUserEmailForAgent } from '../utils/validate-connection.util.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { UpdateRowsInTableDs } from '../application/data-structures/update-rows-in-table.ds.js';
 import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util.js';
+import { convertHexDataInRowUtil } from '../utils/convert-hex-data-in-row.util.js';
 import { hashPasswordsInRowUtil } from '../utils/hash-passwords-in-row.util.js';
 import { processUuidsInRowUtil } from '../utils/process-uuids-in-row-util.js';
+import { getUserEmailForAgent, validateConnection } from '../utils/validate-connection.util.js';
 import { IBulkUpdateRowsInTable } from './table-use-cases.interface.js';
 
 @Injectable()
@@ -94,6 +95,7 @@ export class BulkUpdateRowsInTableUseCase
 		try {
 			let processedNewValues = await hashPasswordsInRowUtil(newValues, tableWidgets);
 			processedNewValues = processUuidsInRowUtil(processedNewValues, tableWidgets);
+			processedNewValues = convertHexDataInRowUtil(processedNewValues, tableStructure);
 			await dao.bulkUpdateRowsInTable(tableName, processedNewValues, primaryKeys, userEmail);
 			operationResult = OperationResultStatusEnum.successfully;
 			return {

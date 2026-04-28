@@ -1,0 +1,34 @@
+<mat-form-field appearance="outline" class="binary-edit">
+    <mat-label>{{ normalizedLabel() }} ({{ encoding() }})</mat-label>
+    @switch (encoding()) {
+        @case ('hex') {
+            <textarea matInput resizeToFitContent rows="8" hexValidator
+                name="{{label()}}-{{key()}}-hex-content"
+                #binaryContent="ngModel"
+                [required]="required()" [disabled]="disabled()" [readonly]="readonly()"
+                [(ngModel)]="rawInput" (ngModelChange)="onInputChange()"
+            ></textarea>
+            @if (binaryContent.errors?.isInvalidHex) {
+                <mat-error>Invalid hex.</mat-error>
+            }
+        }
+        @case ('base64') {
+            <textarea matInput resizeToFitContent rows="8" base64Validator
+                name="{{label()}}-{{key()}}-base64-content"
+                #binaryContent="ngModel"
+                [required]="required()" [disabled]="disabled()" [readonly]="readonly()"
+                [(ngModel)]="rawInput" (ngModelChange)="onInputChange()"
+            ></textarea>
+            @if (binaryContent.errors?.isInvalidBase64) {
+                <mat-error>Invalid base64.</mat-error>
+            }
+        }
+        @case ('ascii') {
+            <textarea matInput resizeToFitContent rows="8"
+                name="{{label()}}-{{key()}}-ascii-content"
+                [required]="required()" [disabled]="disabled()" [readonly]="readonly()"
+                [(ngModel)]="rawInput" (ngModelChange)="onInputChange()"
+            ></textarea>
+        }
+    }
+</mat-form-field>

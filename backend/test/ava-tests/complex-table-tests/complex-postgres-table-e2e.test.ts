@@ -15,6 +15,7 @@ import { DatabaseModule } from '../../../src/shared/database/database.module.js'
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { MockFactory } from '../../mock.factory.js';
 import { getTestData } from '../../utils/get-test-data.js';
+import { getTestKnex } from '../../utils/get-test-knex.js';
 import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
 import { TestUtils } from '../../utils/test.utils.js';
 import {
@@ -248,6 +249,85 @@ test.serial(
 			console.error(e);
 			throw e;
 		}
+	},
+);
+
+test.serial(
+	`GET /table/rows/:slug - Should preserve null FK as null and orphaned FK as raw value (not empty object)`,
+	async (t) => {
+		const parentTableName = 'FKBugFix_Parent';
+		const childTableName = 'FKBugFix_Child';
+		const knex = getTestKnex(connectionToTestDB);
+
+		await knex.schema.dropTableIfExists(childTableName);
+		await knex.schema.dropTableIfExists(parentTableName);
+
+		await knex.schema.createTable(parentTableName, (table) => {
+			table.increments('id').primary();
+			table.string('label', 100);
+		});
+		await knex.schema.createTable(childTableName, (table) => {
+			table.increments('id').primary();
+			table.integer('parent_id');
+			table.string('description', 100);
+		});
+
+		const insertedParentIds = await knex(parentTableName)
+			.insert([{ label: 'real-parent-1' }, { label: 'real-parent-to-orphan' }])
+			.returning('id');
+		const realParentId = (insertedParentIds[0] as any).id ?? insertedParentIds[0];
+		const orphanedParentId = (insertedParentIds[1] as any).id ?? insertedParentIds[1];
+
+		await knex(childTableName).insert([
+			{ parent_id: realParentId, description: 'valid-fk' },
+			{ parent_id: null, description: 'null-fk' },
+			{ parent_id: orphanedParentId, description: 'orphan-fk' },
+		]);
+
+		// Now make the orphan-fk row truly orphaned by deleting its parent,
+		// then register the FK with NOT VALID so Postgres reports it in metadata
+		// without rejecting the existing orphan row.
+		await knex(parentTableName).where({ id: orphanedParentId }).del();
+		await knex.raw(
+			`ALTER TABLE "${childTableName}" ADD CONSTRAINT fk_bugfix_child_parent FOREIGN KEY (parent_id) REFERENCES "${parentTableName}" (id) NOT VALID`,
+		);
+
+		const userToken = (await registerUserAndReturnUserInfo(app)).token;
+
+		const createConnectionResponse = await request(app.getHttpServer())
+			.post('/connection')
+			.send(connectionToTestDB)
+			.set('Cookie', userToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(createConnectionResponse.status, 201);
+		const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+		const getRowsResponse = await request(app.getHttpServer())
+			.get(`/table/rows/${createConnectionRO.id}?tableName=${childTableName}`)
+			.set('Cookie', userToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(getRowsResponse.status, 200);
+		const rowsRO = JSON.parse(getRowsResponse.text);
+
+		const validRow = rowsRO.rows.find((r: any) => r.description === 'valid-fk');
+		const nullRow = rowsRO.rows.find((r: any) => r.description === 'null-fk');
+		const orphanRow = rowsRO.rows.find((r: any) => r.description === 'orphan-fk');
+
+		t.truthy(validRow, 'valid-fk row should be present');
+		t.truthy(nullRow, 'null-fk row should be present');
+		t.truthy(orphanRow, 'orphan-fk row should be present');
+
+		// Sanity: FK was discovered (otherwise the response would not transform parent_id at all
+		// and all branches below would trivially pass).
+		t.is(typeof validRow.parent_id, 'object');
+		t.truthy(validRow.parent_id);
+		t.is(validRow.parent_id.id, realParentId);
+
+		// Bug: previously these were assigned `{}`. Both should preserve the original value.
+		t.is(nullRow.parent_id, null, 'null FK must remain null, not be converted to {}');
+		t.is(orphanRow.parent_id, orphanedParentId, 'orphaned FK must keep its raw value, not become {}');
 	},
 );
 

@@ -23,4 +23,5 @@ export enum WidgetTypeEnum {
 	Timezone = 'Timezone',
 	S3 = 'S3',
 	Email = 'Email',
+	Binary = 'Binary',
 }

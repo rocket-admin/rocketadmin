@@ -69,6 +69,13 @@ export class DbTableWidgetsComponent implements OnInit {
 	};
 	// JSON5-formatted default params
 	public defaultParams = {
+		Binary: `// Configure binary display/edit encoding.
+// Supported: "hex" (default), "base64", "ascii"
+// example:
+{
+  "encoding": "hex"
+}
+`,
 		Boolean: `// Display "Yes/No" buttons with configurable options:
 // - allow_null: Use "false" to require selection, "true" if field can be left unspecified
 // - invert_colors: Swap the color scheme (typically green=Yes, red=No becomes red=Yes, green=No)
@@ -223,9 +230,12 @@ export class DbTableWidgetsComponent implements OnInit {
 // isCurrency, isBtcAddress, isISO8601, isISO31661Alpha2, isISO31661Alpha3, isISO4217,
 // isDataURI, isMagnetURI, isMimeType, isLatLong, isSlug, isStrongPassword, isTaxID, isVAT
 // OR use "regex" with a regex parameter for custom pattern matching
+// force_send_empty_string: when true, always send "" to the backend on clear,
+// even if the column is nullable. Default false (cleared input becomes NULL on nullable columns).
 {
   "validate": null,
-  "regex": null
+  "regex": null,
+  "force_send_empty_string": false
 }`,
 		Textarea: `// provide number of strings to show.
 {

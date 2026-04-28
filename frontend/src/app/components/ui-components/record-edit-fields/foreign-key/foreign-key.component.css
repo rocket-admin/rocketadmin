@@ -52,3 +52,8 @@
 	margin-left: auto;
 	margin-top: 12px;
 }
+
+.foreign-key__null-option {
+	font-style: italic;
+	color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+}

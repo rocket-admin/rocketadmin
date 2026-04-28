@@ -5,14 +5,15 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Angulartics2Module } from 'angulartics2';
 import { of } from 'rxjs';
 import { AiService } from 'src/app/services/ai.service';
+import { AiStreamChunk } from 'src/app/services/api.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { DbTableAiPanelComponent } from './db-table-ai-panel.component';
 
-async function* mockStream(...chunks: string[]): AsyncGenerator<string> {
-	for (const chunk of chunks) {
-		yield chunk;
+async function* mockStream(...texts: string[]): AsyncGenerator<AiStreamChunk> {
+	for (const text of texts) {
+		yield { type: 'text', content: text };
 	}
 }
 
@@ -147,6 +148,7 @@ describe('DbTableAiPanelComponent', () => {
 		expect(component.messagesChain[1]).toEqual({
 			type: 'ai',
 			text: 'AI response',
+			thinking: '',
 		});
 	});
 
