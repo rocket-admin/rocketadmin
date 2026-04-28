@@ -15,7 +15,7 @@ export class TableSchemaChangeEntity {
 	@Column({ type: 'varchar', length: 38 })
 	connectionId: string;
 
-	@Column({ type: 'varchar', length: 38, nullable: true })
+	@Column({ type: 'uuid', nullable: true })
 	batchId: string | null;
 
 	@Column({ type: 'int', default: 0 })

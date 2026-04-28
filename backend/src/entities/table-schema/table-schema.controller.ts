@@ -6,7 +6,6 @@ import {
 	HttpStatus,
 	Inject,
 	Injectable,
-	Param,
 	Post,
 	Query,
 	UseGuards,
@@ -101,7 +100,7 @@ export class TableSchemaController {
 	@Post('/table-schema/change/:changeId/approve')
 	@HttpCode(HttpStatus.OK)
 	async approve(
-		@Param('changeId') changeId: string,
+		@SlugUuid('changeId') changeId: string,
 		@UserId() userId: string,
 		@MasterPassword() masterPassword: string,
 		@Body() body: ApproveSchemaChangeDto,
@@ -121,7 +120,7 @@ export class TableSchemaController {
 	@UseGuards(SchemaChangeOwnershipGuard)
 	@Post('/table-schema/change/:changeId/reject')
 	@HttpCode(HttpStatus.OK)
-	async reject(@Param('changeId') changeId: string, @UserId() userId: string): Promise<SchemaChangeResponseDto> {
+	async reject(@SlugUuid('changeId') changeId: string, @UserId() userId: string): Promise<SchemaChangeResponseDto> {
 		return await this.rejectSchemaChangeUseCase.execute({ changeId, userId });
 	}
 
@@ -132,7 +131,7 @@ export class TableSchemaController {
 	@Post('/table-schema/change/:changeId/rollback')
 	@HttpCode(HttpStatus.OK)
 	async rollback(
-		@Param('changeId') changeId: string,
+		@SlugUuid('changeId') changeId: string,
 		@UserId() userId: string,
 		@MasterPassword() masterPassword: string,
 	): Promise<SchemaChangeResponseDto> {
@@ -162,7 +161,7 @@ export class TableSchemaController {
 	@ApiResponse({ status: 200, type: SchemaChangeResponseDto })
 	@UseGuards(SchemaChangeOwnershipGuard)
 	@Get('/table-schema/change/:changeId')
-	async get(@Param('changeId') changeId: string, @UserId() userId: string): Promise<SchemaChangeResponseDto> {
+	async get(@SlugUuid('changeId') changeId: string, @UserId() userId: string): Promise<SchemaChangeResponseDto> {
 		return await this.getSchemaChangeUseCase.execute({ changeId, userId });
 	}
 
@@ -177,7 +176,7 @@ export class TableSchemaController {
 	@Post('/table-schema/batch/:batchId/approve')
 	@HttpCode(HttpStatus.OK)
 	async approveBatch(
-		@Param('batchId') batchId: string,
+		@SlugUuid('batchId') batchId: string,
 		@UserId() userId: string,
 		@MasterPassword() masterPassword: string,
 		@Body() body: ApproveBatchSchemaChangeDto,
@@ -197,7 +196,7 @@ export class TableSchemaController {
 	@Post('/table-schema/batch/:batchId/reject')
 	@HttpCode(HttpStatus.OK)
 	async rejectBatch(
-		@Param('batchId') batchId: string,
+		@SlugUuid('batchId') batchId: string,
 		@UserId() userId: string,
 	): Promise<SchemaChangeBatchResponseDto> {
 		return await this.rejectBatchSchemaChangeUseCase.execute({ batchId, userId });
@@ -210,7 +209,7 @@ export class TableSchemaController {
 	@Post('/table-schema/batch/:batchId/rollback')
 	@HttpCode(HttpStatus.OK)
 	async rollbackBatch(
-		@Param('batchId') batchId: string,
+		@SlugUuid('batchId') batchId: string,
 		@UserId() userId: string,
 		@MasterPassword() masterPassword: string,
 	): Promise<SchemaChangeBatchResponseDto> {
@@ -222,7 +221,10 @@ export class TableSchemaController {
 	@ApiResponse({ status: 200, type: SchemaChangeBatchResponseDto })
 	@UseGuards(SchemaChangeBatchOwnershipGuard)
 	@Get('/table-schema/batch/:batchId')
-	async getBatch(@Param('batchId') batchId: string, @UserId() userId: string): Promise<SchemaChangeBatchResponseDto> {
+	async getBatch(
+		@SlugUuid('batchId') batchId: string,
+		@UserId() userId: string,
+	): Promise<SchemaChangeBatchResponseDto> {
 		return await this.getBatchSchemaChangeUseCase.execute({ batchId, userId });
 	}
 }

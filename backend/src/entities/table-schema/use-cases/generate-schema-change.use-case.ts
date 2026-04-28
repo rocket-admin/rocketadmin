@@ -1,7 +1,7 @@
 import { BadRequestException, Inject, Injectable, Logger, NotFoundException, Scope } from '@nestjs/common';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
-import { nanoid } from 'nanoid';
+import crypto from 'crypto';
 import { AICoreService, AIProviderType, MessageBuilder } from '../../../ai-core/index.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
@@ -115,7 +115,7 @@ export class GenerateSchemaChangeUseCase
 		const aiModelUsed =
 			this.aiCoreService.getAvailableProviders().find((p) => p.type === this.provider)?.defaultModel ?? null;
 
-		const batchId = nanoid(12);
+		const batchId = crypto.randomUUID();
 		const items: Partial<TableSchemaChangeEntity>[] = proposals.map((proposal, index) => ({
 			connectionId,
 			batchId,
