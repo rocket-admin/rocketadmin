@@ -57,7 +57,7 @@ const mockAICoreService = {
 			yield { type: 'text', content: 'mocked', responseId: faker.string.uuid() };
 		},
 	}),
-	getDefaultProvider: () => 'openai',
+	getDefaultProvider: () => 'bedrock',
 	setDefaultProvider: () => {},
 	getAvailableProviders: () => [],
 };

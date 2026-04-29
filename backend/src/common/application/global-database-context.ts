@@ -9,9 +9,6 @@ import { IAiChatMessageRepository } from '../../entities/ai/ai-conversation-hist
 import { userAiChatRepositoryExtension } from '../../entities/ai/ai-conversation-history/user-ai-chat/repository/user-ai-chat-repository.extension.js';
 import { IUserAiChatRepository } from '../../entities/ai/ai-conversation-history/user-ai-chat/repository/user-ai-chat-repository.interface.js';
 import { UserAiChatEntity } from '../../entities/ai/ai-conversation-history/user-ai-chat/user-ai-chat.entity.js';
-import { aiResponsesToUserRepositoryExtension } from '../../entities/ai/ai-data-entities/ai-reponses-to-user/ai-reponses-to-user-repository.extension.js';
-import { AiResponsesToUserEntity } from '../../entities/ai/ai-data-entities/ai-reponses-to-user/ai-responses-to-user.entity.js';
-import { IAiResponsesToUserRepository } from '../../entities/ai/ai-data-entities/ai-reponses-to-user/ai-responses-to-user-repository.interface.js';
 import { UserApiKeyEntity } from '../../entities/api-key/api-key.entity.js';
 import { userApiRepositoryExtension } from '../../entities/api-key/repository/user-api-key-repository.extension.js';
 import { IUserApiKeyRepository } from '../../entities/api-key/repository/user-api-key-repository.interface.js';
@@ -149,7 +146,6 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 	private _companyFaviconRepository: Repository<CompanyFaviconEntity>;
 	private _companyTabTitleRepository: Repository<CompanyTabTitleEntity>;
 	private _tableFiltersRepository: Repository<TableFiltersEntity> & ITableFiltersCustomRepository;
-	private _aiResponsesToUserRepository: Repository<AiResponsesToUserEntity> & IAiResponsesToUserRepository;
 	private _tableCategoriesRepository: Repository<TableCategoriesEntity> & ITableCategoriesCustomRepository;
 	private _userSecretRepository: Repository<UserSecretEntity> & IUserSecretRepository;
 	private _secretAccessLogRepository: Repository<SecretAccessLogEntity> & ISecretAccessLogRepository;
@@ -237,9 +233,6 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 		this._tableFiltersRepository = this.appDataSource
 			.getRepository(TableFiltersEntity)
 			.extend(tableFiltersCustomRepositoryExtension);
-		this._aiResponsesToUserRepository = this.appDataSource
-			.getRepository(AiResponsesToUserEntity)
-			.extend(aiResponsesToUserRepositoryExtension);
 		this._tableCategoriesRepository = this.appDataSource
 			.getRepository(TableCategoriesEntity)
 			.extend(tableCategoriesCustomRepositoryExtension);
@@ -388,10 +381,6 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
 	public get tableFiltersRepository(): Repository<TableFiltersEntity> & ITableFiltersCustomRepository {
 		return this._tableFiltersRepository;
-	}
-
-	public get aiResponsesToUserRepository(): Repository<AiResponsesToUserEntity> & IAiResponsesToUserRepository {
-		return this._aiResponsesToUserRepository;
 	}
 
 	public get tableCategoriesRepository(): Repository<TableCategoriesEntity> & ITableCategoriesCustomRepository {

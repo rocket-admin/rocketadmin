@@ -14,7 +14,6 @@ import {
 } from 'typeorm';
 import { Encryptor } from '../../helpers/encryption/encryptor.js';
 import { UserAiChatEntity } from '../ai/ai-conversation-history/user-ai-chat/user-ai-chat.entity.js';
-import { AiResponsesToUserEntity } from '../ai/ai-data-entities/ai-reponses-to-user/ai-responses-to-user.entity.js';
 import { UserApiKeyEntity } from '../api-key/api-key.entity.js';
 import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
@@ -150,12 +149,6 @@ export class UserEntity {
 		(api_key) => api_key.user,
 	)
 	api_keys: Relation<UserApiKeyEntity>[];
-
-	@OneToMany(
-		(_) => AiResponsesToUserEntity,
-		(response) => response.user,
-	)
-	ai_responses: Relation<AiResponsesToUserEntity>[];
 
 	@OneToMany(
 		(_) => SignInAuditEntity,

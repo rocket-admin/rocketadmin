@@ -85,7 +85,7 @@ const mockAICoreService = {
 	chatWithProvider: async () => ({ content: 'Mocked', responseId: faker.string.uuid() }),
 	continueAfterToolCall: async () => ({ content: 'Mocked', responseId: faker.string.uuid() }),
 	continueStreamingAfterToolCall: async () => createProposalStream(resolveProposals()),
-	getDefaultProvider: () => 'openai',
+	getDefaultProvider: () => 'bedrock',
 	setDefaultProvider: () => {},
 	getAvailableProviders: () => [],
 };
