@@ -9,7 +9,6 @@ import {
 } from './ai-provider.interface.js';
 
 export enum AIProviderType {
-	OPENAI = 'openai',
 	BEDROCK = 'bedrock',
 }
 

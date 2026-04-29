@@ -48,7 +48,7 @@ export async function runSchemaChangeAiLoop(opts: RunSchemaChangeAiLoopOptions):
 	const maxDepth = opts.maxDepth ?? 6;
 
 	let currentMessages = [...opts.messages];
-	let currentConfig: AIProviderConfig = {};
+	const currentConfig: AIProviderConfig = {};
 	let lastResponseId: string | null = null;
 
 	for (let depth = 0; depth < maxDepth; depth++) {
@@ -94,10 +94,6 @@ export async function runSchemaChangeAiLoop(opts: RunSchemaChangeAiLoopOptions):
 		}
 
 		const toolResults = await executeInspectionToolCalls(pendingToolCalls, dao, userEmail, logger);
-
-		if (provider === AIProviderType.OPENAI && lastResponseId) {
-			currentConfig = { ...currentConfig, previousResponseId: lastResponseId };
-		}
 
 		const continuation = MessageBuilder.fromMessages(currentMessages);
 		continuation.ai(accumulatedContent, pendingToolCalls);
