@@ -15,6 +15,7 @@ import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, 
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { MasterPassword } from '../../decorators/master-password.decorator.js';
 import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
+import { Timeout, TimeoutDefaults } from '../../decorators/timeout.decorator.js';
 import { UserId } from '../../decorators/user-id.decorator.js';
 import {
 	ConnectionEditGuard,
@@ -78,6 +79,7 @@ export class TableSchemaController {
 	@ApiBody({ type: GenerateSchemaChangeDto })
 	@ApiResponse({ status: 201, type: SchemaChangeBatchResponseDto })
 	@UseGuards(ConnectionEditGuard)
+	@Timeout(TimeoutDefaults.AI)
 	@Post('/table-schema/:connectionId/generate')
 	@HttpCode(HttpStatus.CREATED)
 	async generate(
