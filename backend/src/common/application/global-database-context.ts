@@ -9,9 +9,6 @@ import { IAiChatMessageRepository } from '../../entities/ai/ai-conversation-hist
 import { userAiChatRepositoryExtension } from '../../entities/ai/ai-conversation-history/user-ai-chat/repository/user-ai-chat-repository.extension.js';
 import { IUserAiChatRepository } from '../../entities/ai/ai-conversation-history/user-ai-chat/repository/user-ai-chat-repository.interface.js';
 import { UserAiChatEntity } from '../../entities/ai/ai-conversation-history/user-ai-chat/user-ai-chat.entity.js';
-import { aiResponsesToUserRepositoryExtension } from '../../entities/ai/ai-data-entities/ai-reponses-to-user/ai-reponses-to-user-repository.extension.js';
-import { AiResponsesToUserEntity } from '../../entities/ai/ai-data-entities/ai-reponses-to-user/ai-responses-to-user.entity.js';
-import { IAiResponsesToUserRepository } from '../../entities/ai/ai-data-entities/ai-reponses-to-user/ai-responses-to-user-repository.interface.js';
 import { UserApiKeyEntity } from '../../entities/api-key/api-key.entity.js';
 import { userApiRepositoryExtension } from '../../entities/api-key/repository/user-api-key-repository.extension.js';
 import { IUserApiKeyRepository } from '../../entities/api-key/repository/user-api-key-repository.interface.js';
@@ -65,6 +62,9 @@ import { TableInfoEntity } from '../../entities/table-info/table-info.entity.js'
 import { tableLogsCustomRepositoryExtension } from '../../entities/table-logs/repository/table-logs-custom-repository-extension.js';
 import { ITableLogsRepository } from '../../entities/table-logs/repository/table-logs-repository.interface.js';
 import { TableLogsEntity } from '../../entities/table-logs/table-logs.entity.js';
+import { customTableSchemaChangeRepositoryExtension } from '../../entities/table-schema/repository/custom-table-schema-change-repository-extension.js';
+import { ITableSchemaChangeRepository } from '../../entities/table-schema/repository/table-schema-change.repository.interface.js';
+import { TableSchemaChangeEntity } from '../../entities/table-schema/table-schema-change.entity.js';
 import { ITableSettingsRepository } from '../../entities/table-settings/common-table-settings/repository/table-settings.repository.interface.js';
 import { tableSettingsCustomRepositoryExtension } from '../../entities/table-settings/common-table-settings/repository/table-settings-custom-repository-extension.js';
 import { TableSettingsEntity } from '../../entities/table-settings/common-table-settings/table-settings.entity.js';
@@ -101,12 +101,12 @@ import { SignInAuditEntity } from '../../entities/user-sign-in-audit/sign-in-aud
 import { DashboardEntity } from '../../entities/visualizations/dashboard/dashboard.entity.js';
 import { IDashboardRepository } from '../../entities/visualizations/dashboard/repository/dashboard.repository.interface.js';
 import { dashboardCustomRepositoryExtension } from '../../entities/visualizations/dashboard/repository/dashboard-custom-repository-extension.js';
+import { PanelEntity } from '../../entities/visualizations/panel/panel.entity.js';
+import { IPanelRepository } from '../../entities/visualizations/panel/repository/saved-db-query.repository.interface.js';
+import { panelCustomRepositoryExtension } from '../../entities/visualizations/panel/repository/saved-db-query-custom-repository-extension.js';
 import { PanelPositionEntity } from '../../entities/visualizations/panel-position/panel-position.entity.js';
 import { IPanelPositionRepository } from '../../entities/visualizations/panel-position/repository/panel-position.repository.interface.js';
 import { panelPositionCustomRepositoryExtension } from '../../entities/visualizations/panel-position/repository/panel-position-custom-repository-extension.js';
-import { IPanelRepository } from '../../entities/visualizations/panel/repository/saved-db-query.repository.interface.js';
-import { panelCustomRepositoryExtension } from '../../entities/visualizations/panel/repository/saved-db-query-custom-repository-extension.js';
-import { PanelEntity } from '../../entities/visualizations/panel/panel.entity.js';
 import { tableWidgetsCustomRepositoryExtension } from '../../entities/widget/repository/table-widgets-custom-repsitory-extension.js';
 import { ITableWidgetsRepository } from '../../entities/widget/repository/table-widgets-repository.interface.js';
 import { TableWidgetEntity } from '../../entities/widget/table-widget.entity.js';
@@ -146,7 +146,6 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 	private _companyFaviconRepository: Repository<CompanyFaviconEntity>;
 	private _companyTabTitleRepository: Repository<CompanyTabTitleEntity>;
 	private _tableFiltersRepository: Repository<TableFiltersEntity> & ITableFiltersCustomRepository;
-	private _aiResponsesToUserRepository: Repository<AiResponsesToUserEntity> & IAiResponsesToUserRepository;
 	private _tableCategoriesRepository: Repository<TableCategoriesEntity> & ITableCategoriesCustomRepository;
 	private _userSecretRepository: Repository<UserSecretEntity> & IUserSecretRepository;
 	private _secretAccessLogRepository: Repository<SecretAccessLogEntity> & ISecretAccessLogRepository;
@@ -157,6 +156,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 	private _panelPositionRepository: Repository<PanelPositionEntity> & IPanelPositionRepository;
 	private _userAiChatRepository: Repository<UserAiChatEntity> & IUserAiChatRepository;
 	private _aiChatMessageRepository: Repository<AiChatMessageEntity> & IAiChatMessageRepository;
+	private _tableSchemaChangeRepository: Repository<TableSchemaChangeEntity> & ITableSchemaChangeRepository;
 
 	public constructor(
 		@Inject(BaseType.DATA_SOURCE)
@@ -233,9 +233,6 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 		this._tableFiltersRepository = this.appDataSource
 			.getRepository(TableFiltersEntity)
 			.extend(tableFiltersCustomRepositoryExtension);
-		this._aiResponsesToUserRepository = this.appDataSource
-			.getRepository(AiResponsesToUserEntity)
-			.extend(aiResponsesToUserRepositoryExtension);
 		this._tableCategoriesRepository = this.appDataSource
 			.getRepository(TableCategoriesEntity)
 			.extend(tableCategoriesCustomRepositoryExtension);
@@ -264,6 +261,9 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 		this._aiChatMessageRepository = this.appDataSource
 			.getRepository(AiChatMessageEntity)
 			.extend(aiChatMessageRepositoryExtension);
+		this._tableSchemaChangeRepository = this.appDataSource
+			.getRepository(TableSchemaChangeEntity)
+			.extend(customTableSchemaChangeRepositoryExtension);
 	}
 
 	public get userRepository(): Repository<UserEntity> & IUserRepository {
@@ -383,10 +383,6 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 		return this._tableFiltersRepository;
 	}
 
-	public get aiResponsesToUserRepository(): Repository<AiResponsesToUserEntity> & IAiResponsesToUserRepository {
-		return this._aiResponsesToUserRepository;
-	}
-
 	public get tableCategoriesRepository(): Repository<TableCategoriesEntity> & ITableCategoriesCustomRepository {
 		return this._tableCategoriesRepository;
 	}
@@ -426,6 +422,10 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
 	public get aiChatMessageRepository(): Repository<AiChatMessageEntity> & IAiChatMessageRepository {
 		return this._aiChatMessageRepository;
+	}
+
+	public get tableSchemaChangeRepository(): Repository<TableSchemaChangeEntity> & ITableSchemaChangeRepository {
+		return this._tableSchemaChangeRepository;
 	}
 
 	public startTransaction(): Promise<void> {

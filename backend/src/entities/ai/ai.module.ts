@@ -13,8 +13,6 @@ import { FindUserAiChatsUseCase } from './ai-conversation-history/use-cases/find
 import { UserAiChatEntity } from './ai-conversation-history/user-ai-chat/user-ai-chat.entity.js';
 import { UserAiChatController } from './ai-conversation-history/user-ai-chat.controller.js';
 import { RequestAISettingsAndWidgetsCreationUseCase } from './use-cases/request-ai-settings-and-widgets-creation.use.case.js';
-import { RequestInfoFromTableWithAIUseCaseV5 } from './use-cases/request-info-from-table-with-ai-v5.use.case.js';
-import { RequestInfoFromTableWithAIUseCaseV6 } from './use-cases/request-info-from-table-with-ai-v6.use.case.js';
 import { RequestInfoFromTableWithAIUseCaseV7 } from './use-cases/request-info-from-table-with-ai-v7.use.case.js';
 import { UserAIRequestsControllerV2 } from './user-ai-requests-v2.controller.js';
 
@@ -25,14 +23,6 @@ import { UserAIRequestsControllerV2 } from './user-ai-requests-v2.controller.js'
 		{
 			provide: BaseType.GLOBAL_DB_CONTEXT,
 			useClass: GlobalDatabaseContext,
-		},
-		{
-			provide: UseCaseType.REQUEST_INFO_FROM_TABLE_WITH_AI_V2,
-			useClass: RequestInfoFromTableWithAIUseCaseV5,
-		},
-		{
-			provide: UseCaseType.REQUEST_INFO_FROM_TABLE_WITH_AI_V3,
-			useClass: RequestInfoFromTableWithAIUseCaseV6,
 		},
 		{
 			provide: UseCaseType.REQUEST_INFO_FROM_TABLE_WITH_AI_V4,
@@ -64,8 +54,6 @@ export class AIModule implements NestModule {
 		consumer
 			.apply(AuthMiddleware)
 			.forRoutes(
-				{ path: '/ai/v2/request/:connectionId', method: RequestMethod.POST },
-				{ path: '/ai/v3/request/:connectionId', method: RequestMethod.POST },
 				{ path: '/ai/v4/request/:connectionId', method: RequestMethod.POST },
 				{ path: '/ai/v2/setup/:connectionId', method: RequestMethod.GET },
 				{ path: '/ai/chats', method: RequestMethod.GET },

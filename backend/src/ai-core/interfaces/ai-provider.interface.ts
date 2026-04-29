@@ -6,7 +6,6 @@ export interface AIProviderConfig {
 	temperature?: number;
 	maxTokens?: number;
 	streaming?: boolean;
-	previousResponseId?: string; // For conversation continuation (OpenAI Responses API)
 }
 
 export interface AIToolDefinition {

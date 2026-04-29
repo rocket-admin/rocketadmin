@@ -5,6 +5,8 @@ export { DashboardEditGuard } from './dashboard-edit.guard.js';
 export { DashboardReadGuard } from './dashboard-read.guard.js';
 export { GroupEditGuard } from './group-edit.guard.js';
 export { GroupReadGuard } from './group-read.guard.js';
+export { SchemaChangeBatchOwnershipGuard } from './schema-change-batch-ownership.guard.js';
+export { SchemaChangeOwnershipGuard } from './schema-change-ownership.guard.js';
 export { TableAddGuard } from './table-add.guard.js';
 export { TableDeleteGuard } from './table-delete.guard.js';
 export { TableEditGuard } from './table-edit.guard.js';

@@ -114,6 +114,16 @@ export function convertDbTypeToReadableString(dataType: ConnectionTypesEnum): st
 		case ConnectionTypesEnum.ibmdb2:
 		case ConnectionTypesEnum.agent_ibmdb2:
 			return 'IBM DB2';
+		case ConnectionTypesEnum.clickhouse:
+		case ConnectionTypesEnum.agent_clickhouse:
+			return 'ClickHouse';
+		case ConnectionTypesEnum.dynamodb:
+			return 'DynamoDB';
+		case ConnectionTypesEnum.cassandra:
+		case ConnectionTypesEnum.agent_cassandra:
+			return 'Cassandra';
+		case ConnectionTypesEnum.elasticsearch:
+			return 'Elasticsearch';
 		default:
 			return 'Unknown Database';
 	}

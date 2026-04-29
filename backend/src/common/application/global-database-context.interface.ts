@@ -4,8 +4,6 @@ import { AiChatMessageEntity } from '../../entities/ai/ai-conversation-history/a
 import { IAiChatMessageRepository } from '../../entities/ai/ai-conversation-history/ai-chat-messages/repository/ai-chat-message-repository.interface.js';
 import { IUserAiChatRepository } from '../../entities/ai/ai-conversation-history/user-ai-chat/repository/user-ai-chat-repository.interface.js';
 import { UserAiChatEntity } from '../../entities/ai/ai-conversation-history/user-ai-chat/user-ai-chat.entity.js';
-import { AiResponsesToUserEntity } from '../../entities/ai/ai-data-entities/ai-reponses-to-user/ai-responses-to-user.entity.js';
-import { IAiResponsesToUserRepository } from '../../entities/ai/ai-data-entities/ai-reponses-to-user/ai-responses-to-user-repository.interface.js';
 import { UserApiKeyEntity } from '../../entities/api-key/api-key.entity.js';
 import { IUserApiKeyRepository } from '../../entities/api-key/repository/user-api-key-repository.interface.js';
 import { CompanyFaviconEntity } from '../../entities/company-favicon/company-favicon.entity.js';
@@ -38,6 +36,8 @@ import { ITableFiltersCustomRepository } from '../../entities/table-filters/repo
 import { TableFiltersEntity } from '../../entities/table-filters/table-filters.entity.js';
 import { TableInfoEntity } from '../../entities/table-info/table-info.entity.js';
 import { ITableLogsRepository } from '../../entities/table-logs/repository/table-logs-repository.interface.js';
+import { ITableSchemaChangeRepository } from '../../entities/table-schema/repository/table-schema-change.repository.interface.js';
+import { TableSchemaChangeEntity } from '../../entities/table-schema/table-schema-change.entity.js';
 import { ITableSettingsRepository } from '../../entities/table-settings/common-table-settings/repository/table-settings.repository.interface.js';
 import { TableSettingsEntity } from '../../entities/table-settings/common-table-settings/table-settings.entity.js';
 import { PersonalTableSettingsEntity } from '../../entities/table-settings/personal-table-settings/personal-table-settings.entity.js';
@@ -57,10 +57,10 @@ import { ISignInAuditRepository } from '../../entities/user-sign-in-audit/reposi
 import { SignInAuditEntity } from '../../entities/user-sign-in-audit/sign-in-audit.entity.js';
 import { DashboardEntity } from '../../entities/visualizations/dashboard/dashboard.entity.js';
 import { IDashboardRepository } from '../../entities/visualizations/dashboard/repository/dashboard.repository.interface.js';
+import { PanelEntity } from '../../entities/visualizations/panel/panel.entity.js';
+import { IPanelRepository } from '../../entities/visualizations/panel/repository/saved-db-query.repository.interface.js';
 import { PanelPositionEntity } from '../../entities/visualizations/panel-position/panel-position.entity.js';
 import { IPanelPositionRepository } from '../../entities/visualizations/panel-position/repository/panel-position.repository.interface.js';
-import { IPanelRepository } from '../../entities/visualizations/panel/repository/saved-db-query.repository.interface.js';
-import { PanelEntity } from '../../entities/visualizations/panel/panel.entity.js';
 import { ITableWidgetsRepository } from '../../entities/widget/repository/table-widgets-repository.interface.js';
 import { TableWidgetEntity } from '../../entities/widget/table-widget.entity.js';
 import { IDatabaseContext } from '../database-context.interface.js';
@@ -95,7 +95,6 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
 	companyFaviconRepository: Repository<CompanyFaviconEntity>;
 	companyTabTitleRepository: Repository<CompanyTabTitleEntity>;
 	tableFiltersRepository: Repository<TableFiltersEntity> & ITableFiltersCustomRepository;
-	aiResponsesToUserRepository: Repository<AiResponsesToUserEntity> & IAiResponsesToUserRepository;
 	tableCategoriesRepository: Repository<TableCategoriesEntity> & ITableCategoriesCustomRepository;
 	userSecretRepository: Repository<UserSecretEntity> & IUserSecretRepository;
 	secretAccessLogRepository: Repository<SecretAccessLogEntity> & ISecretAccessLogRepository;
@@ -106,4 +105,5 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
 	panelPositionRepository: Repository<PanelPositionEntity> & IPanelPositionRepository;
 	userAiChatRepository: Repository<UserAiChatEntity> & IUserAiChatRepository;
 	aiChatMessageRepository: Repository<AiChatMessageEntity> & IAiChatMessageRepository;
+	tableSchemaChangeRepository: Repository<TableSchemaChangeEntity> & ITableSchemaChangeRepository;
 }
