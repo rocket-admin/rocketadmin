@@ -87,6 +87,8 @@ export const Messages = {
 		'Connection master password is not set (or connection created before this feature)',
 	CONNECTION_TEST_FAILED: 'Connection test failed. ',
 	CONNECTION_TYPE_INVALID: `Unsupported database type. Now we supports ${enumToString(ConnectionTypesEnum)}`,
+	DIAGRAM_NOT_SUPPORTED_FOR_CONNECTION_TYPE:
+		'Database structure diagram is currently supported only for SQL connections',
 	CONNECTION_PROPERTIES_INVALID: 'Connection properties are invalid',
 	CONNECTION_PROPERTIES_CANT_BE_EMPTY: `Connection properties cannot be empty`,
 	CONNECTION_PROPERTIES_NOT_FOUND: `Connection properties not found`,
@@ -99,7 +101,8 @@ export const Messages = {
 	CUSTOM_FIELD_TYPE_INCORRECT: 'Unsupported custom field type',
 	CUSTOM_FIELD_TYPE_MISSING: 'Custom field type is missing',
 	CEDAR_POLICY_REFERENCES_FOREIGN_GROUP: 'Cedar policy references a group that does not belong to this connection',
-	CEDAR_POLICY_REFERENCES_FOREIGN_CONNECTION: 'Cedar policy references a connection that does not match the target connection',
+	CEDAR_POLICY_REFERENCES_FOREIGN_CONNECTION:
+		'Cedar policy references a connection that does not match the target connection',
 	CEDAR_POLICY_REFERENCES_FOREIGN_PRINCIPAL: 'Cedar policy principal must reference the target group',
 	CSV_EXPORT_FAILED: 'CSV export failed',
 	CSV_EXPORT_DISABLED: 'CSV export is disabled',

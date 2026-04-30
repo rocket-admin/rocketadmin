@@ -24,6 +24,7 @@ import { DeleteGroupFromConnectionUseCase } from './use-cases/delete-group-from-
 import { FindAllConnectionsUseCase } from './use-cases/find-all-connections.use.case.js';
 import { FindAllUsersInConnectionUseCase } from './use-cases/find-all-users-in-connection.use.case.js';
 import { FindOneConnectionUseCase } from './use-cases/find-one-connection.use.case.js';
+import { GetConnectionDiagramUseCase } from './use-cases/get-connection-diagram.use.case.js';
 import { GetPermissionsForGroupInConnectionUseCase } from './use-cases/get-permissions-for-group-in-connection.use.case.js';
 import { GetUserGroupsInConnectionUseCase } from './use-cases/get-user-groups-in-connection.use.case.js';
 import { GetUserPermissionsForGroupInConnectionUseCase } from './use-cases/get-user-permissions-for-group-in-connection.use.case.js';
@@ -135,6 +136,10 @@ import { ValidateConnectionTokenUseCase } from './use-cases/validate-connection-
 			provide: UseCaseType.UPDATE_CONNECTION_TITLE,
 			useClass: UpdateConnectionTitleUseCase,
 		},
+		{
+			provide: UseCaseType.GET_CONNECTION_DIAGRAM,
+			useClass: GetConnectionDiagramUseCase,
+		},
 	],
 	controllers: [ConnectionController],
 })
@@ -162,6 +167,7 @@ export class ConnectionModule implements NestModule {
 				{ path: '/connection/masterpwd/verify/:connectionId', method: RequestMethod.GET },
 				{ path: '/connection/unfreeze/:connectionId', method: RequestMethod.PUT },
 				{ path: '/connection/title/:connectionId', method: RequestMethod.PUT },
+				{ path: '/connection/diagram/:connectionId', method: RequestMethod.GET },
 			)
 			.apply(AuthWithApiMiddleware)
 			.forRoutes({ path: 'connections', method: RequestMethod.GET });
