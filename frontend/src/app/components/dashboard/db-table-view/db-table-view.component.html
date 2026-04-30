@@ -152,7 +152,7 @@
                     angulartics2On="click"
                     angularticsAction="Dashboard: settings dropdown is clicked"
                     (click)="posthog.capture('Dashboard: settings dropdown is clicked')">
-                    <mat-icon>more_vert</mat-icon>
+                    <mat-icon fontSet="material-symbols-outlined">settings</mat-icon>
                 </button>
                 <mat-menu #settingsMenu="matMenu">
                     <a mat-menu-item *ngIf="tableData"
@@ -352,7 +352,7 @@
                         angulartics2On="click"
                         angularticsAction="Dashboard: edit row is clicked"
                         matTooltip="Edit row"
-                        (click)="stashUrlParams(); posthog.capture('Dashboard: edit row is clicked')">
+                        (click)="$event.stopPropagation(); stashUrlParams(); posthog.capture('Dashboard: edit row is clicked')">
                         <mat-icon fontSet="material-symbols-outlined">create</mat-icon>
                     </a>
                     <a mat-icon-button *ngIf="canAddRow()"
@@ -365,7 +365,7 @@
                         angulartics2On="click"
                         angularticsAction="Dashboard: duplicate row is clicked"
                         matTooltip="Duplicate row"
-                        (click)="stashUrlParams(); posthog.capture('Dashboard: duplicate row is clicked')">
+                        (click)="$event.stopPropagation(); stashUrlParams(); posthog.capture('Dashboard: duplicate row is clicked')">
                         <mat-icon fontSet="material-symbols-outlined">difference</mat-icon>
                     </a>
                     <button type="button" mat-icon-button *ngIf="canDeleteRow() && tableData.canDelete"
