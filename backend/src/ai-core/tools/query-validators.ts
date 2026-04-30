@@ -67,36 +67,6 @@ export function wrapQueryWithLimit(query: string, databaseType: ConnectionTypesE
 	}
 }
 
-export function sanitizeJsonString(jsonStr: string): string {
-	try {
-		JSON.parse(jsonStr);
-		return jsonStr;
-	} catch (_e) {
-		const startBrace = jsonStr.indexOf('{');
-		if (startBrace === -1) {
-			return '{}';
-		}
-
-		const endBrace = jsonStr.lastIndexOf('}');
-		if (endBrace === -1 || endBrace <= startBrace) {
-			return '{}';
-		}
-
-		let possibleJson = jsonStr.substring(startBrace, endBrace + 1);
-
-		possibleJson = possibleJson.replace(/,\s*}/g, '}');
-		possibleJson = possibleJson.replace(/,\s*]/g, ']');
-
-		try {
-			JSON.parse(possibleJson);
-			return possibleJson;
-		} catch (_parseErr) {
-			console.error('Could not sanitize JSON, returning empty object');
-			return '{}';
-		}
-	}
-}
-
 export function cleanAIJsonResponse(response: string): string {
 	let cleanedResponse = response.trim();
 	if (cleanedResponse.startsWith('```json')) {
