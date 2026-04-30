@@ -1,7 +1,6 @@
 export { binaryToHex, isBinary } from './binary-to-hex.js';
 export { checkFieldAutoincrement } from './check-field-autoincrement.js';
 export { compareArrayElements } from './compare-array-elements.js';
-export { getMasterPwd } from './get-master-password.js';
 export { getPropertyValueByDescriptor } from './get-property-value-by-descriptor.js';
 export { getUniqArrayStrings } from './get-uniq-array-strings.js';
 export { isConnectionEntityAgent, isConnectionTypeAgent } from './is-connection-entity-agent.js';
