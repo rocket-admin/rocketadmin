@@ -37,6 +37,7 @@ import { FindOneConnectionDs } from './application/data-structures/find-one-conn
 import { FoundConnectionsDs } from './application/data-structures/found-connections.ds.js';
 import { FoundOneConnectionDs } from './application/data-structures/found-one-connection.ds.js';
 import { FoundPermissionsInConnectionDs } from './application/data-structures/found-permissions-in-connection.ds.js';
+import { GetConnectionDiagramDs } from './application/data-structures/get-connection-diagram.ds.js';
 import { GetGroupsInConnectionDs } from './application/data-structures/get-groups-in-connection.ds.js';
 import { GetPermissionsInConnectionDs } from './application/data-structures/get-permissions-in-connection.ds.js';
 import { RestoredConnectionDs } from './application/data-structures/restored-connection.ds.js';
@@ -44,6 +45,7 @@ import { UpdateConnectionDs } from './application/data-structures/update-connect
 import { UpdateConnectionTitleDs } from './application/data-structures/update-connection-title.ds.js';
 import { UpdateMasterPasswordDs } from './application/data-structures/update-master-password.ds.js';
 import { ValidateConnectionMasterPasswordDs } from './application/data-structures/validate-connection-master-password.ds.js';
+import { ConnectionDiagramResponseDTO } from './application/dto/connection-diagram-response.dto.js';
 import { CreateConnectionDto } from './application/dto/create-connection.dto.js';
 import { CreateGroupInConnectionDTO } from './application/dto/create-group-in-connection.dto.js';
 import { CreatedConnectionDTO } from './application/dto/created-connection.dto.js';
@@ -64,6 +66,7 @@ import {
 	IFindConnections,
 	IFindOneConnection,
 	IFindUsersInConnection,
+	IGetConnectionDiagram,
 	IGetPermissionsForGroupInConnection,
 	IGetUserGroupsInConnection,
 	IRefreshConnectionAgentToken,
@@ -125,6 +128,8 @@ export class ConnectionController {
 		private readonly unfreezeConnectionUseCase: IUnfreezeConnection,
 		@Inject(UseCaseType.UPDATE_CONNECTION_TITLE)
 		private readonly updateConnectionTitleUseCase: IUpdateConnectionTitle,
+		@Inject(UseCaseType.GET_CONNECTION_DIAGRAM)
+		private readonly getConnectionDiagramUseCase: IGetConnectionDiagram,
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
 		private readonly amplitudeService: AmplitudeService,
@@ -714,5 +719,28 @@ export class ConnectionController {
 			title: titleData.title,
 		};
 		return await this.updateConnectionTitleUseCase.execute(inputData, InTransactionEnum.ON);
+	}
+
+	@ApiOperation({ summary: 'Get Mermaid diagram of connection database structure (SQL only)' })
+	@ApiResponse({
+		status: 200,
+		type: ConnectionDiagramResponseDTO,
+	})
+	@UseGuards(ConnectionReadGuard)
+	@Get('/connection/diagram/:connectionId')
+	async getConnectionDiagram(
+		@SlugUuid('connectionId') connectionId: string,
+		@MasterPassword() masterPwd: string,
+		@UserId() userId: string,
+	): Promise<ConnectionDiagramResponseDTO> {
+		if (!connectionId) {
+			throw new BadRequestException(Messages.CONNECTION_ID_MISSING);
+		}
+		const inputData: GetConnectionDiagramDs = {
+			connectionId,
+			masterPwd,
+			userId,
+		};
+		return await this.getConnectionDiagramUseCase.execute(inputData, InTransactionEnum.OFF);
 	}
 }
