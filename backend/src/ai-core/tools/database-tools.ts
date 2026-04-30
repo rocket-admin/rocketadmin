@@ -95,27 +95,3 @@ export function createDashboardGenerationTools(): AIToolDefinition[] {
 		},
 	];
 }
-
-export function createTableAnalysisTools(): AIToolDefinition[] {
-	return [
-		{
-			name: 'analyzeTableSchema',
-			description: 'Analyzes a table schema and returns recommendations for display settings and widgets.',
-			parameters: {
-				type: 'object',
-				properties: {
-					tableName: {
-						type: 'string',
-						description: 'The name of the table to analyze.',
-					},
-					columns: {
-						type: 'array',
-						description: 'Array of column definitions with name, type, and constraints.',
-					},
-				},
-				required: ['tableName', 'columns'],
-				additionalProperties: false,
-			},
-		},
-	];
-}
