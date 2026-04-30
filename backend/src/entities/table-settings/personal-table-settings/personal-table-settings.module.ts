@@ -24,10 +24,6 @@ import { FindPersonalTableSettingsUseCase } from './use-cases/find-personal-tabl
 			provide: UseCaseType.CREATE_UPDATE_PERSONAL_TABLE_SETTINGS,
 			useClass: CreateUpdatePersonalTableSettingsUseCase,
 		},
-		{
-			provide: UseCaseType.DELETE_PERSONAL_TABLE_SETTINGS,
-			useClass: CreateUpdatePersonalTableSettingsUseCase,
-		},
 	],
 	controllers: [PersonalTableSettingsController],
 	exports: [],
@@ -39,7 +35,6 @@ export class PersonalTableSettingsModule {
 			.forRoutes(
 				{ path: '/settings/personal/:connectionId', method: RequestMethod.GET },
 				{ path: '/settings/personal/:connectionId', method: RequestMethod.PUT },
-				{ path: '/settings/personal/:connectionId', method: RequestMethod.DELETE },
 			);
 	}
 }

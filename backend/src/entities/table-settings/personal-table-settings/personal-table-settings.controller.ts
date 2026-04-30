@@ -28,7 +28,6 @@ import { CreatePersonalTableSettingsDto } from './dto/create-personal-table-sett
 import { FoundPersonalTableSettingsDto } from './dto/found-personal-table-settings.dto.js';
 import {
 	ICreateUpdatePersonalTableSettings,
-	IDeletePersonalTableSettings,
 	IFindPersonalTableSettings,
 } from './use-cases/personal-table-settings.use-cases.interface.js';
 
@@ -44,8 +43,6 @@ export class PersonalTableSettingsController {
 		private readonly findPersonalTableSettingsUseCase: IFindPersonalTableSettings,
 		@Inject(UseCaseType.CREATE_UPDATE_PERSONAL_TABLE_SETTINGS)
 		private readonly createUpdatePersonalTableSettingsUseCase: ICreateUpdatePersonalTableSettings,
-		@Inject(UseCaseType.DELETE_PERSONAL_TABLE_SETTINGS)
-		private readonly deletePersonalTableSettingsUseCase: IDeletePersonalTableSettings,
 	) {}
 
 	@ApiOperation({ summary: 'Find user personal table settings' })
@@ -124,38 +121,5 @@ export class PersonalTableSettingsController {
 			},
 		};
 		return await this.createUpdatePersonalTableSettingsUseCase.execute(inputData, InTransactionEnum.OFF);
-	}
-
-	@ApiOperation({ summary: 'Clear user personal table settings' })
-	@ApiResponse({
-		status: 200,
-		description: 'Table settings removed.',
-		type: FoundPersonalTableSettingsDto,
-	})
-	@ApiParam({ name: 'connectionId', required: true })
-	@ApiQuery({ name: 'tableName', required: true })
-	@UseGuards(TableReadGuard)
-	@Delete('/settings/personal/:connectionId')
-	async clearTableSettings(
-		@SlugUuid('connectionId') connectionId: string,
-		@QueryTableName() tableName: string,
-		@MasterPassword() masterPwd: string,
-		@UserId() userId: string,
-	): Promise<FoundPersonalTableSettingsDto> {
-		if (!connectionId) {
-			throw new HttpException(
-				{
-					message: Messages.CONNECTION_ID_MISSING,
-				},
-				HttpStatus.BAD_REQUEST,
-			);
-		}
-		const inputData: FindPersonalTableSettingsDs = {
-			connectionId,
-			tableName,
-			userId,
-			masterPassword: masterPwd,
-		};
-		return await this.deletePersonalTableSettingsUseCase.execute(inputData, InTransactionEnum.OFF);
 	}
 }
