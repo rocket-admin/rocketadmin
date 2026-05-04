@@ -37,7 +37,7 @@
 		"@langchain/aws": "^1.3.3",
 		"@langchain/core": "^1.1.33",
 		"@nestjs/common": "11.1.17",
-		"@nestjs/core": "11.1.17",
+		"@nestjs/core": "11.1.18",
 		"@nestjs/platform-express": "11.1.17",
 		"@nestjs/schedule": "^6.1.1",
 		"@nestjs/swagger": "^11.2.6",
