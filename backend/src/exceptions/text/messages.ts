@@ -1,17 +1,15 @@
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { UserRoleEnum } from '../../entities/user/enums/user-role.enum.js';
-import {
-	EncryptionAlgorithmEnum,
-	LogOperationTypeEnum,
-	QueryOrderingEnum,
-	TableActionTypeEnum,
-	UserActionEnum,
-	WidgetTypeEnum,
-} from '../../enums/index.js';
+import { EncryptionAlgorithmEnum } from '../../enums/encryption-algorithm.enum.js';
+import { LogOperationTypeEnum } from '../../enums/log-operation-type.enum.js';
+import { QueryOrderingEnum } from '../../enums/query-ordering.enum.js';
 import { TableActionEventEnum } from '../../enums/table-action-event-enum.js';
 import { TableActionMethodEnum } from '../../enums/table-action-method-enum.js';
+import { TableActionTypeEnum } from '../../enums/table-action-type.enum.js';
+import { UserActionEnum } from '../../enums/user-action.enum.js';
+import { WidgetTypeEnum } from '../../enums/widget-type.enum.js';
 import { enumToString } from '../../helpers/enum-to-string.js';
-import { toPrettyErrorsMsg } from '../../helpers/index.js';
+import { toPrettyErrorsMsg } from '../../helpers/to-pretty-errors-msg.js';
 export const Messages = {
 	API_KEY_SUSPENDED: 'API key is suspended',
 	AI_REQUESTS_NOT_ALLOWED: 'AI requests are not allowed for this connection',

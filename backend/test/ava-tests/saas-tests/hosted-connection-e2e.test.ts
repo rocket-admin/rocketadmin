@@ -8,7 +8,7 @@ import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
-import { AccessLevelEnum } from '../../../src/enums/index.js';
+import { AccessLevelEnum } from '../../../src/enums/access-level.enum.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';

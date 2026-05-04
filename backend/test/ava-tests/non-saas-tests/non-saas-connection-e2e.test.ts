@@ -7,7 +7,7 @@ import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
-import { AccessLevelEnum } from '../../../src/enums/index.js';
+import { AccessLevelEnum } from '../../../src/enums/access-level.enum.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { Messages } from '../../../src/exceptions/text/messages.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';

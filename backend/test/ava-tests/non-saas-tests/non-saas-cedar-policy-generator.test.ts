@@ -1,7 +1,7 @@
 import test from 'ava';
 import { generateCedarPolicyForGroup } from '../../../src/entities/cedar-authorization/cedar-policy-generator.js';
-import { AccessLevelEnum } from '../../../src/enums/index.js';
 import { IComplexPermission } from '../../../src/entities/permission/permission.interface.js';
+import { AccessLevelEnum } from '../../../src/enums/access-level.enum.js';
 
 const groupId = 'test-group-id';
 const connectionId = 'test-connection-id';

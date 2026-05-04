@@ -7,7 +7,7 @@ import {
 	Injectable,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { IRequestWithCognitoInfo } from '../authorization/index.js';
+import { IRequestWithCognitoInfo } from '../authorization/cognito-decoded.interface.js';
 import { IGlobalDatabaseContext } from '../common/application/global-database-context.interface.js';
 import { BaseType } from '../common/data-injection.tokens.js';
 import { CedarAction } from '../entities/cedar-authorization/cedar-action-map.js';

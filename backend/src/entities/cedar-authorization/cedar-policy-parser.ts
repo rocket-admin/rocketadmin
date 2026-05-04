@@ -1,4 +1,4 @@
-import { AccessLevelEnum } from '../../enums/index.js';
+import { AccessLevelEnum } from '../../enums/access-level.enum.js';
 import {
 	IComplexPermission,
 	IDashboardPermissionData,
@@ -292,10 +292,7 @@ function extractPanelId(resourceId: string | null, connectionId: string): string
 	return resourceId;
 }
 
-function getOrCreatePanelEntry(
-	map: Map<string, IPanelPermissionData>,
-	panelId: string,
-): IPanelPermissionData {
+function getOrCreatePanelEntry(map: Map<string, IPanelPermissionData>, panelId: string): IPanelPermissionData {
 	let entry = map.get(panelId);
 	if (!entry) {
 		entry = {

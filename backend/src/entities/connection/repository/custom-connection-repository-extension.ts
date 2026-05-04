@@ -2,7 +2,7 @@ import { Repository } from 'typeorm';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
-import { isConnectionTypeAgent } from '../../../helpers/index.js';
+import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
 import { UserEntity } from '../../user/user.entity.js';
 import { ConnectionEntity } from '../connection.entity.js';
 import {

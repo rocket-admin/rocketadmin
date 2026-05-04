@@ -19,19 +19,28 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiProperty, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
-import { MasterPassword, QueryTableName, SlugUuid, UserId } from '../../decorators/index.js';
+import { MasterPassword } from '../../decorators/master-password.decorator.js';
+import { QueryTableName } from '../../decorators/query-table-name.decorator.js';
+import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
 import { Timeout, TimeoutDefaults } from '../../decorators/timeout.decorator.js';
-import { AmplitudeEventTypeEnum, InTransactionEnum } from '../../enums/index.js';
+import { UserId } from '../../decorators/user-id.decorator.js';
+import { AmplitudeEventTypeEnum } from '../../enums/amplitude-event-type.enum.js';
+import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { Messages } from '../../exceptions/text/messages.js';
-import { TableAddGuard, TableDeleteGuard, TableEditGuard, TableReadGuard } from '../../guards/index.js';
+import { TableAddGuard } from '../../guards/table-add.guard.js';
+import { TableDeleteGuard } from '../../guards/table-delete.guard.js';
+import { TableEditGuard } from '../../guards/table-edit.guard.js';
+import { TableReadGuard } from '../../guards/table-read.guard.js';
 import { TablesReceiveGuard } from '../../guards/tables-receive.guard.js';
 import { Constants } from '../../helpers/constants/constants.js';
-import { isConnectionTypeAgent, isObjectEmpty } from '../../helpers/index.js';
+import { isConnectionTypeAgent } from '../../helpers/is-connection-entity-agent.js';
+import { isObjectEmpty } from '../../helpers/is-object-empty.js';
 import { isObjectPropertyExists } from '../../helpers/validators/is-object-property-exists-validator.js';
-import { SentryInterceptor } from '../../interceptors/index.js';
+import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { AmplitudeService } from '../amplitude/amplitude.service.js';
 import { AddRowInTableDs } from './application/data-structures/add-row-in-table.ds.js';
@@ -63,7 +72,6 @@ import {
 	IImportCSVFinTable,
 	IUpdateRowInTable,
 } from './use-cases/table-use-cases.interface.js';
-import { Throttle } from '@nestjs/throttler';
 
 @UseInterceptors(SentryInterceptor)
 @Timeout()

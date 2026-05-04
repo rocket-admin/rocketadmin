@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsBoolean, IsEnum, IsString, IsUUID, ValidateNested } from 'class-validator';
-import { AccessLevelEnum } from '../../../../enums/index.js';
+import { AccessLevelEnum } from '../../../../enums/access-level.enum.js';
 
 export class CreatePermissionsDs {
 	groupId: string;

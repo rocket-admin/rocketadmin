@@ -7,7 +7,7 @@ import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
 import { MongoClient } from 'mongodb';
 import request from 'supertest';
-import { AICoreService } from '../../../src/ai-core/index.js';
+import { AICoreService } from '../../../src/ai-core/services/ai-core.service.js';
 import { ApplicationModule } from '../../../src/app.module.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 import {

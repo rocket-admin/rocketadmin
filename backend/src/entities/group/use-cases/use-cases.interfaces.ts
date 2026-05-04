@@ -1,4 +1,4 @@
-import { InTransactionEnum } from '../../../enums/index.js';
+import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { FoundUserInGroupDs } from '../../user/application/data-structures/found-user-in-group.ds.js';
 import { AddUserInGroupDs, AddUserInGroupWithSaaSDs } from '../application/data-sctructures/add-user-in-group.ds.js';
 import { AddedUserInGroupDs } from '../application/data-sctructures/added-user-in-group.ds.js';

@@ -4,7 +4,7 @@ import JSON5 from 'json5';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { WidgetTypeEnum } from '../../../enums/index.js';
+import { WidgetTypeEnum } from '../../../enums/widget-type.enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { S3GetUploadUrlDs, S3UploadUrlResponseDs } from '../application/data-structures/s3-operation.ds.js';

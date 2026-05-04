@@ -1,5 +1,5 @@
 import JSON5 from 'json5';
-import { WidgetTypeEnum } from '../../../enums/index.js';
+import { WidgetTypeEnum } from '../../../enums/widget-type.enum.js';
 import { TableWidgetEntity } from '../../widget/table-widget.entity.js';
 import { ForeignKeyDSInfo } from '../table-datastructures.js';
 

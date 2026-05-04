@@ -1,5 +1,5 @@
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
-import { isConnectionTypeAgent } from '../../../helpers/index.js';
+import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
 import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
 import { ConnectionEntity } from '../connection.entity.js';
 

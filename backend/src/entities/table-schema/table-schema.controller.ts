@@ -17,11 +17,9 @@ import { MasterPassword } from '../../decorators/master-password.decorator.js';
 import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
 import { Timeout, TimeoutDefaults } from '../../decorators/timeout.decorator.js';
 import { UserId } from '../../decorators/user-id.decorator.js';
-import {
-	ConnectionEditGuard,
-	SchemaChangeBatchOwnershipGuard,
-	SchemaChangeOwnershipGuard,
-} from '../../guards/index.js';
+import { ConnectionEditGuard } from '../../guards/connection-edit.guard.js';
+import { SchemaChangeBatchOwnershipGuard } from '../../guards/schema-change-batch-ownership.guard.js';
+import { SchemaChangeOwnershipGuard } from '../../guards/schema-change-ownership.guard.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { ApproveBatchSchemaChangeDto } from './application/data-transfer-objects/approve-batch-schema-change.dto.js';
 import { ApproveSchemaChangeDto } from './application/data-transfer-objects/approve-schema-change.dto.js';

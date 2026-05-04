@@ -1,4 +1,4 @@
-import { InTransactionEnum } from '../../../enums/index.js';
+import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import {
 	S3FileUrlResponseDs,
 	S3GetFileUrlDs,

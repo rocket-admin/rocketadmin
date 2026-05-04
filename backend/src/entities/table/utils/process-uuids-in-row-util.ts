@@ -1,6 +1,6 @@
 import JSON5 from 'json5';
 import { stringify as uuidStringify } from 'uuid';
-import { WidgetTypeEnum } from '../../../enums/index.js';
+import { WidgetTypeEnum } from '../../../enums/widget-type.enum.js';
 import { TableWidgetEntity } from '../../widget/table-widget.entity.js';
 
 export function processUuidsInRowUtil(

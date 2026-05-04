@@ -1,6 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { BasicAuthMiddleware } from '../../authorization/index.js';
+import { BasicAuthMiddleware } from '../../authorization/basic-auth.middleware.js';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';

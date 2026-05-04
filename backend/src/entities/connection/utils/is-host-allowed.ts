@@ -5,7 +5,7 @@ import ipRangeCheck from 'ip-range-check';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { Constants } from '../../../helpers/constants/constants.js';
-import { isConnectionTypeAgent } from '../../../helpers/index.js';
+import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
 
 export interface HostCheckData {
 	type?: string;
@@ -48,9 +48,6 @@ export async function isHostAllowed(connectionData: HostCheckData): Promise<bool
 			});
 		}
 	}).catch((_e) => {
-		throw new HttpException(
-			{ message: Messages.CANNOT_CREATE_CONNECTION_TO_THIS_HOST },
-			HttpStatus.FORBIDDEN,
-		);
+		throw new HttpException({ message: Messages.CANNOT_CREATE_CONNECTION_TO_THIS_HOST }, HttpStatus.FORBIDDEN);
 	});
 }

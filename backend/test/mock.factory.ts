@@ -2,13 +2,15 @@ import { faker } from '@faker-js/faker';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import json5 from 'json5';
 import jwt from 'jsonwebtoken';
-import { IRequestWithCognitoInfo } from '../src/authorization/index.js';
+import { IRequestWithCognitoInfo } from '../src/authorization/cognito-decoded.interface.js';
 import { CreateConnectionDto } from '../src/entities/connection/application/dto/create-connection.dto.js';
-import { CreateConnectionPropertiesDto } from '../src/entities/connection-properties/dto/index.js';
+import { CreateConnectionPropertiesDto } from '../src/entities/connection-properties/dto/create-connection-properties.dto.js';
 import { CreateTableActionDTO } from '../src/entities/table-actions/table-actions-module/dto/create-table-action.dto.js';
 import { TableActionEntity } from '../src/entities/table-actions/table-actions-module/table-action.entity.js';
-import { CreateTableWidgetDto } from '../src/entities/widget/dto/index.js';
-import { AccessLevelEnum, QueryOrderingEnum, WidgetTypeEnum } from '../src/enums/index.js';
+import { CreateTableWidgetDto } from '../src/entities/widget/dto/create-table-widget.dto.js';
+import { AccessLevelEnum } from '../src/enums/access-level.enum.js';
+import { QueryOrderingEnum } from '../src/enums/query-ordering.enum.js';
+import { WidgetTypeEnum } from '../src/enums/widget-type.enum.js';
 import { TestConstants } from './mocks/test-constants.js';
 
 class CreateGroupDto {

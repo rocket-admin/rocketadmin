@@ -9,7 +9,7 @@ import cookieParser from 'cookie-parser';
 import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
-import { AccessLevelEnum } from '../../../src/enums/index.js';
+import { AccessLevelEnum } from '../../../src/enums/access-level.enum.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { Messages } from '../../../src/exceptions/text/messages.js';
@@ -20,11 +20,11 @@ import { DatabaseService } from '../../../src/shared/database/database.service.j
 import { MockFactory } from '../../mock.factory.js';
 import { TestUtils } from '../../utils/test.utils.js';
 import {
-	createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions,
-	createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection,
-	createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions,
 	createConnectionAndInviteUserWithConnectionEditOnly,
+	createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection,
 	createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions,
+	createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions,
+	createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions,
 } from '../../utils/user-with-different-permissions-utils.js';
 
 let app: INestApplication;
@@ -77,9 +77,7 @@ test.serial(
 	async (t) => {
 		try {
 			const testData =
-				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(
-					app,
-				);
+				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
 			const {
 				connections,
 				firstTableInfo,
@@ -97,9 +95,7 @@ test.serial(
 			t.is(findAll.status, 200);
 
 			const result = findAll.body.connections;
-			const targetConnection = result.find(
-				({ connection }: any) => connection.id === connections.firstId,
-			);
+			const targetConnection = result.find(({ connection }: any) => connection.id === connections.firstId);
 			t.is(Object.hasOwn(targetConnection, 'connection'), true);
 			t.is(Object.hasOwn(targetConnection, 'accessLevel'), true);
 			t.is(targetConnection.accessLevel, AccessLevelEnum.readonly);
@@ -146,9 +142,7 @@ test.serial(
 	async (t) => {
 		try {
 			const testData =
-				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(
-					app,
-				);
+				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
 			const {
 				connections,
 				users: { simpleUserToken },
@@ -176,9 +170,7 @@ test.serial(
 	async (t) => {
 		try {
 			const testData =
-				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(
-					app,
-				);
+				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
 			const {
 				connections,
 				users: { simpleUserToken },
@@ -207,9 +199,7 @@ test.serial(
 	async (t) => {
 		try {
 			const testData =
-				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(
-					app,
-				);
+				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
 			const {
 				connections,
 				users: { simpleUserToken },
@@ -236,9 +226,7 @@ test.serial(
 	async (t) => {
 		try {
 			const testData =
-				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(
-					app,
-				);
+				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
 			const {
 				connections,
 				users: { simpleUserToken },
@@ -311,9 +299,7 @@ test.serial(`${currentTest} should return all tables for readonly group user via
 		t.is(getTablesInConnection.status, 200);
 		const getTablesInConnectionRO = JSON.parse(getTablesInConnection.text);
 		t.is(getTablesInConnectionRO.length > 0, true);
-		const tableIndex = getTablesInConnectionRO.findIndex(
-			(table: any) => table.table === firstTableInfo.testTableName,
-		);
+		const tableIndex = getTablesInConnectionRO.findIndex((table: any) => table.table === firstTableInfo.testTableName);
 		t.is(typeof getTablesInConnectionRO[tableIndex].permissions, 'object');
 	} catch (e) {
 		console.error(e);
@@ -352,45 +338,40 @@ test.serial(`${currentTest} should return found rows for readonly group user via
 
 currentTest = 'POST /table/row/:slug';
 
-test.serial(
-	`${currentTest} should return added row for user with add=true permission via Cedar`,
-	async (t) => {
-		try {
-			const testData =
-				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(
-					app,
-				);
-			const {
-				connections,
-				firstTableInfo,
-				users: { simpleUserToken },
-			} = testData;
+test.serial(`${currentTest} should return added row for user with add=true permission via Cedar`, async (t) => {
+	try {
+		const testData =
+			await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
+		const {
+			connections,
+			firstTableInfo,
+			users: { simpleUserToken },
+		} = testData;
 
-			const randomName = faker.person.firstName();
-			const randomEmail = faker.internet.email();
-			const created_at = new Date();
-			const updated_at = new Date();
-			const addRowInTable = await request(app.getHttpServer())
-				.post(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}`)
-				.send({
-					[firstTableInfo.testTableColumnName]: randomName,
-					[firstTableInfo.testTableSecondColumnName]: randomEmail,
-					created_at: created_at,
-					updated_at: updated_at,
-				})
-				.set('Cookie', simpleUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			t.is(addRowInTable.status, 201);
-			const addRowInTableRO = JSON.parse(addRowInTable.text);
-			t.is(Object.hasOwn(addRowInTableRO.row, 'id'), true);
-			t.is(addRowInTableRO.row[firstTableInfo.testTableColumnName], randomName);
-		} catch (e) {
-			console.error(e);
-			throw e;
-		}
-	},
-);
+		const randomName = faker.person.firstName();
+		const randomEmail = faker.internet.email();
+		const created_at = new Date();
+		const updated_at = new Date();
+		const addRowInTable = await request(app.getHttpServer())
+			.post(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}`)
+			.send({
+				[firstTableInfo.testTableColumnName]: randomName,
+				[firstTableInfo.testTableSecondColumnName]: randomEmail,
+				created_at: created_at,
+				updated_at: updated_at,
+			})
+			.set('Cookie', simpleUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(addRowInTable.status, 201);
+		const addRowInTableRO = JSON.parse(addRowInTable.text);
+		t.is(Object.hasOwn(addRowInTableRO.row, 'id'), true);
+		t.is(addRowInTableRO.row[firstTableInfo.testTableColumnName], randomName);
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
+});
 
 currentTest = 'PUT /table/row/:slug';
 
@@ -399,9 +380,7 @@ test.serial(
 	async (t) => {
 		try {
 			const testData =
-				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(
-					app,
-				);
+				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
 			const {
 				connections,
 				firstTableInfo,
@@ -434,130 +413,119 @@ test.serial(
 
 currentTest = 'DELETE /table/row/:slug';
 
-test.serial(
-	`${currentTest} should return delete result for user with delete=true permission via Cedar`,
-	async (t) => {
-		try {
-			const testData =
-				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(
-					app,
-				);
-			const {
-				connections,
-				firstTableInfo,
-				users: { simpleUserToken },
-			} = testData;
+test.serial(`${currentTest} should return delete result for user with delete=true permission via Cedar`, async (t) => {
+	try {
+		const testData =
+			await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
+		const {
+			connections,
+			firstTableInfo,
+			users: { simpleUserToken },
+		} = testData;
 
-			const deleteRowInTable = await request(app.getHttpServer())
-				.delete(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}&id=19`)
-				.set('Cookie', simpleUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			t.is(deleteRowInTable.status, 200);
-		} catch (e) {
-			console.error(e);
-			throw e;
-		}
-	},
-);
+		const deleteRowInTable = await request(app.getHttpServer())
+			.delete(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}&id=19`)
+			.set('Cookie', simpleUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(deleteRowInTable.status, 200);
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
+});
 
 //****************************** CUSTOM TABLE PERMISSIONS: add=false ******************************
 
 currentTest = 'POST /table/row/:slug';
 
-test.serial(
-	`${currentTest} should throw exception when user with add=false tries to add row via Cedar`,
-	async (t) => {
-		try {
-			const permissionNoAdd = {
-				visibility: true,
-				readonly: false,
-				add: false,
-				delete: false,
-				edit: false,
-			};
-			const testData =
-				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(
-					app,
-					permissionNoAdd,
-				);
-			const {
-				connections,
-				firstTableInfo,
-				users: { simpleUserToken },
-			} = testData;
+test.serial(`${currentTest} should throw exception when user with add=false tries to add row via Cedar`, async (t) => {
+	try {
+		const permissionNoAdd = {
+			visibility: true,
+			readonly: false,
+			add: false,
+			delete: false,
+			edit: false,
+		};
+		const testData =
+			await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(
+				app,
+				permissionNoAdd,
+			);
+		const {
+			connections,
+			firstTableInfo,
+			users: { simpleUserToken },
+		} = testData;
 
-			const randomName = faker.person.firstName();
-			const randomEmail = faker.internet.email();
-			const created_at = new Date();
-			const updated_at = new Date();
-			const addRowInTable = await request(app.getHttpServer())
-				.post(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}`)
-				.send({
-					[firstTableInfo.testTableColumnName]: randomName,
-					[firstTableInfo.testTableSecondColumnName]: randomEmail,
-					created_at: created_at,
-					updated_at: updated_at,
-				})
-				.set('Cookie', simpleUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			t.is(addRowInTable.status, 403);
-		} catch (e) {
-			console.error(e);
-			throw e;
-		}
-	},
-);
+		const randomName = faker.person.firstName();
+		const randomEmail = faker.internet.email();
+		const created_at = new Date();
+		const updated_at = new Date();
+		const addRowInTable = await request(app.getHttpServer())
+			.post(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}`)
+			.send({
+				[firstTableInfo.testTableColumnName]: randomName,
+				[firstTableInfo.testTableSecondColumnName]: randomEmail,
+				created_at: created_at,
+				updated_at: updated_at,
+			})
+			.set('Cookie', simpleUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(addRowInTable.status, 403);
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
+});
 
 //****************************** CUSTOM TABLE PERMISSIONS: edit=true ******************************
 
 currentTest = 'PUT /table/row/:slug';
 
-test.serial(
-	`${currentTest} should return updated row for user with edit=true permission via Cedar`,
-	async (t) => {
-		try {
-			const permissionWithEdit = {
-				visibility: true,
-				readonly: false,
-				add: true,
-				delete: true,
-				edit: true,
-			};
-			const testData =
-				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(
-					app,
-					permissionWithEdit,
-				);
-			const {
-				connections,
-				firstTableInfo,
-				users: { simpleUserToken },
-			} = testData;
+test.serial(`${currentTest} should return updated row for user with edit=true permission via Cedar`, async (t) => {
+	try {
+		const permissionWithEdit = {
+			visibility: true,
+			readonly: false,
+			add: true,
+			delete: true,
+			edit: true,
+		};
+		const testData =
+			await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(
+				app,
+				permissionWithEdit,
+			);
+		const {
+			connections,
+			firstTableInfo,
+			users: { simpleUserToken },
+		} = testData;
 
-			const randomName = faker.person.firstName();
-			const randomEmail = faker.internet.email();
-			const created_at = new Date();
-			const updated_at = new Date();
-			const updateRowInTable = await request(app.getHttpServer())
-				.put(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}&id=2`)
-				.send({
-					[firstTableInfo.testTableColumnName]: randomName,
-					[firstTableInfo.testTableSecondColumnName]: randomEmail,
-					created_at: created_at,
-					updated_at: updated_at,
-				})
-				.set('Cookie', simpleUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			t.is(updateRowInTable.status, 200);
-		} catch (e) {
-			console.error(e);
-			throw e;
-		}
-	},
-);
+		const randomName = faker.person.firstName();
+		const randomEmail = faker.internet.email();
+		const created_at = new Date();
+		const updated_at = new Date();
+		const updateRowInTable = await request(app.getHttpServer())
+			.put(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}&id=2`)
+			.send({
+				[firstTableInfo.testTableColumnName]: randomName,
+				[firstTableInfo.testTableSecondColumnName]: randomEmail,
+				created_at: created_at,
+				updated_at: updated_at,
+			})
+			.set('Cookie', simpleUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(updateRowInTable.status, 200);
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
+});
 
 //****************************** CUSTOM TABLE PERMISSIONS: delete=false ******************************
 
@@ -643,50 +611,47 @@ test.serial(
 
 currentTest = 'POST /table/row/:slug';
 
-test.serial(
-	`${currentTest} should return added row for user with all table permissions true via Cedar`,
-	async (t) => {
-		try {
-			const permissionAll = {
-				visibility: true,
-				readonly: false,
-				add: true,
-				delete: true,
-				edit: true,
-			};
-			const testData =
-				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(
-					app,
-					permissionAll,
-				);
-			const {
-				connections,
-				firstTableInfo,
-				users: { simpleUserToken },
-			} = testData;
+test.serial(`${currentTest} should return added row for user with all table permissions true via Cedar`, async (t) => {
+	try {
+		const permissionAll = {
+			visibility: true,
+			readonly: false,
+			add: true,
+			delete: true,
+			edit: true,
+		};
+		const testData =
+			await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(
+				app,
+				permissionAll,
+			);
+		const {
+			connections,
+			firstTableInfo,
+			users: { simpleUserToken },
+		} = testData;
 
-			const randomName = faker.person.firstName();
-			const randomEmail = faker.internet.email();
-			const created_at = new Date();
-			const updated_at = new Date();
-			const addRowInTable = await request(app.getHttpServer())
-				.post(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}`)
-				.send({
-					[firstTableInfo.testTableColumnName]: randomName,
-					[firstTableInfo.testTableSecondColumnName]: randomEmail,
-					created_at: created_at,
-					updated_at: updated_at,
-				})
-				.set('Cookie', simpleUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			t.is(addRowInTable.status, 201);
-		} catch (e) {
-			console.error(e);
-			throw e;
-		}
-	},
-);
+		const randomName = faker.person.firstName();
+		const randomEmail = faker.internet.email();
+		const created_at = new Date();
+		const updated_at = new Date();
+		const addRowInTable = await request(app.getHttpServer())
+			.post(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}`)
+			.send({
+				[firstTableInfo.testTableColumnName]: randomName,
+				[firstTableInfo.testTableSecondColumnName]: randomEmail,
+				created_at: created_at,
+				updated_at: updated_at,
+			})
+			.set('Cookie', simpleUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(addRowInTable.status, 201);
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
+});
 
 currentTest = 'PUT /table/row/:slug';
 
@@ -949,165 +914,140 @@ test.serial(
 
 currentTest = 'GET /table/rows/:slug';
 
-test.serial(
-	`${currentTest} should throw exception when connection id is fake via Cedar`,
-	async (t) => {
-		try {
-			const testData =
-				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(
-					app,
-				);
-			const {
-				firstTableInfo,
-				users: { simpleUserToken },
-			} = testData;
-			const fakeId = faker.string.uuid();
-			const getTableRows = await request(app.getHttpServer())
-				.get(`/table/rows/${fakeId}?tableName=${firstTableInfo.testTableName}`)
-				.set('Cookie', simpleUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			t.is(getTableRows.status, 403);
-			t.is(JSON.parse(getTableRows.text).message, Messages.DONT_HAVE_PERMISSIONS);
-		} catch (e) {
-			console.error(e);
-			throw e;
-		}
-	},
-);
+test.serial(`${currentTest} should throw exception when connection id is fake via Cedar`, async (t) => {
+	try {
+		const testData =
+			await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
+		const {
+			firstTableInfo,
+			users: { simpleUserToken },
+		} = testData;
+		const fakeId = faker.string.uuid();
+		const getTableRows = await request(app.getHttpServer())
+			.get(`/table/rows/${fakeId}?tableName=${firstTableInfo.testTableName}`)
+			.set('Cookie', simpleUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(getTableRows.status, 403);
+		t.is(JSON.parse(getTableRows.text).message, Messages.DONT_HAVE_PERMISSIONS);
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
+});
 
-test.serial(
-	`${currentTest} should throw exception when table name is fake via Cedar`,
-	async (t) => {
-		try {
-			const testData =
-				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(
-					app,
-				);
-			const {
-				connections,
-				users: { simpleUserToken },
-			} = testData;
-			const fakeTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
-			const getTableRows = await request(app.getHttpServer())
-				.get(`/table/rows/${connections.firstId}?tableName=${fakeTableName}`)
-				.set('Cookie', simpleUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			t.is(getTableRows.status, 403);
-			t.is(JSON.parse(getTableRows.text).message, Messages.DONT_HAVE_PERMISSIONS);
-		} catch (e) {
-			console.error(e);
-			throw e;
-		}
-	},
-);
+test.serial(`${currentTest} should throw exception when table name is fake via Cedar`, async (t) => {
+	try {
+		const testData =
+			await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
+		const {
+			connections,
+			users: { simpleUserToken },
+		} = testData;
+		const fakeTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
+		const getTableRows = await request(app.getHttpServer())
+			.get(`/table/rows/${connections.firstId}?tableName=${fakeTableName}`)
+			.set('Cookie', simpleUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(getTableRows.status, 403);
+		t.is(JSON.parse(getTableRows.text).message, Messages.DONT_HAVE_PERMISSIONS);
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
+});
 
 currentTest = 'POST /table/row/:slug';
 
-test.serial(
-	`${currentTest} should throw exception when connection id is fake via Cedar`,
-	async (t) => {
-		try {
-			const testData =
-				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(
-					app,
-				);
-			const {
-				firstTableInfo,
-				users: { simpleUserToken },
-			} = testData;
-			const fakeConnectionId = faker.string.uuid();
-			const randomName = faker.person.firstName();
-			const randomEmail = faker.internet.email();
-			const created_at = new Date();
-			const updated_at = new Date();
-			const addRowInTable = await request(app.getHttpServer())
-				.post(`/table/row/${fakeConnectionId}?tableName=${firstTableInfo.testTableName}`)
-				.send({
-					[firstTableInfo.testTableColumnName]: randomName,
-					[firstTableInfo.testTableSecondColumnName]: randomEmail,
-					created_at: created_at,
-					updated_at: updated_at,
-				})
-				.set('Cookie', simpleUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			t.is(addRowInTable.status, 403);
-			t.is(JSON.parse(addRowInTable.text).message, Messages.DONT_HAVE_PERMISSIONS);
-		} catch (e) {
-			console.error(e);
-			throw e;
-		}
-	},
-);
+test.serial(`${currentTest} should throw exception when connection id is fake via Cedar`, async (t) => {
+	try {
+		const testData =
+			await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
+		const {
+			firstTableInfo,
+			users: { simpleUserToken },
+		} = testData;
+		const fakeConnectionId = faker.string.uuid();
+		const randomName = faker.person.firstName();
+		const randomEmail = faker.internet.email();
+		const created_at = new Date();
+		const updated_at = new Date();
+		const addRowInTable = await request(app.getHttpServer())
+			.post(`/table/row/${fakeConnectionId}?tableName=${firstTableInfo.testTableName}`)
+			.send({
+				[firstTableInfo.testTableColumnName]: randomName,
+				[firstTableInfo.testTableSecondColumnName]: randomEmail,
+				created_at: created_at,
+				updated_at: updated_at,
+			})
+			.set('Cookie', simpleUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(addRowInTable.status, 403);
+		t.is(JSON.parse(addRowInTable.text).message, Messages.DONT_HAVE_PERMISSIONS);
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
+});
 
 currentTest = 'PUT /table/row/:slug';
 
-test.serial(
-	`${currentTest} should throw exception when connection id is fake via Cedar`,
-	async (t) => {
-		try {
-			const testData =
-				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(
-					app,
-				);
-			const {
-				firstTableInfo,
-				users: { simpleUserToken },
-			} = testData;
-			const fakeConnectionId = faker.string.uuid();
-			const randomName = faker.person.firstName();
-			const randomEmail = faker.internet.email();
-			const created_at = new Date();
-			const updated_at = new Date();
-			const updateRowInTable = await request(app.getHttpServer())
-				.put(`/table/row/${fakeConnectionId}?tableName=${firstTableInfo.testTableName}&id=1`)
-				.send({
-					name: randomName,
-					email: randomEmail,
-					created_at: created_at,
-					updated_at: updated_at,
-				})
-				.set('Cookie', simpleUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			t.is(JSON.parse(updateRowInTable.text).message, Messages.DONT_HAVE_PERMISSIONS);
-		} catch (e) {
-			console.error(e);
-			throw e;
-		}
-	},
-);
+test.serial(`${currentTest} should throw exception when connection id is fake via Cedar`, async (t) => {
+	try {
+		const testData =
+			await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
+		const {
+			firstTableInfo,
+			users: { simpleUserToken },
+		} = testData;
+		const fakeConnectionId = faker.string.uuid();
+		const randomName = faker.person.firstName();
+		const randomEmail = faker.internet.email();
+		const created_at = new Date();
+		const updated_at = new Date();
+		const updateRowInTable = await request(app.getHttpServer())
+			.put(`/table/row/${fakeConnectionId}?tableName=${firstTableInfo.testTableName}&id=1`)
+			.send({
+				name: randomName,
+				email: randomEmail,
+				created_at: created_at,
+				updated_at: updated_at,
+			})
+			.set('Cookie', simpleUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(JSON.parse(updateRowInTable.text).message, Messages.DONT_HAVE_PERMISSIONS);
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
+});
 
 currentTest = 'DELETE /table/row/:slug';
 
-test.serial(
-	`${currentTest} should throw exception when connection id is fake via Cedar`,
-	async (t) => {
-		try {
-			const testData =
-				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(
-					app,
-				);
-			const {
-				firstTableInfo,
-				users: { simpleUserToken },
-			} = testData;
-			const fakeConnectionId = faker.string.uuid();
-			const deleteRowInTable = await request(app.getHttpServer())
-				.delete(`/table/row/${fakeConnectionId}?tableName=${firstTableInfo.testTableName}&id=1`)
-				.set('Cookie', simpleUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			t.is(JSON.parse(deleteRowInTable.text).message, Messages.DONT_HAVE_PERMISSIONS);
-			t.is(deleteRowInTable.status, 403);
-		} catch (e) {
-			console.error(e);
-			throw e;
-		}
-	},
-);
+test.serial(`${currentTest} should throw exception when connection id is fake via Cedar`, async (t) => {
+	try {
+		const testData =
+			await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
+		const {
+			firstTableInfo,
+			users: { simpleUserToken },
+		} = testData;
+		const fakeConnectionId = faker.string.uuid();
+		const deleteRowInTable = await request(app.getHttpServer())
+			.delete(`/table/row/${fakeConnectionId}?tableName=${firstTableInfo.testTableName}&id=1`)
+			.set('Cookie', simpleUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(JSON.parse(deleteRowInTable.text).message, Messages.DONT_HAVE_PERMISSIONS);
+		t.is(deleteRowInTable.status, 403);
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
+});
 
 //****************************** DEEP PERMISSIONS: Cross-connection isolation ******************************
 
@@ -1118,9 +1058,7 @@ test.serial(
 	async (t) => {
 		try {
 			const testData =
-				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(
-					app,
-				);
+				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
 			const {
 				connections,
 				secondTableInfo,
@@ -1148,9 +1086,7 @@ test.serial(
 	async (t) => {
 		try {
 			const testData =
-				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(
-					app,
-				);
+				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
 			const {
 				connections,
 				firstTableInfo,
@@ -1177,9 +1113,7 @@ test.serial(
 	async (t) => {
 		try {
 			const testData =
-				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(
-					app,
-				);
+				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
 			const {
 				connections,
 				firstTableInfo,
@@ -1210,119 +1144,110 @@ test.serial(
 
 currentTest = 'ADMIN GROUP HIERARCHY';
 
-test.serial(
-	`${currentTest} admin group user should have full connection edit access via Cedar`,
-	async (t) => {
-		try {
-			const testData = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection(app);
-			const {
-				connections,
-				users: { simpleUserToken },
-			} = testData;
+test.serial(`${currentTest} admin group user should have full connection edit access via Cedar`, async (t) => {
+	try {
+		const testData = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection(app);
+		const {
+			connections,
+			users: { simpleUserToken },
+		} = testData;
 
-			const findAll = await request(app.getHttpServer())
-				.get('/connections')
-				.set('Cookie', simpleUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			t.is(findAll.status, 200);
-			const result = findAll.body.connections;
-			const targetConnection = result.find(({ connection }: any) => connection.id === connections.firstId);
-			t.truthy(targetConnection);
-			t.is(targetConnection.accessLevel, AccessLevelEnum.edit);
-		} catch (e) {
-			console.error(e);
-			throw e;
-		}
-	},
-);
+		const findAll = await request(app.getHttpServer())
+			.get('/connections')
+			.set('Cookie', simpleUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(findAll.status, 200);
+		const result = findAll.body.connections;
+		const targetConnection = result.find(({ connection }: any) => connection.id === connections.firstId);
+		t.truthy(targetConnection);
+		t.is(targetConnection.accessLevel, AccessLevelEnum.edit);
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
+});
 
-test.serial(
-	`${currentTest} admin group user should be able to create groups via Cedar`,
-	async (t) => {
-		try {
-			const testData = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection(app);
-			const {
-				connections,
-				users: { simpleUserToken },
-			} = testData;
+test.serial(`${currentTest} admin group user should be able to create groups via Cedar`, async (t) => {
+	try {
+		const testData = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection(app);
+		const {
+			connections,
+			users: { simpleUserToken },
+		} = testData;
 
-			const newGroup = mockFactory.generateCreateGroupDto1();
-			const createGroupResponse = await request(app.getHttpServer())
-				.post(`/connection/group/${connections.firstId}`)
-				.set('Cookie', simpleUserToken)
-				.send(newGroup)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			t.is(createGroupResponse.status, 201);
-			t.truthy(JSON.parse(createGroupResponse.text).id);
-		} catch (e) {
-			console.error(e);
-			throw e;
-		}
-	},
-);
+		const newGroup = mockFactory.generateCreateGroupDto1();
+		const createGroupResponse = await request(app.getHttpServer())
+			.post(`/connection/group/${connections.firstId}`)
+			.set('Cookie', simpleUserToken)
+			.send(newGroup)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(createGroupResponse.status, 201);
+		t.truthy(JSON.parse(createGroupResponse.text).id);
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
+});
 
-test.serial(
-	`${currentTest} admin group user should have full table CRUD access via Cedar`,
-	async (t) => {
-		try {
-			const testData = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection(app);
-			const {
-				connections,
-				firstTableInfo,
-				users: { simpleUserToken },
-			} = testData;
+test.serial(`${currentTest} admin group user should have full table CRUD access via Cedar`, async (t) => {
+	try {
+		const testData = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection(app);
+		const {
+			connections,
+			firstTableInfo,
+			users: { simpleUserToken },
+		} = testData;
 
-			// Read rows
-			const getTableRows = await request(app.getHttpServer())
-				.get(`/table/rows/${connections.firstId}?tableName=${firstTableInfo.testTableName}`)
-				.set('Cookie', simpleUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			t.is(getTableRows.status, 200);
+		// Read rows
+		const getTableRows = await request(app.getHttpServer())
+			.get(`/table/rows/${connections.firstId}?tableName=${firstTableInfo.testTableName}`)
+			.set('Cookie', simpleUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(getTableRows.status, 200);
 
-			// Add row
-			const addRowInTable = await request(app.getHttpServer())
-				.post(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}`)
-				.send({
-					[firstTableInfo.testTableColumnName]: faker.person.firstName(),
-					[firstTableInfo.testTableSecondColumnName]: faker.internet.email(),
-					created_at: new Date(),
-					updated_at: new Date(),
-				})
-				.set('Cookie', simpleUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			t.is(addRowInTable.status, 201);
+		// Add row
+		const addRowInTable = await request(app.getHttpServer())
+			.post(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}`)
+			.send({
+				[firstTableInfo.testTableColumnName]: faker.person.firstName(),
+				[firstTableInfo.testTableSecondColumnName]: faker.internet.email(),
+				created_at: new Date(),
+				updated_at: new Date(),
+			})
+			.set('Cookie', simpleUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(addRowInTable.status, 201);
 
-			// Edit row
-			const updateRow = await request(app.getHttpServer())
-				.put(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}&id=2`)
-				.send({
-					[firstTableInfo.testTableColumnName]: faker.person.firstName(),
-					[firstTableInfo.testTableSecondColumnName]: faker.internet.email(),
-					created_at: new Date(),
-					updated_at: new Date(),
-				})
-				.set('Cookie', simpleUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			t.is(updateRow.status, 200);
+		// Edit row
+		const updateRow = await request(app.getHttpServer())
+			.put(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}&id=2`)
+			.send({
+				[firstTableInfo.testTableColumnName]: faker.person.firstName(),
+				[firstTableInfo.testTableSecondColumnName]: faker.internet.email(),
+				created_at: new Date(),
+				updated_at: new Date(),
+			})
+			.set('Cookie', simpleUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(updateRow.status, 200);
 
-			// Delete row
-			const deleteRow = await request(app.getHttpServer())
-				.delete(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}&id=19`)
-				.set('Cookie', simpleUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			t.is(deleteRow.status, 200);
-		} catch (e) {
-			console.error(e);
-			throw e;
-		}
-	},
-);
+		// Delete row
+		const deleteRow = await request(app.getHttpServer())
+			.delete(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}&id=19`)
+			.set('Cookie', simpleUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(deleteRow.status, 200);
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
+});
 
 test.serial(
 	`${currentTest} admin group user should NOT have access to second connection they are NOT in via Cedar`,
@@ -1461,30 +1386,27 @@ test.serial(
 	},
 );
 
-test.serial(
-	`${currentTest} user with connection:edit should be able to create groups via Cedar`,
-	async (t) => {
-		try {
-			const testData = await createConnectionAndInviteUserWithConnectionEditOnly(app);
-			const {
-				connections,
-				users: { simpleUserToken },
-			} = testData;
+test.serial(`${currentTest} user with connection:edit should be able to create groups via Cedar`, async (t) => {
+	try {
+		const testData = await createConnectionAndInviteUserWithConnectionEditOnly(app);
+		const {
+			connections,
+			users: { simpleUserToken },
+		} = testData;
 
-			const newGroup = mockFactory.generateCreateGroupDto1();
-			const createGroupResponse = await request(app.getHttpServer())
-				.post(`/connection/group/${connections.firstId}`)
-				.set('Cookie', simpleUserToken)
-				.send(newGroup)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			t.is(createGroupResponse.status, 201);
-		} catch (e) {
-			console.error(e);
-			throw e;
-		}
-	},
-);
+		const newGroup = mockFactory.generateCreateGroupDto1();
+		const createGroupResponse = await request(app.getHttpServer())
+			.post(`/connection/group/${connections.firstId}`)
+			.set('Cookie', simpleUserToken)
+			.send(newGroup)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(createGroupResponse.status, 201);
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
+});
 
 test.serial(
 	`${currentTest} user with connection:edit but no table perms should see empty table list via Cedar`,
@@ -1548,36 +1470,31 @@ test.serial(
 	},
 );
 
-test.serial(
-	`${currentTest} readonly group user should see groups with readonly access level via Cedar`,
-	async (t) => {
-		try {
-			const testData =
-				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(
-					app,
-				);
-			const {
-				connections,
-				groups,
-				users: { simpleUserToken },
-			} = testData;
+test.serial(`${currentTest} readonly group user should see groups with readonly access level via Cedar`, async (t) => {
+	try {
+		const testData =
+			await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
+		const {
+			connections,
+			groups,
+			users: { simpleUserToken },
+		} = testData;
 
-			const response = await request(app.getHttpServer())
-				.get(`/connection/groups/${connections.firstId}`)
-				.set('Cookie', simpleUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			t.is(response.status, 200);
-			const result = JSON.parse(response.text);
-			const createdGroup = result.find((el: any) => el.group.id === groups.createdGroupId);
-			t.truthy(createdGroup);
-			t.is(createdGroup.accessLevel, AccessLevelEnum.readonly);
-		} catch (e) {
-			console.error(e);
-			throw e;
-		}
-	},
-);
+		const response = await request(app.getHttpServer())
+			.get(`/connection/groups/${connections.firstId}`)
+			.set('Cookie', simpleUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(response.status, 200);
+		const result = JSON.parse(response.text);
+		const createdGroup = result.find((el: any) => el.group.id === groups.createdGroupId);
+		t.truthy(createdGroup);
+		t.is(createdGroup.accessLevel, AccessLevelEnum.readonly);
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
+});
 
 //****************************** DEEP PERMISSIONS: Table permissions returned from API match Cedar policy ******************************
 
@@ -1628,44 +1545,41 @@ test.serial(
 	},
 );
 
-test.serial(
-	`${currentTest} table list should only show tables with visibility=true via Cedar`,
-	async (t) => {
-		try {
-			const permissionNoVisibility = {
-				visibility: false,
-				readonly: false,
-				add: false,
-				delete: false,
-				edit: false,
-			};
-			const testData =
-				await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(
-					app,
-					permissionNoVisibility,
-				);
-			const {
-				connections,
-				firstTableInfo,
-				users: { simpleUserToken },
-			} = testData;
+test.serial(`${currentTest} table list should only show tables with visibility=true via Cedar`, async (t) => {
+	try {
+		const permissionNoVisibility = {
+			visibility: false,
+			readonly: false,
+			add: false,
+			delete: false,
+			edit: false,
+		};
+		const testData =
+			await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(
+				app,
+				permissionNoVisibility,
+			);
+		const {
+			connections,
+			firstTableInfo,
+			users: { simpleUserToken },
+		} = testData;
 
-			const getTablesInConnection = await request(app.getHttpServer())
-				.get(`/connection/tables/${connections.firstId}`)
-				.set('Cookie', simpleUserToken)
-				.set('Content-Type', 'application/json')
-				.set('Accept', 'application/json');
-			t.is(getTablesInConnection.status, 200);
-			const tables = JSON.parse(getTablesInConnection.text);
-			// The table with visibility=false should NOT appear in the list
-			const hiddenTable = tables.find((table: any) => table.table === firstTableInfo.testTableName);
-			t.is(hiddenTable, undefined);
-		} catch (e) {
-			console.error(e);
-			throw e;
-		}
-	},
-);
+		const getTablesInConnection = await request(app.getHttpServer())
+			.get(`/connection/tables/${connections.firstId}`)
+			.set('Cookie', simpleUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(getTablesInConnection.status, 200);
+		const tables = JSON.parse(getTablesInConnection.text);
+		// The table with visibility=false should NOT appear in the list
+		const hiddenTable = tables.find((table: any) => table.table === firstTableInfo.testTableName);
+		t.is(hiddenTable, undefined);
+	} catch (e) {
+		console.error(e);
+		throw e;
+	}
+});
 
 //****************************** DEEP PERMISSIONS: Per-action granularity ******************************
 

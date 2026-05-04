@@ -2,7 +2,7 @@ import * as cedarWasm from '@cedar-policy/cedar-wasm/nodejs';
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../common/data-injection.tokens.js';
-import { AccessLevelEnum } from '../../enums/index.js';
+import { AccessLevelEnum } from '../../enums/access-level.enum.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { Cacher } from '../../helpers/cache/cacher.js';
 import { GroupEntity } from '../group/group.entity.js';

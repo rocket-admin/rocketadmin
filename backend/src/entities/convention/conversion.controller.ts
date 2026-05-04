@@ -3,8 +3,8 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { Timeout } from '../../decorators/timeout.decorator.js';
-import { InTransactionEnum } from '../../enums/index.js';
-import { SentryInterceptor } from '../../interceptors/index.js';
+import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
+import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { IGetConversions } from './use-cases/get-conversions-use-cases.interface.js';
 
 @UseInterceptors(SentryInterceptor)

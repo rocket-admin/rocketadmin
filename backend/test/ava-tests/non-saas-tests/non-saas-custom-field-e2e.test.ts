@@ -14,7 +14,7 @@ import { ValidationException } from '../../../src/exceptions/custom-exceptions/v
 import { Messages } from '../../../src/exceptions/text/messages.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { Encryptor } from '../../../src/helpers/encryption/encryptor.js';
-import { replaceTextInCurlies } from '../../../src/helpers/index.js';
+import { replaceTextInCurlies } from '../../../src/helpers/operate-values-between-curlies.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { MockFactory } from '../../mock.factory.js';

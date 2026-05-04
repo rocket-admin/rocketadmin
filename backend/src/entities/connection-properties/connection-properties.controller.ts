@@ -14,12 +14,15 @@ import {
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
-import { MasterPassword, SlugUuid, UserId } from '../../decorators/index.js';
+import { MasterPassword } from '../../decorators/master-password.decorator.js';
+import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
 import { Timeout } from '../../decorators/timeout.decorator.js';
-import { InTransactionEnum } from '../../enums/index.js';
+import { UserId } from '../../decorators/user-id.decorator.js';
+import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { Messages } from '../../exceptions/text/messages.js';
-import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards/index.js';
-import { SentryInterceptor } from '../../interceptors/index.js';
+import { ConnectionEditGuard } from '../../guards/connection-edit.guard.js';
+import { ConnectionReadGuard } from '../../guards/connection-read.guard.js';
+import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { CreateConnectionPropertiesDs } from './application/data-structures/create-connection-properties.ds.js';
 import { FoundConnectionPropertiesDs } from './application/data-structures/found-connection-properties.ds.js';
 import { CreateConnectionPropertiesDto } from './dto/create-connection-properties.dto.js';
@@ -139,7 +142,9 @@ export class ConnectionPropertiesController {
 	})
 	@UseGuards(ConnectionEditGuard)
 	@Delete('/connection/properties/:connectionId')
-	async deleteConnectionProperties(@SlugUuid('connectionId') connectionId: string): Promise<FoundConnectionPropertiesDs> {
+	async deleteConnectionProperties(
+		@SlugUuid('connectionId') connectionId: string,
+	): Promise<FoundConnectionPropertiesDs> {
 		if (!connectionId) {
 			throw new HttpException(
 				{

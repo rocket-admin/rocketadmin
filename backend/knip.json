@@ -1,9 +1,6 @@
 {
 	"$schema": "https://unpkg.com/knip@5/schema.json",
-	"ignoreExportsUsedInFile": {
-		"interface": true,
-		"type": true
-	},
-	"ignore": ["src/migrations/**", "src/shared/config/datasource.config.ts", "src/enums/widget-type.enum.ts"],
+	"ignoreExportsUsedInFile": true,
+	"ignore": ["src/migrations/**", "src/shared/config/datasource.config.ts"],
 	"tags": ["-lintignore"]
 }

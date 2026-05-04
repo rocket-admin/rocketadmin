@@ -4,7 +4,7 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { isConnectionEntityAgent } from '../../../helpers/index.js';
+import { isConnectionEntityAgent } from '../../../helpers/is-connection-entity-agent.js';
 import { RestoredConnectionDs } from '../application/data-structures/restored-connection.ds.js';
 import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
 import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds.js';

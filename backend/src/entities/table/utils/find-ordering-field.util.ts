@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
-import { QueryOrderingEnum } from '../../../enums/index.js';
+import { QueryOrderingEnum } from '../../../enums/query-ordering.enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isObjectPropertyExists } from '../../../helpers/validators/is-object-property-exists-validator.js';
 import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';

@@ -1,5 +1,5 @@
 import json5 from 'json5';
-import { CreateTableWidgetDto } from '../../src/entities/widget/dto/index.js';
+import { CreateTableWidgetDto } from '../../src/entities/widget/dto/create-table-widget.dto.js';
 import { TableWidgetEntity } from '../../src/entities/widget/table-widget.entity.js';
 
 export const compareTableWidgetsArrays = (

@@ -2,12 +2,12 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import Sentry from '@sentry/minimal';
+import Mail from 'nodemailer/lib/mailer/index.js';
 import { Repository } from 'typeorm';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { Constants } from '../../helpers/constants/constants.js';
-import { slackPostMessage } from '../../helpers/index.js';
+import { slackPostMessage } from '../../helpers/slack/slack-post-message.js';
 import { ValidationHelper } from '../../helpers/validators/validation-helper.js';
-import Mail from 'nodemailer/lib/mailer/index.js';
 import { EmailService, ICronMessagingResults } from '../email/email/email.service.js';
 import {
 	ICheckUsersActionsAndMailingUsers,

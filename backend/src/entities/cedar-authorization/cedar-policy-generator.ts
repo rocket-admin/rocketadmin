@@ -1,4 +1,4 @@
-import { AccessLevelEnum } from '../../enums/index.js';
+import { AccessLevelEnum } from '../../enums/access-level.enum.js';
 import { IComplexPermission } from '../permission/permission.interface.js';
 
 export function generateCedarPolicyForGroup(
@@ -10,9 +10,7 @@ export function generateCedarPolicyForGroup(
 	const connectionRef = `RocketAdmin::Connection::"${connectionId}"`;
 
 	if (isMain) {
-		policies.push(
-			`permit(\n  principal,\n  action,\n  resource\n);`,
-		);
+		policies.push(`permit(\n  principal,\n  action,\n  resource\n);`);
 		return policies.join('\n\n');
 	}
 
