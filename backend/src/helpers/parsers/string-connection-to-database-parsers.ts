@@ -121,30 +121,6 @@ export const parseTestMongoDBConnectionString = (connectionString: string): Part
 	return config;
 };
 
-// db2://user:password@localhost:50000/mydatabase?schema=myschema&ssh=true&privateSSHKey=key&sshHost=sshHost&sshPort=22&sshUsername=sshUser&ssl=true&cert=cert
-export const parseTestIbmDB2ConnectionString = (connectionString: string): Partial<CreateConnectionDto> => {
-	const url = new URL(connectionString);
-	const config: Partial<CreateConnectionDto> = {};
-	config.host = url.hostname || null;
-	config.port = parseInt(url.port, 10) || 50000;
-	config.username = url.username || null;
-	config.password = url.password || null;
-	config.database = url.pathname.split('/')[1] || null;
-	const params = new URLSearchParams(url.search);
-	config.schema = params.get('schema') || undefined;
-	config.type = ConnectionTypesEnum.ibmdb2;
-	config.title = 'IBM DB2';
-	config.isTestConnection = true;
-	config.ssh = params.get('ssh') === 'true';
-	config.privateSSHKey = params.get('privateSSHKey') || undefined;
-	config.sshHost = params.get('sshHost') || undefined;
-	config.sshPort = parseInt(params.get('sshPort'), 10) || undefined;
-	config.sshUsername = params.get('sshUsername') || undefined;
-	config.ssl = params.get('ssl') === 'true';
-	config.cert = params.get('cert') || undefined;
-	return config;
-};
-
 // dynamodb://accessKeyId:secretAccessKey@localhost:8000/
 export const parseTestDynamoDBConnectionString = (connectionString: string): Partial<CreateConnectionDto> => {
 	const modifiedConnectionString = connectionString.replace('dynamodb://', '');

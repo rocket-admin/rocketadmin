@@ -275,9 +275,6 @@ export const Constants = {
 					case type.toLowerCase().includes('mongo'):
 						connection = parseTestMongoDBConnectionString(connection_string) as CreateConnectionDto;
 						break;
-					// case type.toLowerCase().includes('ibmdb2'):
-					//   connection = parseTestIbmDB2ConnectionString(connection_string) as CreateConnectionDto;
-					//   break;
 					case type.toLowerCase().includes('dynamodb'):
 						connection = parseTestDynamoDBConnectionString(connection_string) as CreateConnectionDto;
 						break;

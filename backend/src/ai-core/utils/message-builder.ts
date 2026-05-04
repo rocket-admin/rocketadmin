@@ -63,5 +63,3 @@ export class MessageBuilder {
 		return builder;
 	}
 }
-
-export { HumanMessage, SystemMessage, AIMessage, ToolMessage, BaseMessage };
