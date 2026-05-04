@@ -22,7 +22,7 @@ import { Messages } from '../../exceptions/text/messages.js';
 import { ConnectionEditGuard } from '../../guards/connection-edit.guard.js';
 import { ConnectionReadGuard } from '../../guards/connection-read.guard.js';
 import { TableReadGuard } from '../../guards/table-read.guard.js';
-import { SentryInterceptor } from '../../interceptors/index.js';
+import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { CreateTableFilterDs } from './application/data-structures/create-table-filters.ds.js';
 import { FindTableFilterByIdDs, FindTableFiltersDs } from './application/data-structures/find-table-filters.ds.js';

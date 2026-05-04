@@ -1,6 +1,6 @@
 import { Constants } from '../../../helpers/constants/constants.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
-import { isConnectionTypeAgent } from '../../../helpers/index.js';
+import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
 import { ConnectionEntity } from '../connection.entity.js';
 
 export async function decryptConnectionCredentialsAsync(connection: ConnectionEntity): Promise<void> {

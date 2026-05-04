@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { FilterCriteriaEnum } from '../../enums/index.js';
+import { FilterCriteriaEnum } from '../../enums/filter-criteria.enum.js';
 import { TableAccessLevelsDs } from '../permission/application/data-structures/create-permissions.ds.js';
 import { FoundActionEventDTO } from '../table-actions/table-action-rules-module/application/dto/found-action-rules-with-actions-and-events.dto.js';
 import { TableWidgetRO } from '../widget/table-widget.interface.js';

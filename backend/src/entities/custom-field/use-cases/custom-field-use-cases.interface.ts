@@ -1,4 +1,4 @@
-import { InTransactionEnum } from '../../../enums/index.js';
+import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { FoundTableSettingsDs } from '../../table-settings/application/data-structures/found-table-settings.ds.js';
 import { CreateCustomFieldsDs } from '../application/data-structures/create-custom-fields.ds.js';
 import { DeleteCustomFieldsDs } from '../application/data-structures/delete-custom-fields.ds.js';

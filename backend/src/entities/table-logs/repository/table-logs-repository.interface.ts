@@ -1,5 +1,6 @@
 import { ReadStream } from 'typeorm/platform/PlatformTools.js';
-import { LogOperationTypeEnum, QueryOrderingEnum } from '../../../enums/index.js';
+import { LogOperationTypeEnum } from '../../../enums/log-operation-type.enum.js';
+import { QueryOrderingEnum } from '../../../enums/query-ordering.enum.js';
 import { CreateLogRecordDs } from '../application/data-structures/create-log-record.ds.js';
 import { CreatedLogRecordDs } from '../application/data-structures/created-log-record.ds.js';
 import { FoundLogsEntities } from '../application/data-structures/found-logs.ds.js';

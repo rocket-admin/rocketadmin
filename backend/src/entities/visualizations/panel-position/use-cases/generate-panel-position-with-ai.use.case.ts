@@ -3,17 +3,13 @@ import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-acce
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object.interface.js';
 import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
-import {
-	AICoreService,
-	AIProviderType,
-	AIToolCall,
-	AIToolDefinition,
-	cleanAIJsonResponse,
-	createDashboardGenerationTools,
-	encodeError,
-	encodeToToon,
-	MessageBuilder,
-} from '../../../../ai-core/index.js';
+import { AIToolCall, AIToolDefinition } from '../../../../ai-core/interfaces/ai-provider.interface.js';
+import { AIProviderType } from '../../../../ai-core/interfaces/ai-service.interface.js';
+import { AICoreService } from '../../../../ai-core/services/ai-core.service.js';
+import { createDashboardGenerationTools } from '../../../../ai-core/tools/database-tools.js';
+import { cleanAIJsonResponse } from '../../../../ai-core/tools/query-validators.js';
+import { MessageBuilder } from '../../../../ai-core/utils/message-builder.js';
+import { encodeError, encodeToToon } from '../../../../ai-core/utils/toon-encoder.js';
 import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../../common/data-injection.tokens.js';
@@ -77,17 +73,8 @@ export class GeneratePanelPositionWithAiUseCase
 	}
 
 	public async implementation(inputData: GeneratePanelPositionWithAiDs): Promise<GeneratedPanelWithPositionDto> {
-		const {
-			connectionId,
-			masterPassword,
-			userId,
-			chart_description,
-			name,
-			position_x,
-			position_y,
-			width,
-			height,
-		} = inputData;
+		const { connectionId, masterPassword, userId, chart_description, name, position_x, position_y, width, height } =
+			inputData;
 
 		const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
 			connectionId,
@@ -445,10 +432,7 @@ CRITICAL: Respond with the SQL query ONLY — no explanations, no comments, no m
 		const startsWithSql = sqlPrefixes.some((prefix) => upperCleaned.startsWith(prefix));
 
 		if (!startsWithSql) {
-			const sqlPattern = new RegExp(
-				`^(${sqlPrefixes.join('|')})\\b`,
-				'im',
-			);
+			const sqlPattern = new RegExp(`^(${sqlPrefixes.join('|')})\\b`, 'im');
 			const match = cleaned.match(sqlPattern);
 			if (match) {
 				const sqlStart = cleaned.indexOf(match[0]);

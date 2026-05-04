@@ -1,4 +1,4 @@
-import { UserActionEnum } from '../../../enums/index.js';
+import { UserActionEnum } from '../../../enums/user-action.enum.js';
 import { UserEntity } from '../../user/user.entity.js';
 import { CreateUserActionDs } from '../application/data-sctructures/create-user-action.ds.js';
 import { UserActionEntity } from '../user-action.entity.js';

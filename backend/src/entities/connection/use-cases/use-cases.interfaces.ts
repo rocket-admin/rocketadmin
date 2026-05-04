@@ -1,4 +1,4 @@
-import { InTransactionEnum } from '../../../enums/index.js';
+import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { FoundGroupResponseDto } from '../../group/dto/found-group-response.dto.js';
 import { FindUserDs } from '../../user/application/data-structures/find-user.ds.js';

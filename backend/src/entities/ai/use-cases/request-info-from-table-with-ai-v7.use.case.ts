@@ -6,26 +6,20 @@ import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/inte
 import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
 import Sentry from '@sentry/minimal';
 import { Response } from 'express';
-import {
-	AICoreService,
-	AIProviderType,
-	AIToolCall,
-	AIToolDefinition,
-	createDatabaseQuerySystemPrompt,
-	createDatabaseTools,
-	encodeError,
-	encodeToToon,
-	isValidMongoDbCommand,
-	isValidSQLQuery,
-	MessageBuilder,
-	wrapQueryWithLimit,
-} from '../../../ai-core/index.js';
+import { AIToolCall, AIToolDefinition } from '../../../ai-core/interfaces/ai-provider.interface.js';
+import { AIProviderType } from '../../../ai-core/interfaces/ai-service.interface.js';
+import { AICoreService } from '../../../ai-core/services/ai-core.service.js';
+import { createDatabaseTools } from '../../../ai-core/tools/database-tools.js';
+import { createDatabaseQuerySystemPrompt } from '../../../ai-core/tools/prompts.js';
+import { isValidMongoDbCommand, isValidSQLQuery, wrapQueryWithLimit } from '../../../ai-core/tools/query-validators.js';
+import { MessageBuilder } from '../../../ai-core/utils/message-builder.js';
+import { encodeError, encodeToToon } from '../../../ai-core/utils/toon-encoder.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { slackPostMessage } from '../../../helpers/index.js';
 import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
+import { slackPostMessage } from '../../../helpers/slack/slack-post-message.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { MessageRole } from '../ai-conversation-history/ai-chat-messages/message-role.enum.js';
 import { UserAiChatEntity } from '../ai-conversation-history/user-ai-chat/user-ai-chat.entity.js';

@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../../../enums/index.js';
+import { LogOperationTypeEnum } from '../../../../enums/log-operation-type.enum.js';
+import { OperationResultStatusEnum } from '../../../../enums/operation-result-status.enum.js';
 import { PaginationDs } from '../../../table/application/data-structures/pagination.ds.js';
 import { TableLogsEntity } from '../../table-logs.entity.js';
 

@@ -1,5 +1,5 @@
 import { StreamableFile } from '@nestjs/common';
-import { InTransactionEnum } from '../../../enums/index.js';
+import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { AddRowInTableDs } from '../application/data-structures/add-row-in-table.ds.js';
 import {

@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { IRequestWithCognitoInfo } from '../authorization/index.js';
+import { IRequestWithCognitoInfo } from '../authorization/cognito-decoded.interface.js';
 import { CedarAction } from '../entities/cedar-authorization/cedar-action-map.js';
 import { CedarAuthorizationService } from '../entities/cedar-authorization/cedar-authorization.service.js';
 import { TableSchemaChangeEntity } from '../entities/table-schema/table-schema-change.entity.js';

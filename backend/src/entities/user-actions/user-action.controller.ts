@@ -1,10 +1,10 @@
 import { Body, Controller, Inject, Injectable, Post, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
-import { UserId } from '../../decorators/index.js';
 import { Timeout } from '../../decorators/timeout.decorator.js';
-import { InTransactionEnum } from '../../enums/index.js';
-import { SentryInterceptor } from '../../interceptors/index.js';
+import { UserId } from '../../decorators/user-id.decorator.js';
+import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
+import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { CreateUserActionDs } from './application/data-sctructures/create-user-action.ds.js';
 import { CreateUserActionDto } from './dto/create-user-action.dto.js';
 import { ICreateUserAction } from './use-cases/use-cases-interfaces.js';

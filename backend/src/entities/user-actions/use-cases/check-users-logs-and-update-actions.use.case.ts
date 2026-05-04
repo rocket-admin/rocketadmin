@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { LogOperationTypeEnum, OperationResultStatusEnum, UserActionEnum } from '../../../enums/index.js';
+import { LogOperationTypeEnum } from '../../../enums/log-operation-type.enum.js';
+import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
+import { UserActionEnum } from '../../../enums/user-action.enum.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { TableLogsEntity } from '../../table-logs/table-logs.entity.js';
 import { UserActionEntity } from '../user-action.entity.js';

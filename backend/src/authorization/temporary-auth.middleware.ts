@@ -14,7 +14,7 @@ import { LogOutEntity } from '../entities/log-out/log-out.entity.js';
 import { UserEntity } from '../entities/user/user.entity.js';
 import { Messages } from '../exceptions/text/messages.js';
 import { Constants } from '../helpers/constants/constants.js';
-import { isObjectEmpty } from '../helpers/index.js';
+import { isObjectEmpty } from '../helpers/is-object-empty.js';
 import { IRequestWithCognitoInfo } from './cognito-decoded.interface.js';
 
 @Injectable()

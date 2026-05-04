@@ -11,12 +11,14 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
-import { MasterPassword, SlugUuid, UserId } from '../../decorators/index.js';
+import { MasterPassword } from '../../decorators/master-password.decorator.js';
+import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
 import { Timeout } from '../../decorators/timeout.decorator.js';
-import { InTransactionEnum } from '../../enums/index.js';
+import { UserId } from '../../decorators/user-id.decorator.js';
+import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { Messages } from '../../exceptions/text/messages.js';
-import { ConnectionEditGuard } from '../../guards/index.js';
-import { SentryInterceptor } from '../../interceptors/index.js';
+import { ConnectionEditGuard } from '../../guards/connection-edit.guard.js';
+import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { ComplexPermissionDs, CreatePermissionsDs } from './application/data-structures/create-permissions.ds.js';
 import { ICreateOrUpdatePermissions } from './use-cases/permissions-use-cases.interface.js';
 

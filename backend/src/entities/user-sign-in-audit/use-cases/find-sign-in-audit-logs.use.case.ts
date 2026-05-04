@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { QueryOrderingEnum } from '../../../enums/index.js';
+import { QueryOrderingEnum } from '../../../enums/query-ordering.enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { validateStringWithEnum } from '../../../helpers/validators/validate-string-with-enum.js';

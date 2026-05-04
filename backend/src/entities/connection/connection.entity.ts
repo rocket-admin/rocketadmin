@@ -14,7 +14,7 @@ import {
 	Relation,
 } from 'typeorm';
 import { Encryptor } from '../../helpers/encryption/encryptor.js';
-import { isConnectionTypeAgent } from '../../helpers/index.js';
+import { isConnectionTypeAgent } from '../../helpers/is-connection-entity-agent.js';
 import { AgentEntity } from '../agent/agent.entity.js';
 import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
 import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity.js';

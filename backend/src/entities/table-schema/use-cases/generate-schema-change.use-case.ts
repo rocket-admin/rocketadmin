@@ -2,7 +2,9 @@ import { BadRequestException, Inject, Injectable, Logger, NotFoundException, Sco
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import crypto from 'crypto';
-import { AICoreService, AIProviderType, MessageBuilder } from '../../../ai-core/index.js';
+import { AIProviderType } from '../../../ai-core/interfaces/ai-service.interface.js';
+import { AICoreService } from '../../../ai-core/services/ai-core.service.js';
+import { MessageBuilder } from '../../../ai-core/utils/message-builder.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';

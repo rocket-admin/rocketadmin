@@ -1,4 +1,4 @@
-import { WidgetTypeEnum } from '../../../../enums/index.js';
+import { WidgetTypeEnum } from '../../../../enums/widget-type.enum.js';
 
 export class CreateTableWidgetsDs {
 	connectionId: string;

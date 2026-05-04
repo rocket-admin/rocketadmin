@@ -1,5 +1,5 @@
 import { Injectable, Scope } from '@nestjs/common';
-import { InTransactionEnum } from '../enums/index.js';
+import { InTransactionEnum } from '../enums/in-transaction.enum.js';
 import { IDatabaseContext } from './database-context.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })

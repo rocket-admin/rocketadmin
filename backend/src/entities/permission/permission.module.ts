@@ -1,6 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthMiddleware } from '../../authorization/index.js';
+import { AuthMiddleware } from '../../authorization/auth.middleware.js';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
 import { AgentModule } from '../agent/agent.module.js';
@@ -48,10 +48,6 @@ import { CreateOrUpdatePermissionsUseCase } from './use-cases/create-or-update-p
 })
 export class PermissionModule implements NestModule {
 	public configure(consumer: MiddlewareConsumer): any {
-		consumer
-			.apply(AuthMiddleware)
-			.forRoutes(
-				{ path: 'permissions/:slug', method: RequestMethod.PUT },
-			);
+		consumer.apply(AuthMiddleware).forRoutes({ path: 'permissions/:slug', method: RequestMethod.PUT });
 	}
 }

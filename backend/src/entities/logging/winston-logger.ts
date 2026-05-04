@@ -1,6 +1,6 @@
 import { Injectable, LoggerService } from '@nestjs/common';
 import winston from 'winston';
-import { slackPostMessage } from '../../helpers/index.js';
+import { slackPostMessage } from '../../helpers/slack/slack-post-message.js';
 import { LoggerTransports } from './logger-transports.config.js';
 
 @Injectable()

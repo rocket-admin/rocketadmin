@@ -2,8 +2,8 @@ import { Body, Controller, Get, HttpStatus, Inject, Post, UseInterceptors } from
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../common/data-injection.tokens.js';
 import { SimpleFoundUserInfoDs } from '../entities/user/dto/found-user.dto.js';
-import { InTransactionEnum } from '../enums/index.js';
-import { SentryInterceptor } from '../interceptors/index.js';
+import { InTransactionEnum } from '../enums/in-transaction.enum.js';
+import { SentryInterceptor } from '../interceptors/sentry.interceptor.js';
 import { CreateInitialUserDto } from './application/dto/create-initial-admin-user.dto.js';
 import { IsConfiguredRo } from './application/responce-objects/is-configured.ro.js';
 import {

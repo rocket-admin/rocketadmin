@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 import crypto, { createHmac, randomBytes, scrypt } from 'crypto';
 import CryptoJS from 'crypto-js';
 import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
-import { EncryptionAlgorithmEnum } from '../../enums/index.js';
+import { EncryptionAlgorithmEnum } from '../../enums/encryption-algorithm.enum.js';
 import { Constants } from '../constants/constants.js';
 
 const ENCRYPTION_VERSION_PREFIX = '$v2:k1$';

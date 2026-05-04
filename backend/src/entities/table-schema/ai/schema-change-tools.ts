@@ -1,4 +1,4 @@
-import { AIToolDefinition } from '../../../ai-core/index.js';
+import { AIToolDefinition } from '../../../ai-core/interfaces/ai-provider.interface.js';
 import { SchemaChangeTypeEnum } from '../table-schema-change-enums.js';
 
 export const PROPOSE_SCHEMA_CHANGE_TOOL_NAME = 'proposeSchemaChange';

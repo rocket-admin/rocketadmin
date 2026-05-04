@@ -1,5 +1,5 @@
 import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
-import { checkFieldAutoincrement } from '../../../helpers/index.js';
+import { checkFieldAutoincrement } from '../../../helpers/check-field-autoincrement.js';
 import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';
 import { FullTableStructureDs } from '../application/data-structures/found-table-structure.ds.js';
 

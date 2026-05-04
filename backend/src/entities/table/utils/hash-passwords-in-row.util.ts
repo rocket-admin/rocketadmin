@@ -1,5 +1,5 @@
 import JSON5 from 'json5';
-import { WidgetTypeEnum } from '../../../enums/index.js';
+import { WidgetTypeEnum } from '../../../enums/widget-type.enum.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { TableWidgetEntity } from '../../widget/table-widget.entity.js';

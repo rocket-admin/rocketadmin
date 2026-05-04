@@ -6,7 +6,7 @@ import test from 'ava';
 import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
-import { AICoreService } from '../../../src/ai-core/index.js';
+import { AICoreService } from '../../../src/ai-core/services/ai-core.service.js';
 import { ApplicationModule } from '../../../src/app.module.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 import { DashboardWidgetTypeEnum } from '../../../src/enums/dashboard-widget-type.enum.js';
@@ -60,9 +60,7 @@ const MOCK_AI_RESPONSE_UNSAFE_QUERY = JSON.stringify({
 	panel_type: 'table',
 });
 
-const MOCK_TABLES_LIST = [
-	{ tableName: 'test_table', isView: false },
-];
+const MOCK_TABLES_LIST = [{ tableName: 'test_table', isView: false }];
 
 const MOCK_TABLE_STRUCTURE = [
 	{ column_name: 'id', data_type: 'integer', allow_null: false },
@@ -354,4 +352,3 @@ test.serial(`${currentTest} should fail without chart_description`, async (t) =>
 
 	t.is(generateWidget.status, 400);
 });
-

@@ -1,4 +1,4 @@
-import { UserActionEnum } from '../../../../enums/index.js';
+import { UserActionEnum } from '../../../../enums/user-action.enum.js';
 
 export class CreateUserActionDs {
 	message: UserActionEnum;

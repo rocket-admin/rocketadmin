@@ -4,14 +4,15 @@ import { buildDAOsTableSettingsDs } from '@rocketadmin/shared-code/dist/src/help
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { AmplitudeEventTypeEnum, LogOperationTypeEnum, OperationResultStatusEnum } from '../../../enums/index.js';
+import { AmplitudeEventTypeEnum } from '../../../enums/amplitude-event-type.enum.js';
+import { LogOperationTypeEnum } from '../../../enums/log-operation-type.enum.js';
+import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
 import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
 import { DeleteRowException } from '../../../exceptions/custom-exceptions/delete-row-exception.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { compareArrayElements } from '../../../helpers/index.js';
-import { validateConnection, getUserEmailForAgent } from '../utils/validate-connection.util.js';
+import { compareArrayElements } from '../../../helpers/compare-array-elements.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util.js';
 import { TableActionActivationService } from '../../table-actions/table-actions-module/table-action-activation.service.js';
@@ -19,6 +20,7 @@ import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { DeleteRowFromTableDs } from '../application/data-structures/delete-row-from-table.ds.js';
 import { DeletedRowFromTableDs } from '../application/data-structures/deleted-row-from-table.ds.js';
 import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util.js';
+import { getUserEmailForAgent, validateConnection } from '../utils/validate-connection.util.js';
 import { IDeleteRowFromTable } from './table-use-cases.interface.js';
 
 @Injectable()

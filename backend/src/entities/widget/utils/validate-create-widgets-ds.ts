@@ -1,8 +1,9 @@
 import JSON5 from 'json5';
-import { EncryptionAlgorithmEnum, WidgetTypeEnum } from '../../../enums/index.js';
+import { EncryptionAlgorithmEnum } from '../../../enums/encryption-algorithm.enum.js';
+import { WidgetTypeEnum } from '../../../enums/widget-type.enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Constants } from '../../../helpers/constants/constants.js';
-import { getPropertyValueByDescriptor } from '../../../helpers/index.js';
+import { getPropertyValueByDescriptor } from '../../../helpers/get-property-value-by-descriptor.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { ForeignKeyDSInfo } from '../../table/table-datastructures.js';
 import { findTableFieldsUtil } from '../../table/utils/find-table-fields.util.js';

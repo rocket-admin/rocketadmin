@@ -1,4 +1,4 @@
-import { InTransactionEnum } from '../../../../enums/index.js';
+import { InTransactionEnum } from '../../../../enums/in-transaction.enum.js';
 import { CreateTableSettingsDs } from '../../application/data-structures/create-table-settings.ds.js';
 import { DeleteTableSettingsDs } from '../../application/data-structures/delete-table-settings.ds.js';
 import { FindTableSettingsDs } from '../../application/data-structures/find-table-settings.ds.js';

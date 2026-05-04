@@ -7,7 +7,8 @@ import {
 } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import validator from 'validator';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { isConnectionTypeAgent, toPrettyErrorsMsg } from '../../../helpers/index.js';
+import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
+import { toPrettyErrorsMsg } from '../../../helpers/to-pretty-errors-msg.js';
 import { CreateConnectionDs } from '../application/data-structures/create-connection.ds.js';
 import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
 import { isHostAllowed } from './is-host-allowed.js';
@@ -28,10 +29,7 @@ export async function validateCreateConnectionData(
 
 		if (host && isRedisConnectionUrl(host)) {
 			if (errors.length > 0) {
-				throw new HttpException(
-					{ message: toPrettyErrorsMsg(errors) },
-					HttpStatus.BAD_REQUEST,
-				);
+				throw new HttpException({ message: toPrettyErrorsMsg(errors) }, HttpStatus.BAD_REQUEST);
 			}
 			return true;
 		}

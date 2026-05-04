@@ -1,4 +1,4 @@
-import { InTransactionEnum } from '../../../enums/index.js';
+import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { CreateConnectionPropertiesDs } from '../application/data-structures/create-connection-properties.ds.js';
 import { FoundConnectionPropertiesDs } from '../application/data-structures/found-connection-properties.ds.js';
 
