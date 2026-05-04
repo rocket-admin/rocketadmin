@@ -42,7 +42,6 @@
 		"@nestjs/swagger": "^11.2.6",
 		"@nestjs/throttler": "^6.5.0",
 		"@nestjs/typeorm": "^11.0.0",
-		"@nestjsx/crud": "4.6.2",
 		"@rocketadmin/shared-code": "workspace:*",
 		"@sentry/minimal": "^6.19.7",
 		"@sentry/node": "10.44.0",
