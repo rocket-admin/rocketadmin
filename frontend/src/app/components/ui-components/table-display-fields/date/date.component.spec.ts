@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DateDisplayComponent } from './date.component';
 import { format } from 'date-fns';
+import { DateDisplayComponent } from './date.component';
 
 describe('DateDisplayComponent', () => {
 	let component: DateDisplayComponent;
@@ -40,10 +40,23 @@ describe('DateDisplayComponent', () => {
 		expect(component.formattedDate).toBeUndefined();
 	});
 
-	it('should show relative date when formatDistanceWithinHours configured', () => {
-		const now = new Date();
-		const recentDate = new Date(now.getTime() - 1000 * 60 * 60); // 1 hour ago
+	it('should display "today" instead of relative time for same-day date', () => {
+		const recentDate = new Date(Date.now() - 1000 * 60); // 1 minute ago — same calendar day
 		fixture.componentRef.setInput('value', recentDate.toISOString());
+		fixture.componentRef.setInput('widgetStructure', {
+			widget_params: { formatDistanceWithinHours: 48 },
+		});
+		component.ngOnInit();
+		fixture.detectChanges();
+
+		expect(component.formattedDate).toBe('today');
+	});
+
+	it('should show relative date for non-today date within formatDistanceWithinHours', () => {
+		const yesterdayNoon = new Date();
+		yesterdayNoon.setDate(yesterdayNoon.getDate() - 1);
+		yesterdayNoon.setHours(12, 0, 0, 0);
+		fixture.componentRef.setInput('value', yesterdayNoon.toISOString());
 		fixture.componentRef.setInput('widgetStructure', {
 			widget_params: { formatDistanceWithinHours: 48 },
 		});
