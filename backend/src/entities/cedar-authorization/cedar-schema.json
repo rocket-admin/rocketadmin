@@ -59,6 +59,12 @@
 					"resourceTypes": ["Connection"]
 				}
 			},
+			"connection:diagram": {
+				"appliesTo": {
+					"principalTypes": ["User"],
+					"resourceTypes": ["Connection"]
+				}
+			},
 			"group:read": {
 				"appliesTo": {
 					"principalTypes": ["User"],

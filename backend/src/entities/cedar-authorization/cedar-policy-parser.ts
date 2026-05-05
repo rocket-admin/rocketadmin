@@ -50,6 +50,11 @@ export function parseCedarPolicyToClassicalPermissions(
 			case 'connection:edit':
 				result.connection.accessLevel = AccessLevelEnum.edit;
 				break;
+			case 'connection:diagram':
+				if (result.connection.accessLevel === AccessLevelEnum.none) {
+					result.connection.accessLevel = AccessLevelEnum.readonly;
+				}
+				break;
 			case 'group:read':
 				if (result.group.accessLevel === AccessLevelEnum.none) {
 					result.group.accessLevel = AccessLevelEnum.readonly;

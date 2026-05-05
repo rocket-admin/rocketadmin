@@ -25,7 +25,7 @@ test('isMain=true generates a single wildcard permit', (t) => {
 	t.is(permits.length, 1);
 });
 
-test('connection:edit generates ONLY connection:read + connection:edit (not wildcard)', (t) => {
+test('connection:edit generates ONLY connection:read + connection:edit + connection:diagram (not wildcard)', (t) => {
 	const result = generateCedarPolicyForGroup(
 		connectionId,
 		false,
@@ -35,6 +35,7 @@ test('connection:edit generates ONLY connection:read + connection:edit (not wild
 	);
 	t.true(result.includes('action == RocketAdmin::Action::"connection:read"'));
 	t.true(result.includes('action == RocketAdmin::Action::"connection:edit"'));
+	t.true(result.includes('action == RocketAdmin::Action::"connection:diagram"'));
 	// Must NOT contain wildcard `action,` on its own line (which would grant table access)
 	t.false(result.includes('action,\n  resource\n'));
 	// Must NOT contain table actions
@@ -43,7 +44,7 @@ test('connection:edit generates ONLY connection:read + connection:edit (not wild
 	t.false(result.includes('table:edit'));
 	t.false(result.includes('table:delete'));
 	const permits = result.match(/permit\(/g);
-	t.is(permits.length, 2);
+	t.is(permits.length, 3);
 });
 
 test('connection:readonly generates only connection:read', (t) => {
