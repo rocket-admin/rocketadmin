@@ -27,6 +27,7 @@ import { AmplitudeEventTypeEnum } from '../../enums/amplitude-event-type.enum.js
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { processExceptionMessage } from '../../exceptions/utils/process-exception-message.js';
+import { ConnectionDiagramGuard } from '../../guards/connection-diagram.guard.js';
 import { ConnectionEditGuard } from '../../guards/connection-edit.guard.js';
 import { ConnectionReadGuard } from '../../guards/connection-read.guard.js';
 import { isConnectionTypeAgent } from '../../helpers/is-connection-entity-agent.js';
@@ -735,7 +736,7 @@ export class ConnectionController {
 		status: 200,
 		type: ConnectionDiagramResponseDTO,
 	})
-	@UseGuards(ConnectionEditGuard)
+	@UseGuards(ConnectionDiagramGuard)
 	@Get('/connection/diagram/:connectionId')
 	async getConnectionDiagram(
 		@SlugUuid('connectionId') connectionId: string,

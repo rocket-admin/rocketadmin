@@ -23,6 +23,9 @@ export function generateCedarPolicyForGroup(
 		policies.push(
 			`permit(\n  principal,\n  action == RocketAdmin::Action::"connection:edit",\n  resource == ${connectionRef}\n);`,
 		);
+		policies.push(
+			`permit(\n  principal,\n  action == RocketAdmin::Action::"connection:diagram",\n  resource == ${connectionRef}\n);`,
+		);
 	} else if (connAccess === AccessLevelEnum.readonly) {
 		policies.push(
 			`permit(\n  principal,\n  action == RocketAdmin::Action::"connection:read",\n  resource == ${connectionRef}\n);`,
