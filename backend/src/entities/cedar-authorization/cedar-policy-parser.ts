@@ -66,7 +66,8 @@ export function parseCedarPolicyToClassicalPermissions(
 			case 'table:read':
 			case 'table:add':
 			case 'table:edit':
-			case 'table:delete': {
+			case 'table:delete':
+			case 'table:ai-request': {
 				const tableName = extractTableName(permit.resourceId, connectionId);
 				if (!tableName) break;
 				const tableEntry = getOrCreateTableEntry(tableMap, tableName);
@@ -227,6 +228,7 @@ function getOrCreateTableEntry(map: Map<string, ITablePermissionData>, tableName
 				add: false,
 				delete: false,
 				edit: false,
+				aiRequest: false,
 			},
 		};
 		map.set(tableName, entry);
@@ -247,6 +249,9 @@ function applyTableAction(entry: ITablePermissionData, action: string): void {
 			break;
 		case 'table:delete':
 			entry.accessLevel.delete = true;
+			break;
+		case 'table:ai-request':
+			entry.accessLevel.aiRequest = true;
 			break;
 	}
 }
