@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { getCurrencyByCode } from 'src/app/consts/currencies';
+import { getCurrencyByCode, getCurrencyDecimalPlaces, getCurrencyMinorUnitFactor } from 'src/app/consts/currencies';
 import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-record-view-field.component';
 
 @Component({
@@ -23,22 +23,23 @@ export class MoneyRecordViewComponent extends BaseRecordViewFieldComponent imple
 	}
 
 	get formattedValue(): string {
-		if (!this.value()) {
+		const raw = this.value();
+		if (raw == null || raw === '') {
 			return '';
 		}
 
 		let amount: number | string;
 		let currency: string = this.displayCurrency;
 
-		if (typeof this.value() === 'object' && this.value().amount !== undefined) {
-			amount = this.value().amount;
-			if (this.value().currency) {
-				currency = this.value().currency;
+		if (typeof raw === 'object' && raw.amount !== undefined) {
+			amount = raw.amount;
+			if (raw.currency) {
+				currency = raw.currency;
 				const currencyObj = getCurrencyByCode(currency);
 				this.currencySymbol = currencyObj ? currencyObj.symbol : '';
 			}
 		} else {
-			amount = this.value();
+			amount = raw;
 		}
 
 		if (typeof amount === 'string') {
@@ -49,7 +50,15 @@ export class MoneyRecordViewComponent extends BaseRecordViewFieldComponent imple
 			return '';
 		}
 
-		const decimalPlaces = this.widgetStructure()?.widget_params?.decimal_places ?? 2;
+		const cents = this.widgetStructure()?.widget_params?.cents === true;
+		let decimalPlaces: number;
+		if (cents) {
+			amount = (amount as number) / getCurrencyMinorUnitFactor(currency);
+			decimalPlaces = getCurrencyDecimalPlaces(currency);
+		} else {
+			decimalPlaces = this.widgetStructure()?.widget_params?.decimal_places ?? 2;
+		}
+
 		return `${this.currencySymbol}${(amount as number).toFixed(decimalPlaces)}`;
 	}
 }

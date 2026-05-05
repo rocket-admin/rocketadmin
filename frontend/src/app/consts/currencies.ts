@@ -54,3 +54,34 @@ export function getCurrencySymbol(code: string): string {
 	const currency = getCurrencyByCode(code);
 	return currency ? currency.symbol : '';
 }
+
+export const ZERO_DECIMAL_CURRENCIES = new Set<string>([
+	'BIF',
+	'CLP',
+	'DJF',
+	'GNF',
+	'JPY',
+	'KMF',
+	'KRW',
+	'MGA',
+	'PYG',
+	'RWF',
+	'UGX',
+	'VND',
+	'VUV',
+	'XAF',
+	'XOF',
+	'XPF',
+]);
+
+export function isZeroDecimalCurrency(code: string): boolean {
+	return ZERO_DECIMAL_CURRENCIES.has(code);
+}
+
+export function getCurrencyDecimalPlaces(code: string): number {
+	return isZeroDecimalCurrency(code) ? 0 : 2;
+}
+
+export function getCurrencyMinorUnitFactor(code: string): number {
+	return isZeroDecimalCurrency(code) ? 1 : 100;
+}
