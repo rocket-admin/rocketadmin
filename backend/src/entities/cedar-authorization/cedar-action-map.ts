@@ -1,6 +1,7 @@
 export enum CedarAction {
 	ConnectionRead = 'connection:read',
 	ConnectionEdit = 'connection:edit',
+	ConnectionDiagram = 'connection:diagram',
 	GroupRead = 'group:read',
 	GroupEdit = 'group:edit',
 	TableRead = 'table:read',
