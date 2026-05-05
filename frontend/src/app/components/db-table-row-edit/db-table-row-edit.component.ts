@@ -198,8 +198,10 @@ export class DbTableRowEditComponent implements OnInit {
 							return { [field.column_name]: '' };
 						}),
 					);
-					if (res.list_fields.length) {
-						const shownFieldsList = this.shownRows.map((field: TableField) => field.column_name);
+					const shownFieldsList = this.shownRows.map((field: TableField) => field.column_name);
+					if (res.columns_view && res.columns_view.length) {
+						this.fieldsOrdered = [...res.columns_view].filter((field) => shownFieldsList.includes(field));
+					} else if (res.list_fields.length) {
 						this.fieldsOrdered = [...res.list_fields].filter((field) => shownFieldsList.includes(field));
 					} else {
 						this.fieldsOrdered = Object.keys(this.tableRowValues).map((key) => key);
@@ -244,8 +246,9 @@ export class DbTableRowEditComponent implements OnInit {
 						this.tableForeignKeys = res.foreignKeys;
 						// this.shownRows = res.structure.filter((field: TableField) => !field.column_default?.startsWith('nextval'));
 						this.tableRowValues = { ...res.row };
-						if (res.list_fields.length) {
-							// const shownFieldsList = this.shownRows.map((field: TableField) => field.column_name);
+						if (res.columns_view && res.columns_view.length) {
+							this.fieldsOrdered = [...res.columns_view];
+						} else if (res.list_fields.length) {
 							this.fieldsOrdered = [...res.list_fields];
 						} else {
 							this.fieldsOrdered = Object.keys(this.tableRowValues).map((key) => key);
