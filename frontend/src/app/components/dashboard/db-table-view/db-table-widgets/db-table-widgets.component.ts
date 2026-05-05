@@ -154,11 +154,15 @@ export class DbTableWidgetsComponent implements OnInit {
 }`,
 		Markdown: `// No settings required`,
 		Money: `// Configure money widget settings
+// cents: when true, stored values are integer minor units (e.g. 1099 = $10.99),
+// matching Stripe. For zero-decimal currencies (JPY, KRW, VND, ...) values are
+// shown as-is. Do NOT enable on a column that already stores decimal amounts.
 // example:
 {
   "default_currency": "USD",
   "decimal_places": 2,
-  "allow_negative": true
+  "allow_negative": true,
+  "cents": false
 }
 `,
 		Number: `// Configure number display with unit conversion and threshold validation
