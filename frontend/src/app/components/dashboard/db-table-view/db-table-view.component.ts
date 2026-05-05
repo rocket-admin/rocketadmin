@@ -815,9 +815,15 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 		// Force Angular to detect changes and re-render the table immediately
 		this.cdr.detectChanges();
 
+		// Send selected columns first, then non-selected at the end
+		const orderedColumns = [
+			...this.tableData.columns.filter((col) => col.selected),
+			...this.tableData.columns.filter((col) => !col.selected),
+		];
+
 		this._tables
 			.updatePersonalTableViewSettings(this.connectionID, this.name, {
-				list_fields: this.tableData.columns.map((col) => col.title),
+				list_fields: orderedColumns.map((col) => col.title),
 			})
 			.subscribe({
 				next: () => {
