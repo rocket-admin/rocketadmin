@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { differenceInHours, format, formatDistanceToNow, isToday } from 'date-fns';
+import { differenceInHours, format, formatDistanceStrict, isToday, startOfToday } from 'date-fns';
 import { BaseTableDisplayFieldComponent } from '../base-table-display-field/base-table-display-field.component';
 
 @Component({
@@ -31,7 +31,9 @@ export class DateDisplayComponent extends BaseTableDisplayFieldComponent impleme
 
 					// Check if formatDistanceWithinHours is enabled and date is within specified hours from now
 					if (this.formatDistanceWithinHours > 0 && this.isWithinHours(date, this.formatDistanceWithinHours)) {
-						this.formattedDate = isToday(date) ? 'today' : formatDistanceToNow(date, { addSuffix: true });
+						this.formattedDate = isToday(date)
+							? 'today'
+							: formatDistanceStrict(date, startOfToday(), { addSuffix: true });
 					} else {
 						this.formattedDate = format(date, 'P');
 					}

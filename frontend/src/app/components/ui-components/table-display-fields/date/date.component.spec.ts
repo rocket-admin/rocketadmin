@@ -65,4 +65,26 @@ describe('DateDisplayComponent', () => {
 
 		expect(component.formattedDate).toContain('ago');
 	});
+
+	it('should expose exact date as tooltip via fullDate', () => {
+		const dateStr = '2023-04-29';
+		fixture.componentRef.setInput('value', dateStr);
+		component.ngOnInit();
+		fixture.detectChanges();
+
+		expect(component.fullDate).toBe(format(new Date(dateStr), 'PPP'));
+	});
+
+	it('should set fullDate tooltip even when displaying "today"', () => {
+		const recentDate = new Date(Date.now() - 1000 * 60);
+		fixture.componentRef.setInput('value', recentDate.toISOString());
+		fixture.componentRef.setInput('widgetStructure', {
+			widget_params: { formatDistanceWithinHours: 48 },
+		});
+		component.ngOnInit();
+		fixture.detectChanges();
+
+		expect(component.formattedDate).toBe('today');
+		expect(component.fullDate).toBe(format(recentDate, 'PPP'));
+	});
 });
