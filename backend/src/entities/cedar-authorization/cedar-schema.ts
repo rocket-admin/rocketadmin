@@ -110,6 +110,12 @@ export const CEDAR_SCHEMA = {
 					resourceTypes: ['Table'],
 				},
 			},
+			'table:ai-request': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Table'],
+				},
+			},
 			'dashboard:read': {
 				appliesTo: {
 					principalTypes: ['User'],

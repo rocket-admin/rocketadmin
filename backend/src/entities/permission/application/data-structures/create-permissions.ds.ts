@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsBoolean, IsEnum, IsString, IsUUID, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsEnum, IsOptional, IsString, IsUUID, ValidateNested } from 'class-validator';
 import { AccessLevelEnum } from '../../../../enums/access-level.enum.js';
 
 export class CreatePermissionsDs {
@@ -41,6 +41,11 @@ export class TableAccessLevelsDs {
 	@ApiProperty()
 	@IsBoolean()
 	visibility: boolean;
+
+	@ApiProperty({ required: false })
+	@IsOptional()
+	@IsBoolean()
+	aiRequest?: boolean;
 }
 
 export class TablePermissionDs {
