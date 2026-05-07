@@ -44,8 +44,8 @@ describe('S3RecordViewComponent', () => {
 			widget_params: {
 				bucket: 'my-bucket',
 				type: 'file',
-				aws_access_key_id_secret_name: 'key',
-				aws_secret_access_key_secret_name: 'secret',
+				access_key_id_secret_name: 'key',
+				secret_access_key_secret_name: 'secret',
 			},
 		});
 		component.ngOnInit();
@@ -58,8 +58,8 @@ describe('S3RecordViewComponent', () => {
 			widget_params: {
 				bucket: 'my-bucket',
 				type: 'image',
-				aws_access_key_id_secret_name: 'key',
-				aws_secret_access_key_secret_name: 'secret',
+				access_key_id_secret_name: 'key',
+				secret_access_key_secret_name: 'secret',
 			},
 		});
 		component.ngOnInit();

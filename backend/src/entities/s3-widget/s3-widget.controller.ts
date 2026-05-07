@@ -23,7 +23,7 @@ import { Messages } from '../../exceptions/text/messages.js';
 import { ConnectionEditGuard } from '../../guards/connection-edit.guard.js';
 import { ConnectionReadGuard } from '../../guards/connection-read.guard.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
-import { S3FileUrlResponseDs, S3UploadUrlResponseDs } from './application/data-structures/s3-operation.ds.js';
+import { BucketFileUrlResponseDs, BucketUploadUrlResponseDs } from './application/data-structures/s3-operation.ds.js';
 import { IGetS3FileUrl, IGetS3UploadUrl } from './use-cases/s3-use-cases.interface.js';
 
 @UseInterceptors(SentryInterceptor)
@@ -61,7 +61,7 @@ export class S3WidgetController {
 		@QueryTableName() tableName: string,
 		@Query('fieldName') fieldName: string,
 		@Query('rowPrimaryKey') rowPrimaryKeyStr: string,
-	): Promise<S3FileUrlResponseDs> {
+	): Promise<BucketFileUrlResponseDs> {
 		if (!connectionId) {
 			throw new HttpException({ message: Messages.CONNECTION_ID_MISSING }, HttpStatus.BAD_REQUEST);
 		}
@@ -118,7 +118,7 @@ export class S3WidgetController {
 		@QueryTableName() tableName: string,
 		@Query('fieldName') fieldName: string,
 		@Body() body: { filename: string; contentType: string },
-	): Promise<S3UploadUrlResponseDs> {
+	): Promise<BucketUploadUrlResponseDs> {
 		if (!connectionId) {
 			throw new HttpException({ message: Messages.CONNECTION_ID_MISSING }, HttpStatus.BAD_REQUEST);
 		}

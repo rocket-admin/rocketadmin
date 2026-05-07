@@ -87,11 +87,12 @@ async function setupS3WidgetTestEnvironment(
 	// Create S3 widget for the field
 	if (createWidget) {
 		const s3WidgetParams = JSON.stringify({
+			provider: 'aws',
 			bucket: 'test-bucket',
 			prefix: 'uploads',
 			region: 'us-east-1',
-			aws_access_key_id_secret_name: 'test-aws-access-key',
-			aws_secret_access_key_secret_name: 'test-aws-secret-key',
+			access_key_id_secret_name: 'test-aws-access-key',
+			secret_access_key_secret_name: 'test-aws-secret-key',
 		});
 
 		const widgetDto = {
@@ -338,7 +339,7 @@ test.serial(`${currentTest} - should return 404 when AWS credentials secrets are
 
 	t.is(response.status, 404);
 	const responseBody = JSON.parse(response.text);
-	t.is(responseBody.message, 'AWS credentials secrets not found');
+	t.is(responseBody.message, 'Bucket credentials secrets not found');
 });
 
 // ==================== POST /s3/upload-url/:connectionId Tests ====================
@@ -477,7 +478,7 @@ test.serial(`${currentTest} - should return 404 when AWS credentials secrets are
 
 	t.is(response.status, 404);
 	const responseBody = JSON.parse(response.text);
-	t.is(responseBody.message, 'AWS credentials secrets not found');
+	t.is(responseBody.message, 'Bucket credentials secrets not found');
 });
 
 // ==================== Authorization Tests - Multiple Users ====================
@@ -563,4 +564,186 @@ test.serial(`${currentTest} - unauthenticated user cannot access S3 endpoints`, 
 		.set('Accept', 'application/json');
 
 	t.is(uploadUrlResponse.status, 401);
+});
+
+// ==================== Bucket Provider Validation Tests ====================
+
+currentTest = 'Bucket Provider Validation';
+
+async function createConnectionAndTableWithS3Field(
+	s3FieldName: string = 'file_key',
+): Promise<{ token: string; connectionId: string; testTableName: string }> {
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const connectionToPostgres = getTestData(mockFactory).connectionToPostgres;
+	const { testTableName } = await createTestTableWithS3Field(connectionToPostgres, s3FieldName);
+
+	const createdConnection = await request(app.getHttpServer())
+		.post('/connection')
+		.send(connectionToPostgres)
+		.set('Cookie', token)
+		.set('masterpwd', 'ahalaimahalai')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	const connectionId = JSON.parse(createdConnection.text).id;
+	return { token, connectionId, testTableName };
+}
+
+test.serial(`${currentTest} - widget creation succeeds with provider 'digitalocean'`, async (t) => {
+	const { token, connectionId, testTableName } = await createConnectionAndTableWithS3Field();
+
+	const widgetParams = JSON.stringify({
+		provider: 'digitalocean',
+		bucket: 'test-bucket',
+		region: 'fra1',
+		access_key_id_secret_name: 'do-key',
+		secret_access_key_secret_name: 'do-secret',
+	});
+
+	const response = await request(app.getHttpServer())
+		.post(`/widget/${connectionId}?tableName=${testTableName}`)
+		.send({
+			widgets: [
+				{
+					field_name: 'file_key',
+					widget_type: 'S3',
+					widget_params: widgetParams,
+					name: 'DO Spaces Widget',
+					description: 'DigitalOcean Spaces',
+				},
+			],
+		})
+		.set('Cookie', token)
+		.set('masterpwd', 'ahalaimahalai')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(response.status, 201);
+});
+
+test.serial(`${currentTest} - widget creation rejected with unsupported provider`, async (t) => {
+	const { token, connectionId, testTableName } = await createConnectionAndTableWithS3Field();
+
+	const widgetParams = JSON.stringify({
+		provider: 'not-a-real-provider',
+		bucket: 'test-bucket',
+		region: 'us-east-1',
+		access_key_id_secret_name: 'k',
+		secret_access_key_secret_name: 's',
+	});
+
+	const response = await request(app.getHttpServer())
+		.post(`/widget/${connectionId}?tableName=${testTableName}`)
+		.send({
+			widgets: [
+				{
+					field_name: 'file_key',
+					widget_type: 'S3',
+					widget_params: widgetParams,
+					name: 'Bad Provider Widget',
+					description: '',
+				},
+			],
+		})
+		.set('Cookie', token)
+		.set('masterpwd', 'ahalaimahalai')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(response.status, 400);
+});
+
+test.serial(`${currentTest} - widget creation rejected when cloudflare-r2 missing account_id`, async (t) => {
+	const { token, connectionId, testTableName } = await createConnectionAndTableWithS3Field();
+
+	const widgetParams = JSON.stringify({
+		provider: 'cloudflare-r2',
+		bucket: 'test-bucket',
+		region: 'auto',
+		access_key_id_secret_name: 'k',
+		secret_access_key_secret_name: 's',
+	});
+
+	const response = await request(app.getHttpServer())
+		.post(`/widget/${connectionId}?tableName=${testTableName}`)
+		.send({
+			widgets: [
+				{
+					field_name: 'file_key',
+					widget_type: 'S3',
+					widget_params: widgetParams,
+					name: 'R2 Widget',
+					description: '',
+				},
+			],
+		})
+		.set('Cookie', token)
+		.set('masterpwd', 'ahalaimahalai')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(response.status, 400);
+});
+
+test.serial(`${currentTest} - widget creation succeeds with cloudflare-r2 and account_id`, async (t) => {
+	const { token, connectionId, testTableName } = await createConnectionAndTableWithS3Field();
+
+	const widgetParams = JSON.stringify({
+		provider: 'cloudflare-r2',
+		bucket: 'test-bucket',
+		region: 'auto',
+		account_id: 'abc123def456',
+		access_key_id_secret_name: 'k',
+		secret_access_key_secret_name: 's',
+	});
+
+	const response = await request(app.getHttpServer())
+		.post(`/widget/${connectionId}?tableName=${testTableName}`)
+		.send({
+			widgets: [
+				{
+					field_name: 'file_key',
+					widget_type: 'S3',
+					widget_params: widgetParams,
+					name: 'R2 Widget',
+					description: '',
+				},
+			],
+		})
+		.set('Cookie', token)
+		.set('masterpwd', 'ahalaimahalai')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(response.status, 201);
+});
+
+test.serial(`${currentTest} - widget creation rejected when access_key_id_secret_name missing`, async (t) => {
+	const { token, connectionId, testTableName } = await createConnectionAndTableWithS3Field();
+
+	const widgetParams = JSON.stringify({
+		bucket: 'test-bucket',
+		region: 'us-east-1',
+		secret_access_key_secret_name: 's',
+	});
+
+	const response = await request(app.getHttpServer())
+		.post(`/widget/${connectionId}?tableName=${testTableName}`)
+		.send({
+			widgets: [
+				{
+					field_name: 'file_key',
+					widget_type: 'S3',
+					widget_params: widgetParams,
+					name: 'Missing Key Widget',
+					description: '',
+				},
+			],
+		})
+		.set('Cookie', token)
+		.set('masterpwd', 'ahalaimahalai')
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(response.status, 400);
 });
