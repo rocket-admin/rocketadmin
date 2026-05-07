@@ -101,7 +101,7 @@ test.serial(`${currentTest} should return list of tables in connection`, async (
 		t.is(Object.hasOwn(getTablesRO[testTableIndex], 'table'), true);
 		t.is(Object.hasOwn(getTablesRO[testTableIndex], 'permissions'), true);
 		t.is(typeof getTablesRO[testTableIndex].permissions, 'object');
-		t.is(Object.keys(getTablesRO[testTableIndex].permissions).length, 5);
+		t.is(Object.keys(getTablesRO[testTableIndex].permissions).length, 6);
 		t.is(getTablesRO[testTableIndex].table, testTableName);
 		t.is(getTablesRO[testTableIndex].permissions.visibility, true);
 		t.is(getTablesRO[testTableIndex].permissions.readonly, false);

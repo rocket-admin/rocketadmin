@@ -8,6 +8,7 @@ export enum CedarAction {
 	TableAdd = 'table:add',
 	TableEdit = 'table:edit',
 	TableDelete = 'table:delete',
+	TableAiRequest = 'table:ai-request',
 	DashboardRead = 'dashboard:read',
 	DashboardCreate = 'dashboard:create',
 	DashboardEdit = 'dashboard:edit',

@@ -20,7 +20,7 @@ import { Timeout, TimeoutDefaults } from '../../decorators/timeout.decorator.js'
 import { UserId } from '../../decorators/user-id.decorator.js';
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { ConnectionEditGuard } from '../../guards/connection-edit.guard.js';
-import { TableReadGuard } from '../../guards/table-read.guard.js';
+import { TableAiRequestGuard } from '../../guards/table-ai-request.guard.js';
 import { ValidationHelper } from '../../helpers/validators/validation-helper.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { IAISettingsAndWidgetsCreation, IRequestInfoFromTableV2 } from './ai-use-cases.interface.js';
@@ -47,7 +47,7 @@ export class UserAIRequestsControllerV2 {
 		status: 201,
 		description: 'Returned info with conversation history saved.',
 	})
-	@UseGuards(TableReadGuard)
+	@UseGuards(TableAiRequestGuard)
 	@ApiBody({ type: RequestInfoFromTableBodyDTO })
 	@ApiQuery({ name: 'tableName', required: true, type: String })
 	@ApiQuery({ name: 'threadId', required: false, type: String })

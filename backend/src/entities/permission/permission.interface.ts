@@ -24,6 +24,7 @@ export interface ITableAccessLevel {
 	add: boolean;
 	delete: boolean;
 	edit: boolean;
+	aiRequest?: boolean;
 }
 
 export interface ITablePermissionData {

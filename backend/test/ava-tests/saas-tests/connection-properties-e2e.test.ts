@@ -337,7 +337,7 @@ test.serial(
 		t.is(Object.hasOwn(findTablesRO.tables[testTableIndex], 'table'), true);
 		t.is(Object.hasOwn(findTablesRO.tables[testTableIndex], 'permissions'), true);
 		t.is(typeof findTablesRO.tables[testTableIndex].permissions, 'object');
-		t.is(Object.keys(findTablesRO.tables[testTableIndex].permissions).length, 5);
+		t.is(Object.keys(findTablesRO.tables[testTableIndex].permissions).length, 6);
 		t.is(findTablesRO.tables[testTableIndex].table, testTableName);
 		t.is(findTablesRO.tables[testTableIndex].permissions.visibility, true);
 		t.is(findTablesRO.tables[testTableIndex].permissions.readonly, false);

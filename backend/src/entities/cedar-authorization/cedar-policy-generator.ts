@@ -153,6 +153,11 @@ export function generateCedarPolicyForGroup(
 				`permit(\n  principal,\n  action == RocketAdmin::Action::"table:delete",\n  resource == ${tableRef}\n);`,
 			);
 		}
+		if (access.aiRequest) {
+			policies.push(
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"table:ai-request",\n  resource == ${tableRef}\n);`,
+			);
+		}
 	}
 
 	return policies.join('\n\n');
