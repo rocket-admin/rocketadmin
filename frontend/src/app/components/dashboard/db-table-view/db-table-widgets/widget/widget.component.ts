@@ -68,6 +68,7 @@ export class WidgetComponent implements OnInit, OnChanges {
 	};
 
 	public docsUrls = {
+		Binary: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#binary',
 		Boolean: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#boolean',
 		Code: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#code',
 		Color: 'https://docs.rocketadmin.com/Reference/UI%20Widgets/widgets_management#color',

@@ -154,6 +154,10 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA &quot;{{data.db.sch
         href="https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_digitalocean_postgresql">
         Setup guide
     </a>
+    <a *ngIf="data.provider === 'supabase'" mat-button target="_blank"
+        href="https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_supabase">
+        Setup guide
+    </a>
     <button mat-flat-button color="primary"
         mat-dialog-close="confirmed">
         I've given access
