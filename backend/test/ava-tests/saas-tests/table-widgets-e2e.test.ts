@@ -1772,7 +1772,8 @@ test.serial(`${currentTest} should reject an invalid encoding value`, async (t) 
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
 	t.is(createResponse.status, 400);
-	t.true(createResponse.text.includes(Messages.WIDGET_PARAMETER_UNSUPPORTED('encoding', WidgetTypeEnum.Binary)));
+	const body = JSON.parse(createResponse.text);
+	t.true(body.message.includes(Messages.WIDGET_PARAMETER_UNSUPPORTED('encoding', WidgetTypeEnum.Binary)));
 });
 
 test.serial(`${currentTest} should accept an absent encoding (defaults on the client)`, async (t) => {
