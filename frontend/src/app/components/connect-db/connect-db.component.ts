@@ -508,7 +508,7 @@ export class ConnectDBComponent implements OnInit {
 		if (this.db.host.endsWith('.mongodb.net')) provider = 'mongoatlas';
 		if (this.db.host.endsWith('.ondigitalocean.com')) provider = 'digitalocean';
 		if (this.db.host.endsWith('.scylla.cloud')) provider = 'scylladbcloud';
-		if (this.db.host.endsWith('.supabase.co')) provider = 'supabase';
+		if (this.db.host.endsWith('.supabase.com')) provider = 'supabase';
 		if (isIP(this.db.host)) {
 			const hostIP = ipaddr.parse(this.db.host);
 			for (const addr of googlIPsList) {
