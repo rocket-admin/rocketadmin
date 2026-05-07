@@ -87,11 +87,18 @@
                 [connectionID]="connectionID"
                 [selectedTable]="selectedTableName"
                 [uiSettings]="uiSettings"
-                (expandSidebar)="toggleSideBar()">
+                (expandSidebar)="toggleSideBar()"
+                (editStructure)="onEditStructure()">
             </app-db-tables-list>
         </mat-sidenav>
         <mat-sidenav-content class="table-preview">
-            <div class="table-preview-content">
+            <app-db-generate-schema
+                *ngIf="showSchemaEditor"
+                [connectionID]="connectionID"
+                (schemaApplied)="onSchemaApplied()"
+                data-testid="edit-structure-generate-schema">
+            </app-db-generate-schema>
+            <div class="table-preview-content" *ngIf="!showSchemaEditor">
                 <div class="alerts">
                     <app-alert></app-alert>
                     <div *ngIf="dataSource.alert_settingsInfo && canEditConnection() && !isConfiguring" class="ai-config-alert">
@@ -128,10 +135,10 @@
                     (applyFilter)="applyFilter($event)">
                 </app-db-table-view>
             </div>
-            <app-db-table-row-view *ngIf="selectedRow"
+            <app-db-table-row-view *ngIf="selectedRow && !showSchemaEditor"
                 [activeFilters]="filters"
             ></app-db-table-row-view>
-            <app-db-table-ai-panel *ngIf="isAIpanelOpened"
+            <app-db-table-ai-panel *ngIf="isAIpanelOpened && !showSchemaEditor"
                 [displayName]="selectedTableDisplayName"
                 [tableColumns]="dataSource?.dataColumns || []"
                 [sidebarExpanded]="shownTableTitles"

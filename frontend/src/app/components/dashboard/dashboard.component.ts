@@ -103,6 +103,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	public uiSettings: ConnectionSettingsUI;
 	public tableFolders: any[] = [];
 	public isConfiguring: boolean = false;
+	public showSchemaEditor: boolean = false;
 
 	constructor(
 		private _connections: ConnectionsService,
@@ -450,9 +451,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		this._uiSettings.updateConnectionSetting(this.connectionID, 'shownTableTitles', this.shownTableTitles);
 	}
 
+	onEditStructure() {
+		this.showSchemaEditor = true;
+	}
+
 	onSchemaApplied() {
 		setTimeout(() => {
 			this.noTablesError = false;
+			this.showSchemaEditor = false;
 			this.loading = true;
 			this.getData();
 		}, 1500);
