@@ -1,4 +1,4 @@
-export class S3GetFileUrlDs {
+export class GetBucketFileUrlDs {
 	connectionId: string;
 	tableName: string;
 	fieldName: string;
@@ -7,7 +7,7 @@ export class S3GetFileUrlDs {
 	masterPwd: string;
 }
 
-export class S3GetUploadUrlDs {
+export class GetBucketUploadUrlDs {
 	connectionId: string;
 	tableName: string;
 	fieldName: string;
@@ -17,13 +17,13 @@ export class S3GetUploadUrlDs {
 	contentType: string;
 }
 
-export class S3FileUrlResponseDs {
+export class BucketFileUrlResponseDs {
 	url: string;
 	key: string;
 	expiresIn: number;
 }
 
-export class S3UploadUrlResponseDs {
+export class BucketUploadUrlResponseDs {
 	uploadUrl: string;
 	key: string;
 	expiresIn: number;

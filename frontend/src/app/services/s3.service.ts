@@ -4,13 +4,13 @@ import { firstValueFrom } from 'rxjs';
 import { AlertActionType, AlertType } from '../models/alert';
 import { NotificationsService } from './notifications.service';
 
-interface S3FileUrlResponse {
+interface BucketFileUrlResponse {
 	url: string;
 	key: string;
 	expiresIn: number;
 }
 
-interface S3UploadUrlResponse {
+interface BucketUploadUrlResponse {
 	uploadUrl: string;
 	key: string;
 	expiresIn: number;
@@ -29,10 +29,10 @@ export class S3Service {
 		tableName: string,
 		fieldName: string,
 		rowPrimaryKey: Record<string, unknown>,
-	): Promise<S3FileUrlResponse | null> {
+	): Promise<BucketFileUrlResponse | null> {
 		try {
 			return await firstValueFrom(
-				this.http.get<S3FileUrlResponse>(`/s3/file/${connectionId}`, {
+				this.http.get<BucketFileUrlResponse>(`/s3/file/${connectionId}`, {
 					params: {
 						tableName,
 						fieldName,
@@ -52,10 +52,10 @@ export class S3Service {
 		fieldName: string,
 		filename: string,
 		contentType: string,
-	): Promise<S3UploadUrlResponse | null> {
+	): Promise<BucketUploadUrlResponse | null> {
 		try {
 			return await firstValueFrom(
-				this.http.post<S3UploadUrlResponse>(
+				this.http.post<BucketUploadUrlResponse>(
 					`/s3/upload-url/${connectionId}`,
 					{ filename, contentType },
 					{ params: { tableName, fieldName } },
@@ -93,7 +93,7 @@ export class S3Service {
 	): Promise<{ key: string; previewUrl: string } | null> {
 		try {
 			const response = await firstValueFrom(
-				this.http.post<S3UploadUrlResponse>(
+				this.http.post<BucketUploadUrlResponse>(
 					`/s3/upload-url/${connectionId}`,
 					{ filename: file.name, contentType: file.type },
 					{ params: { tableName, fieldName } },
