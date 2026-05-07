@@ -29,7 +29,9 @@ interface ChatMessage {
 })
 export class DbGenerateSchemaComponent {
 	@Input() connectionID: string;
+	@Input() showClose: boolean = false;
 	@Output() schemaApplied = new EventEmitter<void>();
+	@Output() closeEditor = new EventEmitter<void>();
 
 	private _tableSchema = inject(TableSchemaService);
 

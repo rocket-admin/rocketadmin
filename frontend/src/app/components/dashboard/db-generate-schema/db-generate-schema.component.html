@@ -1,24 +1,49 @@
 <div class="schema-chat">
+	@if (showClose) {
+		<button mat-icon-button type="button" class="schema-chat__close-button" (click)="closeEditor.emit()">
+			<mat-icon>close</mat-icon>
+		</button>
+	}
 	<!-- Welcome screen when no messages yet -->
 	@if (messages().length === 0) {
 		<div class="schema-chat__welcome">
 			<mat-icon svgIcon="ai_rocket" class="schema-chat__welcome-icon"></mat-icon>
-			<p class="schema-chat__welcome-title">No tables found — let AI create them</p>
-			<p class="schema-chat__welcome-subtitle">Describe the database you need and AI will generate the schema for you.</p>
+			@if (showClose) {
+				<p class="schema-chat__welcome-title">Edit database structure with AI</p>
+				<p class="schema-chat__welcome-subtitle">Describe the changes you want to make and AI will generate the SQL for you.</p>
+			} @else {
+				<p class="schema-chat__welcome-title">No tables found — let AI create them</p>
+				<p class="schema-chat__welcome-subtitle">Describe the database you need and AI will generate the schema for you.</p>
+			}
 
 			<div class="schema-chat__suggestions">
-				<button type="button" class="suggestion-chip"
-					(click)="userPrompt.set('E-commerce database with products, categories, orders, and customers')">
-					E-commerce store
-				</button>
-				<button type="button" class="suggestion-chip"
-					(click)="userPrompt.set('Blog platform with users, posts, comments, and tags')">
-					Blog platform
-				</button>
-				<button type="button" class="suggestion-chip"
-					(click)="userPrompt.set('Project management tool with projects, tasks, users, and comments')">
-					Project management
-				</button>
+				@if (showClose) {
+					<button type="button" class="suggestion-chip"
+						(click)="userPrompt.set('Add a new table for user notifications with title, message, read status, and timestamp')">
+						Add notifications table
+					</button>
+					<button type="button" class="suggestion-chip"
+						(click)="userPrompt.set('Add an email column to the users table')">
+						Add column
+					</button>
+					<button type="button" class="suggestion-chip"
+						(click)="userPrompt.set('Create an index on the created_at column of the orders table')">
+						Create index
+					</button>
+				} @else {
+					<button type="button" class="suggestion-chip"
+						(click)="userPrompt.set('E-commerce database with products, categories, orders, and customers')">
+						E-commerce store
+					</button>
+					<button type="button" class="suggestion-chip"
+						(click)="userPrompt.set('Blog platform with users, posts, comments, and tags')">
+						Blog platform
+					</button>
+					<button type="button" class="suggestion-chip"
+						(click)="userPrompt.set('Project management tool with projects, tasks, users, and comments')">
+						Project management
+					</button>
+				}
 			</div>
 		</div>
 	}
@@ -100,7 +125,7 @@
 			} @else {
 				<form (ngSubmit)="onSubmit()">
 					<mat-form-field appearance="outline" class="schema-chat__input-field">
-						<mat-label>Describe the database you need...</mat-label>
+						<mat-label>{{showClose ? 'Describe the changes you need...' : 'Describe the database you need...'}}</mat-label>
 						<textarea matInput
 							name="schemaPrompt"
 							[ngModel]="userPrompt()"

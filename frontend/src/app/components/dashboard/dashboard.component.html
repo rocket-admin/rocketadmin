@@ -95,7 +95,9 @@
             <app-db-generate-schema
                 *ngIf="showSchemaEditor"
                 [connectionID]="connectionID"
+                [showClose]="true"
                 (schemaApplied)="onSchemaApplied()"
+                (closeEditor)="showSchemaEditor = false"
                 data-testid="edit-structure-generate-schema">
             </app-db-generate-schema>
             <div class="table-preview-content" *ngIf="!showSchemaEditor">
