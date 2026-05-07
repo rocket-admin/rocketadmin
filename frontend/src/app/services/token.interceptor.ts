@@ -35,25 +35,33 @@ export class TokenInterceptor implements HttpInterceptor {
 
 	intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
 		this.config = this._configuration.getConfig();
-		const autoadmin_gclid_cookie = this.cookieService.get('autoadmin_gclid');
 		const connectionID = this._connections.currentConnectionID;
+		const url = new URL(request.url, location.origin);
+		const isApiRequest = url.origin === location.origin || url.origin == 'https://app.rocketadmin.com';
 
 		request = request.clone({
 			url: this.normalizeURL(request.url, environment.apiRoot || this.config.baseURL, environment.saasURL),
-			setHeaders: {
-				GCLID: autoadmin_gclid_cookie,
-			},
-			withCredentials: true,
 		});
 
-		if (connectionID && !request.headers.has('masterpwd')) {
-			const masterKey = localStorage.getItem(`${connectionID}__masterKey`) || '';
+		if (isApiRequest) {
+			const autoadmin_gclid_cookie = this.cookieService.get('autoadmin_gclid');
 			request = request.clone({
 				setHeaders: {
-					masterpwd: masterKey,
+					GCLID: autoadmin_gclid_cookie,
 				},
+				withCredentials: true,
 			});
+
+			if (connectionID && !request.headers.has('masterpwd')) {
+				const masterKey = localStorage.getItem(`${connectionID}__masterKey`) || '';
+				request = request.clone({
+					setHeaders: {
+						masterpwd: masterKey,
+					},
+				});
+			}
 		}
+
 		return next.handle(request).pipe(
 			catchError((error: HttpErrorResponse) => {
 				if (error.status === 401) {
