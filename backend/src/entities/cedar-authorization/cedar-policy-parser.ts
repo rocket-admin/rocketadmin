@@ -1,4 +1,4 @@
-import { AccessLevelEnum } from '../../enums/index.js';
+import { AccessLevelEnum } from '../../enums/access-level.enum.js';
 import {
 	IComplexPermission,
 	IDashboardPermissionData,
@@ -50,6 +50,11 @@ export function parseCedarPolicyToClassicalPermissions(
 			case 'connection:edit':
 				result.connection.accessLevel = AccessLevelEnum.edit;
 				break;
+			case 'connection:diagram':
+				if (result.connection.accessLevel === AccessLevelEnum.none) {
+					result.connection.accessLevel = AccessLevelEnum.readonly;
+				}
+				break;
 			case 'group:read':
 				if (result.group.accessLevel === AccessLevelEnum.none) {
 					result.group.accessLevel = AccessLevelEnum.readonly;
@@ -61,7 +66,8 @@ export function parseCedarPolicyToClassicalPermissions(
 			case 'table:read':
 			case 'table:add':
 			case 'table:edit':
-			case 'table:delete': {
+			case 'table:delete':
+			case 'table:ai-request': {
 				const tableName = extractTableName(permit.resourceId, connectionId);
 				if (!tableName) break;
 				const tableEntry = getOrCreateTableEntry(tableMap, tableName);
@@ -222,6 +228,7 @@ function getOrCreateTableEntry(map: Map<string, ITablePermissionData>, tableName
 				add: false,
 				delete: false,
 				edit: false,
+				aiRequest: false,
 			},
 		};
 		map.set(tableName, entry);
@@ -242,6 +249,9 @@ function applyTableAction(entry: ITablePermissionData, action: string): void {
 			break;
 		case 'table:delete':
 			entry.accessLevel.delete = true;
+			break;
+		case 'table:ai-request':
+			entry.accessLevel.aiRequest = true;
 			break;
 	}
 }
@@ -292,10 +302,7 @@ function extractPanelId(resourceId: string | null, connectionId: string): string
 	return resourceId;
 }
 
-function getOrCreatePanelEntry(
-	map: Map<string, IPanelPermissionData>,
-	panelId: string,
-): IPanelPermissionData {
+function getOrCreatePanelEntry(map: Map<string, IPanelPermissionData>, panelId: string): IPanelPermissionData {
 	let entry = map.get(panelId);
 	if (!entry) {
 		entry = {

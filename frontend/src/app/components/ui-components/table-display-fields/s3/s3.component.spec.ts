@@ -46,8 +46,8 @@ describe('S3DisplayComponent', () => {
 		fixture.componentRef.setInput('widgetStructure', {
 			widget_params: {
 				bucket: 'my-bucket',
-				aws_access_key_id_secret_name: 'key',
-				aws_secret_access_key_secret_name: 'secret',
+				access_key_id_secret_name: 'key',
+				secret_access_key_secret_name: 'secret',
 				type: 'image',
 			},
 		});

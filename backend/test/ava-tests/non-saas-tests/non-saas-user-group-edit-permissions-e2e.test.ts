@@ -9,7 +9,8 @@ import cookieParser from 'cookie-parser';
 import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
-import { AccessLevelEnum, QueryOrderingEnum } from '../../../src/enums/index.js';
+import { AccessLevelEnum } from '../../../src/enums/access-level.enum.js';
+import { QueryOrderingEnum } from '../../../src/enums/query-ordering.enum.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { Messages } from '../../../src/exceptions/text/messages.js';
@@ -687,65 +688,68 @@ test.serial(`${currentTest} should return permissions object for current group i
 	}
 });
 
-test.serial(`${currentTest} should return permissions object for current group in current connection for current user`, async (t) => {
-	try {
-		const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
-		const {
-			connections,
-			firstTableInfo,
-			groups,
-			permissions,
-			secondTableInfo,
-			users: { adminUserToken, simpleUserToken },
-		} = testData;
+test.serial(
+	`${currentTest} should return permissions object for current group in current connection for current user`,
+	async (t) => {
+		try {
+			const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+			const {
+				connections,
+				firstTableInfo,
+				groups,
+				permissions,
+				secondTableInfo,
+				users: { adminUserToken, simpleUserToken },
+			} = testData;
 
-		const getGroupsResponse = await request(app.getHttpServer())
-			.get(`/connection/groups/${connections.secondId}`)
-			.set('Cookie', adminUserToken)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json');
-		t.is(getGroupsResponse.status, 200);
-		const getGroupsRO = JSON.parse(getGroupsResponse.text);
+			const getGroupsResponse = await request(app.getHttpServer())
+				.get(`/connection/groups/${connections.secondId}`)
+				.set('Cookie', adminUserToken)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+			t.is(getGroupsResponse.status, 200);
+			const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
-		const groupId = getGroupsRO[0].group.id;
+			const groupId = getGroupsRO[0].group.id;
 
-		const response = await request(app.getHttpServer())
-			.get(`/connection/user/permissions?connectionId=${connections.secondId}&groupId=${groupId}`)
-			.set('Cookie', simpleUserToken)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json');
+			const response = await request(app.getHttpServer())
+				.get(`/connection/user/permissions?connectionId=${connections.secondId}&groupId=${groupId}`)
+				.set('Cookie', simpleUserToken)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
 
-		t.is(response.status, 200);
-		const result = JSON.parse(response.text);
-		console.log('🚀 ~ result:', result);
+			t.is(response.status, 200);
+			const result = JSON.parse(response.text);
+			console.log('🚀 ~ result:', result);
 
-		t.is(Object.hasOwn(result, 'connection'), true);
-		t.is(Object.hasOwn(result, 'group'), true);
-		t.is(Object.hasOwn(result, 'tables'), true);
-		t.is(typeof result.connection, 'object');
-		t.is(typeof result.group, 'object');
-		t.is(result.connection.connectionId, connections.secondId);
-		t.is(result.group.groupId, groupId);
-		t.is(result.connection.accessLevel, AccessLevelEnum.none);
-		t.is(result.group.accessLevel, AccessLevelEnum.none);
-		t.is(typeof result.tables, 'object');
+			t.is(Object.hasOwn(result, 'connection'), true);
+			t.is(Object.hasOwn(result, 'group'), true);
+			t.is(Object.hasOwn(result, 'tables'), true);
+			t.is(typeof result.connection, 'object');
+			t.is(typeof result.group, 'object');
+			t.is(result.connection.connectionId, connections.secondId);
+			t.is(result.group.groupId, groupId);
+			t.is(result.connection.accessLevel, AccessLevelEnum.none);
+			t.is(result.group.accessLevel, AccessLevelEnum.none);
+			t.is(typeof result.tables, 'object');
 
-		const { tables } = result;
-		const foundTableIndex = tables.findIndex((table) => table.tableName === secondTableInfo.testTableName);
-		t.is(tables.length > 0, true);
-		t.is(typeof tables[0], 'object');
-		t.is(Object.hasOwn(tables[foundTableIndex], 'accessLevel'), true);
-		t.is(tables[foundTableIndex].accessLevel.visibility, false);
-		t.is(tables[foundTableIndex].accessLevel.readonly, false);
-		t.is(tables[foundTableIndex].accessLevel.add, false);
-		t.is(tables[foundTableIndex].accessLevel.delete, false);
-		t.is(tables[foundTableIndex].accessLevel.edit, false);
-		t.is(tables[foundTableIndex].accessLevel.edit, false);
-	} catch (e) {
-		console.error(e);
-		throw e;
-	}
-});
+			const { tables } = result;
+			const foundTableIndex = tables.findIndex((table) => table.tableName === secondTableInfo.testTableName);
+			t.is(tables.length > 0, true);
+			t.is(typeof tables[0], 'object');
+			t.is(Object.hasOwn(tables[foundTableIndex], 'accessLevel'), true);
+			t.is(tables[foundTableIndex].accessLevel.visibility, false);
+			t.is(tables[foundTableIndex].accessLevel.readonly, false);
+			t.is(tables[foundTableIndex].accessLevel.add, false);
+			t.is(tables[foundTableIndex].accessLevel.delete, false);
+			t.is(tables[foundTableIndex].accessLevel.edit, false);
+			t.is(tables[foundTableIndex].accessLevel.edit, false);
+		} catch (e) {
+			console.error(e);
+			throw e;
+		}
+	},
+);
 
 //****************************** GROUP CONTROLLER ******************************//
 

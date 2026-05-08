@@ -1,4 +1,4 @@
-import { UserActionEnum } from '../../../enums/index.js';
+import { UserActionEnum } from '../../../enums/user-action.enum.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { UserActionEntity } from '../user-action.entity.js';
 

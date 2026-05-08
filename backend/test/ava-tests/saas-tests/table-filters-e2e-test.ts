@@ -11,7 +11,7 @@ import request from 'supertest';
 import { fileURLToPath } from 'url';
 import { ApplicationModule } from '../../../src/app.module.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
-import { QueryOrderingEnum } from '../../../src/enums/index.js';
+import { QueryOrderingEnum } from '../../../src/enums/query-ordering.enum.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';

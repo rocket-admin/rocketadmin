@@ -11,22 +11,16 @@ import {
 } from '../interfaces/ai-provider.interface.js';
 import { AIProviderType, IAIService } from '../interfaces/ai-service.interface.js';
 import { LangchainBedrockProvider } from '../providers/langchain-bedrock.provider.js';
-import { LangchainOpenAIProvider } from '../providers/langchain-openai.provider.js';
 
 @Injectable()
 export class AICoreService implements IAIService {
-	private defaultProvider: AIProviderType = AIProviderType.OPENAI;
+	private defaultProvider: AIProviderType = AIProviderType.BEDROCK;
 
-	constructor(
-		private readonly openAIProvider: LangchainOpenAIProvider,
-		private readonly bedrockProvider: LangchainBedrockProvider,
-	) {}
+	constructor(private readonly bedrockProvider: LangchainBedrockProvider) {}
 
 	private getProvider(type?: AIProviderType): IAIProvider {
 		const providerType = type || this.defaultProvider;
 		switch (providerType) {
-			case AIProviderType.OPENAI:
-				return this.openAIProvider;
 			case AIProviderType.BEDROCK:
 				return this.bedrockProvider;
 			default:
@@ -135,11 +129,6 @@ export class AICoreService implements IAIService {
 
 	public getAvailableProviders(): Array<{ type: AIProviderType; name: string; defaultModel: string }> {
 		return [
-			{
-				type: AIProviderType.OPENAI,
-				name: this.openAIProvider.getProviderName(),
-				defaultModel: this.openAIProvider.getDefaultModelId(),
-			},
 			{
 				type: AIProviderType.BEDROCK,
 				name: this.bedrockProvider.getProviderName(),

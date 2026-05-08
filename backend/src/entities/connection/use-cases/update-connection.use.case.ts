@@ -3,11 +3,11 @@ import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { AmplitudeEventTypeEnum } from '../../../enums/index.js';
+import { AmplitudeEventTypeEnum } from '../../../enums/amplitude-event-type.enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
-import { isConnectionTypeAgent } from '../../../helpers/index.js';
+import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
 import { CreatedConnectionDTO } from '../application/dto/created-connection.dto.js';
@@ -83,10 +83,7 @@ export class UpdateConnectionUseCase
 			if (updatedConnection.master_hash) {
 				const isMasterPwdValid = await Encryptor.verifyUserPassword(masterPwd, updatedConnection.master_hash);
 				if (!isMasterPwdValid) {
-					throw new HttpException(
-						{ message: Messages.MASTER_PASSWORD_INCORRECT },
-						HttpStatus.BAD_REQUEST,
-					);
+					throw new HttpException({ message: Messages.MASTER_PASSWORD_INCORRECT }, HttpStatus.BAD_REQUEST);
 				}
 			}
 			updatedConnection = Encryptor.encryptConnectionCredentials(updatedConnection, masterPwd);

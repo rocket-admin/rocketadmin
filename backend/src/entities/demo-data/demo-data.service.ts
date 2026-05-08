@@ -8,7 +8,8 @@ import { TableActionEventEnum } from '../../enums/table-action-event-enum.js';
 import { TableActionTypeEnum } from '../../enums/table-action-type.enum.js';
 import { isTest } from '../../helpers/app/is-test.js';
 import { Constants } from '../../helpers/constants/constants.js';
-import { slackPostMessage } from '../../helpers/index.js';
+import { slackPostMessage } from '../../helpers/slack/slack-post-message.js';
+import { generateCedarPolicyForGroup } from '../cedar-authorization/cedar-policy-generator.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
 import { CreateConnectionPropertiesDs } from '../connection-properties/application/data-structures/create-connection-properties.ds.js';
 import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity.js';
@@ -27,7 +28,6 @@ import { TableSettingsEntity } from '../table-settings/common-table-settings/tab
 import { buildNewTableSettingsEntity } from '../table-settings/common-table-settings/utils/build-new-table-settings-entity.js';
 import { buildConnectionEntitiesFromTestDtos } from '../user/utils/build-connection-entities-from-test-dtos.js';
 import { buildDefaultAdminGroups } from '../user/utils/build-default-admin-groups.js';
-import { generateCedarPolicyForGroup } from '../cedar-authorization/cedar-policy-generator.js';
 import { CreateTableWidgetDs } from '../widget/application/data-sctructures/create-table-widgets.ds.js';
 import { buildNewTableWidgetEntity } from '../widget/utils/build-new-table-widget-entity.js';
 

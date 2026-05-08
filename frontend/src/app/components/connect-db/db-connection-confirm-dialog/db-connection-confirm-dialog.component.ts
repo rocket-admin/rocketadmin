@@ -24,6 +24,7 @@ export class DbConnectionConfirmDialogComponent implements OnInit {
 		digitalocean: 'DigitalOcean',
 		scylladbcloud: 'ScyllaDB Cloud',
 		amazonDynamoDB: 'Amazon DynamoDB',
+		supabase: 'Supabase',
 	};
 	public providerDocsLink = {
 		amazon: 'https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_aws_mysql',
@@ -34,6 +35,7 @@ export class DbConnectionConfirmDialogComponent implements OnInit {
 			'https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_digitalocean_postgresql',
 		scylladbcloud: 'https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_scylladb',
 		amazonDynamoDB: 'https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_aws_dynamodb',
+		supabase: 'https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_supabase',
 	};
 
 	constructor(

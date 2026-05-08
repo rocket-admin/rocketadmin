@@ -6,7 +6,7 @@ import test from 'ava';
 import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
-import { AICoreService } from '../../../src/ai-core/index.js';
+import { AICoreService } from '../../../src/ai-core/services/ai-core.service.js';
 import { ApplicationModule } from '../../../src/app.module.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
@@ -41,7 +41,7 @@ const MOCK_DASHBOARD_RESPONSE = JSON.stringify({
 		{
 			name: 'Records by Name',
 			description: 'Distribution of records by name',
-			query_text: "SELECT name as label, COUNT(*) as count FROM test_table GROUP BY name",
+			query_text: 'SELECT name as label, COUNT(*) as count FROM test_table GROUP BY name',
 			panel_type: 'chart',
 			chart_type: 'bar',
 			panel_options: {
@@ -71,9 +71,7 @@ const MOCK_DASHBOARD_RESPONSE_UNSAFE = JSON.stringify({
 	],
 });
 
-const MOCK_TABLES_LIST = [
-	{ tableName: 'test_table', isView: false },
-];
+const MOCK_TABLES_LIST = [{ tableName: 'test_table', isView: false }];
 
 const MOCK_TABLE_STRUCTURE = [
 	{ column_name: 'id', data_type: 'integer', allow_null: false },

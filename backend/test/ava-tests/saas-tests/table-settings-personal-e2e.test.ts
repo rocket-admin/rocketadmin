@@ -10,7 +10,7 @@ import { ApplicationModule } from '../../../src/app.module.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 import { CreatePersonalTableSettingsDto } from '../../../src/entities/table-settings/personal-table-settings/dto/create-personal-table-settings.dto.js';
 import { FoundPersonalTableSettingsDto } from '../../../src/entities/table-settings/personal-table-settings/dto/found-personal-table-settings.dto.js';
-import { QueryOrderingEnum } from '../../../src/enums/index.js';
+import { QueryOrderingEnum } from '../../../src/enums/query-ordering.enum.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { Messages } from '../../../src/exceptions/text/messages.js';

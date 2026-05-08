@@ -5,19 +5,20 @@ import * as csv from 'csv';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../../enums/index.js';
+import { LogOperationTypeEnum } from '../../../enums/log-operation-type.enum.js';
+import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { hexToBinary, isBinary } from '../../../helpers/binary-to-hex.js';
-import { slackPostMessage } from '../../../helpers/index.js';
 import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
-import { validateConnection, getUserEmailForAgent } from '../utils/validate-connection.util.js';
 import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
+import { slackPostMessage } from '../../../helpers/slack/slack-post-message.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { GetTableRowsDs } from '../application/data-structures/get-table-rows.ds.js';
 import { FilteringFieldsDs } from '../table-datastructures.js';
 import { findFilteringFieldsUtil, parseFilteringFieldsFromBodyData } from '../utils/find-filtering-fields.util.js';
 import { findOrderingFieldUtil } from '../utils/find-ordering-field.util.js';
 import { isHexString } from '../utils/is-hex-string.js';
+import { getUserEmailForAgent, validateConnection } from '../utils/validate-connection.util.js';
 import { IExportCSVFromTable } from './table-use-cases.interface.js';
 
 @Injectable()

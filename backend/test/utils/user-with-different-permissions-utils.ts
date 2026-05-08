@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { AccessLevelEnum } from '../../src/enums/index.js';
+import { AccessLevelEnum } from '../../src/enums/access-level.enum.js';
 import { MockFactory } from '../mock.factory.js';
 import { CreatedTableInfo, createTestTable } from './create-test-table.js';
 import {

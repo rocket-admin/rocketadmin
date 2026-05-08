@@ -15,19 +15,23 @@ import {
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../../common/data-injection.tokens.js';
-import { MasterPassword, QueryTableName, QueryUuid, UserId } from '../../../decorators/index.js';
+import { MasterPassword } from '../../../decorators/master-password.decorator.js';
+import { QueryTableName } from '../../../decorators/query-table-name.decorator.js';
+import { QueryUuid } from '../../../decorators/query-uuid.decorator.js';
 import { Timeout } from '../../../decorators/timeout.decorator.js';
-import { InTransactionEnum } from '../../../enums/index.js';
+import { UserId } from '../../../decorators/user-id.decorator.js';
+import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { ConnectionEditGuard, ConnectionReadGuard } from '../../../guards/index.js';
-import { toPrettyErrorsMsg } from '../../../helpers/index.js';
-import { SentryInterceptor } from '../../../interceptors/index.js';
+import { ConnectionEditGuard } from '../../../guards/connection-edit.guard.js';
+import { ConnectionReadGuard } from '../../../guards/connection-read.guard.js';
+import { toPrettyErrorsMsg } from '../../../helpers/to-pretty-errors-msg.js';
+import { SentryInterceptor } from '../../../interceptors/sentry.interceptor.js';
 import { CustomFieldsEntity } from '../../custom-field/custom-fields.entity.js';
 import { CreateTableSettingsDs } from '../application/data-structures/create-table-settings.ds.js';
 import { DeleteTableSettingsDs } from '../application/data-structures/delete-table-settings.ds.js';
 import { FindTableSettingsDs } from '../application/data-structures/find-table-settings.ds.js';
 import { FoundTableSettingsDs } from '../application/data-structures/found-table-settings.ds.js';
-import { CreateTableSettingsDto } from './dto/index.js';
+import { CreateTableSettingsDto } from './dto/create-table-settings.dto.js';
 import {
 	ICreateTableSettings,
 	IDeleteTableSettings,

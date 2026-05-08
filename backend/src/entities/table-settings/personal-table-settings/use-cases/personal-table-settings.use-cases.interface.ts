@@ -16,10 +16,3 @@ export interface ICreateUpdatePersonalTableSettings {
 		inTransaction: InTransactionEnum,
 	): Promise<FoundPersonalTableSettingsDto>;
 }
-
-export interface IDeletePersonalTableSettings {
-	execute(
-		inputData: FindPersonalTableSettingsDs,
-		inTransaction: InTransactionEnum,
-	): Promise<FoundPersonalTableSettingsDto>;
-}

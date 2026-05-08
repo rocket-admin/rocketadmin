@@ -6,7 +6,7 @@ import test from 'ava';
 import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
-import { AICoreService } from '../../../src/ai-core/index.js';
+import { AICoreService } from '../../../src/ai-core/services/ai-core.service.js';
 import { ApplicationModule } from '../../../src/app.module.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 import {
@@ -81,7 +81,7 @@ const mockAICoreService = {
 	chatWithProvider: async () => ({ content: 'mocked', responseId: faker.string.uuid() }),
 	continueAfterToolCall: async () => ({ content: 'mocked', responseId: faker.string.uuid() }),
 	continueStreamingAfterToolCall: async () => createProposalStream(nextProposal!),
-	getDefaultProvider: () => 'openai',
+	getDefaultProvider: () => 'bedrock',
 	setDefaultProvider: () => {},
 	getAvailableProviders: () => [],
 };

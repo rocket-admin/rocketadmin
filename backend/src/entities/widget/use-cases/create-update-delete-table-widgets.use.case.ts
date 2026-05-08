@@ -3,7 +3,7 @@ import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { toPrettyErrorsMsg } from '../../../helpers/index.js';
+import { toPrettyErrorsMsg } from '../../../helpers/to-pretty-errors-msg.js';
 import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';
 import { buildEmptyTableSettingsWithEmptyWidgets } from '../../table-settings/common-table-settings/utils/build-empty-table-settings.js';
 import { buildNewTableSettingsEntity } from '../../table-settings/common-table-settings/utils/build-new-table-settings-entity.js';

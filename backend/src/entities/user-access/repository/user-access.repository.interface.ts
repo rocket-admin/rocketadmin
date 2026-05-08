@@ -1,4 +1,4 @@
-import { AccessLevelEnum } from '../../../enums/index.js';
+import { AccessLevelEnum } from '../../../enums/access-level.enum.js';
 import { ITablePermissionData } from '../../permission/permission.interface.js';
 
 export interface IUserAccessRepository {

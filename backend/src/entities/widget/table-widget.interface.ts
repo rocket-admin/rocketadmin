@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { EncryptionAlgorithmEnum, WidgetTypeEnum } from '../../enums/index.js';
+import { EncryptionAlgorithmEnum } from '../../enums/encryption-algorithm.enum.js';
+import { WidgetTypeEnum } from '../../enums/widget-type.enum.js';
 
 export class TableWidgetRO {
 	@ApiProperty()

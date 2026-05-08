@@ -10,12 +10,12 @@ import {
 	UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { SlugUuid } from '../../decorators/index.js';
+import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
 import { Timeout } from '../../decorators/timeout.decorator.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { ConnectionEditGuard } from '../../guards/connection-edit.guard.js';
 import { ConnectionReadGuard } from '../../guards/connection-read.guard.js';
-import { SentryInterceptor } from '../../interceptors/index.js';
+import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { IComplexPermission } from '../permission/permission.interface.js';
 import { CedarAuthorizationService } from './cedar-authorization.service.js';
 import { SaveCedarPolicyDto } from './dto/save-cedar-policy.dto.js';
@@ -67,7 +67,9 @@ export class CedarAuthorizationController {
 		return { valid: true };
 	}
 
-	@ApiOperation({ summary: 'Save a cedar policy for a group, generating classical permissions for backward compatibility' })
+	@ApiOperation({
+		summary: 'Save a cedar policy for a group, generating classical permissions for backward compatibility',
+	})
 	@ApiResponse({
 		status: 200,
 		description: 'Cedar policy saved and classical permissions generated.',

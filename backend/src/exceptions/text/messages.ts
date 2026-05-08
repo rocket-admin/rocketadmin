@@ -1,17 +1,15 @@
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { UserRoleEnum } from '../../entities/user/enums/user-role.enum.js';
-import {
-	EncryptionAlgorithmEnum,
-	LogOperationTypeEnum,
-	QueryOrderingEnum,
-	TableActionTypeEnum,
-	UserActionEnum,
-	WidgetTypeEnum,
-} from '../../enums/index.js';
+import { EncryptionAlgorithmEnum } from '../../enums/encryption-algorithm.enum.js';
+import { LogOperationTypeEnum } from '../../enums/log-operation-type.enum.js';
+import { QueryOrderingEnum } from '../../enums/query-ordering.enum.js';
 import { TableActionEventEnum } from '../../enums/table-action-event-enum.js';
 import { TableActionMethodEnum } from '../../enums/table-action-method-enum.js';
+import { TableActionTypeEnum } from '../../enums/table-action-type.enum.js';
+import { UserActionEnum } from '../../enums/user-action.enum.js';
+import { WidgetTypeEnum } from '../../enums/widget-type.enum.js';
 import { enumToString } from '../../helpers/enum-to-string.js';
-import { toPrettyErrorsMsg } from '../../helpers/index.js';
+import { toPrettyErrorsMsg } from '../../helpers/to-pretty-errors-msg.js';
 export const Messages = {
 	API_KEY_SUSPENDED: 'API key is suspended',
 	AI_REQUESTS_NOT_ALLOWED: 'AI requests are not allowed for this connection',
@@ -87,6 +85,8 @@ export const Messages = {
 		'Connection master password is not set (or connection created before this feature)',
 	CONNECTION_TEST_FAILED: 'Connection test failed. ',
 	CONNECTION_TYPE_INVALID: `Unsupported database type. Now we supports ${enumToString(ConnectionTypesEnum)}`,
+	DIAGRAM_NOT_SUPPORTED_FOR_CONNECTION_TYPE:
+		'Database structure diagram is currently supported only for SQL connections',
 	CONNECTION_PROPERTIES_INVALID: 'Connection properties are invalid',
 	CONNECTION_PROPERTIES_CANT_BE_EMPTY: `Connection properties cannot be empty`,
 	CONNECTION_PROPERTIES_NOT_FOUND: `Connection properties not found`,
@@ -99,7 +99,8 @@ export const Messages = {
 	CUSTOM_FIELD_TYPE_INCORRECT: 'Unsupported custom field type',
 	CUSTOM_FIELD_TYPE_MISSING: 'Custom field type is missing',
 	CEDAR_POLICY_REFERENCES_FOREIGN_GROUP: 'Cedar policy references a group that does not belong to this connection',
-	CEDAR_POLICY_REFERENCES_FOREIGN_CONNECTION: 'Cedar policy references a connection that does not match the target connection',
+	CEDAR_POLICY_REFERENCES_FOREIGN_CONNECTION:
+		'Cedar policy references a connection that does not match the target connection',
 	CEDAR_POLICY_REFERENCES_FOREIGN_PRINCIPAL: 'Cedar policy principal must reference the target group',
 	CSV_EXPORT_FAILED: 'CSV export failed',
 	CSV_EXPORT_DISABLED: 'CSV export is disabled',

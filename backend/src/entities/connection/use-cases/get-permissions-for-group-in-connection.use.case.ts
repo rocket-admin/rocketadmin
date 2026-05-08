@@ -4,8 +4,8 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { AccessLevelEnum } from '../../../enums/access-level.enum.js';
-import { TablePermissionDs } from '../../permission/application/data-structures/create-permissions.ds.js';
 import { parseCedarPolicyToClassicalPermissions } from '../../cedar-authorization/cedar-policy-parser.js';
+import { TablePermissionDs } from '../../permission/application/data-structures/create-permissions.ds.js';
 import { FoundPermissionsInConnectionDs } from '../application/data-structures/found-permissions-in-connection.ds.js';
 import { GetPermissionsInConnectionDs } from '../application/data-structures/get-permissions-in-connection.ds.js';
 import { IGetPermissionsForGroupInConnection } from './use-cases.interfaces.js';
@@ -62,6 +62,7 @@ export class GetPermissionsForGroupInConnectionUseCase
 					edit: false,
 					readonly: false,
 					visibility: false,
+					aiRequest: false,
 				},
 			};
 		});

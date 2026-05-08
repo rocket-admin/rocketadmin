@@ -1,4 +1,4 @@
-import { AccessLevelEnum } from '../../enums/index.js';
+import { AccessLevelEnum } from '../../enums/access-level.enum.js';
 import { IComplexPermission } from '../permission/permission.interface.js';
 
 export function generateCedarPolicyForGroup(
@@ -10,9 +10,7 @@ export function generateCedarPolicyForGroup(
 	const connectionRef = `RocketAdmin::Connection::"${connectionId}"`;
 
 	if (isMain) {
-		policies.push(
-			`permit(\n  principal,\n  action,\n  resource\n);`,
-		);
+		policies.push(`permit(\n  principal,\n  action,\n  resource\n);`);
 		return policies.join('\n\n');
 	}
 
@@ -24,6 +22,9 @@ export function generateCedarPolicyForGroup(
 		);
 		policies.push(
 			`permit(\n  principal,\n  action == RocketAdmin::Action::"connection:edit",\n  resource == ${connectionRef}\n);`,
+		);
+		policies.push(
+			`permit(\n  principal,\n  action == RocketAdmin::Action::"connection:diagram",\n  resource == ${connectionRef}\n);`,
 		);
 	} else if (connAccess === AccessLevelEnum.readonly) {
 		policies.push(
@@ -150,6 +151,11 @@ export function generateCedarPolicyForGroup(
 		if (access.delete) {
 			policies.push(
 				`permit(\n  principal,\n  action == RocketAdmin::Action::"table:delete",\n  resource == ${tableRef}\n);`,
+			);
+		}
+		if (access.aiRequest) {
+			policies.push(
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"table:ai-request",\n  resource == ${tableRef}\n);`,
 			);
 		}
 	}

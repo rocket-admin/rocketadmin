@@ -1,4 +1,4 @@
-import { InTransactionEnum } from '../../../enums/index.js';
+import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { FoundGroupResponseDto } from '../../group/dto/found-group-response.dto.js';
 import { FindUserDs } from '../../user/application/data-structures/find-user.ds.js';
@@ -11,6 +11,7 @@ import { FindOneConnectionDs } from '../application/data-structures/find-one-con
 import { FoundConnectionsDs } from '../application/data-structures/found-connections.ds.js';
 import { FoundOneConnectionDs } from '../application/data-structures/found-one-connection.ds.js';
 import { FoundPermissionsInConnectionDs } from '../application/data-structures/found-permissions-in-connection.ds.js';
+import { GetConnectionDiagramDs } from '../application/data-structures/get-connection-diagram.ds.js';
 import { GetGroupsInConnectionDs } from '../application/data-structures/get-groups-in-connection.ds.js';
 import { GetPermissionsInConnectionDs } from '../application/data-structures/get-permissions-in-connection.ds.js';
 import { RestoredConnectionDs } from '../application/data-structures/restored-connection.ds.js';
@@ -21,6 +22,7 @@ import { UpdateConnectionDs } from '../application/data-structures/update-connec
 import { UpdateConnectionTitleDs } from '../application/data-structures/update-connection-title.ds.js';
 import { UpdateMasterPasswordDs } from '../application/data-structures/update-master-password.ds.js';
 import { ValidateConnectionMasterPasswordDs } from '../application/data-structures/validate-connection-master-password.ds.js';
+import { ConnectionDiagramResponseDTO } from '../application/dto/connection-diagram-response.dto.js';
 import { CreatedConnectionDTO } from '../application/dto/created-connection.dto.js';
 import { FoundUserGroupsInConnectionDTO } from '../application/dto/found-user-groups-in-connection.dto.js';
 import { ValidationResultRo } from '../application/dto/validation-result.ro.js';
@@ -105,4 +107,8 @@ export interface IUnfreezeConnection {
 
 export interface IUpdateConnectionTitle {
 	execute(inputData: UpdateConnectionTitleDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+}
+
+export interface IGetConnectionDiagram {
+	execute(inputData: GetConnectionDiagramDs, inTransaction: InTransactionEnum): Promise<ConnectionDiagramResponseDTO>;
 }

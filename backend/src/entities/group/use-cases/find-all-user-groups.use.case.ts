@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { AccessLevelEnum } from '../../../enums/index.js';
+import { AccessLevelEnum } from '../../../enums/access-level.enum.js';
 import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { FoundUserGroupsDs } from '../application/data-sctructures/found-user-groups.ds.js';
 import { GroupEntity } from '../group.entity.js';

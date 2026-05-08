@@ -1,6 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthMiddleware } from '../../authorization/index.js';
+import { AuthMiddleware } from '../../authorization/auth.middleware.js';
 import { NonScopedAuthMiddleware } from '../../authorization/non-scoped-auth.middleware.js';
 import { TemporaryAuthMiddleware } from '../../authorization/temporary-auth.middleware.js';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsEnum, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
-import { WidgetTypeEnum } from '../../../enums/index.js';
+import { WidgetTypeEnum } from '../../../enums/widget-type.enum.js';
 
 export class CreateTableWidgetDto {
 	@ApiProperty()

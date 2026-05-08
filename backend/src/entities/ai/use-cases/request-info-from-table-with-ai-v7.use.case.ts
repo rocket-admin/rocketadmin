@@ -6,27 +6,20 @@ import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/inte
 import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
 import Sentry from '@sentry/minimal';
 import { Response } from 'express';
-import {
-	AICoreService,
-	AIProviderConfig,
-	AIProviderType,
-	AIToolCall,
-	AIToolDefinition,
-	createDatabaseQuerySystemPrompt,
-	createDatabaseTools,
-	encodeError,
-	encodeToToon,
-	isValidMongoDbCommand,
-	isValidSQLQuery,
-	MessageBuilder,
-	wrapQueryWithLimit,
-} from '../../../ai-core/index.js';
+import { AIToolCall, AIToolDefinition } from '../../../ai-core/interfaces/ai-provider.interface.js';
+import { AIProviderType } from '../../../ai-core/interfaces/ai-service.interface.js';
+import { AICoreService } from '../../../ai-core/services/ai-core.service.js';
+import { createDatabaseTools } from '../../../ai-core/tools/database-tools.js';
+import { createDatabaseQuerySystemPrompt } from '../../../ai-core/tools/prompts.js';
+import { isValidMongoDbCommand, isValidSQLQuery, wrapQueryWithLimit } from '../../../ai-core/tools/query-validators.js';
+import { MessageBuilder } from '../../../ai-core/utils/message-builder.js';
+import { encodeError, encodeToToon } from '../../../ai-core/utils/toon-encoder.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { slackPostMessage } from '../../../helpers/index.js';
 import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
+import { slackPostMessage } from '../../../helpers/slack/slack-post-message.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { MessageRole } from '../ai-conversation-history/ai-chat-messages/message-role.enum.js';
 import { UserAiChatEntity } from '../ai-conversation-history/user-ai-chat/user-ai-chat.entity.js';
@@ -98,20 +91,10 @@ export class RequestInfoFromTableWithAIUseCaseV7
 			});
 		}
 
-		const { messages, previousResponseId } = await this.buildMessagesWithHistory(
-			systemPrompt,
-			user_message,
-			foundUserAiChat.id,
-			isNewChat,
-		);
+		const messages = await this.buildMessagesWithHistory(systemPrompt, user_message, foundUserAiChat.id, isNewChat);
 
 		try {
-			const config: AIProviderConfig = {};
-			if (this.aiProvider === AIProviderType.OPENAI && previousResponseId) {
-				config.previousResponseId = previousResponseId;
-			}
-
-			const { accumulatedResponse, lastResponseId } = await this.processWithToolLoop(
+			const accumulatedResponse = await this.processWithToolLoop(
 				messages,
 				tools,
 				response,
@@ -119,7 +102,6 @@ export class RequestInfoFromTableWithAIUseCaseV7
 				tableName,
 				userEmail,
 				foundConnection,
-				config,
 			);
 
 			if (accumulatedResponse) {
@@ -127,7 +109,6 @@ export class RequestInfoFromTableWithAIUseCaseV7
 					foundUserAiChat.id,
 					accumulatedResponse,
 					MessageRole.ai,
-					lastResponseId,
 				);
 			}
 
@@ -149,24 +130,16 @@ export class RequestInfoFromTableWithAIUseCaseV7
 		inputTableName: string,
 		userEmail: string,
 		foundConnection: ConnectionEntity,
-		config: AIProviderConfig = {},
-	): Promise<{ lastResponseId: string | null; accumulatedResponse: string }> {
+	): Promise<string> {
 		let currentMessages = [...messages];
-		let lastResponseId: string | null = null;
 		let depth = 0;
 		let totalAccumulatedResponse = '';
-		let currentConfig = { ...config };
 
 		while (depth < this.maxDepth) {
 			try {
-				const stream = await this.aiCoreService.streamChatWithToolsAndProvider(
-					this.aiProvider,
-					currentMessages,
-					tools,
-					currentConfig,
-				);
+				const stream = await this.aiCoreService.streamChatWithToolsAndProvider(this.aiProvider, currentMessages, tools);
 
-				let pendingToolCalls: AIToolCall[] = [];
+				const pendingToolCalls: AIToolCall[] = [];
 				let accumulatedContent = '';
 
 				for await (const chunk of stream) {
@@ -177,10 +150,6 @@ export class RequestInfoFromTableWithAIUseCaseV7
 
 					if (chunk.type === 'tool_call' && chunk.toolCall) {
 						pendingToolCalls.push(chunk.toolCall);
-					}
-
-					if (chunk.responseId) {
-						lastResponseId = chunk.responseId;
 					}
 				}
 
@@ -213,10 +182,6 @@ export class RequestInfoFromTableWithAIUseCaseV7
 					this.logger.log(`Tool result for ${toolResult.toolCallId}: resultLength=${toolResult.result.length}`);
 				}
 
-				if (this.aiProvider === AIProviderType.OPENAI && lastResponseId) {
-					currentConfig = { ...currentConfig, previousResponseId: lastResponseId };
-				}
-
 				const continuationBuilder = MessageBuilder.fromMessages(currentMessages);
 				continuationBuilder.ai(accumulatedContent, pendingToolCalls);
 				for (const result of toolResults) {
@@ -239,7 +204,7 @@ export class RequestInfoFromTableWithAIUseCaseV7
 			totalAccumulatedResponse += maxDepthMessage;
 		}
 
-		return { lastResponseId, accumulatedResponse: totalAccumulatedResponse };
+		return totalAccumulatedResponse;
 	}
 
 	private writeChunk(
@@ -409,17 +374,9 @@ export class RequestInfoFromTableWithAIUseCaseV7
 		userMessage: string,
 		chatId: string,
 		isNewChat: boolean,
-	): Promise<{ messages: BaseMessage[]; previousResponseId: string | null }> {
+	): Promise<BaseMessage[]> {
 		if (isNewChat) {
-			const messages = new MessageBuilder().system(systemPrompt).human(userMessage).build();
-			return { messages, previousResponseId: null };
-		}
-
-		if (this.aiProvider === AIProviderType.OPENAI) {
-			const lastAiMessage = await this._dbContext.aiChatMessageRepository.findLastAiMessageForChat(chatId);
-			const previousResponseId = lastAiMessage?.response_id || null;
-			const messages = new MessageBuilder().system(systemPrompt).human(userMessage).build();
-			return { messages, previousResponseId };
+			return new MessageBuilder().system(systemPrompt).human(userMessage).build();
 		}
 
 		const previousMessages = await this._dbContext.aiChatMessageRepository.findMessagesForChat(chatId);
@@ -435,7 +392,7 @@ export class RequestInfoFromTableWithAIUseCaseV7
 
 		builder.human(userMessage);
 
-		return { messages: builder.build(), previousResponseId: null };
+		return builder.build();
 	}
 
 	private async generateAndUpdateChatName(chatId: string, userMessage: string): Promise<void> {

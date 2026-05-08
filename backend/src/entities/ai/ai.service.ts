@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { AICoreService, AIProviderType, cleanAIJsonResponse } from '../../ai-core/index.js';
+import { AIProviderType } from '../../ai-core/interfaces/ai-service.interface.js';
+import { AICoreService } from '../../ai-core/services/ai-core.service.js';
+import { cleanAIJsonResponse } from '../../ai-core/tools/query-validators.js';
 import { QueryOrderingEnum } from '../../enums/query-ordering.enum.js';
 import { WidgetTypeEnum } from '../../enums/widget-type.enum.js';
 import { checkFieldAutoincrement } from '../../helpers/check-field-autoincrement.js';

@@ -63,9 +63,3 @@ export class MessageBuilder {
 		return builder;
 	}
 }
-
-export function createSimpleMessages(systemPrompt: string, userMessage: string): BaseMessage[] {
-	return new MessageBuilder().system(systemPrompt).human(userMessage).build();
-}
-
-export { HumanMessage, SystemMessage, AIMessage, ToolMessage, BaseMessage };

@@ -2,7 +2,7 @@ import * as cedarWasm from '@cedar-policy/cedar-wasm/nodejs';
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../common/data-injection.tokens.js';
-import { AccessLevelEnum } from '../../enums/index.js';
+import { AccessLevelEnum } from '../../enums/access-level.enum.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { Cacher } from '../../helpers/cache/cacher.js';
 import { GroupEntity } from '../group/group.entity.js';
@@ -213,7 +213,17 @@ export class CedarPermissionsService implements IUserAccessRepository {
 	): Promise<ITablePermissionData> {
 		const ctx = await this.loadContext(connectionId, cognitoUserName);
 		if (!ctx) {
-			return { tableName, accessLevel: { visibility: false, readonly: false, add: false, delete: false, edit: false } };
+			return {
+				tableName,
+				accessLevel: {
+					visibility: false,
+					readonly: false,
+					add: false,
+					delete: false,
+					edit: false,
+					aiRequest: false,
+				},
+			};
 		}
 
 		return this.evaluateTablePermissions(cognitoUserName, connectionId, tableName, ctx);
@@ -386,6 +396,14 @@ export class CedarPermissionsService implements IUserAccessRepository {
 			ctx.policies,
 			entities,
 		);
+		const canAiRequest = this.evaluatePolicies(
+			userId,
+			CedarAction.TableAiRequest,
+			CedarResourceType.Table,
+			resourceId,
+			ctx.policies,
+			entities,
+		);
 
 		return {
 			tableName,
@@ -395,6 +413,7 @@ export class CedarPermissionsService implements IUserAccessRepository {
 				add: canAdd,
 				delete: canDelete,
 				edit: canEdit,
+				aiRequest: canAiRequest,
 			},
 		};
 	}

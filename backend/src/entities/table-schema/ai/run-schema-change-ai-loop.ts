@@ -2,16 +2,11 @@ import { BaseMessage } from '@langchain/core/messages';
 import { Logger } from '@nestjs/common';
 import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object.interface.js';
 import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
-import {
-	AICoreService,
-	AIProviderConfig,
-	AIProviderType,
-	AIToolCall,
-	AIToolDefinition,
-	encodeError,
-	encodeToToon,
-	MessageBuilder,
-} from '../../../ai-core/index.js';
+import { AIProviderConfig, AIToolCall, AIToolDefinition } from '../../../ai-core/interfaces/ai-provider.interface.js';
+import { AIProviderType } from '../../../ai-core/interfaces/ai-service.interface.js';
+import { AICoreService } from '../../../ai-core/services/ai-core.service.js';
+import { MessageBuilder } from '../../../ai-core/utils/message-builder.js';
+import { encodeError, encodeToToon } from '../../../ai-core/utils/toon-encoder.js';
 import {
 	isDynamoDbSchemaChangeType,
 	isElasticsearchSchemaChangeType,
@@ -48,7 +43,7 @@ export async function runSchemaChangeAiLoop(opts: RunSchemaChangeAiLoopOptions):
 	const maxDepth = opts.maxDepth ?? 6;
 
 	let currentMessages = [...opts.messages];
-	let currentConfig: AIProviderConfig = {};
+	const currentConfig: AIProviderConfig = {};
 	let lastResponseId: string | null = null;
 
 	for (let depth = 0; depth < maxDepth; depth++) {
@@ -94,10 +89,6 @@ export async function runSchemaChangeAiLoop(opts: RunSchemaChangeAiLoopOptions):
 		}
 
 		const toolResults = await executeInspectionToolCalls(pendingToolCalls, dao, userEmail, logger);
-
-		if (provider === AIProviderType.OPENAI && lastResponseId) {
-			currentConfig = { ...currentConfig, previousResponseId: lastResponseId };
-		}
 
 		const continuation = MessageBuilder.fromMessages(currentMessages);
 		continuation.ai(accumulatedContent, pendingToolCalls);

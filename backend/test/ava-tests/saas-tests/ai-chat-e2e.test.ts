@@ -7,7 +7,7 @@ import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
 import { DataSource } from 'typeorm';
-import { AICoreService } from '../../../src/ai-core/index.js';
+import { AICoreService } from '../../../src/ai-core/services/ai-core.service.js';
 import { ApplicationModule } from '../../../src/app.module.js';
 import { BaseType } from '../../../src/common/data-injection.tokens.js';
 import { AiChatMessageEntity } from '../../../src/entities/ai/ai-conversation-history/ai-chat-messages/ai-chat-message.entity.js';
@@ -48,7 +48,7 @@ const mockAICoreService = {
 	streamChat: async () => createMockAIStream('Mocked stream'),
 	chatWithTools: async () => ({ content: 'Mocked tools', responseId: faker.string.uuid() }),
 	streamChatWithTools: async () => createMockAIStream('Mocked tools stream'),
-	getDefaultProvider: () => 'openai',
+	getDefaultProvider: () => 'bedrock',
 	setDefaultProvider: () => {},
 	getAvailableProviders: () => [],
 };

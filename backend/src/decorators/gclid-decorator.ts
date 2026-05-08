@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { IRequestWithCognitoInfo } from '../authorization/index.js';
+import { IRequestWithCognitoInfo } from '../authorization/cognito-decoded.interface.js';
 
 export const GCLlId = createParamDecorator((_data: any, ctx: ExecutionContext): string => {
 	const request: IRequestWithCognitoInfo = ctx.switchToHttp().getRequest();

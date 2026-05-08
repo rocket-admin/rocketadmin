@@ -218,4 +218,105 @@ describe('MoneyEditComponent', () => {
 
 		expect(component.onFieldChange.emit).toHaveBeenCalledWith('');
 	});
+
+	it('should load numeric value as major units when cents=true (USD)', () => {
+		fixture.componentRef.setInput('widgetStructure', {
+			field_name: 'price',
+			widget_type: 'Money',
+			name: 'Price',
+			description: '',
+			widget_params: { default_currency: 'USD', cents: true },
+		});
+		fixture.componentRef.setInput('value', 1099);
+		component.ngOnInit();
+		expect(component.amount).toBe(10.99);
+		expect(component.displayAmount).toBe('10.99');
+		expect(component.decimalPlaces).toBe(2);
+	});
+
+	it('should load JPY cents value without division and use 0 decimals', () => {
+		fixture.componentRef.setInput('widgetStructure', {
+			field_name: 'price',
+			widget_type: 'Money',
+			name: 'Price',
+			description: '',
+			widget_params: { default_currency: 'JPY', cents: true, show_currency_selector: true },
+		});
+		fixture.componentRef.setInput('value', { amount: 1099, currency: 'JPY' });
+		component.ngOnInit();
+		expect(component.selectedCurrency).toBe('JPY');
+		expect(component.decimalPlaces).toBe(0);
+		expect(component.amount).toBe(1099);
+		expect(component.displayAmount).toBe('1099');
+	});
+
+	it('should emit cents integer on save when cents=true', () => {
+		fixture.componentRef.setInput('widgetStructure', {
+			field_name: 'price',
+			widget_type: 'Money',
+			name: 'Price',
+			description: '',
+			widget_params: { default_currency: 'USD', cents: true },
+		});
+		component.ngOnInit();
+		component.displayAmount = '10.99';
+		vi.spyOn(component.onFieldChange, 'emit');
+
+		component.onAmountChange();
+
+		expect(component.onFieldChange.emit).toHaveBeenCalledWith(1099);
+	});
+
+	it('should round float-precision drift on save', () => {
+		fixture.componentRef.setInput('widgetStructure', {
+			field_name: 'price',
+			widget_type: 'Money',
+			name: 'Price',
+			description: '',
+			widget_params: { default_currency: 'USD', cents: true },
+		});
+		component.ngOnInit();
+		component.displayAmount = '20.99';
+		vi.spyOn(component.onFieldChange, 'emit');
+
+		component.onAmountChange();
+
+		expect(component.onFieldChange.emit).toHaveBeenCalledWith(2099);
+	});
+
+	it('should reformat displayAmount and round on currency switch when cents=true', () => {
+		fixture.componentRef.setInput('widgetStructure', {
+			field_name: 'price',
+			widget_type: 'Money',
+			name: 'Price',
+			description: '',
+			widget_params: { default_currency: 'USD', cents: true, show_currency_selector: true },
+		});
+		fixture.componentRef.setInput('value', { amount: 1099, currency: 'USD' });
+		component.ngOnInit();
+		expect(component.displayAmount).toBe('10.99');
+
+		component.selectedCurrency = 'JPY';
+		vi.spyOn(component.onFieldChange, 'emit');
+
+		component.onCurrencyChange();
+
+		expect(component.decimalPlaces).toBe(0);
+		expect(component.displayAmount).toBe('11');
+		expect(component.onFieldChange.emit).toHaveBeenCalledWith({ amount: 11, currency: 'JPY' });
+	});
+
+	it('should preserve legacy behavior when cents is false or omitted', () => {
+		fixture.componentRef.setInput('widgetStructure', {
+			field_name: 'price',
+			widget_type: 'Money',
+			name: 'Price',
+			description: '',
+			widget_params: { default_currency: 'USD' },
+		});
+		fixture.componentRef.setInput('value', 10.99);
+		component.ngOnInit();
+		expect(component.amount).toBe(10.99);
+		expect(component.displayAmount).toBe('10.99');
+	});
 });

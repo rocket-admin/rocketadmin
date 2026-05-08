@@ -4,8 +4,6 @@ import { AiChatMessageEntity } from '../../entities/ai/ai-conversation-history/a
 import { IAiChatMessageRepository } from '../../entities/ai/ai-conversation-history/ai-chat-messages/repository/ai-chat-message-repository.interface.js';
 import { IUserAiChatRepository } from '../../entities/ai/ai-conversation-history/user-ai-chat/repository/user-ai-chat-repository.interface.js';
 import { UserAiChatEntity } from '../../entities/ai/ai-conversation-history/user-ai-chat/user-ai-chat.entity.js';
-import { AiResponsesToUserEntity } from '../../entities/ai/ai-data-entities/ai-reponses-to-user/ai-responses-to-user.entity.js';
-import { IAiResponsesToUserRepository } from '../../entities/ai/ai-data-entities/ai-reponses-to-user/ai-responses-to-user-repository.interface.js';
 import { UserApiKeyEntity } from '../../entities/api-key/api-key.entity.js';
 import { IUserApiKeyRepository } from '../../entities/api-key/repository/user-api-key-repository.interface.js';
 import { CompanyFaviconEntity } from '../../entities/company-favicon/company-favicon.entity.js';
@@ -97,7 +95,6 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
 	companyFaviconRepository: Repository<CompanyFaviconEntity>;
 	companyTabTitleRepository: Repository<CompanyTabTitleEntity>;
 	tableFiltersRepository: Repository<TableFiltersEntity> & ITableFiltersCustomRepository;
-	aiResponsesToUserRepository: Repository<AiResponsesToUserEntity> & IAiResponsesToUserRepository;
 	tableCategoriesRepository: Repository<TableCategoriesEntity> & ITableCategoriesCustomRepository;
 	userSecretRepository: Repository<UserSecretEntity> & IUserSecretRepository;
 	secretAccessLogRepository: Repository<SecretAccessLogEntity> & ISecretAccessLogRepository;

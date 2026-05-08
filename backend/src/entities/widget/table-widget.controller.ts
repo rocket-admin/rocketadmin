@@ -13,16 +13,20 @@ import {
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
-import { MasterPassword, QueryTableName, SlugUuid, UserId } from '../../decorators/index.js';
+import { MasterPassword } from '../../decorators/master-password.decorator.js';
+import { QueryTableName } from '../../decorators/query-table-name.decorator.js';
+import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
 import { Timeout } from '../../decorators/timeout.decorator.js';
-import { InTransactionEnum } from '../../enums/index.js';
+import { UserId } from '../../decorators/user-id.decorator.js';
+import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { Messages } from '../../exceptions/text/messages.js';
-import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards/index.js';
-import { SentryInterceptor } from '../../interceptors/index.js';
+import { ConnectionEditGuard } from '../../guards/connection-edit.guard.js';
+import { ConnectionReadGuard } from '../../guards/connection-read.guard.js';
+import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { CreateTableWidgetsDs } from './application/data-sctructures/create-table-widgets.ds.js';
 import { FindTableWidgetsDs } from './application/data-sctructures/find-table-widgets.ds.js';
 import { FoundTableWidgetsDs } from './application/data-sctructures/found-table-widgets.ds.js';
-import { CreateOrUpdateTableWidgetsDto } from './dto/index.js';
+import { CreateOrUpdateTableWidgetsDto } from './dto/create-table-widget.dto.js';
 import { TableWidgetRO } from './table-widget.interface.js';
 import { ICreateUpdateDeleteTableWidgets, IFindTableWidgets } from './use-cases/table-widgets-use-cases.interface.js';
 

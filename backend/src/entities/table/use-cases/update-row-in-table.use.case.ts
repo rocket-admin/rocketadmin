@@ -6,12 +6,16 @@ import { buildDAOsTableSettingsDs } from '@rocketadmin/shared-code/dist/src/help
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { AmplitudeEventTypeEnum, LogOperationTypeEnum, OperationResultStatusEnum } from '../../../enums/index.js';
+import { AmplitudeEventTypeEnum } from '../../../enums/amplitude-event-type.enum.js';
+import { LogOperationTypeEnum } from '../../../enums/log-operation-type.enum.js';
+import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
 import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { compareArrayElements, isObjectEmpty, toPrettyErrorsMsg } from '../../../helpers/index.js';
+import { compareArrayElements } from '../../../helpers/compare-array-elements.js';
+import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
+import { toPrettyErrorsMsg } from '../../../helpers/to-pretty-errors-msg.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util.js';

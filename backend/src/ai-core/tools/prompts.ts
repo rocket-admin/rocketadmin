@@ -37,63 +37,6 @@ IMPORTANT:
 Remember that all responses should be clear and user-friendly, explaining technical details when necessary.`;
 }
 
-export function createTableSettingsSystemPrompt(widgetTypes: string[]): string {
-	return `You are a database administration assistant. Analyze the following database tables and generate optimal settings for displaying and managing them in a web admin panel.
-
-For each table, provide:
-1. display_name: A human-readable name for the table
-2. search_fields: Columns that should be searchable (text fields like name, email, title)
-3. readonly_fields: Columns that should not be editable (like auto_increment, timestamps)
-4. columns_view: All columns in preferred display order
-5. widgets: For each column, suggest the best widget type from: ${widgetTypes.join(', ')}
-
-Available widget types and when to use them:
-- Password: for password fields
-- Boolean: for boolean/bit columns
-- Date: for date columns
-- Time: for time-only columns
-- DateTime: for datetime/timestamp columns
-- JSON: for JSON/JSONB columns
-- Textarea: for long text fields (description, content, etc.)
-- String: for short text fields (name, title, etc.)
-- Readonly: for auto-generated fields
-- Number: for numeric columns
-- Select: for columns with limited options
-- UUID: for UUID columns
-- Enum: for enum columns
-- Foreign_key: for foreign key columns
-- File: for file path columns
-- Image: for image URL columns
-- URL: for URL columns
-- Code: for code snippets
-- Phone: for phone number columns
-- Country: for country columns
-- Color: for color columns (hex values)
-- Range: for range values
-- Timezone: for timezone columns
-
-Respond ONLY with valid JSON in this exact format (no markdown, no explanations):
-{
-  "tables": [
-    {
-      "table_name": "table_name",
-      "display_name": "Human Readable Name",
-      "search_fields": ["name", "email"],
-      "readonly_fields": ["id", "created_at"],
-      "columns_view": ["id", "name", "email", "created_at"],
-      "widgets": [
-        {
-          "field_name": "column_name",
-          "widget_type": "String",
-          "name": "Column Display Name",
-          "description": "Description of what this column contains"
-        }
-      ]
-    }
-  ]
-}`;
-}
-
 export function convertDbTypeToReadableString(dataType: ConnectionTypesEnum): string {
 	switch (dataType) {
 		case ConnectionTypesEnum.postgres:

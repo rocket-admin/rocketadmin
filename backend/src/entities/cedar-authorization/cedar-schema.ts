@@ -68,6 +68,12 @@ export const CEDAR_SCHEMA = {
 					resourceTypes: ['Connection'],
 				},
 			},
+			'connection:diagram': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Connection'],
+				},
+			},
 			'group:read': {
 				appliesTo: {
 					principalTypes: ['User'],
@@ -99,6 +105,12 @@ export const CEDAR_SCHEMA = {
 				},
 			},
 			'table:delete': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Table'],
+				},
+			},
+			'table:ai-request': {
 				appliesTo: {
 					principalTypes: ['User'],
 					resourceTypes: ['Table'],

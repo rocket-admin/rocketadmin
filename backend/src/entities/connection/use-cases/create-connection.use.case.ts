@@ -4,17 +4,18 @@ import * as Sentry from '@sentry/node';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
+import { AccessLevelEnum } from '../../../enums/access-level.enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
-import { isConnectionTypeAgent, slackPostMessage } from '../../../helpers/index.js';
+import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
+import { slackPostMessage } from '../../../helpers/slack/slack-post-message.js';
+import { generateCedarPolicyForGroup } from '../../cedar-authorization/cedar-policy-generator.js';
 import { SharedJobsService } from '../../shared-jobs/shared-jobs.service.js';
 import { UserRoleEnum } from '../../user/enums/user-role.enum.js';
 import { UserEntity } from '../../user/user.entity.js';
 import { CreateConnectionDs } from '../application/data-structures/create-connection.ds.js';
 import { CreatedConnectionDTO } from '../application/dto/created-connection.dto.js';
 import { ConnectionEntity } from '../connection.entity.js';
-import { generateCedarPolicyForGroup } from '../../cedar-authorization/cedar-policy-generator.js';
-import { AccessLevelEnum } from '../../../enums/index.js';
 import { buildConnectionEntity } from '../utils/build-connection-entity.js';
 import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds.js';
 import { processAWSConnection } from '../utils/process-aws-connection.util.js';
@@ -99,15 +100,11 @@ export class CreateConnectionUseCase
 				savedConnection,
 				connectionAuthor,
 			);
-			createdAdminGroup.cedarPolicy = generateCedarPolicyForGroup(
-				savedConnection.id,
-				true,
-				{
-					connection: { connectionId: savedConnection.id, accessLevel: AccessLevelEnum.edit },
-					group: { groupId: createdAdminGroup.id, accessLevel: AccessLevelEnum.edit },
-					tables: [],
-				},
-			);
+			createdAdminGroup.cedarPolicy = generateCedarPolicyForGroup(savedConnection.id, true, {
+				connection: { connectionId: savedConnection.id, accessLevel: AccessLevelEnum.edit },
+				group: { groupId: createdAdminGroup.id, accessLevel: AccessLevelEnum.edit },
+				tables: [],
+			});
 			await this._dbContext.groupRepository.saveNewOrUpdatedGroup(createdAdminGroup);
 			delete createdAdminGroup.connection;
 			await this._dbContext.userRepository.saveUserEntity(connectionAuthor);

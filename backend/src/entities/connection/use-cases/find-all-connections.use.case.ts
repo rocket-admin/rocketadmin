@@ -2,7 +2,8 @@ import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { AccessLevelEnum, AmplitudeEventTypeEnum } from '../../../enums/index.js';
+import { AccessLevelEnum } from '../../../enums/access-level.enum.js';
+import { AmplitudeEventTypeEnum } from '../../../enums/amplitude-event-type.enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { Constants } from '../../../helpers/constants/constants.js';

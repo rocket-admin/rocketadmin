@@ -1,4 +1,4 @@
-import { SubscriptionLevelEnum } from '../../enums/index.js';
+import { SubscriptionLevelEnum } from '../../enums/subscription-level.enum.js';
 
 export interface IUserInfo {
 	id: string;

@@ -4,17 +4,17 @@ import JSON5 from 'json5';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { WidgetTypeEnum } from '../../../enums/index.js';
+import { WidgetTypeEnum } from '../../../enums/widget-type.enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
-import { S3GetUploadUrlDs, S3UploadUrlResponseDs } from '../application/data-structures/s3-operation.ds.js';
-import { S3WidgetParams } from '../application/data-structures/s3-widget-params.ds.js';
+import { BucketUploadUrlResponseDs, GetBucketUploadUrlDs } from '../application/data-structures/s3-operation.ds.js';
+import { BucketWidgetParams } from '../application/data-structures/s3-widget-params.ds.js';
 import { S3HelperService } from '../s3-helper.service.js';
 import { IGetS3UploadUrl } from './s3-use-cases.interface.js';
 
 @Injectable()
 export class GetS3UploadUrlUseCase
-	extends AbstractUseCase<S3GetUploadUrlDs, S3UploadUrlResponseDs>
+	extends AbstractUseCase<GetBucketUploadUrlDs, BucketUploadUrlResponseDs>
 	implements IGetS3UploadUrl
 {
 	constructor(
@@ -25,7 +25,7 @@ export class GetS3UploadUrlUseCase
 		super();
 	}
 
-	protected async implementation(inputData: S3GetUploadUrlDs): Promise<S3UploadUrlResponseDs> {
+	protected async implementation(inputData: GetBucketUploadUrlDs): Promise<BucketUploadUrlResponseDs> {
 		const { connectionId, tableName, fieldName, userId, masterPwd, filename, contentType } = inputData;
 
 		const user = await this._dbContext.userRepository.findOneUserByIdWithCompany(userId);
@@ -40,21 +40,21 @@ export class GetS3UploadUrlUseCase
 			throw new HttpException({ message: 'S3 widget not configured for this field' }, HttpStatus.BAD_REQUEST);
 		}
 
-		const params: S3WidgetParams =
+		const params: BucketWidgetParams =
 			typeof widget.widget_params === 'string' ? JSON5.parse(widget.widget_params) : widget.widget_params;
 
 		const accessKeySecret = await this._dbContext.userSecretRepository.findSecretBySlugAndCompanyId(
-			params.aws_access_key_id_secret_name,
+			params.access_key_id_secret_name,
 			user.company.id,
 		);
 
 		const secretKeySecret = await this._dbContext.userSecretRepository.findSecretBySlugAndCompanyId(
-			params.aws_secret_access_key_secret_name,
+			params.secret_access_key_secret_name,
 			user.company.id,
 		);
 
 		if (!accessKeySecret || !secretKeySecret) {
-			throw new HttpException({ message: 'AWS credentials secrets not found' }, HttpStatus.NOT_FOUND);
+			throw new HttpException({ message: 'Bucket credentials secrets not found' }, HttpStatus.NOT_FOUND);
 		}
 
 		let accessKeyId = Encryptor.decryptData(accessKeySecret.encryptedValue);
@@ -67,7 +67,13 @@ export class GetS3UploadUrlUseCase
 			secretAccessKey = Encryptor.decryptDataMasterPwd(secretAccessKey, masterPwd);
 		}
 
-		const client = this.s3Helper.createS3Client(accessKeyId, secretAccessKey, params.region || 'us-east-1');
+		const client = this.s3Helper.createS3Client({
+			accessKeyId,
+			secretAccessKey,
+			provider: params.provider,
+			region: params.region,
+			accountId: params.account_id,
+		});
 
 		const key = this.s3Helper.generateFileKey(params.prefix, filename);
 		const expiresIn = 3600;

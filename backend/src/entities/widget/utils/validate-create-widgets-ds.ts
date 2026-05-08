@@ -1,8 +1,10 @@
 import JSON5 from 'json5';
-import { EncryptionAlgorithmEnum, WidgetTypeEnum } from '../../../enums/index.js';
+import { BucketProviderEnum } from '../../s3-widget/application/data-structures/bucket-provider.enum.js';
+import { EncryptionAlgorithmEnum } from '../../../enums/encryption-algorithm.enum.js';
+import { WidgetTypeEnum } from '../../../enums/widget-type.enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Constants } from '../../../helpers/constants/constants.js';
-import { getPropertyValueByDescriptor } from '../../../helpers/index.js';
+import { getPropertyValueByDescriptor } from '../../../helpers/get-property-value-by-descriptor.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { ForeignKeyDSInfo } from '../../table/table-datastructures.js';
 import { findTableFieldsUtil } from '../../table/utils/find-table-fields.util.js';
@@ -101,11 +103,20 @@ export async function validateCreateWidgetsDs(
 			if (!widget_params.bucket) {
 				errors.push(Messages.WIDGET_REQUIRED_PARAMETER_MISSING('bucket'));
 			}
-			if (!widget_params.aws_access_key_id_secret_name) {
-				errors.push(Messages.WIDGET_REQUIRED_PARAMETER_MISSING('aws_access_key_id_secret_name'));
+			if (!widget_params.access_key_id_secret_name) {
+				errors.push(Messages.WIDGET_REQUIRED_PARAMETER_MISSING('access_key_id_secret_name'));
 			}
-			if (!widget_params.aws_secret_access_key_secret_name) {
-				errors.push(Messages.WIDGET_REQUIRED_PARAMETER_MISSING('aws_secret_access_key_secret_name'));
+			if (!widget_params.secret_access_key_secret_name) {
+				errors.push(Messages.WIDGET_REQUIRED_PARAMETER_MISSING('secret_access_key_secret_name'));
+			}
+			if (
+				widget_params.provider &&
+				!Object.values(BucketProviderEnum).includes(widget_params.provider as BucketProviderEnum)
+			) {
+				errors.push(Messages.WIDGET_PARAMETER_UNSUPPORTED('provider', widget_type));
+			}
+			if (widget_params.provider === BucketProviderEnum.CloudflareR2 && !widget_params.account_id) {
+				errors.push(Messages.WIDGET_REQUIRED_PARAMETER_MISSING('account_id'));
 			}
 		}
 

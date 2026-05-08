@@ -8,7 +8,7 @@ import cookieParser from 'cookie-parser';
 import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
-import { QueryOrderingEnum } from '../../../src/enums/index.js';
+import { QueryOrderingEnum } from '../../../src/enums/query-ordering.enum.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { Messages } from '../../../src/exceptions/text/messages.js';

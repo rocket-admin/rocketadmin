@@ -13,13 +13,17 @@ import {
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
-import { MasterPassword, QueryTableName, SlugUuid, UserId } from '../../decorators/index.js';
+import { MasterPassword } from '../../decorators/master-password.decorator.js';
+import { QueryTableName } from '../../decorators/query-table-name.decorator.js';
+import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
 import { Timeout } from '../../decorators/timeout.decorator.js';
-import { InTransactionEnum } from '../../enums/index.js';
+import { UserId } from '../../decorators/user-id.decorator.js';
+import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { Messages } from '../../exceptions/text/messages.js';
-import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards/index.js';
-import { SentryInterceptor } from '../../interceptors/index.js';
-import { S3FileUrlResponseDs, S3UploadUrlResponseDs } from './application/data-structures/s3-operation.ds.js';
+import { ConnectionEditGuard } from '../../guards/connection-edit.guard.js';
+import { ConnectionReadGuard } from '../../guards/connection-read.guard.js';
+import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
+import { BucketFileUrlResponseDs, BucketUploadUrlResponseDs } from './application/data-structures/s3-operation.ds.js';
 import { IGetS3FileUrl, IGetS3UploadUrl } from './use-cases/s3-use-cases.interface.js';
 
 @UseInterceptors(SentryInterceptor)
@@ -57,7 +61,7 @@ export class S3WidgetController {
 		@QueryTableName() tableName: string,
 		@Query('fieldName') fieldName: string,
 		@Query('rowPrimaryKey') rowPrimaryKeyStr: string,
-	): Promise<S3FileUrlResponseDs> {
+	): Promise<BucketFileUrlResponseDs> {
 		if (!connectionId) {
 			throw new HttpException({ message: Messages.CONNECTION_ID_MISSING }, HttpStatus.BAD_REQUEST);
 		}
@@ -114,7 +118,7 @@ export class S3WidgetController {
 		@QueryTableName() tableName: string,
 		@Query('fieldName') fieldName: string,
 		@Body() body: { filename: string; contentType: string },
-	): Promise<S3UploadUrlResponseDs> {
+	): Promise<BucketUploadUrlResponseDs> {
 		if (!connectionId) {
 			throw new HttpException({ message: Messages.CONNECTION_ID_MISSING }, HttpStatus.BAD_REQUEST);
 		}

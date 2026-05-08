@@ -12,7 +12,7 @@ import {
 	Relation,
 	UpdateDateColumn,
 } from 'typeorm';
-import { WidgetTypeEnum } from '../../enums/index.js';
+import { WidgetTypeEnum } from '../../enums/widget-type.enum.js';
 import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
 
 @Entity('table_widget')

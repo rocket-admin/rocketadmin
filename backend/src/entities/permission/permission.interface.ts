@@ -1,4 +1,4 @@
-import { AccessLevelEnum } from '../../enums/index.js';
+import { AccessLevelEnum } from '../../enums/access-level.enum.js';
 
 export interface IComplexPermission {
 	connection: IConnectionPermissionData;
@@ -24,6 +24,7 @@ export interface ITableAccessLevel {
 	add: boolean;
 	delete: boolean;
 	edit: boolean;
+	aiRequest?: boolean;
 }
 
 export interface ITablePermissionData {

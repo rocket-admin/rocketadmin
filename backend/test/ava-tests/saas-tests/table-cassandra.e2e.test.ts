@@ -14,7 +14,8 @@ import request from 'supertest';
 import { fileURLToPath } from 'url';
 import { ApplicationModule } from '../../../src/app.module.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
-import { LogOperationTypeEnum, QueryOrderingEnum } from '../../../src/enums/index.js';
+import { LogOperationTypeEnum } from '../../../src/enums/log-operation-type.enum.js';
+import { QueryOrderingEnum } from '../../../src/enums/query-ordering.enum.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { Messages } from '../../../src/exceptions/text/messages.js';
@@ -102,7 +103,7 @@ test.serial(`${currentTest} should return list of tables in connection`, async (
 		t.is(Object.hasOwn(getTablesRO[testTableIndex], 'table'), true);
 		t.is(Object.hasOwn(getTablesRO[testTableIndex], 'permissions'), true);
 		t.is(typeof getTablesRO[testTableIndex].permissions, 'object');
-		t.is(Object.keys(getTablesRO[testTableIndex].permissions).length, 5);
+		t.is(Object.keys(getTablesRO[testTableIndex].permissions).length, 6);
 		t.is(getTablesRO[testTableIndex].table, testTableName);
 		t.is(getTablesRO[testTableIndex].permissions.visibility, true);
 		t.is(getTablesRO[testTableIndex].permissions.readonly, false);

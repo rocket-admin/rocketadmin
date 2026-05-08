@@ -2,7 +2,8 @@ import { HttpStatus } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { getValuesBetweenCurlies, toPrettyErrorsMsg } from '../../../helpers/index.js';
+import { getValuesBetweenCurlies } from '../../../helpers/operate-values-between-curlies.js';
+import { toPrettyErrorsMsg } from '../../../helpers/to-pretty-errors-msg.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { CreateFieldDto } from '../application/data-structures/create-custom-fields.ds.js';
 

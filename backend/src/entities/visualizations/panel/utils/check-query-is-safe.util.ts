@@ -1,6 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
-import { slackPostMessage } from '../../../../helpers/index.js';
+import { slackPostMessage } from '../../../../helpers/slack/slack-post-message.js';
 
 const FORBIDDEN_SQL_KEYWORDS = [
 	'INSERT',

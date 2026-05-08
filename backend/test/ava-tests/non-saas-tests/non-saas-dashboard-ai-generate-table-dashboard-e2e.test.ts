@@ -6,7 +6,7 @@ import test from 'ava';
 import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
-import { AICoreService } from '../../../src/ai-core/index.js';
+import { AICoreService } from '../../../src/ai-core/services/ai-core.service.js';
 import { ApplicationModule } from '../../../src/app.module.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
@@ -45,7 +45,7 @@ const MOCK_DASHBOARD_RESPONSE = JSON.stringify({
 		{
 			name: 'Records by Name',
 			description: 'Distribution of records by name',
-			query_text: "SELECT name as label, COUNT(*) as count FROM test_table GROUP BY name",
+			query_text: 'SELECT name as label, COUNT(*) as count FROM test_table GROUP BY name',
 			panel_type: 'chart',
 			chart_type: 'bar',
 			panel_options: {
@@ -200,7 +200,7 @@ test.serial(`${currentTest} should generate and persist a table dashboard with A
 		.set('Accept', 'application/json');
 
 	const generateDashboardRO = JSON.parse(generateDashboard.text);
-	console.log('🚀 ~ generateDashboardRO:', generateDashboardRO)
+	console.log('🚀 ~ generateDashboardRO:', generateDashboardRO);
 	t.is(generateDashboard.status, 201);
 	t.deepEqual(generateDashboardRO, { success: true });
 
@@ -280,7 +280,7 @@ test.serial(`${currentTest} should use custom dashboard name when provided`, asy
 		.set('masterpwd', 'ahalaimahalai')
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
-	console.log('🚀 ~ generateDashboard:', generateDashboard.text)
+	console.log('🚀 ~ generateDashboard:', generateDashboard.text);
 
 	t.is(generateDashboard.status, 201);
 	t.deepEqual(JSON.parse(generateDashboard.text), { success: true });
