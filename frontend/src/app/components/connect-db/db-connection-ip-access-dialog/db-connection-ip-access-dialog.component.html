@@ -134,28 +134,8 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA &quot;{{data.db.sch
 </mat-dialog-content>
 <mat-dialog-actions align="end">
     <button *ngIf="data.provider === null" mat-button mat-dialog-close mat-dialog-close>Cancel</button>
-    <a *ngIf="data.provider === 'amazon'" mat-button target="_blank"
-        href="https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_aws_mysql">
-        Setup guide
-    </a>
-    <a *ngIf="data.provider === 'azure'" mat-button target="_blank"
-        href="https://learn.microsoft.com/en-us/azure/mysql/flexible-server/how-to-manage-firewall-portal">
-        Setup guide
-    </a>
-    <a *ngIf="data.provider === 'google'" mat-button target="_blank"
-        href="https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_google_cloud">
-        Setup guide
-    </a>
-    <a *ngIf="data.provider === 'mongoatlas'" mat-button target="_blank"
-        href="https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_mongo_atlas">
-        Setup guide
-    </a>
-    <a *ngIf="data.provider === 'digitalocean'" mat-button target="_blank"
-        href="https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_digitalocean_postgresql">
-        Setup guide
-    </a>
-    <a *ngIf="data.provider === 'supabase'" mat-button target="_blank"
-        href="https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_supabase">
+    <a *ngIf="providerDocsLink[data.provider]" mat-button target="_blank"
+        [href]="providerDocsLink[data.provider]">
         Setup guide
     </a>
     <button mat-flat-button color="primary"
