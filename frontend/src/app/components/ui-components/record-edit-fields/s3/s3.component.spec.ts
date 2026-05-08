@@ -18,11 +18,12 @@ describe('S3EditComponent', () => {
 		field_name: 'document',
 		widget_type: 'S3',
 		widget_params: {
+			provider: 'aws',
 			bucket: 'test-bucket',
 			prefix: 'uploads/',
 			region: 'us-east-1',
-			aws_access_key_id_secret_name: 'aws-key',
-			aws_secret_access_key_secret_name: 'aws-secret',
+			access_key_id_secret_name: 'bucket-key',
+			secret_access_key_secret_name: 'bucket-secret',
 		},
 		name: 'Document Upload',
 		description: 'Upload documents to S3',
@@ -32,11 +33,12 @@ describe('S3EditComponent', () => {
 		field_name: 'document',
 		widget_type: 'S3',
 		widget_params: JSON.stringify({
+			provider: 'aws',
 			bucket: 'test-bucket',
 			prefix: 'uploads/',
 			region: 'us-east-1',
-			aws_access_key_id_secret_name: 'aws-key',
-			aws_secret_access_key_secret_name: 'aws-secret',
+			access_key_id_secret_name: 'bucket-key',
+			secret_access_key_secret_name: 'bucket-secret',
 		}) as any,
 		name: 'Document Upload',
 		description: 'Upload documents to S3',
@@ -107,11 +109,12 @@ describe('S3EditComponent', () => {
 			fixture.detectChanges();
 
 			expect(component.params()).toEqual({
+				provider: 'aws',
 				bucket: 'test-bucket',
 				prefix: 'uploads/',
 				region: 'us-east-1',
-				aws_access_key_id_secret_name: 'aws-key',
-				aws_secret_access_key_secret_name: 'aws-secret',
+				access_key_id_secret_name: 'bucket-key',
+				secret_access_key_secret_name: 'bucket-secret',
 			});
 		});
 

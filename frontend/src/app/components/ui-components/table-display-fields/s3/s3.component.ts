@@ -9,12 +9,16 @@ import { S3Service } from 'src/app/services/s3.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { BaseTableDisplayFieldComponent } from '../base-table-display-field/base-table-display-field.component';
 
-interface S3WidgetParams {
+type BucketProvider = 'aws' | 'digitalocean' | 'backblaze' | 'wasabi' | 'cloudflare-r2';
+
+interface BucketWidgetParams {
+	provider?: BucketProvider;
 	bucket: string;
 	prefix?: string;
 	region?: string;
-	aws_access_key_id_secret_name: string;
-	aws_secret_access_key_secret_name: string;
+	account_id?: string;
+	access_key_id_secret_name: string;
+	secret_access_key_secret_name: string;
 	type?: 'file' | 'image';
 }
 
@@ -25,7 +29,7 @@ interface S3WidgetParams {
 	imports: [ClipboardModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatTooltipModule],
 })
 export class S3DisplayComponent extends BaseTableDisplayFieldComponent implements OnInit {
-	public params: S3WidgetParams;
+	public params: BucketWidgetParams;
 	public previewUrl: string | null = null;
 	public isLoading: boolean = false;
 

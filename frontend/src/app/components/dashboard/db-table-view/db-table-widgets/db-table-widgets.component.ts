@@ -269,24 +269,32 @@ export class DbTableWidgetsComponent implements OnInit {
 }
 `,
 		Email: `// No settings required`,
-		S3: `// Configure AWS S3 widget for file storage
-// bucket: S3 bucket name (required)
+		S3: `// Configure S3-compatible bucket widget for file storage
+// provider: Cloud provider. Supported values:
+//   "aws"           - AWS S3 (default)
+//   "digitalocean"  - DigitalOcean Spaces
+//   "backblaze"     - Backblaze B2
+//   "wasabi"        - Wasabi
+//   "cloudflare-r2" - Cloudflare R2 (requires "account_id")
+// bucket: bucket name (required)
 // prefix: Optional path prefix for uploaded files
-// region: AWS region (default: us-east-1)
+// region: Region for the bucket (default: us-east-1; for cloudflare-r2 use "auto")
+// account_id: Cloudflare account ID. Required when provider is "cloudflare-r2".
 // type: "file" (default) - accepts all file types, "image" - accepts only images
-// aws_access_key_id_secret_name: Unique identifier of the secret containing AWS Access Key ID
-// aws_secret_access_key_secret_name: Unique identifier of the secret containing AWS Secret Access Key
+// access_key_id_secret_name: Unique identifier of the secret containing the Access Key ID
+// secret_access_key_secret_name: Unique identifier of the secret containing the Secret Access Key
 //
-// ⚠️ IMPORTANT: DO NOT INCLUDE AWS SECRETS DIRECTLY IN WIDGET SETTINGS!
-// Store your AWS credentials as secrets in Rocketadmin and reference them here by their unique identifiers to ensure security and prevent exposure of sensitive information.
+// ⚠️ IMPORTANT: DO NOT INCLUDE BUCKET SECRETS DIRECTLY IN WIDGET SETTINGS!
+// Store your credentials as secrets in Rocketadmin and reference them here by their unique identifiers to ensure security and prevent exposure of sensitive information.
 
 {
+  "provider": "aws",
   "bucket": "your-bucket-name",
   "prefix": "uploads/",
   "region": "us-east-1",
   "type": "file",
-  "aws_access_key_id_secret_name": "aws-access-key-id",
-  "aws_secret_access_key_secret_name": "aws-secret-access-key"
+  "access_key_id_secret_name": "bucket-access-key-id",
+  "secret_access_key_secret_name": "bucket-secret-access-key"
 }
 `,
 	};
