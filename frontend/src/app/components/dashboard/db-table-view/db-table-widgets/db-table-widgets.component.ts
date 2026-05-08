@@ -54,7 +54,7 @@ export class DbTableWidgetsComponent implements OnInit {
 	public fields: string[] = [];
 	public fieldsCount: number;
 	public widgets: Widget[] = null;
-	public widgetTypes = Object.keys(UIwidgets);
+	public widgetTypes = Object.keys(UIwidgets).sort();
 	public submitting: boolean = false;
 	public widgetsWithSettings: string[];
 	public codeEditorTheme: 'vs' | 'vs-dark' = 'vs-dark';
