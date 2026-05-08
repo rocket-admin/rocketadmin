@@ -12,8 +12,8 @@
 		"lint:fix": "biome check --write src/"
 	},
 	"dependencies": {
-		"@hono/node-server": "^1.19.9",
-		"hono": "^4.12.3",
+		"@hono/node-server": "^2.0.2",
+		"hono": "^4.12.16",
 		"jsonwebtoken": "^9.0.3",
 		"lru-cache": "^11.2.6",
 		"nanoid": "^5.1.6",
