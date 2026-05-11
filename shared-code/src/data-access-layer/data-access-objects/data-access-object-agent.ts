@@ -385,13 +385,19 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
 	}
 
 	public async getTableStructure(tableName: string, userEmail: string): Promise<TableStructureDS[]> {
-		const jwtAuthToken = this.generateJWT(this.connection.token);
-		axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
-
 		const cachedTableStructure = LRUStorage.getTableStructureCache(this.connection, tableName);
 		if (cachedTableStructure) {
 			return cachedTableStructure;
 		}
+
+		const commandResult = await this.getTableStructureWithoutCache(tableName, userEmail);
+		LRUStorage.setTableStructureCache(this.connection, tableName, commandResult);
+		return commandResult;
+	}
+
+	public async getTableStructureWithoutCache(tableName: string, userEmail: string): Promise<TableStructureDS[]> {
+		const jwtAuthToken = this.generateJWT(this.connection.token);
+		axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
 
 		return this.executeWithRetry(async () => {
 			try {
@@ -409,7 +415,6 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
 					throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
 				}
 
-				LRUStorage.setTableStructureCache(this.connection, tableName, commandResult);
 				return commandResult;
 			} catch (e) {
 				if (axios.isAxiosError(e)) {

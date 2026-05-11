@@ -395,6 +395,14 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
 			return cachedTableStructure;
 		}
 
+		const structureColumnsInLowercase = await this.getTableStructureWithoutCache(tableName);
+
+		LRUStorage.setTableStructureCache(this.connection, tableName, structureColumnsInLowercase);
+
+		return structureColumnsInLowercase;
+	}
+
+	public async getTableStructureWithoutCache(tableName: string): Promise<TableStructureDS[]> {
 		const knex = await this.configureKnex();
 		const { database } = this.connection;
 
@@ -432,8 +440,6 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
 			element.character_maximum_length =
 				element.character_maximum_length ?? getNumbersFromString(element.column_type) ?? null;
 		});
-
-		LRUStorage.setTableStructureCache(this.connection, tableName, structureColumnsInLowercase as TableStructureDS[]);
 
 		return structureColumnsInLowercase as TableStructureDS[];
 	}

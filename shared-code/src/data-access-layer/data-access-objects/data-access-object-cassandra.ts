@@ -545,6 +545,10 @@ export class DataAccessObjectCassandra extends BasicDataAccessObject implements 
 		}
 	}
 
+	public async getTableStructureWithoutCache(tableName: string): Promise<Array<TableStructureDS>> {
+		return this.getTableStructure(tableName);
+	}
+
 	public async testConnect(): Promise<TestConnectionResultDS> {
 		try {
 			const client = await this.getCassandraClient();

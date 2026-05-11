@@ -355,6 +355,10 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
 		return await this.getTableStructureOrReturnPrimaryKeysIfNothingToScan(tableName);
 	}
 
+	public async getTableStructureWithoutCache(tableName: string): Promise<TableStructureDS[]> {
+		return await this.getTableStructureOrReturnPrimaryKeysIfNothingToScan(tableName);
+	}
+
 	public async testConnect(): Promise<TestConnectionResultDS> {
 		if (!this.connection.id) {
 			this.connection.id = nanoid(6);

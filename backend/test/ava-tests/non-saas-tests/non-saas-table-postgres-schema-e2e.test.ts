@@ -2295,6 +2295,206 @@ test.serial(`${currentTest} should throw an exception when tableName passed in r
 	t.is(message, Messages.TABLE_NOT_FOUND);
 });
 
+currentTest = 'GET /table/structure/no-cache/:slug';
+test.serial(`${currentTest} should return table structure without using cache`, async (t) => {
+	const connectionToTestDB = getTestData(mockFactory).connectionToPostgresSchema;
+	const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+	const { testTableName } = await createTestPostgresTableWithSchema(connectionToTestDB);
+
+	testTables.push(testTableName);
+
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(connectionToTestDB)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+	t.is(createConnectionResponse.status, 201);
+
+	const getTableStructure = await request(app.getHttpServer())
+		.get(`/table/structure/no-cache/${createConnectionRO.id}?tableName=${testTableName}`)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(getTableStructure.status, 200);
+	const getTableStructureRO = JSON.parse(getTableStructure.text);
+
+	t.is(typeof getTableStructureRO, 'object');
+	t.is(typeof getTableStructureRO.structure, 'object');
+	t.is(getTableStructureRO.structure.length, 5);
+
+	for (const element of getTableStructureRO.structure) {
+		t.is(Object.hasOwn(element, 'column_name'), true);
+		t.is(Object.hasOwn(element, 'column_default'), true);
+		t.is(Object.hasOwn(element, 'data_type'), true);
+		t.is(Object.hasOwn(element, 'isExcluded'), true);
+		t.is(Object.hasOwn(element, 'isSearched'), true);
+	}
+
+	t.is(Object.hasOwn(getTableStructureRO, 'primaryColumns'), true);
+	t.is(Object.hasOwn(getTableStructureRO, 'foreignKeys'), true);
+
+	for (const element of getTableStructureRO.primaryColumns) {
+		t.is(Object.hasOwn(element, 'column_name'), true);
+		t.is(Object.hasOwn(element, 'data_type'), true);
+	}
+
+	for (const element of getTableStructureRO.foreignKeys) {
+		t.is(Object.hasOwn(element, 'referenced_column_name'), true);
+		t.is(Object.hasOwn(element, 'referenced_table_name'), true);
+		t.is(Object.hasOwn(element, 'constraint_name'), true);
+		t.is(Object.hasOwn(element, 'column_name'), true);
+	}
+});
+
+test.serial(`${currentTest} should return the same payload shape as cached endpoint for the same table`, async (t) => {
+	const connectionToTestDB = getTestData(mockFactory).connectionToPostgresSchema;
+	const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+	const { testTableName } = await createTestPostgresTableWithSchema(connectionToTestDB);
+
+	testTables.push(testTableName);
+
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(connectionToTestDB)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+	t.is(createConnectionResponse.status, 201);
+
+	const cachedResponse = await request(app.getHttpServer())
+		.get(`/table/structure/${createConnectionRO.id}?tableName=${testTableName}`)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	const noCacheResponse = await request(app.getHttpServer())
+		.get(`/table/structure/no-cache/${createConnectionRO.id}?tableName=${testTableName}`)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(cachedResponse.status, 200);
+	t.is(noCacheResponse.status, 200);
+
+	const cachedRO = JSON.parse(cachedResponse.text);
+	const noCacheRO = JSON.parse(noCacheResponse.text);
+
+	t.deepEqual(
+		noCacheRO.structure.map((column) => column.column_name).sort(),
+		cachedRO.structure.map((column) => column.column_name).sort(),
+	);
+	t.is(noCacheRO.structure.length, cachedRO.structure.length);
+	t.deepEqual(Object.keys(noCacheRO).sort(), Object.keys(cachedRO).sort());
+});
+
+test.serial(`${currentTest} should reject access when connection id is not passed in request`, async (t) => {
+	const connectionToTestDB = getTestData(mockFactory).connectionToPostgresSchema;
+	const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+	const { testTableName } = await createTestPostgresTableWithSchema(connectionToTestDB);
+
+	testTables.push(testTableName);
+
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(connectionToTestDB)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+	t.is(createConnectionResponse.status, 201);
+	createConnectionRO.id = '';
+	const getTableStructure = await request(app.getHttpServer())
+		.get(`/table/structure/no-cache/${createConnectionRO.id}?tableName=${testTableName}`)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(getTableStructure.status, 403);
+	const { message } = JSON.parse(getTableStructure.text);
+	t.is(message, Messages.DONT_HAVE_PERMISSIONS);
+});
+
+test.serial(`${currentTest} should return 403 when connection id is incorrect`, async (t) => {
+	const connectionToTestDB = getTestData(mockFactory).connectionToPostgresSchema;
+	const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+	const { testTableName } = await createTestPostgresTableWithSchema(connectionToTestDB);
+
+	testTables.push(testTableName);
+
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(connectionToTestDB)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+	t.is(createConnectionResponse.status, 201);
+
+	createConnectionRO.id = faker.string.uuid();
+	const getTableStructure = await request(app.getHttpServer())
+		.get(`/table/structure/no-cache/${createConnectionRO.id}?tableName=${testTableName}`)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(getTableStructure.status, 403);
+	const { message } = JSON.parse(getTableStructure.text);
+	t.is(message, Messages.DONT_HAVE_PERMISSIONS);
+});
+
+test.serial(`${currentTest} should throw an exception when tableName is not passed in request`, async (t) => {
+	const connectionToTestDB = getTestData(mockFactory).connectionToPostgresSchema;
+	const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+	const { testTableName } = await createTestPostgresTableWithSchema(connectionToTestDB);
+
+	testTables.push(testTableName);
+
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(connectionToTestDB)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+	t.is(createConnectionResponse.status, 201);
+	const tableName = '';
+	const getTableStructure = await request(app.getHttpServer())
+		.get(`/table/structure/no-cache/${createConnectionRO.id}?tableName=${tableName}`)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(getTableStructure.status, 400);
+	const { message } = JSON.parse(getTableStructure.text);
+	t.is(message, Messages.TABLE_NAME_MISSING);
+});
+
+test.serial(`${currentTest} should throw an exception when tableName is incorrect`, async (t) => {
+	const connectionToTestDB = getTestData(mockFactory).connectionToPostgresSchema;
+	const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+	const { testTableName } = await createTestPostgresTableWithSchema(connectionToTestDB);
+
+	testTables.push(testTableName);
+
+	const createConnectionResponse = await request(app.getHttpServer())
+		.post('/connection')
+		.send(connectionToTestDB)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const createConnectionRO = JSON.parse(createConnectionResponse.text);
+	t.is(createConnectionResponse.status, 201);
+	const tableName = faker.lorem.words(1);
+	const getTableStructure = await request(app.getHttpServer())
+		.get(`/table/structure/no-cache/${createConnectionRO.id}?tableName=${tableName}`)
+		.set('Cookie', firstUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(getTableStructure.status, 400);
+	const { message } = JSON.parse(getTableStructure.text);
+	t.is(message, Messages.TABLE_NOT_FOUND);
+});
+
 currentTest = 'POST /table/row/:slug';
 
 test.serial(`${currentTest} should add row in table and return result`, async (t) => {

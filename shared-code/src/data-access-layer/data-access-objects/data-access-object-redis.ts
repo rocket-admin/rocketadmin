@@ -1130,6 +1130,10 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
 		return this.getPrefixedTableStructure(tableName);
 	}
 
+	public async getTableStructureWithoutCache(tableName: string): Promise<Array<TableStructureDS>> {
+		return this.getTableStructure(tableName);
+	}
+
 	private getStandaloneCollectionStructure(): Array<TableStructureDS> {
 		return [
 			{
