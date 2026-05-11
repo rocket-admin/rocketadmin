@@ -69,6 +69,7 @@ import {
 	IGetRowByPrimaryKey,
 	IGetTableRows,
 	IGetTableStructure,
+	IGetTableStructureWithoutCache,
 	IImportCSVFinTable,
 	IUpdateRowInTable,
 } from './use-cases/table-use-cases.interface.js';
@@ -90,6 +91,8 @@ export class TableController {
 		private readonly getTableRowsUseCase: IGetTableRows,
 		@Inject(UseCaseType.GET_TABLE_STRUCTURE)
 		private readonly getTableStructureUseCase: IGetTableStructure,
+		@Inject(UseCaseType.GET_TABLE_STRUCTURE_WITHOUT_CACHE)
+		private readonly getTableStructureWithoutCacheUseCase: IGetTableStructureWithoutCache,
 		@Inject(UseCaseType.ADD_ROW_IN_TABLE)
 		private readonly addRowInTableUseCase: IAddRowInTable,
 		@Inject(UseCaseType.UPDATE_ROW_IN_TABLE)
@@ -342,6 +345,42 @@ export class TableController {
 			userId: userId,
 		};
 		return await this.getTableStructureUseCase.execute(inputData, InTransactionEnum.OFF);
+	}
+
+	@ApiOperation({
+		summary: 'Get table structure without cache. API+',
+		description:
+			'Return table structure fetched directly from the database, bypassing the structure cache. Support access with api key.',
+	})
+	@ApiResponse({
+		status: 200,
+		description: 'Table structure found.',
+		type: TableStructureDs,
+	})
+	@ApiQuery({ name: 'tableName', required: true })
+	@UseGuards(TableReadGuard)
+	@Get('/table/structure/no-cache/:connectionId')
+	async getTableStructureWithoutCache(
+		@QueryTableName() tableName: string,
+		@UserId() userId: string,
+		@SlugUuid('connectionId') connectionId: string,
+		@MasterPassword() masterPwd: string,
+	): Promise<TableStructureDs> {
+		if (!connectionId) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_ID_MISSING,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		const inputData: GetTableStructureDs = {
+			connectionId: connectionId,
+			masterPwd: masterPwd,
+			tableName: tableName,
+			userId: userId,
+		};
+		return await this.getTableStructureWithoutCacheUseCase.execute(inputData, InTransactionEnum.OFF);
 	}
 
 	@ApiOperation({

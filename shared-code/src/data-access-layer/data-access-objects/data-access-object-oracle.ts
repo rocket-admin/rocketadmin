@@ -515,6 +515,12 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
 		if (cachedTableStructure) {
 			return cachedTableStructure;
 		}
+		const resultColumns = await this.getTableStructureWithoutCache(tableName);
+		LRUStorage.setTableStructureCache(this.connection, tableName, resultColumns);
+		return resultColumns;
+	}
+
+	public async getTableStructureWithoutCache(tableName: string): Promise<TableStructureDS[]> {
 		const knex = await this.configureKnex();
 		const schema = this.connection.schema ?? this.connection.username.toUpperCase();
 		const structureColumns = await knex
@@ -534,7 +540,6 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
 			}
 			return objectKeysToLowercase(column);
 		}) as TableStructureDS[];
-		LRUStorage.setTableStructureCache(this.connection, tableName, resultColumns);
 		return resultColumns;
 	}
 

@@ -26,6 +26,7 @@ import { FindTablesInConnectionV2UseCase } from './use-cases/find-tables-in-conn
 import { GetRowByPrimaryKeyUseCase } from './use-cases/get-row-by-primary-key.use.case.js';
 import { GetTableRowsUseCase } from './use-cases/get-table-rows.use.case.js';
 import { GetTableStructureUseCase } from './use-cases/get-table-structure.use.case.js';
+import { GetTableStructureWithoutCacheUseCase } from './use-cases/get-table-structure-without-cache.use.case.js';
 import { ImportCSVInTableUseCase } from './use-cases/import-csv-in-table-user.case.js';
 import { UpdateRowInTableUseCase } from './use-cases/update-row-in-table.use.case.js';
 
@@ -66,6 +67,10 @@ import { UpdateRowInTableUseCase } from './use-cases/update-row-in-table.use.cas
 		{
 			provide: UseCaseType.GET_TABLE_STRUCTURE,
 			useClass: GetTableStructureUseCase,
+		},
+		{
+			provide: UseCaseType.GET_TABLE_STRUCTURE_WITHOUT_CACHE,
+			useClass: GetTableStructureWithoutCacheUseCase,
 		},
 		{
 			provide: UseCaseType.ADD_ROW_IN_TABLE,
@@ -115,6 +120,7 @@ export class TableModule {
 				{ path: '/table/rows/:connectionId', method: RequestMethod.GET },
 				{ path: '/table/rows/find/:connectionId', method: RequestMethod.POST },
 				{ path: '/table/structure/:connectionId', method: RequestMethod.GET },
+				{ path: '/table/structure/no-cache/:connectionId', method: RequestMethod.GET },
 				{ path: '/table/row/:connectionId', method: RequestMethod.POST },
 				{ path: '/table/row/:connectionId', method: RequestMethod.PUT },
 				{ path: '/table/row/:connectionId', method: RequestMethod.DELETE },

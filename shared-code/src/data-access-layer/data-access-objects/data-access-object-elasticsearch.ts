@@ -456,6 +456,10 @@ export class DataAccessObjectElasticsearch extends BasicDataAccessObject impleme
 		return structure;
 	}
 
+	public async getTableStructureWithoutCache(tableName: string): Promise<Array<TableStructureDS>> {
+		return this.getTableStructure(tableName);
+	}
+
 	public async testConnect(): Promise<TestConnectionResultDS> {
 		const client = this.getElasticClient();
 

@@ -1,15 +1,15 @@
+import { Stream } from 'node:stream';
 import { AutocompleteFieldsDS } from '../../data-access-layer/shared/data-structures/autocomplete-fields.ds.js';
 import { FilteringFieldsDS } from '../../data-access-layer/shared/data-structures/filtering-fields.ds.js';
 import { ForeignKeyDS } from '../../data-access-layer/shared/data-structures/foreign-key.ds.js';
 import { FoundRowsDS } from '../../data-access-layer/shared/data-structures/found-rows.ds.js';
 import { PrimaryKeyDS } from '../../data-access-layer/shared/data-structures/primary-key.ds.js';
 import { ReferencedTableNamesAndColumnsDS } from '../../data-access-layer/shared/data-structures/referenced-table-names-columns.ds.js';
+import { TableDS } from '../../data-access-layer/shared/data-structures/table.ds.js';
 import { TableSettingsDS } from '../../data-access-layer/shared/data-structures/table-settings.ds.js';
 import { TableStructureDS } from '../../data-access-layer/shared/data-structures/table-structure.ds.js';
 import { TestConnectionResultDS } from '../../data-access-layer/shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../../data-access-layer/shared/data-structures/validate-table-settings.ds.js';
-import { TableDS } from '../../data-access-layer/shared/data-structures/table.ds.js';
-import { Stream } from 'node:stream';
 
 export interface IDataAccessObject {
 	addRowInTable(tableName: string, row: Record<string, unknown>): Promise<Record<string, unknown> | number>;
@@ -53,6 +53,8 @@ export interface IDataAccessObject {
 	getTablesFromDB(): Promise<Array<TableDS>>;
 
 	getTableStructure(tableName: string): Promise<Array<TableStructureDS>>;
+
+	getTableStructureWithoutCache(tableName: string): Promise<Array<TableStructureDS>>;
 
 	testConnect(): Promise<TestConnectionResultDS>;
 

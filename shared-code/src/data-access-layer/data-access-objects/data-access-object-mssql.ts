@@ -353,6 +353,12 @@ WHERE TABLE_TYPE = 'VIEW'
 		if (cachedTableStructure) {
 			return cachedTableStructure;
 		}
+		const structureColumnsInLowercase = await this.getTableStructureWithoutCache(tableName);
+		LRUStorage.setTableStructureCache(this.connection, tableName, structureColumnsInLowercase);
+		return structureColumnsInLowercase;
+	}
+
+	public async getTableStructureWithoutCache(tableName: string): Promise<TableStructureDS[]> {
 		const { database } = this.connection;
 		const knex = await this.configureKnex();
 		const schema = await this.getSchemaNameWithoutBrackets(tableName);
@@ -387,7 +393,6 @@ WHERE TABLE_TYPE = 'VIEW'
 			}
 			return column;
 		});
-		LRUStorage.setTableStructureCache(this.connection, tableName, structureColumnsInLowercase as TableStructureDS[]);
 		return structureColumnsInLowercase as TableStructureDS[];
 	}
 
