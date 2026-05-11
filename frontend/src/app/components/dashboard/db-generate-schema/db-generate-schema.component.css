@@ -8,7 +8,7 @@
 	flex-direction: column;
 	align-items: center;
 	width: 100%;
-	height: calc(100vh - 56px);
+	height: 100%;
 	overflow: hidden;
 	position: relative;
 }

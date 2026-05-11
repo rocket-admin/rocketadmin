@@ -92,15 +92,7 @@
             </app-db-tables-list>
         </mat-sidenav>
         <mat-sidenav-content class="table-preview">
-            <app-db-generate-schema
-                *ngIf="showSchemaEditor"
-                [connectionID]="connectionID"
-                [showClose]="true"
-                (schemaApplied)="onSchemaApplied()"
-                (closeEditor)="showSchemaEditor = false"
-                data-testid="edit-structure-generate-schema">
-            </app-db-generate-schema>
-            <div class="table-preview-content" *ngIf="!showSchemaEditor">
+            <div class="table-preview-content" [class.table-preview-content--panel-open]="showSchemaEditor">
                 <div class="alerts">
                     <app-alert></app-alert>
                     <div *ngIf="dataSource.alert_settingsInfo && canEditConnection() && !isConfiguring" class="ai-config-alert">
@@ -145,6 +137,16 @@
                 [tableColumns]="dataSource?.dataColumns || []"
                 [sidebarExpanded]="shownTableTitles"
             ></app-db-table-ai-panel>
+            <div class="schema-editor-panel" [class.schema-editor-panel--open]="showSchemaEditor">
+                <app-db-generate-schema
+                    *ngIf="showSchemaEditor"
+                    [connectionID]="connectionID"
+                    [showClose]="true"
+                    (schemaApplied)="onSchemaApplied()"
+                    (closeEditor)="showSchemaEditor = false"
+                    data-testid="edit-structure-generate-schema">
+                </app-db-generate-schema>
+            </div>
         </mat-sidenav-content>
     </mat-sidenav-container>
 </ng-container>
