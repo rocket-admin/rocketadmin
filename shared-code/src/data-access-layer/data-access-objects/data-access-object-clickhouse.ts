@@ -400,6 +400,12 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
 			return cachedTableStructure;
 		}
 
+		const structure = await this.getTableStructureWithoutCache(tableName);
+		LRUStorage.setTableStructureCache(this.connection, tableName, structure);
+		return structure;
+	}
+
+	public async getTableStructureWithoutCache(tableName: string): Promise<Array<TableStructureDS>> {
 		const client = await this.getClickHouseClient();
 		try {
 			const database = this.connection.database || 'default';
@@ -440,7 +446,6 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
 				extra: this.buildExtraInfo(column.is_in_primary_key, column.default_expression),
 			}));
 
-			LRUStorage.setTableStructureCache(this.connection, tableName, structure);
 			return structure;
 		} finally {
 			await client.close();

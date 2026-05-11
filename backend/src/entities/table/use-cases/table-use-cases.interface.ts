@@ -34,6 +34,10 @@ export interface IGetTableStructure {
 	execute(inputData: GetTableStructureDs, inTransaction: InTransactionEnum): Promise<TableStructureDs>;
 }
 
+export interface IGetTableStructureWithoutCache {
+	execute(inputData: GetTableStructureDs, inTransaction: InTransactionEnum): Promise<TableStructureDs>;
+}
+
 export interface IAddRowInTable {
 	execute(inputData: AddRowInTableDs, inTransaction: InTransactionEnum): Promise<TableRowRODs>;
 }

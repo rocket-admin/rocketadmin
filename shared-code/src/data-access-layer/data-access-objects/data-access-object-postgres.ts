@@ -366,6 +366,12 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
 		if (cachedTableStructure) {
 			return cachedTableStructure;
 		}
+		const result = await this.getTableStructureWithoutCache(tableName);
+		LRUStorage.setTableStructureCache(this.connection, tableName, result);
+		return result;
+	}
+
+	public async getTableStructureWithoutCache(tableName: string): Promise<TableStructureDS[]> {
 		const knex = await this.configureKnex();
 		let result = await knex('information_schema.columns')
 			.select(
@@ -435,7 +441,6 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
 			}
 		}
 
-		LRUStorage.setTableStructureCache(this.connection, tableName, result);
 		return result;
 	}
 

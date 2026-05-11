@@ -481,6 +481,10 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
 		return this.getTableStructureOrReturnPrimaryKeysIfNothingToScan(tableName);
 	}
 
+	public async getTableStructureWithoutCache(tableName: string): Promise<Array<TableStructureDS>> {
+		return this.getTableStructureOrReturnPrimaryKeysIfNothingToScan(tableName);
+	}
+
 	public async testConnect(): Promise<TestConnectionResultDS> {
 		const { dynamoDb } = this.getDynamoDb();
 		try {

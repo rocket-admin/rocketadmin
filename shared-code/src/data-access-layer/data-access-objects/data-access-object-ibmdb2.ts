@@ -498,6 +498,10 @@ ORDER BY
 		});
 	}
 
+	public async getTableStructureWithoutCache(tableName: string): Promise<TableStructureDS[]> {
+		return this.getTableStructure(tableName);
+	}
+
 	public async testConnect(): Promise<TestConnectionResultDS> {
 		if (!this.connection.id) {
 			this.connection.id = nanoid(6);
