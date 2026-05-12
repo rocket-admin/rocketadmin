@@ -734,7 +734,20 @@ async function createTestCassandraTable(
 	});
 
 	try {
-		await client.connect();
+		const maxConnectAttempts = 5;
+		let lastConnectError: unknown;
+		for (let attempt = 1; attempt <= maxConnectAttempts; attempt++) {
+			try {
+				await client.connect();
+				lastConnectError = undefined;
+				break;
+			} catch (error) {
+				lastConnectError = error;
+				if (attempt === maxConnectAttempts) break;
+				await new Promise((resolve) => setTimeout(resolve, 2000 * attempt));
+			}
+		}
+		if (lastConnectError) throw lastConnectError;
 
 		try {
 			await client.execute(

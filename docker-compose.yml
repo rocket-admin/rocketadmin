@@ -210,6 +210,9 @@ services:
       - CASSANDRA_CLUSTER_NAME=TestCluster
       - CASSANDRA_DC=TestDC
       - CASSANDRA_RACK=TestRack
+      - MAX_HEAP_SIZE=1G
+      - HEAP_NEWSIZE=128M
+    mem_limit: 2g
     restart: always
     healthcheck:
       test:
