@@ -1,0 +1,148 @@
+<div class="schema-chat">
+	@if (showClose) {
+		<button mat-icon-button type="button" class="schema-chat__close-button" (click)="closeEditor.emit()">
+			<mat-icon>close</mat-icon>
+		</button>
+	}
+	<!-- Welcome screen when no messages yet -->
+	@if (messages().length === 0) {
+		<div class="schema-chat__welcome">
+			<mat-icon svgIcon="ai_rocket" class="schema-chat__welcome-icon"></mat-icon>
+			@if (showClose) {
+				<p class="schema-chat__welcome-title">Edit database structure with AI</p>
+				<p class="schema-chat__welcome-subtitle">Describe the changes you want to make and AI will generate the SQL for you.</p>
+			} @else {
+				<p class="schema-chat__welcome-title">No tables found — let AI create them</p>
+				<p class="schema-chat__welcome-subtitle">Describe the database you need and AI will generate the schema for you.</p>
+			}
+
+			<div class="schema-chat__suggestions">
+				@if (showClose) {
+					<button type="button" class="suggestion-chip"
+						(click)="userPrompt.set('Add a new table for user notifications with title, message, read status, and timestamp')">
+						Add notifications table
+					</button>
+					<button type="button" class="suggestion-chip"
+						(click)="userPrompt.set('Add an email column to the users table')">
+						Add column
+					</button>
+					<button type="button" class="suggestion-chip"
+						(click)="userPrompt.set('Create an index on the created_at column of the orders table')">
+						Create index
+					</button>
+				} @else {
+					<button type="button" class="suggestion-chip"
+						(click)="userPrompt.set('E-commerce database with products, categories, orders, and customers')">
+						E-commerce store
+					</button>
+					<button type="button" class="suggestion-chip"
+						(click)="userPrompt.set('Blog platform with users, posts, comments, and tags')">
+						Blog platform
+					</button>
+					<button type="button" class="suggestion-chip"
+						(click)="userPrompt.set('Project management tool with projects, tasks, users, and comments')">
+						Project management
+					</button>
+				}
+			</div>
+		</div>
+	}
+
+	<!-- Message chain -->
+	@if (messages().length) {
+		<div class="schema-chat__messages">
+			@for (message of messages(); track $index) {
+				@if (message.role === 'user') {
+					<div class="schema-chat__message schema-chat__message--user">
+						<span>{{ message.text }}</span>
+					</div>
+				}
+				@if (message.role === 'ai') {
+					<div class="schema-chat__message schema-chat__message--ai">
+						<span class="schema-chat__message-text">{{ message.text }}</span>
+
+						@if (message.changes?.length) {
+							<div class="schema-chat__changes">
+								@for (change of message.changes; track change.id) {
+									<div class="schema-chat__change-card">
+										<div class="schema-chat__change-header">
+											<span class="schema-chat__change-type">{{ change.changeType }}</span>
+											<span class="schema-chat__change-table">{{ change.targetTableName }}</span>
+										</div>
+										<pre class="schema-chat__change-sql">{{ change.forwardSql }}</pre>
+										@if (change.rollbackSql) {
+											<details class="schema-chat__rollback">
+												<summary>Rollback SQL</summary>
+												<pre class="schema-chat__change-sql">{{ change.rollbackSql }}</pre>
+											</details>
+										}
+									</div>
+								}
+							</div>
+						}
+					</div>
+				}
+				@if (message.role === 'error') {
+					<div class="schema-chat__message schema-chat__message--error">
+						<mat-icon class="schema-chat__error-icon">error_outline</mat-icon>
+						<span>{{ message.text }}</span>
+					</div>
+				}
+			}
+
+			@if (submitting()) {
+				<div class="schema-chat__loading">
+					<span class="schema-chat__loading-text">Generating schema</span>
+					<div class="schema-chat__loading-dots">
+						<span class="schema-chat__loading-dot"></span>
+						<span class="schema-chat__loading-dot"></span>
+						<span class="schema-chat__loading-dot"></span>
+					</div>
+				</div>
+			}
+		</div>
+	}
+
+	<!-- Input form / Actions -->
+	@if (!applied()) {
+		<div class="schema-chat__form">
+			@if (pendingBatch()) {
+				<div class="schema-chat__actions">
+					<button mat-stroked-button type="button" (click)="onReject()" [disabled]="applying()"
+						data-testid="schema-reject-button">
+						Reject
+					</button>
+					<button mat-flat-button color="primary" type="button" (click)="onApprove()" [disabled]="applying()"
+						data-testid="schema-approve-button">
+						@if (applying()) {
+							Applying...
+						} @else {
+							<mat-icon>check</mat-icon>
+							Apply All
+						}
+					</button>
+				</div>
+			} @else {
+				<form (ngSubmit)="onSubmit()">
+					<mat-form-field appearance="outline" class="schema-chat__input-field">
+						<mat-label>{{showClose ? 'Describe the changes you need...' : 'Describe the database you need...'}}</mat-label>
+						<textarea matInput
+							name="schemaPrompt"
+							[ngModel]="userPrompt()"
+							(ngModelChange)="userPrompt.set($event)"
+							(keydown)="onKeydown($event)"
+							rows="2"
+							maxlength="1000"
+							data-testid="schema-prompt-textarea"
+						></textarea>
+						<button mat-icon-button matSuffix type="submit"
+							[disabled]="!userPrompt().trim() || submitting()"
+							class="schema-chat__send-button">
+							<mat-icon>send</mat-icon>
+						</button>
+					</mat-form-field>
+				</form>
+			}
+		</div>
+	}
+</div>

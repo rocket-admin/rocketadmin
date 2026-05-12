@@ -91,6 +91,9 @@ export class ConnectDBComponent implements OnInit {
 	};
 
 	public connectionString: string = '';
+	public parsedConnectionString: string = '';
+	public autoFilledFields: Set<string> = new Set();
+	public fieldsOverridden: boolean = false;
 
 	public credentialsFormMap: Record<string, Type<BaseCredentialsFormComponent>> = {
 		[DBtype.MySQL]: MysqlCredentialsFormComponent,
@@ -136,6 +139,7 @@ export class ConnectDBComponent implements OnInit {
 	public credentialsFormOutputs: Record<string, any> = {
 		switchToAgent: () => this.switchToAgent(),
 		masterKeyChange: (key: string) => this.handleMasterKeyChange(key),
+		fieldChange: (field: string) => this.clearAutoFilledField(field),
 	};
 	public credentialsFormAttributes: Record<string, string> = { class: 'credentials-fieldset' };
 
@@ -468,7 +472,7 @@ export class ConnectDBComponent implements OnInit {
 		this.masterKey = newMasterKey;
 	}
 
-	applyConnectionString() {
+	onConnectionStringChange(_input: any) {
 		if (!this.connectionString.trim()) {
 			return;
 		}
@@ -476,6 +480,9 @@ export class ConnectDBComponent implements OnInit {
 		try {
 			const parsed = parseConnectionString(this.connectionString);
 
+			this.parsedConnectionString = this.connectionString;
+			this.autoFilledFields = new Set(['host', 'port', 'username', 'password', 'database']);
+			this.fieldsOverridden = false;
 			this.db.type = parsed.dbType;
 			this.db.host = parsed.host;
 			this.db.port = parsed.port;
@@ -485,19 +492,26 @@ export class ConnectDBComponent implements OnInit {
 
 			if (parsed.authSource) {
 				this.db.authSource = parsed.authSource;
+				this.autoFilledFields.add('authSource');
 			}
 			if (parsed.schema) {
 				this.db.schema = parsed.schema;
+				this.autoFilledFields.add('schema');
 			}
 			if (parsed.ssl) {
 				this.db.ssl = true;
 			}
 
-			this.connectionString = '';
-			this._notifications.showSuccessSnackbar('Connection string parsed successfully');
+			setTimeout(() => this.connectionString = '', 300);
 		} catch (_e) {
 			// Validation directive handles error display
 		}
+	}
+
+	clearAutoFilledField(field: string): void {
+		this.autoFilledFields = new Set(this.autoFilledFields);
+		this.autoFilledFields.delete(field);
+		this.fieldsOverridden = true;
 	}
 
 	getProvider() {
