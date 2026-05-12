@@ -314,3 +314,32 @@
 .sidenav-content__toggle-button {
 	display: none !important;
 }
+
+.schema-editor-panel {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 0;
+	background: var(--mat-sidenav-content-background-color);
+	border-top: 1px solid rgba(0, 0, 0, 0.12);
+	box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.12);
+	overflow: hidden;
+	transition: height 0.3s ease;
+	z-index: 100;
+}
+
+.schema-editor-panel--open {
+	height: 380px;
+}
+
+.table-preview-content--panel-open {
+	padding-bottom: 380px;
+}
+
+@media (prefers-color-scheme: dark) {
+	.schema-editor-panel {
+		border-top-color: rgba(255, 255, 255, 0.12);
+		box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.4);
+	}
+}

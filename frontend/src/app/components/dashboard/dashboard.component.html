@@ -1,4 +1,4 @@
-<app-placeholder-table-view *ngIf="loading"></app-placeholder-table-view>
+<app-placeholder-table-view *ngIf="loading && !noTablesError && !isServerError"></app-placeholder-table-view>
 
 <app-banner *ngIf="isServerError" type="error" data-testid="connection-server-error-banner">
     <div *ngIf="serverError.details; else stringError" class="mat-body-1">
@@ -21,14 +21,12 @@
     </div>
 </app-banner>
 
-<app-banner *ngIf="noTablesError" type="info" data-testid="no-tables-error-banner">
-    <h3 class='mat-subheading-2'>Rocketadmin can not find any tables</h3>
-    <p class="mat-body-1">
-        Rocketadmin don't have access to connection tables or there aren't any.
-        Please grant us access to required tables or create new table.
-        You can create a table with SQL editor
-    </p>
-</app-banner>
+<app-db-generate-schema
+    *ngIf="noTablesError"
+    [connectionID]="connectionID"
+    (schemaApplied)="onSchemaApplied()"
+    data-testid="no-tables-generate-schema">
+</app-db-generate-schema>
 
 <ng-container *ngIf="!loading && !isServerError && !noTablesError">
 
@@ -89,11 +87,12 @@
                 [connectionID]="connectionID"
                 [selectedTable]="selectedTableName"
                 [uiSettings]="uiSettings"
-                (expandSidebar)="toggleSideBar()">
+                (expandSidebar)="toggleSideBar()"
+                (editStructure)="onEditStructure()">
             </app-db-tables-list>
         </mat-sidenav>
         <mat-sidenav-content class="table-preview">
-            <div class="table-preview-content">
+            <div class="table-preview-content" [class.table-preview-content--panel-open]="showSchemaEditor">
                 <div class="alerts">
                     <app-alert></app-alert>
                     <div *ngIf="dataSource.alert_settingsInfo && canEditConnection() && !isConfiguring" class="ai-config-alert">
@@ -130,14 +129,24 @@
                     (applyFilter)="applyFilter($event)">
                 </app-db-table-view>
             </div>
-            <app-db-table-row-view *ngIf="selectedRow"
+            <app-db-table-row-view *ngIf="selectedRow && !showSchemaEditor"
                 [activeFilters]="filters"
             ></app-db-table-row-view>
-            <app-db-table-ai-panel *ngIf="isAIpanelOpened"
+            <app-db-table-ai-panel *ngIf="isAIpanelOpened && !showSchemaEditor"
                 [displayName]="selectedTableDisplayName"
                 [tableColumns]="dataSource?.dataColumns || []"
                 [sidebarExpanded]="shownTableTitles"
             ></app-db-table-ai-panel>
+            <div class="schema-editor-panel" [class.schema-editor-panel--open]="showSchemaEditor">
+                <app-db-generate-schema
+                    *ngIf="showSchemaEditor"
+                    [connectionID]="connectionID"
+                    [showClose]="true"
+                    (schemaApplied)="onSchemaApplied()"
+                    (closeEditor)="showSchemaEditor = false"
+                    data-testid="edit-structure-generate-schema">
+                </app-db-generate-schema>
+            </div>
         </mat-sidenav-content>
     </mat-sidenav-container>
 </ng-container>

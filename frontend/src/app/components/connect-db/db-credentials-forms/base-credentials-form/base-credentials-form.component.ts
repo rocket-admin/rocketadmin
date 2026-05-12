@@ -13,13 +13,19 @@ export class BaseCredentialsFormComponent {
 	@Input() submitting: boolean;
 	@Input() masterKey: string;
 	@Input() accessLevel: string;
+	@Input() autoFilledFields: Set<string> = new Set();
 
 	@Output() switchToAgent = new EventEmitter<void>();
 	@Output() masterKeyChange = new EventEmitter<string>();
+	@Output() fieldChange = new EventEmitter<string>();
 
 	public tunnelingServiceLink = 'https://docs.rocketadmin.com/Create%20connections/Direct%20connection/create_pinggy';
 
 	handleMasterKeyChange(newMasterKey: string): void {
 		this.masterKeyChange.emit(newMasterKey);
+	}
+
+	clearAutoFilled(field: string): void {
+		this.fieldChange.emit(field);
 	}
 }

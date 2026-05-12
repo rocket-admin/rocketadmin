@@ -262,4 +262,153 @@ describe('ConnectDBComponent', () => {
 			},
 		});
 	});
+
+	describe('Connection string functionality', () => {
+		it('should parse a PostgreSQL connection string and populate db fields', () => {
+			component.connectionString = 'postgresql://myuser:mypass@db.example.com:5432/mydb';
+			component.onConnectionStringChange(null);
+
+			expect(component.db.type).toBe(DBtype.Postgres);
+			expect(component.db.host).toBe('db.example.com');
+			expect(component.db.port).toBe('5432');
+			expect(component.db.username).toBe('myuser');
+			expect(component.db.password).toBe('mypass');
+			expect(component.db.database).toBe('mydb');
+		});
+
+		it('should parse a MySQL connection string and populate db fields', () => {
+			component.connectionString = 'mysql://root:secret@localhost:3306/app_db';
+			component.onConnectionStringChange(null);
+
+			expect(component.db.type).toBe(DBtype.MySQL);
+			expect(component.db.host).toBe('localhost');
+			expect(component.db.port).toBe('3306');
+			expect(component.db.username).toBe('root');
+			expect(component.db.password).toBe('secret');
+			expect(component.db.database).toBe('app_db');
+		});
+
+		it('should parse a MongoDB connection string with authSource option', () => {
+			component.connectionString = 'mongodb://admin:pass123@mongo.host.com:27017/mydb?authSource=admin';
+			component.onConnectionStringChange(null);
+
+			expect(component.db.type).toBe(DBtype.Mongo);
+			expect(component.db.host).toBe('mongo.host.com');
+			expect(component.db.port).toBe('27017');
+			expect(component.db.username).toBe('admin');
+			expect(component.db.password).toBe('pass123');
+			expect(component.db.database).toBe('mydb');
+			expect(component.db.authSource).toBe('admin');
+			expect(component.autoFilledFields.has('authSource')).toBe(true);
+		});
+
+		it('should set autoFilledFields for all parsed fields', () => {
+			component.connectionString = 'postgresql://user:pass@host:5432/db';
+			component.onConnectionStringChange(null);
+
+			expect(component.autoFilledFields.has('host')).toBe(true);
+			expect(component.autoFilledFields.has('port')).toBe(true);
+			expect(component.autoFilledFields.has('username')).toBe(true);
+			expect(component.autoFilledFields.has('password')).toBe(true);
+			expect(component.autoFilledFields.has('database')).toBe(true);
+		});
+
+		it('should set ssl to true when sslmode=require is in connection string', () => {
+			component.connectionString = 'postgresql://user:pass@host:5432/db?sslmode=require';
+			component.onConnectionStringChange(null);
+
+			expect(component.db.ssl).toBe(true);
+		});
+
+		it('should set schema when schema option is present', () => {
+			component.connectionString = 'postgresql://user:pass@host:5432/db?schema=my_schema';
+			component.onConnectionStringChange(null);
+
+			expect(component.db.schema).toBe('my_schema');
+			expect(component.autoFilledFields.has('schema')).toBe(true);
+		});
+
+		it('should reset fieldsOverridden to false after parsing', () => {
+			component.fieldsOverridden = true;
+			component.connectionString = 'postgresql://user:pass@host:5432/db';
+			component.onConnectionStringChange(null);
+
+			expect(component.fieldsOverridden).toBe(false);
+		});
+
+		it('should not modify db fields when connection string is empty', () => {
+			const originalType = component.db.type;
+			const originalHost = component.db.host;
+
+			component.connectionString = '   ';
+			component.onConnectionStringChange(null);
+
+			expect(component.db.type).toBe(originalType);
+			expect(component.db.host).toBe(originalHost);
+		});
+
+		it('should not modify db fields when connection string is invalid', () => {
+			const originalType = component.db.type;
+			const originalHost = component.db.host;
+
+			component.connectionString = 'not-a-valid-connection-string';
+			component.onConnectionStringChange(null);
+
+			expect(component.db.type).toBe(originalType);
+			expect(component.db.host).toBe(originalHost);
+		});
+
+		it('should use default port when port is not specified in connection string', () => {
+			component.connectionString = 'postgresql://user:pass@host/db';
+			component.onConnectionStringChange(null);
+
+			expect(component.db.port).toBe('5432');
+		});
+
+		it('should handle URL-encoded username and password', () => {
+			component.connectionString = 'postgresql://my%40user:p%40ss%23word@host:5432/db';
+			component.onConnectionStringChange(null);
+
+			expect(component.db.username).toBe('my@user');
+			expect(component.db.password).toBe('p@ss#word');
+		});
+
+		it('should clear the connection string after successful parsing', () => {
+			vi.useFakeTimers();
+			component.connectionString = 'postgresql://user:pass@host:5432/db';
+			component.onConnectionStringChange(null);
+
+			vi.advanceTimersByTime(300);
+			expect(component.connectionString).toBe('');
+			vi.useRealTimers();
+		});
+
+		it('should store parsed connection string in parsedConnectionString', () => {
+			const connStr = 'postgresql://user:pass@host:5432/db';
+			component.connectionString = connStr;
+			component.onConnectionStringChange(null);
+
+			expect(component.parsedConnectionString).toBe(connStr);
+		});
+	});
+
+	describe('clearAutoFilledField', () => {
+		it('should remove the field from autoFilledFields', () => {
+			component.autoFilledFields = new Set(['host', 'port', 'username']);
+			component.clearAutoFilledField('host');
+
+			expect(component.autoFilledFields.has('host')).toBe(false);
+			expect(component.autoFilledFields.has('port')).toBe(true);
+			expect(component.autoFilledFields.has('username')).toBe(true);
+		});
+
+		it('should set fieldsOverridden to true', () => {
+			component.autoFilledFields = new Set(['host']);
+			component.fieldsOverridden = false;
+
+			component.clearAutoFilledField('host');
+
+			expect(component.fieldsOverridden).toBe(true);
+		});
+	});
 });
