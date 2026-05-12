@@ -116,10 +116,11 @@ test.beforeEach('restDatabase', async (_t) => {
 	await Knex.schema.alterTable(testTableName, (t) => {
 		t.primary([pColumnName], primaryKeyConstraintName);
 	});
+	const rowsToInsert: Array<Record<string, unknown>> = [];
 	let counter = 0;
 	for (let i = 0; i < testEntitiesSeedsCount; i++) {
 		if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
-			await Knex(testTableName).insert({
+			rowsToInsert.push({
 				[pColumnName]: ++counter,
 				[testTableColumnName]: testSearchedUserName,
 				[testTableSecondColumnName]: faker.internet.email(),
@@ -127,7 +128,7 @@ test.beforeEach('restDatabase', async (_t) => {
 				updated_at: new Date(),
 			});
 		} else {
-			await Knex(testTableName).insert({
+			rowsToInsert.push({
 				[pColumnName]: ++counter,
 				[testTableColumnName]: faker.person.firstName(),
 				[testTableSecondColumnName]: faker.internet.email(),
@@ -136,6 +137,7 @@ test.beforeEach('restDatabase', async (_t) => {
 			});
 		}
 	}
+	await Knex(testTableName).insert(rowsToInsert);
 
 	await Knex.destroy();
 });

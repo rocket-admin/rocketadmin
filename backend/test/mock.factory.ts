@@ -20,6 +20,18 @@ class CreateGroupDto {
 	users?: Array<any>;
 }
 
+function getCurrentOrchestratorDbName(): string {
+	if (process.env.DATABASE_URL) {
+		try {
+			const url = new URL(process.env.DATABASE_URL);
+			return url.pathname.replace(/^\//, '') || 'postgres';
+		} catch {
+			return 'postgres';
+		}
+	}
+	return 'postgres';
+}
+
 import { CreatePersonalTableSettingsDto } from '../src/entities/table-settings/personal-table-settings/dto/create-personal-table-settings.dto.js';
 export class MockFactory {
 	generateCognitoUserName() {
@@ -34,7 +46,7 @@ export class MockFactory {
 		dto.port = 5432;
 		dto.username = 'postgres';
 		dto.password = 'abc123';
-		dto.database = 'postgres';
+		dto.database = getCurrentOrchestratorDbName();
 		dto.ssh = false;
 		return dto;
 	}
@@ -87,7 +99,7 @@ export class MockFactory {
 		dto.port = 5432;
 		dto.username = 'postgres';
 		dto.password = 'abc123';
-		dto.database = 'postgres';
+		dto.database = getCurrentOrchestratorDbName();
 		dto.ssh = false;
 		dto.masterEncryption = true;
 		return dto;

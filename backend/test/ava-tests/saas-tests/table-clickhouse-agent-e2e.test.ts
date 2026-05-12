@@ -77,6 +77,7 @@ test.before(async () => {
 		.set('Accept', 'application/json');
 	const createConnectionRO = JSON.parse(createConnectionResponse.text);
 	createdConnectionId = createConnectionRO.id;
+	await _testUtils.sleep(2000);
 });
 
 test.after(async () => {

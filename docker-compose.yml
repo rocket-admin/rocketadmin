@@ -46,6 +46,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 123
       MYSQL_DATABASE: testDB
+    tmpfs:
+      - /var/lib/mysql
 
   testPg-e2e-testing:
     image: postgres
@@ -54,6 +56,8 @@ services:
     environment:
       POSTGRES_PASSWORD: 123
     command: postgres -c 'max_connections=300'
+    tmpfs:
+      - /var/lib/postgresql
 
   postgres:
     image: postgres
@@ -62,6 +66,8 @@ services:
     environment:
       POSTGRES_PASSWORD: abc123
     command: postgres -c 'max_connections=300'
+    tmpfs:
+      - /var/lib/postgresql
 
   mssql-e2e-testing:
     image: mcr.microsoft.com/mssql/server:2019-latest
@@ -70,6 +76,8 @@ services:
       - ACCEPT_EULA=Y
     ports:
       - "5434:1433"
+    tmpfs:
+      - /var/opt/mssql
 
   test-oracle-e2e-testing:
     image: gvenzl/oracle-xe
@@ -77,6 +85,8 @@ services:
       - 1521:1521
     environment:
       ORACLE_PASSWORD: 12345
+    tmpfs:
+      - /opt/oracle/oradata
 
   autoadmin-ws-server:
     build:
@@ -120,6 +130,8 @@ services:
     environment:
       POSTGRES_PASSWORD: abc987
     command: postgres -c 'max_connections=300'
+    tmpfs:
+      - /var/lib/postgresql
 
   test-ibm-db2-e2e-testing:
     image: icr.io/db2_community/db2
@@ -152,6 +164,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: example
     ports:
       - 27017:27017
+    tmpfs:
+      - /data/db
 
   test-dynamodb-e2e-testing:
     image: amazon/dynamodb-local
@@ -171,6 +185,8 @@ services:
       - ELASTIC_PASSWORD=SuperSecretElasticPassword
       - xpack.security.enabled=true
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    tmpfs:
+      - /usr/share/elasticsearch/data
     ulimits:
       memlock:
         soft: -1
@@ -194,6 +210,9 @@ services:
       - CASSANDRA_CLUSTER_NAME=TestCluster
       - CASSANDRA_DC=TestDC
       - CASSANDRA_RACK=TestRack
+      - MAX_HEAP_SIZE=768M
+      - HEAP_NEWSIZE=128M
+    mem_limit: 3g
     restart: always
     healthcheck:
       test:
@@ -227,6 +246,8 @@ services:
     ports:
       - 6379:6379
     command: ["redis-server", "--requirepass", "SuperSecretRedisPassword"]
+    tmpfs:
+      - /data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 30s
@@ -244,6 +265,8 @@ services:
       - CLICKHOUSE_USER=default
       - CLICKHOUSE_PASSWORD=clickhouse_password
       - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+    tmpfs:
+      - /var/lib/clickhouse
     ulimits:
       nofile:
         soft: 262144
@@ -273,6 +296,8 @@ services:
       POSTGRES_HOST_AUTH_METHOD: md5
       POSTGRES_INITDB_ARGS: "--auth-host=md5"
     command: postgres -c 'max_connections=300' -c 'password_encryption=md5'
+    tmpfs:
+      - /var/lib/postgresql
 
   proxy-mock-api:
     build:

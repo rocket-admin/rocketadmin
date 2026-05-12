@@ -25,7 +25,7 @@ let app: INestApplication;
 let currentTest: string;
 let _testUtils: TestUtils;
 
-test.beforeEach(async () => {
+test.before(async () => {
 	setSaasEnvVariable();
 	const moduleFixture = await Test.createTestingModule({
 		imports: [ApplicationModule, DatabaseModule],
@@ -33,7 +33,6 @@ test.beforeEach(async () => {
 	}).compile();
 	app = moduleFixture.createNestApplication();
 	_testUtils = moduleFixture.get<TestUtils>(TestUtils);
-	// await testUtils.resetDb();
 	app.use(cookieParser());
 	app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
 	app.useGlobalPipes(
