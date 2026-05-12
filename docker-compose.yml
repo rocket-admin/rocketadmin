@@ -211,8 +211,6 @@ services:
       - CASSANDRA_DC=TestDC
       - CASSANDRA_RACK=TestRack
     restart: always
-    tmpfs:
-      - /var/lib/cassandra
     healthcheck:
       test:
         [
