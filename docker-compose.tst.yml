@@ -35,7 +35,7 @@ services:
         condition: service_healthy
       test-elasticsearch-e2e-testing:
         condition: service_healthy
-    command: ["/bin/sh", "-c", "pnpm test-all $EXTRA_ARGS"]
+    command: ["/bin/sh", "-c", "pnpm test-all-parallel $EXTRA_ARGS"]
     develop:
       watch:
         - action: rebuild

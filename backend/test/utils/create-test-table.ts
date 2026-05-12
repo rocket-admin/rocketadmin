@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { DynamoDB, PutItemCommand, PutItemCommandInput } from '@aws-sdk/client-dynamodb';
+import { BatchWriteItemCommand, DynamoDB, PutItemCommand, PutItemCommandInput } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { createClient as createClickHouseClient } from '@clickhouse/client';
 import { Client } from '@elastic/elasticsearch';
@@ -94,6 +94,7 @@ export async function createTestTable(
 		});
 	}
 
+	const rowsToInsert: Array<Record<string, unknown>> = [];
 	for (let i = 0; i < testEntitiesSeedsCount; i++) {
 		const widgetsDataObject: any = {};
 		if (withWidgetsData) {
@@ -106,7 +107,7 @@ export async function createTestTable(
 			widgetsDataObject.hslColor = faker.color.hsl({ format: 'css' });
 		}
 		if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
-			await Knex(testTableName).insert({
+			rowsToInsert.push({
 				[testTableColumnName]: testSearchedUserName,
 				[testTableSecondColumnName]: faker.internet.email(),
 				created_at: new Date(),
@@ -114,7 +115,7 @@ export async function createTestTable(
 				...widgetsDataObject,
 			});
 		} else {
-			await Knex(testTableName).insert({
+			rowsToInsert.push({
 				[testTableColumnName]: faker.person.firstName(),
 				[testTableSecondColumnName]: faker.internet.email(),
 				created_at: new Date(),
@@ -123,6 +124,7 @@ export async function createTestTable(
 			});
 		}
 	}
+	await Knex.batchInsert(testTableName, rowsToInsert, 100);
 	return {
 		testTableName: testTableName,
 		testTableColumnName: testTableColumnName,
@@ -165,44 +167,39 @@ async function createTestElasticsearchTable(
 			},
 		},
 	});
+	const bulkOperations: Array<Record<string, unknown>> = [];
+	for (let i = 0; i < testEntitiesSeedsCount; i++) {
+		bulkOperations.push({ index: { _index: testTableName } });
+		if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
+			bulkOperations.push({
+				[testTableColumnName]: testSearchedUserName,
+				[testTableSecondColumnName]: faker.internet.email(),
+				created_at: new Date(),
+				updated_at: new Date(),
+				age: i === 0 ? 14 : i === testEntitiesSeedsCount - 21 ? 90 : 95,
+			});
+		} else {
+			bulkOperations.push({
+				[testTableColumnName]: faker.person.firstName(),
+				[testTableSecondColumnName]: faker.internet.email(),
+				created_at: new Date(),
+				updated_at: new Date(),
+				age: faker.number.int({ min: 16, max: 80 }),
+			});
+		}
+	}
+	const bulkResponse = await client.bulk({ refresh: true, operations: bulkOperations });
 	const insertedSearchedIds: Array<{
 		number: number;
 		_id: string;
 	}> = [];
+	const bulkItems = (bulkResponse as { items: Array<{ index?: { _id?: string } }> }).items;
 	for (let i = 0; i < testEntitiesSeedsCount; i++) {
-		if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
-			const insertResult = await client.index({
-				index: testTableName,
-				body: {
-					[testTableColumnName]: testSearchedUserName,
-					[testTableSecondColumnName]: faker.internet.email(),
-					created_at: new Date(),
-					updated_at: new Date(),
-					age: i === 0 ? 14 : i === testEntitiesSeedsCount - 21 ? 90 : 95,
-				},
-			});
-			insertedSearchedIds.push({
-				number: i,
-				_id: insertResult._id,
-			});
-		} else {
-			const insertResult = await client.index({
-				index: testTableName,
-				body: {
-					[testTableColumnName]: faker.person.firstName(),
-					[testTableSecondColumnName]: faker.internet.email(),
-					created_at: new Date(),
-					updated_at: new Date(),
-					age: faker.number.int({ min: 16, max: 80 }),
-				},
-			});
-			insertedSearchedIds.push({
-				number: i,
-				_id: insertResult._id,
-			});
-		}
+		insertedSearchedIds.push({
+			number: i,
+			_id: bulkItems[i]?.index?._id ?? '',
+		});
 	}
-	await client.indices.refresh({ index: testTableName });
 	return {
 		testTableName: testTableName,
 		testTableColumnName: testTableColumnName,
@@ -263,22 +260,24 @@ async function createTestTableIbmDb2(
 		console.info(`Query: ${query}`);
 	}
 
+	const valueTuples: Array<string> = [];
 	for (let i = 0; i < testEntitiesSeedsCount; i++) {
 		if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
-			await ibmDatabase.query(
-				`INSERT INTO ${
-					connectionParams.schema
-				}.${testTableName} (${testTableColumnName}, ${testTableSecondColumnName}, created_at, updated_at) VALUES ('${testSearchedUserName}', '${faker.internet.email()}', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+			valueTuples.push(
+				`('${testSearchedUserName}', '${faker.internet.email().replace(/["']/g, '')}', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
 			);
 		} else {
+			valueTuples.push(
+				`('${faker.person.firstName().replace(/["']/g, '')}', '${faker.internet.email().replace(/["']/g, '')}', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+			);
+		}
+	}
+	if (valueTuples.length > 0) {
+		const batchSize = 100;
+		for (let start = 0; start < valueTuples.length; start += batchSize) {
+			const chunk = valueTuples.slice(start, start + batchSize);
 			await ibmDatabase.query(
-				`INSERT INTO ${
-					connectionParams.schema
-				}.${testTableName} (${testTableColumnName}, ${testTableSecondColumnName}, created_at, updated_at) VALUES ('${faker.person
-					.firstName()
-					.replace(/["']/g, '')}', '${faker.internet
-					.email()
-					.replace(/["']/g, '')}', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+				`INSERT INTO ${connectionParams.schema}.${testTableName} (${testTableColumnName}, ${testTableSecondColumnName}, created_at, updated_at) VALUES ${chunk.join(', ')}`,
 			);
 		}
 	}
@@ -313,33 +312,34 @@ async function createTestMongoTable(
 	const collection = db.collection(testTableName);
 
 	await collection.drop();
-	const insertedSearchedIds = [];
+	const docsToInsert: Array<Record<string, unknown>> = [];
 	for (let i = 0; i < testEntitiesSeedsCount; i++) {
 		if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
-			const insertionResult = await collection.insertOne({
+			docsToInsert.push({
 				[testTableColumnName]: testSearchedUserName,
 				[testTableSecondColumnName]: faker.internet.email(),
 				created_at: new Date(),
 				updated_at: new Date(),
 				age: i === 0 ? 14 : i === testEntitiesSeedsCount - 21 ? 90 : 95,
 			});
-			insertedSearchedIds.push({
-				number: i,
-				_id: insertionResult.insertedId.toHexString(),
-			});
 		} else {
-			const insertionResult = await collection.insertOne({
+			docsToInsert.push({
 				[testTableColumnName]: faker.person.firstName(),
 				[testTableSecondColumnName]: faker.internet.email(),
 				created_at: new Date(),
 				updated_at: new Date(),
 				age: faker.number.int({ min: 16, max: 80 }),
 			});
-			insertedSearchedIds.push({
-				number: i,
-				_id: insertionResult.insertedId.toHexString(),
-			});
 		}
+	}
+	const insertManyResult = await collection.insertMany(docsToInsert, { ordered: true });
+	const insertedSearchedIds: Array<{ number: number; _id: string }> = [];
+	for (let i = 0; i < testEntitiesSeedsCount; i++) {
+		const insertedId = insertManyResult.insertedIds[i];
+		insertedSearchedIds.push({
+			number: i,
+			_id: insertedId.toHexString(),
+		});
 	}
 	return {
 		testTableName: testTableName,
@@ -385,27 +385,25 @@ EXEC('CREATE SCHEMA [test_schema]');`);
 		table.timestamps();
 	});
 
+	const rowsToInsert: Array<Record<string, unknown>> = [];
 	for (let i = 0; i < testEntitiesSeedsCount; i++) {
 		if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
-			await Knex(testTableName)
-				.withSchema('test_schema')
-				.insert({
-					[testTableColumnName]: testSearchedUserName,
-					[testTableSecondColumnName]: faker.internet.email(),
-					created_at: new Date(),
-					updated_at: new Date(),
-				});
+			rowsToInsert.push({
+				[testTableColumnName]: testSearchedUserName,
+				[testTableSecondColumnName]: faker.internet.email(),
+				created_at: new Date(),
+				updated_at: new Date(),
+			});
 		} else {
-			await Knex(testTableName)
-				.withSchema('test_schema')
-				.insert({
-					[testTableColumnName]: faker.person.firstName(),
-					[testTableSecondColumnName]: faker.internet.email(),
-					created_at: new Date(),
-					updated_at: new Date(),
-				});
+			rowsToInsert.push({
+				[testTableColumnName]: faker.person.firstName(),
+				[testTableSecondColumnName]: faker.internet.email(),
+				created_at: new Date(),
+				updated_at: new Date(),
+			});
 		}
 	}
+	await Knex(testTableName).withSchema('test_schema').insert(rowsToInsert);
 	return {
 		testTableName: testTableName,
 		testTableColumnName: testTableColumnName,
@@ -437,44 +435,20 @@ export async function createTestOracleTable(
 	await Knex.schema.alterTable(testTableName, (t) => {
 		t.primary([pColumnName], primaryKeyConstraintName);
 	});
+	const rowsToInsert: Array<Record<string, unknown>> = [];
 	let counter = 0;
-
 	if (shema) {
 		for (let i = 0; i < testEntitiesSeedsCount; i++) {
 			if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
-				await Knex(testTableName)
-					.withSchema(username.toUpperCase())
-					.insert({
-						[pColumnName]: ++counter,
-						[testTableColumnName]: testSearchedUserName,
-						[testTableSecondColumnName]: faker.internet.email(),
-						created_at: new Date(),
-						updated_at: new Date(),
-					});
-			} else {
-				await Knex(testTableName)
-					.withSchema(username.toUpperCase())
-					.insert({
-						[pColumnName]: ++counter,
-						[testTableColumnName]: faker.person.firstName(),
-						[testTableSecondColumnName]: faker.internet.email(),
-						created_at: new Date(),
-						updated_at: new Date(),
-					});
-			}
-		}
-	} else {
-		for (let i = 0; i < testEntitiesSeedsCount; i++) {
-			if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
-				await Knex(testTableName).insert({
+				rowsToInsert.push({
 					[pColumnName]: ++counter,
 					[testTableColumnName]: testSearchedUserName,
 					[testTableSecondColumnName]: faker.internet.email(),
-					created_at: new Date('2010-11-03'),
+					created_at: new Date(),
 					updated_at: new Date(),
 				});
 			} else {
-				await Knex(testTableName).insert({
+				rowsToInsert.push({
 					[pColumnName]: ++counter,
 					[testTableColumnName]: faker.person.firstName(),
 					[testTableSecondColumnName]: faker.internet.email(),
@@ -483,6 +457,28 @@ export async function createTestOracleTable(
 				});
 			}
 		}
+		await Knex(testTableName).withSchema(username.toUpperCase()).insert(rowsToInsert);
+	} else {
+		for (let i = 0; i < testEntitiesSeedsCount; i++) {
+			if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
+				rowsToInsert.push({
+					[pColumnName]: ++counter,
+					[testTableColumnName]: testSearchedUserName,
+					[testTableSecondColumnName]: faker.internet.email(),
+					created_at: new Date('2010-11-03'),
+					updated_at: new Date(),
+				});
+			} else {
+				rowsToInsert.push({
+					[pColumnName]: ++counter,
+					[testTableColumnName]: faker.person.firstName(),
+					[testTableSecondColumnName]: faker.internet.email(),
+					created_at: new Date(),
+					updated_at: new Date(),
+				});
+			}
+		}
+		await Knex(testTableName).insert(rowsToInsert);
 	}
 	return {
 		testTableName: testTableName,
@@ -527,64 +523,36 @@ export async function createTestOracleTableWithDifferentData(
 		console.log('Warning: Could not add CHECK constraint for gender field');
 	}
 
-	let _counter = 0;
-
+	const rowsToInsert: Array<Record<string, unknown>> = [];
+	for (let i = 0; i < testEntitiesSeedsCount; i++) {
+		if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
+			rowsToInsert.push({
+				first_name: testSearchedUserName,
+				last_name: faker.person.lastName(),
+				date_of_birth: faker.date.past(),
+				gender: faker.helpers.arrayElement(['M', 'F', 'O']),
+				phone_number: faker.phone.number(),
+				email: faker.internet.email(),
+				address: faker.location.streetAddress(),
+				insurance_info: faker.lorem.sentence(),
+			});
+		} else {
+			rowsToInsert.push({
+				first_name: faker.person.firstName(),
+				last_name: faker.person.lastName(),
+				date_of_birth: faker.date.past(),
+				gender: faker.helpers.arrayElement(['M', 'F', 'O']),
+				phone_number: faker.phone.number(),
+				email: faker.internet.email(),
+				address: faker.location.streetAddress(),
+				insurance_info: faker.lorem.sentence(),
+			});
+		}
+	}
 	if (shema) {
-		for (let i = 0; i < testEntitiesSeedsCount; i++) {
-			if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
-				await Knex(testTableName)
-					.withSchema(username.toUpperCase())
-					.insert({
-						first_name: testSearchedUserName,
-						last_name: faker.person.lastName(),
-						date_of_birth: faker.date.past(),
-						gender: faker.helpers.arrayElement(['M', 'F', 'O']),
-						phone_number: faker.phone.number(),
-						email: faker.internet.email(),
-						address: faker.location.streetAddress(),
-						insurance_info: faker.lorem.sentence(),
-					});
-			} else {
-				await Knex(testTableName)
-					.withSchema(username.toUpperCase())
-					.insert({
-						first_name: faker.person.firstName(),
-						last_name: faker.person.lastName(),
-						date_of_birth: faker.date.past(),
-						gender: faker.helpers.arrayElement(['M', 'F', 'O']),
-						phone_number: faker.phone.number(),
-						email: faker.internet.email(),
-						address: faker.location.streetAddress(),
-						insurance_info: faker.lorem.sentence(),
-					});
-			}
-		}
+		await Knex(testTableName).withSchema(username.toUpperCase()).insert(rowsToInsert);
 	} else {
-		for (let i = 0; i < testEntitiesSeedsCount; i++) {
-			if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
-				await Knex(testTableName).insert({
-					first_name: testSearchedUserName,
-					last_name: faker.person.lastName(),
-					date_of_birth: faker.date.past(),
-					gender: faker.helpers.arrayElement(['M', 'F', 'O']),
-					phone_number: faker.phone.number(),
-					email: faker.internet.email(),
-					address: faker.location.streetAddress(),
-					insurance_info: faker.lorem.sentence(),
-				});
-			} else {
-				await Knex(testTableName).insert({
-					first_name: faker.person.firstName(),
-					last_name: faker.person.lastName(),
-					date_of_birth: faker.date.past(),
-					gender: faker.helpers.arrayElement(['M', 'F', 'O']),
-					phone_number: faker.phone.number(),
-					email: faker.internet.email(),
-					address: faker.location.streetAddress(),
-					insurance_info: faker.lorem.sentence(),
-				});
-			}
-		}
+		await Knex(testTableName).insert(rowsToInsert);
 	}
 	return {
 		testTableName: testTableName,
@@ -616,27 +584,25 @@ export async function createTestPostgresTableWithSchema(
 		table.timestamps();
 	});
 
+	const rowsToInsert: Array<Record<string, unknown>> = [];
 	for (let i = 0; i < testEntitiesSeedsCount; i++) {
 		if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
-			await Knex(testTableName)
-				.withSchema(testSchema)
-				.insert({
-					[testTableColumnName]: testSearchedUserName,
-					[testTableSecondColumnName]: faker.internet.email(),
-					created_at: new Date(),
-					updated_at: new Date(),
-				});
+			rowsToInsert.push({
+				[testTableColumnName]: testSearchedUserName,
+				[testTableSecondColumnName]: faker.internet.email(),
+				created_at: new Date(),
+				updated_at: new Date(),
+			});
 		} else {
-			await Knex(testTableName)
-				.withSchema(testSchema)
-				.insert({
-					[testTableColumnName]: faker.person.firstName(),
-					[testTableSecondColumnName]: faker.internet.email(),
-					created_at: new Date(),
-					updated_at: new Date(),
-				});
+			rowsToInsert.push({
+				[testTableColumnName]: faker.person.firstName(),
+				[testTableSecondColumnName]: faker.internet.email(),
+				created_at: new Date(),
+				updated_at: new Date(),
+			});
 		}
 	}
+	await Knex(testTableName).withSchema(testSchema).insert(rowsToInsert);
 	return {
 		testTableName: testTableName,
 		testTableColumnName: testTableColumnName,
@@ -682,43 +648,51 @@ async function createTestDynamoDBTable(
 	}
 	const insertedSearchedIds: Array<{ number: number; id: string }> = [];
 	const documentClient = DynamoDBDocumentClient.from(dynamoDb);
+	const writeRequests: Array<{ PutRequest: { Item: any } }> = [];
+	for (let i = 0; i < testEntitiesSeedsCount; i++) {
+		const isSearchedUser = i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5;
+		const item = {
+			id: { N: i },
+			name: { S: isSearchedUser ? testSearchedUserName : faker.person.firstName() },
+			email: { S: faker.internet.email() },
+			age: {
+				N: !isSearchedUser
+					? faker.number.int({ min: 16, max: 80 })
+					: i === 0
+						? 14
+						: i === testEntitiesSeedsCount - 21
+							? 90
+							: 95,
+			},
+			created_at: { S: new Date().toISOString() },
+			updated_at: { S: new Date().toISOString() },
+			list_column: { L: [{ S: 'value1' }, { S: 'value2' }] },
+			set_column: { SS: ['value1', 'value2'] },
+			map_column: { M: { key1: { S: 'value1' }, key2: { S: 'value2' } } },
+			binary_column: { B: Buffer.from('hello') },
+			binary_set_column: { BS: [Buffer.from('value1'), Buffer.from('value2')] },
+		};
+
+		if (isSearchedUser) {
+			insertedSearchedIds.push({
+				number: i,
+				id: String(item.id.N),
+			});
+		}
+
+		writeRequests.push({ PutRequest: { Item: item } });
+	}
 	try {
-		for (let i = 0; i < testEntitiesSeedsCount; i++) {
-			const isSearchedUser = i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5;
-			const item = {
-				id: { N: i },
-				name: { S: isSearchedUser ? testSearchedUserName : faker.person.firstName() },
-				email: { S: faker.internet.email() },
-				age: {
-					N: !isSearchedUser
-						? faker.number.int({ min: 16, max: 80 })
-						: i === 0
-							? 14
-							: i === testEntitiesSeedsCount - 21
-								? 90
-								: 95,
-				},
-				created_at: { S: new Date().toISOString() },
-				updated_at: { S: new Date().toISOString() },
-				list_column: { L: [{ S: 'value1' }, { S: 'value2' }] },
-				set_column: { SS: ['value1', 'value2'] },
-				map_column: { M: { key1: { S: 'value1' }, key2: { S: 'value2' } } },
-				binary_column: { B: Buffer.from('hello') },
-				binary_set_column: { BS: [Buffer.from('value1'), Buffer.from('value2')] },
+		const batchSize = 25;
+		for (let start = 0; start < writeRequests.length; start += batchSize) {
+			let unprocessed: any = {
+				[testTableName]: writeRequests.slice(start, start + batchSize),
 			};
-
-			if (isSearchedUser) {
-				insertedSearchedIds.push({
-					number: i,
-					id: String(item.id.N),
-				});
+			while (unprocessed && Object.keys(unprocessed).length > 0) {
+				const result = await documentClient.send(new BatchWriteItemCommand({ RequestItems: unprocessed }));
+				unprocessed =
+					result.UnprocessedItems && Object.keys(result.UnprocessedItems).length > 0 ? result.UnprocessedItems : null;
 			}
-
-			const params: PutItemCommandInput = {
-				TableName: testTableName,
-				Item: item as any,
-			};
-			await documentClient.send(new PutItemCommand(params));
 		}
 	} catch (error) {
 		console.error(`Error inserting item into dynamodb table: ${error.message}`);
@@ -774,12 +748,12 @@ async function createTestCassandraTable(
 			console.error(`Error creating Cassandra table: ${error.message}`);
 			throw error;
 		}
-		const insertedSearchedIds = [];
+		const insertedSearchedIds: Array<{ number: number; id: string }> = [];
+		const query = `INSERT INTO ${testTableName} (id, ${testTableColumnName}, ${testTableSecondColumnName}, age, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`;
+		const insertParams: Array<Array<unknown>> = [];
 		for (let i = 0; i < testEntitiesSeedsCount; i++) {
 			const isSearchedUser = i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5;
-
 			const generatedId = uuidv4();
-			const query = `INSERT INTO ${testTableName} (id, ${testTableColumnName}, ${testTableSecondColumnName}, age, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`;
 			const age = isSearchedUser
 				? i === 0
 					? 14
@@ -787,26 +761,30 @@ async function createTestCassandraTable(
 						? 90
 						: 95
 				: faker.number.int({ min: 16, max: 80 });
-			const params = [
+			insertParams.push([
 				generatedId,
 				isSearchedUser ? testSearchedUserName : faker.person.firstName(),
 				faker.internet.email(),
 				age,
 				new Date(),
 				new Date(),
-			];
-			try {
-				await client.execute(query, params, { prepare: true });
-				if (isSearchedUser) {
-					insertedSearchedIds.push({
-						number: i,
-						id: generatedId,
-					});
-				}
-			} catch (error) {
-				console.error(`Error inserting into Cassandra table: ${error.message}`);
-				throw error;
+			]);
+			if (isSearchedUser) {
+				insertedSearchedIds.push({
+					number: i,
+					id: generatedId,
+				});
 			}
+		}
+		try {
+			const concurrencyLimit = 16;
+			for (let start = 0; start < insertParams.length; start += concurrencyLimit) {
+				const chunk = insertParams.slice(start, start + concurrencyLimit);
+				await Promise.all(chunk.map((params) => client.execute(query, params, { prepare: true })));
+			}
+		} catch (error) {
+			console.error(`Error inserting into Cassandra table: ${error.message}`);
+			throw error;
 		}
 		return {
 			testTableName: testTableName,
@@ -848,6 +826,7 @@ async function createTestRedisTable(
 	}
 
 	const insertedSearchedIds: Array<{ number: number; id: string }> = [];
+	const pipeline = redisClient.multi();
 
 	for (let i = 0; i < testEntitiesSeedsCount; i++) {
 		const isSearchedUser = i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5;
@@ -868,7 +847,7 @@ async function createTestRedisTable(
 			updated_at: new Date().toISOString(),
 		};
 
-		await redisClient.set(rowKey, JSON.stringify(data));
+		pipeline.set(rowKey, JSON.stringify(data));
 
 		if (isSearchedUser) {
 			insertedSearchedIds.push({
@@ -877,6 +856,7 @@ async function createTestRedisTable(
 			});
 		}
 	}
+	await pipeline.exec();
 
 	await redisClient.quit();
 

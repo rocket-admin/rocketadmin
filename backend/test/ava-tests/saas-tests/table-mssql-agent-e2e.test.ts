@@ -116,23 +116,17 @@ test.beforeEach('restDatabase', async (_t) => {
 		table.string(testTableSecondColumnName);
 		table.timestamps();
 	});
-	// const primaryKeyConstraintName ='id';
-	// await Knex.schema.alterTable(testTableName, function (t) {
-	//   t.primary([pColumnName], primaryKeyConstraintName);
-	// });
-	// let counter = 0;
+	const rowsToInsert: Array<Record<string, unknown>> = [];
 	for (let i = 0; i < testEntitiesSeedsCount; i++) {
 		if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
-			await Knex(testTableName).insert({
-				// [pColumnName]: ++counter,
+			rowsToInsert.push({
 				[testTableColumnName]: testSearchedUserName,
 				[testTableSecondColumnName]: faker.internet.email(),
 				created_at: new Date(),
 				updated_at: new Date(),
 			});
 		} else {
-			await Knex(testTableName).insert({
-				// [pColumnName]: ++counter,
+			rowsToInsert.push({
 				[testTableColumnName]: faker.person.firstName(),
 				[testTableSecondColumnName]: faker.internet.email(),
 				created_at: new Date(),
@@ -140,6 +134,7 @@ test.beforeEach('restDatabase', async (_t) => {
 			});
 		}
 	}
+	await Knex(testTableName).insert(rowsToInsert);
 
 	await Knex.destroy();
 });
