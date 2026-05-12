@@ -131,8 +131,8 @@ importers:
         specifier: 0.44.0
         version: 0.44.0
       axios:
-        specifier: ^1.15.0
-        version: 1.15.1
+        specifier: ^1.15.2
+        version: 1.15.2
       basic-auth:
         specifier: 2.0.1
         version: 2.0.1
@@ -400,8 +400,8 @@ importers:
         specifier: ^2.1.0
         version: 2.1.0
       axios:
-        specifier: ^1.15.0
-        version: 1.15.1
+        specifier: ^1.15.2
+        version: 1.15.2
       cassandra-driver:
         specifier: ^4.8.0
         version: 4.8.0
@@ -2722,8 +2722,8 @@ packages:
     resolution: {integrity: sha512-NZKeq9AfyQvEeNlN0zSYAaWrmBffJh3IELMZfRpJVWgrpEbtEpnjvzqBPf+mxoI287JohRDoa+/nsfqqiZmF6g==}
     engines: {node: '>= 6.0.0'}
 
-  axios@1.15.1:
-    resolution: {integrity: sha512-WOG+Jj8ZOvR0a3rAn+Tuf1UQJRxw5venr6DgdbJzngJE3qG7X0kL83CZGpdHMxEm+ZK3seAbvFsw4FfOfP9vxg==}
+  axios@1.15.2:
+    resolution: {integrity: sha512-wLrXxPtcrPTsNlJmKjkPnNPK2Ihe0hn0wGSaTEiHRPxwjvJwT3hKmXF4dpqxmPO9SoNb2FsYXj/xEo0gHN+D5A==}
 
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
@@ -8944,7 +8944,7 @@ snapshots:
 
   aws-ssl-profiles@1.1.2: {}
 
-  axios@1.15.1:
+  axios@1.15.2:
     dependencies:
       follow-redirects: 1.16.0
       form-data: 4.0.5
@@ -9944,7 +9944,7 @@ snapshots:
   ibm_db@3.3.5:
     dependencies:
       adm-zip: 0.5.17
-      axios: 1.15.1
+      axios: 1.15.2
       big-integer: 1.6.52
       bindings: 1.5.0
       fs-extra: 11.3.4
@@ -11633,7 +11633,7 @@ snapshots:
 
   wait-on@9.0.5:
     dependencies:
-      axios: 1.15.1
+      axios: 1.15.2
       joi: 18.1.2
       lodash: 4.18.1
       minimist: 1.2.8

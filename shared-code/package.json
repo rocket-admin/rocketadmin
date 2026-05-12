@@ -9,7 +9,7 @@
 		"@clickhouse/client": "^1.18.2",
 		"@elastic/elasticsearch": "8.18.1",
 		"@types/multer": "^2.1.0",
-		"axios": "^1.15.0",
+		"axios": "^1.15.2",
 		"cassandra-driver": "^4.8.0",
 		"csv": "^6.5.0",
 		"get-port": "^7.1.0",
