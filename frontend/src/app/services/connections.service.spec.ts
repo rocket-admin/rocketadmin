@@ -686,7 +686,7 @@ describe('ConnectionsService', () => {
 				accentedPalette: '#654321',
 				warningPalette: '#f79008',
 				infoPalette: '#296ee9',
-				successPalette: '#1b5e20',
+				successPalette: '#008027',
 				alternativePalette: '#6d28d9',
 				successDarkPalette: '#4caf50',
 				alternativeDarkPalette: '#c084fc',

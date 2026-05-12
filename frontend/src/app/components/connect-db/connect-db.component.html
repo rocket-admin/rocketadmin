@@ -72,7 +72,14 @@
         </div>
 
         @if (db.connectionType === 'direct' && !db.id) {
-            <div class="connectForm__fullLine connectForm__connectionString">
+            <div class="connectForm__fullLine connectForm__connectionStringContainer">
+                <div class="connectForm__connectionStringHeader">
+                    <mat-icon class="connectForm__connectionStringIcon">link</mat-icon>
+                    <span class="mat-subtitle-2">Quick connect with a connection string</span>
+                </div>
+                <p class="mat-body-2 connectForm__connectionStringDescription">
+                    Paste your database connection URI below to automatically fill in all the credentials fields. The string is not stored — only the parsed values are used.
+                </p>
                 <mat-form-field appearance="outline" style="width: 100%">
                     <mat-label>Connection string</mat-label>
                     <input matInput name="connectionString"
@@ -81,8 +88,8 @@
                         placeholder="e.g. postgresql://user:password@host:5432/dbname"
                         connectionStringValidator
                         [disabled]="submitting"
-                        [(ngModel)]="connectionString">
-                    <mat-hint>Paste your database connection URI to auto-fill credentials</mat-hint>
+                        [(ngModel)]="connectionString"
+                        (ngModelChange)="onConnectionStringChange(connectionStringInput)">
                     @if (connectionStringInput.errors?.invalidConnectionStringFormat) {
                         <mat-error>Invalid format. Expected: scheme://user:password@host:port/database</mat-error>
                     }
@@ -93,13 +100,21 @@
                         <mat-error>Failed to parse connection string</mat-error>
                     }
                 </mat-form-field>
-                <button type="button" mat-button color="primary"
-                    class="connectForm__connectionStringApplyButton"
-                    data-testid="connection-string-apply-button"
-                    [disabled]="submitting || !connectionString.trim() || connectionStringInput.invalid"
-                    (click)="applyConnectionString()">
-                    Apply
-                </button>
+                @if (parsedConnectionString) {
+                    <p class="connectForm__connectionStringParsed">
+                        <mat-icon class="connectForm__connectionStringParsed-icon">check_circle</mat-icon>
+                        <span>
+                            <span class="connectForm__connectionStringParsed-label">Parsed:</span>
+                            <code class="connectForm__connectionStringParsed-value">{{ parsedConnectionString }}</code>
+                        </span>
+                    </p>
+                }
+                @if (fieldsOverridden) {
+                    <p class="connectForm__connectionStringOverrideNote">
+                        <mat-icon class="connectForm__connectionStringOverrideNote-icon">info</mat-icon>
+                        Fields are now the source of truth — paste a new connection string to override them
+                    </p>
+                }
             </div>
         }
 
@@ -111,7 +126,8 @@
                     submitting: submitting,
                     accessLevel: accessLevel,
                     masterKey: masterKey,
-                    readonly: !!((accessLevel === 'readonly' || db.isTestConnection) && db.id)
+                    readonly: !!((accessLevel === 'readonly' || db.isTestConnection) && db.id),
+                    autoFilledFields: autoFilledFields
                 }"
                 [ndcDynamicOutputs]="credentialsFormOutputs"
                 [ndcDynamicAttributes]="credentialsFormAttributes"
