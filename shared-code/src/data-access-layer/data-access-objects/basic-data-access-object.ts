@@ -1,4 +1,5 @@
 import { Knex } from 'knex';
+import { LRUStorage } from '../../caching/lru-storage.js';
 import { isObjectEmpty } from '../../helpers/is-object-empty.js';
 import { KnexManager } from '../../knex-manager/knex-manager.js';
 import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
@@ -11,6 +12,11 @@ export class BasicDataAccessObject {
 	constructor(connection: ConnectionParams) {
 		this.connection = connection;
 	}
+
+	public invalidateMetadataCache(): void {
+		LRUStorage.invalidateConnectionTableMetadata(this.connection);
+	}
+
 	protected async configureKnex(): Promise<Knex<any, any[]>> {
 		const knexManager = KnexManager.knexStorage();
 		return knexManager.get(this.connection.type)(this.connection);

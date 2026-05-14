@@ -56,6 +56,8 @@ export interface IDataAccessObject {
 
 	getTableStructureWithoutCache(tableName: string): Promise<Array<TableStructureDS>>;
 
+	invalidateMetadataCache(): void;
+
 	testConnect(): Promise<TestConnectionResultDS>;
 
 	updateRowInTable(
