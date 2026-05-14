@@ -46,6 +46,7 @@ export class GetConnectionDiagramUseCase
 			: undefined;
 
 		await validateSchemaCache(dao, userEmail);
+		dao.invalidateMetadataCache();
 
 		let tables: Array<{ tableName: string; isView: boolean }>;
 		try {
