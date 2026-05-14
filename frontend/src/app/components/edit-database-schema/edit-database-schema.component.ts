@@ -50,6 +50,7 @@ export class EditDatabaseSchemaComponent implements OnInit, AfterViewInit {
 	protected applied = signal(false);
 	protected diagramZoom = signal(1);
 	protected initialDiagramLoading = signal(false);
+	private _threadId: string | undefined;
 
 	protected pendingBatch = computed(() => {
 		const msgs = this.messages();
@@ -98,7 +99,10 @@ export class EditDatabaseSchemaComponent implements OnInit, AfterViewInit {
 		this.submitting.set(true);
 
 		try {
-			const result = await this._tableSchema.generateSchemaChange(this.connectionID, prompt);
+			const result = await this._tableSchema.generateSchemaChange(this.connectionID, prompt, this._threadId);
+			if (result.threadId) {
+				this._threadId = result.threadId;
+			}
 			if (result && result.changes.length > 0) {
 				const summary = result.changes.map(c => `**${c.changeType}** \`${c.targetTableName}\`${c.aiSummary ? ' — ' + c.aiSummary : ''}`).join('\n');
 				this.messages.update(msgs => [...msgs, {
