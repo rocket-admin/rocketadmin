@@ -8,6 +8,8 @@ import { SchemaChangeOwnershipGuard } from '../../guards/schema-change-ownership
 import { ConnectionEntity } from '../connection/connection.entity.js';
 import { LogOutEntity } from '../log-out/log-out.entity.js';
 import { UserEntity } from '../user/user.entity.js';
+import { SchemaChangeChatEntity } from './schema-change-chat/schema-change-chat/schema-change-chat.entity.js';
+import { SchemaChangeChatMessageEntity } from './schema-change-chat/schema-change-chat-message/schema-change-chat-message.entity.js';
 import { TableSchemaController } from './table-schema.controller.js';
 import { TableSchemaChangeEntity } from './table-schema-change.entity.js';
 import { ApproveAndApplySchemaChangeUseCase } from './use-cases/approve-and-apply-schema-change.use-case.js';
@@ -22,7 +24,16 @@ import { RollbackBatchSchemaChangesUseCase } from './use-cases/rollback-batch-sc
 import { RollbackSchemaChangeUseCase } from './use-cases/rollback-schema-change.use-case.js';
 
 @Module({
-	imports: [TypeOrmModule.forFeature([TableSchemaChangeEntity, ConnectionEntity, UserEntity, LogOutEntity])],
+	imports: [
+		TypeOrmModule.forFeature([
+			TableSchemaChangeEntity,
+			SchemaChangeChatEntity,
+			SchemaChangeChatMessageEntity,
+			ConnectionEntity,
+			UserEntity,
+			LogOutEntity,
+		]),
+	],
 	providers: [
 		{
 			provide: BaseType.GLOBAL_DB_CONTEXT,

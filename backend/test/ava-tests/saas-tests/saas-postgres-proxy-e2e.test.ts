@@ -558,71 +558,13 @@ test.serial('should report usage metrics to mock API after queries through proxy
 	}
 });
 
-// ─── Budget exhaustion via rocketadmin API ──────────────────────────────────
-//
-// Drives the token bucket to negative balance under the TEST_TINY_PLAN (a
-// deliberately tiny 2s/hour budget used only for tests). Uses supertest —
-// each /connection/tables call fans out into several metadata queries, which
-// is more than enough to exhaust 2 seconds of cumulative query time across a
-// few calls. The next API call should surface the proxy's 53400 rejection.
-
-test.serial('should reject queries once query-time budget is exhausted', async (t) => {
-	if (maybeSkip(t)) return;
-	t.timeout(60000);
-
-	const probe = await getUsageReports();
-	if (!Array.isArray(probe)) {
-		t.pass('skipped: proxy-mock-api does not expose test endpoints (rebuild required)');
-		return;
-	}
-
-	await setSubscriptionLevel('TEST_TINY_PLAN');
-	try {
-		const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-		const proxyConnectionDto = createProxyConnectionDto();
-
-		const createConnectionResponse = await request(app.getHttpServer())
-			.post('/connection')
-			.send(proxyConnectionDto)
-			.set('Cookie', firstUserToken)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json');
-		t.is(createConnectionResponse.status, 201);
-		const createConnectionRO = JSON.parse(createConnectionResponse.text);
-
-		// Burn through the 2-second budget by repeatedly listing tables. Each
-		// call executes several introspection queries; within a handful of calls
-		// the post-consume balance goes negative and subsequent calls hit the
-		// pre-query CheckBudget rejection.
-		let rejected = false;
-		let lastStatus = 0;
-		let lastBody = '';
-		for (let i = 0; i < 30; i++) {
-			const resp = await request(app.getHttpServer())
-				.get(`/connection/tables/${createConnectionRO.id}`)
-				.set('Cookie', firstUserToken)
-				.set('Accept', 'application/json');
-			lastStatus = resp.status;
-			lastBody = resp.text || '';
-			if (resp.status !== 200) {
-				rejected = true;
-				break;
-			}
-		}
-
-		t.true(
-			rejected,
-			`expected a 30-call burst under TEST_TINY_PLAN to hit a budget rejection; last status=${lastStatus}`,
-		);
-		t.regex(
-			lastBody,
-			/budget|exceeded|plan|53400/i,
-			`rejection response should mention budget/plan, got status=${lastStatus} body=${lastBody.slice(0, 200)}`,
-		);
-	} finally {
-		await setSubscriptionLevel('TEAM_PLAN');
-	}
-});
+// Budget-exhaustion behaviour is "queue, don't fail": queries past the
+// token-bucket budget park on `Limiter.WaitForBudget` until tokens refill,
+// rather than returning a 53400. End-to-end verification of that wait is
+// covered by `postgres-proxy/internal/ratelimit/bucket_test.go`
+// (TestLimiter_WaitForBudget_*), which can simulate refill in milliseconds.
+// An equivalent rocketadmin e2e check would need a custom plan with a refill
+// rate that completes inside the AVA timeout — not worth the moving pieces.
 
 // ─── Frozen plan / connection rejection test ────────────────────────────────
 //

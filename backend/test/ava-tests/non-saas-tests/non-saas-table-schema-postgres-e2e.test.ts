@@ -6,9 +6,14 @@ import test from 'ava';
 import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
+import { DataSource } from 'typeorm';
 import { AICoreService } from '../../../src/ai-core/services/ai-core.service.js';
 import { ApplicationModule } from '../../../src/app.module.js';
+import { BaseType } from '../../../src/common/data-injection.tokens.js';
+import { MessageRole } from '../../../src/entities/ai/ai-conversation-history/ai-chat-messages/message-role.enum.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
+import { SchemaChangeChatEntity } from '../../../src/entities/table-schema/schema-change-chat/schema-change-chat/schema-change-chat.entity.js';
+import { SchemaChangeChatMessageEntity } from '../../../src/entities/table-schema/schema-change-chat/schema-change-chat-message/schema-change-chat-message.entity.js';
 import {
 	SchemaChangeStatusEnum,
 	SchemaChangeTypeEnum,
@@ -980,4 +985,154 @@ test.serial('multi-table batch: rollback removes tables in reverse and creates l
 	const list = JSON.parse(listResp.text);
 	const auditRows = list.data.filter((c: any) => c.changeType === SchemaChangeTypeEnum.ROLLBACK);
 	t.is(auditRows.length, 2);
+});
+
+test.serial('chat: generate without threadId creates a chat thread and persists user + ai turns', async (t) => {
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const connectionId = await createConnection(token);
+	const tableName = `ra_t_${faker.string.alphanumeric(8).toLowerCase()}`;
+	testTables.push(tableName);
+
+	nextProposal = {
+		forwardSql: `CREATE TABLE "${tableName}" (id SERIAL PRIMARY KEY)`,
+		rollbackSql: `DROP TABLE "${tableName}"`,
+		changeType: SchemaChangeTypeEnum.CREATE_TABLE,
+		targetTableName: tableName,
+		isReversible: true,
+		summary: `Create ${tableName}`,
+		reasoning: 'Initial turn.',
+	};
+
+	const userPrompt = `create a ${tableName} table`;
+	const generateResp = await request(app.getHttpServer())
+		.post(`/table-schema/${connectionId}/generate`)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.send({ userPrompt });
+	t.is(generateResp.status, 201);
+	const batch = JSON.parse(generateResp.text);
+	t.truthy(batch.threadId);
+	t.truthy(batch.batchId);
+
+	const dataSource = app.get<DataSource>(BaseType.DATA_SOURCE);
+	const chatRepo = dataSource.getRepository(SchemaChangeChatEntity);
+	const messageRepo = dataSource.getRepository(SchemaChangeChatMessageEntity);
+
+	const chat = await chatRepo.findOne({ where: { id: batch.threadId } });
+	t.truthy(chat);
+	t.is(chat!.connection_id, connectionId);
+	t.is(chat!.last_batch_id, batch.batchId);
+
+	const messages = await messageRepo.find({ where: { chat_id: batch.threadId }, order: { created_at: 'ASC' } });
+	t.is(messages.length, 2);
+	t.is(messages[0].role, MessageRole.user);
+	t.is(messages[0].message, userPrompt);
+	t.is(messages[1].role, MessageRole.ai);
+	t.is(messages[1].batch_id, batch.batchId);
+	t.true(messages[1].message.includes(tableName));
+});
+
+test.serial('chat: passing threadId continues the conversation and appends turns', async (t) => {
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const connectionId = await createConnection(token);
+	const tableName = `ra_t_${faker.string.alphanumeric(8).toLowerCase()}`;
+	testTables.push(tableName);
+
+	nextProposal = {
+		forwardSql: `CREATE TABLE "${tableName}" (id SERIAL PRIMARY KEY)`,
+		rollbackSql: `DROP TABLE "${tableName}"`,
+		changeType: SchemaChangeTypeEnum.CREATE_TABLE,
+		targetTableName: tableName,
+		isReversible: true,
+		summary: `Create ${tableName}`,
+		reasoning: 'First turn.',
+	};
+	const firstResp = await request(app.getHttpServer())
+		.post(`/table-schema/${connectionId}/generate`)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.send({ userPrompt: `create a ${tableName} table` });
+	t.is(firstResp.status, 201);
+	const firstBatch = JSON.parse(firstResp.text);
+	const threadId = firstBatch.threadId;
+	t.truthy(threadId);
+
+	const indexName = `${tableName}_idx`;
+	nextProposal = {
+		forwardSql: `CREATE INDEX "${indexName}" ON "${tableName}" (id)`,
+		rollbackSql: `DROP INDEX "${indexName}"`,
+		changeType: SchemaChangeTypeEnum.ADD_INDEX,
+		targetTableName: tableName,
+		isReversible: true,
+		summary: `Add index ${indexName}`,
+		reasoning: 'Follow-up.',
+	};
+	const secondResp = await request(app.getHttpServer())
+		.post(`/table-schema/${connectionId}/generate`)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.send({ userPrompt: 'now add an index on id', threadId });
+	t.is(secondResp.status, 201);
+	const secondBatch = JSON.parse(secondResp.text);
+	t.is(secondBatch.threadId, threadId);
+	t.not(secondBatch.batchId, firstBatch.batchId);
+
+	const dataSource = app.get<DataSource>(BaseType.DATA_SOURCE);
+	const chatRepo = dataSource.getRepository(SchemaChangeChatEntity);
+	const messageRepo = dataSource.getRepository(SchemaChangeChatMessageEntity);
+
+	const chat = await chatRepo.findOne({ where: { id: threadId } });
+	t.is(chat!.last_batch_id, secondBatch.batchId);
+
+	const messages = await messageRepo.find({ where: { chat_id: threadId }, order: { created_at: 'ASC' } });
+	t.is(messages.length, 4);
+	t.is(messages[0].role, MessageRole.user);
+	t.is(messages[1].role, MessageRole.ai);
+	t.is(messages[1].batch_id, firstBatch.batchId);
+	t.is(messages[2].role, MessageRole.user);
+	t.is(messages[2].message, 'now add an index on id');
+	t.is(messages[3].role, MessageRole.ai);
+	t.is(messages[3].batch_id, secondBatch.batchId);
+});
+
+test.serial('chat: threadId from a different connection is rejected with 400', async (t) => {
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const connectionIdA = await createConnection(token);
+	const connectionIdB = await createConnection(token);
+	const tableName = `ra_t_${faker.string.alphanumeric(8).toLowerCase()}`;
+	testTables.push(tableName);
+
+	nextProposal = {
+		forwardSql: `CREATE TABLE "${tableName}" (id SERIAL PRIMARY KEY)`,
+		rollbackSql: `DROP TABLE "${tableName}"`,
+		changeType: SchemaChangeTypeEnum.CREATE_TABLE,
+		targetTableName: tableName,
+		isReversible: true,
+		summary: `Create ${tableName}`,
+		reasoning: 'For cross-connection guard.',
+	};
+	const firstResp = await request(app.getHttpServer())
+		.post(`/table-schema/${connectionIdA}/generate`)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.send({ userPrompt: `create a ${tableName} table` });
+	t.is(firstResp.status, 201);
+	const threadId = JSON.parse(firstResp.text).threadId;
+	t.truthy(threadId);
+
+	nextProposal = {
+		forwardSql: `CREATE TABLE "${tableName}_b" (id SERIAL PRIMARY KEY)`,
+		rollbackSql: `DROP TABLE "${tableName}_b"`,
+		changeType: SchemaChangeTypeEnum.CREATE_TABLE,
+		targetTableName: `${tableName}_b`,
+		isReversible: true,
+		summary: 'Should not be reached',
+		reasoning: 'Should not be reached',
+	};
+	const crossResp = await request(app.getHttpServer())
+		.post(`/table-schema/${connectionIdB}/generate`)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.send({ userPrompt: 'create another table', threadId });
+	t.is(crossResp.status, 400);
 });

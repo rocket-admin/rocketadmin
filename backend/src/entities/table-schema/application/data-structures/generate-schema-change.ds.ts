@@ -3,4 +3,5 @@ export class GenerateSchemaChangeDs {
 	userPrompt: string;
 	userId: string;
 	masterPassword?: string;
+	threadId?: string | null;
 }
