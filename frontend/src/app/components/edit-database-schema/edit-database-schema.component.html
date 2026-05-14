@@ -13,7 +13,7 @@
 		</button>
 	}
 	<!-- Welcome screen when no messages yet -->
-	@if (messages().length === 0) {
+	@if (messages().length === 0 && !initialDiagramLoading()) {
 		<div class="schema-chat__welcome">
 			<mat-icon svgIcon="ai_rocket" class="schema-chat__welcome-icon"></mat-icon>
 			@if (showClose || isRoutedPage()) {
@@ -56,6 +56,18 @@
 		</div>
 	}
 
+	<!-- Initial diagram loading -->
+	@if (messages().length === 0 && initialDiagramLoading()) {
+		<div class="schema-chat__diagram-loading">
+			<span class="schema-chat__loading-text">Loading diagram</span>
+			<div class="schema-chat__loading-dots">
+				<span class="schema-chat__loading-dot"></span>
+				<span class="schema-chat__loading-dot"></span>
+				<span class="schema-chat__loading-dot"></span>
+			</div>
+		</div>
+	}
+
 	<!-- Message chain -->
 	@if (messages().length) {
 		<div class="schema-chat__messages">
@@ -84,6 +96,31 @@
 						}
 					</div>
 				}
+				@if (message.role === 'diagram') {
+					<div class="schema-chat__diagram">
+						<div class="schema-chat__diagram-header">
+							<h3 class="schema-chat__diagram-title">{{ message.text }}</h3>
+							<div class="schema-chat__diagram-zoom">
+								<button mat-icon-button type="button" (click)="onZoomOut()" [disabled]="diagramZoom() <= 0.25">
+									<mat-icon>remove</mat-icon>
+								</button>
+								<span class="schema-chat__diagram-zoom-label">{{ (diagramZoom() * 100).toFixed(0) }}%</span>
+								<button mat-icon-button type="button" (click)="onZoomIn()" [disabled]="diagramZoom() >= 3">
+									<mat-icon>add</mat-icon>
+								</button>
+								<button mat-icon-button type="button" (click)="onZoomReset()">
+									<mat-icon>restart_alt</mat-icon>
+								</button>
+							</div>
+						</div>
+						<div class="schema-chat__diagram-content">
+							<div class="schema-chat__diagram-inner" [style.transform]="'scale(' + diagramZoom() + ')'"
+								[style.transform-origin]="'top left'">
+								<markdown mermaid [data]="message.diagramSource!"></markdown>
+							</div>
+						</div>
+					</div>
+				}
 				@if (message.role === 'error') {
 					<div class="schema-chat__message schema-chat__message--error">
 						<mat-icon class="schema-chat__error-icon">error_outline</mat-icon>
@@ -102,6 +139,27 @@
 					</div>
 				</div>
 			}
+			@if (initialDiagramLoading() && messages().length > 0) {
+				<div class="schema-chat__loading">
+					<span class="schema-chat__loading-text">Loading diagram</span>
+					<div class="schema-chat__loading-dots">
+						<span class="schema-chat__loading-dot"></span>
+						<span class="schema-chat__loading-dot"></span>
+						<span class="schema-chat__loading-dot"></span>
+					</div>
+				</div>
+			}
+		</div>
+	}
+
+	@if (applied() && !initialDiagramLoading()) {
+		<div class="schema-chat__open-tables">
+			<a mat-flat-button color="primary" (click)="onOpenTables()"
+				[routerLink]="['/dashboard', connectionID]"
+				data-testid="schema-open-tables-button">
+				<mat-icon>table_chart</mat-icon>
+				Open tables
+			</a>
 		</div>
 	}
 

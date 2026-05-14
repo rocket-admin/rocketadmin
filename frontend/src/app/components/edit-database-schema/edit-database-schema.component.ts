@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, signal, inject, computed } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,11 +6,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { MarkdownModule } from 'ngx-markdown';
 import { TableSchemaService, SchemaChangeResponse } from 'src/app/services/table-schema.service';
 
 interface ChatMessage {
-	role: 'user' | 'ai' | 'error';
+	role: 'user' | 'ai' | 'error' | 'diagram';
 	text: string;
+	diagramSource?: string;
 	changes?: SchemaChangeResponse[];
 	batchId?: string;
 }
@@ -22,6 +24,7 @@ interface ChatMessage {
 	imports: [
 		CommonModule,
 		FormsModule,
+		MarkdownModule,
 		MatButtonModule,
 		MatIconModule,
 		MatFormFieldModule,
@@ -29,7 +32,7 @@ interface ChatMessage {
 		RouterModule,
 	],
 })
-export class EditDatabaseSchemaComponent implements OnInit {
+export class EditDatabaseSchemaComponent implements OnInit, AfterViewInit {
 	@Input() connectionID: string;
 	@Input() showClose: boolean = false;
 	@Output() schemaApplied = new EventEmitter<void>();
@@ -45,6 +48,8 @@ export class EditDatabaseSchemaComponent implements OnInit {
 	protected submitting = signal(false);
 	protected applying = signal(false);
 	protected applied = signal(false);
+	protected diagramZoom = signal(1);
+	protected initialDiagramLoading = signal(false);
 
 	protected pendingBatch = computed(() => {
 		const msgs = this.messages();
@@ -53,6 +58,18 @@ export class EditDatabaseSchemaComponent implements OnInit {
 		}
 		return null;
 	});
+
+	async ngAfterViewInit() {
+		const mermaid = await import('mermaid');
+		const mermaidAPI = (mermaid.default ?? mermaid) as { initialize: (config: Record<string, unknown>) => void };
+		const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+		mermaidAPI.initialize({
+			startOnLoad: false,
+			theme: isDark ? 'dark' : 'default',
+		});
+		//@ts-expect-error dynamic load of mermaid
+		window.mermaid = mermaidAPI;
+	}
 
 	ngOnInit(): void {
 		if (!this.connectionID) {
@@ -63,7 +80,12 @@ export class EditDatabaseSchemaComponent implements OnInit {
 				this.showClose = false;
 			} else {
 				this._router.navigate(['/connections-list']);
+				return;
 			}
+		}
+
+		if (this.showClose || this.isRoutedPage()) {
+			this._loadDiagram('Current Database Structure');
 		}
 	}
 
@@ -121,9 +143,9 @@ export class EditDatabaseSchemaComponent implements OnInit {
 					this.applied.set(true);
 					this.messages.update(msgs => [...msgs, {
 						role: 'ai',
-						text: 'All changes applied successfully! Your tables have been created. Reloading...',
+						text: 'All changes applied successfully! Your tables have been created.',
 					}]);
-					this.schemaApplied.emit();
+					this._loadDiagram('Updated Database Structure');
 				}
 			}
 		} catch (err: unknown) {
@@ -150,10 +172,44 @@ export class EditDatabaseSchemaComponent implements OnInit {
 		}));
 	}
 
+	onOpenTables() {
+		this.schemaApplied.emit();
+	}
+
+	onZoomIn() {
+		this.diagramZoom.update(z => Math.min(z + 0.25, 3));
+	}
+
+	onZoomOut() {
+		this.diagramZoom.update(z => Math.max(z - 0.25, 0.25));
+	}
+
+	onZoomReset() {
+		this.diagramZoom.set(1);
+	}
+
 	onKeydown(event: KeyboardEvent) {
 		if (event.key === 'Enter' && !event.shiftKey) {
 			event.preventDefault();
 			this.onSubmit();
+		}
+	}
+
+	private async _loadDiagram(label: string) {
+		this.initialDiagramLoading.set(true);
+		try {
+			const diagram = await this._tableSchema.fetchDiagram(this.connectionID);
+			if (diagram?.diagram) {
+				this.messages.update(msgs => [...msgs, {
+					role: 'diagram' as const,
+					text: label,
+					diagramSource: '```mermaid\n' + diagram.diagram + '\n```',
+				}]);
+			}
+		} catch {
+			// Diagram is supplementary - don't show error if it fails
+		} finally {
+			this.initialDiagramLoading.set(false);
 		}
 	}
 }

@@ -2,6 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
 import { environment } from '../../environments/environment';
 
+export interface ConnectionDiagramResponse {
+	connectionId: string;
+	databaseType: string;
+	diagram: string;
+	description: string;
+	generatedAt: string;
+}
+
 export interface SchemaChangeResponse {
 	id: string;
 	connectionId: string;
@@ -47,6 +55,10 @@ export class TableSchemaService {
 
 	async rejectBatch(batchId: string): Promise<SchemaChangeBatchResponse | null> {
 		return this._api.post<SchemaChangeBatchResponse>(`/table-schema/batch/${batchId}/reject`);
+	}
+
+	async fetchDiagram(connectionId: string): Promise<ConnectionDiagramResponse | null> {
+		return this._api.get<ConnectionDiagramResponse>(`/connection/diagram/${connectionId}`);
 	}
 
 	private async _fetchOrThrow<T>(url: string, body: unknown): Promise<T> {
