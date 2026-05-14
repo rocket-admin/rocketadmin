@@ -75,7 +75,6 @@ export class DbTablesListComponent implements OnInit, OnChanges {
 	@Input() uiSettings: any;
 
 	@Output() expandSidebar = new EventEmitter<void>();
-	@Output() editStructure = new EventEmitter<void>();
 
 	private _connections = inject(ConnectionsService);
 	protected canEditConnection = () => this._connections.canEditConnection();

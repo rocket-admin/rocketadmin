@@ -37,7 +37,7 @@ import { DbTableFiltersDialogComponent } from './db-table-view/db-table-filters-
 import { DbTableRowViewComponent } from './db-table-view/db-table-row-view/db-table-row-view.component';
 import { DbTableViewComponent } from './db-table-view/db-table-view.component';
 import { TablesDataSource } from './db-tables-data-source';
-import { DbGenerateSchemaComponent } from './db-generate-schema/db-generate-schema.component';
+import { EditDatabaseSchemaComponent } from '../edit-database-schema/edit-database-schema.component';
 import { DbTablesListComponent } from './db-tables-list/db-tables-list.component';
 
 interface DataToActivateActions {
@@ -56,7 +56,7 @@ interface DataToActivateActions {
 		MatIconModule,
 		MatDialogModule,
 		MatSidenavModule,
-		DbGenerateSchemaComponent,
+		EditDatabaseSchemaComponent,
 		DbTablesListComponent,
 		DbTableViewComponent,
 		DbTableAiPanelComponent,
@@ -103,7 +103,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	public uiSettings: ConnectionSettingsUI;
 	public tableFolders: any[] = [];
 	public isConfiguring: boolean = false;
-	public showSchemaEditor: boolean = false;
 
 	constructor(
 		private _connections: ConnectionsService,
@@ -451,14 +450,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		this._uiSettings.updateConnectionSetting(this.connectionID, 'shownTableTitles', this.shownTableTitles);
 	}
 
-	onEditStructure() {
-		this.showSchemaEditor = true;
-	}
-
 	onSchemaApplied() {
 		setTimeout(() => {
 			this.noTablesError = false;
-			this.showSchemaEditor = false;
 			this.loading = true;
 			this.getData();
 		}, 1500);

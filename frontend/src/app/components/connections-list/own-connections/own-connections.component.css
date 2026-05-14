@@ -320,6 +320,8 @@
 .connectionInfo {
 	display: flex;
 	flex-direction: column;
+	min-width: 0;
+	flex: 1;
 }
 
 .connectionInfo .connectionInfo__connectionTitle {
@@ -329,6 +331,18 @@
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	width: 100%;
+}
+
+/* ── Schema button inside card ── */
+
+.connectionSchemaButton {
+	margin-left: auto;
+	flex-shrink: 0;
+	color: rgba(255, 255, 255, 0.7);
+}
+
+.connectionSchemaButton:hover {
+	color: #fff;
 }
 
 /* ── Show more / less ── */
