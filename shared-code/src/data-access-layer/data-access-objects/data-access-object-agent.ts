@@ -40,6 +40,10 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
 		this.connection = connection;
 	}
 
+	public invalidateMetadataCache(): void {
+		LRUStorage.invalidateConnectionTableMetadata(this.connection);
+	}
+
 	public async addRowInTable(
 		tableName: string,
 		row: Record<string, unknown>,
