@@ -71,7 +71,7 @@ export class TableSchemaController {
 
 	@ApiOperation({
 		summary:
-			'Generate one or more schema changes from a natural-language prompt. The response is always a batch envelope; single-change prompts return a length-1 array.',
+			'Generate one or more schema changes from a natural-language prompt. The response is always a batch envelope; single-change prompts return a length-1 array. Pass an optional threadId in the body to continue an existing conversation; the response returns the threadId to use for follow-up turns.',
 	})
 	@ApiParam({ name: 'connectionId', type: String })
 	@ApiBody({ type: GenerateSchemaChangeDto })
@@ -91,6 +91,7 @@ export class TableSchemaController {
 			userPrompt: body.userPrompt,
 			userId,
 			masterPassword,
+			threadId: body.threadId ?? null,
 		});
 	}
 

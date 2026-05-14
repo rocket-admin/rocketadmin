@@ -13,4 +13,12 @@ export class SchemaChangeBatchResponseDto {
 		description: 'Generated changes ordered by orderInBatch (dependency order — parents first).',
 	})
 	changes: SchemaChangeResponseDto[];
+
+	@ApiProperty({
+		required: false,
+		nullable: true,
+		description:
+			'Conversation thread ID. Present when the request used or created a chat thread. Pass it back as the threadId query param on subsequent generate calls to continue the conversation with full prior context.',
+	})
+	threadId?: string | null;
 }
