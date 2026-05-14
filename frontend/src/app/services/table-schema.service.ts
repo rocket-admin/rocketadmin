@@ -35,6 +35,7 @@ export interface SchemaChangeResponse {
 export interface SchemaChangeBatchResponse {
 	batchId: string;
 	changes: SchemaChangeResponse[];
+	threadId?: string | null;
 }
 
 @Injectable({
@@ -43,8 +44,8 @@ export interface SchemaChangeBatchResponse {
 export class TableSchemaService {
 	private _api = inject(ApiService);
 
-	async generateSchemaChange(connectionId: string, userPrompt: string): Promise<SchemaChangeBatchResponse> {
-		return this._fetchOrThrow<SchemaChangeBatchResponse>(`/table-schema/${connectionId}/generate`, { userPrompt });
+	async generateSchemaChange(connectionId: string, userPrompt: string, threadId?: string): Promise<SchemaChangeBatchResponse> {
+		return this._fetchOrThrow<SchemaChangeBatchResponse>(`/table-schema/${connectionId}/generate`, { userPrompt, threadId });
 	}
 
 	async approveBatch(batchId: string, confirmedDestructive?: boolean): Promise<SchemaChangeBatchResponse> {
