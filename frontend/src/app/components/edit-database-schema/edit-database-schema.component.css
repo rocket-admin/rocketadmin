@@ -220,8 +220,6 @@
 	flex-direction: column;
 	gap: 10px;
 	margin-top: 12px;
-	max-height: 400px;
-	overflow-y: auto;
 }
 
 .schema-chat__change-card {
@@ -282,6 +280,7 @@
 	display: flex;
 	justify-content: flex-end;
 	gap: 10px;
+	margin-top: 16px;
 }
 
 .schema-chat__actions button mat-icon {

@@ -241,10 +241,14 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 	}
 
 	private _openRenameDialog(data: HostedDatabaseRenameDialogData): void {
-		this._dialog.open(HostedDatabaseRenameDialogComponent, {
+		const dialogRef = this._dialog.open(HostedDatabaseRenameDialogComponent, {
 			width: '28em',
 			maxWidth: '95vw',
 			data,
+		});
+
+		dialogRef.afterClosed().subscribe(() => {
+			this._router.navigate(['/dashboard', data.connectionId]);
 		});
 	}
 
