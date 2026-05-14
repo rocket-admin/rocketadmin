@@ -64,6 +64,12 @@ import { ITableLogsRepository } from '../../entities/table-logs/repository/table
 import { TableLogsEntity } from '../../entities/table-logs/table-logs.entity.js';
 import { customTableSchemaChangeRepositoryExtension } from '../../entities/table-schema/repository/custom-table-schema-change-repository-extension.js';
 import { ITableSchemaChangeRepository } from '../../entities/table-schema/repository/table-schema-change.repository.interface.js';
+import { schemaChangeChatRepositoryExtension } from '../../entities/table-schema/schema-change-chat/schema-change-chat/repository/schema-change-chat-repository.extension.js';
+import { ISchemaChangeChatRepository } from '../../entities/table-schema/schema-change-chat/schema-change-chat/repository/schema-change-chat-repository.interface.js';
+import { SchemaChangeChatEntity } from '../../entities/table-schema/schema-change-chat/schema-change-chat/schema-change-chat.entity.js';
+import { schemaChangeChatMessageRepositoryExtension } from '../../entities/table-schema/schema-change-chat/schema-change-chat-message/repository/schema-change-chat-message-repository.extension.js';
+import { ISchemaChangeChatMessageRepository } from '../../entities/table-schema/schema-change-chat/schema-change-chat-message/repository/schema-change-chat-message-repository.interface.js';
+import { SchemaChangeChatMessageEntity } from '../../entities/table-schema/schema-change-chat/schema-change-chat-message/schema-change-chat-message.entity.js';
 import { TableSchemaChangeEntity } from '../../entities/table-schema/table-schema-change.entity.js';
 import { ITableSettingsRepository } from '../../entities/table-settings/common-table-settings/repository/table-settings.repository.interface.js';
 import { tableSettingsCustomRepositoryExtension } from '../../entities/table-settings/common-table-settings/repository/table-settings-custom-repository-extension.js';
@@ -157,6 +163,9 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 	private _userAiChatRepository: Repository<UserAiChatEntity> & IUserAiChatRepository;
 	private _aiChatMessageRepository: Repository<AiChatMessageEntity> & IAiChatMessageRepository;
 	private _tableSchemaChangeRepository: Repository<TableSchemaChangeEntity> & ITableSchemaChangeRepository;
+	private _schemaChangeChatRepository: Repository<SchemaChangeChatEntity> & ISchemaChangeChatRepository;
+	private _schemaChangeChatMessageRepository: Repository<SchemaChangeChatMessageEntity> &
+		ISchemaChangeChatMessageRepository;
 
 	public constructor(
 		@Inject(BaseType.DATA_SOURCE)
@@ -264,6 +273,12 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 		this._tableSchemaChangeRepository = this.appDataSource
 			.getRepository(TableSchemaChangeEntity)
 			.extend(customTableSchemaChangeRepositoryExtension);
+		this._schemaChangeChatRepository = this.appDataSource
+			.getRepository(SchemaChangeChatEntity)
+			.extend(schemaChangeChatRepositoryExtension);
+		this._schemaChangeChatMessageRepository = this.appDataSource
+			.getRepository(SchemaChangeChatMessageEntity)
+			.extend(schemaChangeChatMessageRepositoryExtension);
 	}
 
 	public get userRepository(): Repository<UserEntity> & IUserRepository {
@@ -426,6 +441,15 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
 	public get tableSchemaChangeRepository(): Repository<TableSchemaChangeEntity> & ITableSchemaChangeRepository {
 		return this._tableSchemaChangeRepository;
+	}
+
+	public get schemaChangeChatRepository(): Repository<SchemaChangeChatEntity> & ISchemaChangeChatRepository {
+		return this._schemaChangeChatRepository;
+	}
+
+	public get schemaChangeChatMessageRepository(): Repository<SchemaChangeChatMessageEntity> &
+		ISchemaChangeChatMessageRepository {
+		return this._schemaChangeChatMessageRepository;
 	}
 
 	public startTransaction(): Promise<void> {

@@ -1,6 +1,8 @@
+import { BaseMessage } from '@langchain/core/messages';
 import { BadRequestException, Inject, Injectable, Logger, NotFoundException, Scope } from '@nestjs/common';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
+import Sentry from '@sentry/minimal';
 import crypto from 'crypto';
 import { AIProviderType } from '../../../ai-core/interfaces/ai-service.interface.js';
 import { AICoreService } from '../../../ai-core/services/ai-core.service.js';
@@ -9,6 +11,7 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { MessageRole } from '../../ai/ai-conversation-history/ai-chat-messages/message-role.enum.js';
 import { runSchemaChangeAiLoop } from '../ai/run-schema-change-ai-loop.js';
 import { buildSchemaChangePrompt } from '../ai/schema-change-prompts.js';
 import {
@@ -20,6 +23,7 @@ import {
 } from '../ai/schema-change-tools.js';
 import { GenerateSchemaChangeDs } from '../application/data-structures/generate-schema-change.ds.js';
 import { SchemaChangeBatchResponseDto } from '../application/data-transfer-objects/schema-change-batch-response.dto.js';
+import { SchemaChangeChatEntity } from '../schema-change-chat/schema-change-chat/schema-change-chat.entity.js';
 import { TableSchemaChangeEntity } from '../table-schema-change.entity.js';
 import {
 	isDynamoDbSchemaChangeType,
@@ -58,7 +62,7 @@ export class GenerateSchemaChangeUseCase
 	}
 
 	protected async implementation(inputData: GenerateSchemaChangeDs): Promise<SchemaChangeBatchResponseDto> {
-		const { connectionId, userPrompt, userId, masterPassword } = inputData;
+		const { connectionId, userPrompt, userId, masterPassword, threadId } = inputData;
 
 		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(
 			connectionId,
@@ -77,12 +81,14 @@ export class GenerateSchemaChangeUseCase
 			throw new BadRequestException(Messages.AI_REQUESTS_NOT_ALLOWED);
 		}
 
+		const { chat, isNewChat } = await this.resolveChat(threadId ?? null, userId, connectionId);
+
 		const dao = getDataAccessObject(connection);
 		const tableList = await dao.getTablesFromDB();
 		const tableNames = tableList.map((t) => t.tableName);
 
 		const systemPrompt = buildSchemaChangePrompt(connectionType, tableNames, connection.schema ?? null);
-		const messages = new MessageBuilder().system(systemPrompt).human(userPrompt).build();
+		const messages = await this.buildMessagesWithHistory(systemPrompt, userPrompt, chat.id, isNewChat);
 		const tools = isMongoDialect(connectionType)
 			? createMongoSchemaChangeTools()
 			: isDynamoDbDialect(connectionType)
@@ -90,6 +96,14 @@ export class GenerateSchemaChangeUseCase
 				: isElasticsearchDialect(connectionType)
 					? createElasticsearchSchemaChangeTools()
 					: createSchemaChangeTools();
+
+		await this._dbContext.schemaChangeChatMessageRepository.saveMessage(chat.id, userPrompt, MessageRole.user);
+
+		if (isNewChat) {
+			this.generateAndUpdateChatName(chat.id, userPrompt).catch((error) => {
+				Sentry.captureException(error);
+			});
+		}
 
 		let proposals: ProposeSchemaChangeArgs[];
 		try {
@@ -141,10 +155,99 @@ export class GenerateSchemaChangeUseCase
 		const saved = await this._dbContext.tableSchemaChangeRepository.createPendingBatch(items);
 		saved.sort((a, b) => a.orderInBatch - b.orderInBatch);
 
+		await this._dbContext.schemaChangeChatMessageRepository.saveMessage(
+			chat.id,
+			this.serializeAssistantTurn(proposals),
+			MessageRole.ai,
+			batchId,
+		);
+		await this._dbContext.schemaChangeChatRepository.updateLastBatchId(chat.id, batchId);
+
 		return {
 			batchId,
+			threadId: chat.id,
 			changes: saved.map(mapSchemaChangeToResponseDto),
 		};
+	}
+
+	private async resolveChat(
+		threadId: string | null,
+		userId: string,
+		connectionId: string,
+	): Promise<{ chat: SchemaChangeChatEntity; isNewChat: boolean }> {
+		if (threadId) {
+			const existing = await this._dbContext.schemaChangeChatRepository.findChatByIdAndUserId(threadId, userId);
+			if (existing) {
+				if (existing.connection_id !== connectionId) {
+					throw new BadRequestException('Provided threadId belongs to a different connection.');
+				}
+				return { chat: existing, isNewChat: false };
+			}
+		}
+		const created = await this._dbContext.schemaChangeChatRepository.createChatForUser(userId, connectionId);
+		return { chat: created, isNewChat: true };
+	}
+
+	private async buildMessagesWithHistory(
+		systemPrompt: string,
+		userMessage: string,
+		chatId: string,
+		isNewChat: boolean,
+	): Promise<BaseMessage[]> {
+		if (isNewChat) {
+			return new MessageBuilder().system(systemPrompt).human(userMessage).build();
+		}
+
+		const previousMessages = await this._dbContext.schemaChangeChatMessageRepository.findMessagesForChat(chatId);
+		const builder = new MessageBuilder().system(systemPrompt);
+
+		for (const msg of previousMessages) {
+			if (msg.role === MessageRole.user) {
+				builder.human(msg.message);
+			} else if (msg.role === MessageRole.ai) {
+				builder.ai(msg.message);
+			}
+		}
+
+		builder.human(userMessage);
+		return builder.build();
+	}
+
+	private serializeAssistantTurn(proposals: ProposeSchemaChangeArgs[]): string {
+		return proposals
+			.map((p, i) => {
+				const summary = p.summary?.trim() || '(no summary)';
+				return `${i + 1}. [${p.changeType}] ${p.targetTableName} — ${summary}`;
+			})
+			.join('\n');
+	}
+
+	private async generateAndUpdateChatName(chatId: string, userMessage: string): Promise<void> {
+		try {
+			const CHAT_NAME_GENERATION_PROMPT = `Generate a very short, concise title (max 5-6 words) for a database schema-change conversation based on the user's first request.
+The title should capture the main intent (e.g. "Add products table", "Rename users column").
+Respond ONLY with the title, no quotes, no explanation.
+User request: `;
+			const prompt = CHAT_NAME_GENERATION_PROMPT + userMessage;
+			const messages = new MessageBuilder().human(prompt).build();
+
+			let generatedName = '';
+			const stream = await this.aiCoreService.streamChatWithToolsAndProvider(this.provider, messages, []);
+
+			for await (const chunk of stream) {
+				if (chunk.type === 'text' && chunk.content) {
+					generatedName += chunk.content;
+				}
+			}
+
+			generatedName = generatedName.trim().slice(0, 100);
+
+			if (generatedName) {
+				await this._dbContext.schemaChangeChatRepository.updateChatName(chatId, generatedName);
+			}
+		} catch (error) {
+			Sentry.captureException(error);
+		}
 	}
 
 	private validateProposal(

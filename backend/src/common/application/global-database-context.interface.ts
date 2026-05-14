@@ -37,6 +37,10 @@ import { TableFiltersEntity } from '../../entities/table-filters/table-filters.e
 import { TableInfoEntity } from '../../entities/table-info/table-info.entity.js';
 import { ITableLogsRepository } from '../../entities/table-logs/repository/table-logs-repository.interface.js';
 import { ITableSchemaChangeRepository } from '../../entities/table-schema/repository/table-schema-change.repository.interface.js';
+import { ISchemaChangeChatRepository } from '../../entities/table-schema/schema-change-chat/schema-change-chat/repository/schema-change-chat-repository.interface.js';
+import { SchemaChangeChatEntity } from '../../entities/table-schema/schema-change-chat/schema-change-chat/schema-change-chat.entity.js';
+import { ISchemaChangeChatMessageRepository } from '../../entities/table-schema/schema-change-chat/schema-change-chat-message/repository/schema-change-chat-message-repository.interface.js';
+import { SchemaChangeChatMessageEntity } from '../../entities/table-schema/schema-change-chat/schema-change-chat-message/schema-change-chat-message.entity.js';
 import { TableSchemaChangeEntity } from '../../entities/table-schema/table-schema-change.entity.js';
 import { ITableSettingsRepository } from '../../entities/table-settings/common-table-settings/repository/table-settings.repository.interface.js';
 import { TableSettingsEntity } from '../../entities/table-settings/common-table-settings/table-settings.entity.js';
@@ -106,4 +110,6 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
 	userAiChatRepository: Repository<UserAiChatEntity> & IUserAiChatRepository;
 	aiChatMessageRepository: Repository<AiChatMessageEntity> & IAiChatMessageRepository;
 	tableSchemaChangeRepository: Repository<TableSchemaChangeEntity> & ITableSchemaChangeRepository;
+	schemaChangeChatRepository: Repository<SchemaChangeChatEntity> & ISchemaChangeChatRepository;
+	schemaChangeChatMessageRepository: Repository<SchemaChangeChatMessageEntity> & ISchemaChangeChatMessageRepository;
 }
