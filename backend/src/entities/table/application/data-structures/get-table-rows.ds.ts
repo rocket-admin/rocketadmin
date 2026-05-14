@@ -8,4 +8,5 @@ export class GetTableRowsDs {
 	tableName: string;
 	userId: string;
 	filters?: Record<string, unknown>;
+	uncached?: boolean;
 }

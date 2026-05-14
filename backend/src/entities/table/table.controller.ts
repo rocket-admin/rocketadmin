@@ -260,6 +260,12 @@ export class TableController {
 	@ApiQuery({ name: 'page', required: false })
 	@ApiQuery({ name: 'perPage', required: false })
 	@ApiQuery({ name: 'search', required: false })
+	@ApiQuery({
+		name: 'uncached',
+		required: false,
+		type: Boolean,
+		description: 'Invalidate table metadata cache before reading rows',
+	})
 	@UseGuards(TableReadGuard)
 	@Timeout(TimeoutDefaults.EXTENDED)
 	@Throttle({ default: { limit: 300, ttl: 60000 } })
@@ -270,6 +276,7 @@ export class TableController {
 		@Query('page') page: string,
 		@Query('perPage') perPage: string,
 		@Query('search') searchingFieldValue: string,
+		@Query('uncached') uncached: string,
 		@Query() query: Record<string, string>,
 		@SlugUuid('connectionId') connectionId: string,
 		@UserId() userId: string,
@@ -308,6 +315,7 @@ export class TableController {
 			tableName: tableName,
 			userId: userId,
 			filters: body?.filters,
+			uncached: uncached === 'true',
 		};
 		return await this.getTableRowsUseCase.execute(inputData, InTransactionEnum.OFF);
 	}

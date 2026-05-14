@@ -61,7 +61,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 	protected async implementation(inputData: GetTableRowsDs): Promise<FoundTableRowsDs> {
 		let operationResult = OperationResultStatusEnum.unknown;
 
-		const { connectionId, masterPwd, page, perPage, query, tableName, userId, filters } = inputData;
+		const { connectionId, masterPwd, page, perPage, query, tableName, userId, filters, uncached } = inputData;
 		let { searchingFieldValue } = inputData;
 		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
 		validateConnection(connection);
@@ -78,6 +78,9 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 			const userEmail = await getUserEmailForAgent(connection, userId, this._dbContext.userRepository);
 
 			await validateSchemaCache(dao, userEmail);
+			if (uncached) {
+				dao.invalidateMetadataCache();
+			}
 
 			// eslint-disable-next-line prefer-const
 			let { tableSettings, tableCustomFields, tableWidgets } =
