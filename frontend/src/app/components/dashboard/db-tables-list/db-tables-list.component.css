@@ -445,7 +445,7 @@
 .expanded-container.has-custom-folders .add-folder-button-container {
 	order: 4; /* After folders section */
 	position: sticky;
-	bottom: 40px;
+	bottom: 0;
 	background-color: #ffffff;
 	padding: 8px 16px;
 	z-index: 10;
@@ -455,50 +455,6 @@
 /* Dark theme support for add button container when at bottom */
 @media (prefers-color-scheme: dark) {
 	.expanded-container.has-custom-folders .add-folder-button-container {
-		background-color: #303030;
-	}
-}
-
-/* Edit structure button container */
-.edit-structure-button-container {
-	order: 5; /* Always at the very bottom */
-	position: sticky;
-	bottom: 0;
-	background-color: #ffffff;
-	padding: 8px 16px;
-	z-index: 10;
-	margin-left: 16px;
-	margin-right: 16px;
-	margin-top: 4px;
-	margin-bottom: 8px;
-	width: calc(100% - 32px);
-	box-sizing: border-box;
-}
-
-.expanded-container.has-custom-folders .edit-structure-button-container {
-	padding: 0 16px 8px;
-	margin-top: 0;
-	margin-left: 0;
-	margin-right: 0;
-	width: 100%;
-}
-
-.edit-structure-button {
-	width: 100%;
-}
-
-.edit-structure-button mat-icon {
-	font-size: 18px;
-	width: 18px;
-	height: 18px;
-}
-
-@media (prefers-color-scheme: dark) {
-	.edit-structure-button-container {
-		background-color: #303030;
-	}
-
-	.expanded-container.has-custom-folders .edit-structure-button-container {
 		background-color: #303030;
 	}
 }

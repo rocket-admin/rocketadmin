@@ -3,6 +3,7 @@ import { Component, Input, OnChanges, OnInit, SimpleChanges, signal } from '@ang
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterModule } from '@angular/router';
 import posthog from 'posthog-js';
 import { firstValueFrom } from 'rxjs';
@@ -33,7 +34,7 @@ import {
 
 @Component({
 	selector: 'app-own-connections',
-	imports: [CommonModule, RouterModule, MatIconModule, MatButtonModule],
+	imports: [CommonModule, RouterModule, MatIconModule, MatButtonModule, MatTooltipModule],
 	templateUrl: './own-connections.component.html',
 	styleUrl: './own-connections.component.css',
 })

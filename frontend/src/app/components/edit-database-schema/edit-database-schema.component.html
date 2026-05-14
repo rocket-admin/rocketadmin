@@ -1,4 +1,12 @@
-<div class="schema-chat">
+<div class="schema-chat" [class.schema-chat--routed]="isRoutedPage()">
+	@if (isRoutedPage()) {
+		<div class="schema-chat__header">
+			<a mat-icon-button [routerLink]="['/connections-list']" class="schema-chat__back-button">
+				<mat-icon>arrow_back</mat-icon>
+			</a>
+			<h1 class="schema-chat__title">Edit Database Schema</h1>
+		</div>
+	}
 	@if (showClose) {
 		<button mat-icon-button type="button" class="schema-chat__close-button" (click)="closeEditor.emit()">
 			<mat-icon>close</mat-icon>
@@ -8,7 +16,7 @@
 	@if (messages().length === 0) {
 		<div class="schema-chat__welcome">
 			<mat-icon svgIcon="ai_rocket" class="schema-chat__welcome-icon"></mat-icon>
-			@if (showClose) {
+			@if (showClose || isRoutedPage()) {
 				<p class="schema-chat__welcome-title">Edit database structure with AI</p>
 				<p class="schema-chat__welcome-subtitle">Describe the changes you want to make and AI will generate the SQL for you.</p>
 			} @else {
@@ -17,7 +25,7 @@
 			}
 
 			<div class="schema-chat__suggestions">
-				@if (showClose) {
+				@if (showClose || isRoutedPage()) {
 					<button type="button" class="suggestion-chip"
 						(click)="userPrompt.set('Add a new table for user notifications with title, message, read status, and timestamp')">
 						Add notifications table
@@ -70,12 +78,6 @@
 											<span class="schema-chat__change-table">{{ change.targetTableName }}</span>
 										</div>
 										<pre class="schema-chat__change-sql">{{ change.forwardSql }}</pre>
-										@if (change.rollbackSql) {
-											<details class="schema-chat__rollback">
-												<summary>Rollback SQL</summary>
-												<pre class="schema-chat__change-sql">{{ change.rollbackSql }}</pre>
-											</details>
-										}
 									</div>
 								}
 							</div>
@@ -125,7 +127,7 @@
 			} @else {
 				<form (ngSubmit)="onSubmit()">
 					<mat-form-field appearance="outline" class="schema-chat__input-field">
-						<mat-label>{{showClose ? 'Describe the changes you need...' : 'Describe the database you need...'}}</mat-label>
+						<mat-label>{{showClose || isRoutedPage() ? 'Describe the changes you need...' : 'Describe the database you need...'}}</mat-label>
 						<textarea matInput
 							name="schemaPrompt"
 							[ngModel]="userPrompt()"

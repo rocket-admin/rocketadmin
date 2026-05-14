@@ -1,6 +1,6 @@
 :host {
 	display: flex;
-	height: 100%;
+	height: calc(100vh - 44px);
 }
 
 .schema-chat {
@@ -12,6 +12,36 @@
 	overflow: hidden;
 	position: relative;
 }
+
+.schema-chat--routed {
+	max-width: 860px;
+	margin: 0 auto;
+	padding: 0 16px;
+	height: calc(100vh - var(--mat-toolbar-standard-height));
+}
+
+/* ── Header (routed page) ── */
+
+.schema-chat__header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: var(--top-margin) 0 16px;
+	flex-shrink: 0;
+	width: 100%;
+}
+
+.schema-chat__back-button {
+	flex-shrink: 0;
+}
+
+.schema-chat__title {
+	font-size: 20px;
+	font-weight: 600;
+	margin: 0 !important;
+}
+
+/* ── Close button (embedded panel) ── */
 
 .schema-chat__close-button {
 	position: absolute;
@@ -27,11 +57,13 @@
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	flex: 1;
+	flex: 1 1 0;
 	gap: 16px;
 	padding: 24px;
 	max-width: 500px;
 	margin: 0 auto;
+	min-height: 0;
+	overflow-y: auto;
 }
 
 .schema-chat__welcome-icon {
@@ -246,17 +278,6 @@
 	}
 }
 
-.schema-chat__rollback {
-	margin-top: 6px;
-}
-
-.schema-chat__rollback summary {
-	cursor: pointer;
-	font-size: 12px;
-	opacity: 0.6;
-	margin-bottom: 4px;
-}
-
 .schema-chat__actions {
 	display: flex;
 	justify-content: flex-end;
@@ -265,6 +286,7 @@
 
 .schema-chat__actions button mat-icon {
 	margin-right: 4px;
+	margin-bottom: -4px;
 	font-size: 18px;
 	height: 18px;
 	width: 18px;
@@ -312,7 +334,7 @@
 .schema-chat__form {
 	width: 100%;
 	max-width: 700px;
-	padding: 0 16px 16px;
+	padding: 0 16px 32px;
 	flex-shrink: 0;
 }
 

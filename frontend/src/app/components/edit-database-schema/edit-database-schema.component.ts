@@ -1,10 +1,11 @@
-import { Component, EventEmitter, Input, Output, signal, inject, computed } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TableSchemaService, SchemaChangeResponse } from 'src/app/services/table-schema.service';
 
 interface ChatMessage {
@@ -15,9 +16,9 @@ interface ChatMessage {
 }
 
 @Component({
-	selector: 'app-db-generate-schema',
-	templateUrl: './db-generate-schema.component.html',
-	styleUrls: ['./db-generate-schema.component.css'],
+	selector: 'app-edit-database-schema',
+	templateUrl: './edit-database-schema.component.html',
+	styleUrls: ['./edit-database-schema.component.css'],
 	imports: [
 		CommonModule,
 		FormsModule,
@@ -25,16 +26,20 @@ interface ChatMessage {
 		MatIconModule,
 		MatFormFieldModule,
 		MatInputModule,
+		RouterModule,
 	],
 })
-export class DbGenerateSchemaComponent {
+export class EditDatabaseSchemaComponent implements OnInit {
 	@Input() connectionID: string;
 	@Input() showClose: boolean = false;
 	@Output() schemaApplied = new EventEmitter<void>();
 	@Output() closeEditor = new EventEmitter<void>();
 
 	private _tableSchema = inject(TableSchemaService);
+	private _route = inject(ActivatedRoute);
+	private _router = inject(Router);
 
+	protected isRoutedPage = signal(false);
 	protected messages = signal<ChatMessage[]>([]);
 	protected userPrompt = signal('');
 	protected submitting = signal(false);
@@ -48,6 +53,19 @@ export class DbGenerateSchemaComponent {
 		}
 		return null;
 	});
+
+	ngOnInit(): void {
+		if (!this.connectionID) {
+			const id = this._route.snapshot.paramMap.get('connection-id');
+			if (id) {
+				this.connectionID = id;
+				this.isRoutedPage.set(true);
+				this.showClose = false;
+			} else {
+				this._router.navigate(['/connections-list']);
+			}
+		}
+	}
 
 	async onSubmit() {
 		const prompt = this.userPrompt().trim();
@@ -138,5 +156,4 @@ export class DbGenerateSchemaComponent {
 			this.onSubmit();
 		}
 	}
-
 }

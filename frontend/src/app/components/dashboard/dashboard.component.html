@@ -21,12 +21,12 @@
     </div>
 </app-banner>
 
-<app-db-generate-schema
+<app-edit-database-schema
     *ngIf="noTablesError"
     [connectionID]="connectionID"
     (schemaApplied)="onSchemaApplied()"
     data-testid="no-tables-generate-schema">
-</app-db-generate-schema>
+</app-edit-database-schema>
 
 <ng-container *ngIf="!loading && !isServerError && !noTablesError">
 
@@ -87,12 +87,11 @@
                 [connectionID]="connectionID"
                 [selectedTable]="selectedTableName"
                 [uiSettings]="uiSettings"
-                (expandSidebar)="toggleSideBar()"
-                (editStructure)="onEditStructure()">
+                (expandSidebar)="toggleSideBar()">
             </app-db-tables-list>
         </mat-sidenav>
         <mat-sidenav-content class="table-preview">
-            <div class="table-preview-content" [class.table-preview-content--panel-open]="showSchemaEditor">
+            <div class="table-preview-content">
                 <div class="alerts">
                     <app-alert></app-alert>
                     <div *ngIf="dataSource.alert_settingsInfo && canEditConnection() && !isConfiguring" class="ai-config-alert">
@@ -129,24 +128,14 @@
                     (applyFilter)="applyFilter($event)">
                 </app-db-table-view>
             </div>
-            <app-db-table-row-view *ngIf="selectedRow && !showSchemaEditor"
+            <app-db-table-row-view *ngIf="selectedRow"
                 [activeFilters]="filters"
             ></app-db-table-row-view>
-            <app-db-table-ai-panel *ngIf="isAIpanelOpened && !showSchemaEditor"
+            <app-db-table-ai-panel *ngIf="isAIpanelOpened"
                 [displayName]="selectedTableDisplayName"
                 [tableColumns]="dataSource?.dataColumns || []"
                 [sidebarExpanded]="shownTableTitles"
             ></app-db-table-ai-panel>
-            <div class="schema-editor-panel" [class.schema-editor-panel--open]="showSchemaEditor">
-                <app-db-generate-schema
-                    *ngIf="showSchemaEditor"
-                    [connectionID]="connectionID"
-                    [showClose]="true"
-                    (schemaApplied)="onSchemaApplied()"
-                    (closeEditor)="showSchemaEditor = false"
-                    data-testid="edit-structure-generate-schema">
-                </app-db-generate-schema>
-            </div>
         </mat-sidenav-content>
     </mat-sidenav-container>
 </ng-container>

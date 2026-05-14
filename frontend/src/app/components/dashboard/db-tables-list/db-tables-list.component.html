@@ -61,13 +61,6 @@
 
             <!-- Bottom section with add folder button (fixed at bottom) -->
             <div class="collapsed-bottom-section" *ngIf="canEditConnection()">
-                <!-- Edit structure button -->
-                <div class="collapsed-add-button"
-                    (click)="editStructure.emit()"
-                    matTooltip="Edit structure"
-                    matTooltipPosition="right">
-                    <mat-icon class="collapsed-action-icon">construction</mat-icon>
-                </div>
                 <!-- Add folder button -->
                 <div class="collapsed-add-button"
                     (click)="onAddFolder()"
@@ -94,14 +87,6 @@
                 <button type="button" mat-stroked-button color="primary" class="add-folder-button" (click)="onAddFolder()">
                     <mat-icon>add</mat-icon>
                     Add folder
-                </button>
-            </div>
-
-            <!-- Edit structure button -->
-            <div *ngIf="canEditConnection()" class="edit-structure-button-container">
-                <button type="button" mat-stroked-button color="primary" class="edit-structure-button" (click)="editStructure.emit()">
-                    <mat-icon>construction</mat-icon>
-                    Edit structure
                 </button>
             </div>
 

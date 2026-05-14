@@ -161,6 +161,15 @@ const routes: Routes = [
 		canActivate: [AuthGuard],
 	},
 	{
+		path: 'edit-database-schema/:connection-id',
+		loadComponent: () =>
+			import('./components/edit-database-schema/edit-database-schema.component').then(
+				(m) => m.EditDatabaseSchemaComponent,
+			),
+		canActivate: [AuthGuard],
+		title: 'Edit Database Schema | Rocketadmin',
+	},
+	{
 		path: 'connection-settings/:connection-id',
 		loadComponent: () =>
 			import('./components/connection-settings/connection-settings.component').then(
