@@ -156,6 +156,7 @@
 		<div class="schema-chat__open-tables">
 			<a mat-flat-button color="primary" (click)="onOpenTables()"
 				[routerLink]="['/dashboard', connectionID]"
+				[queryParams]="{uncached: 'true'}"
 				data-testid="schema-open-tables-button">
 				<mat-icon>table_chart</mat-icon>
 				Open tables

@@ -31,6 +31,7 @@ interface RowsParams {
 	comparators?: object;
 	search?: string;
 	isTablePageSwitched?: boolean;
+	uncached?: boolean;
 }
 
 export class TablesDataSource implements DataSource<Object> {
@@ -118,6 +119,7 @@ export class TablesDataSource implements DataSource<Object> {
 		comparators,
 		search,
 		isTablePageSwitched,
+		uncached,
 	}: RowsParams) {
 		this.loadingSubject.next(true);
 		this.alert_primaryKeysInfo = null;
@@ -135,6 +137,7 @@ export class TablesDataSource implements DataSource<Object> {
 			filters,
 			comparators,
 			search,
+			uncached,
 		});
 
 		if (fetchedTable) {
