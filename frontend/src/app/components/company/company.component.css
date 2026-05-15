@@ -112,6 +112,53 @@
 	color: var(--color-successPalette-500);
 }
 
+.access-popup {
+	background: var(--mat-menu-container-color, #fff);
+	border-radius: 4px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+	padding: 8px 12px;
+	min-width: 160px;
+	white-space: nowrap;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.access-popup__connection {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.access-popup__connection-title {
+	font-weight: 500;
+	font-size: 13px;
+}
+
+.access-popup__connection-db {
+	font-size: 11px;
+	color: rgba(0, 0, 0, 0.45);
+	padding-left: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+	.access-popup__connection-db {
+		color: rgba(255, 255, 255, 0.45);
+	}
+}
+
+.access-popup__group {
+	font-size: 12px;
+	color: rgba(0, 0, 0, 0.6);
+	padding-left: 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+	.access-popup__group {
+		color: rgba(255, 255, 255, 0.6);
+	}
+}
+
 .company-member-cell_not-accessed {
 	color: var(--color-warnPalette-500);
 }

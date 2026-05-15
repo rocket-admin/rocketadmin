@@ -1,4 +1,5 @@
 import { NgIf } from '@angular/common';
+import { CdkConnectedOverlay, CdkOverlayOrigin } from '@angular/cdk/overlay';
 import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -37,6 +38,8 @@ import { RevokeInvitationDialogComponent } from './revoke-invitation-dialog/revo
 	styleUrls: ['./company.component.css'],
 	imports: [
 		NgIf,
+		CdkOverlayOrigin,
+		CdkConnectedOverlay,
 		FormsModule,
 		MatFormFieldModule,
 		MatInputModule,
