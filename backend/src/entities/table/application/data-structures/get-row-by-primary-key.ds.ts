@@ -4,4 +4,5 @@ export class GetRowByPrimaryKeyDs {
 	primaryKey: Record<string, unknown>;
 	tableName: string;
 	userId: string;
+	uncached?: boolean;
 }
