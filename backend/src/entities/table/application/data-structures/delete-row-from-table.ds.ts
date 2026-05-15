@@ -4,6 +4,7 @@ export class DeleteRowFromTableDs {
 	primaryKey: Record<string, unknown>;
 	tableName: string;
 	userId: string;
+	uncached?: boolean;
 }
 
 export class DeleteRowsFromTableDs {

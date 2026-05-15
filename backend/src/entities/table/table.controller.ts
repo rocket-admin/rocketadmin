@@ -261,10 +261,11 @@ export class TableController {
 	@ApiQuery({ name: 'perPage', required: false })
 	@ApiQuery({ name: 'search', required: false })
 	@ApiQuery({
-		name: 'uncached',
+		name: '_uncached',
 		required: false,
 		type: Boolean,
-		description: 'Invalidate table metadata cache before reading rows',
+		description:
+			'Invalidate table metadata cache before reading rows. Underscore prefix avoids column-name collisions.',
 	})
 	@UseGuards(TableReadGuard)
 	@Timeout(TimeoutDefaults.EXTENDED)
@@ -276,7 +277,7 @@ export class TableController {
 		@Query('page') page: string,
 		@Query('perPage') perPage: string,
 		@Query('search') searchingFieldValue: string,
-		@Query('uncached') uncached: string,
+		@Query('_uncached') uncachedFlag: string,
 		@Query() query: Record<string, string>,
 		@SlugUuid('connectionId') connectionId: string,
 		@UserId() userId: string,
@@ -310,12 +311,12 @@ export class TableController {
 			masterPwd: masterPwd,
 			page: parsedPage,
 			perPage: parsedPerPage,
-			query: query,
+			query: this.stripReservedQueryParams(query),
 			searchingFieldValue: searchingFieldValue,
 			tableName: tableName,
 			userId: userId,
 			filters: body?.filters,
-			uncached: uncached === 'true',
+			uncached: uncachedFlag === 'true',
 		};
 		return await this.getTableRowsUseCase.execute(inputData, InTransactionEnum.OFF);
 	}
@@ -439,11 +440,18 @@ export class TableController {
 		type: TableRowRODs,
 	})
 	@ApiQuery({ name: 'tableName', required: true })
+	@ApiQuery({
+		name: '_uncached',
+		required: false,
+		type: Boolean,
+		description: 'Invalidate table metadata cache before reading. Underscore prefix avoids column-name collisions.',
+	})
 	@UseGuards(TableEditGuard)
 	@Put('/table/row/:connectionId')
 	async updateRowInTable(
 		@Body() body: Record<string, unknown>,
 		@Query() query: Record<string, string>,
+		@Query('_uncached') uncachedFlag: string,
 		@UserId() userId: string,
 		@MasterPassword() masterPwd: string,
 		@SlugUuid('connectionId') connectionId: string,
@@ -457,7 +465,16 @@ export class TableController {
 				HttpStatus.BAD_REQUEST,
 			);
 		}
-		const primaryKeys = await this.getPrimaryKeys(userId, connectionId, tableName, query, masterPwd);
+		const uncached = uncachedFlag === 'true';
+		const primaryKeyQuery = this.stripReservedQueryParams(query);
+		const primaryKeys = await this.getPrimaryKeys(
+			userId,
+			connectionId,
+			tableName,
+			primaryKeyQuery,
+			masterPwd,
+			uncached,
+		);
 		const propertiesArray = primaryKeys.map((el) => {
 			return Object.entries(el)[0];
 		});
@@ -470,6 +487,7 @@ export class TableController {
 			row: body,
 			tableName: tableName,
 			userId: userId,
+			uncached: uncached,
 		};
 		return await this.updateRowInTableUseCase.execute(inputData, InTransactionEnum.OFF);
 	}
@@ -484,16 +502,32 @@ export class TableController {
 		type: DeletedRowFromTableDs,
 	})
 	@ApiQuery({ name: 'tableName', required: true })
+	@ApiQuery({
+		name: '_uncached',
+		required: false,
+		type: Boolean,
+		description: 'Invalidate table metadata cache before reading. Underscore prefix avoids column-name collisions.',
+	})
 	@UseGuards(TableDeleteGuard)
 	@Delete('/table/row/:connectionId')
 	async deleteRowInTable(
 		@Query() query: Record<string, string>,
+		@Query('_uncached') uncachedFlag: string,
 		@MasterPassword() masterPwd: string,
 		@SlugUuid('connectionId') connectionId: string,
 		@UserId() userId: string,
 		@QueryTableName() tableName: string,
 	): Promise<DeletedRowFromTableDs> {
-		const primaryKeys = await this.getPrimaryKeys(userId, connectionId, tableName, query, masterPwd);
+		const uncached = uncachedFlag === 'true';
+		const primaryKeyQuery = this.stripReservedQueryParams(query);
+		const primaryKeys = await this.getPrimaryKeys(
+			userId,
+			connectionId,
+			tableName,
+			primaryKeyQuery,
+			masterPwd,
+			uncached,
+		);
 		const propertiesArray = primaryKeys.map((el) => {
 			return Object.entries(el)[0];
 		});
@@ -513,6 +547,7 @@ export class TableController {
 			primaryKey: primaryKey,
 			tableName: tableName,
 			userId: userId,
+			uncached: uncached,
 		};
 		return await this.deleteRowFromTableUseCase.execute(inputData, InTransactionEnum.OFF);
 	}
@@ -614,16 +649,32 @@ export class TableController {
 		type: TableRowRODs,
 	})
 	@ApiQuery({ name: 'tableName', required: true })
+	@ApiQuery({
+		name: '_uncached',
+		required: false,
+		type: Boolean,
+		description: 'Invalidate table metadata cache before reading. Underscore prefix avoids column-name collisions.',
+	})
 	@UseGuards(TableReadGuard)
 	@Get('/table/row/:connectionId')
 	async getRowByPrimaryKey(
 		@Query() query: Record<string, string>,
+		@Query('_uncached') uncachedFlag: string,
 		@MasterPassword() masterPwd: string,
 		@SlugUuid('connectionId') connectionId: string,
 		@UserId() userId: string,
 		@QueryTableName() tableName: string,
 	): Promise<TableRowRODs> {
-		const primaryKeys = await this.getPrimaryKeys(userId, connectionId, tableName, query, masterPwd);
+		const uncached = uncachedFlag === 'true';
+		const primaryKeyQuery = this.stripReservedQueryParams(query);
+		const primaryKeys = await this.getPrimaryKeys(
+			userId,
+			connectionId,
+			tableName,
+			primaryKeyQuery,
+			masterPwd,
+			uncached,
+		);
 
 		const propertiesArray = primaryKeys.map((el) => {
 			return Object.entries(el)[0];
@@ -644,6 +695,7 @@ export class TableController {
 				primaryKey: primaryKey,
 				tableName: tableName,
 				userId: userId,
+				uncached: uncached,
 			};
 			return await this.getRowByPrimaryKeyUseCase.execute(inputData, InTransactionEnum.OFF);
 		} finally {
@@ -767,12 +819,18 @@ export class TableController {
 		};
 	}
 
+	private stripReservedQueryParams(query: Record<string, string>): Record<string, string> {
+		const { _uncached: _uncachedReserved, ...rest } = query ?? {};
+		return rest;
+	}
+
 	private async getPrimaryKeys(
 		userId: string,
 		connectionId: string,
 		tableName: string,
 		query: Record<string, string>,
 		masterPwd: string,
+		uncached = false,
 	): Promise<Array<Record<string, unknown>>> {
 		const primaryKeys = [];
 		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
@@ -781,6 +839,9 @@ export class TableController {
 			userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
 		}
 		const dao = getDataAccessObject(connection);
+		if (uncached) {
+			dao.invalidateMetadataCache();
+		}
 
 		const tablesInConnection = await dao.getTablesFromDB(userEmail);
 		const tableNames = tablesInConnection.map((table) => table.tableName);
