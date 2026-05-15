@@ -6,7 +6,7 @@ export interface BucketWidgetParams {
 	prefix?: string;
 	region?: string;
 	account_id?: string;
-	access_key_id_secret_name: string;
-	secret_access_key_secret_name: string;
+	access_key_id: string;
+	access_key: string;
 	type?: 'file' | 'image';
 }

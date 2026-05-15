@@ -22,8 +22,8 @@ describe('S3EditComponent', () => {
 			bucket: 'test-bucket',
 			prefix: 'uploads/',
 			region: 'us-east-1',
-			access_key_id_secret_name: 'bucket-key',
-			secret_access_key_secret_name: 'bucket-secret',
+			access_key_id: 'COMPANY-SECRET/bucket-access-key-id',
+			access_key: 'COMPANY-SECRET/bucket-access-key',
 		},
 		name: 'Document Upload',
 		description: 'Upload documents to S3',
@@ -37,8 +37,8 @@ describe('S3EditComponent', () => {
 			bucket: 'test-bucket',
 			prefix: 'uploads/',
 			region: 'us-east-1',
-			access_key_id_secret_name: 'bucket-key',
-			secret_access_key_secret_name: 'bucket-secret',
+			access_key_id: 'COMPANY-SECRET/bucket-access-key-id',
+			access_key: 'COMPANY-SECRET/bucket-access-key',
 		}) as any,
 		name: 'Document Upload',
 		description: 'Upload documents to S3',
@@ -113,8 +113,8 @@ describe('S3EditComponent', () => {
 				bucket: 'test-bucket',
 				prefix: 'uploads/',
 				region: 'us-east-1',
-				access_key_id_secret_name: 'bucket-key',
-				secret_access_key_secret_name: 'bucket-secret',
+				access_key_id: 'COMPANY-SECRET/bucket-access-key-id',
+				access_key: 'COMPANY-SECRET/bucket-access-key',
 			});
 		});
 
