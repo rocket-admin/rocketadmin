@@ -45,6 +45,7 @@ export class GetRowByPrimaryKeyUseCase
 
 	protected async implementation(inputData: GetRowByPrimaryKeyDs): Promise<TableRowRODs> {
 		let { connectionId, masterPwd, primaryKey, tableName, userId } = inputData;
+		const { uncached } = inputData;
 		if (!primaryKey) {
 			throw new HttpException(
 				{
@@ -62,6 +63,9 @@ export class GetRowByPrimaryKeyUseCase
 		const userEmail = await getUserEmailForAgent(connection, userId, this._dbContext.userRepository);
 
 		await validateSchemaCache(dao, userEmail);
+		if (uncached) {
+			dao.invalidateMetadataCache();
+		}
 
 		let [
 			tableStructure,
