@@ -121,22 +121,21 @@
 	white-space: nowrap;
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	font-family: var(--mat-menu-item-label-text-font, inherit);
+	font-size: var(--mat-menu-item-label-text-size, 14px);
 }
 
 .access-popup__connection {
 	display: flex;
 	flex-direction: column;
-	gap: 2px;
 }
 
 .access-popup__connection-title {
 	font-weight: 500;
-	font-size: 13px;
 }
 
 .access-popup__connection-db {
-	font-size: 11px;
+	font-size: 0.786em;
 	color: rgba(0, 0, 0, 0.45);
 	padding-left: 2px;
 }
@@ -148,7 +147,7 @@
 }
 
 .access-popup__group {
-	font-size: 12px;
+	font-size: 0.857em;
 	color: rgba(0, 0, 0, 0.6);
 	padding-left: 8px;
 }
