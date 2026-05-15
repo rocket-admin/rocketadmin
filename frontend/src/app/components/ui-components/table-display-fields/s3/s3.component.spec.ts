@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { S3DisplayComponent } from './s3.component';
-import { S3Service } from 'src/app/services/s3.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { S3Service } from 'src/app/services/s3.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { vi } from 'vitest';
+import { S3DisplayComponent } from './s3.component';
 
 describe('S3DisplayComponent', () => {
 	let component: S3DisplayComponent;
@@ -46,8 +46,8 @@ describe('S3DisplayComponent', () => {
 		fixture.componentRef.setInput('widgetStructure', {
 			widget_params: {
 				bucket: 'my-bucket',
-				access_key_id_secret_name: 'key',
-				secret_access_key_secret_name: 'secret',
+				access_key_id: 'COMPANY-SECRET/bucket-access-key-id',
+				access_key: 'COMPANY-SECRET/bucket-access-key',
 				type: 'image',
 			},
 		});

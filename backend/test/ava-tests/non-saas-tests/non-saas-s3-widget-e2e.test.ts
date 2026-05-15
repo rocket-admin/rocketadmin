@@ -91,8 +91,8 @@ async function setupS3WidgetTestEnvironment(
 			bucket: 'test-bucket',
 			prefix: 'uploads',
 			region: 'us-east-1',
-			access_key_id_secret_name: 'test-aws-access-key',
-			secret_access_key_secret_name: 'test-aws-secret-key',
+			access_key_id: 'test-aws-access-key',
+			access_key: 'test-aws-secret-key',
 		});
 
 		const widgetDto = {
@@ -596,8 +596,8 @@ test.serial(`${currentTest} - widget creation succeeds with provider 'digitaloce
 		provider: 'digitalocean',
 		bucket: 'test-bucket',
 		region: 'fra1',
-		access_key_id_secret_name: 'do-key',
-		secret_access_key_secret_name: 'do-secret',
+		access_key_id: 'do-key',
+		access_key: 'do-secret',
 	});
 
 	const response = await request(app.getHttpServer())
@@ -628,8 +628,8 @@ test.serial(`${currentTest} - widget creation rejected with unsupported provider
 		provider: 'not-a-real-provider',
 		bucket: 'test-bucket',
 		region: 'us-east-1',
-		access_key_id_secret_name: 'k',
-		secret_access_key_secret_name: 's',
+		access_key_id: 'k',
+		access_key: 's',
 	});
 
 	const response = await request(app.getHttpServer())
@@ -660,8 +660,8 @@ test.serial(`${currentTest} - widget creation rejected when cloudflare-r2 missin
 		provider: 'cloudflare-r2',
 		bucket: 'test-bucket',
 		region: 'auto',
-		access_key_id_secret_name: 'k',
-		secret_access_key_secret_name: 's',
+		access_key_id: 'k',
+		access_key: 's',
 	});
 
 	const response = await request(app.getHttpServer())
@@ -693,8 +693,8 @@ test.serial(`${currentTest} - widget creation succeeds with cloudflare-r2 and ac
 		bucket: 'test-bucket',
 		region: 'auto',
 		account_id: 'abc123def456',
-		access_key_id_secret_name: 'k',
-		secret_access_key_secret_name: 's',
+		access_key_id: 'k',
+		access_key: 's',
 	});
 
 	const response = await request(app.getHttpServer())
@@ -718,13 +718,13 @@ test.serial(`${currentTest} - widget creation succeeds with cloudflare-r2 and ac
 	t.is(response.status, 201);
 });
 
-test.serial(`${currentTest} - widget creation rejected when access_key_id_secret_name missing`, async (t) => {
+test.serial(`${currentTest} - widget creation rejected when access_key_id missing`, async (t) => {
 	const { token, connectionId, testTableName } = await createConnectionAndTableWithS3Field();
 
 	const widgetParams = JSON.stringify({
 		bucket: 'test-bucket',
 		region: 'us-east-1',
-		secret_access_key_secret_name: 's',
+		access_key: 's',
 	});
 
 	const response = await request(app.getHttpServer())
