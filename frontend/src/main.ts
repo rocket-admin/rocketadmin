@@ -15,7 +15,7 @@ import { DynamicModule } from 'ng-dynamic-component';
 import { SignalComponentIoModule } from 'ng-dynamic-component/signal-component-io';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { CookieService } from 'ngx-cookie-service';
-import { MarkdownModule, provideMarkdown } from 'ngx-markdown';
+import { MERMAID_OPTIONS, MarkdownModule, provideMarkdown } from 'ngx-markdown';
 import { NgxStripeModule } from 'ngx-stripe';
 import { AppComponent } from './app/app.component';
 import { AppRoutingModule } from './app/app-routing.module';
@@ -127,6 +127,7 @@ bootstrapApplication(AppComponent, {
 		CookieService,
 		provideMarkdown({
 			mermaidOptions: {
+				provide: MERMAID_OPTIONS,
 				useValue: {
 					startOnLoad: false,
 					theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default',
