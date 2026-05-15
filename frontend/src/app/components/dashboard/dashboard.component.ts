@@ -200,7 +200,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 									} else {
 										tableName = this.allTables[0]?.table;
 									}
-									this.router.navigate([`/dashboard/${this.connectionID}/${tableName}`], { replaceUrl: true });
+									this.router.navigate([`/dashboard/${this.connectionID}/${tableName}`], { replaceUrl: true, queryParamsHandling: 'preserve' });
 									this.selectedTableName = tableName;
 								}
 							}),
@@ -271,7 +271,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		this.sortOrder = queryParams.sort_direction;
 
 		const search = queryParams.search;
-		this.getRows(search);
+		const uncached = queryParams.uncached === 'true';
+		this.getRows(search, uncached);
 		console.log('getRows from setTable');
 
 		const selectedTableProperties = this.allTables.find((table: any) => table.table === this.selectedTableName);
@@ -389,7 +390,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		});
 	}
 
-	getRows(search?: string) {
+	getRows(search?: string, uncached?: boolean) {
 		console.log('getRows, filters:', this.filters);
 		this._uiSettings.getUiSettings().subscribe((settings: UiSettings) => {
 			this.uiSettings = settings?.connections[this.connectionID];
@@ -404,6 +405,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 				sortOrder: this.sortOrder,
 				filters: this.filters,
 				search,
+				uncached,
 			});
 		});
 	}

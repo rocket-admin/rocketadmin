@@ -27,6 +27,7 @@ interface TableParams {
 	filters?: object;
 	comparators?: object;
 	search?: string;
+	uncached?: boolean;
 }
 
 @Injectable({
@@ -121,6 +122,7 @@ export class TablesService {
 		referencedColumn,
 		filters,
 		search,
+		uncached,
 	}: TableParams) {
 		let foreignKeyRowParamName =
 			foreignKeyRowName === 'autocomplete' ? foreignKeyRowName : `f_${foreignKeyRowName}__eq`;
@@ -140,6 +142,7 @@ export class TablesService {
 							...(referencedColumn ? { referencedColumn } : {}),
 							...(sortColumn ? { sort_by: sortColumn } : {}),
 							...(sortOrder ? { sort_order: sortOrder } : {}),
+							...(uncached ? { _uncached: 'true' } : {}),
 						},
 					},
 				)
