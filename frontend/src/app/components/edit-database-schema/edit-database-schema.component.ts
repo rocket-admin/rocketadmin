@@ -105,6 +105,7 @@ export class EditDatabaseSchemaComponent implements OnInit, AfterViewInit {
 			}
 			if (result && result.changes.length > 0) {
 				const summary = result.changes.map(c => `**${c.changeType}** \`${c.targetTableName}\`${c.aiSummary ? ' — ' + c.aiSummary : ''}`).join('\n');
+				this.applied.set(false);
 				this.messages.update(msgs => [...msgs, {
 					role: 'ai',
 					text: `I've generated ${result.changes.length} change(s) for your database:\n\n${summary}\n\nReview the SQL below and approve or reject.`,
@@ -145,10 +146,12 @@ export class EditDatabaseSchemaComponent implements OnInit, AfterViewInit {
 					}]);
 				} else {
 					this.applied.set(true);
-					this.messages.update(msgs => [...msgs, {
+					this.messages.update(msgs => msgs.map(m =>
+						m === batch ? { ...m, batchId: undefined } : m
+					).concat({
 						role: 'ai',
 						text: 'All changes applied successfully! Your tables have been created.',
-					}]);
+					}));
 					this._loadDiagram('Updated Database Structure');
 				}
 			}

@@ -164,45 +164,44 @@
 	}
 
 	<!-- Input form / Actions -->
-	@if (!applied()) {
-		<div class="schema-chat__form">
-			@if (pendingBatch()) {
-				<div class="schema-chat__actions">
-					<button mat-stroked-button type="button" (click)="onReject()" [disabled]="applying()"
-						data-testid="schema-reject-button">
-						Reject
+	<div class="schema-chat__form">
+		@if (pendingBatch()) {
+			<div class="schema-chat__actions">
+				<button mat-stroked-button type="button" (click)="onReject()" [disabled]="applying()"
+					data-testid="schema-reject-button">
+					Reject
+				</button>
+				<button mat-flat-button color="primary" type="button" (click)="onApprove()" [disabled]="applying()"
+					data-testid="schema-approve-button">
+					@if (applying()) {
+						Applying...
+					} @else {
+						<mat-icon>check</mat-icon>
+						Apply All
+					}
+				</button>
+			</div>
+		} @else {
+			<form (ngSubmit)="onSubmit()">
+				<mat-form-field appearance="outline" class="schema-chat__input-field">
+					<mat-label>{{showClose || isRoutedPage() ? 'Describe the changes you need...' : 'Describe the database you need...'}}</mat-label>
+					<textarea matInput
+						name="schemaPrompt"
+						[ngModel]="userPrompt()"
+						(ngModelChange)="userPrompt.set($event)"
+						(keydown)="onKeydown($event)"
+						rows="2"
+						maxlength="1000"
+						[disabled]="submitting()"
+						data-testid="schema-prompt-textarea"
+					></textarea>
+					<button mat-icon-button matSuffix type="submit"
+						[disabled]="!userPrompt().trim() || submitting()"
+						class="schema-chat__send-button">
+						<mat-icon>send</mat-icon>
 					</button>
-					<button mat-flat-button color="primary" type="button" (click)="onApprove()" [disabled]="applying()"
-						data-testid="schema-approve-button">
-						@if (applying()) {
-							Applying...
-						} @else {
-							<mat-icon>check</mat-icon>
-							Apply All
-						}
-					</button>
-				</div>
-			} @else {
-				<form (ngSubmit)="onSubmit()">
-					<mat-form-field appearance="outline" class="schema-chat__input-field">
-						<mat-label>{{showClose || isRoutedPage() ? 'Describe the changes you need...' : 'Describe the database you need...'}}</mat-label>
-						<textarea matInput
-							name="schemaPrompt"
-							[ngModel]="userPrompt()"
-							(ngModelChange)="userPrompt.set($event)"
-							(keydown)="onKeydown($event)"
-							rows="2"
-							maxlength="1000"
-							data-testid="schema-prompt-textarea"
-						></textarea>
-						<button mat-icon-button matSuffix type="submit"
-							[disabled]="!userPrompt().trim() || submitting()"
-							class="schema-chat__send-button">
-							<mat-icon>send</mat-icon>
-						</button>
-					</mat-form-field>
-				</form>
-			}
-		</div>
-	}
+				</mat-form-field>
+			</form>
+		}
+	</div>
 </div>
