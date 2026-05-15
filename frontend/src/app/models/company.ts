@@ -34,6 +34,18 @@ export interface Company {
 	show_test_connections: boolean;
 }
 
+export interface CompanyMembershipGroup {
+	id: string;
+	title: string;
+}
+
+export interface CompanyMembershipConnection {
+	id: string;
+	title: string;
+	database: string;
+	groups: CompanyMembershipGroup[];
+}
+
 export interface CompanyMember {
 	id: string;
 	isActive: boolean;
@@ -42,6 +54,7 @@ export interface CompanyMember {
 	is_2fa_enabled: boolean;
 	role: CompanyMemberRole;
 	has_groups: boolean;
+	user_membership: CompanyMembershipConnection[];
 }
 
 export enum CompanyMemberRole {

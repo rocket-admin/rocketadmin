@@ -263,6 +263,7 @@ describe('CompanyComponent', () => {
 			is_2fa_enabled: false,
 			role: CompanyMemberRole.Member,
 			has_groups: false,
+			user_membership: [],
 		};
 
 		component.handleDeleteMemberDialogOpen(fakeMember);

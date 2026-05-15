@@ -47,7 +47,7 @@
 						"stylePreprocessorOptions": {
 							"includePaths": ["node_modules/@brumeilde/ngx-theme/presets/material"]
 						},
-						"scripts": [],
+						"scripts": ["node_modules/mermaid/dist/mermaid.min.js"],
 						"extractLicenses": false,
 						"sourceMap": true,
 						"optimization": false,
