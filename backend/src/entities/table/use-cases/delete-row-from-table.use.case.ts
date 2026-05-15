@@ -41,6 +41,7 @@ export class DeleteRowFromTableUseCase
 	protected async implementation(inputData: DeleteRowFromTableDs): Promise<DeletedRowFromTableDs> {
 		// eslint-disable-next-line prefer-const
 		let { connectionId, masterPwd, primaryKey, tableName, userId } = inputData;
+		const { uncached } = inputData;
 
 		let operationResult = OperationResultStatusEnum.unknown;
 		if (!primaryKey) {
@@ -56,6 +57,9 @@ export class DeleteRowFromTableUseCase
 		validateConnection(connection);
 
 		const dao = getDataAccessObject(connection);
+		if (uncached) {
+			dao.invalidateMetadataCache();
+		}
 		const userEmail = await getUserEmailForAgent(connection, userId, this._dbContext.userRepository);
 
 		const isView = await dao.isView(tableName, userEmail);

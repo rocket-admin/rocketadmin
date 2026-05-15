@@ -57,6 +57,7 @@ export class UpdateRowInTableUseCase
 
 	protected async implementation(inputData: UpdateRowInTableDs): Promise<TableRowRODs> {
 		let { connectionId, masterPwd, primaryKey, row, tableName, userId } = inputData;
+		const { uncached } = inputData;
 		let operationResult = OperationResultStatusEnum.unknown;
 
 		const errors = [];
@@ -68,6 +69,9 @@ export class UpdateRowInTableUseCase
 		validateConnection(connection);
 
 		const dao = getDataAccessObject(connection);
+		if (uncached) {
+			dao.invalidateMetadataCache();
+		}
 
 		const userEmail = await getUserEmailForAgent(connection, userId, this._dbContext.userRepository);
 		const isView = await dao.isView(tableName, userEmail);
