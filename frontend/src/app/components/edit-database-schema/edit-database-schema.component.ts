@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, signal, inject, computed } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -32,7 +32,7 @@ interface ChatMessage {
 		RouterModule,
 	],
 })
-export class EditDatabaseSchemaComponent implements OnInit, AfterViewInit {
+export class EditDatabaseSchemaComponent implements OnInit {
 	@Input() connectionID: string;
 	@Input() showClose: boolean = false;
 	@Output() schemaApplied = new EventEmitter<void>();
@@ -59,18 +59,6 @@ export class EditDatabaseSchemaComponent implements OnInit, AfterViewInit {
 		}
 		return null;
 	});
-
-	async ngAfterViewInit() {
-		const mermaid = await import('mermaid');
-		const mermaidAPI = (mermaid.default ?? mermaid) as { initialize: (config: Record<string, unknown>) => void };
-		const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-		mermaidAPI.initialize({
-			startOnLoad: false,
-			theme: isDark ? 'dark' : 'default',
-		});
-		//@ts-expect-error dynamic load of mermaid
-		window.mermaid = mermaidAPI;
-	}
 
 	ngOnInit(): void {
 		if (!this.connectionID) {

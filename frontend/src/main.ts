@@ -125,7 +125,14 @@ bootstrapApplication(AppComponent, {
 		NotificationsService,
 		TablesService,
 		CookieService,
-		provideMarkdown(),
+		provideMarkdown({
+			mermaidOptions: {
+				useValue: {
+					startOnLoad: false,
+					theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default',
+				},
+			},
+		}),
 		Title,
 		{
 			provide: HTTP_INTERCEPTORS,
