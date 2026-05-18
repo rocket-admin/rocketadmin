@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { S3RecordViewComponent } from './s3.component';
-import { S3Service } from 'src/app/services/s3.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { S3Service } from 'src/app/services/s3.service';
 import { TablesService } from 'src/app/services/tables.service';
+import { S3RecordViewComponent } from './s3.component';
 
 describe('S3RecordViewComponent', () => {
 	let component: S3RecordViewComponent;
@@ -44,8 +44,8 @@ describe('S3RecordViewComponent', () => {
 			widget_params: {
 				bucket: 'my-bucket',
 				type: 'file',
-				access_key_id_secret_name: 'key',
-				secret_access_key_secret_name: 'secret',
+				access_key_id: 'COMPANY-SECRET/bucket-access-key-id',
+				access_key: 'COMPANY-SECRET/bucket-access-key',
 			},
 		});
 		component.ngOnInit();
@@ -58,8 +58,8 @@ describe('S3RecordViewComponent', () => {
 			widget_params: {
 				bucket: 'my-bucket',
 				type: 'image',
-				access_key_id_secret_name: 'key',
-				secret_access_key_secret_name: 'secret',
+				access_key_id: 'COMPANY-SECRET/bucket-access-key-id',
+				access_key: 'COMPANY-SECRET/bucket-access-key',
 			},
 		});
 		component.ngOnInit();
