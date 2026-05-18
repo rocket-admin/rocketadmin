@@ -3,7 +3,7 @@ ARG VERSION
 ARG SAAS
 SHELL ["/bin/bash", "-c"]
 WORKDIR /app/frontend
-COPY frontend/package.json frontend/yarn.lock frontend/angular.json frontend/browserslist frontend/tsconfig.app.json frontend/tsconfig.json /app/frontend/
+COPY frontend/package.json frontend/yarn.lock frontend/.yarnrc.yml frontend/angular.json frontend/browserslist frontend/tsconfig.app.json frontend/tsconfig.json /app/frontend/
 COPY frontend/.yarn /app/frontend/.yarn
 RUN apt-get update && apt-get install -y \
     git \
