@@ -1,8 +1,8 @@
-import knex, { Knex } from 'knex';
 import getPort from 'get-port';
+import knex, { Knex } from 'knex';
+import { LRUStorage } from '../caching/lru-storage.js';
 import { ConnectionParams } from '../data-access-layer/shared/data-structures/connections-params.ds.js';
 import { getTunnel } from '../helpers/get-ssh-tunnel.js';
-import { LRUStorage } from '../caching/lru-storage.js';
 export class KnexManager {
 	static knexStorage() {
 		const knexMap = new Map<ConnectionParams['type'], (connection: ConnectionParams) => Promise<Knex<any, any[]>>>();
@@ -126,6 +126,7 @@ export class KnexManager {
 
 	private static getPostgresKnex(connection: ConnectionParams): Knex<any, any[]> {
 		const { host, username, password, database, port, type, cert, ssl } = connection;
+		const pool = { min: 0, max: 3 };
 		if (process.env.NODE_ENV === 'test') {
 			const newKnex = knex({
 				client: type,
@@ -137,6 +138,7 @@ export class KnexManager {
 					port: port,
 					application_name: 'rocketadmin',
 				},
+				pool,
 			});
 			return newKnex;
 		}
@@ -155,6 +157,7 @@ export class KnexManager {
 						rejectUnauthorized: false,
 					},
 				},
+				pool,
 			});
 			return newKnex;
 		}
@@ -169,6 +172,7 @@ export class KnexManager {
 				application_name: 'rocketadmin',
 				ssl: ssl ? { ca: cert ?? undefined, rejectUnauthorized: !cert } : false,
 			},
+			pool,
 		});
 		return newKnex;
 	}
