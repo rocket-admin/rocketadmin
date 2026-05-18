@@ -179,7 +179,9 @@
 								[ngModel]="userPrompt()"
 								(ngModelChange)="userPrompt.set($event)"
 								(keydown)="onKeydown($event)"
-								rows="2"
+								cdkTextareaAutosize
+								cdkAutosizeMinRows="2"
+								cdkAutosizeMaxRows="10"
 								maxlength="1000"
 								[disabled]="submitting()"
 								data-testid="schema-prompt-textarea"

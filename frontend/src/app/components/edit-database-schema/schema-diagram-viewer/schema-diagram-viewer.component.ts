@@ -45,6 +45,10 @@ export class SchemaDiagramViewerComponent implements AfterViewInit, OnDestroy {
 		this._source.set(next);
 		this._cachedSvg = null;
 		this.svgReady.set(false);
+		this.svgSize.set({ w: 0, h: 0 });
+		this.scale.set(1);
+		this.translateX.set(0);
+		this.translateY.set(0);
 	}
 	get source(): string {
 		return this._source();
@@ -178,7 +182,14 @@ export class SchemaDiagramViewerComponent implements AfterViewInit, OnDestroy {
 	}
 
 	onFitToScreen() {
-		const vp = this.viewportSize();
+		let vp = this.viewportSize();
+		if (!vp.w || !vp.h) {
+			const rect = this.viewportRef?.nativeElement?.getBoundingClientRect();
+			if (rect && rect.width && rect.height) {
+				vp = { w: rect.width, h: rect.height };
+				this.viewportSize.set(vp);
+			}
+		}
 		const svg = this.svgSize();
 		if (!vp.w || !svg.w) return;
 		const padding = 24;
@@ -323,6 +334,7 @@ export class SchemaDiagramViewerComponent implements AfterViewInit, OnDestroy {
 			this._renderMinimapClone(svg);
 			this.svgReady.set(true);
 			requestAnimationFrame(() => this.onFitToScreen());
+			setTimeout(() => this.onFitToScreen(), 80);
 		};
 		tryAttach();
 		this._renderObserver?.disconnect();

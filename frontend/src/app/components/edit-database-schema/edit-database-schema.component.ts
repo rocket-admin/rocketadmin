@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { TextFieldModule } from '@angular/cdk/text-field';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TableSchemaService, SchemaChangeResponse } from 'src/app/services/table-schema.service';
 import { SchemaDiagramViewerComponent } from './schema-diagram-viewer/schema-diagram-viewer.component';
@@ -28,6 +29,7 @@ interface ChatMessage {
 		MatIconModule,
 		MatFormFieldModule,
 		MatInputModule,
+		TextFieldModule,
 		RouterModule,
 		SchemaDiagramViewerComponent,
 	],
@@ -105,12 +107,23 @@ export class EditDatabaseSchemaComponent implements OnInit {
 			if (result && result.changes.length > 0) {
 				const summary = result.changes.map(c => `**${c.changeType}** \`${c.targetTableName}\`${c.aiSummary ? ' — ' + c.aiSummary : ''}`).join('\n');
 				this.applied.set(false);
-				this.messages.update(msgs => [...msgs, {
-					role: 'ai',
-					text: `I've generated ${result.changes.length} change(s) for your database:\n\n${summary}\n\nReview the SQL below and approve or reject.`,
-					changes: result.changes,
-					batchId: result.batchId,
-				}]);
+				const previewSource = this._buildMermaidFromChanges(result.changes);
+				this.messages.update(msgs => {
+					const next: ChatMessage[] = [...msgs, {
+						role: 'ai',
+						text: `I've generated ${result.changes.length} change(s) for your database:\n\n${summary}\n\nReview the SQL below and approve or reject.`,
+						changes: result.changes,
+						batchId: result.batchId,
+					}];
+					if (previewSource) {
+						next.push({
+							role: 'diagram',
+							text: 'Schema Preview',
+							diagramSource: '```mermaid\n' + previewSource + '\n```',
+						});
+					}
+					return next;
+				});
 			} else {
 				this.messages.update(msgs => [...msgs, {
 					role: 'ai',
@@ -205,5 +218,75 @@ export class EditDatabaseSchemaComponent implements OnInit {
 		} finally {
 			this.initialDiagramLoading.set(false);
 		}
+	}
+
+	private _buildMermaidFromChanges(changes: SchemaChangeResponse[]): string {
+		const tables: { name: string; columns: { type: string; name: string; pk: boolean; fk: boolean }[] }[] = [];
+		const relations: { from: string; to: string }[] = [];
+		const isCreate = /^\s*CREATE\s+TABLE/i;
+
+		for (const change of changes) {
+			const sql = change.forwardSql ?? '';
+			if (!isCreate.test(sql)) continue;
+			const tableMatch = sql.match(/CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?["`]?(\w+)["`]?\s*\(([\s\S]*)\)\s*;?\s*$/i);
+			if (!tableMatch) continue;
+			const tableName = tableMatch[1];
+			const body = tableMatch[2];
+
+			const parts: string[] = [];
+			let depth = 0;
+			let buf = '';
+			for (const ch of body) {
+				if (ch === '(') depth++;
+				else if (ch === ')') depth--;
+				if (ch === ',' && depth === 0) {
+					if (buf.trim()) parts.push(buf.trim());
+					buf = '';
+				} else {
+					buf += ch;
+				}
+			}
+			if (buf.trim()) parts.push(buf.trim());
+
+			const columns: { type: string; name: string; pk: boolean; fk: boolean }[] = [];
+			for (const raw of parts) {
+				const part = raw.trim();
+				const tableConstraint = part.match(/^(?:PRIMARY|FOREIGN|UNIQUE|CHECK|CONSTRAINT|INDEX|KEY)\b/i);
+				if (tableConstraint) {
+					const refMatch = part.match(/REFERENCES\s+["`]?(\w+)["`]?/i);
+					if (refMatch) relations.push({ from: tableName, to: refMatch[1] });
+					continue;
+				}
+				const colMatch = part.match(/^["`]?(\w+)["`]?\s+([A-Za-z][\w]*)/);
+				if (!colMatch) continue;
+				const colName = colMatch[1];
+				const colType = colMatch[2].toLowerCase();
+				const pk = /PRIMARY\s+KEY/i.test(part);
+				const inlineRef = part.match(/REFERENCES\s+["`]?(\w+)["`]?/i);
+				const fk = !!inlineRef;
+				if (inlineRef) relations.push({ from: tableName, to: inlineRef[1] });
+				columns.push({ name: colName, type: colType, pk, fk });
+			}
+
+			if (columns.length > 0) tables.push({ name: tableName, columns });
+		}
+
+		if (tables.length === 0) return '';
+
+		let out = 'erDiagram\n';
+		for (const rel of relations) {
+			if (tables.some(t => t.name === rel.to)) {
+				out += `    ${rel.to} ||--o{ ${rel.from} : has\n`;
+			}
+		}
+		for (const t of tables) {
+			out += `    ${t.name} {\n`;
+			for (const col of t.columns) {
+				const tag = col.pk ? ' PK' : col.fk ? ' FK' : '';
+				out += `        ${col.type || 'string'} ${col.name}${tag}\n`;
+			}
+			out += `    }\n`;
+		}
+		return out;
 	}
 }
