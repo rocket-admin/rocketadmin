@@ -41,6 +41,7 @@ import {
 } from './use-cases/table-schema-use-cases.interface.js';
 
 @UseInterceptors(SentryInterceptor)
+@Timeout(90000)
 @Controller()
 @ApiBearerAuth()
 @ApiTags('Table Schema Changes')

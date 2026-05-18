@@ -737,6 +737,7 @@ export class ConnectionController {
 		type: ConnectionDiagramResponseDTO,
 	})
 	@UseGuards(ConnectionDiagramGuard)
+	@Timeout(90000)
 	@Get('/connection/diagram/:connectionId')
 	async getConnectionDiagram(
 		@SlugUuid('connectionId') connectionId: string,
