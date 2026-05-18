@@ -18,11 +18,18 @@
 	}
 }
 
-.feature-notification__image {
-	border-radius: 8px;
-	height: auto;
-	margin-bottom: 16px;
+.feature-notification__animation {
 	width: 100%;
+	border-radius: 8px;
+	overflow: hidden;
+	margin-bottom: 16px;
+	color: #6384ff;
+}
+
+.fn-svg {
+	display: block;
+	width: 100%;
+	height: auto;
 }
 
 .feature-notification__title {
@@ -46,4 +53,143 @@
 	justify-content: flex-end;
 	gap: 8px;
 	margin-top: 16px;
+}
+
+/* ── Animation ── */
+
+/* Animation cycle: 5.4s total
+ * 0.0–0.6s: prompt bubble slides in
+ * 0.6–1.2s: table 1 appears
+ * 1.2–1.8s: table 2 appears
+ * 1.8–2.4s: table 3 appears
+ * 1.8–2.6s: link 1 draws
+ * 2.4–3.0s: link 2 draws
+ * 3.0–4.6s: sparkles pulse
+ * 4.6–5.4s: hold, then loop
+ */
+
+.fn-prompt {
+	transform-origin: 14px 39px;
+	transform: translateX(-20px);
+	opacity: 0;
+	animation: fn-prompt-in 5.4s ease-in-out infinite;
+}
+
+.fn-table {
+	opacity: 0;
+	transform-origin: center;
+	transform: translateY(8px) scale(0.9);
+}
+
+.fn-table--1 { animation: fn-table-in 5.4s ease-out infinite; animation-delay: 0s; }
+.fn-table--2 { animation: fn-table-in 5.4s ease-out infinite; animation-delay: 0s; }
+.fn-table--3 { animation: fn-table-in 5.4s ease-out infinite; animation-delay: 0s; }
+
+.fn-link {
+	stroke-dasharray: 60;
+	stroke-dashoffset: 60;
+	animation: fn-link-draw 5.4s ease-in-out infinite;
+}
+
+.fn-link--1 { animation-delay: 0s; }
+.fn-link--2 { animation-delay: 0s; }
+
+.fn-sparkle {
+	transform-origin: center;
+	opacity: 0;
+}
+
+.fn-sparkle--a { animation: fn-sparkle 5.4s ease-in-out infinite; transform-origin: 120px 23.6px; }
+.fn-sparkle--b { animation: fn-sparkle 5.4s ease-in-out infinite 0.2s; transform-origin: 310px 43.6px; }
+.fn-sparkle--c { animation: fn-sparkle 5.4s ease-in-out infinite 0.4s; transform-origin: 340px 133.6px; }
+
+.fn-cursor {
+	opacity: 0;
+	animation: fn-cursor 5.4s linear infinite;
+}
+
+/* Per-table staggered timing via dedicated keyframes */
+.fn-table--1 { animation-name: fn-table-1-in; }
+.fn-table--2 { animation-name: fn-table-2-in; }
+.fn-table--3 { animation-name: fn-table-3-in; }
+
+.fn-link--1 { animation-name: fn-link-1-draw; }
+.fn-link--2 { animation-name: fn-link-2-draw; }
+
+@keyframes fn-prompt-in {
+	0%   { opacity: 0; transform: translateX(-20px); }
+	8%   { opacity: 1; transform: translateX(0); }
+	88%  { opacity: 1; transform: translateX(0); }
+	100% { opacity: 0; transform: translateX(-20px); }
+}
+
+@keyframes fn-table-1-in {
+	0%, 11%   { opacity: 0; transform: translateY(8px) scale(0.92); }
+	22%       { opacity: 1; transform: translateY(0) scale(1); }
+	88%       { opacity: 1; transform: translateY(0) scale(1); }
+	100%      { opacity: 0; transform: translateY(8px) scale(0.92); }
+}
+
+@keyframes fn-table-2-in {
+	0%, 22%   { opacity: 0; transform: translateY(8px) scale(0.92); }
+	33%       { opacity: 1; transform: translateY(0) scale(1); }
+	88%       { opacity: 1; transform: translateY(0) scale(1); }
+	100%      { opacity: 0; transform: translateY(8px) scale(0.92); }
+}
+
+@keyframes fn-table-3-in {
+	0%, 33%   { opacity: 0; transform: translateY(8px) scale(0.92); }
+	44%       { opacity: 1; transform: translateY(0) scale(1); }
+	88%       { opacity: 1; transform: translateY(0) scale(1); }
+	100%      { opacity: 0; transform: translateY(8px) scale(0.92); }
+}
+
+@keyframes fn-link-1-draw {
+	0%, 33%   { stroke-dashoffset: 60; }
+	48%       { stroke-dashoffset: 0; }
+	88%       { stroke-dashoffset: 0; }
+	100%      { stroke-dashoffset: 60; }
+}
+
+@keyframes fn-link-2-draw {
+	0%, 44%   { stroke-dashoffset: 60; }
+	56%       { stroke-dashoffset: 0; }
+	88%       { stroke-dashoffset: 0; }
+	100%      { stroke-dashoffset: 60; }
+}
+
+@keyframes fn-sparkle {
+	0%, 60%   { opacity: 0; transform: scale(0.4); }
+	68%       { opacity: 1; transform: scale(1.2); }
+	78%       { opacity: 1; transform: scale(1); }
+	86%       { opacity: 0; transform: scale(0.4); }
+	100%      { opacity: 0; transform: scale(0.4); }
+}
+
+@keyframes fn-cursor {
+	0%   { opacity: 0; transform: translate(80px, 32px); }
+	5%   { opacity: 1; transform: translate(80px, 32px); }
+	18%  { opacity: 1; transform: translate(110px, 28px); }
+	24%  { opacity: 0; transform: translate(110px, 28px); }
+	100% { opacity: 0; transform: translate(110px, 28px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.fn-prompt,
+	.fn-table,
+	.fn-link,
+	.fn-sparkle,
+	.fn-cursor {
+		animation: none !important;
+		opacity: 1 !important;
+		transform: none !important;
+		stroke-dashoffset: 0 !important;
+	}
+}
+
+@media (prefers-color-scheme: dark) {
+	.fn-bg { fill: #2a2540; }
+	.fn-table rect:first-child { fill: #1f1e2c; stroke: #3a3b58; }
+	.fn-prompt rect:first-child { fill: #1f1e2c; stroke: #3a3b58; }
+	.fn-table text { fill: #d8dcff; }
 }
