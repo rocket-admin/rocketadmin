@@ -6,8 +6,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { MarkdownModule } from 'ngx-markdown';
 import { TableSchemaService, SchemaChangeResponse } from 'src/app/services/table-schema.service';
+import { SchemaDiagramViewerComponent } from './schema-diagram-viewer/schema-diagram-viewer.component';
 
 interface ChatMessage {
 	role: 'user' | 'ai' | 'error' | 'diagram';
@@ -24,12 +24,12 @@ interface ChatMessage {
 	imports: [
 		CommonModule,
 		FormsModule,
-		MarkdownModule,
 		MatButtonModule,
 		MatIconModule,
 		MatFormFieldModule,
 		MatInputModule,
 		RouterModule,
+		SchemaDiagramViewerComponent,
 	],
 })
 export class EditDatabaseSchemaComponent implements OnInit {
@@ -48,7 +48,6 @@ export class EditDatabaseSchemaComponent implements OnInit {
 	protected submitting = signal(false);
 	protected applying = signal(false);
 	protected applied = signal(false);
-	protected diagramZoom = signal(1);
 	protected initialDiagramLoading = signal(false);
 	private _threadId: string | undefined;
 
@@ -59,6 +58,18 @@ export class EditDatabaseSchemaComponent implements OnInit {
 		}
 		return null;
 	});
+
+	protected currentDiagram = computed(() => {
+		const msgs = this.messages();
+		for (let i = msgs.length - 1; i >= 0; i--) {
+			if (msgs[i].role === 'diagram' && msgs[i].diagramSource) return msgs[i];
+		}
+		return null;
+	});
+
+	protected chatMessages = computed(() =>
+		this.messages().filter(m => m.role !== 'diagram'),
+	);
 
 	ngOnInit(): void {
 		if (!this.connectionID) {
@@ -169,18 +180,6 @@ export class EditDatabaseSchemaComponent implements OnInit {
 
 	onOpenTables() {
 		this.schemaApplied.emit();
-	}
-
-	onZoomIn() {
-		this.diagramZoom.update(z => Math.min(z + 0.25, 3));
-	}
-
-	onZoomOut() {
-		this.diagramZoom.update(z => Math.max(z - 0.25, 0.25));
-	}
-
-	onZoomReset() {
-		this.diagramZoom.set(1);
 	}
 
 	onKeydown(event: KeyboardEvent) {

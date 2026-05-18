@@ -1,208 +1,198 @@
-<div class="schema-chat" [class.schema-chat--routed]="isRoutedPage()">
+<div class="schema-editor" [class.schema-editor--routed]="isRoutedPage()">
 	@if (isRoutedPage()) {
-		<div class="schema-chat__header">
-			<a mat-icon-button [routerLink]="['/connections-list']" class="schema-chat__back-button">
+		<div class="schema-editor__header">
+			<a mat-icon-button [routerLink]="['/connections-list']" class="schema-editor__back-button">
 				<mat-icon>arrow_back</mat-icon>
 			</a>
-			<h1 class="schema-chat__title">Edit Database Schema</h1>
+			<h1 class="schema-editor__title">Edit Database Schema</h1>
 		</div>
 	}
 	@if (showClose) {
-		<button mat-icon-button type="button" class="schema-chat__close-button" (click)="closeEditor.emit()">
+		<button mat-icon-button type="button" class="schema-editor__close-button" (click)="closeEditor.emit()">
 			<mat-icon>close</mat-icon>
 		</button>
 	}
-	<!-- Welcome screen when no messages yet -->
-	@if (messages().length === 0 && !initialDiagramLoading()) {
-		<div class="schema-chat__welcome">
-			<mat-icon svgIcon="ai_rocket" class="schema-chat__welcome-icon"></mat-icon>
-			@if (showClose || isRoutedPage()) {
-				<p class="schema-chat__welcome-title">Edit database structure with AI</p>
-				<p class="schema-chat__welcome-subtitle">Describe the changes you want to make and AI will generate the SQL for you.</p>
-			} @else {
-				<p class="schema-chat__welcome-title">No tables found — let AI create them</p>
-				<p class="schema-chat__welcome-subtitle">Describe the database you need and AI will generate the schema for you.</p>
-			}
 
-			<div class="schema-chat__suggestions">
-				@if (showClose || isRoutedPage()) {
-					<button type="button" class="suggestion-chip"
-						(click)="userPrompt.set('Add a new table for user notifications with title, message, read status, and timestamp')">
-						Add notifications table
-					</button>
-					<button type="button" class="suggestion-chip"
-						(click)="userPrompt.set('Add an email column to the users table')">
-						Add column
-					</button>
-					<button type="button" class="suggestion-chip"
-						(click)="userPrompt.set('Create an index on the created_at column of the orders table')">
-						Create index
-					</button>
-				} @else {
-					<button type="button" class="suggestion-chip"
-						(click)="userPrompt.set('E-commerce database with products, categories, orders, and customers')">
-						E-commerce store
-					</button>
-					<button type="button" class="suggestion-chip"
-						(click)="userPrompt.set('Blog platform with users, posts, comments, and tags')">
-						Blog platform
-					</button>
-					<button type="button" class="suggestion-chip"
-						(click)="userPrompt.set('Project management tool with projects, tasks, users, and comments')">
-						Project management
-					</button>
-				}
-			</div>
-		</div>
-	}
-
-	<!-- Initial diagram loading -->
-	@if (messages().length === 0 && initialDiagramLoading()) {
-		<div class="schema-chat__diagram-loading">
-			<span class="schema-chat__loading-text">Loading diagram</span>
-			<div class="schema-chat__loading-dots">
-				<span class="schema-chat__loading-dot"></span>
-				<span class="schema-chat__loading-dot"></span>
-				<span class="schema-chat__loading-dot"></span>
-			</div>
-		</div>
-	}
-
-	<!-- Message chain -->
-	@if (messages().length) {
-		<div class="schema-chat__messages">
-			@for (message of messages(); track $index) {
-				@if (message.role === 'user') {
-					<div class="schema-chat__message schema-chat__message--user">
-						<span>{{ message.text }}</span>
+	<div class="schema-editor__body">
+		<!-- Canvas: diagram or welcome -->
+		<section class="schema-editor__canvas">
+			@if (currentDiagram(); as diagram) {
+				<app-schema-diagram-viewer
+					class="schema-editor__diagram"
+					[title]="diagram.text"
+					[source]="diagram.diagramSource!"></app-schema-diagram-viewer>
+			} @else if (initialDiagramLoading()) {
+				<div class="schema-editor__diagram-loading">
+					<span class="schema-editor__loading-text">Loading diagram</span>
+					<div class="schema-editor__loading-dots">
+						<span class="schema-editor__loading-dot"></span>
+						<span class="schema-editor__loading-dot"></span>
+						<span class="schema-editor__loading-dot"></span>
 					</div>
-				}
-				@if (message.role === 'ai') {
-					<div class="schema-chat__message schema-chat__message--ai">
-						<span class="schema-chat__message-text">{{ message.text }}</span>
+				</div>
+			} @else {
+				<div class="schema-editor__welcome">
+					<mat-icon svgIcon="ai_rocket" class="schema-editor__welcome-icon"></mat-icon>
+					@if (showClose || isRoutedPage()) {
+						<p class="schema-editor__welcome-title">Edit database structure with AI</p>
+						<p class="schema-editor__welcome-subtitle">Describe the changes you want to make and AI will generate the SQL for you.</p>
+					} @else {
+						<p class="schema-editor__welcome-title">No tables found — let AI create them</p>
+						<p class="schema-editor__welcome-subtitle">Describe the database you need and AI will generate the schema for you.</p>
+					}
 
-						@if (message.changes?.length) {
-							<div class="schema-chat__changes">
-								@for (change of message.changes; track change.id) {
-									<div class="schema-chat__change-card">
-										<div class="schema-chat__change-header">
-											<span class="schema-chat__change-type">{{ change.changeType }}</span>
-											<span class="schema-chat__change-table">{{ change.targetTableName }}</span>
-										</div>
-										<pre class="schema-chat__change-sql">{{ change.forwardSql }}</pre>
-									</div>
-								}
-							</div>
+					<div class="schema-editor__suggestions">
+						@if (showClose || isRoutedPage()) {
+							<button type="button" class="suggestion-chip"
+								(click)="userPrompt.set('Add a new table for user notifications with title, message, read status, and timestamp')">
+								Add notifications table
+							</button>
+							<button type="button" class="suggestion-chip"
+								(click)="userPrompt.set('Add an email column to the users table')">
+								Add column
+							</button>
+							<button type="button" class="suggestion-chip"
+								(click)="userPrompt.set('Create an index on the created_at column of the orders table')">
+								Create index
+							</button>
+						} @else {
+							<button type="button" class="suggestion-chip"
+								(click)="userPrompt.set('E-commerce database with products, categories, orders, and customers')">
+								E-commerce store
+							</button>
+							<button type="button" class="suggestion-chip"
+								(click)="userPrompt.set('Blog platform with users, posts, comments, and tags')">
+								Blog platform
+							</button>
+							<button type="button" class="suggestion-chip"
+								(click)="userPrompt.set('Project management tool with projects, tasks, users, and comments')">
+								Project management
+							</button>
 						}
 					</div>
-				}
-				@if (message.role === 'diagram') {
-					<div class="schema-chat__diagram">
-						<div class="schema-chat__diagram-header">
-							<h3 class="schema-chat__diagram-title">{{ message.text }}</h3>
-							<div class="schema-chat__diagram-zoom">
-								<button mat-icon-button type="button" (click)="onZoomOut()" [disabled]="diagramZoom() <= 0.25">
-									<mat-icon>remove</mat-icon>
-								</button>
-								<span class="schema-chat__diagram-zoom-label">{{ (diagramZoom() * 100).toFixed(0) }}%</span>
-								<button mat-icon-button type="button" (click)="onZoomIn()" [disabled]="diagramZoom() >= 3">
-									<mat-icon>add</mat-icon>
-								</button>
-								<button mat-icon-button type="button" (click)="onZoomReset()">
-									<mat-icon>restart_alt</mat-icon>
-								</button>
-							</div>
-						</div>
-						<div class="schema-chat__diagram-content">
-							<div class="schema-chat__diagram-inner" [style.transform]="'scale(' + diagramZoom() + ')'"
-								[style.transform-origin]="'top left'">
-								<markdown mermaid [data]="message.diagramSource!"></markdown>
-							</div>
-						</div>
-					</div>
-				}
-				@if (message.role === 'error') {
-					<div class="schema-chat__message schema-chat__message--error">
-						<mat-icon class="schema-chat__error-icon">error_outline</mat-icon>
-						<span>{{ message.text }}</span>
-					</div>
-				}
-			}
-
-			@if (submitting()) {
-				<div class="schema-chat__loading">
-					<span class="schema-chat__loading-text">Generating schema</span>
-					<div class="schema-chat__loading-dots">
-						<span class="schema-chat__loading-dot"></span>
-						<span class="schema-chat__loading-dot"></span>
-						<span class="schema-chat__loading-dot"></span>
-					</div>
 				</div>
 			}
-			@if (initialDiagramLoading() && messages().length > 0) {
-				<div class="schema-chat__loading">
-					<span class="schema-chat__loading-text">Loading diagram</span>
-					<div class="schema-chat__loading-dots">
-						<span class="schema-chat__loading-dot"></span>
-						<span class="schema-chat__loading-dot"></span>
-						<span class="schema-chat__loading-dot"></span>
-					</div>
-				</div>
-			}
-		</div>
-	}
+		</section>
 
-	@if (applied() && !initialDiagramLoading()) {
-		<div class="schema-chat__open-tables">
-			<a mat-flat-button color="primary" (click)="onOpenTables()"
-				[routerLink]="['/dashboard', connectionID]"
-				[queryParams]="{uncached: 'true'}"
-				data-testid="schema-open-tables-button">
-				<mat-icon>table_chart</mat-icon>
-				Open tables
-			</a>
-		</div>
-	}
-
-	<!-- Input form / Actions -->
-	<div class="schema-chat__form">
-		@if (pendingBatch()) {
-			<div class="schema-chat__actions">
-				<button mat-stroked-button type="button" (click)="onReject()" [disabled]="applying()"
-					data-testid="schema-reject-button">
-					Reject
-				</button>
-				<button mat-flat-button color="primary" type="button" (click)="onApprove()" [disabled]="applying()"
-					data-testid="schema-approve-button">
-					@if (applying()) {
-						Applying...
-					} @else {
-						<mat-icon>check</mat-icon>
-						Apply All
-					}
-				</button>
+		<!-- Right-docked chat panel -->
+		<aside class="schema-editor__panel">
+			<div class="schema-editor__panel-header">
+				<mat-icon class="schema-editor__panel-icon">smart_toy</mat-icon>
+				<span class="schema-editor__panel-title">Schema Assistant</span>
 			</div>
-		} @else {
-			<form (ngSubmit)="onSubmit()">
-				<mat-form-field appearance="outline" class="schema-chat__input-field">
-					<mat-label>{{showClose || isRoutedPage() ? 'Describe the changes you need...' : 'Describe the database you need...'}}</mat-label>
-					<textarea matInput
-						name="schemaPrompt"
-						[ngModel]="userPrompt()"
-						(ngModelChange)="userPrompt.set($event)"
-						(keydown)="onKeydown($event)"
-						rows="2"
-						maxlength="1000"
-						[disabled]="submitting()"
-						data-testid="schema-prompt-textarea"
-					></textarea>
-					<button mat-icon-button matSuffix type="submit"
-						[disabled]="!userPrompt().trim() || submitting()"
-						class="schema-chat__send-button">
-						<mat-icon>send</mat-icon>
-					</button>
-				</mat-form-field>
-			</form>
-		}
+
+			<div class="schema-editor__messages">
+				@if (chatMessages().length === 0 && !submitting()) {
+					<p class="schema-editor__messages-empty">Describe what you need and AI will generate the SQL.</p>
+				}
+
+				@for (message of chatMessages(); track $index) {
+					@if (message.role === 'user') {
+						<div class="schema-editor__message schema-editor__message--user">
+							<span>{{ message.text }}</span>
+						</div>
+					}
+					@if (message.role === 'ai') {
+						<div class="schema-editor__message schema-editor__message--ai">
+							<span class="schema-editor__message-text">{{ message.text }}</span>
+
+							@if (message.changes?.length) {
+								<div class="schema-editor__changes">
+									@for (change of message.changes; track change.id) {
+										<div class="schema-editor__change-card">
+											<div class="schema-editor__change-header">
+												<span class="schema-editor__change-type">{{ change.changeType }}</span>
+												<span class="schema-editor__change-table">{{ change.targetTableName }}</span>
+											</div>
+											<pre class="schema-editor__change-sql">{{ change.forwardSql }}</pre>
+										</div>
+									}
+								</div>
+							}
+						</div>
+					}
+					@if (message.role === 'error') {
+						<div class="schema-editor__message schema-editor__message--error">
+							<mat-icon class="schema-editor__error-icon">error_outline</mat-icon>
+							<span>{{ message.text }}</span>
+						</div>
+					}
+				}
+
+				@if (submitting()) {
+					<div class="schema-editor__loading">
+						<span class="schema-editor__loading-text">Generating schema</span>
+						<div class="schema-editor__loading-dots">
+							<span class="schema-editor__loading-dot"></span>
+							<span class="schema-editor__loading-dot"></span>
+							<span class="schema-editor__loading-dot"></span>
+						</div>
+					</div>
+				}
+				@if (initialDiagramLoading() && chatMessages().length > 0) {
+					<div class="schema-editor__loading">
+						<span class="schema-editor__loading-text">Refreshing diagram</span>
+						<div class="schema-editor__loading-dots">
+							<span class="schema-editor__loading-dot"></span>
+							<span class="schema-editor__loading-dot"></span>
+							<span class="schema-editor__loading-dot"></span>
+						</div>
+					</div>
+				}
+			</div>
+
+			@if (applied() && !initialDiagramLoading()) {
+				<div class="schema-editor__open-tables">
+					<a mat-flat-button color="primary" (click)="onOpenTables()"
+						[routerLink]="['/dashboard', connectionID]"
+						[queryParams]="{uncached: 'true'}"
+						data-testid="schema-open-tables-button">
+						<mat-icon>table_chart</mat-icon>
+						Open tables
+					</a>
+				</div>
+			}
+
+			<div class="schema-editor__form">
+				@if (pendingBatch()) {
+					<div class="schema-editor__actions">
+						<button mat-stroked-button type="button" (click)="onReject()" [disabled]="applying()"
+							data-testid="schema-reject-button">
+							Reject
+						</button>
+						<button mat-flat-button color="primary" type="button" (click)="onApprove()" [disabled]="applying()"
+							data-testid="schema-approve-button">
+							@if (applying()) {
+								Applying...
+							} @else {
+								<mat-icon>check</mat-icon>
+								Apply All
+							}
+						</button>
+					</div>
+				} @else {
+					<form (ngSubmit)="onSubmit()">
+						<mat-form-field appearance="outline" class="schema-editor__input-field">
+							<mat-label>{{showClose || isRoutedPage() ? 'Describe the changes you need...' : 'Describe the database you need...'}}</mat-label>
+							<textarea matInput
+								name="schemaPrompt"
+								[ngModel]="userPrompt()"
+								(ngModelChange)="userPrompt.set($event)"
+								(keydown)="onKeydown($event)"
+								rows="2"
+								maxlength="1000"
+								[disabled]="submitting()"
+								data-testid="schema-prompt-textarea"
+							></textarea>
+							<button mat-icon-button matSuffix type="submit"
+								[disabled]="!userPrompt().trim() || submitting()"
+								class="schema-editor__send-button">
+								<mat-icon>send</mat-icon>
+							</button>
+						</mat-form-field>
+					</form>
+				}
+			</div>
+		</aside>
 	</div>
 </div>
