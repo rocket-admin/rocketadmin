@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Parser } from 'node-sql-parser';
 import { TableSchemaService, SchemaChangeResponse } from 'src/app/services/table-schema.service';
 import { SchemaDiagramViewerComponent } from './schema-diagram-viewer/schema-diagram-viewer.component';
 
@@ -183,12 +184,13 @@ export class EditDatabaseSchemaComponent implements OnInit {
 		if (!batch?.batchId) return;
 
 		await this._tableSchema.rejectBatch(batch.batchId);
-		this.messages.update(msgs => msgs.map(m =>
-			m === batch ? { ...m, batchId: undefined } : m
-		).concat({
-			role: 'ai',
-			text: 'Changes rejected. Feel free to describe what you need differently.',
-		}));
+		this.messages.update(msgs => msgs
+			.filter(m => !(m.role === 'diagram' && m.text === 'Schema Preview'))
+			.map(m => m === batch ? { ...m, batchId: undefined } : m)
+			.concat({
+				role: 'ai',
+				text: 'Changes rejected. Feel free to describe what you need differently.',
+			}));
 	}
 
 	onOpenTables() {
@@ -221,54 +223,78 @@ export class EditDatabaseSchemaComponent implements OnInit {
 	}
 
 	private _buildMermaidFromChanges(changes: SchemaChangeResponse[]): string {
+		const parser = new Parser();
 		const tables: { name: string; columns: { type: string; name: string; pk: boolean; fk: boolean }[] }[] = [];
+		const relationKeys = new Set<string>();
 		const relations: { from: string; to: string }[] = [];
-		const isCreate = /^\s*CREATE\s+TABLE/i;
 
 		for (const change of changes) {
-			const sql = change.forwardSql ?? '';
-			if (!isCreate.test(sql)) continue;
-			const tableMatch = sql.match(/CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?["`]?(\w+)["`]?\s*\(([\s\S]*)\)\s*;?\s*$/i);
-			if (!tableMatch) continue;
-			const tableName = tableMatch[1];
-			const body = tableMatch[2];
+			const sql = change.forwardSql?.trim();
+			if (!sql) continue;
 
-			const parts: string[] = [];
-			let depth = 0;
-			let buf = '';
-			for (const ch of body) {
-				if (ch === '(') depth++;
-				else if (ch === ')') depth--;
-				if (ch === ',' && depth === 0) {
-					if (buf.trim()) parts.push(buf.trim());
-					buf = '';
-				} else {
-					buf += ch;
-				}
-			}
-			if (buf.trim()) parts.push(buf.trim());
-
-			const columns: { type: string; name: string; pk: boolean; fk: boolean }[] = [];
-			for (const raw of parts) {
-				const part = raw.trim();
-				const tableConstraint = part.match(/^(?:PRIMARY|FOREIGN|UNIQUE|CHECK|CONSTRAINT|INDEX|KEY)\b/i);
-				if (tableConstraint) {
-					const refMatch = part.match(/REFERENCES\s+["`]?(\w+)["`]?/i);
-					if (refMatch) relations.push({ from: tableName, to: refMatch[1] });
+			let parsed: unknown;
+			try {
+				parsed = parser.astify(sql, { database: 'PostgresQL' });
+			} catch {
+				try {
+					parsed = parser.astify(sql, { database: 'MySQL' });
+				} catch {
 					continue;
 				}
-				const colMatch = part.match(/^["`]?(\w+)["`]?\s+([A-Za-z][\w]*)/);
-				if (!colMatch) continue;
-				const colName = colMatch[1];
-				const colType = colMatch[2].toLowerCase();
-				const pk = /PRIMARY\s+KEY/i.test(part);
-				const inlineRef = part.match(/REFERENCES\s+["`]?(\w+)["`]?/i);
-				const fk = !!inlineRef;
-				if (inlineRef) relations.push({ from: tableName, to: inlineRef[1] });
-				columns.push({ name: colName, type: colType, pk, fk });
 			}
 
-			if (columns.length > 0) tables.push({ name: tableName, columns });
+			const nodes = Array.isArray(parsed) ? parsed : [parsed];
+			for (const node of nodes) {
+				const ast = node as Record<string, unknown> | null;
+				if (!ast || ast['type'] !== 'create' || ast['keyword'] !== 'table') continue;
+
+				const tableName = this._extractTableName(ast['table']);
+				if (!tableName) continue;
+
+				const columns: { type: string; name: string; pk: boolean; fk: boolean }[] = [];
+				const colIndex = new Map<string, number>();
+				const defs = (ast['create_definitions'] as unknown[]) ?? [];
+
+				for (const rawDef of defs) {
+					const def = rawDef as Record<string, unknown>;
+					if (def['resource'] === 'column') {
+						const colName = this._extractColumnName(def['column']);
+						if (!colName) continue;
+						const dataType = (def['definition'] as { dataType?: string } | undefined)?.dataType ?? '';
+						const primary = def['primary'] as string | undefined;
+						const pk = primary === 'primary key' || primary === 'key';
+						const ref = this._extractReferenceTable(def['reference_definition']);
+						const fk = !!ref;
+						if (ref) this._pushRelation(relations, relationKeys, tableName, ref);
+						colIndex.set(colName, columns.length);
+						columns.push({ name: colName, type: dataType.toLowerCase(), pk, fk });
+					} else if (def['resource'] === 'constraint') {
+						const ctype = (def['constraint_type'] as string | undefined)?.toLowerCase();
+						const colRefs = (def['definition'] as unknown[]) ?? [];
+						if (ctype === 'primary key') {
+							for (const c of colRefs) {
+								const name = this._extractColumnName(c);
+								if (!name) continue;
+								const i = colIndex.get(name);
+								if (i !== undefined) columns[i].pk = true;
+							}
+						} else if (ctype === 'foreign key') {
+							const ref = this._extractReferenceTable(def['reference_definition']);
+							if (!ref) continue;
+							for (const c of colRefs) {
+								const name = this._extractColumnName(c);
+								if (name) {
+									const i = colIndex.get(name);
+									if (i !== undefined) columns[i].fk = true;
+								}
+							}
+							this._pushRelation(relations, relationKeys, tableName, ref);
+						}
+					}
+				}
+
+				if (columns.length > 0) tables.push({ name: tableName, columns });
+			}
 		}
 
 		if (tables.length === 0) return '';
@@ -288,5 +314,42 @@ export class EditDatabaseSchemaComponent implements OnInit {
 			out += `    }\n`;
 		}
 		return out;
+	}
+
+	private _extractTableName(value: unknown): string | null {
+		if (!value) return null;
+		const first = Array.isArray(value) ? value[0] : value;
+		const name = (first as { table?: unknown })?.table;
+		return typeof name === 'string' ? name : null;
+	}
+
+	private _extractColumnName(value: unknown): string | null {
+		if (!value) return null;
+		const inner = (value as { column?: unknown }).column ?? value;
+		if (typeof inner === 'string') return inner;
+		const expr = (inner as { expr?: { value?: unknown } })?.expr;
+		if (expr && typeof expr.value === 'string') return expr.value;
+		return null;
+	}
+
+	private _extractReferenceTable(value: unknown): string | null {
+		if (!value) return null;
+		const inner = (value as { reference_definition?: unknown }).reference_definition ?? value;
+		const tables = (inner as { table?: unknown }).table;
+		const first = Array.isArray(tables) ? tables[0] : tables;
+		const name = (first as { table?: unknown })?.table;
+		return typeof name === 'string' ? name : null;
+	}
+
+	private _pushRelation(
+		relations: { from: string; to: string }[],
+		seen: Set<string>,
+		from: string,
+		to: string,
+	): void {
+		const key = `${from}|${to}`;
+		if (seen.has(key)) return;
+		seen.add(key);
+		relations.push({ from, to });
 	}
 }

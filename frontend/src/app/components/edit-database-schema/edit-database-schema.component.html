@@ -32,45 +32,57 @@
 				</div>
 			} @else {
 				<div class="schema-editor__welcome">
-					<mat-icon svgIcon="ai_rocket" class="schema-editor__welcome-icon"></mat-icon>
-					@if (showClose || isRoutedPage()) {
-						<p class="schema-editor__welcome-title">Edit database structure with AI</p>
-						<p class="schema-editor__welcome-subtitle">Describe the changes you want to make and AI will generate the SQL for you.</p>
-					} @else {
-						<p class="schema-editor__welcome-title">No tables found — let AI create them</p>
-						<p class="schema-editor__welcome-subtitle">Describe the database you need and AI will generate the schema for you.</p>
-					}
+					<div class="schema-editor__welcome-icon-box">
+						<mat-icon class="schema-editor__welcome-icon">schema</mat-icon>
+					</div>
+					<p class="schema-editor__welcome-title">Generate your first table to start managing data</p>
 
-					<div class="schema-editor__suggestions">
-						@if (showClose || isRoutedPage()) {
-							<button type="button" class="suggestion-chip"
-								(click)="userPrompt.set('Add a new table for user notifications with title, message, read status, and timestamp')">
-								Add notifications table
-							</button>
-							<button type="button" class="suggestion-chip"
-								(click)="userPrompt.set('Add an email column to the users table')">
-								Add column
-							</button>
-							<button type="button" class="suggestion-chip"
-								(click)="userPrompt.set('Create an index on the created_at column of the orders table')">
-								Create index
-							</button>
-						} @else {
-							<button type="button" class="suggestion-chip"
-								(click)="userPrompt.set('E-commerce database with products, categories, orders, and customers')">
-								E-commerce store
-							</button>
-							<button type="button" class="suggestion-chip"
-								(click)="userPrompt.set('Blog platform with users, posts, comments, and tags')">
-								Blog platform
-							</button>
-							<button type="button" class="suggestion-chip"
-								(click)="userPrompt.set('Project management tool with projects, tasks, users, and comments')">
-								Project management
-							</button>
-						}
+					<div class="schema-editor__suggestions-block">
+					<p class="schema-editor__suggestions-heading">or start from templates</p>
+					<div class="schema-editor__templates">
+						<button type="button" class="template-card"
+							(click)="userPrompt.set('E-commerce database with products, categories, orders, and customers')">
+							<div class="template-card__head">
+								<div class="template-card__icon-box">
+									<mat-icon class="template-card__icon">shopping_cart</mat-icon>
+								</div>
+								<span class="template-card__title">E-commerce store</span>
+							</div>
+							<span class="template-card__tables">products · categories · orders · customers</span>
+						</button>
+						<button type="button" class="template-card"
+							(click)="userPrompt.set('Blog platform with users, posts, comments, and tags')">
+							<div class="template-card__head">
+								<div class="template-card__icon-box">
+									<mat-icon class="template-card__icon">article</mat-icon>
+								</div>
+								<span class="template-card__title">Blog platform</span>
+							</div>
+							<span class="template-card__tables">users · posts · comments · tags</span>
+						</button>
+						<button type="button" class="template-card"
+							(click)="userPrompt.set('Project management tool with projects, tasks, users, and comments')">
+							<div class="template-card__head">
+								<div class="template-card__icon-box">
+									<mat-icon class="template-card__icon">view_kanban</mat-icon>
+								</div>
+								<span class="template-card__title">Project management</span>
+							</div>
+							<span class="template-card__tables">projects · tasks · users · comments</span>
+						</button>
+						<button type="button" class="template-card"
+							(click)="userPrompt.set('CRM with contacts, companies, deals, activities, and notes')">
+							<div class="template-card__head">
+								<div class="template-card__icon-box">
+									<mat-icon class="template-card__icon">contacts</mat-icon>
+								</div>
+								<span class="template-card__title">CRM</span>
+							</div>
+							<span class="template-card__tables">contacts · companies · deals · activities · notes</span>
+						</button>
 					</div>
 				</div>
+			</div>
 			}
 		</section>
 
@@ -84,6 +96,29 @@
 			<div class="schema-editor__messages">
 				@if (chatMessages().length === 0 && !submitting()) {
 					<p class="schema-editor__messages-empty">Describe what you need and AI will generate the SQL.</p>
+
+					@if (!currentDiagram()) {
+						<div class="schema-editor__try-asking-block">
+							<p class="schema-editor__try-asking-heading">Try asking</p>
+							<div class="schema-editor__try-asking">
+								<button type="button" class="try-asking-item"
+									(click)="userPrompt.set('Inventory system with suppliers and stock alerts')">
+									<mat-icon class="try-asking-item__icon">auto_awesome</mat-icon>
+									<span>“Inventory system with suppliers and stock alerts”</span>
+								</button>
+								<button type="button" class="try-asking-item"
+									(click)="userPrompt.set('Booking app for a yoga studio')">
+									<mat-icon class="try-asking-item__icon">auto_awesome</mat-icon>
+									<span>“Booking app for a yoga studio”</span>
+								</button>
+								<button type="button" class="try-asking-item"
+									(click)="userPrompt.set('Multi-tenant SaaS with workspaces')">
+									<mat-icon class="try-asking-item__icon">auto_awesome</mat-icon>
+									<span>“Multi-tenant SaaS with workspaces”</span>
+								</button>
+							</div>
+						</div>
+					}
 				}
 
 				@for (message of chatMessages(); track $index) {
@@ -173,7 +208,7 @@
 				} @else {
 					<form (ngSubmit)="onSubmit()">
 						<mat-form-field appearance="outline" class="schema-editor__input-field">
-							<mat-label>{{showClose || isRoutedPage() ? 'Describe the changes you need...' : 'Describe the database you need...'}}</mat-label>
+							<mat-label>{{ currentDiagram() ? 'Describe the changes you need...' : 'Describe the database you need...' }}</mat-label>
 							<textarea matInput
 								name="schemaPrompt"
 								[ngModel]="userPrompt()"
