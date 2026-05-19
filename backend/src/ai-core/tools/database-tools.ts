@@ -53,6 +53,23 @@ export function createDatabaseTools(isMongoDB: boolean): AIToolDefinition[] {
 		},
 	};
 
+	const searchDocumentationTool: AIToolDefinition = {
+		name: 'searchDocumentation',
+		description:
+			'Searches the official Rocketadmin documentation at https://docs.rocketadmin.com and returns the most relevant pages with their titles, URLs, and content snippets. Use this when the user asks how to use Rocketadmin features (connections, dashboards, permissions, groups, master password, widgets, integrations, settings, SSO, secrets, etc.) or when a question is about the product rather than the data in the connected database.',
+		parameters: {
+			type: 'object',
+			properties: {
+				query: {
+					type: 'string',
+					description: 'A short search query describing what to look up in the Rocketadmin documentation.',
+				},
+			},
+			required: ['query'],
+			additionalProperties: false,
+		},
+	};
+
 	const tools: AIToolDefinition[] = [getTableStructureTool];
 
 	if (isMongoDB) {
@@ -60,6 +77,8 @@ export function createDatabaseTools(isMongoDB: boolean): AIToolDefinition[] {
 	} else {
 		tools.push(executeRawSqlTool);
 	}
+
+	tools.push(searchDocumentationTool);
 
 	return tools;
 }

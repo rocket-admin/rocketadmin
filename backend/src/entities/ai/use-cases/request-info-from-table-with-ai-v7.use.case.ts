@@ -10,6 +10,7 @@ import { AIToolCall, AIToolDefinition } from '../../../ai-core/interfaces/ai-pro
 import { AIProviderType } from '../../../ai-core/interfaces/ai-service.interface.js';
 import { AICoreService } from '../../../ai-core/services/ai-core.service.js';
 import { createDatabaseTools } from '../../../ai-core/tools/database-tools.js';
+import { searchDocumentation } from '../../../ai-core/tools/documentation-search.js';
 import { createDatabaseQuerySystemPrompt } from '../../../ai-core/tools/prompts.js';
 import { isValidMongoDbCommand, isValidSQLQuery, wrapQueryWithLimit } from '../../../ai-core/tools/query-validators.js';
 import { MessageBuilder } from '../../../ai-core/utils/message-builder.js';
@@ -272,6 +273,16 @@ export class RequestInfoFromTableWithAIUseCaseV7
 						}
 						const pipelineResult = await dataAccessObject.executeRawQuery(pipeline, inputTableName, userEmail);
 						result = encodeToToon(pipelineResult);
+						break;
+					}
+
+					case 'searchDocumentation': {
+						const query = toolCall.arguments.query as string;
+						if (!query) {
+							throw new Error('Missing required function argument "query"');
+						}
+						const docsResults = await searchDocumentation(query);
+						result = encodeToToon({ query, results: docsResults });
 						break;
 					}
 
