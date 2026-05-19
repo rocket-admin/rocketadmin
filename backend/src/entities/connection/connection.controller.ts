@@ -50,11 +50,14 @@ import { FoundPermissionsInConnectionDs } from './application/data-structures/fo
 import { GetConnectionDiagramDs } from './application/data-structures/get-connection-diagram.ds.js';
 import { GetGroupsInConnectionDs } from './application/data-structures/get-groups-in-connection.ds.js';
 import { GetPermissionsInConnectionDs } from './application/data-structures/get-permissions-in-connection.ds.js';
+import { PreviewConnectionDiagramDs } from './application/data-structures/preview-connection-diagram.ds.js';
 import { RestoredConnectionDs } from './application/data-structures/restored-connection.ds.js';
 import { UpdateConnectionDs } from './application/data-structures/update-connection.ds.js';
 import { UpdateConnectionTitleDs } from './application/data-structures/update-connection-title.ds.js';
 import { UpdateMasterPasswordDs } from './application/data-structures/update-master-password.ds.js';
 import { ValidateConnectionMasterPasswordDs } from './application/data-structures/validate-connection-master-password.ds.js';
+import { ConnectionDiagramPreviewRequestDTO } from './application/dto/connection-diagram-preview-request.dto.js';
+import { ConnectionDiagramPreviewResponseDTO } from './application/dto/connection-diagram-preview-response.dto.js';
 import { ConnectionDiagramResponseDTO } from './application/dto/connection-diagram-response.dto.js';
 import { CreateConnectionDto } from './application/dto/create-connection.dto.js';
 import { CreateGroupInConnectionDTO } from './application/dto/create-group-in-connection.dto.js';
@@ -79,6 +82,7 @@ import {
 	IGetConnectionDiagram,
 	IGetPermissionsForGroupInConnection,
 	IGetUserGroupsInConnection,
+	IPreviewConnectionDiagram,
 	IRefreshConnectionAgentToken,
 	IRestoreConnection,
 	ITestConnection,
@@ -140,6 +144,8 @@ export class ConnectionController {
 		private readonly updateConnectionTitleUseCase: IUpdateConnectionTitle,
 		@Inject(UseCaseType.GET_CONNECTION_DIAGRAM)
 		private readonly getConnectionDiagramUseCase: IGetConnectionDiagram,
+		@Inject(UseCaseType.PREVIEW_CONNECTION_DIAGRAM)
+		private readonly previewConnectionDiagramUseCase: IPreviewConnectionDiagram,
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
 		private readonly amplitudeService: AmplitudeService,
@@ -753,5 +759,35 @@ export class ConnectionController {
 			userId,
 		};
 		return await this.getConnectionDiagramUseCase.execute(inputData, InTransactionEnum.OFF);
+	}
+
+	@ApiOperation({
+		summary:
+			'Preview Mermaid diagram with proposed DDL changes applied (SQL only). Nothing is executed against the real database — statements are parsed and applied to an in-memory copy of the schema.',
+	})
+	@ApiBody({ type: ConnectionDiagramPreviewRequestDTO })
+	@ApiResponse({
+		status: 200,
+		type: ConnectionDiagramPreviewResponseDTO,
+	})
+	@UseGuards(ConnectionDiagramGuard)
+	@Timeout(90000)
+	@Post('/connection/diagram/:connectionId/preview')
+	async previewConnectionDiagram(
+		@SlugUuid('connectionId') connectionId: string,
+		@MasterPassword() masterPwd: string,
+		@UserId() userId: string,
+		@Body() body: ConnectionDiagramPreviewRequestDTO,
+	): Promise<ConnectionDiagramPreviewResponseDTO> {
+		if (!connectionId) {
+			throw new BadRequestException(Messages.CONNECTION_ID_MISSING);
+		}
+		const inputData: PreviewConnectionDiagramDs = {
+			connectionId,
+			masterPwd,
+			userId,
+			sqlCommands: body.sqlCommands,
+		};
+		return await this.previewConnectionDiagramUseCase.execute(inputData, InTransactionEnum.OFF);
 	}
 }
