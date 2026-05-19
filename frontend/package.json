@@ -61,6 +61,7 @@
 		"ngx-cookie-service": "^19.0.0",
 		"ngx-markdown": "^19.1.1",
 		"ngx-stripe": "^19.0.0",
+		"node-sql-parser": "^5.4.0",
 		"pluralize": "^8.0.0",
 		"postgres-interval": "^4.0.2",
 		"posthog-js": "^1.341.0",

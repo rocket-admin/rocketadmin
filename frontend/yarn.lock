@@ -11460,7 +11460,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-sql-parser@npm:^5.3.0":
+"node-sql-parser@npm:^5.4.0":
   version: 5.4.0
   resolution: "node-sql-parser@npm:5.4.0"
   dependencies:
@@ -12828,7 +12828,7 @@ __metadata:
     ngx-cookie-service: ^19.0.0
     ngx-markdown: ^19.1.1
     ngx-stripe: ^19.0.0
-    node-sql-parser: ^5.3.0
+    node-sql-parser: ^5.4.0
     playwright: ^1.57.0
     pluralize: ^8.0.0
     postgres-interval: ^4.0.2

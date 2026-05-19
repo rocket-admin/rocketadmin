@@ -35,7 +35,8 @@
 					<div class="schema-editor__welcome-icon-box">
 						<mat-icon class="schema-editor__welcome-icon">schema</mat-icon>
 					</div>
-					<p class="schema-editor__welcome-title">Generate your first table to start managing data</p>
+					<p class="schema-editor__welcome-title">Create your first table</p>
+					<p class="schema-editor__welcome-subtitle">Describe what you need and AI will generate the SQL.</p>
 
 					<div class="schema-editor__suggestions-block">
 					<p class="schema-editor__suggestions-heading">or use a template</p>
@@ -95,7 +96,9 @@
 
 			<div class="schema-editor__messages">
 				@if (chatMessages().length === 0 && !submitting()) {
-					<p class="schema-editor__messages-empty">Describe what you need and AI will generate the SQL.</p>
+					@if (currentDiagram()) {
+						<p class="schema-editor__messages-empty">Describe what you need and AI will generate the SQL.</p>
+					}
 
 					@if (!currentDiagram()) {
 						<div class="schema-editor__try-asking-block">
