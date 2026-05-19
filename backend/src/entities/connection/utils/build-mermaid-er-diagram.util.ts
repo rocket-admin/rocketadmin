@@ -32,15 +32,17 @@ export function buildMermaidErDiagram(
 		const fkColumnNames = new Set(table.foreignKeys.map((fk) => fk.column_name));
 
 		const aliasDiffersFromOriginal = alias !== table.tableName;
-		const header = aliasDiffersFromOriginal ? `    ${alias}["${escapeQuotes(table.tableName)}"] {` : `    ${alias} {`;
+		const header = aliasDiffersFromOriginal
+			? `    ${alias}["${sanitizeQuotedText(table.tableName)}"] {`
+			: `    ${alias} {`;
 		lines.push(header);
 
 		if (table.structure.length === 0) {
 			lines.push('        string _empty_ "no columns"');
 		} else {
 			for (const column of table.structure) {
-				const dataType = sanitizeIdentifier(column.data_type || column.udt_name || 'unknown');
-				const colName = sanitizeIdentifier(column.column_name);
+				const dataType = toAttributeWord(column.data_type || column.udt_name || 'unknown');
+				const colName = toAttributeWord(column.column_name);
 				const markers: Array<string> = [];
 				if (pkColumnNames.has(column.column_name)) markers.push('PK');
 				if (fkColumnNames.has(column.column_name)) markers.push('FK');
@@ -58,7 +60,7 @@ export function buildMermaidErDiagram(
 		for (const fk of table.foreignKeys) {
 			const targetAlias = aliasByTable.get(fk.referenced_table_name);
 			if (!targetAlias) continue;
-			const label = `"${escapeQuotes(fk.column_name)} -> ${escapeQuotes(fk.referenced_column_name)}"`;
+			const label = `"${sanitizeQuotedText(fk.column_name)} -> ${sanitizeQuotedText(fk.referenced_column_name)}"`;
 			lines.push(`    ${sourceAlias} }o--|| ${targetAlias} : ${label}`);
 			relationshipCount++;
 		}
@@ -110,12 +112,24 @@ function buildColumnComment(column: TableStructureDS): string {
 		parts.push(`max length: ${column.character_maximum_length}`);
 	}
 	const text = parts.join('; ');
-	return text ? `"${escapeQuotes(text)}"` : '';
+	return text ? `"${sanitizeQuotedText(text)}"` : '';
 }
 
+const MERMAID_ENTITY_RESERVED_WORDS = new Set<string>([
+	'erDiagram',
+	'style',
+	'class',
+	'classDef',
+	'one',
+	'many',
+	'to',
+	'zero',
+]);
+
+const MERMAID_ATTRIBUTE_KEY_WORDS = new Set<string>(['PK', 'FK', 'UK']);
+
 function makeUniqueAlias(name: string, used: Set<string>): string {
-	let base = sanitizeIdentifier(name);
-	if (base.length === 0 || /^[0-9]/.test(base)) base = `t_${base}`;
+	const base = toEntityAlias(name);
 	let candidate = base;
 	let suffix = 1;
 	while (used.has(candidate)) {
@@ -125,10 +139,26 @@ function makeUniqueAlias(name: string, used: Set<string>): string {
 	return candidate;
 }
 
+function toEntityAlias(value: string): string {
+	const sanitized = sanitizeIdentifier(value);
+	if (sanitized.length === 0 || /^[0-9]/.test(sanitized) || MERMAID_ENTITY_RESERVED_WORDS.has(sanitized)) {
+		return `t_${sanitized}`;
+	}
+	return sanitized;
+}
+
+function toAttributeWord(value: string): string {
+	const sanitized = sanitizeIdentifier(value);
+	if (sanitized.length === 0 || /^[0-9]/.test(sanitized) || MERMAID_ATTRIBUTE_KEY_WORDS.has(sanitized)) {
+		return `_${sanitized}`;
+	}
+	return sanitized;
+}
+
 function sanitizeIdentifier(value: string): string {
 	return value.replace(/[^A-Za-z0-9_]/g, '_');
 }
 
-function escapeQuotes(value: string): string {
-	return value.replace(/"/g, "'");
+function sanitizeQuotedText(value: string): string {
+	return value.replace(/"/g, "'").replace(/[\r\n\t]+/g, ' ');
 }
