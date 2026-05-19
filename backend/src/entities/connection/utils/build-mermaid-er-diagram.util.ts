@@ -14,9 +14,21 @@ export interface MermaidDiagramResult {
 	description: string;
 }
 
+export interface MermaidDiagramHighlight {
+	addedTables?: Set<string>;
+	addedColumns?: Map<string, Set<string>>;
+	addedForeignKeys?: Map<string, Set<string>>;
+}
+
+const ADDED_CLASS_NAME = 'addedEntity';
+const ADDED_CLASS_DEF = `    classDef ${ADDED_CLASS_NAME} fill:#d4edda,stroke:#28a745,color:#155724`;
+const ADDED_COLUMN_MARKER = 'NEW';
+const ADDED_FK_MARKER = '[NEW]';
+
 export function buildMermaidErDiagram(
 	databaseName: string | null,
 	tables: Array<MermaidTableInput>,
+	highlight?: MermaidDiagramHighlight,
 ): MermaidDiagramResult {
 	const aliasByTable = new Map<string, string>();
 	const usedAliases = new Set<string>();
@@ -24,12 +36,17 @@ export function buildMermaidErDiagram(
 		aliasByTable.set(t.tableName, makeUniqueAlias(t.tableName, usedAliases));
 	}
 
+	const addedTablesNorm = normalizeSet(highlight?.addedTables);
+	const addedColumnsNorm = normalizeMap(highlight?.addedColumns);
+	const addedFksNorm = normalizeMap(highlight?.addedForeignKeys);
+
 	const lines: Array<string> = ['erDiagram'];
 
 	for (const table of tables) {
 		const alias = aliasByTable.get(table.tableName)!;
 		const pkColumnNames = new Set(table.primaryColumns.map((p) => p.column_name));
 		const fkColumnNames = new Set(table.foreignKeys.map((fk) => fk.column_name));
+		const tableAddedCols = addedColumnsNorm.get(normalizeIdent(table.tableName)) ?? new Set<string>();
 
 		const aliasDiffersFromOriginal = alias !== table.tableName;
 		const header = aliasDiffersFromOriginal
@@ -46,6 +63,7 @@ export function buildMermaidErDiagram(
 				const markers: Array<string> = [];
 				if (pkColumnNames.has(column.column_name)) markers.push('PK');
 				if (fkColumnNames.has(column.column_name)) markers.push('FK');
+				if (tableAddedCols.has(normalizeIdent(column.column_name))) markers.push(ADDED_COLUMN_MARKER);
 				const comment = buildColumnComment(column);
 				const tail = [markers.join(','), comment].filter((p) => p && p.length > 0).join(' ');
 				lines.push(`        ${dataType} ${colName}${tail ? ' ' + tail : ''}`);
@@ -57,24 +75,50 @@ export function buildMermaidErDiagram(
 	let relationshipCount = 0;
 	for (const table of tables) {
 		const sourceAlias = aliasByTable.get(table.tableName)!;
+		const tableAddedFks = addedFksNorm.get(normalizeIdent(table.tableName)) ?? new Set<string>();
 		for (const fk of table.foreignKeys) {
 			const targetAlias = aliasByTable.get(fk.referenced_table_name);
 			if (!targetAlias) continue;
-			const label = `"${sanitizeQuotedText(fk.column_name)} -> ${sanitizeQuotedText(fk.referenced_column_name)}"`;
-			lines.push(`    ${sourceAlias} }o--|| ${targetAlias} : ${label}`);
+			const isAdded = tableAddedFks.has(fkKey(fk));
+			const labelText = `${sanitizeQuotedText(fk.column_name)} -> ${sanitizeQuotedText(fk.referenced_column_name)}${isAdded ? ' ' + ADDED_FK_MARKER : ''}`;
+			lines.push(`    ${sourceAlias} }o--|| ${targetAlias} : "${labelText}"`);
 			relationshipCount++;
 		}
 	}
 
+	const addedAliases: Array<string> = [];
+	for (const table of tables) {
+		if (addedTablesNorm.has(normalizeIdent(table.tableName))) {
+			addedAliases.push(aliasByTable.get(table.tableName)!);
+		}
+	}
+	if (addedAliases.length > 0) {
+		lines.push(ADDED_CLASS_DEF);
+		for (const alias of addedAliases) {
+			lines.push(`    class ${alias} ${ADDED_CLASS_NAME}`);
+		}
+	}
+
 	const diagram = lines.join('\n');
-	const description = buildDescription(databaseName, tables, relationshipCount);
+	const description = buildDescription(databaseName, tables, relationshipCount, {
+		addedTables: addedTablesNorm,
+		addedColumns: addedColumnsNorm,
+		addedForeignKeys: addedFksNorm,
+	});
 	return { diagram, description };
+}
+
+interface BuildDescriptionHighlight {
+	addedTables: Set<string>;
+	addedColumns: Map<string, Set<string>>;
+	addedForeignKeys: Map<string, Set<string>>;
 }
 
 function buildDescription(
 	databaseName: string | null,
 	tables: Array<MermaidTableInput>,
 	relationshipCount: number,
+	highlight: BuildDescriptionHighlight,
 ): string {
 	const dbLabel = databaseName ? `Database "${databaseName}"` : 'Database';
 	const tablesPart = `${tables.length} ${pluralize(tables.length, 'table', 'tables')}`;
@@ -92,7 +136,15 @@ function buildDescription(
 			t.foreignKeys.length > 0
 				? `FKs: ${t.foreignKeys.map((fk) => `${fk.column_name}->${fk.referenced_table_name}.${fk.referenced_column_name}`).join(', ')}`
 				: 'no foreign keys';
-		return `- ${t.tableName} (${t.structure.length} ${pluralize(t.structure.length, 'column', 'columns')}; ${pkPart}; ${fkPart})`;
+		const isNewTable = highlight.addedTables.has(normalizeIdent(t.tableName));
+		const newCols = highlight.addedColumns.get(normalizeIdent(t.tableName));
+		const newFks = highlight.addedForeignKeys.get(normalizeIdent(t.tableName));
+		const markers: Array<string> = [];
+		if (isNewTable) markers.push('NEW TABLE');
+		if (newCols && newCols.size > 0 && !isNewTable) markers.push(`new columns: ${Array.from(newCols).join(', ')}`);
+		if (newFks && newFks.size > 0 && !isNewTable) markers.push(`new FKs: ${Array.from(newFks).join(', ')}`);
+		const markerSuffix = markers.length > 0 ? ` [${markers.join('; ')}]` : '';
+		return `- ${t.tableName} (${t.structure.length} ${pluralize(t.structure.length, 'column', 'columns')}; ${pkPart}; ${fkPart})${markerSuffix}`;
 	});
 
 	return [header, 'Tables:', ...tableSummaries].join('\n');
@@ -161,4 +213,30 @@ function sanitizeIdentifier(value: string): string {
 
 function sanitizeQuotedText(value: string): string {
 	return value.replace(/"/g, "'").replace(/[\r\n\t]+/g, ' ');
+}
+
+function normalizeIdent(name: string): string {
+	return name.replace(/^[`"[]|[`"\]]$/g, '').toLowerCase();
+}
+
+function normalizeSet(input?: Set<string>): Set<string> {
+	const out = new Set<string>();
+	if (!input) return out;
+	for (const v of input) out.add(normalizeIdent(v));
+	return out;
+}
+
+function normalizeMap(input?: Map<string, Set<string>>): Map<string, Set<string>> {
+	const out = new Map<string, Set<string>>();
+	if (!input) return out;
+	for (const [k, set] of input.entries()) {
+		const normalized = new Set<string>();
+		for (const v of set) normalized.add(normalizeIdent(v));
+		out.set(normalizeIdent(k), normalized);
+	}
+	return out;
+}
+
+function fkKey(fk: ForeignKeyDS): string {
+	return `${fk.column_name}->${fk.referenced_table_name}.${fk.referenced_column_name}`;
 }
