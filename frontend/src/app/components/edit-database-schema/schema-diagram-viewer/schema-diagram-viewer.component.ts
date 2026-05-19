@@ -6,7 +6,6 @@ import {
 	OnDestroy,
 	ViewChild,
 	computed,
-	effect,
 	signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -18,8 +17,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MarkdownModule } from 'ngx-markdown';
 
-const MIN_SCALE = 0.1;
-const MAX_SCALE = 4;
+const MIN_RELATIVE = 0.2;
+const MAX_RELATIVE = 8;
+const ABSOLUTE_MIN = 0.05;
+const ABSOLUTE_MAX = 40;
 const ZOOM_STEP = 0.25;
 
 @Component({
@@ -47,6 +48,7 @@ export class SchemaDiagramViewerComponent implements AfterViewInit, OnDestroy {
 		this.svgReady.set(false);
 		this.svgSize.set({ w: 0, h: 0 });
 		this.scale.set(1);
+		this.baseScale.set(1);
 		this.translateX.set(0);
 		this.translateY.set(0);
 	}
@@ -56,21 +58,18 @@ export class SchemaDiagramViewerComponent implements AfterViewInit, OnDestroy {
 
 	@ViewChild('viewport') viewportRef!: ElementRef<HTMLDivElement>;
 	@ViewChild('canvas') canvasRef!: ElementRef<HTMLDivElement>;
-	@ViewChild('minimap') minimapRef!: ElementRef<HTMLDivElement>;
-	@ViewChild('minimapCanvas') minimapCanvasRef!: ElementRef<HTMLDivElement>;
 
 	protected _source = signal('');
 	protected scale = signal(1);
+	protected baseScale = signal(1);
 	protected translateX = signal(0);
 	protected translateY = signal(0);
 	protected isPanning = signal(false);
 	protected tableSearch = signal('');
 	protected sidebarOpen = signal(true);
-	protected minimapOpen = signal(true);
 	protected svgReady = signal(false);
 	protected svgSize = signal<{ w: number; h: number }>({ w: 0, h: 0 });
 	protected viewportSize = signal<{ w: number; h: number }>({ w: 0, h: 0 });
-	protected minimapSize = signal<{ w: number; h: number }>({ w: 0, h: 0 });
 
 	protected tables = computed(() => {
 		const src = this._source()
@@ -98,41 +97,9 @@ export class SchemaDiagramViewerComponent implements AfterViewInit, OnDestroy {
 		() => `translate(${this.translateX()}px, ${this.translateY()}px) scale(${this.scale()})`,
 	);
 
-	protected scaleLabel = computed(() => `${Math.round(this.scale() * 100)}%`);
-
-	protected minimapScale = computed(() => {
-		const svg = this.svgSize();
-		const mm = this.minimapSize();
-		if (!svg.w || !svg.h || !mm.w || !mm.h) return 0;
-		const padding = 8;
-		return Math.min((mm.w - padding * 2) / svg.w, (mm.h - padding * 2) / svg.h);
-	});
-
-	protected minimapCanvasTransform = computed(() => {
-		const s = this.minimapScale();
-		const svg = this.svgSize();
-		const mm = this.minimapSize();
-		if (!s) return 'translate(0,0) scale(0)';
-		const tx = (mm.w - svg.w * s) / 2;
-		const ty = (mm.h - svg.h * s) / 2;
-		return `translate(${tx}px, ${ty}px) scale(${s})`;
-	});
-
-	protected minimapViewportRect = computed(() => {
-		const s = this.scale();
-		const mm = this.minimapScale();
-		const svg = this.svgSize();
-		const vp = this.viewportSize();
-		if (!s || !mm || !svg.w || !vp.w) {
-			return { x: 0, y: 0, w: 0, h: 0 };
-		}
-		const offsetX = (this.minimapSize().w - svg.w * mm) / 2;
-		const offsetY = (this.minimapSize().h - svg.h * mm) / 2;
-		const x = offsetX + (-this.translateX() / s) * mm;
-		const y = offsetY + (-this.translateY() / s) * mm;
-		const w = (vp.w / s) * mm;
-		const h = (vp.h / s) * mm;
-		return { x, y, w, h };
+	protected scaleLabel = computed(() => {
+		const base = this.baseScale() || 1;
+		return `${Math.round((this.scale() / base) * 100)}%`;
 	});
 
 	private _panStart = { x: 0, y: 0, tx: 0, ty: 0 };
@@ -141,18 +108,6 @@ export class SchemaDiagramViewerComponent implements AfterViewInit, OnDestroy {
 	private _cachedSvg: SVGSVGElement | null = null;
 	private _onPanMove = (e: MouseEvent) => this._handlePanMove(e);
 	private _onPanEnd = () => this._handlePanEnd();
-	private _onMinimapDragMove = (e: MouseEvent) => this._handleMinimapDragMove(e);
-	private _onMinimapDragEnd = () => this._handleMinimapDragEnd();
-	private _minimapDragging = false;
-
-	constructor() {
-		effect(() => {
-			if (!this.minimapOpen() || !this._cachedSvg) return;
-			queueMicrotask(() => {
-				if (this._cachedSvg) this._renderMinimapClone(this._cachedSvg);
-			});
-		});
-	}
 
 	ngAfterViewInit(): void {
 		this._observeRender();
@@ -164,21 +119,18 @@ export class SchemaDiagramViewerComponent implements AfterViewInit, OnDestroy {
 		this._resizeObserver?.disconnect();
 		document.removeEventListener('mousemove', this._onPanMove);
 		document.removeEventListener('mouseup', this._onPanEnd);
-		document.removeEventListener('mousemove', this._onMinimapDragMove);
-		document.removeEventListener('mouseup', this._onMinimapDragEnd);
 	}
 
 	onZoomIn() {
-		this._zoomAt(this.scale() + ZOOM_STEP);
+		this._zoomAt(this.scale() + this.baseScale() * ZOOM_STEP);
 	}
 
 	onZoomOut() {
-		this._zoomAt(this.scale() - ZOOM_STEP);
+		this._zoomAt(this.scale() - this.baseScale() * ZOOM_STEP);
 	}
 
 	onZoomReset() {
-		this.scale.set(1);
-		this._centerContent();
+		this.onFitToScreen();
 	}
 
 	onFitToScreen() {
@@ -197,7 +149,8 @@ export class SchemaDiagramViewerComponent implements AfterViewInit, OnDestroy {
 			(vp.w - padding * 2) / svg.w,
 			(vp.h - padding * 2) / svg.h,
 		);
-		const newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, fit));
+		const newScale = Math.max(ABSOLUTE_MIN, Math.min(ABSOLUTE_MAX, fit));
+		this.baseScale.set(newScale);
 		this.scale.set(newScale);
 		this.translateX.set((vp.w - svg.w * newScale) / 2);
 		this.translateY.set((vp.h - svg.h * newScale) / 2);
@@ -205,7 +158,7 @@ export class SchemaDiagramViewerComponent implements AfterViewInit, OnDestroy {
 
 	onPanStart(event: MouseEvent) {
 		const target = event.target as HTMLElement;
-		if (target.closest('button, a, input, .schema-diagram__sidebar, .schema-diagram__minimap, .schema-diagram__toolbar')) {
+		if (target.closest('button, a, input, .schema-diagram__sidebar, .schema-diagram__toolbar')) {
 			return;
 		}
 		this.isPanning.set(true);
@@ -242,21 +195,8 @@ export class SchemaDiagramViewerComponent implements AfterViewInit, OnDestroy {
 		if (node) this._focusElement(node);
 	}
 
-	onMinimapMouseDown(event: MouseEvent) {
-		this._minimapDragging = true;
-		this._centerMinimapAt(event);
-		document.addEventListener('mousemove', this._onMinimapDragMove);
-		document.addEventListener('mouseup', this._onMinimapDragEnd);
-		event.preventDefault();
-		event.stopPropagation();
-	}
-
 	onToggleSidebar() {
 		this.sidebarOpen.update(v => !v);
-	}
-
-	onToggleMinimap() {
-		this.minimapOpen.update(v => !v);
 	}
 
 	private _handlePanMove(event: MouseEvent) {
@@ -272,36 +212,11 @@ export class SchemaDiagramViewerComponent implements AfterViewInit, OnDestroy {
 		document.removeEventListener('mouseup', this._onPanEnd);
 	}
 
-	private _handleMinimapDragMove(event: MouseEvent) {
-		if (!this._minimapDragging) return;
-		this._centerMinimapAt(event);
-	}
-
-	private _handleMinimapDragEnd() {
-		this._minimapDragging = false;
-		document.removeEventListener('mousemove', this._onMinimapDragMove);
-		document.removeEventListener('mouseup', this._onMinimapDragEnd);
-	}
-
-	private _centerMinimapAt(event: MouseEvent) {
-		const minimap = this.minimapRef?.nativeElement;
-		if (!minimap) return;
-		const rect = minimap.getBoundingClientRect();
-		const mm = this.minimapScale();
-		if (!mm) return;
-		const svg = this.svgSize();
-		const offsetX = (rect.width - svg.w * mm) / 2;
-		const offsetY = (rect.height - svg.h * mm) / 2;
-		const cx = (event.clientX - rect.left - offsetX) / mm;
-		const cy = (event.clientY - rect.top - offsetY) / mm;
-		const vp = this.viewportSize();
-		const s = this.scale();
-		this.translateX.set(vp.w / 2 - cx * s);
-		this.translateY.set(vp.h / 2 - cy * s);
-	}
-
 	private _zoomAt(targetScale: number, originX?: number, originY?: number) {
-		const clamped = Math.max(MIN_SCALE, Math.min(MAX_SCALE, targetScale));
+		const base = this.baseScale() || 1;
+		const minAbs = Math.max(ABSOLUTE_MIN, base * MIN_RELATIVE);
+		const maxAbs = Math.min(ABSOLUTE_MAX, base * MAX_RELATIVE);
+		const clamped = Math.max(minAbs, Math.min(maxAbs, targetScale));
 		const oldScale = this.scale();
 		if (clamped === oldScale) return;
 		const vp = this.viewportSize();
@@ -313,15 +228,6 @@ export class SchemaDiagramViewerComponent implements AfterViewInit, OnDestroy {
 		this.scale.set(clamped);
 	}
 
-	private _centerContent() {
-		const vp = this.viewportSize();
-		const svg = this.svgSize();
-		const s = this.scale();
-		if (!vp.w || !svg.w) return;
-		this.translateX.set((vp.w - svg.w * s) / 2);
-		this.translateY.set((vp.h - svg.h * s) / 2);
-	}
-
 	private _observeRender() {
 		const canvas = this.canvasRef?.nativeElement;
 		if (!canvas) return;
@@ -331,7 +237,6 @@ export class SchemaDiagramViewerComponent implements AfterViewInit, OnDestroy {
 			if (svg === this._cachedSvg) return;
 			this._cachedSvg = svg;
 			this._prepareSvg(svg);
-			this._renderMinimapClone(svg);
 			this.svgReady.set(true);
 			requestAnimationFrame(() => this.onFitToScreen());
 			setTimeout(() => this.onFitToScreen(), 80);
@@ -344,18 +249,12 @@ export class SchemaDiagramViewerComponent implements AfterViewInit, OnDestroy {
 
 	private _observeResize() {
 		const viewport = this.viewportRef?.nativeElement;
-		const minimap = this.minimapRef?.nativeElement;
 		if (!viewport) return;
 		this._resizeObserver = new ResizeObserver(() => {
 			const vpRect = viewport.getBoundingClientRect();
 			this.viewportSize.set({ w: vpRect.width, h: vpRect.height });
-			if (minimap) {
-				const mmRect = minimap.getBoundingClientRect();
-				this.minimapSize.set({ w: mmRect.width, h: mmRect.height });
-			}
 		});
 		this._resizeObserver.observe(viewport);
-		if (minimap) this._resizeObserver.observe(minimap);
 	}
 
 	private _prepareSvg(svg: SVGSVGElement) {
@@ -377,27 +276,9 @@ export class SchemaDiagramViewerComponent implements AfterViewInit, OnDestroy {
 				height = height || bbox.height || 600;
 			}
 			this.svgSize.set({ w: width, h: height });
-			this._renderMinimapClone(svg);
 		};
 		measure();
 		requestAnimationFrame(measure);
-	}
-
-	private _renderMinimapClone(svg: SVGSVGElement) {
-		const host = this.minimapCanvasRef?.nativeElement;
-		if (!host) return;
-		const { w, h } = this.svgSize();
-		if (!w || !h) return;
-		host.innerHTML = '';
-		const clone = svg.cloneNode(true) as SVGSVGElement;
-		clone.removeAttribute('id');
-		clone.removeAttribute('style');
-		clone.style.display = 'block';
-		clone.style.margin = '0';
-		clone.style.pointerEvents = 'none';
-		clone.setAttribute('width', String(w));
-		clone.setAttribute('height', String(h));
-		host.appendChild(clone);
 	}
 
 	private _findEntityNode(target: Element): SVGGraphicsElement | null {

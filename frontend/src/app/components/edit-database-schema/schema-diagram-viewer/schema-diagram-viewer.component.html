@@ -7,11 +7,6 @@
 				(click)="onToggleSidebar()">
 				<mat-icon>list</mat-icon>
 			</button>
-			<button mat-icon-button type="button" matTooltip="Toggle minimap"
-				[class.schema-diagram__toolbar-button--active]="minimapOpen()"
-				(click)="onToggleMinimap()">
-				<mat-icon>map</mat-icon>
-			</button>
 			<span class="schema-diagram__toolbar-divider"></span>
 			<button mat-icon-button type="button" matTooltip="Zoom out" (click)="onZoomOut()">
 				<mat-icon>remove</mat-icon>
@@ -62,18 +57,6 @@
 				</aside>
 			}
 
-			@if (minimapOpen()) {
-				<div #minimap class="schema-diagram__minimap"
-					(mousedown)="onMinimapMouseDown($event)">
-					<div #minimapCanvas class="schema-diagram__minimap-canvas"
-						[style.transform]="minimapCanvasTransform()"></div>
-					<div class="schema-diagram__minimap-viewport"
-						[style.left.px]="minimapViewportRect().x"
-						[style.top.px]="minimapViewportRect().y"
-						[style.width.px]="minimapViewportRect().w"
-						[style.height.px]="minimapViewportRect().h"></div>
-				</div>
-			}
 		</div>
 	</div>
 </div>
