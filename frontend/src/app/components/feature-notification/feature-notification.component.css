@@ -74,7 +74,7 @@
 }
 
 .fn-pulse {
-	transform-origin: 322px 30px;
+	transform-origin: 284px 30px;
 	opacity: 0;
 }
 
@@ -84,6 +84,13 @@
 .fn-pointer {
 	opacity: 0;
 	animation: fn-pointer 5.2s ease-in-out infinite;
+}
+
+.fn-edit-schema-arrow {
+	opacity: 0;
+	transform: translateX(-3px);
+	transition: opacity 150ms ease, transform 150ms ease;
+	animation: fn-arrow-in 5.2s ease-in-out infinite;
 }
 
 .fn-table {
@@ -120,12 +127,20 @@
 @keyframes fn-pointer {
 	0%, 8%   { opacity: 0; transform: translate(80px, 90px); }
 	14%      { opacity: 1; transform: translate(80px, 90px); }
-	25%      { opacity: 1; transform: translate(312px, 26px); }
-	34%      { opacity: 1; transform: translate(312px, 26px) scale(0.85); }
-	38%      { opacity: 1; transform: translate(312px, 26px) scale(1); }
-	60%      { opacity: 1; transform: translate(312px, 26px); }
-	92%      { opacity: 0; transform: translate(312px, 26px); }
-	100%     { opacity: 0; transform: translate(312px, 26px); }
+	25%      { opacity: 1; transform: translate(280px, 28px); }
+	34%      { opacity: 1; transform: translate(280px, 28px) scale(0.85); }
+	38%      { opacity: 1; transform: translate(280px, 28px) scale(1); }
+	60%      { opacity: 1; transform: translate(280px, 28px); }
+	92%      { opacity: 0; transform: translate(280px, 28px); }
+	100%     { opacity: 0; transform: translate(280px, 28px); }
+}
+
+@keyframes fn-arrow-in {
+	0%, 20%  { opacity: 0; transform: translateX(-3px); }
+	30%      { opacity: 1; transform: translateX(0); }
+	60%      { opacity: 1; transform: translateX(0); }
+	72%      { opacity: 0; transform: translateX(-3px); }
+	100%     { opacity: 0; transform: translateX(-3px); }
 }
 
 @keyframes fn-pulse-ring {
@@ -182,6 +197,7 @@
 	.fn-connection-card,
 	.fn-pulse,
 	.fn-pointer,
+	.fn-edit-schema-arrow,
 	.fn-table,
 	.fn-link,
 	.fn-sparkle {

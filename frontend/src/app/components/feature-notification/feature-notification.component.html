@@ -15,7 +15,7 @@
                 <rect class="fn-bg" width="360" height="180" rx="8" fill="url(#fn-bg)"></rect>
                 <rect width="360" height="180" rx="8" fill="url(#fn-grid)" class="fn-grid"></rect>
 
-                <!-- Connection card (the "where to find" hint) — slim -->
+                <!-- Connection card (the "where to find" hint) — slim with Edit schema button on the right -->
                 <g class="fn-connection-card">
                     <rect x="14" y="12" width="332" height="36" rx="7" fill="#fff" stroke="#d6dcff" stroke-width="1.2"></rect>
 
@@ -29,24 +29,17 @@
                     <text x="50" y="27" font-size="10" font-weight="600" fill="#1f2937" font-family="system-ui, sans-serif">my_database</text>
                     <text x="50" y="40" font-size="8.5" fill="#9ca3af" font-family="system-ui, sans-serif">PostgreSQL</text>
 
-                    <!-- Schema icon button (highlight target) -->
+                    <!-- "Edit schema" button on the right (highlight target) -->
                     <g class="fn-schema-target">
-                        <circle class="fn-pulse fn-pulse--1" cx="322" cy="30" r="13" fill="none" stroke="#6384ff" stroke-width="2"></circle>
-                        <circle class="fn-pulse fn-pulse--2" cx="322" cy="30" r="13" fill="none" stroke="#6384ff" stroke-width="2"></circle>
-                        <circle class="fn-schema-bg" cx="322" cy="30" r="12" fill="#eef2ff" stroke="#6384ff" stroke-width="1.2"></circle>
-                        <!-- Material "schema" glyph (rotated 90° CCW) -->
-                        <g transform="translate(314, 22)">
-                            <g transform="rotate(-90 8 8)">
-                                <!-- Connector tree -->
-                                <path d="M8 5 L8 8 M4 8 L12 8 M4 8 L4 11 M12 8 L12 11" stroke="#6384ff" stroke-width="1.3" fill="none" stroke-linecap="round"></path>
-                                <!-- Top pill -->
-                                <rect x="4" y="2" width="8" height="3.4" rx="1.4" fill="#6384ff"></rect>
-                                <!-- Bottom-left pill -->
-                                <rect x="1" y="11" width="6" height="3.4" rx="1.4" fill="#6384ff"></rect>
-                                <!-- Bottom-right pill -->
-                                <rect x="9" y="11" width="6" height="3.4" rx="1.4" fill="#6384ff"></rect>
-                            </g>
-                        </g>
+                        <!-- Pulse rings around the button -->
+                        <rect class="fn-pulse fn-pulse--1" x="232" y="20" width="104" height="20" rx="5" fill="none" stroke="#6384ff" stroke-width="1.5"></rect>
+                        <rect class="fn-pulse fn-pulse--2" x="232" y="20" width="104" height="20" rx="5" fill="none" stroke="#6384ff" stroke-width="1.5"></rect>
+                        <!-- AI sparkle icon -->
+                        <path d="M244 31.5 L245.4 34.1 L248 35.3 L245.4 36.5 L244 39.1 L242.6 36.5 L240 35.3 L242.6 34.1 Z" fill="#2563eb"></path>
+                        <!-- Label -->
+                        <text x="254" y="34.2" font-size="10" font-weight="500" fill="#4f5b75" font-family="system-ui, sans-serif">Edit schema</text>
+                        <!-- Trailing arrow that appears on hover -->
+                        <path class="fn-edit-schema-arrow" d="M308 34.5 L314 34.5 M311.5 31.7 L314.3 34.5 L311.5 37.3" stroke="#6384ff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
                     </g>
                 </g>
 
