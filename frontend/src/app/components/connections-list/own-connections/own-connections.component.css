@@ -186,9 +186,9 @@
 .dbGrid {
 	list-style: none;
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(142px, 1fr));
 	align-items: stretch;
-	grid-gap: 10px;
+	grid-gap: 20px;
 	width: 100%;
 	padding: 0;
 	margin: 0;
@@ -198,18 +198,20 @@
 	.dbGrid {
 		width: 100%;
 		grid-template-columns: 1fr;
+		grid-gap: 8px;
 	}
 }
 
 .dbCard {
 	display: flex;
-	flex-direction: row;
+	flex-direction: column;
 	align-items: center;
-	justify-content: flex-start;
-	gap: 12px;
-	border-radius: 10px;
-	padding: 10px 14px;
-	min-height: 54px;
+	justify-content: center;
+	gap: 4px;
+	border-radius: 8px;
+	padding: 8px;
+	height: 100%;
+	min-height: 90px;
 	text-decoration: none;
 	color: inherit;
 	font-weight: 600;
@@ -219,6 +221,16 @@
 		0px 1px 3px 0px rgba(0, 0, 0, 0.2),
 		0px 2px 2px 0px rgba(0, 0, 0, 0.12),
 		0px 0px 2px 0px rgba(0, 0, 0, 0.14);
+}
+
+@media (width <= 600px) {
+	.dbCard {
+		flex-direction: row;
+		justify-content: flex-start;
+		gap: 12px;
+		padding: 10px 14px;
+		min-height: 54px;
+	}
 }
 
 .dbCard:hover {
@@ -269,11 +281,8 @@
 }
 
 .dbCard__label {
-	text-align: left;
+	text-align: center;
 	font-size: 13px;
-	line-height: 1.2;
-	flex: 1;
-	min-width: 0;
 }
 
 .dbCard__subLabel {
@@ -281,7 +290,20 @@
 	font-weight: 400;
 	opacity: 0.5;
 	font-size: 11px;
-	margin-top: 2px;
+	margin-top: -2px;
+}
+
+@media (width <= 600px) {
+	.dbCard__label {
+		text-align: left;
+		line-height: 1.2;
+		flex: 1;
+		min-width: 0;
+	}
+
+	.dbCard__subLabel {
+		margin-top: 2px;
+	}
 }
 
 /* ── Existing connections list ── */
@@ -334,23 +356,20 @@
 	flex-shrink: 0;
 	display: flex;
 	align-items: center;
-	gap: 14px;
-	color: inherit;
+	gap: 12px;
+	background-color: var(--color-primaryPalette-500);
+	border-radius: 2px;
+	color: #fff;
+	font-size: 20px;
+	font-weight: 900;
+	height: 72px;
 	overflow: hidden;
-	padding: 4px 4px 4px 0;
+	padding: 8px;
 }
 
 .connectionLogoPreview__logo {
-	height: 48px;
-	width: 48px;
-	max-height: 48px;
-	max-width: 48px;
-	padding: 8px;
-	background-color: var(--color-primaryPalette-500);
-	border-radius: 10px;
-	box-sizing: border-box;
+	height: 85%;
 	object-fit: contain;
-	flex-shrink: 0;
 }
 
 .connectionInfo {
@@ -358,13 +377,11 @@
 	flex-direction: column;
 	min-width: 0;
 	flex: 1;
-	gap: 2px;
 }
 
 .connectionInfo .connectionInfo__connectionTitle {
-	margin: 0;
-	font-size: 16px;
-	font-weight: 600;
+	margin-top: -4px;
+	margin-bottom: -2px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -385,8 +402,13 @@
 	}
 
 	.connectionLogoPreview {
-		gap: 10px;
+		height: auto;
+		background-color: transparent;
+		color: inherit;
 		padding: 0;
+		gap: 10px;
+		font-size: inherit;
+		font-weight: inherit;
 	}
 
 	.connectionLogoPreview__logo {
@@ -395,19 +417,31 @@
 		max-height: 30px;
 		max-width: 30px;
 		padding: 5px;
+		background-color: var(--color-primaryPalette-500);
 		border-radius: 7px;
+		box-sizing: border-box;
+		flex-shrink: 0;
 	}
 
 	.connectionInfo .connectionInfo__connectionTitle {
 		font-size: 13px !important;
+		font-weight: 600;
+		margin: 0;
 	}
 
 	.connectionLogoPreview .mat-body-2 {
 		font-size: 11px;
+		color: rgba(0, 0, 0, 0.55);
 	}
 
 	.connectionSchemaButton {
 		display: none;
+	}
+}
+
+@media (width <= 600px) and (prefers-color-scheme: dark) {
+	.connectionLogoPreview .mat-body-2 {
+		color: rgba(255, 255, 255, 0.55);
 	}
 }
 
