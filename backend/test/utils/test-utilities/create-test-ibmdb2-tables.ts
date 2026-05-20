@@ -1,4 +1,7 @@
-import ibmdb from 'ibm_db';
+import * as ibmdbNs from 'ibm_db';
+
+const ibmdb = ibmdbNs.default as unknown as (options?: import('ibm_db').Options) => import('ibm_db').Database;
+
 import { TableCreationResult } from '../../ava-tests/complex-table-tests/complex-ibmdb2-table-e2e.test.js';
 
 export const createTestIBMDB2TablesWithComplexPFKeys = async (connectionParams: any): Promise<TableCreationResult> => {

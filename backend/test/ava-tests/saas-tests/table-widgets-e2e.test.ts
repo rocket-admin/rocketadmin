@@ -7,7 +7,10 @@ import { Test } from '@nestjs/testing';
 import test from 'ava';
 import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
-import ibmdb from 'ibm_db';
+import * as ibmdbNs from 'ibm_db';
+
+const ibmdb = ibmdbNs.default as unknown as (options?: import('ibm_db').Options) => import('ibm_db').Database;
+
 import JSON5 from 'json5';
 import { MongoClient } from 'mongodb';
 import request from 'supertest';
