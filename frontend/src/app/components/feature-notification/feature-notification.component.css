@@ -206,8 +206,8 @@
 
 @keyframes fn-typing {
 	0%, 25%   { width: 0; }
-	40%       { width: 180px; }
-	48%       { width: 180px; }
+	40%       { width: 270px; }
+	48%       { width: 270px; }
 	50%       { width: 0; }
 	100%      { width: 0; }
 }
@@ -215,12 +215,12 @@
 @keyframes fn-caret-track {
 	0%, 25%  { opacity: 0; transform: translateX(0); }
 	27%      { opacity: 1; transform: translateX(0); }
-	40%      { opacity: 1; transform: translateX(180px); }
-	42%      { opacity: 0; transform: translateX(180px); }
-	44%      { opacity: 1; transform: translateX(180px); }
-	46%      { opacity: 0; transform: translateX(180px); }
-	48%      { opacity: 1; transform: translateX(180px); }
-	50%      { opacity: 0; transform: translateX(180px); }
+	40%      { opacity: 1; transform: translateX(255px); }
+	42%      { opacity: 0; transform: translateX(255px); }
+	44%      { opacity: 1; transform: translateX(255px); }
+	46%      { opacity: 0; transform: translateX(255px); }
+	48%      { opacity: 1; transform: translateX(255px); }
+	50%      { opacity: 0; transform: translateX(255px); }
 	100%     { opacity: 0; }
 }
 
@@ -337,7 +337,7 @@
 	}
 	.fn-typing-clip {
 		animation: none !important;
-		width: 180px !important;
+		width: 270px !important;
 	}
 	.fn-chat-title--initial { display: none !important; }
 	.fn-act--1 { display: none !important; }
