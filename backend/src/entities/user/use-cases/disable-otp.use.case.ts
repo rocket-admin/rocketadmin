@@ -6,7 +6,7 @@ import {
 	InternalServerErrorException,
 	NotFoundException,
 } from '@nestjs/common';
-import { authenticator } from 'otplib';
+import { verifySync } from 'otplib';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -41,7 +41,7 @@ export class DisableOtpUseCase extends AbstractUseCase<VerifyOtpDS, OtpDisabling
 			throw new BadRequestException(Messages.OTP_NOT_ENABLED);
 		}
 		try {
-			const isValid = authenticator.check(otpToken, otpSecretKey);
+			const isValid = verifySync({ token: otpToken, secret: otpSecretKey }).valid;
 			if (isValid) {
 				foundUser.isOTPEnabled = false;
 				foundUser.otpSecretKey = null;
