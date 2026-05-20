@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import Mail from 'nodemailer/lib/mailer/index.js';
-import SMTPTransport from 'nodemailer/lib/smtp-transport';
+import SMTPTransport from 'nodemailer/lib/smtp-transport/index.js';
 import * as nunjucks from 'nunjucks';
 import PQueue from 'p-queue';
 import { BaseType } from '../../../common/data-injection.tokens.js';

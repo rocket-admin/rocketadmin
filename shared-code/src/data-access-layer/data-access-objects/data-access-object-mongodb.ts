@@ -13,6 +13,7 @@ import { getTunnel } from '../../helpers/get-ssh-tunnel.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
 import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
+import { MulterFile } from '../../types/multer-file.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
 import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
@@ -428,7 +429,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
 		return false;
 	}
 
-	public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
+	public async importCSVInTable(file: MulterFile, tableName: string): Promise<void> {
 		const db = await this.getConnectionToDatabase();
 		const collection = db.collection(tableName);
 		const stream = new Readable();

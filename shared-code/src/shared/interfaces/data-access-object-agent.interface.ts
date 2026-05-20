@@ -10,6 +10,7 @@ import { TableSettingsDS } from '../../data-access-layer/shared/data-structures/
 import { TableStructureDS } from '../../data-access-layer/shared/data-structures/table-structure.ds.js';
 import { TestConnectionResultDS } from '../../data-access-layer/shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../../data-access-layer/shared/data-structures/validate-table-settings.ds.js';
+import { MulterFile } from '../../types/multer-file.js';
 
 export interface IDataAccessObjectAgent {
 	addRowInTable(
@@ -110,7 +111,7 @@ export interface IDataAccessObjectAgent {
 		filteringFields: Array<FilteringFieldsDS>,
 	): Promise<Stream & AsyncIterable<never>>;
 
-	importCSVInTable(file: Express.Multer.File, tableName: string, userEmail: string): Promise<void>;
+	importCSVInTable(file: MulterFile, tableName: string, userEmail: string): Promise<void>;
 
 	executeRawQuery(query: string, tableName: string, userEmail: string): Promise<Array<Record<string, unknown>>>;
 

@@ -17,7 +17,7 @@ import {
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
-import isEmail from 'validator/lib/isEmail.js';
+import validator from 'validator';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { BodyEmail } from '../../decorators/body-email.decorator.js';
 import { GCLlId } from '../../decorators/gclid-decorator.js';
@@ -337,7 +337,7 @@ export class UserController {
 			newEmail: email,
 			verificationString: verificationString,
 		};
-		if (!email || !isEmail(email)) {
+		if (!email || !validator.isEmail(email)) {
 			throw new HttpException(
 				{
 					message: Messages.EMAIL_INVALID,
