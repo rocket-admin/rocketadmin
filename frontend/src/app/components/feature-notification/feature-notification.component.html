@@ -10,89 +10,113 @@
                         <stop offset="0%" stop-color="#eef2ff" />
                         <stop offset="100%" stop-color="#f5f1ff" />
                     </linearGradient>
+                    <clipPath id="fn-typing-clip">
+                        <rect class="fn-typing-clip" x="32" y="144" width="0" height="20"></rect>
+                    </clipPath>
                 </defs>
 
                 <rect class="fn-bg" width="360" height="180" rx="8" fill="url(#fn-bg)"></rect>
-                <rect width="360" height="180" rx="8" fill="url(#fn-grid)" class="fn-grid"></rect>
+                <rect width="360" height="180" rx="8" fill="url(#fn-grid)"></rect>
 
-                <!-- Connection card (the "where to find" hint) — slim with Edit schema button on the right -->
-                <g class="fn-connection-card">
-                    <rect x="14" y="12" width="332" height="36" rx="7" fill="#fff" stroke="#d6dcff" stroke-width="1.2"></rect>
+                <!-- ============================================== -->
+                <!-- ACT 1 (0–1.5s): "+ Create" button only          -->
+                <!-- ============================================== -->
+                <g class="fn-act fn-act--1">
+                    <!-- Create button (dark) -->
+                    <g class="fn-add-button">
+                        <rect x="130" y="74" width="100" height="40" rx="20" fill="#1f2937"></rect>
+                        <text x="180" y="100" text-anchor="middle" font-size="14" font-weight="500" fill="#fff" font-family="system-ui, sans-serif">+ Create</text>
+                    </g>
 
-                    <!-- DB icon -->
-                    <circle cx="32" cy="30" r="9" fill="#eef2ff"></circle>
-                    <ellipse cx="32" cy="27" rx="5" ry="1.4" fill="none" stroke="#6384ff" stroke-width="1.2"></ellipse>
-                    <ellipse cx="32" cy="30" rx="5" ry="1.4" fill="none" stroke="#6384ff" stroke-width="1.2"></ellipse>
-                    <path d="M27 27 L27 33 M37 27 L37 33" stroke="#6384ff" stroke-width="1.2" stroke-linecap="round"></path>
+                    <!-- Click ripple -->
+                    <circle class="fn-click-ripple" cx="180" cy="93" r="0" fill="none" stroke="#6384ff" stroke-width="1.5"></circle>
 
-                    <!-- Database name + type label -->
-                    <text x="50" y="27" font-size="10" font-weight="600" fill="#1f2937" font-family="system-ui, sans-serif">my_database</text>
-                    <text x="50" y="40" font-size="8.5" fill="#9ca3af" font-family="system-ui, sans-serif">PostgreSQL</text>
-
-                    <!-- "Edit schema" button on the right (highlight target) -->
-                    <g class="fn-schema-target">
-                        <!-- Pulse rings around the button -->
-                        <rect class="fn-pulse fn-pulse--1" x="232" y="20" width="104" height="20" rx="5" fill="none" stroke="#6384ff" stroke-width="1.5"></rect>
-                        <rect class="fn-pulse fn-pulse--2" x="232" y="20" width="104" height="20" rx="5" fill="none" stroke="#6384ff" stroke-width="1.5"></rect>
-                        <!-- AI sparkle icon -->
-                        <path d="M244 31.5 L245.4 34.1 L248 35.3 L245.4 36.5 L244 39.1 L242.6 36.5 L240 35.3 L242.6 34.1 Z" fill="#2563eb"></path>
-                        <!-- Label -->
-                        <text x="254" y="34.2" font-size="10" font-weight="500" fill="#4f5b75" font-family="system-ui, sans-serif">Edit schema</text>
-                        <!-- Trailing arrow that appears on hover -->
-                        <path class="fn-edit-schema-arrow" d="M308 34.5 L314 34.5 M311.5 31.7 L314.3 34.5 L311.5 37.3" stroke="#6384ff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"></path>
+                    <!-- Cursor for act 1 -->
+                    <g class="fn-pointer-1">
+                        <path d="M0 0 L0 14 L4 11 L7 17 L10 16 L7 9 L12 9 Z" fill="#1f2937" stroke="#fff" stroke-width="1"></path>
                     </g>
                 </g>
 
-                <!-- Cursor that moves to the schema icon -->
-                <g class="fn-pointer">
-                    <path d="M0 0 L0 14 L4 11 L7 17 L10 16 L7 9 L12 9 Z" fill="#1f2937" stroke="#fff" stroke-width="1"></path>
+                <!-- ============================================== -->
+                <!-- ACT 2 (1.5–3.5s): chat with typed prompt        -->
+                <!-- ============================================== -->
+                <g class="fn-act fn-act--2">
+                    <!-- Header -->
+                    <text class="fn-chat-title fn-chat-title--initial" x="20" y="24" font-size="13" font-weight="600" fill="#1f2937" font-family="system-ui, sans-serif">New database</text>
+                    <text class="fn-chat-title fn-chat-title--final" x="20" y="24" font-size="13" font-weight="600" fill="#1f2937" font-family="system-ui, sans-serif">Bookings for climbing gym</text>
+                    <line class="fn-chat-divider" x1="20" y1="34" x2="340" y2="34" stroke="#e5e7eb" stroke-width="0.8"></line>
+
+                    <!-- Input field -->
+                    <g class="fn-input">
+                        <rect x="20" y="136" width="320" height="30" rx="15" fill="#fff" stroke="#d6dcff" stroke-width="1"></rect>
+                        <g clip-path="url(#fn-typing-clip)">
+                            <text x="34" y="155" font-size="12" fill="#1f2937" font-family="ui-monospace, SFMono-Regular, monospace">Bookings for climbing gym</text>
+                        </g>
+                        <rect class="fn-caret" x="34" y="146" width="1.4" height="14" fill="#1f2937"></rect>
+                        <!-- Send button -->
+                        <g class="fn-send-button">
+                            <circle cx="326" cy="151" r="11" fill="#6384ff"></circle>
+                            <path d="M321 154 L326 147 L331 154 M326 147 L326 159" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </g>
+                    </g>
+
                 </g>
 
-                <!-- Mini schema diagram (the result) — wavy layout -->
-                <g class="fn-schema-result">
-                    <!-- Table 1: users -->
+                <!-- ============================================== -->
+                <!-- ACT 3 (3.5–5.5s): AI reply with diagram         -->
+                <!-- ============================================== -->
+                <g class="fn-act fn-act--3">
+                    <!-- AI avatar (lifted above the diagram) -->
+                    <g class="fn-ai-avatar">
+                        <circle cx="22" cy="50" r="10" fill="#eef2ff"></circle>
+                        <path d="M22 43.5 L23.4 47.6 L27.5 49 L23.4 50.4 L22 54.5 L20.6 50.4 L16.5 49 L20.6 47.6 Z" fill="#6384ff"></path>
+                    </g>
+
+                    <!-- Mini diagram (3 tables) -->
                     <g class="fn-table fn-table--1">
-                        <rect x="22" y="92" width="86" height="72" rx="6" fill="#fff" stroke="#c4cdff" stroke-width="1.2"></rect>
-                        <rect x="22" y="92" width="86" height="18" rx="6" fill="#6384ff"></rect>
-                        <text x="32" y="105" font-size="10" font-weight="600" fill="#fff" font-family="system-ui, sans-serif">users</text>
-                        <text x="32" y="126" font-size="9" fill="#445" font-family="system-ui, sans-serif">id</text>
-                        <text x="32" y="140" font-size="9" fill="#445" font-family="system-ui, sans-serif">email</text>
-                        <text x="32" y="154" font-size="9" fill="#445" font-family="system-ui, sans-serif">name</text>
+                        <rect x="18" y="74" width="102" height="66" rx="7" fill="#fff" stroke="#c4cdff" stroke-width="1.2"></rect>
+                        <rect x="18" y="74" width="102" height="18" rx="7" fill="#c4b5fd"></rect>
+                        <text x="28" y="87" font-size="12" font-weight="600" fill="#fff" font-family="system-ui, sans-serif">members</text>
+                        <text x="28" y="106" font-size="10" fill="#445" font-family="system-ui, sans-serif">id</text>
+                        <text x="112" y="106" font-size="8" font-weight="700" fill="#b45309" font-family="system-ui, sans-serif" text-anchor="end">PK</text>
+                        <text x="28" y="120" font-size="10" fill="#445" font-family="system-ui, sans-serif">name</text>
+                        <text x="28" y="134" font-size="10" fill="#445" font-family="system-ui, sans-serif">email</text>
                     </g>
 
-                    <!-- Table 2: posts (higher — "wave") -->
                     <g class="fn-table fn-table--2">
-                        <rect x="138" y="68" width="86" height="72" rx="6" fill="#fff" stroke="#c4cdff" stroke-width="1.2"></rect>
-                        <rect x="138" y="68" width="86" height="18" rx="6" fill="#8b6dff"></rect>
-                        <text x="148" y="81" font-size="10" font-weight="600" fill="#fff" font-family="system-ui, sans-serif">posts</text>
-                        <text x="148" y="102" font-size="9" fill="#445" font-family="system-ui, sans-serif">id</text>
-                        <text x="148" y="116" font-size="9" fill="#445" font-family="system-ui, sans-serif">user_id</text>
-                        <text x="148" y="130" font-size="9" fill="#445" font-family="system-ui, sans-serif">title</text>
+                        <rect x="130" y="58" width="102" height="66" rx="7" fill="#fff" stroke="#c4cdff" stroke-width="1.2"></rect>
+                        <rect x="130" y="58" width="102" height="18" rx="7" fill="#93c5fd"></rect>
+                        <text x="140" y="71" font-size="12" font-weight="600" fill="#fff" font-family="system-ui, sans-serif">bookings</text>
+                        <text x="140" y="90" font-size="10" fill="#445" font-family="system-ui, sans-serif">id</text>
+                        <text x="224" y="90" font-size="8" font-weight="700" fill="#b45309" font-family="system-ui, sans-serif" text-anchor="end">PK</text>
+                        <text x="140" y="104" font-size="10" fill="#445" font-family="system-ui, sans-serif">member_id</text>
+                        <text x="224" y="104" font-size="8" font-weight="700" fill="#2563eb" font-family="system-ui, sans-serif" text-anchor="end">FK</text>
+                        <text x="140" y="118" font-size="10" fill="#445" font-family="system-ui, sans-serif">date</text>
                     </g>
 
-                    <!-- Table 3: comments (lower — "wave") -->
                     <g class="fn-table fn-table--3">
-                        <rect x="254" y="100" width="86" height="64" rx="6" fill="#fff" stroke="#c4cdff" stroke-width="1.2"></rect>
-                        <rect x="254" y="100" width="86" height="18" rx="6" fill="#ff8bb1"></rect>
-                        <text x="264" y="113" font-size="10" font-weight="600" fill="#fff" font-family="system-ui, sans-serif">comments</text>
-                        <text x="264" y="134" font-size="9" fill="#445" font-family="system-ui, sans-serif">id</text>
-                        <text x="264" y="148" font-size="9" fill="#445" font-family="system-ui, sans-serif">post_id</text>
+                        <rect x="242" y="78" width="102" height="62" rx="7" fill="#fff" stroke="#c4cdff" stroke-width="1.2"></rect>
+                        <rect x="242" y="78" width="102" height="18" rx="7" fill="#fbcfe8"></rect>
+                        <text x="252" y="91" font-size="12" font-weight="600" fill="#fff" font-family="system-ui, sans-serif">sessions</text>
+                        <text x="252" y="110" font-size="10" fill="#445" font-family="system-ui, sans-serif">id</text>
+                        <text x="336" y="110" font-size="8" font-weight="700" fill="#b45309" font-family="system-ui, sans-serif" text-anchor="end">PK</text>
+                        <text x="252" y="124" font-size="10" fill="#445" font-family="system-ui, sans-serif">starts_at</text>
                     </g>
 
-                    <!-- Wavy curved relationships -->
-                    <path class="fn-link fn-link--1" d="M 108 124 C 124 124 124 104 138 104" stroke="#6384ff" stroke-width="1.6" fill="none" stroke-linecap="round"></path>
-                    <path class="fn-link fn-link--2" d="M 224 108 C 240 108 240 130 254 130" stroke="#8b6dff" stroke-width="1.6" fill="none" stroke-linecap="round"></path>
+                    <!-- Relations -->
+                    <path class="fn-link fn-link--1" d="M 120 106 C 125 106 125 90 130 90" stroke="#c4b5fd" stroke-width="1.6" fill="none" stroke-linecap="round"></path>
+                    <path class="fn-link fn-link--2" d="M 232 90 C 237 90 237 110 242 110" stroke="#93c5fd" stroke-width="1.6" fill="none" stroke-linecap="round"></path>
 
-                    <!-- Sparkle -->
-                    <g class="fn-sparkle">
-                        <path d="M120 64 L122 69 L127 70 L122 71 L120 76 L118 71 L113 70 L118 69 Z" fill="#ffb800"></path>
+                    <!-- "Schema ready ✓" -->
+                    <g class="fn-schema-ready">
+                        <text x="180" y="162" text-anchor="middle" font-size="12" font-weight="600" fill="#10b981" font-family="system-ui, sans-serif">Schema ready ✓</text>
                     </g>
                 </g>
             </svg>
         </div>
-        <h1 class="feature-notification__title">New: Create &amp; Edit Schema with AI</h1>
+        <h1 class="feature-notification__title">Design schemas with AI</h1>
         <p class="feature-notification__description">
-            Create and edit your database tables — just describe what you need and AI does the rest.
+            Describe what you need and AI will generate the tables for you.
         </p>
     </div>
     <div class="actions">
