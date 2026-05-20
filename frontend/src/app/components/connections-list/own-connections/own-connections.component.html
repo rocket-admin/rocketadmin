@@ -120,38 +120,81 @@
 <!-- FAB actions (when connections exist) -->
 @if (connections?.length) {
     <div class="fabActions">
-        @if (showHostedDatabaseEntry) {
-            @if (hostedDbLimitReached) {
-                <a mat-stroked-button color="primary" class="fabHostedButton" routerLink="/upgrade">
-                    <mat-icon>cloud_queue</mat-icon>
-                    Upgrade to host more
-                </a>
-            } @else {
+        @if (currentUser?.role === 'ADMIN' || currentUser?.role === 'DB_ADMIN') {
+            @if (showHostedDatabaseEntry) {
                 <button
-                    mat-stroked-button
+                    mat-flat-button
                     type="button"
                     color="primary"
-                    class="fabHostedButton"
-                    data-testid="create-hosted-database-fab-button"
+                    class="fabAddButton"
+                    data-testid="add-connection-button"
+                    [matMenuTriggerFor]="addConnectionMenu"
                     [disabled]="creatingHostedDatabase()"
-                    (click)="createHostedDatabase()">
-                    <mat-icon>cloud_queue</mat-icon>
-                    {{ creatingHostedDatabase() ? 'Creating...' : 'Create hosted PostgreSQL' }}
+                    angulartics2On="click"
+                    angularticsAction="Connections: Add connection button is clicked"
+                    (click)="posthog.capture('Connections: Add connection button is clicked')">
+                    <mat-icon>add</mat-icon>
+                    {{ creatingHostedDatabase() ? 'Creating hosted PostgreSQL...' : 'Add connection' }}
                 </button>
+                <mat-menu #addConnectionMenu="matMenu" xPosition="before" yPosition="above" [overlapTrigger]="false" panelClass="addConnectionMenu">
+                    <a mat-menu-item
+                        routerLink="/connect-db"
+                        angulartics2On="click"
+                        angularticsAction="Connections: Connect own database is clicked">
+                        <div class="addConnectionItem">
+                            <div class="addConnectionItem__iconBox addConnectionItem__iconBox--primary">
+                                <mat-icon>cable</mat-icon>
+                            </div>
+                            <div class="addConnectionItem__text">
+                                <span class="addConnectionItem__title">Connect your own</span>
+                                <span class="addConnectionItem__subtitle">MySQL, PostgreSQL, MongoDB and more</span>
+                            </div>
+                        </div>
+                    </a>
+                    @if (hostedDbLimitReached) {
+                        <a mat-menu-item routerLink="/upgrade">
+                            <div class="addConnectionItem">
+                                <div class="addConnectionItem__iconBox addConnectionItem__iconBox--warn">
+                                    <mat-icon>upgrade</mat-icon>
+                                </div>
+                                <div class="addConnectionItem__text">
+                                    <span class="addConnectionItem__title">Upgrade to host more</span>
+                                    <span class="addConnectionItem__subtitle">You've reached the limit of 3 hosted databases</span>
+                                </div>
+                            </div>
+                        </a>
+                    } @else {
+                        <button
+                            mat-menu-item
+                            type="button"
+                            data-testid="create-hosted-database-fab-button"
+                            [disabled]="creatingHostedDatabase()"
+                            (click)="createHostedDatabase()">
+                            <div class="addConnectionItem">
+                                <div class="addConnectionItem__iconBox addConnectionItem__iconBox--accent">
+                                    <mat-icon>cloud_queue</mat-icon>
+                                </div>
+                                <div class="addConnectionItem__text">
+                                    <span class="addConnectionItem__title">Create hosted PostgreSQL</span>
+                                    <span class="addConnectionItem__subtitle">Managed database, ready in one click</span>
+                                </div>
+                            </div>
+                        </button>
+                    }
+                </mat-menu>
+            } @else {
+                <a mat-flat-button
+                    data-testid="add-connection-button"
+                    color="primary"
+                    class="fabAddButton"
+                    routerLink="/connect-db"
+                    angulartics2On="click"
+                    angularticsAction="Connections: Add connection button is clicked"
+                    (click)="posthog.capture('Connections: Add connection button is clicked')">
+                    <mat-icon>add</mat-icon>
+                    Add connection
+                </a>
             }
-        }
-        @if (currentUser?.role === 'ADMIN' || currentUser?.role === 'DB_ADMIN') {
-            <a mat-flat-button
-                data-testid="add-connection-button"
-                color="primary"
-                class="fabAddButton"
-                routerLink="/connect-db"
-                angulartics2On="click"
-                angularticsAction="Connections: Add connection button is clicked"
-                (click)="posthog.capture('Connections: Add connection button is clicked')">
-                <mat-icon>add</mat-icon>
-                Add database
-            </a>
         }
     </div>
 }

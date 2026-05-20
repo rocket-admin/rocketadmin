@@ -302,6 +302,7 @@ export class AppComponent {
 					user_hash: res.intercom_hash,
 					user_id: res.id,
 					email: res.email,
+					hide_default_launcher: true,
 				});
 
 			if (this.isDemo)
@@ -341,6 +342,12 @@ export class AppComponent {
 	dismissFeatureNotification() {
 		this._uiSettings.updateGlobalSetting('lastFeatureNotificationId', this.currentFeatureNotificationId);
 		this.isFeatureNotificationShown = false;
+	}
+
+	openSupportChat() {
+		if (typeof window.Intercom !== 'undefined') {
+			window.Intercom('show');
+		}
 	}
 
 	setUserLoggedIn(state) {
