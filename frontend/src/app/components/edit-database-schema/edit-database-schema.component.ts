@@ -234,11 +234,12 @@ export class EditDatabaseSchemaComponent implements OnInit {
 		this.initialDiagramLoading.set(true);
 		try {
 			const diagram = await this._tableSchema.fetchDiagram(this.connectionID);
-			if (diagram?.diagram) {
+			const source = diagram?.diagram ?? '';
+			if (this._mermaidHasEntities(source)) {
 				this.messages.update(msgs => [...msgs, {
 					role: 'diagram' as const,
 					text: label,
-					diagramSource: '```mermaid\n' + diagram.diagram + '\n```',
+					diagramSource: '```mermaid\n' + source + '\n```',
 				}]);
 			}
 		} catch {
@@ -246,6 +247,14 @@ export class EditDatabaseSchemaComponent implements OnInit {
 		} finally {
 			this.initialDiagramLoading.set(false);
 		}
+	}
+
+	private _mermaidHasEntities(source: string): boolean {
+		if (!source) return false;
+		for (const line of source.split('\n')) {
+			if (/^\s*[A-Za-z_][\w-]*\s*\{/.test(line)) return true;
+		}
+		return false;
 	}
 
 	private _buildMermaidFromChanges(changes: SchemaChangeResponse[]): string {
