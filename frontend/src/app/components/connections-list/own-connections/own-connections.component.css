@@ -267,6 +267,7 @@
 .connection {
 	display: flex;
 	flex-direction: column;
+	gap: 10px;
 	border: 1px solid rgba(0, 0, 0, 0.12);
 	border-radius: 4px;
 	color: inherit;
@@ -283,7 +284,7 @@
 	}
 }
 
-.connection:hover {
+.connection:has(.connectionLogoPreview:hover) {
 	border: 1px solid var(--color-primaryPalette-500);
 	box-shadow:
 		0px 4px 5px 0px rgba(0, 0, 0, 0.2),
@@ -292,7 +293,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-	.connection:hover {
+	.connection:has(.connectionLogoPreview:hover) {
 		border: 1px solid #636363;
 	}
 }
@@ -333,16 +334,58 @@
 	width: 100%;
 }
 
-/* ── Schema button inside card ── */
+/* ── Schema button row at the bottom of the card ── */
 
 .connectionSchemaButton {
-	margin-left: auto;
-	flex-shrink: 0;
-	color: rgba(255, 255, 255, 0.7);
+	position: relative;
+	align-self: stretch;
+	justify-content: center;
+	--mdc-text-button-label-text-color: color-mix(in srgb, var(--color-accentedPalette-500) 18%, #1f2937 82%);
+	color: var(--mdc-text-button-label-text-color) !important;
+	font-size: 13px;
+	font-weight: 500;
+	line-height: 1;
+	height: 34px;
+	transition: color 150ms ease, background-color 150ms ease;
+}
+
+.connectionSchemaButton mat-icon {
+	font-size: 16px !important;
+	width: 16px !important;
+	height: 16px !important;
+	margin-right: 6px;
+	transition: color 150ms ease;
+}
+
+.connectionSchemaButton__ai {
+	color: var(--color-accentedPalette-500) !important;
+}
+
+.connectionSchemaButton__arrow {
+	position: absolute;
+	right: 12px;
+	top: 50%;
+	margin: 0 !important;
+	transform: translate(-4px, -50%);
+	opacity: 0;
+	transition: opacity 150ms ease, transform 150ms ease;
 }
 
 .connectionSchemaButton:hover {
-	color: #fff;
+	--mdc-text-button-label-text-color: var(--color-accentedPalette-500);
+	color: var(--color-accentedPalette-500) !important;
+	background-color: color-mix(in srgb, var(--color-accentedPalette-500), transparent 92%);
+}
+
+.connectionSchemaButton:hover .connectionSchemaButton__arrow {
+	opacity: 1;
+	transform: translate(0, -50%);
+}
+
+@media (prefers-color-scheme: dark) {
+	.connectionSchemaButton {
+		--mdc-text-button-label-text-color: color-mix(in srgb, var(--color-accentedPalette-500) 25%, #e2e8f0 75%);
+	}
 }
 
 /* ── Show more / less ── */
