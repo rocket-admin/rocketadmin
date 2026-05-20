@@ -18,6 +18,20 @@
 	}
 }
 
+@media (max-width: 640px) {
+	.feature-notification {
+		left: 12px;
+		right: 12px;
+		bottom: 12px;
+		width: auto;
+		max-width: 480px;
+		margin: 0 auto;
+		padding: 14px;
+		border-radius: 14px;
+		box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.12);
+	}
+}
+
 .feature-notification__animation {
 	width: 100%;
 	border-radius: 8px;
