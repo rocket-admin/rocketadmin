@@ -136,15 +136,54 @@
 						<div class="schema-editor__message schema-editor__message--ai">
 							<span class="schema-editor__message-text">{{ message.text }}</span>
 
-							@if (message.changes?.length) {
+							@if (message.parsedChanges?.length) {
 								<div class="schema-editor__changes">
-									@for (change of message.changes; track change.id) {
-										<div class="schema-editor__change-card">
-											<div class="schema-editor__change-header">
-												<span class="schema-editor__change-type">{{ change.changeType }}</span>
-												<span class="schema-editor__change-table">{{ change.targetTableName }}</span>
+									@for (change of message.parsedChanges; track change.id) {
+										<div class="change-card" [attr.data-tone]="change.tone">
+											<div class="change-card__head">
+												<div class="change-card__action-icon">
+													<mat-icon>{{ change.icon }}</mat-icon>
+												</div>
+												<div class="change-card__head-text">
+													<span class="change-card__action">{{ change.action }}</span>
+													<span class="change-card__target">{{ change.targetTableName }}</span>
+												</div>
 											</div>
-											<pre class="schema-editor__change-sql">{{ change.forwardSql }}</pre>
+											@if (change.aiSummary) {
+												<p class="change-card__summary">{{ change.aiSummary }}</p>
+											}
+											@if (change.columns.length) {
+												<ul class="change-card__columns">
+													@for (col of change.columns; track col.name) {
+														<li class="change-card__column">
+															<span class="change-card__column-name">{{ col.name }}</span>
+															<span class="change-card__column-type">{{ col.type || '—' }}</span>
+															<span class="change-card__column-badges">
+																@if (col.pk) {
+																	<span class="change-card__badge change-card__badge--pk" matTooltip="Primary key">PK</span>
+																}
+																@if (col.fk) {
+																	<span class="change-card__badge change-card__badge--fk"
+																		[matTooltip]="col.referenceTable ? '→ ' + col.referenceTable : 'Foreign key'">FK</span>
+																}
+																@if (col.notNull && !col.pk) {
+																	<span class="change-card__badge change-card__badge--nn">NOT NULL</span>
+																}
+																@if (col.unique && !col.pk) {
+																	<span class="change-card__badge change-card__badge--uq">UNIQUE</span>
+																}
+																@if (col.defaultValue) {
+																	<span class="change-card__badge change-card__badge--def">DEFAULT</span>
+																}
+															</span>
+														</li>
+													}
+												</ul>
+											}
+											<details class="change-card__sql">
+												<summary>View SQL</summary>
+												<pre>{{ change.forwardSql }}</pre>
+											</details>
 										</div>
 									}
 								</div>

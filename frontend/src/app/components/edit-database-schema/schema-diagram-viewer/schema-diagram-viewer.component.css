@@ -274,6 +274,32 @@
 	margin: 0 !important;
 }
 
+/* ── Dark-theme purple safety net for ER diagram ── */
+
+@media (prefers-color-scheme: dark) {
+	.schema-diagram__canvas ::ng-deep svg rect,
+	.schema-diagram__canvas ::ng-deep svg .er.entityBox,
+	.schema-diagram__canvas ::ng-deep svg .er.attributeBoxOdd,
+	.schema-diagram__canvas ::ng-deep svg .er.attributeBoxEven {
+		fill: #1d143a !important;
+		stroke: #3d2b6e !important;
+	}
+	.schema-diagram__canvas ::ng-deep svg text,
+	.schema-diagram__canvas ::ng-deep svg tspan {
+		fill: #ede9fe !important;
+		stroke: none !important;
+	}
+	.schema-diagram__canvas ::ng-deep svg .er.relationshipLine,
+	.schema-diagram__canvas ::ng-deep svg path.relationshipLine {
+		stroke: #a78bfa !important;
+	}
+	.schema-diagram__canvas ::ng-deep svg marker path,
+	.schema-diagram__canvas ::ng-deep svg defs marker path {
+		fill: #a78bfa !important;
+		stroke: #a78bfa !important;
+	}
+}
+
 .schema-diagram__canvas ::ng-deep .schema-diagram__highlight {
 	animation: highlight-pulse 1.6s ease;
 }
