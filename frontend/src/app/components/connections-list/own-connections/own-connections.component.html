@@ -3,7 +3,7 @@
     @if (isDemo) {
         <h1 class="mat-display-1">Create your own test connection</h1>
     } @else if (currentUser?.role === 'ADMIN' || currentUser?.role === 'DB_ADMIN') {
-        <h1 class="mat-display-1">Create your first connection</h1>
+        <h1 class="mat-display-1">Add your first connection</h1>
     }
 }
 
@@ -66,6 +66,7 @@
                         <span class="hosted-banner__subtitle">You've reached the limit of 3 hosted databases</span>
                     </div>
                     <span class="hosted-banner__badge">&#10022; Upgrade</span>
+                    <mat-icon class="hosted-banner__chevron">chevron_right</mat-icon>
                 </a>
             } @else {
                 <button
@@ -84,6 +85,7 @@
                         <span class="hosted-banner__subtitle">Provision a managed database in one click</span>
                     </div>
                     <span class="hosted-banner__badge">&#10022; Quickstart</span>
+                    <mat-icon class="hosted-banner__chevron">chevron_right</mat-icon>
                 </button>
             }
         </div>

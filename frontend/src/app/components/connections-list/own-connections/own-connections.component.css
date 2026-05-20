@@ -5,6 +5,16 @@
 	width: 100%;
 }
 
+/* ── Page heading: shrink on mobile to match company name ── */
+
+@media (width <= 600px) {
+	:host h1.mat-display-1 {
+		font-size: 22px !important;
+		line-height: 1.2 !important;
+		margin-bottom: 20px;
+	}
+}
+
 /* ── Section labels ── */
 
 .section {
@@ -124,30 +134,50 @@
 	white-space: nowrap;
 }
 
+.hosted-banner__chevron {
+	display: none;
+	flex-shrink: 0;
+	color: var(--color-accentedPalette-700);
+}
+
 @media (width <= 600px) {
 	.hosted-banner {
-		flex-direction: column;
-		align-items: flex-start;
-		padding: 16px;
-		gap: 12px;
+		align-items: center;
+		padding: 10px 14px;
+		gap: 10px;
 	}
 
 	.hosted-banner__iconBox {
-		width: 36px;
-		height: 36px;
+		width: 30px;
+		height: 30px;
+	}
+
+	.hosted-banner__icon {
+		width: 18px !important;
+		height: 18px !important;
+		font-size: 18px !important;
+		line-height: 18px !important;
 	}
 
 	.hosted-banner__title {
-		font-size: 14px;
+		font-size: 13px;
+		line-height: 1.2;
 	}
 
 	.hosted-banner__subtitle {
-		font-size: 12px;
+		font-size: 11.5px;
+		line-height: 1.25;
 	}
 
 	.hosted-banner__badge {
-		align-self: flex-start;
-		font-size: 11px;
+		display: none;
+	}
+
+	.hosted-banner__chevron {
+		display: block;
+		font-size: 20px;
+		width: 20px;
+		height: 20px;
 	}
 }
 
@@ -156,9 +186,9 @@
 .dbGrid {
 	list-style: none;
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(142px, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 	align-items: stretch;
-	grid-gap: 20px;
+	grid-gap: 10px;
 	width: 100%;
 	padding: 0;
 	margin: 0;
@@ -167,19 +197,19 @@
 @media (width <= 600px) {
 	.dbGrid {
 		width: 100%;
+		grid-template-columns: 1fr;
 	}
 }
 
 .dbCard {
 	display: flex;
-	flex-direction: column;
+	flex-direction: row;
 	align-items: center;
-	justify-content: center;
-	gap: 4px;
-	border-radius: 8px;
-	padding: 8px;
-	height: 100%;
-	min-height: 90px;
+	justify-content: flex-start;
+	gap: 12px;
+	border-radius: 10px;
+	padding: 10px 14px;
+	min-height: 54px;
 	text-decoration: none;
 	color: inherit;
 	font-weight: 600;
@@ -239,8 +269,11 @@
 }
 
 .dbCard__label {
-	text-align: center;
+	text-align: left;
 	font-size: 13px;
+	line-height: 1.2;
+	flex: 1;
+	min-width: 0;
 }
 
 .dbCard__subLabel {
@@ -248,7 +281,7 @@
 	font-weight: 400;
 	opacity: 0.5;
 	font-size: 11px;
-	margin-top: -2px;
+	margin-top: 2px;
 }
 
 /* ── Existing connections list ── */
@@ -301,20 +334,23 @@
 	flex-shrink: 0;
 	display: flex;
 	align-items: center;
-	gap: 12px;
-	background-color: var(--color-primaryPalette-500);
-	border-radius: 2px;
-	color: #fff;
-	font-size: 20px;
-	font-weight: 900;
-	height: 72px;
+	gap: 14px;
+	color: inherit;
 	overflow: hidden;
-	padding: 8px;
+	padding: 4px 4px 4px 0;
 }
 
 .connectionLogoPreview__logo {
-	height: 85%;
+	height: 48px;
+	width: 48px;
+	max-height: 48px;
+	max-width: 48px;
+	padding: 8px;
+	background-color: var(--color-primaryPalette-500);
+	border-radius: 10px;
+	box-sizing: border-box;
 	object-fit: contain;
+	flex-shrink: 0;
 }
 
 .connectionInfo {
@@ -322,15 +358,57 @@
 	flex-direction: column;
 	min-width: 0;
 	flex: 1;
+	gap: 2px;
 }
 
 .connectionInfo .connectionInfo__connectionTitle {
-	margin-top: -4px;
-	margin-bottom: -2px;
+	margin: 0;
+	font-size: 16px;
+	font-weight: 600;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	width: 100%;
+}
+
+/* ── Compact mobile layout (icon left, text right) ── */
+
+@media (width <= 600px) {
+	.connections {
+		grid-template-columns: 1fr;
+		gap: 8px;
+	}
+
+	.connection {
+		padding: 10px 14px;
+		gap: 6px;
+	}
+
+	.connectionLogoPreview {
+		gap: 10px;
+		padding: 0;
+	}
+
+	.connectionLogoPreview__logo {
+		height: 30px;
+		width: 30px;
+		max-height: 30px;
+		max-width: 30px;
+		padding: 5px;
+		border-radius: 7px;
+	}
+
+	.connectionInfo .connectionInfo__connectionTitle {
+		font-size: 13px !important;
+	}
+
+	.connectionLogoPreview .mat-body-2 {
+		font-size: 11px;
+	}
+
+	.connectionSchemaButton {
+		display: none;
+	}
 }
 
 /* ── Schema button inside card ── */

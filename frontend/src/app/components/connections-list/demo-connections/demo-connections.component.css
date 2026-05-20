@@ -4,6 +4,14 @@
 	width: 100%;
 }
 
+@media (width <= 600px) {
+	:host h1.mat-display-1 {
+		font-size: 22px !important;
+		line-height: 1.2 !important;
+		margin-bottom: 20px;
+	}
+}
+
 .section__label {
 	display: block;
 	font-size: 11px;
