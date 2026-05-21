@@ -132,6 +132,8 @@ export function generateCedarPolicyForGroup(
 		const tableRef = `RocketAdmin::Table::"${connectionId}/${table.tableName}"`;
 		const access = table.accessLevel;
 
+		// triggerCustomAction is intentionally excluded from hasAnyAccess: triggering custom
+		// action events is a side-effect-only capability and does not imply table visibility.
 		const hasAnyAccess = access.visibility || access.add || access.delete || access.edit;
 		if (hasAnyAccess) {
 			policies.push(
@@ -156,6 +158,22 @@ export function generateCedarPolicyForGroup(
 		if (access.aiRequest) {
 			policies.push(
 				`permit(\n  principal,\n  action == RocketAdmin::Action::"table:ai-request",\n  resource == ${tableRef}\n);`,
+			);
+		}
+		if (access.triggerCustomAction) {
+			// Blanket: any action event whose parent is this table is permitted.
+			policies.push(
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"actionEvent:trigger",\n  resource in ${tableRef}\n);`,
+			);
+		}
+	}
+
+	if (permissions.actionEvents) {
+		for (const event of permissions.actionEvents) {
+			if (!event.accessLevel?.trigger) continue;
+			const eventRef = `RocketAdmin::ActionEvent::"${connectionId}/${event.tableName}/${event.eventId}"`;
+			policies.push(
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"actionEvent:trigger",\n  resource == ${eventRef}\n);`,
 			);
 		}
 	}

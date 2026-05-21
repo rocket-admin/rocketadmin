@@ -1,11 +1,10 @@
-import { ForbiddenException, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../../common/data-injection.tokens.js';
 import { LogOperationTypeEnum } from '../../../../enums/log-operation-type.enum.js';
 import { OperationResultStatusEnum } from '../../../../enums/operation-result-status.enum.js';
 import { Messages } from '../../../../exceptions/text/messages.js';
-import { CedarPermissionsService } from '../../../cedar-authorization/cedar-permissions.service.js';
 import { TableLogsService } from '../../../table-logs/table-logs.service.js';
 import { TableActionActivationService } from '../../table-actions-module/table-action-activation.service.js';
 import { ActivateEventActionsDS } from '../application/data-structures/activate-rule-actions.ds.js';
@@ -22,7 +21,6 @@ export class ActivateActionsInEventUseCase
 		protected _dbContext: IGlobalDatabaseContext,
 		private tableLogsService: TableLogsService,
 		private tableActionActivationService: TableActionActivationService,
-		private readonly cedarPermissions: CedarPermissionsService,
 	) {
 		super();
 	}
@@ -46,10 +44,6 @@ export class ActivateActionsInEventUseCase
 			);
 		}
 		const tableName = foundActionsWithCustomEvents[0].action_rule.table_name;
-		const canUserReadTable = await this.cedarPermissions.checkTableRead(userId, connectionId, tableName, masterPwd);
-		if (!canUserReadTable) {
-			throw new ForbiddenException(Messages.DONT_HAVE_PERMISSIONS);
-		}
 
 		const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
 			connectionId,

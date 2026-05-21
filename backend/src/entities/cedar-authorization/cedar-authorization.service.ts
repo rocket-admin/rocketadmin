@@ -34,7 +34,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 	}
 
 	async validate(request: CedarValidationRequest): Promise<boolean> {
-		const { userId, action, groupId, tableName, dashboardId, panelId } = request;
+		const { userId, action, groupId, tableName, dashboardId, panelId, actionEventId } = request;
 		let { connectionId } = request;
 
 		const actionPrefix = action.split(':')[0];
@@ -56,6 +56,22 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 				resourceType = CedarResourceType.Table;
 				resourceId = `${connectionId}/${tableName}`;
 				break;
+			case 'actionEvent': {
+				if (!tableName || !actionEventId) return false;
+				resourceType = CedarResourceType.ActionEvent;
+				resourceId = `${connectionId}/${tableName}/${actionEventId}`;
+				return this.evaluate(
+					userId,
+					connectionId,
+					action,
+					resourceType,
+					resourceId,
+					tableName,
+					undefined,
+					undefined,
+					actionEventId,
+				);
+			}
 			case 'dashboard': {
 				resourceType = CedarResourceType.Dashboard;
 				const needsSentinel = action === CedarAction.DashboardCreate || !dashboardId;
@@ -195,6 +211,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 		tableName?: string,
 		dashboardId?: string,
 		panelId?: string,
+		actionEventId?: string,
 	): Promise<boolean> {
 		await this.assertUserNotSuspended(userId);
 
@@ -204,7 +221,15 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 		const groupPolicies = this.loadPoliciesPerGroup(userGroups);
 		if (groupPolicies.length === 0) return false;
 
-		const entities = buildCedarEntities(userId, userGroups, connectionId, tableName, dashboardId, panelId);
+		const entities = buildCedarEntities(
+			userId,
+			userGroups,
+			connectionId,
+			tableName,
+			dashboardId,
+			panelId,
+			actionEventId,
+		);
 
 		for (const policy of groupPolicies) {
 			const call = {

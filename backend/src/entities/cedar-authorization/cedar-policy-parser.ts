@@ -1,5 +1,6 @@
 import { AccessLevelEnum } from '../../enums/access-level.enum.js';
 import {
+	IActionEventPermissionData,
 	IComplexPermission,
 	IDashboardPermissionData,
 	IPanelPermissionData,
@@ -11,6 +12,7 @@ interface ParsedPermitStatement {
 	resourceType: string | null;
 	resourceId: string | null;
 	isWildcard: boolean;
+	isInRelation: boolean;
 }
 
 export function parseCedarPolicyToClassicalPermissions(
@@ -24,11 +26,13 @@ export function parseCedarPolicyToClassicalPermissions(
 		connection: { connectionId, accessLevel: AccessLevelEnum.none },
 		group: { groupId, accessLevel: AccessLevelEnum.none },
 		tables: [],
+		actionEvents: [],
 		dashboards: [],
 		panels: [],
 	};
 
 	const tableMap = new Map<string, ITablePermissionData>();
+	const actionEventMap = new Map<string, IActionEventPermissionData>();
 	const dashboardMap = new Map<string, IDashboardPermissionData>();
 	const panelMap = new Map<string, IPanelPermissionData>();
 
@@ -74,6 +78,28 @@ export function parseCedarPolicyToClassicalPermissions(
 				applyTableAction(tableEntry, permit.action);
 				break;
 			}
+			case 'actionEvent:trigger': {
+				if (permit.resourceType === 'RocketAdmin::Table' && permit.isInRelation) {
+					// Blanket: trigger any event on this table
+					const tableName = extractTableName(permit.resourceId, connectionId);
+					if (!tableName) break;
+					const tableEntry = getOrCreateTableEntry(tableMap, tableName);
+					tableEntry.accessLevel.triggerCustomAction = true;
+				} else if (permit.resourceType === 'RocketAdmin::ActionEvent') {
+					// Per-event grant
+					const parts = extractActionEventResource(permit.resourceId, connectionId);
+					if (!parts) break;
+					const key = `${parts.tableName}/${parts.eventId}`;
+					if (!actionEventMap.has(key)) {
+						actionEventMap.set(key, {
+							eventId: parts.eventId,
+							tableName: parts.tableName,
+							accessLevel: { trigger: true },
+						});
+					}
+				}
+				break;
+			}
 			case 'dashboard:read':
 			case 'dashboard:create':
 			case 'dashboard:edit':
@@ -102,6 +128,7 @@ export function parseCedarPolicyToClassicalPermissions(
 		const a = table.accessLevel;
 		a.readonly = a.visibility && !a.add && !a.edit && !a.delete;
 	}
+	result.actionEvents = Array.from(actionEventMap.values());
 	result.dashboards = Array.from(dashboardMap.values());
 	result.panels = Array.from(panelMap.values());
 
@@ -173,6 +200,7 @@ function parsePermitBody(body: string): ParsedPermitStatement {
 		resourceType: null,
 		resourceId: null,
 		isWildcard: false,
+		isInRelation: false,
 	};
 
 	const actionMatch = body.match(/action\s*==\s*RocketAdmin::Action::"([^"]+)"/);
@@ -185,10 +213,15 @@ function parsePermitBody(body: string): ParsedPermitStatement {
 		}
 	}
 
-	const resourceMatch = body.match(/resource\s*==\s*(RocketAdmin::\w+)::"([^"]+)"/);
-	if (resourceMatch) {
-		result.resourceType = resourceMatch[1];
-		result.resourceId = resourceMatch[2];
+	const resourceEqMatch = body.match(/resource\s*==\s*(RocketAdmin::\w+)::"([^"]+)"/);
+	const resourceInMatch = body.match(/resource\s+in\s+(RocketAdmin::\w+)::"([^"]+)"/);
+	if (resourceEqMatch) {
+		result.resourceType = resourceEqMatch[1];
+		result.resourceId = resourceEqMatch[2];
+	} else if (resourceInMatch) {
+		result.resourceType = resourceInMatch[1];
+		result.resourceId = resourceInMatch[2];
+		result.isInRelation = true;
 	} else {
 		const resourceClause = body.match(/,\s*(resource)\s*$/m);
 		if (resourceClause && !result.action) {
@@ -229,6 +262,7 @@ function getOrCreateTableEntry(map: Map<string, ITablePermissionData>, tableName
 				delete: false,
 				edit: false,
 				aiRequest: false,
+				triggerCustomAction: false,
 			},
 		};
 		map.set(tableName, entry);
@@ -254,6 +288,20 @@ function applyTableAction(entry: ITablePermissionData, action: string): void {
 			entry.accessLevel.aiRequest = true;
 			break;
 	}
+}
+
+function extractActionEventResource(
+	resourceId: string | null,
+	connectionId: string,
+): { tableName: string; eventId: string } | null {
+	if (!resourceId) return null;
+	const prefix = `${connectionId}/`;
+	const stripped = resourceId.startsWith(prefix) ? resourceId.slice(prefix.length) : resourceId;
+	const slash = stripped.indexOf('/');
+	if (slash <= 0 || slash === stripped.length - 1) return null;
+	const tableName = stripped.slice(0, slash);
+	const eventId = stripped.slice(slash + 1);
+	return { tableName, eventId };
 }
 
 function getOrCreateDashboardEntry(
