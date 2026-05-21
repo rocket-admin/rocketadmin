@@ -30,13 +30,72 @@
 @media (width <= 600px) {
 	.row-preview-sidebar_open {
 		position: fixed;
-		top: 44px;
+		top: auto;
 		bottom: 0;
 		left: 0;
+		right: 0;
 		min-height: initial;
-		max-height: initial;
+		max-height: calc(80vh + env(safe-area-inset-bottom, 0px));
 		width: 100vw;
-		z-index: 2;
+		z-index: 1001;
+		border-top-left-radius: 16px;
+		border-top-right-radius: 16px;
+		border-left: none !important;
+		box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.18);
+		padding-bottom: env(safe-area-inset-bottom, 0px);
+		animation: rowPreviewSlideUp 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+	}
+}
+
+.row-preview-backdrop {
+	display: none;
+}
+
+.row-preview-sidebar__handle {
+	display: none;
+}
+
+@media (width <= 600px) {
+	.row-preview-backdrop {
+		display: block;
+		position: fixed;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.4);
+		z-index: 1000;
+		animation: rowPreviewBackdropFadeIn 240ms ease-out;
+	}
+
+	.row-preview-sidebar__handle {
+		display: block;
+		width: 36px;
+		height: 4px;
+		border-radius: 2px;
+		background: rgba(0, 0, 0, 0.2);
+		margin: 8px auto 0;
+	}
+}
+
+@media (prefers-color-scheme: dark) {
+	.row-preview-sidebar__handle {
+		background: rgba(255, 255, 255, 0.24);
+	}
+}
+
+@keyframes rowPreviewSlideUp {
+	from {
+		transform: translateY(100%);
+	}
+	to {
+		transform: translateY(0);
+	}
+}
+
+@keyframes rowPreviewBackdropFadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
 	}
 }
 
@@ -88,18 +147,18 @@
 	width: 100%;
 }
 
-.related-records-panel {
-	margin-left: 4px;
-	width: calc(100% - 8px);
+.related-records-section {
+	margin: 8px 4px 0;
 }
 
-.related-records-panel__header {
-	height: 36px !important;
-	padding: 0 12px 0 8px;
-}
-
-.related-records-panel ::ng-deep .mat-expansion-panel-body {
-	padding: 0;
+.related-records-section__title {
+	margin: 0 0 4px;
+	padding: 0 12px;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	opacity: 0.6;
 }
 
 .related-records__header {
@@ -120,6 +179,16 @@
 
 	padding-left: 8px;
 	padding-right: 8px;
+}
+
+.related-record__open {
+	color: rgba(0, 0, 0, 0.54);
+}
+
+@media (prefers-color-scheme: dark) {
+	.related-record__open {
+		color: rgba(255, 255, 255, 0.7);
+	}
 }
 
 .related-record ::ng-deep .mdc-list-item__primary-text::before {

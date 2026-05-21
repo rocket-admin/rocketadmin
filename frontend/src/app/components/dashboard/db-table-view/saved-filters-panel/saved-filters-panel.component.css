@@ -1,11 +1,13 @@
 .saved-filters-container {
 	display: flex;
 	flex-direction: column;
+	min-width: 0;
+	max-width: 100%;
 }
 
 .saved-filters-list {
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	gap: 16px;
 	margin-bottom: 12px;
 }
@@ -14,7 +16,118 @@
 	transition: background 0.3s ease;
 }
 
-.create-filter-button {
+.saved-filters-trigger {
+	display: none;
+	align-items: center;
+	gap: 6px;
+	border-radius: 999px;
+	padding: 0 8px 0 12px;
+	min-height: 36px;
+}
+
+@media (width <= 600px) {
+	.saved-filters-trigger {
+		display: inline-flex;
+	}
+
+	.create-filter-button,
+	.saved-filters-tabs {
+		display: none !important;
+	}
+}
+
+.saved-filters-trigger__label {
+	max-width: 200px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.saved-filters-trigger__chevron {
+	margin-left: 0 !important;
+}
+
+@media (prefers-color-scheme: light) {
+	.saved-filters-trigger_active {
+		background: var(--color-accentedPalette-50);
+		border-color: var(--color-accentedPalette-300) !important;
+		color: var(--color-accentedPalette-700);
+	}
+
+	.saved-filters-trigger_active .saved-filters-trigger__icon {
+		color: var(--color-accentedPalette-700);
+	}
+}
+
+@media (prefers-color-scheme: dark) {
+	.saved-filters-trigger_active {
+		background: var(--color-accentedPalette-900);
+		border-color: var(--color-accentedPalette-600) !important;
+		color: var(--color-accentedPalette-100);
+	}
+
+	.saved-filters-trigger_active .saved-filters-trigger__icon {
+		color: var(--color-accentedPalette-200);
+	}
+}
+
+.saved-filters-menu__check {
+	color: var(--color-accentedPalette-600);
+	visibility: hidden;
+	flex-shrink: 0;
+}
+
+.saved-filters-menu__check_visible {
+	visibility: visible;
+}
+
+.saved-filters-menu__item_active .saved-filters-menu__name {
+	font-weight: 600;
+}
+
+::ng-deep .saved-filters-menu .mat-mdc-menu-item .mat-mdc-menu-item-text {
+	display: inline-flex;
+	align-items: center;
+	width: 100%;
+	gap: 8px;
+}
+
+.saved-filters-menu__name {
+	flex: 1 1 auto;
+	display: inline-flex;
+	align-items: center;
+}
+
+.saved-filters-menu__row-menu {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	margin-left: auto;
+	border-radius: 50%;
+	cursor: pointer;
+	flex-shrink: 0;
+}
+
+.saved-filters-menu__row-menu:hover {
+	background: rgba(0, 0, 0, 0.06);
+}
+
+@media (prefers-color-scheme: dark) {
+	.saved-filters-menu__row-menu:hover {
+		background: rgba(255, 255, 255, 0.08);
+	}
+}
+
+.saved-filters-menu__create {
+	border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+	.saved-filters-menu__create {
+		border-top-color: rgba(255, 255, 255, 0.08);
+	}
 }
 
 @media (prefers-color-scheme: light) {
@@ -176,8 +289,46 @@
 
 @media (width <= 600px) {
 	.filters-container {
+		align-items: stretch;
 		flex-direction: column;
+		flex-wrap: wrap;
+		gap: 8px;
+		margin-top: 8px;
+		padding: 8px 12px;
+		border-radius: 8px;
+		background: rgba(0, 0, 0, 0.03);
 		transform: none;
+		max-width: 100%;
+		min-width: 0;
+		overflow: hidden;
+	}
+
+	.dynamic-column-editor {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 4px;
+		width: 100%;
+		min-width: 0;
+	}
+
+	.dynamic-column-editor > * {
+		min-width: 0;
+		max-width: 100%;
+	}
+
+	.dynamic-column-editor ::ng-deep .foreign-key {
+		min-width: 0 !important;
+		width: 100%;
+	}
+
+	.dynamic-column-editor ::ng-deep .mat-mdc-form-field {
+		width: 100%;
+	}
+}
+
+@media (prefers-color-scheme: dark) and (width <= 600px) {
+	.filters-container {
+		background: rgba(255, 255, 255, 0.04);
 	}
 }
 
@@ -188,6 +339,12 @@
 	gap: 4px;
 	margin-top: -2px !important;
 	white-space: nowrap;
+}
+
+@media (width <= 600px) {
+	.filters-where-label {
+		margin-top: 0 !important;
+	}
 }
 
 .filters-where-label .column-name-icon {
@@ -225,6 +382,12 @@
 	align-items: center;
 	gap: 4px;
 	font-weight: 500;
+}
+
+@media (width <= 600px) {
+	.column-name {
+		margin-top: 0 !important;
+	}
 }
 
 .column-name-icon {
@@ -301,6 +464,7 @@
 @media (width <= 600px) {
 	.static-filters {
 		transform: none;
+		padding-bottom: 0;
 	}
 }
 
