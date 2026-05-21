@@ -160,6 +160,71 @@
 	padding: 8px;
 }
 
+.search-input__icon {
+	opacity: 0.6;
+}
+
+@media (width <= 600px) {
+	.search-form {
+		display: inline-flex;
+		align-items: center;
+		flex: 0 0 auto;
+		max-width: 40px;
+		height: 40px;
+		border-radius: 999px;
+		background: rgba(0, 0, 0, 0.06);
+		overflow: hidden;
+		transition: max-width 280ms cubic-bezier(0.2, 0.8, 0.2, 1), background-color 200ms;
+	}
+
+	.search-form:focus-within,
+	.search-form_filled {
+		flex: 1 1 100%;
+		max-width: 100%;
+		background: rgba(0, 0, 0, 0.04);
+	}
+
+	.search-input {
+		width: 100%;
+		min-width: 0;
+		height: 40px;
+		background: transparent !important;
+	}
+
+	.search-input ::ng-deep .mat-mdc-text-field-wrapper {
+		background: transparent !important;
+		padding: 0 8px 0 4px;
+		height: 40px;
+	}
+
+	.search-input ::ng-deep .mdc-line-ripple,
+	.search-input ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+		display: none;
+	}
+
+	.search-input__icon {
+		font-size: 22px;
+		width: 22px;
+		height: 22px;
+		opacity: 0.55;
+	}
+
+	.search-input ::ng-deep input.mat-mdc-input-element {
+		font-size: 14px;
+	}
+}
+
+@media (prefers-color-scheme: dark) and (width <= 600px) {
+	.search-form {
+		background: rgba(255, 255, 255, 0.08);
+	}
+
+	.search-form:focus-within,
+	.search-form_filled {
+		background: rgba(255, 255, 255, 0.05);
+	}
+}
+
 .db-table-actions {
 	flex-grow: 1;
 	display: flex;
@@ -192,25 +257,25 @@
 
 @media (width <= 600px) {
 	.saved-filters-row {
-		display: flex;
-		align-items: flex-start;
-		gap: 8px;
+		display: block;
+		position: relative;
 	}
 
 	.saved-filters-row > app-saved-filters-panel {
-		flex: 1 1 auto;
-		min-width: 0;
+		display: block;
 	}
 
 	.mobile-sort-button {
 		display: inline-flex !important;
 		align-items: center;
 		gap: 4px;
-		flex: 0 0 auto;
 		min-height: 36px;
 		padding: 0 10px;
 		font-size: 13px;
 		font-weight: 500;
+		position: absolute;
+		top: 0;
+		right: 0;
 	}
 
 	.mobile-sort-button__label {
@@ -456,7 +521,7 @@
 		display: grid;
 		grid-template-columns: subgrid;
 		grid-column: 1 / 3;
-		row-gap: 10px;
+		row-gap: 16px;
 		background: transparent;
 	}
 
@@ -533,7 +598,7 @@
 		display: grid;
 		grid-template-columns: subgrid;
 		grid-column: 1 / 3;
-		grid-gap: 4px 28px;
+		grid-gap: 4px 12px;
 		border: 1px solid var(--mat-table-row-item-outline-color, rgba(0, 0, 0, 0.12)) !important;
 		border-radius: 10px;
 		height: auto;
@@ -564,19 +629,19 @@
 		border-bottom: 1px dashed rgba(0, 0, 0, 0.12);
 		padding-left: 0 !important;
 		padding-right: 0 !important;
-		padding-top: 2px;
-		padding-bottom: 2px;
+		padding-top: 0;
+		padding-bottom: 0;
 	}
 
-	.db-table-cell:last-of-type {
+	.db-table-cell:not(:has(~ .db-table-cell)) {
 		border-bottom: none;
-		padding-bottom: 0;
 	}
 
 	.db-table-cell::before {
 		content: attr(data-label);
 		display: inline-block;
-		font-weight: bold;
+		font-weight: 500;
+		font-size: 12px;
 		white-space: wrap;
 	}
 }
@@ -767,7 +832,7 @@ td.mat-cell {
 	}
 
 	.db-table-checkbox {
-		transform: scale(1.25);
+		transform: scale(1.1);
 	}
 
 	.db-table-cell-actions {
@@ -777,6 +842,24 @@ td.mat-cell {
 		gap: 4px;
 		border-bottom: none;
 		padding-left: 40px;
+		color: rgba(0, 0, 0, 0.87);
+	}
+
+	.db-table-cell-action-button {
+		--mat-icon-button-state-layer-size: 36px !important;
+		--mat-icon-button-icon-size: 22px !important;
+	}
+
+	.db-table-cell-action-button ::ng-deep .mat-icon {
+		font-size: 22px;
+		height: 22px;
+		width: 22px;
+	}
+}
+
+@media (prefers-color-scheme: dark) and (width <= 600px) {
+	.db-table-cell-actions {
+		color: rgba(255, 255, 255, 0.87);
 	}
 }
 
@@ -865,6 +948,47 @@ tr.mat-row:hover {
 	margin: -20px 0;
 	padding: 8px 0;
 	width: 100%;
+}
+
+.empty-table__icon {
+	font-size: 32px;
+	width: 32px;
+	height: 32px;
+	margin-bottom: 8px;
+	opacity: 0.5;
+}
+
+.bulk-actions__select-all {
+	display: none !important;
+}
+
+@media (width <= 600px) {
+	.bulk-actions__select-all {
+		display: inline-flex !important;
+	}
+}
+
+@media (width <= 600px) {
+	.empty-table {
+		align-items: center;
+		padding: 24px 16px;
+		border: 1px solid var(--mat-table-row-item-outline-color, rgba(0, 0, 0, 0.12));
+		border-radius: 10px;
+		background: transparent;
+		margin: 0;
+		text-align: center;
+	}
+
+	.empty-table .mat-body-1 {
+		margin: 0;
+		padding: 0 4px;
+	}
+
+	.empty-table .mat-button {
+		margin-top: 12px;
+		width: auto;
+		border-radius: 999px;
+	}
 }
 
 .hidden {

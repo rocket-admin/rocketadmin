@@ -31,6 +31,14 @@
     </div>
     <div *ngIf="selection.selected.length; else generalActions" class="db-table-bulk-actions">
         <div class="actions">
+            <button type="button" mat-button class="bulk-actions__select-all"
+                *ngIf="tableData && !tableData.isEmptyTable"
+                (click)="toggleAllRows()">
+                <mat-icon>
+                    {{ isAllSelected() ? 'check_box' : 'check_box_outline_blank' }}
+                </mat-icon>
+                {{ isAllSelected() ? 'Deselect all' : 'Select all' }}
+            </button>
             <ng-container *ngIf="tableData.tableBulkActions && tableData.tableBulkActions.length">
                 <button type="button" mat-button *ngFor="let action of tableData.tableBulkActions"
                 (click)="handleActions(action)">
@@ -50,11 +58,14 @@
     <ng-template #generalActions>
         <div class="db-table-actions">
             <form #searchForm="ngForm"
+                class="search-form"
+                [class.search-form_filled]="searchString"
                 angulartics2On="submit"
                 angularticsAction="Dashboard: search is applied"
                 (submit)="posthog.capture('Dashboard: search is applied')"
                 (ngSubmit)="handleSearch()">
                 <mat-form-field appearance="fill" class="search-input">
+                    <mat-icon matPrefix class="search-input__icon">search</mat-icon>
                     <input matInput name="search"
                         placeholder="Search"
                         [(ngModel)]="searchString">
@@ -426,11 +437,14 @@
         <p class="mat-body-1">If you want to find <u>substring</u>, please, use <strong>Filter</strong>.</p>
     </div>
 
-    <div *ngIf="tableData.isEmptyTable && getFiltersCount(activeFilters) && !searchString" class="empty-table">
-        <p class="mat-body-1">No field matches this filter.</p>
+    <div *ngIf="tableData.isEmptyTable && (getFiltersCount(activeFilters) || hasSavedFilterActive) && !searchString" class="empty-table">
+        <mat-icon class="empty-table__icon">filter_list_off</mat-icon>
+        <p class="mat-body-1">
+            {{ hasSavedFilterActive ? 'No records match the selected fast filter.' : 'No records match this filter.' }}
+        </p>
     </div>
 
-    <div *ngIf="tableData.isEmptyTable && !(getFiltersCount(activeFilters) || searchString)" class="empty-table">
+    <div *ngIf="tableData.isEmptyTable && !(getFiltersCount(activeFilters) || hasSavedFilterActive || searchString)" class="empty-table">
         <a mat-button color="accent"
             routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
             angulartics2On="click"
