@@ -9,6 +9,7 @@ export enum CedarAction {
 	TableEdit = 'table:edit',
 	TableDelete = 'table:delete',
 	TableAiRequest = 'table:ai-request',
+	ActionEventTrigger = 'actionEvent:trigger',
 	DashboardRead = 'dashboard:read',
 	DashboardCreate = 'dashboard:create',
 	DashboardEdit = 'dashboard:edit',
@@ -23,6 +24,7 @@ export enum CedarResourceType {
 	Connection = 'RocketAdmin::Connection',
 	Group = 'RocketAdmin::Group',
 	Table = 'RocketAdmin::Table',
+	ActionEvent = 'RocketAdmin::ActionEvent',
 	Dashboard = 'RocketAdmin::Dashboard',
 	Panel = 'RocketAdmin::Panel',
 }
@@ -31,12 +33,15 @@ export const CEDAR_ACTION_TYPE = 'RocketAdmin::Action';
 export const CEDAR_USER_TYPE = 'RocketAdmin::User';
 export const CEDAR_GROUP_TYPE = 'RocketAdmin::Group';
 
+export const ACTION_EVENT_PROBE_ID = '__probe__';
+
 export interface CedarValidationRequest {
 	userId: string;
 	action: CedarAction;
 	connectionId?: string;
 	groupId?: string;
 	tableName?: string;
+	actionEventId?: string;
 	dashboardId?: string;
 	panelId?: string;
 }
