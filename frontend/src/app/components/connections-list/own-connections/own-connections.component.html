@@ -163,23 +163,6 @@
                                 </div>
                             </div>
                         </a>
-                    } @else {
-                        <button
-                            mat-menu-item
-                            type="button"
-                            data-testid="create-hosted-database-fab-button"
-                            [disabled]="creatingHostedDatabase()"
-                            (click)="createHostedDatabase()">
-                            <div class="addConnectionItem">
-                                <div class="addConnectionItem__iconBox addConnectionItem__iconBox--accent">
-                                    <mat-icon>cloud_queue</mat-icon>
-                                </div>
-                                <div class="addConnectionItem__text">
-                                    <span class="addConnectionItem__title">Create hosted PostgreSQL</span>
-                                    <span class="addConnectionItem__subtitle">Managed database, ready in one click</span>
-                                </div>
-                            </div>
-                        </button>
                     }
                 </mat-menu>
             } @else {
