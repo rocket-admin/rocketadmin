@@ -6,7 +6,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { CedarPolicyItem, PolicyAction, PolicyActionGroup } from 'src/app/lib/cedar-policy-items';
+import { CedarPolicyItem, PolicyAction, PolicyActionGroup, PolicyActionResource } from 'src/app/lib/cedar-policy-items';
+import { actionIcon, actionLabel, actionShortLabel } from 'src/app/lib/permission-display';
 import { UsersService } from 'src/app/services/users.service';
 import { ContentLoaderComponent } from '../../ui-components/content-loader/content-loader.component';
 
@@ -27,6 +28,8 @@ export interface PolicyGroup {
 	colorClass: string;
 	policies: { item: CedarPolicyItem; originalIndex: number }[];
 }
+
+const WILDCARD_PREFIXES: PolicyActionResource[] = ['table', 'dashboard', 'panel'];
 
 @Component({
 	selector: 'app-cedar-policy-list',
@@ -64,26 +67,26 @@ export class CedarPolicyListComponent {
 
 	private _users = inject(UsersService);
 
-	private availableActions = computed(() => this._users.availablePermissions());
-	private availableGroups = computed(() => this._users.availablePermissionGroups());
+	private displayGroups = computed<PolicyActionGroup[]>(() => this._buildDisplayGroups());
+	private displayActions = computed<PolicyAction[]>(() => this.displayGroups().flatMap((g) => g.actions));
 
 	protected groupedPolicies = computed(() => this._computeGroupedPolicies());
 	protected addActionGroups = computed(() => this._buildFilteredGroups(-1));
 
 	get needsTable(): boolean {
-		return this._actionResource(this.newAction) === 'table';
+		return this._needsTable(this.newAction);
 	}
 
 	get needsDashboard(): boolean {
-		return this._actionResource(this.newAction) === 'dashboard';
+		return this._needsDashboard(this.newAction);
 	}
 
 	get editNeedsTable(): boolean {
-		return this._actionResource(this.editAction) === 'table';
+		return this._needsTable(this.editAction);
 	}
 
 	get editNeedsDashboard(): boolean {
-		return this._actionResource(this.editAction) === 'dashboard';
+		return this._needsDashboard(this.editAction);
 	}
 
 	protected usedTables = computed(() => {
@@ -131,15 +134,15 @@ export class CedarPolicyListComponent {
 	}
 
 	getActionIcon(action: string): string {
-		return this._findAction(action)?.icon || 'help_outline';
+		return actionIcon(action);
 	}
 
 	getShortActionLabel(action: string): string {
-		return this._findAction(action)?.shortLabel || action;
+		return actionShortLabel(action);
 	}
 
 	getActionLabel(action: string): string {
-		return this._findAction(action)?.label || action;
+		return actionLabel(action);
 	}
 
 	getTableDisplayName(tableName: string): string {
@@ -274,12 +277,40 @@ export class CedarPolicyListComponent {
 		},
 	];
 
-	private _findAction(value: string): PolicyAction | undefined {
-		return this.availableActions().find((a) => a.value === value);
+	private _needsTable(value: string): boolean {
+		return this._scopeResource(value) === 'table';
 	}
 
-	private _actionResource(value: string): PolicyAction['resource'] | undefined {
+	private _needsDashboard(value: string): boolean {
+		return this._scopeResource(value) === 'dashboard';
+	}
+
+	private _scopeResource(value: string): PolicyActionResource | undefined {
+		if (value === 'dashboard:create') return undefined;
 		return this._findAction(value)?.resource;
+	}
+
+	private _findAction(value: string): PolicyAction | undefined {
+		return this.displayActions().find((a) => a.value === value);
+	}
+
+	private _isSimpleAction(action: PolicyAction): boolean {
+		if (action.value === 'dashboard:create') return true;
+		return action.resource !== 'table' && action.resource !== 'dashboard';
+	}
+
+	private _buildDisplayGroups(): PolicyActionGroup[] {
+		const general: PolicyActionGroup = { group: 'General', actions: [{ value: '*' }] };
+		const groups = this._users.availablePermissionGroups().map((g) => this._withWildcardEntry(g));
+		return [general, ...groups];
+	}
+
+	private _withWildcardEntry(group: PolicyActionGroup): PolicyActionGroup {
+		if (group.actions.length === 0) return group;
+		const prefix = group.actions[0].value.split(':')[0] as PolicyActionResource;
+		if (!WILDCARD_PREFIXES.includes(prefix)) return group;
+		const wildcard: PolicyAction = { value: `${prefix}:*`, resource: prefix };
+		return { ...group, actions: [wildcard, ...group.actions] };
 	}
 
 	private _computeGroupedPolicies(): PolicyGroup[] {
@@ -299,22 +330,22 @@ export class CedarPolicyListComponent {
 
 	private _buildFilteredGroups(excludeIndex: number): PolicyActionGroup[] {
 		const policies = this.policies();
-		const actions = this.availableActions();
+		const actions = this.displayActions();
 		const existingSimple = new Set(
 			policies
 				.filter((p, i) => {
 					if (i === excludeIndex) return false;
 					const def = actions.find((a) => a.value === p.action);
-					return def != null && def.resource == null;
+					return def != null && this._isSimpleAction(def);
 				})
 				.map((p) => p.action),
 		);
 
-		return this.availableGroups()
+		return this.displayGroups()
 			.map((group) => ({
 				...group,
 				actions: group.actions.filter((action) => {
-					if (action.resource == null) {
+					if (this._isSimpleAction(action)) {
 						return !existingSimple.has(action.value);
 					}
 					return true;

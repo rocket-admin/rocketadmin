@@ -1,6 +1,6 @@
 import { AccessLevel, Permissions } from '../models/user';
 
-export type PolicyActionResource = 'table' | 'dashboard' | 'panel' | 'actionEvent';
+export type PolicyActionResource = 'connection' | 'group' | 'table' | 'actionEvent' | 'dashboard' | 'panel';
 
 export interface CedarPolicyItem {
 	action: string;
@@ -10,9 +10,6 @@ export interface CedarPolicyItem {
 
 export interface PolicyAction {
 	value: string;
-	label: string;
-	shortLabel: string;
-	icon: string;
 	resource?: PolicyActionResource;
 }
 

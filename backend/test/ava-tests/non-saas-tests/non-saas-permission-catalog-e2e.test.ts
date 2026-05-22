@@ -59,7 +59,7 @@ test.serial('GET /permissions/available returns catalog covering every CedarActi
 	const body = response.body as {
 		groups: Array<{
 			group: string;
-			actions: Array<{ value: string; label: string; shortLabel: string; icon: string; resource?: string }>;
+			actions: Array<{ value: string; resource?: string }>;
 		}>;
 	};
 
@@ -73,24 +73,25 @@ test.serial('GET /permissions/available returns catalog covering every CedarActi
 		t.true(values.has(cedarValue), `catalog missing CedarAction ${cedarValue}`);
 	}
 
-	t.true(values.has('*'), 'catalog must include the General * wildcard');
-	t.true(values.has('table:*'), 'catalog must include the table:* wildcard');
-	t.true(values.has('dashboard:*'), 'catalog must include the dashboard:* wildcard');
-
-	for (const action of flatActions) {
-		t.truthy(action.label, `action ${action.value} missing label`);
-		t.truthy(action.shortLabel, `action ${action.value} missing shortLabel`);
-		t.truthy(action.icon, `action ${action.value} missing icon`);
-	}
+	t.false(values.has('*'), 'catalog must NOT include synthesized wildcards');
+	t.false(values.has('table:*'), 'catalog must NOT include synthesized wildcards');
+	t.false(values.has('dashboard:*'), 'catalog must NOT include synthesized wildcards');
 
 	const byValue = new Map(flatActions.map((a) => [a.value, a]));
 
-	t.is(byValue.get('connection:edit')!.label, 'Connection full access');
+	t.is(byValue.get('connection:read')!.resource, 'connection');
+	t.is(byValue.get('group:edit')!.resource, 'group');
 	t.is(byValue.get('table:read')!.resource, 'table');
+	t.is(byValue.get('actionEvent:trigger')!.resource, 'actionEvent');
 	t.is(byValue.get('dashboard:read')!.resource, 'dashboard');
-	t.is(byValue.get('dashboard:create')!.resource, undefined);
-	t.is(byValue.get('*')!.resource, undefined);
-	t.is(byValue.get('connection:read')!.resource, undefined);
+	t.is(byValue.get('dashboard:create')!.resource, 'dashboard');
+	t.is(byValue.get('panel:read')!.resource, 'panel');
+
+	for (const action of flatActions) {
+		t.is(Object.hasOwn(action, 'label'), false, `action ${action.value} should not have label`);
+		t.is(Object.hasOwn(action, 'shortLabel'), false, `action ${action.value} should not have shortLabel`);
+		t.is(Object.hasOwn(action, 'icon'), false, `action ${action.value} should not have icon`);
+	}
 });
 
 test.serial('GET /permissions/available requires authentication', async (t) => {

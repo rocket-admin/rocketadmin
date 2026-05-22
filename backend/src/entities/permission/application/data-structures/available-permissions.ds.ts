@@ -4,15 +4,6 @@ export class AvailablePermissionDs {
 	@ApiProperty()
 	value: string;
 
-	@ApiProperty()
-	label: string;
-
-	@ApiProperty()
-	shortLabel: string;
-
-	@ApiProperty()
-	icon: string;
-
 	@ApiProperty({ required: false })
 	resource?: string;
 }

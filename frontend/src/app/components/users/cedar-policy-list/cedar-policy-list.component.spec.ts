@@ -8,42 +8,32 @@ import { CedarPolicyListComponent } from './cedar-policy-list.component';
 
 const fixtureGroups: PolicyActionGroup[] = [
 	{
-		group: 'General',
-		actions: [{ value: '*', label: 'Full access (all permissions)', shortLabel: 'Full access', icon: 'shield' }],
-	},
-	{
 		group: 'Connection',
 		actions: [
-			{ value: 'connection:read', label: 'Connection read', shortLabel: 'Read', icon: 'visibility' },
-			{ value: 'connection:edit', label: 'Connection full access', shortLabel: 'Full access', icon: 'edit' },
+			{ value: 'connection:read', resource: 'connection' },
+			{ value: 'connection:edit', resource: 'connection' },
 		],
 	},
 	{
 		group: 'Group',
 		actions: [
-			{ value: 'group:read', label: 'Group read', shortLabel: 'Read', icon: 'visibility' },
-			{ value: 'group:edit', label: 'Group manage', shortLabel: 'Manage', icon: 'settings' },
+			{ value: 'group:read', resource: 'group' },
+			{ value: 'group:edit', resource: 'group' },
 		],
 	},
 	{
 		group: 'Table',
 		actions: [
-			{ value: 'table:*', label: 'Full table access', shortLabel: 'Full access', icon: 'shield', resource: 'table' },
-			{ value: 'table:read', label: 'Table read', shortLabel: 'Read', icon: 'visibility', resource: 'table' },
-			{ value: 'table:edit', label: 'Table edit', shortLabel: 'Edit', icon: 'edit', resource: 'table' },
+			{ value: 'table:read', resource: 'table' },
+			{ value: 'table:edit', resource: 'table' },
 		],
 	},
 	{
 		group: 'Dashboard',
 		actions: [
-			{
-				value: 'dashboard:read',
-				label: 'Dashboard read',
-				shortLabel: 'Read',
-				icon: 'visibility',
-				resource: 'dashboard',
-			},
-			{ value: 'dashboard:edit', label: 'Dashboard edit', shortLabel: 'Edit', icon: 'edit', resource: 'dashboard' },
+			{ value: 'dashboard:read', resource: 'dashboard' },
+			{ value: 'dashboard:create', resource: 'dashboard' },
+			{ value: 'dashboard:edit', resource: 'dashboard' },
 		],
 	},
 ];
@@ -265,9 +255,36 @@ describe('CedarPolicyListComponent', () => {
 		expect(component.needsDashboard).toBe(true);
 	});
 
+	it('should treat dashboard:create as scopeless', () => {
+		component.newAction = 'dashboard:create';
+		expect(component.needsDashboard).toBe(false);
+	});
+
 	it('should return correct dashboard display names', () => {
 		expect(component.getDashboardDisplayName('dash-1')).toBe('Sales Dashboard');
 		expect(component.getDashboardDisplayName('unknown')).toBe('unknown');
 		expect(component.getDashboardDisplayName('*')).toBe('All dashboards');
+	});
+
+	it('should synthesize General and prefix wildcards in addActionGroups', () => {
+		const testable = component as CedarPolicyListComponent & {
+			addActionGroups: () => PolicyActionGroup[];
+		};
+		const groups = testable.addActionGroups();
+		const general = groups.find((g) => g.group === 'General');
+		expect(general).toBeTruthy();
+		expect(general!.actions[0].value).toBe('*');
+
+		const table = groups.find((g) => g.group === 'Table');
+		expect(table).toBeTruthy();
+		expect(table!.actions[0].value).toBe('table:*');
+		expect(table!.actions[0].resource).toBe('table');
+
+		const dashboard = groups.find((g) => g.group === 'Dashboard');
+		expect(dashboard).toBeTruthy();
+		expect(dashboard!.actions[0].value).toBe('dashboard:*');
+
+		const connection = groups.find((g) => g.group === 'Connection');
+		expect(connection!.actions[0].value).toBe('connection:read');
 	});
 });
