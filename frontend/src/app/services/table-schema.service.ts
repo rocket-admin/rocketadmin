@@ -1,12 +1,36 @@
 import { Injectable, inject } from '@angular/core';
-import { ApiService } from './api.service';
 import { environment } from '../../environments/environment';
+import { ApiService } from './api.service';
 
 export interface ConnectionDiagramResponse {
 	connectionId: string;
 	databaseType: string;
 	diagram: string;
 	description: string;
+	generatedAt: string;
+}
+
+export interface ConnectionDiagramPreviewStatementResult {
+	sql: string;
+	status: 'applied' | 'skipped' | 'error';
+	message?: string;
+}
+
+export interface ConnectionDiagramPreviewDiff {
+	addedTables: string[];
+	droppedTables: string[];
+	addedColumns: Record<string, string[]>;
+	droppedColumns: Record<string, string[]>;
+	addedForeignKeys: Record<string, string[]>;
+	statementResults: ConnectionDiagramPreviewStatementResult[];
+}
+
+export interface ConnectionDiagramPreviewResponse {
+	connectionId: string;
+	databaseType: string;
+	diagram: string;
+	description: string;
+	diff: ConnectionDiagramPreviewDiff;
 	generatedAt: string;
 }
 
@@ -44,8 +68,15 @@ export interface SchemaChangeBatchResponse {
 export class TableSchemaService {
 	private _api = inject(ApiService);
 
-	async generateSchemaChange(connectionId: string, userPrompt: string, threadId?: string): Promise<SchemaChangeBatchResponse> {
-		return this._fetchOrThrow<SchemaChangeBatchResponse>(`/table-schema/${connectionId}/generate`, { userPrompt, threadId });
+	async generateSchemaChange(
+		connectionId: string,
+		userPrompt: string,
+		threadId?: string,
+	): Promise<SchemaChangeBatchResponse> {
+		return this._fetchOrThrow<SchemaChangeBatchResponse>(`/table-schema/${connectionId}/generate`, {
+			userPrompt,
+			threadId,
+		});
 	}
 
 	async approveBatch(batchId: string, confirmedDestructive?: boolean): Promise<SchemaChangeBatchResponse> {
@@ -60,6 +91,12 @@ export class TableSchemaService {
 
 	async fetchDiagram(connectionId: string): Promise<ConnectionDiagramResponse | null> {
 		return this._api.get<ConnectionDiagramResponse>(`/connection/diagram/${connectionId}`);
+	}
+
+	async previewDiagram(connectionId: string, sqlCommands: string[]): Promise<ConnectionDiagramPreviewResponse> {
+		return this._fetchOrThrow<ConnectionDiagramPreviewResponse>(`/connection/diagram/${connectionId}/preview`, {
+			sqlCommands,
+		});
 	}
 
 	private async _fetchOrThrow<T>(url: string, body: unknown): Promise<T> {
