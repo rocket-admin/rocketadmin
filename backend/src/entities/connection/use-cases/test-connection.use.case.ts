@@ -4,7 +4,6 @@ import {
 	isRedisConnectionUrl,
 } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
-import { getRepository } from 'typeorm';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -16,7 +15,6 @@ import { slackPostMessage } from '../../../helpers/slack/slack-post-message.js';
 import { CreateConnectionDs } from '../application/data-structures/create-connection.ds.js';
 import { TestConnectionResultDs } from '../application/data-structures/test-connection-result.ds.js';
 import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
-import { ConnectionEntity } from '../connection.entity.js';
 import { decryptConnectionCredentialsAsync } from '../utils/decrypt-connection-credentials-async.js';
 import { isHostAllowed } from '../utils/is-host-allowed.js';
 import { processAWSConnection } from '../utils/process-aws-connection.util.js';
@@ -66,7 +64,7 @@ export class TestConnectionUseCase
 					};
 				}
 				if (isConnectionTypeAgent(toUpdate.type)) {
-					const qb = await getRepository(ConnectionEntity)
+					const qb = this._dbContext.connectionRepository
 						.createQueryBuilder('connection')
 						.leftJoinAndSelect('connection.agent', 'agent')
 						.where('connection.id = :id', { id: connectionId });

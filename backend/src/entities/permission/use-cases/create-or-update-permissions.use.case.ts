@@ -3,12 +3,9 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import {
-	CreatePermissionsDs,
-	PermissionsDs,
-} from '../application/data-structures/create-permissions.ds.js';
-import { generateCedarPolicyForGroup } from '../../cedar-authorization/cedar-policy-generator.js';
 import { Cacher } from '../../../helpers/cache/cacher.js';
+import { generateCedarPolicyForGroup } from '../../cedar-authorization/cedar-policy-generator.js';
+import { CreatePermissionsDs, PermissionsDs } from '../application/data-structures/create-permissions.ds.js';
 import { ICreateOrUpdatePermissions } from './permissions-use-cases.interface.js';
 
 @Injectable()
@@ -68,6 +65,7 @@ export class CreateOrUpdatePermissionsUseCase
 				groupId: inputData.permissions.group.groupId,
 			},
 			tables: inputData.permissions.tables,
+			actionEvents: inputData.permissions.actionEvents,
 		};
 
 		// Generate and save Cedar policy for this group

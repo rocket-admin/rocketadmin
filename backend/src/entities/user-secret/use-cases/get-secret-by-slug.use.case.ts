@@ -22,7 +22,7 @@ export class GetSecretBySlugUseCase extends AbstractUseCase<GetSecretDS, FoundSe
 
 		const user = await this._dbContext.userRepository.findOne({
 			where: { id: userId },
-			relations: ['company'],
+			relations: { company: true },
 		});
 
 		if (!user || !user.company) {

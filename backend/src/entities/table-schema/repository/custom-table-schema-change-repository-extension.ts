@@ -29,7 +29,7 @@ export const customTableSchemaChangeRepositoryExtension: ITableSchemaChangeRepos
 	async findByIdWithRelations(id: string): Promise<TableSchemaChangeEntity | null> {
 		return await this.findOne({
 			where: { id },
-			relations: ['connection', 'author', 'previousChange'],
+			relations: { connection: true, author: true, previousChange: true },
 		});
 	},
 

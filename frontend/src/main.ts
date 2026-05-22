@@ -15,7 +15,7 @@ import { DynamicModule } from 'ng-dynamic-component';
 import { SignalComponentIoModule } from 'ng-dynamic-component/signal-component-io';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { CookieService } from 'ngx-cookie-service';
-import { MERMAID_OPTIONS, MarkdownModule, provideMarkdown } from 'ngx-markdown';
+import { MarkdownModule, MERMAID_OPTIONS, provideMarkdown } from 'ngx-markdown';
 import { NgxStripeModule } from 'ngx-stripe';
 import { AppComponent } from './app/app.component';
 import { AppRoutingModule } from './app/app-routing.module';

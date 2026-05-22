@@ -155,7 +155,7 @@ export const userCustomRepositoryExtension: IUserRepository = {
 	async findUserWithConnections(userId: string): Promise<UserEntity> {
 		const user = await this.findOne({
 			where: { id: userId },
-			relations: ['connections'],
+			relations: { connections: true },
 		});
 		if (user?.connections?.length) {
 			await decryptConnectionsCredentialsAsync(user.connections);

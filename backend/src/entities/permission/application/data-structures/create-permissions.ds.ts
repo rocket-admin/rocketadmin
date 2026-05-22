@@ -19,6 +19,7 @@ export class PermissionsDs {
 		groupId: string;
 	};
 	tables: Array<TablePermissionDs>;
+	actionEvents?: Array<ActionEventPermissionDs>;
 }
 
 export class TableAccessLevelsDs {
@@ -46,6 +47,11 @@ export class TableAccessLevelsDs {
 	@IsOptional()
 	@IsBoolean()
 	aiRequest?: boolean;
+
+	@ApiProperty({ required: false })
+	@IsOptional()
+	@IsBoolean()
+	triggerCustomAction?: boolean;
 }
 
 export class TablePermissionDs {
@@ -79,6 +85,26 @@ export class ConnectionPermissionDs {
 	accessLevel: AccessLevelEnum;
 }
 
+export class ActionEventAccessLevelsDs {
+	@ApiProperty()
+	@IsBoolean()
+	trigger: boolean;
+}
+
+export class ActionEventPermissionDs {
+	@ApiProperty()
+	@IsString()
+	eventId: string;
+
+	@ApiProperty()
+	@IsString()
+	tableName: string;
+
+	@ApiProperty({ type: ActionEventAccessLevelsDs })
+	@ValidateNested()
+	accessLevel: ActionEventAccessLevelsDs;
+}
+
 export class ComplexPermissionDs {
 	@ApiProperty({ type: ConnectionPermissionDs })
 	@ValidateNested()
@@ -92,4 +118,10 @@ export class ComplexPermissionDs {
 	@IsArray()
 	@ValidateNested({ each: true })
 	tables: Array<TablePermissionDs>;
+
+	@ApiProperty({ required: false, isArray: true, type: ActionEventPermissionDs })
+	@IsOptional()
+	@IsArray()
+	@ValidateNested({ each: true })
+	actionEvents?: Array<ActionEventPermissionDs>;
 }

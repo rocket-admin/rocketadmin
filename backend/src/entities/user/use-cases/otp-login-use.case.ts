@@ -1,5 +1,5 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { authenticator } from 'otplib';
+import { verifySync } from 'otplib';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -28,7 +28,7 @@ export class OtpLoginUseCase extends AbstractUseCase<VerifyOtpDS, IToken> implem
 		if (!foundUser) {
 			throw new NotFoundException(Messages.USER_NOT_FOUND);
 		}
-		const isValid = authenticator.check(otpToken, foundUser.otpSecretKey);
+		const isValid = verifySync({ token: otpToken, secret: foundUser.otpSecretKey }).valid;
 		if (!isValid) {
 			await this.recordSignInAudit(
 				foundUser.email,

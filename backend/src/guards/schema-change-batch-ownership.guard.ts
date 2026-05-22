@@ -34,7 +34,7 @@ export class SchemaChangeBatchOwnershipGuard implements CanActivate {
 
 		const member = await this.tableSchemaChangeRepository.findOne({
 			where: { batchId },
-			select: ['id', 'connectionId'],
+			select: { id: true, connectionId: true },
 		});
 		if (!member) {
 			throw new NotFoundException('Schema change batch not found.');

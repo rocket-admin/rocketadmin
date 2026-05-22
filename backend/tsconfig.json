@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"module": "ESNext",
+		"module": "NodeNext",
 		"declaration": true,
 		"removeComments": true,
 		"emitDecoratorMetadata": true,
@@ -11,10 +11,10 @@
 		"sourceMap": true,
 		"outDir": "./dist",
 		"rootDir": "./",
-		"baseUrl": "./",
 		"incremental": true,
-		"moduleResolution": "node",
-		"skipLibCheck": true
+		"moduleResolution": "NodeNext",
+		"skipLibCheck": true,
+		"strict": false
 	},
 	// "references": [
 	//   { "path": "../shared-code" },

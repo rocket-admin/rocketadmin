@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { authenticator } from 'otplib';
+import { verifySync } from 'otplib';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -48,7 +48,7 @@ export class VerifyOtpUseCase extends AbstractUseCase<VerifyOtpDS, OtpValidation
 			);
 		}
 		try {
-			const isValid = authenticator.check(otpToken, otpSecretKey);
+			const isValid = verifySync({ token: otpToken, secret: otpSecretKey }).valid;
 			if (isValid) {
 				foundUser.isOTPEnabled = true;
 				await this._dbContext.userRepository.saveUserEntity(foundUser);

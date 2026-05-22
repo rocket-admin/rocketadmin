@@ -7,7 +7,10 @@ import { Client } from '@elastic/elasticsearch';
 import { faker } from '@faker-js/faker';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import * as cassandra from 'cassandra-driver';
-import ibmdb from 'ibm_db';
+import * as ibmdbNs from 'ibm_db';
+
+const ibmdb = ibmdbNs.default as unknown as (options?: import('ibm_db').Options) => import('ibm_db').Database;
+
 import { MongoClient } from 'mongodb';
 import { createClient } from 'redis';
 import { v4 as uuidv4 } from 'uuid';
