@@ -6,6 +6,37 @@
 	margin-bottom: 12px;
 }
 
+.filters-header__text {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 2px;
+	line-height: 1.2;
+	text-align: left;
+}
+
+@media (width <= 600px) {
+	.filters-header {
+		justify-content: flex-start;
+		gap: 12px;
+	}
+
+	.filters-header__text {
+		flex: 1 1 auto;
+	}
+}
+
+.filters-header__label {
+	font-size: 18px;
+	font-weight: 600;
+}
+
+.filters-header__table {
+	font-size: 12px;
+	font-weight: 500;
+	opacity: 0.6;
+}
+
 .filters-content {
 	display: grid;
 	grid-template-columns: auto 1fr 32px;
@@ -63,6 +94,14 @@
 .filter-delete-button {
 	grid-column: 3;
 	margin-top: 4px;
+}
+
+.filter-line ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+	display: none;
+}
+
+.filter-line {
+	margin-bottom: 12px;
 }
 
 @media (width <= 600px) {

@@ -152,10 +152,11 @@
 }
 
 .related-records-section__title {
-	margin: 0 0 4px;
+	margin: 0 0 4px !important;
 	padding: 0 12px;
-	font-size: 12px;
-	font-weight: 600;
+	font-size: 12px !important;
+	font-weight: 600 !important;
+	line-height: 1.4 !important;
 	text-transform: uppercase;
 	letter-spacing: 0.06em;
 	opacity: 0.6;

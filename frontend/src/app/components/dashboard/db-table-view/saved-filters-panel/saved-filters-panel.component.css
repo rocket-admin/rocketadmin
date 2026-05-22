@@ -301,12 +301,12 @@
 		flex-direction: row;
 		flex-wrap: wrap;
 		gap: 6px;
-		margin: 8px 8px 0;
-		padding: 5px 12px;
+		margin: 8px 0 16px;
+		padding: 8px 16px;
 		border-radius: 10px;
 		background: rgba(0, 0, 0, 0.03);
 		transform: none;
-		max-width: calc(100% - 16px);
+		max-width: 100%;
 		min-width: 0;
 		overflow-x: clip;
 		overflow-y: visible;
@@ -332,17 +332,22 @@
 	}
 
 	.dynamic-column-editor .column-name {
-		flex: 0 0 auto;
-		font-size: 13px;
+		flex: 1 1 100%;
+		font-size: 12px;
 		line-height: 1.3;
 		gap: 6px;
+		margin: 0;
+		opacity: 0.6;
+		font-weight: 600;
 		white-space: nowrap;
 	}
 
 	.dynamic-column-editor .column-name strong {
 		margin-left: 0;
-		color: rgba(0, 0, 0, 0.87);
-		font-size: 14px;
+		font-size: 12px;
+		font-weight: 600;
+		color: inherit;
+		text-transform: none;
 	}
 
 	.dynamic-column-editor .comparator-text {

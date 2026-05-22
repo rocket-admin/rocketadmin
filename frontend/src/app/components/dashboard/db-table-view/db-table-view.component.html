@@ -237,7 +237,7 @@
         class="mobile-sort-button"
         [ngClass]="{'mobile-sort-button_active': sort.active && sort.direction}"
         [matMenuTriggerFor]="mobileSortMenu">
-        <span class="mobile-sort-button__label">Sort</span>
+        <span class="mobile-sort-button__label">Sort by</span>
     </button>
     <mat-menu #mobileSortMenu="matMenu">
         <ng-container *ngFor="let column of tableData?.displayedDataColumns">

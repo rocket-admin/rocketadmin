@@ -1,6 +1,9 @@
 <form #tableFiltersForm="ngForm" (ngSubmit)="handleSaveFilters()" class="filters-form">
     <h1 mat-dialog-title class="filters-header">
-        <span>New fast filter for <strong>{{ data.displayTableName }}</strong></span>
+        <span class="filters-header__text">
+            <span class="filters-header__label">{{ data.filtersSet.id ? 'Edit fast filter' : 'New fast filter' }}</span>
+            <span class="filters-header__table">{{ data.displayTableName }}</span>
+        </span>
     </h1>
     <p class="filters-header-description mat-body-2">
         Use conditions to quickly filter {{ data.displayTableName.toLowerCase() }} and optionally edit one column.
@@ -49,170 +52,180 @@
                 <mat-icon class="column-name-icon">subdirectory_arrow_right</mat-icon>
                 <span class="where-label">where</span>
             </div>
-            <div class="quick-edit-header" *ngIf="hasSelectedFilters">
-                <span class="quick-edit-title">Quick edit</span>
-                <mat-icon class="quick-edit-info-icon"
-                    [matMenuTriggerFor]="quickEditHelpMenu">
-                    info_outline
-                </mat-icon>
-                <mat-menu #quickEditHelpMenu="matMenu" class="quick-edit-help-menu">
-                    <div class="quick-edit-help-content" (click)="$event.stopPropagation()">
-                        <p class="quick-edit-help-text">Enable to change this value<br>directly from the table view</p>
-                        <div class="quick-edit-animated-example">
-                            <div class="example-toggle-animated">
-                                <div class="toggle-track">
-                                    <div class="toggle-thumb"></div>
-                                </div>
+            <mat-menu #quickEditHelpMenu="matMenu" class="quick-edit-help-menu">
+                <div class="quick-edit-help-content" (click)="$event.stopPropagation()">
+                    <p class="quick-edit-help-text">Enable to change this value<br>directly from the table view</p>
+                    <div class="quick-edit-animated-example">
+                        <div class="example-toggle-animated">
+                            <div class="toggle-track">
+                                <div class="toggle-thumb"></div>
                             </div>
-                            <div class="example-filter-animated">
-                                <div class="example-chip-animated">
-                                    <span>status = active</span>
-                                </div>
-                                <div class="example-editable-animated">
-                                    <span class="example-editable-label">status:</span>
-                                    <span class="example-editable-value">
-                                        <span class="typing-text"></span>
-                                        <span class="example-typing-cursor">|</span>
-                                    </span>
-                                </div>
+                        </div>
+                        <div class="example-filter-animated">
+                            <div class="example-chip-animated">
+                                <span>status = active</span>
+                            </div>
+                            <div class="example-editable-animated">
+                                <span class="example-editable-label">status:</span>
+                                <span class="example-editable-value">
+                                    <span class="typing-text"></span>
+                                    <span class="example-typing-cursor">|</span>
+                                </span>
                             </div>
                         </div>
                     </div>
-                </mat-menu>
-            </div>
+                </div>
+            </mat-menu>
 
             <!-- Added Filters -->
-            <div class="conditions-vertical-line" *ngIf="hasSelectedFilters"></div>
-            <ng-container *ngFor="let value of tableRowFieldsShown | keyvalue; trackBy:trackByFn">
-                <button mat-icon-button type="button" class="filter-delete-button"
-                    matTooltip="Remove"
-                    (click)="removeFilter(value.key)">
-                    <mat-icon>close</mat-icon>
-                </button>
-                <div *ngIf="getComparatorType(getInputType(value.key)) === 'nonComparable'; else comparableFilter" class="filter-line">
-                    <span class='mat-body-1 column-name'>{{value.key}}</span>
+            <div class="condition-card" *ngFor="let value of tableRowFieldsShown | keyvalue; trackBy:trackByFn">
+                <div class="condition-card__header">
+                    <span class="condition-card__column-name">{{value.key}}</span>
+                    <button mat-icon-button type="button" class="filter-delete-button"
+                        matTooltip="Remove"
+                        (click)="removeFilter(value.key)">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </div>
 
-                    <div *ngIf="isWidget(value.key); else defaultTableField">
-                        <ndc-dynamic [ndcDynamicComponent]="tableWidgets[value.key].widget_type ? UIwidgets[tableWidgets[value.key].widget_type] : inputs[tableTypes[value.key]]"
-                            [ndcDynamicInputs]="{
-                                key: value.key,
-                                label: tableWidgets[value.key].name || value.key,
-                                value: tableRowFieldsShown[value.key],
-                                widgetStructure: tableWidgets[value.key],
-                                relations: tableTypes[value.key] === 'foreign key' ? data.tableForeignKeys[value.key] : undefined
-                            }"
-                            [ndcDynamicOutputs]="{
-                                onFieldChange: { handler: updateField, args: ['$event', value.key] },
-                                onComparatorChange: { handler: updateComparatorFromComponent, args: ['$event', value.key] }
-                            }"
-                        ></ndc-dynamic>
-                    </div>
+                <div class="condition-card__inputs">
+                    <ng-container *ngIf="getComparatorType(getInputType(value.key)) === 'nonComparable'; else comparableFilterInputs">
+                        <ng-container *ngIf="isWidget(value.key); else defaultTableField">
+                            <ndc-dynamic [ndcDynamicComponent]="tableWidgets[value.key].widget_type ? UIwidgets[tableWidgets[value.key].widget_type] : inputs[tableTypes[value.key]]"
+                                [ndcDynamicInputs]="{
+                                    key: value.key,
+                                    label: tableWidgets[value.key].name || value.key,
+                                    value: tableRowFieldsShown[value.key],
+                                    widgetStructure: tableWidgets[value.key],
+                                    relations: tableTypes[value.key] === 'foreign key' ? data.tableForeignKeys[value.key] : undefined
+                                }"
+                                [ndcDynamicOutputs]="{
+                                    onFieldChange: { handler: updateField, args: ['$event', value.key] },
+                                    onComparatorChange: { handler: updateComparatorFromComponent, args: ['$event', value.key] }
+                                }"
+                            ></ndc-dynamic>
+                        </ng-container>
 
-                    <ng-template #defaultTableField>
-                        <ndc-dynamic [ndcDynamicComponent]="inputs[tableTypes[value.key]]"
-                            [ndcDynamicInputs]="{
-                                key: value.key,
-                                label: value.key,
-                                value: tableRowFieldsShown[value.key],
-                                structure: tableRowStructure[value.key],
-                                relations: tableTypes[value.key] === 'foreign key' ? data.tableForeignKeys[value.key] : undefined
-                            }"
-                            [ndcDynamicOutputs]="{
-                                onFieldChange: { handler: updateField, args: ['$event', value.key] },
-                                onComparatorChange: { handler: updateComparatorFromComponent, args: ['$event', value.key] }
-                            }"
-                        ></ndc-dynamic>
+                        <ng-template #defaultTableField>
+                            <ndc-dynamic [ndcDynamicComponent]="inputs[tableTypes[value.key]]"
+                                [ndcDynamicInputs]="{
+                                    key: value.key,
+                                    label: value.key,
+                                    value: tableRowFieldsShown[value.key],
+                                    structure: tableRowStructure[value.key],
+                                    relations: tableTypes[value.key] === 'foreign key' ? data.tableForeignKeys[value.key] : undefined
+                                }"
+                                [ndcDynamicOutputs]="{
+                                    onFieldChange: { handler: updateField, args: ['$event', value.key] },
+                                    onComparatorChange: { handler: updateComparatorFromComponent, args: ['$event', value.key] }
+                                }"
+                            ></ndc-dynamic>
+                        </ng-template>
+                    </ng-container>
+
+                    <ng-template #comparableFilterInputs>
+                        <mat-form-field *ngIf="getComparatorType(getInputType(value.key)) === 'text'"
+                            appearance="outline"
+                            class="comparator-select-field">
+                            <mat-select name="textComparator-{{value.key}}"
+                                [(ngModel)]="tableRowFieldsComparator[value.key]"
+                                (ngModelChange)="updateComparator($event, value.key)">
+                                <mat-select-trigger>
+                                    {{ {startswith: 'a…', endswith: '…a', eq: '=', contains: '∋', icontains: '∌', empty: '∅'}[tableRowFieldsComparator[value.key]] || tableRowFieldsComparator[value.key] }}
+                                </mat-select-trigger>
+                                <mat-option value="startswith">
+                                    <mat-icon class="comparator-icon">play_arrow</mat-icon>
+                                    <span>starts with</span>
+                                </mat-option>
+                                <mat-option value="endswith">
+                                    <mat-icon class="comparator-icon">play_arrow</mat-icon>
+                                    <span>ends with</span>
+                                </mat-option>
+                                <mat-option value="eq">
+                                    <mat-icon class="comparator-icon">drag_handle</mat-icon>
+                                    <span>equal</span>
+                                </mat-option>
+                                <mat-option value="contains">
+                                    <mat-icon class="comparator-icon">search</mat-icon>
+                                    <span>contains</span>
+                                </mat-option>
+                                <mat-option value="icontains">
+                                    <mat-icon class="comparator-icon">block</mat-icon>
+                                    <span>not contains</span>
+                                </mat-option>
+                                <mat-option value="empty">
+                                    <mat-icon class="comparator-icon">space_bar</mat-icon>
+                                    <span>is empty</span>
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <mat-form-field *ngIf="getComparatorType(getInputType(value.key)) === 'number'"
+                            appearance="outline"
+                            class="comparator-select-field">
+                            <mat-select name="numberComparator-{{value.key}}"
+                                [(ngModel)]="tableRowFieldsComparator[value.key]"
+                                (ngModelChange)="updateComparator($event, value.key)">
+                                <mat-select-trigger>
+                                    {{ {eq: '=', gt: '>', lt: '<', gte: '≥', lte: '≤'}[tableRowFieldsComparator[value.key]] || tableRowFieldsComparator[value.key] }}
+                                </mat-select-trigger>
+                                <mat-option value="eq">
+                                    <mat-icon class="comparator-icon">drag_handle</mat-icon>
+                                    <span>equal</span>
+                                </mat-option>
+                                <mat-option value="gt">
+                                    <mat-icon class="comparator-icon">keyboard_arrow_right</mat-icon>
+                                    <span>greater than</span>
+                                </mat-option>
+                                <mat-option value="lt">
+                                    <mat-icon class="comparator-icon">keyboard_arrow_left</mat-icon>
+                                    <span>less than</span>
+                                </mat-option>
+                                <mat-option value="gte">
+                                    <mat-icon class="comparator-icon">keyboard_double_arrow_right</mat-icon>
+                                    <span>greater than or equal</span>
+                                </mat-option>
+                                <mat-option value="lte">
+                                    <mat-icon class="comparator-icon">keyboard_double_arrow_left</mat-icon>
+                                    <span>less than or equal</span>
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <div class="condition-card__value">
+                            <ndc-dynamic [ndcDynamicComponent]="inputs[tableTypes[value.key]]"
+                                [ndcDynamicInputs]="{
+                                    key: value.key,
+                                    label: value.key,
+                                    value: tableRowFieldsShown[value.key],
+                                    readonly: tableRowFieldsComparator[value.key] === 'empty',
+                                    structure: tableRowStructure[value.key],
+                                    relations: tableTypes[value.key] === 'foreign key' ? data.tableForeignKeys[value.key] : undefined
+                                }"
+                                [ndcDynamicOutputs]="{
+                                    onFieldChange: { handler: updateField, args: ['$event', value.key] },
+                                    onComparatorChange: { handler: updateComparatorFromComponent, args: ['$event', value.key] }
+                                }"
+                            ></ndc-dynamic>
+                        </div>
                     </ng-template>
                 </div>
 
-                <ng-template #comparableFilter>
-                    <span class='mat-body-1 column-name'>{{value.key}}</span>
-
-                    <mat-form-field *ngIf="getComparatorType(getInputType(value.key)) === 'text'"
-                        appearance="outline"
-                        class="comparator-select-field">
-                        <mat-select name="textComparator-{{value.key}}"
-                            [(ngModel)]="tableRowFieldsComparator[value.key]"
-                            (ngModelChange)="updateComparator($event, value.key)">
-                            <mat-option value="startswith">
-                                <mat-icon class="comparator-icon">play_arrow</mat-icon>
-                                <span>starts with</span>
-                            </mat-option>
-                            <mat-option value="endswith">
-                                <mat-icon class="comparator-icon">play_arrow</mat-icon>
-                                <span>ends with</span>
-                            </mat-option>
-                            <mat-option value="eq">
-                                <mat-icon class="comparator-icon">drag_handle</mat-icon>
-                                <span>equal</span>
-                            </mat-option>
-                            <mat-option value="contains">
-                                <mat-icon class="comparator-icon">search</mat-icon>
-                                <span>contains</span>
-                            </mat-option>
-                            <mat-option value="icontains">
-                                <mat-icon class="comparator-icon">block</mat-icon>
-                                <span>not contains</span>
-                            </mat-option>
-                            <mat-option value="empty">
-                                <mat-icon class="comparator-icon">space_bar</mat-icon>
-                                <span>is empty</span>
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-
-                    <mat-form-field *ngIf="getComparatorType(getInputType(value.key)) === 'number'"
-                        appearance="outline"
-                        class="comparator-select-field">
-                        <mat-select name="numberComparator-{{value.key}}"
-                            [(ngModel)]="tableRowFieldsComparator[value.key]"
-                            (ngModelChange)="updateComparator($event, value.key)">
-                            <mat-option value="eq">
-                                <mat-icon class="comparator-icon">drag_handle</mat-icon>
-                                <span>equal</span>
-                            </mat-option>
-                            <mat-option value="gt">
-                                <mat-icon class="comparator-icon">keyboard_arrow_right</mat-icon>
-                                <span>greater than</span>
-                            </mat-option>
-                            <mat-option value="lt">
-                                <mat-icon class="comparator-icon">keyboard_arrow_left</mat-icon>
-                                <span>less than</span>
-                            </mat-option>
-                            <mat-option value="gte">
-                                <mat-icon class="comparator-icon">keyboard_double_arrow_right</mat-icon>
-                                <span>greater than or equal</span>
-                            </mat-option>
-                            <mat-option value="lte">
-                                <mat-icon class="comparator-icon">keyboard_double_arrow_left</mat-icon>
-                                <span>less than or equal</span>
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
-
-                    <ndc-dynamic [ndcDynamicComponent]="inputs[tableTypes[value.key]]"
-                        [ndcDynamicInputs]="{
-                            key: value.key,
-                            label: value.key,
-                            value: tableRowFieldsShown[value.key],
-                            readonly: tableRowFieldsComparator[value.key] === 'empty',
-                            structure: tableRowStructure[value.key],
-                            relations: tableTypes[value.key] === 'foreign key' ? data.tableForeignKeys[value.key] : undefined
-                        }"
-                        [ndcDynamicOutputs]="{
-                            onFieldChange: { handler: updateField, args: ['$event', value.key] },
-                            onComparatorChange: { handler: updateComparatorFromComponent, args: ['$event', value.key] }
-                        }"
-                    ></ndc-dynamic>
-                </ng-template>
-                <mat-slide-toggle
-                    class="quick-edit-toggle"
-                    [checked]="dynamicColumn === value.key"
-                    [matTooltip]="dynamicColumn === value.key ? 'Disable editing' : 'Enable editing'"
-                    matTooltipPosition="above"
-                    (change)="toggleDynamicColumn(value.key)">
-                </mat-slide-toggle>
-            </ng-container>
+                <div class="condition-card__footer">
+                    <span class="condition-card__editable-label">Quick editing</span>
+                    <mat-icon class="condition-card__help-icon"
+                        [matMenuTriggerFor]="quickEditHelpMenu">
+                        info_outline
+                    </mat-icon>
+                    <mat-slide-toggle
+                        class="quick-edit-toggle"
+                        [checked]="dynamicColumn === value.key"
+                        [matTooltip]="dynamicColumn === value.key ? 'Disable editing' : 'Enable editing'"
+                        matTooltipPosition="above"
+                        (change)="toggleDynamicColumn(value.key)">
+                    </mat-slide-toggle>
+                </div>
+            </div>
 
             <!-- Add Condition Button -->
             <div class="add-condition-container">
