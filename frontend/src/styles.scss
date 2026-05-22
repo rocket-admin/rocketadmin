@@ -129,6 +129,19 @@ body {
         padding-top: 16px !important;
     }
 
+    .mobile-bottom-sheet-dialog .filters-header {
+        margin-top: 8px !important;
+        margin-bottom: 8px !important;
+    }
+
+    .mobile-bottom-sheet-dialog .filters-content {
+        padding-top: 12px !important;
+    }
+
+    .mobile-bottom-sheet-dialog .filters-select {
+        margin-top: 4px;
+    }
+
     .mobile-bottom-sheet-dialog .mat-mdc-dialog-surface::before {
         content: "";
         position: absolute;
@@ -196,6 +209,24 @@ body {
     .filter-row .value-field {
         flex: 1 1 0 !important;
         min-width: 0 !important;
+    }
+
+    .mat-mdc-form-field .mdc-notched-outline__notch,
+    .mat-mdc-form-field .mdc-notched-outline {
+        max-width: none !important;
+        overflow: visible !important;
+    }
+
+    .mat-mdc-form-field .mdc-floating-label,
+    .mat-mdc-form-field .mdc-floating-label--float-above {
+        max-width: none !important;
+        white-space: nowrap !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+    }
+
+    .mat-mdc-form-field-flex {
+        overflow: visible !important;
     }
 }
 

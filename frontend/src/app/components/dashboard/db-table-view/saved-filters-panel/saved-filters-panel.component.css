@@ -308,7 +308,8 @@
 		transform: none;
 		max-width: calc(100% - 16px);
 		min-width: 0;
-		overflow: hidden;
+		overflow-x: clip;
+		overflow-y: visible;
 	}
 
 
