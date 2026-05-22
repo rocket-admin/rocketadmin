@@ -8,15 +8,7 @@ export class AvailablePermissionDs {
 	resource?: string;
 }
 
-export class AvailablePermissionGroupDs {
-	@ApiProperty()
-	group: string;
-
+export class AvailablePermissionsResponseDs {
 	@ApiProperty({ isArray: true, type: AvailablePermissionDs })
 	actions: Array<AvailablePermissionDs>;
-}
-
-export class AvailablePermissionsResponseDs {
-	@ApiProperty({ isArray: true, type: AvailablePermissionGroupDs })
-	groups: Array<AvailablePermissionGroupDs>;
 }

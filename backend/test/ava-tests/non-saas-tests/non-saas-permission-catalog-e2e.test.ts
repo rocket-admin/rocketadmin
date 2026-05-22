@@ -57,17 +57,13 @@ test.serial('GET /permissions/available returns catalog covering every CedarActi
 	t.is(response.status, 200);
 
 	const body = response.body as {
-		groups: Array<{
-			group: string;
-			actions: Array<{ value: string; resource?: string }>;
-		}>;
+		actions: Array<{ value: string; resource?: string }>;
 	};
 
-	t.true(Array.isArray(body.groups));
-	t.true(body.groups.length > 0);
+	t.true(Array.isArray(body.actions));
+	t.true(body.actions.length > 0);
 
-	const flatActions = body.groups.flatMap((g) => g.actions);
-	const values = new Set(flatActions.map((a) => a.value));
+	const values = new Set(body.actions.map((a) => a.value));
 
 	for (const cedarValue of Object.values(CedarAction)) {
 		t.true(values.has(cedarValue), `catalog missing CedarAction ${cedarValue}`);
@@ -77,7 +73,7 @@ test.serial('GET /permissions/available returns catalog covering every CedarActi
 	t.false(values.has('table:*'), 'catalog must NOT include synthesized wildcards');
 	t.false(values.has('dashboard:*'), 'catalog must NOT include synthesized wildcards');
 
-	const byValue = new Map(flatActions.map((a) => [a.value, a]));
+	const byValue = new Map(body.actions.map((a) => [a.value, a]));
 
 	t.is(byValue.get('connection:read')!.resource, 'connection');
 	t.is(byValue.get('group:edit')!.resource, 'group');
@@ -87,7 +83,7 @@ test.serial('GET /permissions/available returns catalog covering every CedarActi
 	t.is(byValue.get('dashboard:create')!.resource, 'dashboard');
 	t.is(byValue.get('panel:read')!.resource, 'panel');
 
-	for (const action of flatActions) {
+	for (const action of body.actions) {
 		t.is(Object.hasOwn(action, 'label'), false, `action ${action.value} should not have label`);
 		t.is(Object.hasOwn(action, 'shortLabel'), false, `action ${action.value} should not have shortLabel`);
 		t.is(Object.hasOwn(action, 'icon'), false, `action ${action.value} should not have icon`);

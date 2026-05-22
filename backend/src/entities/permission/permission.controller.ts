@@ -37,15 +37,15 @@ export class PermissionController {
 		private readonly createOrUpdatePermissionsUseCase: ICreateOrUpdatePermissions,
 	) {}
 
-	@ApiOperation({ summary: 'List available permissions with display metadata' })
+	@ApiOperation({ summary: 'List available permissions derived from the Cedar schema' })
 	@ApiResponse({
 		status: 200,
-		description: 'Catalog of permissions grouped by category.',
+		description: 'Flat list of permissions with their resource scope.',
 		type: AvailablePermissionsResponseDs,
 	})
 	@Get('permissions/available')
 	async getAvailablePermissions(): Promise<AvailablePermissionsResponseDs> {
-		return { groups: buildPermissionCatalog() };
+		return { actions: buildPermissionCatalog() };
 	}
 
 	@ApiOperation({ summary: 'Create or update permissions in group' })

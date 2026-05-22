@@ -7,6 +7,22 @@ const PREFIX_TO_LABEL: Record<string, string> = {
 	panel: 'Panel',
 };
 
+const PREFIX_TO_GROUP_NAME: Record<string, string> = {
+	connection: 'Connection',
+	group: 'Group',
+	table: 'Table',
+	actionEvent: 'ActionEvent',
+	dashboard: 'Dashboard',
+	panel: 'Panel',
+};
+
+export const PERMISSION_GROUP_ORDER = ['Connection', 'Group', 'Table', 'ActionEvent', 'Dashboard', 'Panel'];
+
+export function groupNameForAction(value: string): string {
+	const prefix = value.split(':')[0];
+	return PREFIX_TO_GROUP_NAME[prefix] ?? capitalize(prefix);
+}
+
 const VERB_TO_ICON: Record<string, string> = {
 	read: 'visibility',
 	edit: 'edit',

@@ -1,4 +1,4 @@
-import { actionIcon, actionLabel, actionShortLabel } from './permission-display';
+import { actionIcon, actionLabel, actionShortLabel, groupNameForAction } from './permission-display';
 
 describe('permission-display', () => {
 	describe('actionLabel', () => {
@@ -37,6 +37,21 @@ describe('permission-display', () => {
 			expect(actionShortLabel('*')).toBe('Full access');
 			expect(actionShortLabel('table:*')).toBe('Full access');
 			expect(actionShortLabel('panel:*')).toBe('Full access');
+		});
+	});
+
+	describe('groupNameForAction', () => {
+		it('maps known prefixes', () => {
+			expect(groupNameForAction('connection:read')).toBe('Connection');
+			expect(groupNameForAction('group:edit')).toBe('Group');
+			expect(groupNameForAction('table:read')).toBe('Table');
+			expect(groupNameForAction('actionEvent:trigger')).toBe('ActionEvent');
+			expect(groupNameForAction('dashboard:read')).toBe('Dashboard');
+			expect(groupNameForAction('panel:read')).toBe('Panel');
+		});
+
+		it('falls back to capitalized prefix for unknown actions', () => {
+			expect(groupNameForAction('foo:bar')).toBe('Foo');
 		});
 	});
 
