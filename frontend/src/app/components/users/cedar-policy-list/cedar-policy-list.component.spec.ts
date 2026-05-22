@@ -1,7 +1,54 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { PolicyAction, PolicyActionGroup } from 'src/app/lib/cedar-policy-items';
+import { UsersService } from 'src/app/services/users.service';
 import { CedarPolicyListComponent } from './cedar-policy-list.component';
+
+const fixtureGroups: PolicyActionGroup[] = [
+	{
+		group: 'General',
+		actions: [{ value: '*', label: 'Full access (all permissions)', shortLabel: 'Full access', icon: 'shield' }],
+	},
+	{
+		group: 'Connection',
+		actions: [
+			{ value: 'connection:read', label: 'Connection read', shortLabel: 'Read', icon: 'visibility' },
+			{ value: 'connection:edit', label: 'Connection full access', shortLabel: 'Full access', icon: 'edit' },
+		],
+	},
+	{
+		group: 'Group',
+		actions: [
+			{ value: 'group:read', label: 'Group read', shortLabel: 'Read', icon: 'visibility' },
+			{ value: 'group:edit', label: 'Group manage', shortLabel: 'Manage', icon: 'settings' },
+		],
+	},
+	{
+		group: 'Table',
+		actions: [
+			{ value: 'table:*', label: 'Full table access', shortLabel: 'Full access', icon: 'shield', resource: 'table' },
+			{ value: 'table:read', label: 'Table read', shortLabel: 'Read', icon: 'visibility', resource: 'table' },
+			{ value: 'table:edit', label: 'Table edit', shortLabel: 'Edit', icon: 'edit', resource: 'table' },
+		],
+	},
+	{
+		group: 'Dashboard',
+		actions: [
+			{
+				value: 'dashboard:read',
+				label: 'Dashboard read',
+				shortLabel: 'Read',
+				icon: 'visibility',
+				resource: 'dashboard',
+			},
+			{ value: 'dashboard:edit', label: 'Dashboard edit', shortLabel: 'Edit', icon: 'edit', resource: 'dashboard' },
+		],
+	},
+];
+
+const flatActions: PolicyAction[] = fixtureGroups.flatMap((g) => g.actions);
 
 describe('CedarPolicyListComponent', () => {
 	let component: CedarPolicyListComponent;
@@ -18,8 +65,16 @@ describe('CedarPolicyListComponent', () => {
 	];
 
 	beforeEach(async () => {
+		const groupsSignal = signal(fixtureGroups);
+		const actionsSignal = signal(flatActions);
+		const mockUsersService: Partial<UsersService> = {
+			availablePermissionGroups: groupsSignal.asReadonly() as UsersService['availablePermissionGroups'],
+			availablePermissions: actionsSignal.asReadonly() as UsersService['availablePermissions'],
+		};
+
 		await TestBed.configureTestingModule({
 			imports: [CedarPolicyListComponent, FormsModule, BrowserAnimationsModule],
+			providers: [{ provide: UsersService, useValue: mockUsersService }],
 		}).compileComponents();
 
 		fixture = TestBed.createComponent(CedarPolicyListComponent);

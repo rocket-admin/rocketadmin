@@ -1,6 +1,7 @@
 import {
 	Body,
 	Controller,
+	Get,
 	HttpException,
 	HttpStatus,
 	Inject,
@@ -19,7 +20,9 @@ import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { ConnectionEditGuard } from '../../guards/connection-edit.guard.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
+import { AvailablePermissionsResponseDs } from './application/data-structures/available-permissions.ds.js';
 import { ComplexPermissionDs, CreatePermissionsDs } from './application/data-structures/create-permissions.ds.js';
+import { buildPermissionCatalog } from './permission-catalog.builder.js';
 import { ICreateOrUpdatePermissions } from './use-cases/permissions-use-cases.interface.js';
 
 @UseInterceptors(SentryInterceptor)
@@ -33,6 +36,17 @@ export class PermissionController {
 		@Inject(UseCaseType.CREATE_OR_UPDATE_PERMISSIONS)
 		private readonly createOrUpdatePermissionsUseCase: ICreateOrUpdatePermissions,
 	) {}
+
+	@ApiOperation({ summary: 'List available permissions with display metadata' })
+	@ApiResponse({
+		status: 200,
+		description: 'Catalog of permissions grouped by category.',
+		type: AvailablePermissionsResponseDs,
+	})
+	@Get('permissions/available')
+	async getAvailablePermissions(): Promise<AvailablePermissionsResponseDs> {
+		return { groups: buildPermissionCatalog() };
+	}
 
 	@ApiOperation({ summary: 'Create or update permissions in group' })
 	@ApiBody({ type: ComplexPermissionDs })

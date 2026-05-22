@@ -1,6 +1,7 @@
 import { HttpClient, HttpResourceRef } from '@angular/common/http';
 import { computed, Injectable, inject, signal } from '@angular/core';
 import { catchError, EMPTY, map } from 'rxjs';
+import { PolicyAction, PolicyActionGroup } from 'src/app/lib/cedar-policy-items';
 import { GroupUser, Permissions, UserGroup, UserGroupInfo } from 'src/app/models/user';
 import { ApiService } from './api.service';
 import { NotificationsService } from './notifications.service';
@@ -43,6 +44,19 @@ export class UsersService {
 		});
 	});
 	public readonly groupsLoading = computed(() => this._groupsResource.isLoading());
+
+	private _availablePermissionsResource: HttpResourceRef<{ groups: PolicyActionGroup[] } | undefined> =
+		this._api.resource<{
+			groups: PolicyActionGroup[];
+		}>(() => '/permissions/available');
+
+	public readonly availablePermissionGroups = computed<PolicyActionGroup[]>(
+		() => this._availablePermissionsResource.value()?.groups ?? [],
+	);
+
+	public readonly availablePermissions = computed<PolicyAction[]>(() =>
+		this.availablePermissionGroups().flatMap((g) => g.actions),
+	);
 
 	// Group users - managed imperatively (per-group parallel fetch)
 	private _groupUsers = signal<Record<string, GroupUser[] | 'empty'>>({});
