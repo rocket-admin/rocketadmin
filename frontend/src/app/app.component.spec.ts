@@ -288,9 +288,17 @@ describe('AppComponent', () => {
 	});
 
 	it('should restore session and log out after token expiration', async () => {
+		// Lingering subscriptions from previous tests (AppComponent never unsubscribes from
+		// authCast) also schedule setTimeouts when cast.next fires. Capture only the timeout
+		// queued immediately after THIS app's mocked initializeUserSession, which is the one
+		// scheduled by the session-restoration branch for this component instance.
 		let capturedTimeoutCallback: Function | null = null;
+		let captureNextTimeout = false;
 		const setTimeoutSpy = vi.spyOn(window, 'setTimeout').mockImplementation((callback: Function) => {
-			capturedTimeoutCallback = callback;
+			if (captureNextTimeout) {
+				capturedTimeoutCallback = callback;
+				captureNextTimeout = false;
+			}
 			return 1 as unknown as ReturnType<typeof setTimeout>;
 		});
 
@@ -299,6 +307,7 @@ describe('AppComponent', () => {
 
 		vi.spyOn(app, 'initializeUserSession').mockImplementation(() => {
 			app.userLoggedIn = true;
+			captureNextTimeout = true;
 		});
 
 		app.ngOnInit();
@@ -307,11 +316,9 @@ describe('AppComponent', () => {
 		await fixture.whenStable();
 
 		expect(app.initializeUserSession).toHaveBeenCalled();
+		expect(capturedTimeoutCallback).not.toBeNull();
 
-		// Execute the timeout callback that was captured
-		if (capturedTimeoutCallback) {
-			capturedTimeoutCallback();
-		}
+		capturedTimeoutCallback!();
 
 		expect(app.logOut).toHaveBeenCalledWith(true);
 		expect(app.router.navigate).toHaveBeenCalledWith(['/login']);
