@@ -12,11 +12,11 @@ import { WinstonLogger } from './entities/logging/winston-logger.js';
 import { AllExceptionsFilter } from './exceptions/all-exceptions.filter.js';
 import { ValidationException } from './exceptions/custom-exceptions/validation-exception.js';
 import { Constants } from './helpers/constants/constants.js';
-import { requiredEnvironmentVariablesValidator } from './helpers/validators/required-environment-variables.validator.js';
+import { appConfig } from './shared/config/app-config.js';
 
 async function bootstrap() {
 	try {
-		requiredEnvironmentVariablesValidator();
+		appConfig.validate();
 		const appOptions: NestApplicationOptions = {
 			rawBody: true,
 			logger: new WinstonLogger(),
@@ -27,11 +27,11 @@ async function bootstrap() {
 		app.set('query parser', 'extended');
 
 		Sentry.init({
-			dsn: process.env.SENTRY_DSN,
+			dsn: appConfig.thirdParty.sentryDsn ?? undefined,
 			tracesSampleRate: 1.0,
 		});
 
-		const globalPrefix = process.env.GLOBAL_PREFIX || '/';
+		const globalPrefix = appConfig.app.globalPrefix;
 		app.setGlobalPrefix(globalPrefix);
 
 		app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));

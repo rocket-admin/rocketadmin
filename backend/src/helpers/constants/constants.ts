@@ -1,9 +1,9 @@
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { Knex } from 'knex';
 import { CreateConnectionDto } from '../../entities/connection/application/dto/create-connection.dto.js';
+import { appConfig } from '../../shared/config/app-config.js';
 import { isSaaS } from '../app/is-saas.js';
 import { isTest } from '../app/is-test.js';
-import { getProcessVariable } from '../get-process-variable.js';
 import {
 	parseTestDynamoDBConnectionString,
 	parseTestMongoDBConnectionString,
@@ -142,11 +142,11 @@ export const Constants = {
 		title: 'Postgres',
 		masterEncryption: false,
 		type: ConnectionTypesEnum.postgres,
-		username: getProcessVariable('POSTGRES_CONNECTION_USERNAME') || null,
-		password: getProcessVariable('POSTGRES_CONNECTION_PASSWORD') || null,
-		host: getProcessVariable('POSTGRES_CONNECTION_HOST') || null,
-		port: parseInt(getProcessVariable('POSTGRES_CONNECTION_PORT'), 10) || null,
-		database: getProcessVariable('POSTGRES_CONNECTION_DATABASE') || null,
+		username: appConfig.testDb.postgres.username,
+		password: appConfig.testDb.postgres.password,
+		host: appConfig.testDb.postgres.host,
+		port: appConfig.testDb.postgres.port,
+		database: appConfig.testDb.postgres.database,
 		isTestConnection: true,
 	},
 
@@ -154,11 +154,11 @@ export const Constants = {
 		title: 'MSSQL',
 		masterEncryption: false,
 		type: ConnectionTypesEnum.mssql,
-		host: getProcessVariable('MSSQL_CONNECTION_HOST') || null,
-		port: parseInt(getProcessVariable('MSSQL_CONNECTION_PORT'), 10) || null,
-		password: getProcessVariable('MSSQL_CONNECTION_PASSWORD') || null,
-		username: getProcessVariable('MSSQL_CONNECTION_USERNAME') || null,
-		database: getProcessVariable('MSSQL_CONNECTION_DATABASE') || null,
+		host: appConfig.testDb.mssql.host,
+		port: appConfig.testDb.mssql.port,
+		password: appConfig.testDb.mssql.password,
+		username: appConfig.testDb.mssql.username,
+		database: appConfig.testDb.mssql.database,
 		ssh: false,
 		ssl: false,
 		isTestConnection: true,
@@ -167,52 +167,52 @@ export const Constants = {
 	TEST_CONNECTION_TO_ORACLE: {
 		title: 'Oracle',
 		type: ConnectionTypesEnum.oracledb,
-		host: getProcessVariable('ORACLE_CONNECTION_HOST') || null,
-		port: parseInt(getProcessVariable('ORACLE_CONNECTION_PORT'), 10) || null,
-		username: getProcessVariable('ORACLE_CONNECTION_USERNAME') || null,
-		password: getProcessVariable('ORACLE_CONNECTION_PASSWORD') || null,
-		database: getProcessVariable('ORACLE_CONNECTION_DATABASE') || null,
-		sid: getProcessVariable('ORACLE_CONNECTION_SID') || null,
+		host: appConfig.testDb.oracle.host,
+		port: appConfig.testDb.oracle.port,
+		username: appConfig.testDb.oracle.username,
+		password: appConfig.testDb.oracle.password,
+		database: appConfig.testDb.oracle.database,
+		sid: appConfig.testDb.oracle.sid,
 		isTestConnection: true,
 	},
 
 	TEST_SSH_CONNECTION_TO_MYSQL: {
 		title: 'MySQL',
 		type: ConnectionTypesEnum.mysql,
-		host: getProcessVariable('MYSQL_CONNECTION_HOST') || null,
-		port: parseInt(getProcessVariable('MYSQL_CONNECTION_PORT'), 10) || null,
-		username: getProcessVariable('MYSQL_CONNECTION_USERNAME') || null,
-		password: getProcessVariable('MYSQL_CONNECTION_PASSWORD') || null,
-		database: getProcessVariable('MYSQL_CONNECTION_DATABASE') || null,
+		host: appConfig.testDb.mysql.host,
+		port: appConfig.testDb.mysql.port,
+		username: appConfig.testDb.mysql.username,
+		password: appConfig.testDb.mysql.password,
+		database: appConfig.testDb.mysql.database,
 		ssh: true,
 		isTestConnection: true,
-		sshHost: getProcessVariable('MYSQL_CONNECTION_SSH_HOST') || null,
-		sshPort: getProcessVariable('MYSQL_CONNECTION_SSH_PORT') || null,
-		sshUsername: getProcessVariable('MYSQL_CONNECTION_SSH_USERNAME') || null,
-		privateSSHKey: getProcessVariable('MYSQL_CONNECTION_SSH_KEY') || null,
+		sshHost: appConfig.testDb.mysql.sshHost,
+		sshPort: appConfig.testDb.mysql.sshPort,
+		sshUsername: appConfig.testDb.mysql.sshUsername,
+		privateSSHKey: appConfig.testDb.mysql.sshKey,
 	},
 
 	TEST_CONNECTION_TO_MONGO: {
 		title: 'MongoDB',
 		type: ConnectionTypesEnum.mongodb,
-		host: getProcessVariable('MONGO_CONNECTION_HOST') || null,
-		port: parseInt(getProcessVariable('MONGO_CONNECTION_PORT'), 10) || null,
-		username: getProcessVariable('MONGO_CONNECTION_USERNAME') || null,
-		password: getProcessVariable('MONGO_CONNECTION_PASSWORD') || null,
-		database: getProcessVariable('MONGO_CONNECTION_DATABASE') || null,
-		authSource: getProcessVariable('MONGO_CONNECTION_AUTH_SOURCE') || null,
+		host: appConfig.testDb.mongo.host,
+		port: appConfig.testDb.mongo.port,
+		username: appConfig.testDb.mongo.username,
+		password: appConfig.testDb.mongo.password,
+		database: appConfig.testDb.mongo.database,
+		authSource: appConfig.testDb.mongo.authSource,
 		isTestConnection: true,
 	},
 
 	TEST_CONNECTION_TO_IBMBD2: {
 		title: 'IBM DB2',
 		type: ConnectionTypesEnum.ibmdb2,
-		host: getProcessVariable('IBM_DB2_CONNECTION_HOST') || null,
-		port: parseInt(getProcessVariable('IBM_DB2_CONNECTION_PORT'), 10) || null,
-		username: getProcessVariable('IBM_DB2_CONNECTION_USERNAME') || null,
-		password: getProcessVariable('IBM_DB2_CONNECTION_PASSWORD') || null,
-		database: getProcessVariable('IBM_DB2_CONNECTION_DATABASE') || null,
-		schema: getProcessVariable('IBM_DB2_CONNECTION_SCHEMA') || null,
+		host: appConfig.testDb.ibmdb2.host,
+		port: appConfig.testDb.ibmdb2.port,
+		username: appConfig.testDb.ibmdb2.username,
+		password: appConfig.testDb.ibmdb2.password,
+		database: appConfig.testDb.ibmdb2.database,
+		schema: appConfig.testDb.ibmdb2.schema,
 		isTestConnection: true,
 	},
 
@@ -221,8 +221,7 @@ export const Constants = {
 	REMOVED_SENSITIVE_FIELD_IF_NOT_CHANGED: '',
 
 	getTestConnectionsArr: (): Array<CreateConnectionDto> => {
-		const isSaaS = process.env.IS_SAAS;
-		if (!isSaaS || isSaaS !== 'true') {
+		if (!isSaaS()) {
 			return [];
 		}
 
@@ -249,7 +248,7 @@ export const Constants = {
 		if (!isSaaS()) {
 			return [];
 		}
-		const testConnectionsJSON = getProcessVariable('TEST_CONNECTIONS');
+		const testConnectionsJSON = appConfig.testDb.testConnectionsJson;
 		if (!testConnectionsJSON) {
 			return null;
 		}
@@ -296,7 +295,7 @@ export const Constants = {
 		return this.getTestConnectionsArr().map((connection) => connection.host);
 	},
 
-	APP_DOMAIN_ADDRESS: process.env.APP_DOMAIN_ADDRESS || `http://127.0.0.1:3000`,
+	APP_DOMAIN_ADDRESS: appConfig.app.domainAddress,
 	ALLOWED_REQUEST_DOMAIN: (): string => {
 		if (isTest()) {
 			return Constants.APP_DOMAIN_ADDRESS;

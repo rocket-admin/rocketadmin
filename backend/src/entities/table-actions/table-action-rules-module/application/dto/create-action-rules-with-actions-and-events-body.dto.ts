@@ -18,11 +18,12 @@ import { IsURLOptions } from 'validator';
 import { TableActionEventEnum } from '../../../../../enums/table-action-event-enum.js';
 import { TableActionMethodEnum } from '../../../../../enums/table-action-method-enum.js';
 import { TableActionTypeEnum } from '../../../../../enums/table-action-type.enum.js';
+import { isTest } from '../../../../../helpers/app/is-test.js';
 
 function IsUrlIfNotTest(validationOptions?: IsURLOptions) {
 	return (object: NonNullable<unknown>, propertyName: string) => {
 		const decorators = [IsString()];
-		if (process.env.NODE_ENV !== 'test') {
+		if (!isTest()) {
 			decorators.push(IsUrl(validationOptions));
 		}
 		applyDecorators(...decorators)(object, propertyName);

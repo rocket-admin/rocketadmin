@@ -21,6 +21,7 @@ import { UserId } from '../../decorators/user-id.decorator.js';
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { ConnectionEditGuard } from '../../guards/connection-edit.guard.js';
 import { TableAiRequestGuard } from '../../guards/table-ai-request.guard.js';
+import { isTest } from '../../helpers/app/is-test.js';
 import { ValidationHelper } from '../../helpers/validators/validation-helper.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { IAISettingsAndWidgetsCreation, IRequestInfoFromTableV2 } from './ai-use-cases.interface.js';
@@ -51,7 +52,7 @@ export class UserAIRequestsControllerV2 {
 	@ApiBody({ type: RequestInfoFromTableBodyDTO })
 	@ApiQuery({ name: 'tableName', required: true, type: String })
 	@ApiQuery({ name: 'threadId', required: false, type: String })
-	@Timeout(process.env.NODE_ENV !== 'test' ? TimeoutDefaults.AI : TimeoutDefaults.AI_TEST)
+	@Timeout(!isTest() ? TimeoutDefaults.AI : TimeoutDefaults.AI_TEST)
 	@Post('/ai/v4/request/:connectionId')
 	public async requestInfoFromTableWithAIWithHistory(
 		@SlugUuid('connectionId') connectionId: string,
@@ -90,7 +91,7 @@ export class UserAIRequestsControllerV2 {
 		description: 'AI settings and widgets creation job has been queued.',
 	})
 	@UseGuards(ConnectionEditGuard)
-	@Timeout(process.env.NODE_ENV !== 'test' ? TimeoutDefaults.AI : TimeoutDefaults.AI_TEST)
+	@Timeout(!isTest() ? TimeoutDefaults.AI : TimeoutDefaults.AI_TEST)
 	@Get('/ai/v2/setup/:connectionId')
 	public async requestAISettingsAndWidgetsCreation(
 		@SlugUuid('connectionId') connectionId: string,

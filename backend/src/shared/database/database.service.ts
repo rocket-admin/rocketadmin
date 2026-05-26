@@ -1,5 +1,6 @@
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+import { isTest } from '../../helpers/app/is-test.js';
 
 export class DatabaseService {
 	constructor(
@@ -12,7 +13,7 @@ export class DatabaseService {
 	}
 
 	public async dropDatabase() {
-		if (process.env.NODE_ENV !== 'test') {
+		if (!isTest()) {
 			throw new Error('This method only for testing');
 		}
 		try {

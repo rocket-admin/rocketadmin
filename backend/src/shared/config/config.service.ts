@@ -1,136 +1,56 @@
-import dotenv from 'dotenv';
-import path, { join } from 'path';
-import parse from 'pg-connection-string';
+import { Injectable } from '@nestjs/common';
 import { DataSourceOptions } from 'typeorm';
-import { fileURLToPath } from 'url';
+import {
+	AppSectionConfig,
+	AuthConfig,
+	appConfig,
+	DbConfig,
+	EmailConfig,
+	TestDbConfig,
+	ThirdPartyConfig,
+} from './app-config.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-import { uuid_ossp } from '@electric-sql/pglite/contrib/uuid_ossp';
-import fs from 'fs';
-import { PGliteDriver } from 'typeorm-pglite';
-import { isTest } from '../../helpers/app/is-test.js';
-
-dotenv.config();
-
-class ConfigService {
-	constructor(private env: { [k: string]: string | undefined }) {}
-
-	private getValue(key: string, throwOnMissing = !this.isTestEnvironment()): string {
-		// eslint-disable-next-line security/detect-object-injection
-		const value = this.env[key];
-		if (!value && throwOnMissing) {
-			throw new Error(`config error - missing env.${key}`);
-		}
-
-		return value;
+@Injectable()
+export class ConfigService {
+	public get auth(): AuthConfig {
+		return appConfig.auth;
 	}
 
-	public ensureValues(keys: Array<string>) {
-		const isTest = this.isTestEnvironment();
-		if (isTest) {
-			console.info('Running test environment');
-		}
-		keys.forEach((k) => this.getValue(k, !isTest));
-		return this;
+	public get app(): AppSectionConfig {
+		return appConfig.app;
 	}
 
-	public getPort() {
-		return this.getValue('PORT', !this.isTestEnvironment());
+	public get db(): DbConfig {
+		return appConfig.db;
 	}
 
-	public isTestEnvironment(): boolean {
-		return process.env.NODE_ENV === 'test';
+	public get email(): EmailConfig {
+		return appConfig.email;
+	}
+
+	public get thirdParty(): ThirdPartyConfig {
+		return appConfig.thirdParty;
+	}
+
+	public get testDb(): TestDbConfig {
+		return appConfig.testDb;
+	}
+
+	public get isTest(): boolean {
+		return appConfig.isTest;
+	}
+
+	public get isSaaS(): boolean {
+		return appConfig.isSaaS;
 	}
 
 	public getTypeOrmConfig(): DataSourceOptions {
-		const pgLiteFolderPath = process.env.PGLITE_FOLDER_PATH;
-
-		let pgLiteDriver = null;
-		let connectionParams = {};
-
-		if (pgLiteFolderPath && pgLiteFolderPath.length > 0) {
-			const fullPath = isTest()
-				? path.join(process.cwd(), ...pgLiteFolderPath.split('/'))
-				: path.join(__dirname, '..', '..', '..', pgLiteFolderPath);
-			console.info('\nPg Lite Folder Patch: ', pgLiteFolderPath, '\n');
-			const resolvedPath = path.resolve(fullPath);
-			try {
-				fs.accessSync(resolvedPath, fs.constants.F_OK);
-				console.log('PGLite directory exists');
-				try {
-					fs.accessSync(resolvedPath, fs.constants.W_OK);
-					console.log('PGLite directory is writable');
-				} catch (writeError) {
-					console.warn('PGLite directory exists but may not be writable:', writeError.message);
-				}
-			} catch (error) {
-				console.log('PGLite directory does not exist, will be created by PGLite', error);
-			}
-
-			pgLiteDriver = new PGliteDriver({
-				extensions: { uuid_ossp },
-				dataDir: path.resolve(resolvedPath),
-			}).driver;
-		} else {
-			connectionParams = this.parseTypeORMUrl(this.getValue('DATABASE_URL'));
-		}
-
-		const newTypeOrmProdConfig: DataSourceOptions = {
-			type: 'postgres',
-			...connectionParams,
-			entities: [join(__dirname, '..', '..', '**', '*.entity.{ts,js}')],
-			migrations: [join(__dirname, '..', '..', 'migrations', '*.{ts,js}')],
-			synchronize: false,
-			migrationsRun: false,
-			extra: {
-				max: 20,
-				idle_in_transaction_session_timeout: 20 * 1000,
-			},
-			driver: pgLiteDriver ? pgLiteDriver : undefined,
-		};
-
-		const newTypeOrmTestConfig: DataSourceOptions = {
-			type: 'postgres',
-			...connectionParams,
-			entities: [join(__dirname, '..', '..', '**', '*.entity.{ts,js}')],
-			migrations: [join(__dirname, '..', '..', 'migrations', '*.{ts,js}')],
-			synchronize: false,
-			migrationsRun: false,
-			logging: false,
-			extra: {
-				max: 10,
-			},
-			logger: 'advanced-console',
-			driver: pgLiteDriver ? pgLiteDriver : undefined,
-		};
-
-		return this.isTestEnvironment() ? newTypeOrmTestConfig : newTypeOrmProdConfig;
+		return appConfig.getTypeOrmConfig();
 	}
 
-	private parseTypeORMUrl(url: string): {
-		host: string;
-		port: number;
-		username: string;
-		password: string;
-		database: string;
-		ssl: any;
-	} {
-		const parsingResult = parse.parse(url);
-		const { host, port, user, password, database, ssl } = parsingResult;
-
-		return {
-			host,
-			port: parseInt(port, 10),
-			username: user,
-			password,
-			database,
-			ssl,
-		};
+	public validate(): void {
+		appConfig.validate();
 	}
 }
 
-const configService = new ConfigService(process.env).ensureValues([]);
-
-export { configService };
+export { appConfig, appConfig as configService };
