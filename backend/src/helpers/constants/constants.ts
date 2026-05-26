@@ -292,7 +292,7 @@ export const Constants = {
 	},
 
 	getTestConnectionsHostNamesArr: function (): Array<string> {
-		return this.getTestConnectionsArr().map((connection) => connection.host);
+		return this.getTestConnectionsArr().map((connection: { host: string }) => connection.host);
 	},
 
 	APP_DOMAIN_ADDRESS: appConfig.app.domainAddress,

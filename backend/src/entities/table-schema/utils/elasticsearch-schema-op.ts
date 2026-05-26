@@ -144,7 +144,7 @@ export async function executeElasticsearchSchemaOp(
 	try {
 		await dispatchElasticsearchOp(client, op);
 	} finally {
-		await client.close().catch(() => undefined);
+		await client.close().catch((): void => undefined);
 	}
 }
 

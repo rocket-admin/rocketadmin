@@ -22,7 +22,7 @@ export const actionRulesCustomRepositoryExtension: IActionRulesRepository = {
 			.where('connection.id = :connectionId', { connectionId })
 			.andWhere('action_rules.table_name = :tableName', { tableName })
 			.getMany();
-		const connections = results.flatMap((r) => (r.connection ? [r.connection] : []));
+		const connections = results.flatMap((r: ActionRulesEntity) => (r.connection ? [r.connection] : []));
 		await decryptConnectionsCredentialsAsync(connections);
 		return results;
 	},
@@ -50,7 +50,7 @@ export const actionRulesCustomRepositoryExtension: IActionRulesRepository = {
 			.andWhere('action_rules.table_name = :tableName', { tableName })
 			.andWhere('action_events.event = :event', { event: TableActionEventEnum.CUSTOM })
 			.getMany();
-		const connections = results.flatMap((r) => (r.connection ? [r.connection] : []));
+		const connections = results.flatMap((r: ActionRulesEntity) => (r.connection ? [r.connection] : []));
 		await decryptConnectionsCredentialsAsync(connections);
 		return results;
 	},

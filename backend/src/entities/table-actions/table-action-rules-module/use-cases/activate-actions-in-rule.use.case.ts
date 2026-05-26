@@ -91,7 +91,7 @@ export class ActivateActionsInEventUseCase
 						operationType: LogOperationTypeEnum.actionActivated,
 						operationStatusResult: operationResult,
 						row: primaryKey,
-						old_data: null,
+						old_data: null as Record<string, unknown> | null,
 						table_primary_key: primaryKey,
 						operation_custom_action_name: eventTitle,
 					};

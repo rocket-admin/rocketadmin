@@ -200,9 +200,11 @@ export class UpdateRowInTableUseCase
 		};
 
 		const futureRowData = Object.assign(oldRowData, row);
-		let futurePrimaryKey = {};
+		let futurePrimaryKey: Record<string, unknown> = {};
 		for (const primaryColumn of tablePrimaryKeys) {
-			futurePrimaryKey[primaryColumn.column_name] = futureRowData[primaryColumn.column_name];
+			futurePrimaryKey[primaryColumn.column_name] = (futureRowData as Record<string, unknown>)[
+				primaryColumn.column_name
+			];
 		}
 		if (isObjectEmpty(futurePrimaryKey)) {
 			futurePrimaryKey = primaryKey;

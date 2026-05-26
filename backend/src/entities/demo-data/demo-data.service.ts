@@ -519,7 +519,7 @@ export class DemoDataService {
 			savedEmptyActionRules.push(savedActionRule);
 		}
 		const foundSavedUserBlacklistActionRule = savedEmptyActionRules.find(
-			(rule) => rule.table_name === 'user' && rule.rule_title === 'Blacklist',
+			(rule) => rule.table_name === 'user' && rule.title === 'Blacklist',
 		);
 		if (foundSavedUserBlacklistActionRule) {
 			const createActionEventData: CreateTableActionEventDS = {
@@ -533,7 +533,7 @@ export class DemoDataService {
 			await this._dbContext.actionEventsRepository.saveNewOrUpdatedActionEvent(newActionEvent);
 		}
 		const foundSavedUserNotificationActionRule = savedEmptyActionRules.find(
-			(rule) => rule.table_name === 'user' && rule.rule_title === 'Notification on new user',
+			(rule) => rule.table_name === 'user' && rule.title === 'Notification on new user',
 		);
 		if (foundSavedUserNotificationActionRule) {
 			const createActionEventData: Array<CreateTableActionEventDS> = [
