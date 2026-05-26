@@ -10,6 +10,7 @@ import { AmplitudeEventTypeEnum } from '../../../enums/amplitude-event-type.enum
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { isTest as isTestEnv } from '../../../helpers/app/is-test.js';
 import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
@@ -102,12 +103,7 @@ export class FindTablesInConnectionUseCase
 				userId,
 				{ tablesCount: tables?.length ? tables.length : 0 },
 			);
-			if (
-				connection.saved_table_info === 0 &&
-				!connection.isTestConnection &&
-				operationResult &&
-				process.env.NODE_ENV !== 'test'
-			) {
+			if (connection.saved_table_info === 0 && !connection.isTestConnection && operationResult && !isTestEnv()) {
 				saveTableInfoInDatabase(connection.id, tables, masterPwd, this._dbContext);
 			}
 		}

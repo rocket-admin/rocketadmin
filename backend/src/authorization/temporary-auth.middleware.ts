@@ -13,8 +13,10 @@ import { Repository } from 'typeorm';
 import { LogOutEntity } from '../entities/log-out/log-out.entity.js';
 import { UserEntity } from '../entities/user/user.entity.js';
 import { Messages } from '../exceptions/text/messages.js';
+import { isTest } from '../helpers/app/is-test.js';
 import { Constants } from '../helpers/constants/constants.js';
 import { isObjectEmpty } from '../helpers/is-object-empty.js';
+import { appConfig } from '../shared/config/app-config.js';
 import { IRequestWithCognitoInfo } from './cognito-decoded.interface.js';
 
 @Injectable()
@@ -30,7 +32,7 @@ export class TemporaryAuthMiddleware implements NestMiddleware {
 		try {
 			token = req.cookies[Constants.JWT_COOKIE_KEY_NAME];
 		} catch (_e) {
-			if (process.env.NODE_ENV !== 'test') {
+			if (!isTest()) {
 				throw new UnauthorizedException('JWT verification failed');
 			}
 		}
@@ -45,7 +47,7 @@ export class TemporaryAuthMiddleware implements NestMiddleware {
 		}
 
 		try {
-			const jwtSecret = process.env.TEMPORARY_JWT_SECRET;
+			const jwtSecret = appConfig.auth.temporaryJwtSecret;
 			const data = jwt.verify(token, jwtSecret) as jwt.JwtPayload;
 			const userId = data.id;
 			if (!userId) {

@@ -1,6 +1,5 @@
-import { getProcessVariable } from '../get-process-variable.js';
+import { appConfig } from '../../shared/config/app-config.js';
 
 export function isSaaS(): boolean {
-	const isSaaS: unknown = getProcessVariable('IS_SAAS');
-	return !!isSaaS;
+	return appConfig.isSaaS;
 }

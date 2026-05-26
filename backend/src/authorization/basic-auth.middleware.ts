@@ -2,12 +2,13 @@ import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/commo
 import auth from 'basic-auth';
 import { Request, Response } from 'express';
 import { Messages } from '../exceptions/text/messages.js';
+import { appConfig } from '../shared/config/app-config.js';
 
 @Injectable()
 export class BasicAuthMiddleware implements NestMiddleware {
 	use(req: Request, _res: Response, next: (err?: any, res?: any) => void): void {
-		const basicAuthLogin = process.env.BASIC_AUTH_LOGIN;
-		const basicAuthPassword = process.env.BASIC_AUTH_PWD;
+		const basicAuthLogin = appConfig.auth.basicAuthLogin;
+		const basicAuthPassword = appConfig.auth.basicAuthPassword;
 		const userCredentials = auth(req);
 		if (!userCredentials) {
 			throw new UnauthorizedException(Messages.AUTHORIZATION_REQUIRED);

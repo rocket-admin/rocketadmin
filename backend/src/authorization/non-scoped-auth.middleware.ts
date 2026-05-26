@@ -12,8 +12,10 @@ import jwt from 'jsonwebtoken';
 import { Repository } from 'typeorm';
 import { LogOutEntity } from '../entities/log-out/log-out.entity.js';
 import { Messages } from '../exceptions/text/messages.js';
+import { isTest } from '../helpers/app/is-test.js';
 import { Constants } from '../helpers/constants/constants.js';
 import { isObjectEmpty } from '../helpers/is-object-empty.js';
+import { appConfig } from '../shared/config/app-config.js';
 import { IRequestWithCognitoInfo } from './cognito-decoded.interface.js';
 
 @Injectable()
@@ -28,7 +30,7 @@ export class NonScopedAuthMiddleware implements NestMiddleware {
 		try {
 			token = req.cookies[Constants.JWT_COOKIE_KEY_NAME];
 		} catch (_e) {
-			if (process.env.NODE_ENV !== 'test') {
+			if (!isTest()) {
 				throw new UnauthorizedException('JWT verification failed');
 			}
 		}
@@ -43,7 +45,7 @@ export class NonScopedAuthMiddleware implements NestMiddleware {
 		}
 
 		try {
-			const jwtSecret = process.env.JWT_SECRET;
+			const jwtSecret = appConfig.auth.jwtSecret;
 			const data = jwt.verify(token, jwtSecret) as jwt.JwtPayload;
 			const userId = data.id;
 			if (!userId) {

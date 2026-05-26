@@ -2,6 +2,7 @@ import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/commo
 import { Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { Messages } from '../exceptions/text/messages.js';
+import { appConfig } from '../shared/config/app-config.js';
 import { IRequestWithCognitoInfo } from './cognito-decoded.interface.js';
 import { extractTokenFromHeader } from './utils/extract-token-from-header.js';
 
@@ -14,7 +15,7 @@ export class SaaSAuthMiddleware implements NestMiddleware {
 			throw new UnauthorizedException('Token is missing');
 		}
 		try {
-			const jwtSecret = process.env.MICROSERVICE_JWT_SECRET;
+			const jwtSecret = appConfig.auth.microserviceJwtSecret;
 			const data = jwt.verify(token, jwtSecret) as jwt.JwtPayload;
 			const requestId = data.request_id;
 

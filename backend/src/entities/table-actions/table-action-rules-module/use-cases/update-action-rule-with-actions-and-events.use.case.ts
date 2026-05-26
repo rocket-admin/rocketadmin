@@ -5,6 +5,7 @@ import { IGlobalDatabaseContext } from '../../../../common/application/global-da
 import { BaseType } from '../../../../common/data-injection.tokens.js';
 import { TableActionMethodEnum } from '../../../../enums/table-action-method-enum.js';
 import { Messages } from '../../../../exceptions/text/messages.js';
+import { isTest } from '../../../../helpers/app/is-test.js';
 import { isActionUrlHostAllowed } from '../../../../helpers/validators/is-action-url-host-allowed.js';
 import { validateStringWithEnum } from '../../../../helpers/validators/validate-string-with-enum.js';
 import { ValidationHelper } from '../../../../helpers/validators/validation-helper.js';
@@ -179,7 +180,7 @@ export class UpdateRuleUseCase
 				if (!action.action_slack_url) {
 					throw new BadRequestException(Messages.SLACK_URL_MISSING);
 				}
-				if (process.env.NODE_ENV !== 'test' && !ValidationHelper.isValidUrl(action.action_slack_url)) {
+				if (!isTest() && !ValidationHelper.isValidUrl(action.action_slack_url)) {
 					throw new BadRequestException(Messages.URL_INVALID);
 				}
 				const isSlackUrlAllowed = await isActionUrlHostAllowed(action.action_slack_url);
@@ -193,10 +194,7 @@ export class UpdateRuleUseCase
 			}
 
 			if (action.action_method === TableActionMethodEnum.URL) {
-				if (
-					process.env.NODE_ENV !== 'test' &&
-					(!action.action_url || !ValidationHelper.isValidUrl(action.action_url))
-				) {
+				if (!isTest() && (!action.action_url || !ValidationHelper.isValidUrl(action.action_url))) {
 					throw new BadRequestException(Messages.URL_INVALID);
 				}
 				const isUrlAllowed = await isActionUrlHostAllowed(action.action_url);

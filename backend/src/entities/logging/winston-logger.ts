@@ -1,6 +1,7 @@
 import { Injectable, LoggerService } from '@nestjs/common';
 import winston from 'winston';
 import { slackPostMessage } from '../../helpers/slack/slack-post-message.js';
+import { appConfig } from '../../shared/config/app-config.js';
 import { LoggerTransports } from './logger-transports.config.js';
 
 @Injectable()
@@ -9,7 +10,7 @@ export class WinstonLogger implements LoggerService {
 
 	constructor() {
 		this.logger = winston.createLogger({
-			level: process.env.LOG_LEVEL || 'info',
+			level: appConfig.app.logLevel,
 			transports: LoggerTransports.default,
 		});
 	}
