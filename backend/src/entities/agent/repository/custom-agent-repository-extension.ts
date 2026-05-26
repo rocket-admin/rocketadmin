@@ -1,5 +1,6 @@
 import { ConnectionTypeTestEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { nanoid } from 'nanoid';
+import { isTest } from '../../../helpers/app/is-test.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { AgentEntity } from '../agent.entity.js';
 import { IAgentRepository } from './agent.repository.interface.js';
@@ -12,7 +13,7 @@ export const customAgentRepositoryExtension: IAgentRepository = {
 
 	async createNewAgentForConnection(connection: ConnectionEntity): Promise<AgentEntity> {
 		const agent = new AgentEntity();
-		const token = process.env.NODE_ENV !== 'test' ? nanoid(64) : this.getTestAgentToken(connection.type);
+		const token = !isTest() ? nanoid(64) : this.getTestAgentToken(connection.type);
 		agent.setToken(token);
 		agent.connection = connection;
 		const savedAgent = await this.save(agent);
@@ -41,7 +42,7 @@ export const customAgentRepositoryExtension: IAgentRepository = {
 	},
 
 	getTestAgentToken(connectionType: ConnectionTypeTestEnum): string {
-		if (process.env.NODE_ENV !== 'test') throw new Error('Test agent token can only be used in test environment');
+		if (!isTest()) throw new Error('Test agent token can only be used in test environment');
 		switch (connectionType) {
 			case ConnectionTypeTestEnum.agent_oracledb:
 				return 'ORACLE-TEST-AGENT-TOKEN';

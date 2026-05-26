@@ -5,6 +5,7 @@ import crypto, { createHmac, randomBytes, scrypt } from 'crypto';
 import CryptoJS from 'crypto-js';
 import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
 import { EncryptionAlgorithmEnum } from '../../enums/encryption-algorithm.enum.js';
+import { appConfig } from '../../shared/config/app-config.js';
 import { Constants } from '../constants/constants.js';
 
 const ENCRYPTION_VERSION_PREFIX = '$v2:k1$';
@@ -16,7 +17,7 @@ const KEY_LENGTH = 32;
 
 export class Encryptor {
 	static getPrivateKey(): string {
-		return process.env.PRIVATE_KEY;
+		return appConfig.auth.privateKey;
 	}
 
 	private static deriveKey(passphrase: string, salt: Buffer): Buffer {
@@ -223,7 +224,7 @@ export class Encryptor {
 	}
 
 	static getUserIntercomHash(userId: string): string | null {
-		const intercomKey = process.env.INTERCOM_KEY;
+		const intercomKey = appConfig.thirdParty.intercomKey;
 		if (!intercomKey) {
 			return null;
 		}

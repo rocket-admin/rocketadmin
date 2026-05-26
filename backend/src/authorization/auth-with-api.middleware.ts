@@ -19,6 +19,7 @@ import { Messages } from '../exceptions/text/messages.js';
 import { Constants } from '../helpers/constants/constants.js';
 import { Encryptor } from '../helpers/encryption/encryptor.js';
 import { isObjectEmpty } from '../helpers/is-object-empty.js';
+import { appConfig } from '../shared/config/app-config.js';
 import { IRequestWithCognitoInfo } from './cognito-decoded.interface.js';
 
 @Injectable()
@@ -60,7 +61,7 @@ export class AuthWithApiMiddleware implements NestMiddleware {
 
 	private async authenticateWithToken(tokenFromCookie: string, req: IRequestWithCognitoInfo): Promise<void> {
 		try {
-			const jwtSecret = process.env.JWT_SECRET;
+			const jwtSecret = appConfig.auth.jwtSecret;
 			const data = jwt.verify(tokenFromCookie, jwtSecret) as jwt.JwtPayload;
 			const userId = data.id;
 

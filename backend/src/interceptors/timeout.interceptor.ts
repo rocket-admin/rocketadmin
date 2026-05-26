@@ -4,6 +4,7 @@ import { Observable, TimeoutError, throwError } from 'rxjs';
 import { catchError, timeout } from 'rxjs/operators';
 import { TIMEOUT_KEY, TimeoutDefaults } from '../decorators/timeout.decorator.js';
 import { Messages } from '../exceptions/text/messages.js';
+import { isTest } from '../helpers/app/is-test.js';
 
 @Injectable()
 export class TimeoutInterceptor implements NestInterceptor {
@@ -15,7 +16,7 @@ export class TimeoutInterceptor implements NestInterceptor {
 			context.getClass(),
 		]);
 
-		const defaultTimeout = process.env.NODE_ENV !== 'test' ? TimeoutDefaults.DEFAULT : TimeoutDefaults.DEFAULT_TEST;
+		const defaultTimeout = !isTest() ? TimeoutDefaults.DEFAULT : TimeoutDefaults.DEFAULT_TEST;
 
 		const timeoutMs = customTimeout ?? defaultTimeout;
 
