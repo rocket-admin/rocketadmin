@@ -1577,7 +1577,7 @@ test.serial(
 			await dynamoDb.createTable(referencedOnTableTableNameTableParams);
 			await dynamoDb.createTable(referencedByTableTableNameTableParams);
 		} catch (error) {
-			console.error(`Error creating dynamodb table: ${error.message}`);
+			console.error(`Error creating dynamodb table: ${(error as Error).message}`);
 		}
 
 		const documentClient = DynamoDBDocumentClient.from(dynamoDb);

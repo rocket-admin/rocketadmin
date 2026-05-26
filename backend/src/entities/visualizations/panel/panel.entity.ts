@@ -55,7 +55,7 @@ export class PanelEntity {
 				this.panel_options = JSON.stringify(this.panel_options);
 			}
 		} catch (e) {
-			console.error('-> Error widget options stringify ' + e.message);
+			console.error('-> Error widget options stringify ' + (e as Error).message);
 		}
 	}
 
@@ -70,7 +70,7 @@ export class PanelEntity {
 				this.panel_options = JSON.stringify(this.panel_options);
 			}
 		} catch (e) {
-			console.error('-> Error widget options stringify ' + e.message);
+			console.error('-> Error widget options stringify ' + (e as Error).message);
 		}
 	}
 
@@ -87,7 +87,7 @@ export class PanelEntity {
 				});
 			}
 		} catch (e) {
-			console.error('-> Error widget options parse ' + e.message);
+			console.error('-> Error widget options parse ' + (e as Error).message);
 		}
 	}
 

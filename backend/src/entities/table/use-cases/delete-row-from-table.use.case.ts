@@ -119,7 +119,7 @@ export class DeleteRowFromTableUseCase
 		try {
 			oldRowData = await dao.getRowByPrimaryKey(tableName, primaryKey, builtTableSettings, userEmail);
 		} catch (e) {
-			throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_DELETE_ROW_FROM_TABLE);
+			throw new UnknownSQLException((e as Error).message, ExceptionOperations.FAILED_TO_DELETE_ROW_FROM_TABLE);
 		}
 
 		if (!oldRowData) {
@@ -139,7 +139,7 @@ export class DeleteRowFromTableUseCase
 			};
 		} catch (e) {
 			operationResult = OperationResultStatusEnum.unsuccessfully;
-			throw new DeleteRowException(e.message);
+			throw new DeleteRowException((e as Error).message);
 		} finally {
 			const logRecord = {
 				table_name: tableName,

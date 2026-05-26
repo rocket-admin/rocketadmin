@@ -184,7 +184,7 @@ export class UpdateRowInTableUseCase
 		try {
 			oldRowData = await dao.getRowByPrimaryKey(tableName, primaryKey, builtDAOsTableSettings, userEmail);
 		} catch (e) {
-			throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_UPDATE_ROW_IN_TABLE);
+			throw new UnknownSQLException((e as Error).message, ExceptionOperations.FAILED_TO_UPDATE_ROW_IN_TABLE);
 		}
 		if (!oldRowData) {
 			throw new HttpException(
@@ -236,7 +236,7 @@ export class UpdateRowInTableUseCase
 			};
 		} catch (e) {
 			operationResult = OperationResultStatusEnum.unsuccessfully;
-			throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_UPDATE_ROW_IN_TABLE);
+			throw new UnknownSQLException((e as Error).message, ExceptionOperations.FAILED_TO_UPDATE_ROW_IN_TABLE);
 		} finally {
 			const logRecord = {
 				table_name: tableName,

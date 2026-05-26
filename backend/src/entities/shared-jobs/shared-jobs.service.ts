@@ -65,7 +65,7 @@ export class SharedJobsService {
 								foreignKeys,
 							};
 						} catch (error) {
-							console.error(`Error getting table information for "${table.tableName}": ${error.message}`);
+							console.error(`Error getting table information for "${table.tableName}": ${(error as Error).message}`);
 							return null;
 						}
 					}),

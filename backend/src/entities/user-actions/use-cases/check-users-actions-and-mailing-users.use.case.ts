@@ -35,7 +35,7 @@ export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActio
 							}
 						});
 					} catch (error) {
-						console.error(`Error processing user ${user.id}: ${error.message}`);
+						console.error(`Error processing user ${user.id}: ${(error as Error).message}`);
 						Sentry.captureException(error);
 					}
 				}

@@ -43,7 +43,7 @@ export class DemoDataService {
 			return await this.createDemoData(userId);
 		} catch (error) {
 			console.error(`Error during demo data creation for user with ID ${userId}:`, error);
-			await slackPostMessage(`Error during demo data creation for user with ID ${userId}: ${error.message}`);
+			await slackPostMessage(`Error during demo data creation for user with ID ${userId}: ${(error as Error).message}`);
 		}
 	}
 

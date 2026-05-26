@@ -52,7 +52,7 @@ export class GetConnectionDiagramUseCase
 		try {
 			tables = await dao.getTablesFromDB(userEmail);
 		} catch (e) {
-			throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_TABLES);
+			throw new UnknownSQLException((e as Error).message, ExceptionOperations.FAILED_TO_GET_TABLES);
 		}
 
 		const realTables = tables.filter((t) => !t.isView);

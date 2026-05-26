@@ -74,11 +74,12 @@ export class ActivateActionsInEventUseCase
 			} catch (e) {
 				operationResult = OperationResultStatusEnum.unsuccessfully;
 				activationResults.push({ actionId: action.id, result: operationResult });
+				const err = e as Error & { response?: { status?: number } };
 				throw new HttpException(
 					{
-						message: e.message,
+						message: err.message,
 					},
-					e.response?.status || HttpStatus.BAD_REQUEST,
+					err.response?.status || HttpStatus.BAD_REQUEST,
 				);
 			} finally {
 				const eventTitle = action.action_rule.action_events?.find((e) => e.id === event_id)?.title ?? null;
