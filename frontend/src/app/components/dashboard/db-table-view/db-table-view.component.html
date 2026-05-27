@@ -2,28 +2,10 @@
     <div class="db-table-title">
         <h2 class="mat-h2 table-name">{{ displayName }}</h2>
 
-        <button type="button" mat-button class="table-switcher" [matMenuTriggerFor]="tablesMenu">
+        <button type="button" mat-button class="table-switcher" (click)="openTableSwitcher()">
             <span class="table-switcher__name">{{ displayName }}</span>
             <mat-icon iconPositionEnd class="table-switcher__chevron">arrow_drop_down</mat-icon>
         </button>
-        <mat-menu #tablesMenu="matMenu" class="table-switcher-menu">
-            <ng-container *ngFor="let folder of tableFoldersForSelect">
-                <div class="table-switcher-menu__group-label">{{ folder.category_name }}</div>
-                <button type="button" mat-menu-item *ngFor="let table of getFolderTables(folder)"
-                    [class.table-switcher-menu__item_active]="table.table === name"
-                    (click)="switchTable(table.table)">
-                    {{ table.normalizedTableName || table.display_name || table.table }}
-                </button>
-            </ng-container>
-            <ng-container *ngIf="uncategorizedTables.length">
-                <div class="table-switcher-menu__group-label">Others</div>
-                <button type="button" mat-menu-item *ngFor="let table of uncategorizedTables"
-                    [class.table-switcher-menu__item_active]="table.table === name"
-                    (click)="switchTable(table.table)">
-                    {{ table.normalizedTableName || table.display_name || table.table }}
-                </button>
-            </ng-container>
-        </mat-menu>
 
         <button type="button" mat-icon-button (click)="loadRowsPage()">
             <mat-icon>refresh</mat-icon>
@@ -108,11 +90,12 @@
                 </button>
 
                 <div *ngIf="tableData" class="db-table-manage-columns-button">
-                    <button type="button" *ngIf="tableData.displayedColumns && tableData.columns" mat-button [matMenuTriggerFor]="menu"
+                    <button type="button" *ngIf="tableData.displayedColumns && tableData.columns" mat-button
+                        [matMenuTriggerFor]="isMobileView ? null : menu"
                         matTooltip="Columns"
                         angulartics2On="click"
                         angularticsAction="Dashboard: columns multiselect is clicked"
-                        (click)="posthog.capture('Dashboard: columns multiselect is clicked')">
+                        (click)="isMobileView && openColumnsSheet(); posthog.capture('Dashboard: columns multiselect is clicked')">
                         <mat-icon fontSet="material-symbols-outlined">view_week</mat-icon>
                         <span class="action-label">Columns</span>
                             <span class="db-table-manage-columns-button__count">
@@ -236,18 +219,9 @@
     <button mat-button type="button" *ngIf="tableData && tableData.displayedDataColumns?.length"
         class="mobile-sort-button"
         [ngClass]="{'mobile-sort-button_active': sort.active && sort.direction}"
-        [matMenuTriggerFor]="mobileSortMenu">
+        (click)="openSortSheet()">
         <span class="mobile-sort-button__label">Sort by</span>
     </button>
-    <mat-menu #mobileSortMenu="matMenu">
-        <ng-container *ngFor="let column of tableData?.displayedDataColumns">
-            <button mat-menu-item type="button" *ngIf="isSortable(column)"
-                (click)="applySort(column, sort.active === column && sort.direction === 'asc' ? 'desc' : 'asc')">
-                <mat-icon>{{ sort.active === column ? (sort.direction === 'asc' ? 'arrow_upward' : 'arrow_downward') : 'unfold_more' }}</mat-icon>
-                <span>{{ tableData.dataNormalizedColumns[column] }}</span>
-            </button>
-        </ng-container>
-    </mat-menu>
 </div>
 
 <!-- Table View -->
@@ -462,4 +436,141 @@
         [showFirstLastButtons]="!tableData.largeDataset">
     </mat-paginator>
     <!--(page)="scrollUp()"}-->
+</div>
+
+<!-- Table selector bottom sheet (rendered at root to avoid stacking-context clipping) -->
+<div *ngIf="tableSwitcherOpen" class="table-sheet-backdrop" (click)="closeTableSwitcher()"></div>
+<div *ngIf="tableSwitcherOpen" class="table-sheet">
+    <div class="table-sheet__handle" aria-hidden="true"></div>
+    <div class="table-sheet__header">
+        <span class="table-sheet__title">Select table</span>
+        <button type="button" mat-icon-button (click)="closeTableSwitcher()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <div class="table-sheet__search">
+        <mat-icon class="table-sheet__search-icon">search</mat-icon>
+        <input #tableSwitcherSearchInput type="text"
+            class="table-sheet__search-input"
+            placeholder="Search tables"
+            [(ngModel)]="tableSwitcherSearch"
+            autocomplete="off" />
+        <mat-icon *ngIf="tableSwitcherSearch"
+            class="table-sheet__search-clear"
+            (click)="clearTableSwitcherSearch()">
+            close
+        </mat-icon>
+    </div>
+
+    <div class="table-sheet__list">
+        <ng-container *ngFor="let folder of filteredTableFoldersForSelect">
+            <button type="button" class="table-sheet__group-label"
+                (click)="toggleFolderCollapse(folder.category_id)">
+                <mat-icon class="material-symbols-outlined table-sheet__group-icon"
+                    [style.color]="folder.category_id === 'all-tables-kitten' ? null : (folder.category_color || null)">
+                    {{ folder.category_id === 'all-tables-kitten' ? 'dehaze' : 'folder' }}
+                </mat-icon>
+                <span class="table-sheet__group-name">{{ folder.category_name }}</span>
+                <span class="table-sheet__group-count">{{ folder.tables.length }}</span>
+                <mat-icon class="table-sheet__group-chevron">
+                    {{ isFolderCollapsed(folder.category_id) ? 'chevron_right' : 'expand_more' }}
+                </mat-icon>
+            </button>
+            <ng-container *ngIf="!isFolderCollapsed(folder.category_id)">
+                <button type="button" class="table-sheet__item" *ngFor="let table of folder.tables"
+                    [class.table-sheet__item_active]="table.table === name"
+                    (click)="switchTableFromSheet(table.table)">
+                    <span class="table-sheet__item-name">{{ table.normalizedTableName || table.display_name || table.table }}</span>
+                    <mat-icon *ngIf="table.table === name" class="table-sheet__item-check">check</mat-icon>
+                </button>
+            </ng-container>
+        </ng-container>
+        <ng-container *ngIf="filteredUncategorizedTables.length">
+            <div class="table-sheet__group-label">Others</div>
+            <button type="button" class="table-sheet__item" *ngFor="let table of filteredUncategorizedTables"
+                [class.table-sheet__item_active]="table.table === name"
+                (click)="switchTableFromSheet(table.table)">
+                <span class="table-sheet__item-name">{{ table.normalizedTableName || table.display_name || table.table }}</span>
+                <mat-icon *ngIf="table.table === name" class="table-sheet__item-check">check</mat-icon>
+            </button>
+        </ng-container>
+
+        <div *ngIf="tableSwitcherSearch && !filteredTableFoldersForSelect.length && !filteredUncategorizedTables.length"
+            class="table-sheet__empty">
+            No tables match "{{ tableSwitcherSearch }}".
+        </div>
+    </div>
+</div>
+
+<!-- Sort bottom sheet -->
+<div *ngIf="sortSheetOpen" class="table-sheet-backdrop" (click)="closeSortSheet()"></div>
+<div *ngIf="sortSheetOpen" class="table-sheet">
+    <div class="table-sheet__handle" aria-hidden="true"></div>
+    <div class="table-sheet__header">
+        <span class="table-sheet__title">Sort by</span>
+        <button type="button" mat-icon-button (click)="closeSortSheet()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <div class="table-sheet__list">
+        <div class="sort-sheet__row" *ngFor="let column of sortableDataColumns">
+            <span class="sort-sheet__col-name">{{ tableData.dataNormalizedColumns[column] }}</span>
+            <div class="sort-sheet__controls">
+                <button type="button" mat-icon-button
+                    class="sort-sheet__dir-btn"
+                    [class.sort-sheet__dir-btn_active]="sort.active === column && sort.direction === 'asc'"
+                    matTooltip="Ascending (A-Z)"
+                    (click)="applySort(column, 'asc')">
+                    <mat-icon>arrow_upward</mat-icon>
+                </button>
+                <button type="button" mat-icon-button
+                    class="sort-sheet__dir-btn"
+                    [class.sort-sheet__dir-btn_active]="sort.active === column && sort.direction === 'desc'"
+                    matTooltip="Descending (Z-A)"
+                    (click)="applySort(column, 'desc')">
+                    <mat-icon>arrow_downward</mat-icon>
+                </button>
+                <button type="button" mat-icon-button
+                    class="sort-sheet__default-btn"
+                    [class.sort-sheet__default-btn_active]="isDefaultSort(column)"
+                    [disabled]="(sort.active !== column || !sort.direction) && !isDefaultSort(column)"
+                    [matTooltip]="isDefaultSort(column) ? 'Remove default sort' : 'Set as default sort'"
+                    (click)="toggleDefaultSort(column)">
+                    <mat-icon>{{ isDefaultSort(column) ? 'lock' : 'lock_open' }}</mat-icon>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Columns bottom sheet -->
+<div *ngIf="columnsSheetOpen" class="table-sheet-backdrop" (click)="closeColumnsSheet()"></div>
+<div *ngIf="columnsSheetOpen" class="table-sheet">
+    <div class="table-sheet__handle" aria-hidden="true"></div>
+    <div class="table-sheet__header">
+        <span class="table-sheet__title">Columns</span>
+        <button type="button" mat-icon-button (click)="closeColumnsSheet()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <div class="table-sheet__list" *ngIf="tableData">
+        <div cdkDropList (cdkDropListDropped)="onColumnsMenuDrop($event)" class="columns-sheet__list">
+            <div *ngFor="let column of sortedColumns"
+                cdkDrag
+                [cdkDragData]="column"
+                class="columns-sheet__item">
+                <mat-icon class="columns-sheet__drag-handle" cdkDragHandle>drag_indicator</mat-icon>
+                <mat-checkbox
+                    class="columns-sheet__checkbox"
+                    [disabled]="tableData.displayedDataColumns.length === 1 && column.selected"
+                    (change)="onColumnVisibilityChange()"
+                    [(ngModel)]="column.selected">
+                    {{ column.normalizedTitle }}
+                </mat-checkbox>
+            </div>
+        </div>
+    </div>
 </div>

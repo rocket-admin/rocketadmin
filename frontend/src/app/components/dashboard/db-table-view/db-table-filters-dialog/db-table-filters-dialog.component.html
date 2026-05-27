@@ -2,7 +2,7 @@
     <h1 mat-dialog-title class="filters-header">
         <span class="filters-header__text">
             <span class="filters-header__label">Filters</span>
-            <span class="filters-header__table">{{ data.displayTableName }}</span>
+            <span class="filters-header__table">Table: {{ data.displayTableName }}</span>
         </span>
         <a mat-icon-button mat-dialog-close
             routerLink="/dashboard/{{data.connectionID}}/{{data.tableName}}/settings"

@@ -732,51 +732,83 @@
 }
 
 .condition-card__inputs > .comparator-select-field {
-	flex: 0 0 56px !important;
+	flex: 0 0 auto;
+}
+
+.comparator-trigger__symbol {
+	display: none;
+}
+
+.comparator-trigger__text {
+	display: inline;
+}
+
+@media (width <= 600px) {
+	.condition-card__inputs > .comparator-select-field {
+		flex: 0 0 56px !important;
+	}
+
+	.comparator-trigger__symbol {
+		display: inline;
+	}
+
+	.comparator-trigger__text {
+		display: none;
+	}
 }
 
 .condition-card__value {
-	display: block;
+	display: flex;
+	min-width: 0;
+	flex: 1 1 0;
+}
+
+.condition-card__value > *,
+.condition-card__value ::ng-deep .mat-mdc-form-field {
+	flex: 1 1 auto;
 	width: 100%;
 	min-width: 0;
 }
 
-.condition-card__value ::ng-deep .mat-mdc-form-field {
-	width: 100% !important;
-	display: block !important;
-}
-
 .condition-card__value ::ng-deep .full-width {
-	width: 100% !important;
+	width: 100%;
 }
 
 .condition-card__inputs .comparator-select-field {
-	flex: 0 0 56px !important;
-	width: 56px !important;
-	min-width: 0 !important;
-	max-width: 56px !important;
+	flex: 0 0 auto;
 }
 
-.condition-card__inputs .comparator-select-field ::ng-deep .mat-mdc-text-field-wrapper {
-	min-width: 0 !important;
-	width: 56px !important;
-	padding-left: 8px !important;
-	padding-right: 4px !important;
+@media (width <= 600px) {
+	.condition-card__inputs .comparator-select-field {
+		flex: 0 0 56px !important;
+		width: 56px !important;
+		max-width: 56px !important;
+		min-width: 0 !important;
+	}
+
+	.condition-card__inputs .comparator-select-field ::ng-deep .mat-mdc-text-field-wrapper {
+		width: 56px !important;
+		min-width: 0 !important;
+		padding-left: 8px !important;
+		padding-right: 4px !important;
+	}
 }
 
-.condition-card__inputs .comparator-select-field ::ng-deep .mat-mdc-form-field-flex {
-	min-width: 0 !important;
-}
+@media (width <= 600px) {
+	.condition-card__inputs .comparator-select-field ::ng-deep .mat-mdc-form-field-flex {
+		min-width: 0 !important;
+	}
 
-.condition-card__inputs .comparator-select-field ::ng-deep .mat-mdc-form-field-infix {
-	min-width: 0 !important;
-	width: auto !important;
-	padding-left: 0 !important;
-	padding-right: 0 !important;
-}
+	.condition-card__inputs .comparator-select-field ::ng-deep .mat-mdc-form-field-infix {
+		min-width: 0 !important;
+		width: auto !important;
+		padding-left: 0 !important;
+		padding-right: 0 !important;
+	}
 
-.condition-card__inputs .comparator-select-field ::ng-deep .mat-mdc-select-arrow-wrapper {
-	padding-left: 0;
+	.condition-card__inputs .comparator-select-field ::ng-deep .mat-mdc-select-arrow-wrapper {
+		padding-left: 0;
+	}
 }
 
 .condition-card__inputs .comparator-select-field ::ng-deep .mat-mdc-form-field-subscript-wrapper {
@@ -966,6 +998,10 @@
 	top: 50%;
 	transform: translateY(-50%);
 	pointer-events: none;
+}
+
+.comparator-select-field ::ng-deep .mat-mdc-select-value {
+	padding-right: 24px;
 }
 
 .comparator-select-field ::ng-deep .mat-mdc-select-panel {

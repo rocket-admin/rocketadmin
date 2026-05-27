@@ -2,7 +2,7 @@
     <h1 mat-dialog-title class="filters-header">
         <span class="filters-header__text">
             <span class="filters-header__label">{{ data.filtersSet.id ? 'Edit fast filter' : 'New fast filter' }}</span>
-            <span class="filters-header__table">{{ data.displayTableName }}</span>
+            <span class="filters-header__table">Table: {{ data.displayTableName }}</span>
         </span>
     </h1>
     <p class="filters-header-description mat-body-2">
@@ -131,7 +131,12 @@
                                 [(ngModel)]="tableRowFieldsComparator[value.key]"
                                 (ngModelChange)="updateComparator($event, value.key)">
                                 <mat-select-trigger>
-                                    {{ {startswith: 'a…', endswith: '…a', eq: '=', contains: '∋', icontains: '∌', empty: '∅'}[tableRowFieldsComparator[value.key]] || tableRowFieldsComparator[value.key] }}
+                                    <span class="comparator-trigger__symbol">
+                                        {{ {startswith: 'a…', endswith: '…a', eq: '=', contains: '∋', icontains: '∌', empty: '∅'}[tableRowFieldsComparator[value.key]] || tableRowFieldsComparator[value.key] }}
+                                    </span>
+                                    <span class="comparator-trigger__text">
+                                        {{ {startswith: 'starts with', endswith: 'ends with', eq: 'equal', contains: 'contains', icontains: 'not contains', empty: 'is empty'}[tableRowFieldsComparator[value.key]] || tableRowFieldsComparator[value.key] }}
+                                    </span>
                                 </mat-select-trigger>
                                 <mat-option value="startswith">
                                     <mat-icon class="comparator-icon">play_arrow</mat-icon>
@@ -167,7 +172,12 @@
                                 [(ngModel)]="tableRowFieldsComparator[value.key]"
                                 (ngModelChange)="updateComparator($event, value.key)">
                                 <mat-select-trigger>
-                                    {{ {eq: '=', gt: '>', lt: '<', gte: '≥', lte: '≤'}[tableRowFieldsComparator[value.key]] || tableRowFieldsComparator[value.key] }}
+                                    <span class="comparator-trigger__symbol">
+                                        {{ {eq: '=', gt: '>', lt: '<', gte: '≥', lte: '≤'}[tableRowFieldsComparator[value.key]] || tableRowFieldsComparator[value.key] }}
+                                    </span>
+                                    <span class="comparator-trigger__text">
+                                        {{ {eq: 'equal', gt: 'greater than', lt: 'less than', gte: 'greater than or equal', lte: 'less than or equal'}[tableRowFieldsComparator[value.key]] || tableRowFieldsComparator[value.key] }}
+                                    </span>
                                 </mat-select-trigger>
                                 <mat-option value="eq">
                                     <mat-icon class="comparator-icon">drag_handle</mat-icon>
