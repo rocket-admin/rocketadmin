@@ -22,8 +22,7 @@ export interface MermaidDiagramHighlight {
 
 const ADDED_CLASS_NAME = 'addedEntity';
 const ADDED_CLASS_DEF = `    classDef ${ADDED_CLASS_NAME} fill:#d4edda,stroke:#28a745,color:#155724`;
-const ADDED_COLUMN_MARKER = 'NEW';
-const ADDED_FK_MARKER = '[NEW]';
+const ADDED_MARKER = '[NEW]';
 
 export function buildMermaidErDiagram(
 	databaseName: string | null,
@@ -60,12 +59,12 @@ export function buildMermaidErDiagram(
 			for (const column of table.structure) {
 				const dataType = toAttributeWord(column.data_type || column.udt_name || 'unknown');
 				const colName = toAttributeWord(column.column_name);
-				const markers: Array<string> = [];
-				if (pkColumnNames.has(column.column_name)) markers.push('PK');
-				if (fkColumnNames.has(column.column_name)) markers.push('FK');
-				if (tableAddedCols.has(normalizeIdent(column.column_name))) markers.push(ADDED_COLUMN_MARKER);
-				const comment = buildColumnComment(column);
-				const tail = [markers.join(','), comment].filter((p) => p && p.length > 0).join(' ');
+				const keyMarkers: Array<string> = [];
+				if (pkColumnNames.has(column.column_name)) keyMarkers.push('PK');
+				if (fkColumnNames.has(column.column_name)) keyMarkers.push('FK');
+				const isAdded = tableAddedCols.has(normalizeIdent(column.column_name));
+				const comment = buildColumnComment(column, isAdded);
+				const tail = [keyMarkers.join(','), comment].filter((p) => p && p.length > 0).join(' ');
 				lines.push(`        ${dataType} ${colName}${tail ? ' ' + tail : ''}`);
 			}
 		}
@@ -80,7 +79,7 @@ export function buildMermaidErDiagram(
 			const targetAlias = aliasByTable.get(fk.referenced_table_name);
 			if (!targetAlias) continue;
 			const isAdded = tableAddedFks.has(fkKey(fk));
-			const labelText = `${sanitizeQuotedText(fk.column_name)} -> ${sanitizeQuotedText(fk.referenced_column_name)}${isAdded ? ' ' + ADDED_FK_MARKER : ''}`;
+			const labelText = `${sanitizeQuotedText(fk.column_name)} -> ${sanitizeQuotedText(fk.referenced_column_name)}${isAdded ? ' ' + ADDED_MARKER : ''}`;
 			lines.push(`    ${sourceAlias} }o--|| ${targetAlias} : "${labelText}"`);
 			relationshipCount++;
 		}
@@ -154,7 +153,7 @@ function pluralize(n: number, singular: string, plural: string): string {
 	return n === 1 ? singular : plural;
 }
 
-function buildColumnComment(column: TableStructureDS): string {
+function buildColumnComment(column: TableStructureDS, isAdded: boolean): string {
 	const parts: Array<string> = [];
 	if (column.column_default !== null && column.column_default !== undefined && column.column_default !== '') {
 		parts.push(`default: ${String(column.column_default)}`);
@@ -162,6 +161,9 @@ function buildColumnComment(column: TableStructureDS): string {
 	parts.push(column.allow_null ? 'nullable' : 'not null');
 	if (column.character_maximum_length) {
 		parts.push(`max length: ${column.character_maximum_length}`);
+	}
+	if (isAdded) {
+		parts.push(ADDED_MARKER);
 	}
 	const text = parts.join('; ');
 	return text ? `"${sanitizeQuotedText(text)}"` : '';
