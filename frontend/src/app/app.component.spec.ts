@@ -261,6 +261,14 @@ describe('AppComponent', () => {
 	});
 
 	it('should handle user login flow when cast emits user with expires', async () => {
+		// AppComponent schedules a setTimeout to log the user out when the token expires. If
+		// fixture.whenStable() waits longer than that timer (e.g. while a stray HTTP request
+		// from a transitively-injected service settles), the callback fires and resets
+		// userLoggedIn back to null. Swap setTimeout for a no-op so the timer can't fire.
+		const setTimeoutSpy = vi
+			.spyOn(window, 'setTimeout')
+			.mockImplementation(() => 1 as unknown as ReturnType<typeof setTimeout>);
+
 		mockCompanyService.getWhiteLabelProperties.mockReturnValue(of({ logo: '', favicon: '' }));
 		mockUiSettingsService.getUiSettings.mockReturnValue(
 			of({ globalSettings: { lastFeatureNotificationId: 'old-id' } }),
@@ -285,6 +293,8 @@ describe('AppComponent', () => {
 		expect(mockCompanyService.getWhiteLabelProperties).toHaveBeenCalledWith('company-12345678');
 		expect(mockUiSettingsService.getUiSettings).toHaveBeenCalled();
 		expect(app.isFeatureNotificationShown).toBe(true);
+
+		setTimeoutSpy.mockRestore();
 	});
 
 	it('should restore session and log out after token expiration', async () => {
