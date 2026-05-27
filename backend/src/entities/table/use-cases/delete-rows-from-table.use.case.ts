@@ -117,7 +117,7 @@ export class DeleteRowsFromTableUseCase
 		} catch (error) {
 			throw new HttpException(
 				{
-					message: Messages.BULK_DELETE_FAILED_GET_ROWS([error.message]),
+					message: Messages.BULK_DELETE_FAILED_GET_ROWS([(error as Error).message]),
 				},
 				HttpStatus.INTERNAL_SERVER_ERROR,
 			);
@@ -143,7 +143,7 @@ export class DeleteRowsFromTableUseCase
 					operationStatusResult: OperationResultStatusEnum.unsuccessfully,
 					row: primaryKey,
 					old_data: findObjectsWithProperties(oldRowsData, primaryKey).at(0),
-					error: error.message,
+					error: (error as Error).message,
 					affected_primary_key: primaryKey as unknown as string,
 				});
 			});

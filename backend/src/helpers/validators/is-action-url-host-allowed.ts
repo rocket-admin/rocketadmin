@@ -37,7 +37,7 @@ export async function isActionUrlHostAllowed(url: string): Promise<boolean> {
 			});
 		});
 	} catch (e) {
-		console.error('Invalid URL format for action URL validation:', e.message);
+		console.error('Invalid URL format for action URL validation:', (e as Error).message);
 		return false;
 	}
 }

@@ -194,10 +194,10 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
 			operationResult = OperationResultStatusEnum.unsuccessfully;
 			throw new HttpException(
 				{
-					message: e.message.includes('duplicate key value')
+					message: (e as Error).message.includes('duplicate key value')
 						? Messages.CANT_INSERT_DUPLICATE_KEY
 						: `${Messages.FAILED_ADD_ROW_IN_TABLE}
-         ${Messages.ERROR_MESSAGE} ${e.message} ${Messages.TRY_AGAIN_LATER}`,
+         ${Messages.ERROR_MESSAGE} ${(e as Error).message} ${Messages.TRY_AGAIN_LATER}`,
 				},
 				HttpStatus.BAD_REQUEST,
 			);

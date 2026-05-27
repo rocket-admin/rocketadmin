@@ -276,7 +276,7 @@ export class AppConfig {
 					fs.accessSync(resolvedPath, fs.constants.W_OK);
 					console.log('PGLite directory is writable');
 				} catch (writeError) {
-					console.warn('PGLite directory exists but may not be writable:', writeError.message);
+					console.warn('PGLite directory exists but may not be writable:', (writeError as Error).message);
 				}
 			} catch (error) {
 				console.log('PGLite directory does not exist, will be created by PGLite', error);

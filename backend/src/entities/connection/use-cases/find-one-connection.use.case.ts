@@ -67,7 +67,7 @@ export class FindOneConnectionUseCase
 			return Object.keys(connection).reduce((acc, key) => {
 				if (allowedKeys.includes(key)) {
 					// eslint-disable-next-line security/detect-object-injection
-					acc[key] = connection[key];
+					(acc as Record<string, unknown>)[key] = (connection as unknown as Record<string, unknown>)[key];
 				}
 				return acc;
 			}, {} as FilteredConnection);

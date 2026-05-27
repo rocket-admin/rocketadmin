@@ -103,7 +103,7 @@ export class GetTableStructureWithoutCacheUseCase
 			if (e instanceof HttpException) {
 				throw e;
 			}
-			throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_TABLE_STRUCTURE);
+			throw new UnknownSQLException((e as Error).message, ExceptionOperations.FAILED_TO_GET_TABLE_STRUCTURE);
 		}
 	}
 }

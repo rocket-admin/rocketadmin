@@ -43,7 +43,8 @@ export class TurnstileService {
 			}
 		} catch (error) {
 			if (error instanceof BadRequestException) throw error;
-			console.error('Turnstile verification error:', error?.response?.data || error?.message || error);
+			const err = error as { response?: { data?: unknown }; message?: string };
+			console.error('Turnstile verification error:', err?.response?.data || err?.message || error);
 			throw new BadRequestException('Turnstile verification failed. Please try again.');
 		}
 

@@ -2,7 +2,7 @@ export const CEDAR_SCHEMA = {
 	RocketAdmin: {
 		entityTypes: {
 			User: {
-				memberOfTypes: [],
+				memberOfTypes: [] as string[],
 				shape: {
 					type: 'Record',
 					attributes: {
@@ -11,7 +11,7 @@ export const CEDAR_SCHEMA = {
 				},
 			},
 			Group: {
-				memberOfTypes: [],
+				memberOfTypes: [] as string[],
 				shape: {
 					type: 'Record',
 					attributes: {
@@ -21,7 +21,7 @@ export const CEDAR_SCHEMA = {
 				},
 			},
 			Connection: {
-				memberOfTypes: [],
+				memberOfTypes: [] as string[],
 				shape: {
 					type: 'Record',
 					attributes: {},

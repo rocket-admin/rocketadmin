@@ -119,7 +119,7 @@ export class ExportCSVFromTableUseCase
 			}
 			// todo: temporary debug log
 			await slackPostMessage(`
-        CSV Export Failed with error: ${error.message}\n
+        CSV Export Failed with error: ${(error as Error).message}\n
         Connection type: ${connection.type}\n
         SSH Option: ${connection.ssh}\n
         SSL Option: ${connection.ssl}\n
@@ -127,7 +127,7 @@ export class ExportCSVFromTableUseCase
 			throw new HttpException(
 				{
 					message: Messages.CSV_EXPORT_FAILED,
-					originalMessage: error.message,
+					originalMessage: (error as Error).message,
 				},
 				HttpStatus.INTERNAL_SERVER_ERROR,
 			);

@@ -42,6 +42,6 @@ export async function executeCassandraDdl(connection: CassandraExecutionConnecti
 		await client.connect();
 		await client.execute(cql);
 	} finally {
-		await client.shutdown().catch(() => undefined);
+		await client.shutdown().catch((): void => undefined);
 	}
 }

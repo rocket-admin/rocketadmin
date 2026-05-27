@@ -134,7 +134,7 @@ export class GetRowByPrimaryKeyUseCase
 		try {
 			rowData = await dao.getRowByPrimaryKey(tableName, primaryKey, builtDAOsTableSettings, userEmail);
 		} catch (e) {
-			throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_ROW_BY_PRIMARY_KEY);
+			throw new UnknownSQLException((e as Error).message, ExceptionOperations.FAILED_TO_GET_ROW_BY_PRIMARY_KEY);
 		}
 
 		if (!rowData) {

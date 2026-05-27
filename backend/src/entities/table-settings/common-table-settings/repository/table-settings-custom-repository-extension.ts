@@ -54,7 +54,7 @@ export const tableSettingsCustomRepositoryExtension: ITableSettingsRepository = 
 		try {
 			return await qb.getOne();
 		} catch (e) {
-			console.info(`Table setting not found exception. => `, e.message);
+			console.info(`Table setting not found exception. => `, (e as Error).message);
 			throw new HttpException(
 				{
 					message: Messages.TABLE_SETTINGS_NOT_FOUND,
