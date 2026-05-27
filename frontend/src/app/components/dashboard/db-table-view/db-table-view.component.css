@@ -2,6 +2,43 @@
 	display: none;
 }
 
+.pull-refresh-indicator {
+	display: none;
+}
+
+@media (width <= 600px) {
+	.pull-refresh-indicator {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 0;
+		overflow: hidden;
+		transition: height 150ms ease;
+	}
+
+	.pull-refresh-indicator__icon {
+		opacity: 0.6;
+		transition: transform 100ms linear;
+	}
+
+	.pull-refresh-indicator__icon_spinning {
+		animation: pullRefreshSpin 700ms linear infinite;
+	}
+
+	.refresh-button {
+		display: none !important;
+	}
+}
+
+@keyframes pullRefreshSpin {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+
 .db-table-header {
 	display: flex;
 	justify-content: flex-end;
@@ -257,6 +294,16 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+	margin-right: auto;
+}
+
+.table-sheet__item-icon {
+	font-size: 22px;
+	width: 22px;
+	height: 22px;
+	flex: 0 0 auto;
+	margin-right: 12px;
+	opacity: 0.7;
 }
 
 .table-sheet__item-check {

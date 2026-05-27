@@ -1,3 +1,13 @@
+<div class="pull-refresh-indicator"
+    [class.pull-refresh-indicator_active]="pullDistance > 0 || pullRefreshing"
+    [style.height.px]="pullRefreshing ? 44 : pullDistance">
+    <mat-icon class="pull-refresh-indicator__icon"
+        [class.pull-refresh-indicator__icon_spinning]="pullRefreshing"
+        [style.transform]="pullRefreshing ? null : 'rotate(' + (pullDistance * 3) + 'deg)'">
+        refresh
+    </mat-icon>
+</div>
+
 <div class="db-table-header" #focus>
     <div class="db-table-title">
         <h2 class="mat-h2 table-name">{{ displayName }}</h2>
@@ -7,7 +17,7 @@
             <mat-icon iconPositionEnd class="table-switcher__chevron">arrow_drop_down</mat-icon>
         </button>
 
-        <button type="button" mat-icon-button (click)="loadRowsPage()">
+        <button type="button" mat-icon-button class="refresh-button" (click)="loadRowsPage()">
             <mat-icon>refresh</mat-icon>
         </button>
     </div>
@@ -129,10 +139,10 @@
                 <button mat-icon-button type="button"
                     *ngIf="canEditConnection() && tableData && (tableData.isImportAllowed || tableData.isExportAllowed)"
                     matTooltip="Import / Export"
-                    [matMenuTriggerFor]="transferDataMenu"
+                    [matMenuTriggerFor]="isMobileView ? null : transferDataMenu"
                     angulartics2On="click"
                     angularticsAction="Dashboard: settings dropdown is clicked"
-                    (click)="posthog.capture('Dashboard: settings dropdown is clicked')">
+                    (click)="isMobileView && openTransferSheet(); posthog.capture('Dashboard: settings dropdown is clicked')">
                     <mat-icon fontSet="material-symbols-outlined">swap_vert</mat-icon>
                 </button>
                 <mat-menu #transferDataMenu="matMenu">
@@ -572,5 +582,34 @@
                 </mat-checkbox>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Import / Export bottom sheet -->
+<div *ngIf="transferSheetOpen" class="table-sheet-backdrop" (click)="closeTransferSheet()"></div>
+<div *ngIf="transferSheetOpen" class="table-sheet">
+    <div class="table-sheet__handle" aria-hidden="true"></div>
+    <div class="table-sheet__header">
+        <span class="table-sheet__title">Import / Export</span>
+        <button type="button" mat-icon-button (click)="closeTransferSheet()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <div class="table-sheet__list" *ngIf="tableData">
+        <button type="button" class="table-sheet__item" *ngIf="tableData.isImportAllowed"
+            angulartics2On="click"
+            angularticsAction="Dashboard: import is clicked"
+            (click)="closeTransferSheet(); handleOpenImportDialog(); posthog.capture('Dashboard: import is clicked')">
+            <mat-icon class="table-sheet__item-icon" fontSet="material-symbols-outlined">upload</mat-icon>
+            <span class="table-sheet__item-name">Import</span>
+        </button>
+        <button type="button" class="table-sheet__item" *ngIf="tableData.isExportAllowed"
+            angulartics2On="click"
+            angularticsAction="Dashboard: export is clicked"
+            (click)="closeTransferSheet(); handleOpenExportDialog(); posthog.capture('Dashboard: export is clicked')">
+            <mat-icon class="table-sheet__item-icon" fontSet="material-symbols-outlined">download</mat-icon>
+            <span class="table-sheet__item-name">Export</span>
+        </button>
     </div>
 </div>

@@ -108,8 +108,8 @@
 	justify-content: space-between;
 	padding-top: 20px;
 	padding-bottom: 20px;
-	padding-left: 16px;
-	padding-right: 16px;
+	padding-left: 20px;
+	padding-right: 12px;
 	z-index: 1;
 }
 
@@ -129,7 +129,7 @@
 	flex-direction: column;
 	align-items: flex-start;
 	gap: 4px;
-	padding: 12px 16px;
+	padding: 12px 20px;
 }
 
 .row-preview-sidebar__field:not(:last-child) {
@@ -148,12 +148,13 @@
 }
 
 .related-records-section {
-	margin: 8px 4px 0;
+	margin: 8px 0 0;
+	padding: 0 20px;
 }
 
 .related-records-section__title {
 	margin: 0 0 4px !important;
-	padding: 0 12px;
+	padding: 0;
 	font-size: 12px !important;
 	font-weight: 600 !important;
 	line-height: 1.4 !important;

@@ -7,6 +7,7 @@ import {
 	Component,
 	computed,
 	EventEmitter,
+	HostListener,
 	Input,
 	inject,
 	OnChanges,
@@ -371,6 +372,16 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 		this.columnsSheetOpen = false;
 	}
 
+	public transferSheetOpen = false;
+
+	openTransferSheet() {
+		this.transferSheetOpen = true;
+	}
+
+	closeTransferSheet() {
+		this.transferSheetOpen = false;
+	}
+
 	get sortableDataColumns(): string[] {
 		return (this.tableData?.displayedDataColumns || []).filter((c: string) => this.isSortable(c));
 	}
@@ -422,6 +433,49 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 			search: this.searchString,
 			isTablePageSwitched: true,
 		});
+	}
+
+	public pullDistance = 0;
+	public pullRefreshing = false;
+	private _pullStartY = 0;
+	private _pullTracking = false;
+	private readonly _pullThreshold = 70;
+
+	@HostListener('touchstart', ['$event'])
+	onPullTouchStart(event: TouchEvent) {
+		if (!this.isMobileView || this.pullRefreshing) return;
+		const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+		if (scrollTop > 0) return;
+		this._pullStartY = event.touches[0].clientY;
+		this._pullTracking = true;
+	}
+
+	@HostListener('touchmove', ['$event'])
+	onPullTouchMove(event: TouchEvent) {
+		if (!this._pullTracking || this.pullRefreshing) return;
+		const delta = event.touches[0].clientY - this._pullStartY;
+		if (delta <= 0) {
+			this.pullDistance = 0;
+			return;
+		}
+		this.pullDistance = Math.min(delta * 0.5, this._pullThreshold + 20);
+	}
+
+	@HostListener('touchend')
+	onPullTouchEnd() {
+		if (!this._pullTracking) return;
+		this._pullTracking = false;
+		if (this.pullDistance >= this._pullThreshold) {
+			this.pullRefreshing = true;
+			this.pullDistance = this._pullThreshold;
+			this.loadRowsPage();
+			setTimeout(() => {
+				this.pullRefreshing = false;
+				this.pullDistance = 0;
+			}, 800);
+		} else {
+			this.pullDistance = 0;
+		}
 	}
 
 	isSortable(column: string) {

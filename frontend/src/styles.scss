@@ -232,3 +232,11 @@ body {
     }
 }
 
+
+@media (width <= 600px) {
+    /* Hide cell copy buttons on mobile — invisible (no hover) but still
+       tappable, causing accidental copies instead of opening row preview. */
+    app-db-table-view .field-copy-button {
+        display: none !important;
+    }
+}
