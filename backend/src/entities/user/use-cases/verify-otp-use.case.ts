@@ -6,6 +6,7 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { OtpValidationResultDS } from '../application/data-structures/otp-validation-result.ds.js';
 import { VerifyOtpDS } from '../application/data-structures/verify-otp.ds.js';
+import { legacyOtpGuardrails } from '../utils/otp-guardrails.js';
 import { IVerifyOTP } from './user-use-cases.interfaces.js';
 
 @Injectable()
@@ -48,7 +49,11 @@ export class VerifyOtpUseCase extends AbstractUseCase<VerifyOtpDS, OtpValidation
 			);
 		}
 		try {
-			const isValid = verifySync({ token: otpToken, secret: otpSecretKey }).valid;
+			const isValid = verifySync({
+				token: otpToken,
+				secret: otpSecretKey,
+				guardrails: legacyOtpGuardrails,
+			}).valid;
 			if (isValid) {
 				foundUser.isOTPEnabled = true;
 				await this._dbContext.userRepository.saveUserEntity(foundUser);
