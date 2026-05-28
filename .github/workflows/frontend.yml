@@ -1,31 +1,56 @@
 name: frontend
+
 on:
   push:
     branches:
-    - main
-    # Publish semver tags as releases
-    tags: [ '*.*.*' ]
+      - main
+    tags:
+      - '*.*.*'
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend.yml'
   pull_request:
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend.yml'
+
+concurrency:
+  group: frontend-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: frontend
+
+# TODO: add a lint job once ESLint migration replaces the (already-removed in
+# @angular-devkit/build-angular v20) `tslint` builder that `yarn lint` calls.
+
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.57.0-noble
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - run: cd frontend && yarn install
-      - name: Install Playwright browsers
-        run: cd frontend && yarn playwright install
-      - name: run tests
-        run: cd frontend && yarn test
+          cache: 'yarn'
+          cache-dependency-path: frontend/yarn.lock
+      - run: yarn install --immutable
+      - name: Run unit tests
+        run: yarn test:ci
+
   license:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
         with:
-          node-version: '16'
-      - uses: extractions/setup-just@v1
+          node-version: '24'
+          cache: 'yarn'
+          cache-dependency-path: frontend/yarn.lock
       - name: license checker
-        run: 'cd frontend && npx license-checker --onlyAllow="MIT;ISC;Python-2.0;Apache-2.0;BSD;MPL;CC;Custom: http://github.com/dscape/statsd-parser;" --excludePrivatePackages'
+        run: 'npx --yes license-checker --onlyAllow="MIT;ISC;Python-2.0;Apache-2.0;BSD;MPL;CC;Custom: http://github.com/dscape/statsd-parser;" --excludePrivatePackages'
