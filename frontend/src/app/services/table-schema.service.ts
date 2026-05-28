@@ -54,6 +54,10 @@ export interface SchemaChangeResponse {
 	createdAt: string;
 	appliedAt: string | null;
 	rolledBackAt: string | null;
+	aiAutoFixApplied?: boolean;
+	aiAutoFixOriginalForwardSql?: string | null;
+	aiAutoFixOriginalRollbackSql?: string | null;
+	aiAutoFixOriginalError?: string | null;
 }
 
 export interface SchemaChangeBatchResponse {

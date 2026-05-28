@@ -207,12 +207,20 @@ export class EditDatabaseSchemaComponent implements OnInit {
 					]);
 				} else {
 					this.applied.set(true);
+					const autoFixed = result.changes.filter((c) => c.aiAutoFixApplied);
+					const successText =
+						autoFixed.length > 0
+							? `All changes applied successfully! ${autoFixed.length} statement(s) needed an AI repair before they could be applied — the originals failed against the database (e.g. ${autoFixed
+									.map((c) => `${c.targetTableName}: ${this._summarizeError(c.aiAutoFixOriginalError)}`)
+									.slice(0, 2)
+									.join('; ')}).`
+							: 'All changes applied successfully! Your tables have been created.';
 					this.messages.update((msgs) =>
 						msgs
 							.map((m) => (m === batch ? { ...m, batchId: undefined } : m))
 							.concat({
 								role: 'ai',
-								text: 'All changes applied successfully! Your tables have been created.',
+								text: successText,
 							}),
 					);
 					this._loadDiagram('Updated Database Structure');
@@ -279,6 +287,12 @@ export class EditDatabaseSchemaComponent implements OnInit {
 		} finally {
 			this.initialDiagramLoading.set(false);
 		}
+	}
+
+	private _summarizeError(err: string | null | undefined): string {
+		if (!err) return 'unknown error';
+		const compact = err.replace(/\s+/g, ' ').trim();
+		return compact.length > 120 ? `${compact.slice(0, 120)}…` : compact;
 	}
 
 	private _mermaidHasEntities(source: string): boolean {

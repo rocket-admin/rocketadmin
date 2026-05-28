@@ -88,6 +88,18 @@ export class TableSchemaChangeEntity {
 	@Column({ type: 'varchar', length: 128, nullable: true })
 	aiModelUsed: string | null;
 
+	@Column({ type: 'boolean', default: false })
+	aiAutoFixApplied: boolean;
+
+	@Column({ type: 'text', nullable: true })
+	aiAutoFixOriginalForwardSql: string | null;
+
+	@Column({ type: 'text', nullable: true })
+	aiAutoFixOriginalRollbackSql: string | null;
+
+	@Column({ type: 'text', nullable: true })
+	aiAutoFixOriginalError: string | null;
+
 	@Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
 	createdAt: Date;
 
