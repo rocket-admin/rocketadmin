@@ -9,6 +9,7 @@
 
 # dependencies
 /node_modules
+.yarn/
 
 # profiling files
 chrome-profiler-events*.json
