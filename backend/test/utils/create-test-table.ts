@@ -7,7 +7,10 @@ import { Client } from '@elastic/elasticsearch';
 import { faker } from '@faker-js/faker';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import * as cassandra from 'cassandra-driver';
-import ibmdb from 'ibm_db';
+import * as ibmdbNs from 'ibm_db';
+
+const ibmdb = ibmdbNs.default as unknown as (options?: import('ibm_db').Options) => import('ibm_db').Database;
+
 import { MongoClient } from 'mongodb';
 import { createClient } from 'redis';
 import { v4 as uuidv4 } from 'uuid';
@@ -644,7 +647,7 @@ async function createTestDynamoDBTable(
 	try {
 		await dynamoDb.createTable(params);
 	} catch (error) {
-		console.error(`Error creating dynamodb table: ${error.message}`);
+		console.error(`Error creating dynamodb table: ${(error as Error).message}`);
 	}
 	const insertedSearchedIds: Array<{ number: number; id: string }> = [];
 	const documentClient = DynamoDBDocumentClient.from(dynamoDb);
@@ -695,7 +698,7 @@ async function createTestDynamoDBTable(
 			}
 		}
 	} catch (error) {
-		console.error(`Error inserting item into dynamodb table: ${error.message}`);
+		console.error(`Error inserting item into dynamodb table: ${(error as Error).message}`);
 		throw error;
 	}
 
@@ -759,7 +762,7 @@ async function createTestCassandraTable(
 				`CREATE TABLE IF NOT EXISTS ${testTableName} (id UUID, ${testTableColumnName} TEXT, ${testTableSecondColumnName} TEXT, age INT, created_at TIMESTAMP, updated_at TIMESTAMP, PRIMARY KEY (id, age))`,
 			);
 		} catch (error) {
-			console.error(`Error creating Cassandra table: ${error.message}`);
+			console.error(`Error creating Cassandra table: ${(error as Error).message}`);
 			throw error;
 		}
 		const insertedSearchedIds: Array<{ number: number; id: string }> = [];
@@ -797,7 +800,7 @@ async function createTestCassandraTable(
 				await Promise.all(chunk.map((params) => client.execute(query, params, { prepare: true })));
 			}
 		} catch (error) {
-			console.error(`Error inserting into Cassandra table: ${error.message}`);
+			console.error(`Error inserting into Cassandra table: ${(error as Error).message}`);
 			throw error;
 		}
 		return {

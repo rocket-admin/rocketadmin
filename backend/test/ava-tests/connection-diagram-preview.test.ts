@@ -212,7 +212,7 @@ test('buildMermaidErDiagram: highlight tags new columns with NEW marker', (t) =>
 		addedColumns: new Map([['users', new Set(['nickname'])]]),
 		addedForeignKeys: new Map(),
 	});
-	t.regex(diagram, /varchar nickname[^"\n]*NEW/);
+	t.regex(diagram, /varchar nickname[^\n]*\[NEW\]"/);
 });
 
 test('buildMermaidErDiagram: highlight tags new FK relationships with [NEW]', (t) => {

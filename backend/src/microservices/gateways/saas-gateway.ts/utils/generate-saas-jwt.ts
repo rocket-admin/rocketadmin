@@ -1,12 +1,15 @@
 import jwt from 'jsonwebtoken';
-import { getRequiredEnvVariable } from '../../../../helpers/app/get-requeired-env-variable.js';
+import { appConfig } from '../../../../shared/config/app-config.js';
 import { generateRequestId } from './generate-request-id.js';
 
 export function generateSaaSJwt(): string {
 	const today = new Date();
 	const exp = new Date(today);
 	exp.setDate(today.getDate() + 60);
-	const secret = getRequiredEnvVariable('MICROSERVICE_JWT_SECRET');
+	const secret = appConfig.auth.microserviceJwtSecret;
+	if (!secret) {
+		throw new Error('Environment variable MICROSERVICE_JWT_SECRET is not set');
+	}
 	const requestId = generateRequestId();
 	return jwt.sign(
 		{

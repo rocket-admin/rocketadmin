@@ -34,7 +34,7 @@ export class SchemaChangeOwnershipGuard implements CanActivate {
 
 		const change = await this.tableSchemaChangeRepository.findOne({
 			where: { id: changeId },
-			select: ['id', 'connectionId'],
+			select: { id: true, connectionId: true },
 		});
 		if (!change) {
 			throw new NotFoundException('Schema change not found.');

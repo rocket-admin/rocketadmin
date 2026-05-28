@@ -8,7 +8,7 @@ export class CreateTableSettingsDto {
 	search_fields: string[];
 	excluded_fields: string[];
 	identification_fields: string[];
-	identity_column;
+	identity_column?: string;
 	readonly_fields: string[];
 	sortable_by: string[];
 	autocomplete_columns: string[];

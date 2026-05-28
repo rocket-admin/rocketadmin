@@ -122,7 +122,7 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
 			email: invitedUserEmail,
 			role: invitedUserCompanyRole,
 		};
-		if (process.env.NODE_ENV === 'test') {
+		if (isTest()) {
 			invitationRO.verificationString = rawToken;
 		}
 		return invitationRO;

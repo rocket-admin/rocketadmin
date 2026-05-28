@@ -5,6 +5,7 @@ import { cleanAIJsonResponse } from '../../ai-core/tools/query-validators.js';
 import { QueryOrderingEnum } from '../../enums/query-ordering.enum.js';
 import { WidgetTypeEnum } from '../../enums/widget-type.enum.js';
 import { checkFieldAutoincrement } from '../../helpers/check-field-autoincrement.js';
+import { getErrorMessage } from '../../helpers/get-error-message.js';
 import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
 import { TableWidgetEntity } from '../widget/table-widget.entity.js';
 import { TableInformation } from './ai-data-entities/types/ai-module-types.js';
@@ -78,13 +79,13 @@ export class AiService {
 				const batchSettings = await this.processTablesBatch(batch);
 				allSettings.push(...batchSettings);
 			} catch (error) {
-				console.warn(`Batch processing failed, falling back to individual table processing: ${error.message}`);
+				console.warn(`Batch processing failed, falling back to individual table processing: ${getErrorMessage(error)}`);
 				for (const tableInfo of batch) {
 					try {
 						const singleTableSettings = await this.processTablesBatch([tableInfo]);
 						allSettings.push(...singleTableSettings);
 					} catch (singleError) {
-						console.error(`Error processing AI for table "${tableInfo.table_name}": ${singleError.message}`);
+						console.error(`Error processing AI for table "${tableInfo.table_name}": ${getErrorMessage(singleError)}`);
 					}
 				}
 			}
@@ -289,7 +290,7 @@ IMPORTANT:
 		try {
 			return JSON.parse(cleanedResponse) as AIResponse;
 		} catch (error) {
-			throw new Error(`Failed to parse AI response for tables [${tableNames.join(', ')}]: ${error.message}`);
+			throw new Error(`Failed to parse AI response for tables [${tableNames.join(', ')}]: ${getErrorMessage(error)}`);
 		}
 	}
 

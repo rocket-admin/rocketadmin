@@ -29,7 +29,7 @@ import { FindPersonalTableSettingsUseCase } from './use-cases/find-personal-tabl
 	exports: [],
 })
 export class PersonalTableSettingsModule {
-	public configure(consumer: MiddlewareConsumer): any {
+	public configure(consumer: MiddlewareConsumer): void {
 		consumer
 			.apply(AuthMiddleware)
 			.forRoutes(

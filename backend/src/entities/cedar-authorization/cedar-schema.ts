@@ -2,7 +2,7 @@ export const CEDAR_SCHEMA = {
 	RocketAdmin: {
 		entityTypes: {
 			User: {
-				memberOfTypes: [],
+				memberOfTypes: [] as string[],
 				shape: {
 					type: 'Record',
 					attributes: {
@@ -11,7 +11,7 @@ export const CEDAR_SCHEMA = {
 				},
 			},
 			Group: {
-				memberOfTypes: [],
+				memberOfTypes: [] as string[],
 				shape: {
 					type: 'Record',
 					attributes: {
@@ -21,7 +21,7 @@ export const CEDAR_SCHEMA = {
 				},
 			},
 			Connection: {
-				memberOfTypes: [],
+				memberOfTypes: [] as string[],
 				shape: {
 					type: 'Record',
 					attributes: {},
@@ -33,6 +33,16 @@ export const CEDAR_SCHEMA = {
 					type: 'Record',
 					attributes: {
 						connectionId: { type: 'String' },
+					},
+				},
+			},
+			ActionEvent: {
+				memberOfTypes: ['Table'],
+				shape: {
+					type: 'Record',
+					attributes: {
+						connectionId: { type: 'String' },
+						tableName: { type: 'String' },
 					},
 				},
 			},
@@ -114,6 +124,12 @@ export const CEDAR_SCHEMA = {
 				appliesTo: {
 					principalTypes: ['User'],
 					resourceTypes: ['Table'],
+				},
+			},
+			'actionEvent:trigger': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['ActionEvent'],
 				},
 			},
 			'dashboard:read': {

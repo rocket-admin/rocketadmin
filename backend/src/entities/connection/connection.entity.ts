@@ -13,6 +13,7 @@ import {
 	PrimaryColumn,
 	Relation,
 } from 'typeorm';
+import { isTest } from '../../helpers/app/is-test.js';
 import { Encryptor } from '../../helpers/encryption/encryptor.js';
 import { isConnectionTypeAgent } from '../../helpers/is-connection-entity-agent.js';
 import { AgentEntity } from '../agent/agent.entity.js';
@@ -154,7 +155,7 @@ export class ConnectionEntity {
 			this.id = nanoid(8);
 		}
 		this.signing_key = Encryptor.generateRandomString(40);
-		if (process.env.NODE_ENV === 'test') {
+		if (isTest()) {
 			this.signing_key = 'test';
 		}
 		if (!isConnectionTypeAgent(this.type)) {

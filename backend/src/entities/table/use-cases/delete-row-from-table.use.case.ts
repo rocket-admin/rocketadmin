@@ -13,6 +13,7 @@ import { ExceptionOperations } from '../../../exceptions/custom-exceptions/excep
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { compareArrayElements } from '../../../helpers/compare-array-elements.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util.js';
 import { TableActionActivationService } from '../../table-actions/table-actions-module/table-action-activation.service.js';
@@ -119,7 +120,7 @@ export class DeleteRowFromTableUseCase
 		try {
 			oldRowData = await dao.getRowByPrimaryKey(tableName, primaryKey, builtTableSettings, userEmail);
 		} catch (e) {
-			throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_DELETE_ROW_FROM_TABLE);
+			throw new UnknownSQLException(getErrorMessage(e), ExceptionOperations.FAILED_TO_DELETE_ROW_FROM_TABLE);
 		}
 
 		if (!oldRowData) {
@@ -139,7 +140,7 @@ export class DeleteRowFromTableUseCase
 			};
 		} catch (e) {
 			operationResult = OperationResultStatusEnum.unsuccessfully;
-			throw new DeleteRowException(e.message);
+			throw new DeleteRowException(getErrorMessage(e));
 		} finally {
 			const logRecord = {
 				table_name: tableName,

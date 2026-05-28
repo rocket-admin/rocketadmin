@@ -19,6 +19,7 @@ import { tableSettingsFieldValidator } from '../../helpers/validation/table-sett
 import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
 import { QueryOrderingEnum } from '../../shared/enums/query-ordering.enum.js';
 import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
+import { MulterFile } from '../../types/multer-file.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
 import { ForeignKeyDS } from '../shared/data-structures/foreign-key.ds.js';
@@ -660,7 +661,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
 		return result.data as any;
 	}
 
-	public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
+	public async importCSVInTable(file: MulterFile, tableName: string): Promise<void> {
 		const fileStream = new Stream.PassThrough();
 		fileStream.end(file.buffer);
 

@@ -30,7 +30,7 @@ export class FindSignInAuditLogsUseCase
 
 		const user = await this._dbContext.userRepository.findOne({
 			where: { id: userId },
-			relations: ['company'],
+			relations: { company: true },
 		});
 
 		if (!user || user.company?.id !== companyId) {

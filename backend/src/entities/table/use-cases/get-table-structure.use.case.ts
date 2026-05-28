@@ -8,16 +8,17 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
+import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { buildFoundTableWidgetDs } from '../../widget/utils/build-found-table-widget-ds.js';
 import { GetTableStructureDs } from '../application/data-structures/get-table-structure-ds.js';
 import { TableStructureDs } from '../table-datastructures.js';
-import { formFullTableStructure } from '../utils/form-full-table-structure.js';
-import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
-import { IGetTableStructure } from './table-use-cases.interface.js';
-import { validateConnection, getUserEmailForAgent } from '../utils/validate-connection.util.js';
+import { attachForeignColumnNames } from '../utils/attach-foreign-column-names.util.js';
 import { extractForeignKeysFromWidgets } from '../utils/extract-foreign-keys-from-widgets.util.js';
 import { filterForeignKeysByReadPermission } from '../utils/filter-foreign-keys-by-permission.util.js';
-import { attachForeignColumnNames } from '../utils/attach-foreign-column-names.util.js';
+import { formFullTableStructure } from '../utils/form-full-table-structure.js';
+import { getUserEmailForAgent, validateConnection } from '../utils/validate-connection.util.js';
+import { IGetTableStructure } from './table-use-cases.interface.js';
 
 @Injectable()
 export class GetTableStructureUseCase
@@ -70,14 +71,21 @@ export class GetTableStructureUseCase
 			tableForeignKeys = tableForeignKeys.concat(foreignKeysFromWidgets);
 			let transformedTableForeignKeys: Array<ForeignKeyWithAutocompleteColumnsDS> = [];
 			tableForeignKeys = await filterForeignKeysByReadPermission(
-				tableForeignKeys, userId, connectionId, masterPwd, this.cedarPermissions,
+				tableForeignKeys,
+				userId,
+				connectionId,
+				masterPwd,
+				this.cedarPermissions,
 			);
 
 			if (tableForeignKeys && tableForeignKeys.length > 0) {
 				transformedTableForeignKeys = await Promise.all(
 					tableForeignKeys.map((el) =>
 						attachForeignColumnNames(
-							el, userEmail, connectionId, dao,
+							el,
+							userEmail,
+							connectionId,
+							dao,
 							this._dbContext.tableSettingsRepository.findTableSettings.bind(this._dbContext.tableSettingsRepository),
 						).catch(() => el as ForeignKeyWithAutocompleteColumnsDS),
 					),
@@ -99,7 +107,7 @@ export class GetTableStructureUseCase
 			if (e instanceof HttpException) {
 				throw e;
 			}
-			throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_TABLE_STRUCTURE);
+			throw new UnknownSQLException(getErrorMessage(e), ExceptionOperations.FAILED_TO_GET_TABLE_STRUCTURE);
 		}
 	}
 }

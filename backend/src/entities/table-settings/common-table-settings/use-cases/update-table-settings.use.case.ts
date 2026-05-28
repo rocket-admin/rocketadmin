@@ -53,11 +53,12 @@ export class UpdateTableSettingsUseCase
 			);
 		}
 		const updateTableSettings = buildNewTableSettingsEntity(inputData, foundConnection);
+		const settingsRec = updateTableSettings as unknown as Record<string, unknown>;
 		for (const key in updateTableSettings) {
 			// eslint-disable-next-line security/detect-object-injection
-			if (updateTableSettings[key] === undefined) {
+			if (settingsRec[key] === undefined) {
 				// eslint-disable-next-line security/detect-object-injection
-				delete updateTableSettings[key];
+				delete settingsRec[key];
 			}
 		}
 		const updated = Object.assign(settingsToUpdate, updateTableSettings);

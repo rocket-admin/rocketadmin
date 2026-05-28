@@ -8,7 +8,13 @@ import { Cacher } from '../../helpers/cache/cacher.js';
 import { GroupEntity } from '../group/group.entity.js';
 import { ITablePermissionData } from '../permission/permission.interface.js';
 import { IUserAccessRepository } from '../user-access/repository/user-access.repository.interface.js';
-import { CEDAR_ACTION_TYPE, CEDAR_USER_TYPE, CedarAction, CedarResourceType } from './cedar-action-map.js';
+import {
+	ACTION_EVENT_PROBE_ID,
+	CEDAR_ACTION_TYPE,
+	CEDAR_USER_TYPE,
+	CedarAction,
+	CedarResourceType,
+} from './cedar-action-map.js';
 import { buildCedarEntities } from './cedar-entity-builder.js';
 import { CEDAR_SCHEMA } from './cedar-schema.js';
 
@@ -222,6 +228,7 @@ export class CedarPermissionsService implements IUserAccessRepository {
 					delete: false,
 					edit: false,
 					aiRequest: false,
+					triggerCustomAction: false,
 				},
 			};
 		}
@@ -327,6 +334,35 @@ export class CedarPermissionsService implements IUserAccessRepository {
 		);
 	}
 
+	async checkActionEventTrigger(
+		cognitoUserName: string,
+		connectionId: string,
+		tableName: string,
+		actionEventId: string,
+		_masterPwd?: string,
+	): Promise<boolean> {
+		const ctx = await this.loadContext(connectionId, cognitoUserName);
+		if (!ctx) return false;
+
+		const entities = buildCedarEntities(
+			cognitoUserName,
+			ctx.userGroups,
+			connectionId,
+			tableName,
+			undefined,
+			undefined,
+			actionEventId,
+		);
+		return this.evaluatePolicies(
+			cognitoUserName,
+			CedarAction.ActionEventTrigger,
+			CedarResourceType.ActionEvent,
+			`${connectionId}/${tableName}/${actionEventId}`,
+			ctx.policies,
+			entities,
+		);
+	}
+
 	async getConnectionId(groupId: string): Promise<string> {
 		const group = await this.globalDbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
 		if (!group?.connection?.id) {
@@ -404,6 +440,27 @@ export class CedarPermissionsService implements IUserAccessRepository {
 			ctx.policies,
 			entities,
 		);
+		// "Blanket trigger on this table" — only `permit(... resource in Table::"...")` policies
+		// match this synthetic probe event. Per-event grants (resource == ActionEvent::"...x")
+		// won't match the probe id, so the table-level flag stays false unless the user truly
+		// has table-wide trigger.
+		const probeEntities = buildCedarEntities(
+			userId,
+			ctx.userGroups,
+			connectionId,
+			tableName,
+			undefined,
+			undefined,
+			ACTION_EVENT_PROBE_ID,
+		);
+		const canTriggerAnyCustomAction = this.evaluatePolicies(
+			userId,
+			CedarAction.ActionEventTrigger,
+			CedarResourceType.ActionEvent,
+			`${connectionId}/${tableName}/${ACTION_EVENT_PROBE_ID}`,
+			ctx.policies,
+			probeEntities,
+		);
 
 		return {
 			tableName,
@@ -414,6 +471,7 @@ export class CedarPermissionsService implements IUserAccessRepository {
 				delete: canDelete,
 				edit: canEdit,
 				aiRequest: canAiRequest,
+				triggerCustomAction: canTriggerAnyCustomAction,
 			},
 		};
 	}

@@ -7,6 +7,7 @@ import { AIProviderType } from '../../../ai-core/interfaces/ai-service.interface
 import { AICoreService } from '../../../ai-core/services/ai-core.service.js';
 import { MessageBuilder } from '../../../ai-core/utils/message-builder.js';
 import { encodeError, encodeToToon } from '../../../ai-core/utils/toon-encoder.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import {
 	isDynamoDbSchemaChangeType,
 	isElasticsearchSchemaChangeType,
@@ -239,8 +240,8 @@ async function executeInspectionToolCalls(
 				result = encodeError({ error: `Unknown tool: ${tc.name}` });
 			}
 		} catch (err) {
-			logger?.error(`Tool call ${tc.name} failed: ${(err as Error).message}`);
-			result = encodeError({ error: (err as Error).message });
+			logger?.error(`Tool call ${tc.name} failed: ${getErrorMessage(err)}`);
+			result = encodeError({ error: getErrorMessage(err) });
 		}
 		results.push({ toolCallId: tc.id, result });
 	}

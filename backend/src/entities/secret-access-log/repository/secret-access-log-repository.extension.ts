@@ -28,7 +28,7 @@ export const secretAccessLogRepositoryExtension: ISecretAccessLogRepository = {
 			where: {
 				secretId,
 			},
-			relations: ['user'],
+			relations: { user: true },
 			order: {
 				accessedAt: 'DESC',
 			},

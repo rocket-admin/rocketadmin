@@ -1,13 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import Mail from 'nodemailer/lib/mailer/index.js';
-import SMTPTransport from 'nodemailer/lib/smtp-transport';
+import SMTPTransport from 'nodemailer/lib/smtp-transport/index.js';
 import * as nunjucks from 'nunjucks';
 import PQueue from 'p-queue';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
+import { isTest } from '../../../helpers/app/is-test.js';
 import { Constants } from '../../../helpers/constants/constants.js';
-import { getProcessVariable } from '../../../helpers/get-process-variable.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
+import { appConfig } from '../../../shared/config/app-config.js';
 import { WinstonLogger } from '../../logging/winston-logger.js';
 import { UserInfoMessageData } from '../../table-actions/table-actions-module/table-action-activation.service.js';
 import { EmailLetter } from '../email-messages/email-message.js';
@@ -25,7 +27,7 @@ export interface ICronMessagingResults {
 
 @Injectable()
 export class EmailService {
-	private readonly emailFrom = getProcessVariable('EMAIL_FROM') || Constants.AUTOADMIN_SUPPORT_MAIL;
+	private readonly emailFrom = appConfig.email.from;
 	constructor(
 		@Inject(BaseType.NUNJUCKS)
 		private readonly nunjucksEnv: nunjucks.Environment,
@@ -34,7 +36,7 @@ export class EmailService {
 	) {}
 
 	public async sendEmailToUser(letterContent: IMessage): Promise<SMTPTransport.SentMessageInfo | null> {
-		if (process.env.NODE_ENV === 'test') return;
+		if (isTest()) return;
 		const mailResult = await this.sendEmailWithTimeout(letterContent);
 		if (mailResult) {
 			return mailResult;
@@ -91,7 +93,7 @@ export class EmailService {
 				});
 				mailingResults.push(result);
 			} catch (error) {
-				this.logger.error(`Failed to send reminder to ${email}: ${error.message}`);
+				this.logger.error(`Failed to send reminder to ${email}: ${getErrorMessage(error)}`);
 				Sentry.captureException(error);
 				mailingResults.push(null);
 			}

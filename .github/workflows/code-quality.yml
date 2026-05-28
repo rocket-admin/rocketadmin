@@ -40,3 +40,6 @@ jobs:
       - name: Run Biome
         if: steps.changed.outputs.files != ''
         run: biome ci --formatter-enabled=false --assist-enabled=false ${{ steps.changed.outputs.files }}
+      - name: Typecheck backend
+        if: steps.changed.outputs.files != ''
+        run: pnpm --filter ./backend typecheck

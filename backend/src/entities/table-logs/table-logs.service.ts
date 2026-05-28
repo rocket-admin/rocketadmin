@@ -48,6 +48,8 @@ export class TableLogsService {
 		const sensitive_fields = tableSettings?.sensitive_fields;
 
 		if (sensitive_fields && sensitive_fields.length > 0) {
+			const oldRec = old_data as Record<string, unknown>;
+			const rowRec = row as Record<string, unknown>;
 			for (const fieldName of sensitive_fields) {
 				if (
 					old_data &&
@@ -58,25 +60,25 @@ export class TableLogsService {
 					isObjectPropertyExists(row, fieldName)
 				) {
 					// eslint-disable-next-line security/detect-object-injection
-					if (this.compareValues(old_data[fieldName], row[fieldName])) {
+					if (this.compareValues(oldRec[fieldName], rowRec[fieldName])) {
 						// eslint-disable-next-line security/detect-object-injection
-						old_data[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
+						oldRec[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
 						// eslint-disable-next-line security/detect-object-injection
-						row[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
+						rowRec[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
 					} else {
 						// eslint-disable-next-line security/detect-object-injection
-						old_data[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_NOT_CHANGED;
+						oldRec[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_NOT_CHANGED;
 						// eslint-disable-next-line security/detect-object-injection
-						row[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
+						rowRec[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
 					}
 				} else {
 					if (old_data && typeof old_data === 'object' && isObjectPropertyExists(old_data, fieldName)) {
 						// eslint-disable-next-line security/detect-object-injection
-						old_data[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_NOT_CHANGED;
+						oldRec[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_NOT_CHANGED;
 					}
 					if (row && typeof row === 'object' && isObjectPropertyExists(row, fieldName)) {
 						// eslint-disable-next-line security/detect-object-injection
-						row[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
+						rowRec[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
 					}
 				}
 			}
