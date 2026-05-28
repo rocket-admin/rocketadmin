@@ -58,7 +58,7 @@
                                                 <mat-optgroup [label]="actionGroup.group">
                                                     @for (action of actionGroup.actions; track action.value) {
                                                         <mat-option [value]="action.value">
-                                                            {{ action.label }}
+                                                            {{ getActionLabel(action.value) }}
                                                         </mat-option>
                                                     }
                                                 </mat-optgroup>
@@ -125,7 +125,7 @@
                             <mat-optgroup [label]="group.group">
                                 @for (action of group.actions; track action.value) {
                                     <mat-option [value]="action.value">
-                                        {{ action.label }}
+                                        {{ getActionLabel(action.value) }}
                                     </mat-option>
                                 }
                             </mat-optgroup>
