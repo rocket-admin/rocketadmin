@@ -6,6 +6,7 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { AccessLevelEnum } from '../../../enums/access-level.enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { isTest } from '../../../helpers/app/is-test.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
 import { slackPostMessage } from '../../../helpers/slack/slack-post-message.js';
@@ -125,7 +126,12 @@ export class CreateConnectionUseCase
 			const connectionRO = buildCreatedConnectionDs(savedConnection, token, masterPwd);
 			return connectionRO;
 		} finally {
-			if (connectionCopy && isConnectionTestedSuccessfully && !isConnectionTypeAgent(connectionCopy.type)) {
+			if (
+				connectionCopy &&
+				isConnectionTestedSuccessfully &&
+				!isConnectionTypeAgent(connectionCopy.type) &&
+				!isTest()
+			) {
 				// Fire-and-forget: run AI scan in background without blocking response
 				this.sharedJobsService.scanDatabaseAndCreateSettingsAndWidgetsWithAI(connectionCopy).catch((error) => {
 					console.error('Background AI scan failed:', error);

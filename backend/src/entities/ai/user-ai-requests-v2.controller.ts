@@ -25,6 +25,7 @@ import { isTest } from '../../helpers/app/is-test.js';
 import { ValidationHelper } from '../../helpers/validators/validation-helper.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { IAISettingsAndWidgetsCreation, IRequestInfoFromTableV2 } from './ai-use-cases.interface.js';
+import { RequestAISettingsCreationDs } from './application/data-structures/request-ai-settings-creation.ds.js';
 import { RequestInfoFromTableDSV2 } from './application/data-structures/request-info-from-table.ds.js';
 import { RequestInfoFromTableBodyDTO } from './application/dto/request-info-from-table-body.dto.js';
 
@@ -88,7 +89,7 @@ export class UserAIRequestsControllerV2 {
 	})
 	@ApiResponse({
 		status: 200,
-		description: 'AI settings and widgets creation job has been queued.',
+		description: 'Streams progress of the AI settings and widgets creation job as newline-delimited JSON chunks.',
 	})
 	@UseGuards(ConnectionEditGuard)
 	@Timeout(!isTest() ? TimeoutDefaults.AI : TimeoutDefaults.AI_TEST)
@@ -97,12 +98,14 @@ export class UserAIRequestsControllerV2 {
 		@SlugUuid('connectionId') connectionId: string,
 		@MasterPassword() masterPassword: string,
 		@UserId() userId: string,
+		@Res({ passthrough: true }) response: Response,
 	): Promise<void> {
-		const connectionData = {
+		const inputData: RequestAISettingsCreationDs = {
 			connectionId,
 			masterPwd: masterPassword,
 			cognitoUserName: userId,
+			response,
 		};
-		return await this.requestAISettingsAndWidgetsCreationUseCase.execute(connectionData, InTransactionEnum.OFF);
+		return await this.requestAISettingsAndWidgetsCreationUseCase.execute(inputData, InTransactionEnum.OFF);
 	}
 }
