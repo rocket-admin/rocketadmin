@@ -57,9 +57,10 @@ export interface SchemaChangeResponse {
 }
 
 export interface SchemaChangeBatchResponse {
-	batchId: string;
+	batchId: string | null;
 	changes: SchemaChangeResponse[];
 	threadId?: string | null;
+	assistantMessage?: string | null;
 }
 
 @Injectable({

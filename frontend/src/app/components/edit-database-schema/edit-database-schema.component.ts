@@ -162,11 +162,14 @@ export class EditDatabaseSchemaComponent implements OnInit {
 					return next;
 				});
 			} else {
+				const clarification = result.assistantMessage?.trim();
 				this.messages.update((msgs) => [
 					...msgs,
 					{
 						role: 'ai',
-						text: 'I could not generate any schema changes for that prompt. Could you describe your database in more detail?',
+						text:
+							clarification ||
+							'I could not generate any schema changes for that prompt. Could you describe your database in more detail?',
 					},
 				]);
 			}
