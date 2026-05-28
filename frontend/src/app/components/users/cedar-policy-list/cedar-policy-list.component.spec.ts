@@ -1,7 +1,44 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { PolicyAction, PolicyActionGroup } from 'src/app/lib/cedar-policy-items';
+import { UsersService } from 'src/app/services/users.service';
 import { CedarPolicyListComponent } from './cedar-policy-list.component';
+
+const fixtureGroups: PolicyActionGroup[] = [
+	{
+		group: 'Connection',
+		actions: [
+			{ value: 'connection:read', resource: 'connection' },
+			{ value: 'connection:edit', resource: 'connection' },
+		],
+	},
+	{
+		group: 'Group',
+		actions: [
+			{ value: 'group:read', resource: 'group' },
+			{ value: 'group:edit', resource: 'group' },
+		],
+	},
+	{
+		group: 'Table',
+		actions: [
+			{ value: 'table:read', resource: 'table' },
+			{ value: 'table:edit', resource: 'table' },
+		],
+	},
+	{
+		group: 'Dashboard',
+		actions: [
+			{ value: 'dashboard:read', resource: 'dashboard' },
+			{ value: 'dashboard:create', resource: 'dashboard' },
+			{ value: 'dashboard:edit', resource: 'dashboard' },
+		],
+	},
+];
+
+const flatActions: PolicyAction[] = fixtureGroups.flatMap((g) => g.actions);
 
 describe('CedarPolicyListComponent', () => {
 	let component: CedarPolicyListComponent;
@@ -18,8 +55,16 @@ describe('CedarPolicyListComponent', () => {
 	];
 
 	beforeEach(async () => {
+		const groupsSignal = signal(fixtureGroups);
+		const actionsSignal = signal(flatActions);
+		const mockUsersService: Partial<UsersService> = {
+			availablePermissionGroups: groupsSignal.asReadonly() as UsersService['availablePermissionGroups'],
+			availablePermissions: actionsSignal.asReadonly() as UsersService['availablePermissions'],
+		};
+
 		await TestBed.configureTestingModule({
 			imports: [CedarPolicyListComponent, FormsModule, BrowserAnimationsModule],
+			providers: [{ provide: UsersService, useValue: mockUsersService }],
 		}).compileComponents();
 
 		fixture = TestBed.createComponent(CedarPolicyListComponent);
@@ -210,9 +255,36 @@ describe('CedarPolicyListComponent', () => {
 		expect(component.needsDashboard).toBe(true);
 	});
 
+	it('should treat dashboard:create as scopeless', () => {
+		component.newAction = 'dashboard:create';
+		expect(component.needsDashboard).toBe(false);
+	});
+
 	it('should return correct dashboard display names', () => {
 		expect(component.getDashboardDisplayName('dash-1')).toBe('Sales Dashboard');
 		expect(component.getDashboardDisplayName('unknown')).toBe('unknown');
 		expect(component.getDashboardDisplayName('*')).toBe('All dashboards');
+	});
+
+	it('should synthesize General and prefix wildcards in addActionGroups', () => {
+		const testable = component as CedarPolicyListComponent & {
+			addActionGroups: () => PolicyActionGroup[];
+		};
+		const groups = testable.addActionGroups();
+		const general = groups.find((g) => g.group === 'General');
+		expect(general).toBeTruthy();
+		expect(general!.actions[0].value).toBe('*');
+
+		const table = groups.find((g) => g.group === 'Table');
+		expect(table).toBeTruthy();
+		expect(table!.actions[0].value).toBe('table:*');
+		expect(table!.actions[0].resource).toBe('table');
+
+		const dashboard = groups.find((g) => g.group === 'Dashboard');
+		expect(dashboard).toBeTruthy();
+		expect(dashboard!.actions[0].value).toBe('dashboard:*');
+
+		const connection = groups.find((g) => g.group === 'Connection');
+		expect(connection!.actions[0].value).toBe('connection:read');
 	});
 });
