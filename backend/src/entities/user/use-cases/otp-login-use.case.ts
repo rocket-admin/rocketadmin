@@ -10,6 +10,7 @@ import { SignInAuditService } from '../../user-sign-in-audit/sign-in-audit.servi
 import { VerifyOtpDS } from '../application/data-structures/verify-otp.ds.js';
 import { generateGwtToken, IToken } from '../utils/generate-gwt-token.js';
 import { get2FaScope } from '../utils/is-jwt-scope-need.util.js';
+import { legacyOtpGuardrails } from '../utils/otp-guardrails.js';
 import { IOtpLogin } from './user-use-cases.interfaces.js';
 
 @Injectable()
@@ -28,7 +29,11 @@ export class OtpLoginUseCase extends AbstractUseCase<VerifyOtpDS, IToken> implem
 		if (!foundUser) {
 			throw new NotFoundException(Messages.USER_NOT_FOUND);
 		}
-		const isValid = verifySync({ token: otpToken, secret: foundUser.otpSecretKey }).valid;
+		const isValid = verifySync({
+			token: otpToken,
+			secret: foundUser.otpSecretKey,
+			guardrails: legacyOtpGuardrails,
+		}).valid;
 		if (!isValid) {
 			await this.recordSignInAudit(
 				foundUser.email,
