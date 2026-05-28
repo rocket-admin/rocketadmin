@@ -1,5 +1,5 @@
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
-import { FindOneConnectionDs } from '../connection/application/data-structures/find-one-connection.ds.js';
+import { RequestAISettingsCreationDs } from './application/data-structures/request-ai-settings-creation.ds.js';
 import { RequestInfoFromTableDSV2 } from './application/data-structures/request-info-from-table.ds.js';
 
 export interface IRequestInfoFromTableV2 {
@@ -7,5 +7,5 @@ export interface IRequestInfoFromTableV2 {
 }
 
 export interface IAISettingsAndWidgetsCreation {
-	execute(connectionData: FindOneConnectionDs, inTransaction: InTransactionEnum): Promise<void>;
+	execute(inputData: RequestAISettingsCreationDs, inTransaction: InTransactionEnum): Promise<void>;
 }
