@@ -5,6 +5,7 @@ import { PolicyAction, PolicyActionGroup } from 'src/app/lib/cedar-policy-items'
 import { groupNameForAction, PERMISSION_GROUP_ORDER } from 'src/app/lib/permission-display';
 import { GroupUser, Permissions, UserGroup, UserGroupInfo } from 'src/app/models/user';
 import { ApiService } from './api.service';
+import { AuthService } from './auth.service';
 import { NotificationsService } from './notifications.service';
 
 export type GroupUpdateEvent =
@@ -21,6 +22,7 @@ export type GroupUpdateEvent =
 })
 export class UsersService {
 	private _api = inject(ApiService);
+	private _auth = inject(AuthService);
 	private _http = inject(HttpClient);
 	private _notifications = inject(NotificationsService);
 
@@ -48,7 +50,7 @@ export class UsersService {
 
 	private _availablePermissionsResource: HttpResourceRef<{ actions: PolicyAction[] } | undefined> = this._api.resource<{
 		actions: PolicyAction[];
-	}>(() => '/permissions/available');
+	}>(() => (this._auth.isAuthenticated() ? '/permissions/available' : undefined));
 
 	public readonly availablePermissions = computed<PolicyAction[]>(
 		() => this._availablePermissionsResource.value()?.actions ?? [],
