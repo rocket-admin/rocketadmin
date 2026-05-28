@@ -140,7 +140,7 @@ export class GenerateSchemaChangeUseCase
 			previousChangeId,
 			forwardSql: proposal.forwardSql,
 			rollbackSql: proposal.rollbackSql ?? null,
-			userModifiedSql: null,
+			userModifiedSql: null as string | null,
 			status: SchemaChangeStatusEnum.PENDING,
 			changeType: proposal.changeType,
 			targetTableName: proposal.targetTableName,

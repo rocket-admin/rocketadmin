@@ -161,7 +161,7 @@ export class GenerateTableDashboardWithAiUseCase
 					},
 				});
 			} catch (error) {
-				this.logger.warn(`Panel "${panel.name}" skipped: ${error.message}`);
+				this.logger.warn(`Panel "${panel.name}" skipped: ${(error as Error).message}`);
 			}
 		}
 
@@ -353,7 +353,7 @@ IMPORTANT GUIDELINES:
 						result = encodeError({ error: `Unknown tool: ${toolCall.name}` });
 				}
 			} catch (error) {
-				result = encodeError({ error: error.message });
+				result = encodeError({ error: (error as Error).message });
 			}
 
 			results.push({ toolCallId: toolCall.id, result });
@@ -394,7 +394,7 @@ IMPORTANT GUIDELINES:
 
 			return parsed;
 		} catch (error) {
-			this.logger.error('Error parsing dashboard AI response:', error.message);
+			this.logger.error('Error parsing dashboard AI response:', (error as Error).message);
 			throw new BadRequestException('Failed to generate dashboard from AI. Please try again.');
 		}
 	}
@@ -454,7 +454,7 @@ IMPORTANT GUIDELINES:
 			const result = await (dao as IDataAccessObject).executeRawQuery(explainQuery, '');
 			return { success: true, result: JSON.stringify(result, null, 2) };
 		} catch (error) {
-			return { success: false, error: error.message };
+			return { success: false, error: (error as Error).message };
 		}
 	}
 

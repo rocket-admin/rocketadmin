@@ -92,7 +92,7 @@ export class EmailService {
 				});
 				mailingResults.push(result);
 			} catch (error) {
-				this.logger.error(`Failed to send reminder to ${email}: ${error.message}`);
+				this.logger.error(`Failed to send reminder to ${email}: ${(error as Error).message}`);
 				Sentry.captureException(error);
 				mailingResults.push(null);
 			}

@@ -79,10 +79,11 @@ export class TestConnectionUseCase
 				}
 
 				['password', 'privateSSHKey', 'cert'].forEach((key) => {
+					const data = connectionData as unknown as Record<string, unknown>;
 					// eslint-disable-next-line security/detect-object-injection
-					if (!connectionData[key]) {
+					if (!data[key]) {
 						// eslint-disable-next-line security/detect-object-injection
-						delete connectionData[key];
+						delete data[key];
 					}
 				});
 

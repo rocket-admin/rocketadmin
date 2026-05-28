@@ -44,7 +44,8 @@ export class FindTablesInConnectionV2UseCase
 		try {
 			connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
 		} catch (error) {
-			if (error.message === Messages.MASTER_PASSWORD_MISSING) {
+			const errMessage = (error as Error).message;
+			if (errMessage === Messages.MASTER_PASSWORD_MISSING) {
 				throw new HttpException(
 					{
 						message: Messages.MASTER_PASSWORD_MISSING,
@@ -53,7 +54,7 @@ export class FindTablesInConnectionV2UseCase
 					HttpStatus.BAD_REQUEST,
 				);
 			}
-			if (error.message === Messages.MASTER_PASSWORD_INCORRECT) {
+			if (errMessage === Messages.MASTER_PASSWORD_INCORRECT) {
 				throw new HttpException(
 					{
 						message: Messages.MASTER_PASSWORD_INCORRECT,
@@ -84,7 +85,7 @@ export class FindTablesInConnectionV2UseCase
 		} catch (e) {
 			operationResult = false;
 			Sentry.captureException(e);
-			throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_TABLES);
+			throw new UnknownSQLException((e as Error).message, ExceptionOperations.FAILED_TO_GET_TABLES);
 		} finally {
 			if (!connection.isTestConnection && tables && tables.length) {
 				this.logger.log({

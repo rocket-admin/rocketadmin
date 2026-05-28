@@ -165,7 +165,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 				);
 			} catch (e) {
 				Sentry.captureException(e);
-				throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_ROWS_FROM_TABLE);
+				throw new UnknownSQLException((e as Error).message, ExceptionOperations.FAILED_TO_GET_ROWS_FROM_TABLE);
 			}
 			rows = processRowsUtil(rows, tableWidgets, tableCustomFields);
 
@@ -345,8 +345,10 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 			throw new HttpException(
 				{
 					message: `${Messages.FAILED_GET_TABLE_ROWS} ${Messages.ERROR_MESSAGE}
-         ${e.message} ${Messages.TRY_AGAIN_LATER}`,
-					originalMessage: e.originalMessage ? `${Messages.ERROR_MESSAGE_ORIGINAL} ${e.originalMessage}` : undefined,
+         ${(e as Error).message} ${Messages.TRY_AGAIN_LATER}`,
+					originalMessage: (e as Error & { originalMessage?: string }).originalMessage
+						? `${Messages.ERROR_MESSAGE_ORIGINAL} ${(e as Error & { originalMessage?: string }).originalMessage}`
+						: undefined,
 				},
 				HttpStatus.INTERNAL_SERVER_ERROR,
 			);

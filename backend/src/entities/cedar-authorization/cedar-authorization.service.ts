@@ -185,7 +185,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 				resource: { type: 'RocketAdmin::Connection', id: 'test' },
 				context: {},
 				policies: { staticPolicies: 'permit(principal, action, resource);' },
-				entities: [],
+				entities: [] as unknown[],
 				schema: schema,
 			};
 			const result = cedarWasm.isAuthorized(testCall as Parameters<typeof cedarWasm.isAuthorized>[0]);
@@ -198,7 +198,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 			}
 		} catch (e) {
 			if (e instanceof HttpException) throw e;
-			throw new HttpException({ message: `Invalid cedar schema: ${e.message}` }, HttpStatus.BAD_REQUEST);
+			throw new HttpException({ message: `Invalid cedar schema: ${(e as Error).message}` }, HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -291,12 +291,12 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 				resource: { type: 'RocketAdmin::Connection', id: 'test' },
 				context: {},
 				policies: { staticPolicies: policyText },
-				entities: [],
+				entities: [] as unknown[],
 				schema: this.schema,
 			};
 			cedarWasm.isAuthorized(testCall as Parameters<typeof cedarWasm.isAuthorized>[0]);
 		} catch (e) {
-			throw new HttpException({ message: `Invalid cedar policy: ${e.message}` }, HttpStatus.BAD_REQUEST);
+			throw new HttpException({ message: `Invalid cedar policy: ${(e as Error).message}` }, HttpStatus.BAD_REQUEST);
 		}
 	}
 

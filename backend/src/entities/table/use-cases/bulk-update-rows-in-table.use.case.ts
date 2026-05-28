@@ -103,7 +103,7 @@ export class BulkUpdateRowsInTableUseCase
 			};
 		} catch (e) {
 			operationResult = OperationResultStatusEnum.unsuccessfully;
-			throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_UPDATE_ROWS_IN_TABLE);
+			throw new UnknownSQLException((e as Error).message, ExceptionOperations.FAILED_TO_UPDATE_ROWS_IN_TABLE);
 		} finally {
 			const logsData = oldRowsData.map((oldRowData) => {
 				return {

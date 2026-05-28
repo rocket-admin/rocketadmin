@@ -21,7 +21,7 @@ export class LogOutUseCase extends AbstractUseCase<string, boolean> implements I
 		} catch (e) {
 			throw new HttpException(
 				{
-					message: Messages.FAILED_LOGOUT + ' Error: ' + e.message,
+					message: Messages.FAILED_LOGOUT + ' Error: ' + (e as Error).message,
 				},
 				HttpStatus.INTERNAL_SERVER_ERROR,
 			);

@@ -647,7 +647,7 @@ async function createTestDynamoDBTable(
 	try {
 		await dynamoDb.createTable(params);
 	} catch (error) {
-		console.error(`Error creating dynamodb table: ${error.message}`);
+		console.error(`Error creating dynamodb table: ${(error as Error).message}`);
 	}
 	const insertedSearchedIds: Array<{ number: number; id: string }> = [];
 	const documentClient = DynamoDBDocumentClient.from(dynamoDb);
@@ -698,7 +698,7 @@ async function createTestDynamoDBTable(
 			}
 		}
 	} catch (error) {
-		console.error(`Error inserting item into dynamodb table: ${error.message}`);
+		console.error(`Error inserting item into dynamodb table: ${(error as Error).message}`);
 		throw error;
 	}
 
@@ -762,7 +762,7 @@ async function createTestCassandraTable(
 				`CREATE TABLE IF NOT EXISTS ${testTableName} (id UUID, ${testTableColumnName} TEXT, ${testTableSecondColumnName} TEXT, age INT, created_at TIMESTAMP, updated_at TIMESTAMP, PRIMARY KEY (id, age))`,
 			);
 		} catch (error) {
-			console.error(`Error creating Cassandra table: ${error.message}`);
+			console.error(`Error creating Cassandra table: ${(error as Error).message}`);
 			throw error;
 		}
 		const insertedSearchedIds: Array<{ number: number; id: string }> = [];
@@ -800,7 +800,7 @@ async function createTestCassandraTable(
 				await Promise.all(chunk.map((params) => client.execute(query, params, { prepare: true })));
 			}
 		} catch (error) {
-			console.error(`Error inserting into Cassandra table: ${error.message}`);
+			console.error(`Error inserting into Cassandra table: ${(error as Error).message}`);
 			throw error;
 		}
 		return {

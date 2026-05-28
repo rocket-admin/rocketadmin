@@ -171,7 +171,7 @@ export async function executeMongoSchemaOp(connection: MongoExecutionConnection,
 	try {
 		await dispatchMongoOp(db, op);
 	} finally {
-		await client.close().catch(() => undefined);
+		await client.close().catch((): void => undefined);
 	}
 }
 

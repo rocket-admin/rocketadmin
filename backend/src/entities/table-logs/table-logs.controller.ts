@@ -68,7 +68,7 @@ export class TableLogsController {
 	@ApiQuery({ name: 'affected_primary_key', required: false })
 	@Get('/logs/:connectionId')
 	async findAll(
-		@Query() query,
+		@Query() query: Record<string, string>,
 		@SlugUuid('connectionId') connectionId: string,
 		@UserId() userId: string,
 		@Query('operationTypes', new ParseArrayPipe({ separator: ',', optional: true }))
@@ -121,7 +121,7 @@ export class TableLogsController {
 	@ApiQuery({ name: 'affected_primary_key', required: false })
 	@Get('/logs/export/:connectionId')
 	async exportLogsAsCSV(
-		@Query() query,
+		@Query() query: Record<string, string>,
 		@SlugUuid('connectionId') connectionId: string,
 		@UserId() userId: string,
 		@Query('operationTypes', new ParseArrayPipe({ separator: ',', optional: true }))
