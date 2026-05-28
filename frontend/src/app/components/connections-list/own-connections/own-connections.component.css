@@ -340,7 +340,6 @@
 	position: relative;
 	align-self: stretch;
 	justify-content: center;
-	--mdc-text-button-label-text-color: color-mix(in srgb, var(--color-accentedPalette-500) 18%, #1f2937 82%);
 	color: var(--mdc-text-button-label-text-color) !important;
 	font-size: 13px;
 	font-weight: 500;
@@ -372,9 +371,18 @@
 }
 
 .connectionSchemaButton:hover {
-	--mdc-text-button-label-text-color: var(--color-accentedPalette-500);
 	color: var(--color-accentedPalette-500) !important;
-	background-color: color-mix(in srgb, var(--color-accentedPalette-500), transparent 92%);
+}
+
+@media (prefers-color-scheme: dark) {
+	.connectionSchemaButton:hover {
+		color: var(--color-accentedPalette-100) !important;
+		background: var(--color-accentedPalette-900);
+	}
+
+	.connectionSchemaButton:hover .connectionSchemaButton__ai {
+		color: var(--color-accentedPalette-100) !important;
+	}
 }
 
 .connectionSchemaButton:hover .connectionSchemaButton__arrow {
@@ -382,11 +390,8 @@
 	transform: translate(0, -50%);
 }
 
-@media (prefers-color-scheme: dark) {
-	.connectionSchemaButton {
-		--mdc-text-button-label-text-color: color-mix(in srgb, var(--color-accentedPalette-500) 25%, #e2e8f0 75%);
-	}
-}
+
+
 
 /* ── Show more / less ── */
 

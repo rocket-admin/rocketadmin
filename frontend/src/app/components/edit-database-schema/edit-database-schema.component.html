@@ -177,8 +177,10 @@
 					@if (applying()) {
 						Applying...
 					} @else {
-						<mat-icon>check</mat-icon>
-						Apply All
+						<ng-container>
+							<mat-icon>check</mat-icon>
+							Apply All
+						</ng-container>
 					}
 				</button>
 			</div>

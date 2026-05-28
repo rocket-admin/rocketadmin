@@ -32,7 +32,7 @@
                         </div>
                     </div>
                     @if (connectionItem.accessLevel === 'edit') {
-                        <a mat-button
+                        <a mat-button color="accent"
                             class="connectionSchemaButton"
                             routerLink="/edit-database-schema/{{connectionItem.connection.id}}"
                             (click)="$event.stopPropagation()">
