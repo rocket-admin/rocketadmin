@@ -1,5 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
-import { ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectorRef, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
@@ -44,9 +44,12 @@ describe('AppComponent', () => {
 	const authCast = new Subject<any>();
 	const userCast = new Subject<any>();
 
+	const isAuthenticatedSignal = signal(false);
 	const mockAuthService = {
 		cast: authCast,
 		logOutUser: vi.fn().mockReturnValue(of(true)),
+		isAuthenticated: isAuthenticatedSignal.asReadonly(),
+		setAuthenticated: (value: boolean) => isAuthenticatedSignal.set(value),
 	};
 
 	const mockUserService = {
