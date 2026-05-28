@@ -11,6 +11,7 @@ import { ExceptionOperations } from '../../../exceptions/custom-exceptions/excep
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isTest as isTestEnv } from '../../../helpers/app/is-test.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
@@ -45,7 +46,7 @@ export class FindTablesInConnectionUseCase
 		try {
 			connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
 		} catch (error) {
-			const errMessage = (error as Error).message;
+			const errMessage = getErrorMessage(error);
 			if (errMessage === Messages.MASTER_PASSWORD_MISSING) {
 				throw new HttpException(
 					{
@@ -89,7 +90,7 @@ export class FindTablesInConnectionUseCase
 		} catch (e) {
 			operationResult = false;
 			Sentry.captureException(e);
-			throw new UnknownSQLException((e as Error).message, ExceptionOperations.FAILED_TO_GET_TABLES);
+			throw new UnknownSQLException(getErrorMessage(e), ExceptionOperations.FAILED_TO_GET_TABLES);
 		} finally {
 			if (!connection.isTestConnection && tables && tables.length) {
 				this.logger.log({

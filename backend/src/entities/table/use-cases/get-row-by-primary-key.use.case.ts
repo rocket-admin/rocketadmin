@@ -11,6 +11,7 @@ import { ExceptionOperations } from '../../../exceptions/custom-exceptions/excep
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { compareArrayElements } from '../../../helpers/compare-array-elements.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { buildActionEventDto } from '../../table-actions/table-action-rules-module/utils/build-found-action-event-dto.util.js';
 import { GetRowByPrimaryKeyDs } from '../application/data-structures/get-row-by-primary-key.ds.js';
@@ -134,7 +135,7 @@ export class GetRowByPrimaryKeyUseCase
 		try {
 			rowData = await dao.getRowByPrimaryKey(tableName, primaryKey, builtDAOsTableSettings, userEmail);
 		} catch (e) {
-			throw new UnknownSQLException((e as Error).message, ExceptionOperations.FAILED_TO_GET_ROW_BY_PRIMARY_KEY);
+			throw new UnknownSQLException(getErrorMessage(e), ExceptionOperations.FAILED_TO_GET_ROW_BY_PRIMARY_KEY);
 		}
 
 		if (!rowData) {

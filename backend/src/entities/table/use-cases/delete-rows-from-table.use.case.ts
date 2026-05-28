@@ -9,6 +9,7 @@ import { LogOperationTypeEnum } from '../../../enums/log-operation-type.enum.js'
 import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { compareArrayElements } from '../../../helpers/compare-array-elements.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
@@ -117,7 +118,7 @@ export class DeleteRowsFromTableUseCase
 		} catch (error) {
 			throw new HttpException(
 				{
-					message: Messages.BULK_DELETE_FAILED_GET_ROWS([(error as Error).message]),
+					message: Messages.BULK_DELETE_FAILED_GET_ROWS([getErrorMessage(error)]),
 				},
 				HttpStatus.INTERNAL_SERVER_ERROR,
 			);
@@ -143,7 +144,7 @@ export class DeleteRowsFromTableUseCase
 					operationStatusResult: OperationResultStatusEnum.unsuccessfully,
 					row: primaryKey,
 					old_data: findObjectsWithProperties(oldRowsData, primaryKey).at(0),
-					error: (error as Error).message,
+					error: getErrorMessage(error),
 					affected_primary_key: primaryKey as unknown as string,
 				});
 			});

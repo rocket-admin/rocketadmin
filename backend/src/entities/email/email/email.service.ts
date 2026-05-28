@@ -8,6 +8,7 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
 import { isTest } from '../../../helpers/app/is-test.js';
 import { Constants } from '../../../helpers/constants/constants.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { appConfig } from '../../../shared/config/app-config.js';
 import { WinstonLogger } from '../../logging/winston-logger.js';
 import { UserInfoMessageData } from '../../table-actions/table-actions-module/table-action-activation.service.js';
@@ -92,7 +93,7 @@ export class EmailService {
 				});
 				mailingResults.push(result);
 			} catch (error) {
-				this.logger.error(`Failed to send reminder to ${email}: ${(error as Error).message}`);
+				this.logger.error(`Failed to send reminder to ${email}: ${getErrorMessage(error)}`);
 				Sentry.captureException(error);
 				mailingResults.push(null);
 			}

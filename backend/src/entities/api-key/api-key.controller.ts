@@ -92,7 +92,7 @@ export class ApiKeyController {
 		description: 'Api key is valid.',
 	})
 	@Get('/check/apikey')
-	public async checkApiKey(): Promise<any> {
+	public async checkApiKey(): Promise<{ result: boolean; message: string }> {
 		return {
 			result: true,
 			message: 'Api key is valid',

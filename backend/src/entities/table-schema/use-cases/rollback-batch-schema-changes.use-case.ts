@@ -12,6 +12,7 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { RollbackBatchSchemaChangeDs } from '../application/data-structures/rollback-batch-schema-change.ds.js';
 import { SchemaChangeBatchResponseDto } from '../application/data-transfer-objects/schema-change-batch-response.dto.js';
 import { SchemaChangeStatusEnum, SchemaChangeTypeEnum } from '../table-schema-change-enums.js';
@@ -101,7 +102,7 @@ export class RollbackBatchSchemaChangesUseCase
 					appliedAt: new Date(),
 				});
 			} catch (err) {
-				const message = (err as Error).message;
+				const message = getErrorMessage(err);
 				this.logger.error(`Batch ${batchId}: rollback failed for change ${item.id}: ${message}`);
 				failures.push({ changeId: item.id, error: message });
 			}

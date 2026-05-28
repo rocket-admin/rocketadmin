@@ -21,6 +21,7 @@ import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unkno
 import { Messages } from '../../../exceptions/text/messages.js';
 import { hexToBinary, isBinary } from '../../../helpers/binary-to-hex.js';
 import { Constants } from '../../../helpers/constants/constants.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
@@ -165,7 +166,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 				);
 			} catch (e) {
 				Sentry.captureException(e);
-				throw new UnknownSQLException((e as Error).message, ExceptionOperations.FAILED_TO_GET_ROWS_FROM_TABLE);
+				throw new UnknownSQLException(getErrorMessage(e), ExceptionOperations.FAILED_TO_GET_ROWS_FROM_TABLE);
 			}
 			rows = processRowsUtil(rows, tableWidgets, tableCustomFields);
 
@@ -345,7 +346,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 			throw new HttpException(
 				{
 					message: `${Messages.FAILED_GET_TABLE_ROWS} ${Messages.ERROR_MESSAGE}
-         ${(e as Error).message} ${Messages.TRY_AGAIN_LATER}`,
+         ${getErrorMessage(e)} ${Messages.TRY_AGAIN_LATER}`,
 					originalMessage: (e as Error & { originalMessage?: string }).originalMessage
 						? `${Messages.ERROR_MESSAGE_ORIGINAL} ${(e as Error & { originalMessage?: string }).originalMessage}`
 						: undefined,

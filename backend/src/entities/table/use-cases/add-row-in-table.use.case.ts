@@ -10,6 +10,7 @@ import { LogOperationTypeEnum } from '../../../enums/log-operation-type.enum.js'
 import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
 import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
 import { toPrettyErrorsMsg } from '../../../helpers/to-pretty-errors-msg.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
@@ -194,10 +195,10 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
 			operationResult = OperationResultStatusEnum.unsuccessfully;
 			throw new HttpException(
 				{
-					message: (e as Error).message.includes('duplicate key value')
+					message: getErrorMessage(e).includes('duplicate key value')
 						? Messages.CANT_INSERT_DUPLICATE_KEY
 						: `${Messages.FAILED_ADD_ROW_IN_TABLE}
-         ${Messages.ERROR_MESSAGE} ${(e as Error).message} ${Messages.TRY_AGAIN_LATER}`,
+         ${Messages.ERROR_MESSAGE} ${getErrorMessage(e)} ${Messages.TRY_AGAIN_LATER}`,
 				},
 				HttpStatus.BAD_REQUEST,
 			);

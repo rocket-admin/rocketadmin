@@ -26,7 +26,7 @@ export function processRowsUtil(
 				const fieldNamesFromTemplateString = getValuesBetweenCurlies(field.template_string);
 				const fieldValuesForTemplateString = fieldNamesFromTemplateString
 					.filter((fieldName) => isObjectPropertyExists(row, fieldName) && getPropertyValueByDescriptor(row, fieldName))
-					.map((fieldName) => getPropertyValueByDescriptor(row, fieldName));
+					.map((fieldName) => String(getPropertyValueByDescriptor(row, fieldName)));
 
 				const generatedUrlString = replaceTextInCurlies(
 					field.template_string,

@@ -50,7 +50,7 @@ import { UserAIRequestsControllerV2 } from './user-ai-requests-v2.controller.js'
 	controllers: [UserAIRequestsControllerV2, UserAiChatController],
 })
 export class AIModule implements NestModule {
-	public configure(consumer: MiddlewareConsumer): any {
+	public configure(consumer: MiddlewareConsumer): void {
 		consumer
 			.apply(AuthMiddleware)
 			.forRoutes(

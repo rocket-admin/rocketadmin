@@ -1,5 +1,6 @@
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import sqlParser from 'node-sql-parser';
+import { getErrorMessage } from '../../../../helpers/get-error-message.js';
 import { connectionTypeToParserDialect } from '../../../table-schema/utils/assert-dialect-supported.js';
 
 const { Parser } = sqlParser;
@@ -42,7 +43,7 @@ export function collectQueryTables(query: string, connectionType: ConnectionType
 		rawTableList = parser.tableList(query, { database: dialect });
 		cteNames = collectCteNames(parser, query, dialect);
 	} catch (error) {
-		return { kind: 'indeterminate', reason: `parse error: ${(error as Error).message}` };
+		return { kind: 'indeterminate', reason: `parse error: ${getErrorMessage(error)}` };
 	}
 
 	const tables = new Set<string>();

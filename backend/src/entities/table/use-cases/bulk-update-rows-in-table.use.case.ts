@@ -9,6 +9,7 @@ import { OperationResultStatusEnum } from '../../../enums/operation-result-statu
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { UpdateRowsInTableDs } from '../application/data-structures/update-rows-in-table.ds.js';
@@ -103,7 +104,7 @@ export class BulkUpdateRowsInTableUseCase
 			};
 		} catch (e) {
 			operationResult = OperationResultStatusEnum.unsuccessfully;
-			throw new UnknownSQLException((e as Error).message, ExceptionOperations.FAILED_TO_UPDATE_ROWS_IN_TABLE);
+			throw new UnknownSQLException(getErrorMessage(e), ExceptionOperations.FAILED_TO_UPDATE_ROWS_IN_TABLE);
 		} finally {
 			const logsData = oldRowsData.map((oldRowData) => {
 				return {

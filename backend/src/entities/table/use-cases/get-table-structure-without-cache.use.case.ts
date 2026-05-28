@@ -7,6 +7,7 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { buildFoundTableWidgetDs } from '../../widget/utils/build-found-table-widget-ds.js';
 import { GetTableStructureDs } from '../application/data-structures/get-table-structure-ds.js';
@@ -103,7 +104,7 @@ export class GetTableStructureWithoutCacheUseCase
 			if (e instanceof HttpException) {
 				throw e;
 			}
-			throw new UnknownSQLException((e as Error).message, ExceptionOperations.FAILED_TO_GET_TABLE_STRUCTURE);
+			throw new UnknownSQLException(getErrorMessage(e), ExceptionOperations.FAILED_TO_GET_TABLE_STRUCTURE);
 		}
 	}
 }

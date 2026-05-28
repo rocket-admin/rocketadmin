@@ -191,7 +191,7 @@ export class UserController {
 		description: 'Logged out.',
 	})
 	@Post('user/logout/')
-	async logOut(@Req() request: Request, @Res({ passthrough: true }) response: Response): Promise<any> {
+	async logOut(@Req() request: Request, @Res({ passthrough: true }) response: Response): Promise<boolean> {
 		const token = request.cookies[Constants.JWT_COOKIE_KEY_NAME];
 		if (!token) {
 			throw new HttpException(
@@ -448,7 +448,7 @@ export class UserController {
 		@Res({ passthrough: true }) response: Response,
 		@UserId() userId: string,
 		@Body() otpTokenData: OtpTokenDto,
-	): Promise<any> {
+	): Promise<ITokenExp> {
 		const { otpToken } = otpTokenData;
 		const ipAddress = (request.headers['x-forwarded-for'] as string) || request.ip;
 		const userAgent = request.headers['user-agent'] as string;

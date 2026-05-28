@@ -3,6 +3,7 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { ILogOut } from './user-use-cases.interfaces.js';
 
 @Injectable()
@@ -21,7 +22,7 @@ export class LogOutUseCase extends AbstractUseCase<string, boolean> implements I
 		} catch (e) {
 			throw new HttpException(
 				{
-					message: Messages.FAILED_LOGOUT + ' Error: ' + (e as Error).message,
+					message: Messages.FAILED_LOGOUT + ' Error: ' + getErrorMessage(e),
 				},
 				HttpStatus.INTERNAL_SERVER_ERROR,
 			);

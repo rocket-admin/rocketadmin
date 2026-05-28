@@ -8,6 +8,7 @@ import { TableActionEventEnum } from '../../enums/table-action-event-enum.js';
 import { TableActionTypeEnum } from '../../enums/table-action-type.enum.js';
 import { isTest } from '../../helpers/app/is-test.js';
 import { Constants } from '../../helpers/constants/constants.js';
+import { getErrorMessage } from '../../helpers/get-error-message.js';
 import { slackPostMessage } from '../../helpers/slack/slack-post-message.js';
 import { generateCedarPolicyForGroup } from '../cedar-authorization/cedar-policy-generator.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
@@ -43,7 +44,7 @@ export class DemoDataService {
 			return await this.createDemoData(userId);
 		} catch (error) {
 			console.error(`Error during demo data creation for user with ID ${userId}:`, error);
-			await slackPostMessage(`Error during demo data creation for user with ID ${userId}: ${(error as Error).message}`);
+			await slackPostMessage(`Error during demo data creation for user with ID ${userId}: ${getErrorMessage(error)}`);
 		}
 	}
 
