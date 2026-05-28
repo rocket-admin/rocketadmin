@@ -3,6 +3,7 @@ import ipRangeCheck from 'ip-range-check';
 import { isSaaS } from '../app/is-saas.js';
 import { isTest } from '../app/is-test.js';
 import { Constants } from '../constants/constants.js';
+import { getErrorMessage } from '../get-error-message.js';
 
 export async function isActionUrlHostAllowed(url: string): Promise<boolean> {
 	if (isTest()) {
@@ -37,7 +38,7 @@ export async function isActionUrlHostAllowed(url: string): Promise<boolean> {
 			});
 		});
 	} catch (e) {
-		console.error('Invalid URL format for action URL validation:', (e as Error).message);
+		console.error('Invalid URL format for action URL validation:', getErrorMessage(e));
 		return false;
 	}
 }

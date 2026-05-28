@@ -1,5 +1,5 @@
 import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
-import { Response } from 'express';
+import { NextFunction, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { Messages } from '../exceptions/text/messages.js';
 import { appConfig } from '../shared/config/app-config.js';
@@ -8,7 +8,7 @@ import { extractTokenFromHeader } from './utils/extract-token-from-header.js';
 
 @Injectable()
 export class SaaSAuthMiddleware implements NestMiddleware {
-	use(req: IRequestWithCognitoInfo, _res: Response, next: (err?: any, res?: any) => void): void {
+	use(req: IRequestWithCognitoInfo, _res: Response, next: NextFunction): void {
 		console.log(`saas auth middleware triggered ->: ${new Date().toISOString()}`);
 		const token = extractTokenFromHeader(req);
 		if (!token) {

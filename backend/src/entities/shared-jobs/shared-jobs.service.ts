@@ -10,6 +10,7 @@ import { IGlobalDatabaseContext } from '../../common/application/global-database
 import { BaseType } from '../../common/data-injection.tokens.js';
 import { WidgetTypeEnum } from '../../enums/widget-type.enum.js';
 import { isTest } from '../../helpers/app/is-test.js';
+import { getErrorMessage } from '../../helpers/get-error-message.js';
 import { ValidationHelper } from '../../helpers/validators/validation-helper.js';
 import { AiService } from '../ai/ai.service.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
@@ -65,7 +66,7 @@ export class SharedJobsService {
 								foreignKeys,
 							};
 						} catch (error) {
-							console.error(`Error getting table information for "${table.tableName}": ${(error as Error).message}`);
+							console.error(`Error getting table information for "${table.tableName}": ${getErrorMessage(error)}`);
 							return null;
 						}
 					}),

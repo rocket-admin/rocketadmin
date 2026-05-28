@@ -18,5 +18,5 @@ import { SharedJobsService } from './shared-jobs.service.js';
 	exports: [SharedJobsService],
 })
 export class SharedJobsModule {
-	public configure(_consumer: MiddlewareConsumer): any {}
+	public configure(_consumer: MiddlewareConsumer): void {}
 }

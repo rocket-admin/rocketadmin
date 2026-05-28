@@ -13,6 +13,7 @@ import {
 } from 'typeorm';
 import { DashboardWidgetTypeEnum } from '../../../enums/dashboard-widget-type.enum.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { PanelPositionEntity } from '../panel-position/panel-position.entity.js';
 
@@ -55,7 +56,7 @@ export class PanelEntity {
 				this.panel_options = JSON.stringify(this.panel_options);
 			}
 		} catch (e) {
-			console.error('-> Error widget options stringify ' + (e as Error).message);
+			console.error('-> Error widget options stringify ' + getErrorMessage(e));
 		}
 	}
 
@@ -70,7 +71,7 @@ export class PanelEntity {
 				this.panel_options = JSON.stringify(this.panel_options);
 			}
 		} catch (e) {
-			console.error('-> Error widget options stringify ' + (e as Error).message);
+			console.error('-> Error widget options stringify ' + getErrorMessage(e));
 		}
 	}
 
@@ -87,7 +88,7 @@ export class PanelEntity {
 				});
 			}
 		} catch (e) {
-			console.error('-> Error widget options parse ' + (e as Error).message);
+			console.error('-> Error widget options parse ' + getErrorMessage(e));
 		}
 	}
 

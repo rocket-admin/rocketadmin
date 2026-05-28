@@ -31,7 +31,7 @@ import { FindTableWidgetsUseCase } from './use-cases/find-table-widgets.use.case
 	exports: [],
 })
 export class TableWidgetModule {
-	public configure(consumer: MiddlewareConsumer): any {
+	public configure(consumer: MiddlewareConsumer): void {
 		consumer
 			.apply(AuthMiddleware)
 			.forRoutes(

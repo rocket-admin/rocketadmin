@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import Sentry from '@sentry/minimal';
-import { Response } from 'express';
+import { NextFunction, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { Repository } from 'typeorm';
 import { LogOutEntity } from '../entities/log-out/log-out.entity.js';
@@ -24,7 +24,7 @@ export class NonScopedAuthMiddleware implements NestMiddleware {
 		@InjectRepository(LogOutEntity)
 		private readonly logOutRepository: Repository<LogOutEntity>,
 	) {}
-	async use(req: IRequestWithCognitoInfo, _res: Response, next: (err?: any, res?: any) => void): Promise<void> {
+	async use(req: IRequestWithCognitoInfo, _res: Response, next: NextFunction): Promise<void> {
 		console.log(`auth middleware triggered ->: ${new Date().toISOString()}`);
 		let token: string;
 		try {

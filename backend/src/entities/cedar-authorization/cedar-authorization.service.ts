@@ -4,6 +4,7 @@ import { IGlobalDatabaseContext } from '../../common/application/global-database
 import { BaseType } from '../../common/data-injection.tokens.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { Cacher } from '../../helpers/cache/cacher.js';
+import { getErrorMessage } from '../../helpers/get-error-message.js';
 import { GroupEntity } from '../group/group.entity.js';
 import { IComplexPermission } from '../permission/permission.interface.js';
 import {
@@ -198,7 +199,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 			}
 		} catch (e) {
 			if (e instanceof HttpException) throw e;
-			throw new HttpException({ message: `Invalid cedar schema: ${(e as Error).message}` }, HttpStatus.BAD_REQUEST);
+			throw new HttpException({ message: `Invalid cedar schema: ${getErrorMessage(e)}` }, HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -296,7 +297,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 			};
 			cedarWasm.isAuthorized(testCall as Parameters<typeof cedarWasm.isAuthorized>[0]);
 		} catch (e) {
-			throw new HttpException({ message: `Invalid cedar policy: ${(e as Error).message}` }, HttpStatus.BAD_REQUEST);
+			throw new HttpException({ message: `Invalid cedar policy: ${getErrorMessage(e)}` }, HttpStatus.BAD_REQUEST);
 		}
 	}
 

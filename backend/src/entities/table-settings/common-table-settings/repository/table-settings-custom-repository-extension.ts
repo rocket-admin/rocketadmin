@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Messages } from '../../../../exceptions/text/messages.js';
+import { getErrorMessage } from '../../../../helpers/get-error-message.js';
 import { ConnectionEntity } from '../../../connection/connection.entity.js';
 import { CreateTableSettingsDs } from '../../application/data-structures/create-table-settings.ds.js';
 import { TableSettingsEntity } from '../table-settings.entity.js';
@@ -54,7 +55,7 @@ export const tableSettingsCustomRepositoryExtension: ITableSettingsRepository = 
 		try {
 			return await qb.getOne();
 		} catch (e) {
-			console.info(`Table setting not found exception. => `, (e as Error).message);
+			console.info(`Table setting not found exception. => `, getErrorMessage(e));
 			throw new HttpException(
 				{
 					message: Messages.TABLE_SETTINGS_NOT_FOUND,
@@ -83,7 +84,10 @@ export const tableSettingsCustomRepositoryExtension: ITableSettingsRepository = 
 	},
 
 	//todo: remove after dao's and table settings refactor
-	async findTableSettingsOrReturnEmpty(connectionId: string, tableName: string): Promise<any> {
+	async findTableSettingsOrReturnEmpty(
+		connectionId: string,
+		tableName: string,
+	): Promise<TableSettingsEntity | Record<string, never>> {
 		const foundSettings = await this.findTableSettings(connectionId, tableName);
 		return foundSettings ? foundSettings : {};
 	},

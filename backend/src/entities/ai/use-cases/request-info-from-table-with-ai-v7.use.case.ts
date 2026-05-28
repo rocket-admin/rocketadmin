@@ -19,6 +19,7 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
 import { slackPostMessage } from '../../../helpers/slack/slack-post-message.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
@@ -192,7 +193,7 @@ export class RequestInfoFromTableWithAIUseCaseV7
 
 				depth++;
 			} catch (loopError) {
-				this.logger.error(`Error in tool loop at depth ${depth + 1}: ${(loopError as Error).message}`);
+				this.logger.error(`Error in tool loop at depth ${depth + 1}: ${getErrorMessage(loopError)}`);
 				throw loopError;
 			}
 		}
@@ -290,7 +291,7 @@ export class RequestInfoFromTableWithAIUseCaseV7
 						result = encodeError({ error: `Unknown tool: ${toolCall.name}` });
 				}
 			} catch (error) {
-				const errMessage = (error as Error).message;
+				const errMessage = getErrorMessage(error);
 				this.logger.error(`Tool call ${toolCall.name} (${toolCall.id}) failed: ${errMessage}`);
 				result = encodeError({ error: errMessage });
 			}

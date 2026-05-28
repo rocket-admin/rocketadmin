@@ -49,7 +49,7 @@ import { UpdateTableFiltersUseCase } from './use-cases/update-table-filters.use.
 	controllers: [TableFiltersController],
 })
 export class TableFiltersModule {
-	public configure(consumer: MiddlewareConsumer): any {
+	public configure(consumer: MiddlewareConsumer): void {
 		consumer
 			.apply(AuthMiddleware)
 			.forRoutes(

@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import Sentry from '@sentry/minimal';
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { Repository } from 'typeorm';
 import { JwtScopesEnum } from '../entities/user/enums/jwt-scopes.enum.js';
@@ -29,7 +29,7 @@ export class AuthWithApiMiddleware implements NestMiddleware {
 		private readonly userRepository: Repository<UserEntity>,
 	) {}
 
-	async use(req: IRequestWithCognitoInfo, _res: Response, next: (err?: any, res?: any) => void): Promise<void> {
+	async use(req: IRequestWithCognitoInfo, _res: Response, next: NextFunction): Promise<void> {
 		try {
 			await this.authenticateRequest(req);
 			next();

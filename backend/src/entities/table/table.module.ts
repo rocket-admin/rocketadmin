@@ -108,7 +108,7 @@ import { UpdateRowInTableUseCase } from './use-cases/update-row-in-table.use.cas
 	controllers: [TableController],
 })
 export class TableModule {
-	public configure(consumer: MiddlewareConsumer): any {
+	public configure(consumer: MiddlewareConsumer): void {
 		consumer
 			.apply(AuthWithApiMiddleware)
 			.forRoutes(

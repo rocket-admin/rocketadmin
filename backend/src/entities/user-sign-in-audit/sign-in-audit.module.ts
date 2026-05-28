@@ -28,7 +28,7 @@ import { FindSignInAuditLogsUseCase } from './use-cases/find-sign-in-audit-logs.
 	exports: [SignInAuditService],
 })
 export class SignInAuditModule {
-	public configure(consumer: MiddlewareConsumer): any {
+	public configure(consumer: MiddlewareConsumer): void {
 		consumer.apply(AuthMiddleware).forRoutes({ path: '/sign-in-audit/logs', method: RequestMethod.GET });
 	}
 }

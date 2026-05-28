@@ -11,6 +11,7 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { MessageRole } from '../../ai/ai-conversation-history/ai-chat-messages/message-role.enum.js';
 import { runSchemaChangeAiLoop } from '../ai/run-schema-change-ai-loop.js';
 import { buildSchemaChangePrompt } from '../ai/schema-change-prompts.js';
@@ -118,8 +119,8 @@ export class GenerateSchemaChangeUseCase
 			});
 			proposals = result.proposals;
 		} catch (err) {
-			this.logger.error(`AI loop failed: ${(err as Error).message}`);
-			throw new BadRequestException(`AI generation failed: ${(err as Error).message}`);
+			this.logger.error(`AI loop failed: ${getErrorMessage(err)}`);
+			throw new BadRequestException(`AI generation failed: ${getErrorMessage(err)}`);
 		}
 
 		for (let i = 0; i < proposals.length; i++) {
@@ -316,7 +317,7 @@ User request: `;
 				}
 			}
 		} catch (err) {
-			const message = (err as Error).message ?? 'validation error';
+			const message = getErrorMessage(err) ?? 'validation error';
 			throw new BadRequestException(`${fieldHint}: ${message}`);
 		}
 	}

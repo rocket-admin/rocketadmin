@@ -9,6 +9,7 @@ import { LogOperationTypeEnum } from '../../../enums/log-operation-type.enum.js'
 import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { hexToBinary, isBinary } from '../../../helpers/binary-to-hex.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
 import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
 import { slackPostMessage } from '../../../helpers/slack/slack-post-message.js';
@@ -119,7 +120,7 @@ export class ExportCSVFromTableUseCase
 			}
 			// todo: temporary debug log
 			await slackPostMessage(`
-        CSV Export Failed with error: ${(error as Error).message}\n
+        CSV Export Failed with error: ${getErrorMessage(error)}\n
         Connection type: ${connection.type}\n
         SSH Option: ${connection.ssh}\n
         SSL Option: ${connection.ssl}\n
@@ -127,7 +128,7 @@ export class ExportCSVFromTableUseCase
 			throw new HttpException(
 				{
 					message: Messages.CSV_EXPORT_FAILED,
-					originalMessage: (error as Error).message,
+					originalMessage: getErrorMessage(error),
 				},
 				HttpStatus.INTERNAL_SERVER_ERROR,
 			);

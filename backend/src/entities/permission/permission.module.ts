@@ -47,7 +47,7 @@ import { CreateOrUpdatePermissionsUseCase } from './use-cases/create-or-update-p
 	exports: [],
 })
 export class PermissionModule implements NestModule {
-	public configure(consumer: MiddlewareConsumer): any {
+	public configure(consumer: MiddlewareConsumer): void {
 		consumer.apply(AuthMiddleware).forRoutes({ path: 'permissions/:slug', method: RequestMethod.PUT });
 	}
 }
