@@ -34,7 +34,7 @@
 			</div>
 
 			@if (sidebarOpen()) {
-				<aside class="schema-diagram__sidebar">
+				<aside class="schema-diagram__sidebar" (wheel)="$event.stopPropagation()">
 					<div class="schema-diagram__sidebar-search">
 						<mat-icon class="schema-diagram__sidebar-search-icon">search</mat-icon>
 						<input type="text" placeholder="Search tables"
