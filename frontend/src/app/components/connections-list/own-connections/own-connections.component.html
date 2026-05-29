@@ -30,16 +30,17 @@
                             <h2 class="connectionInfo__connectionTitle">{{ $any(connectionItem).displayTitle }}</h2>
                             <span class="mat-body-2">{{ supportedDatabasesTitles[connectionItem.connection.type] }}</span>
                         </div>
-                        @if (connectionItem.accessLevel === 'edit') {
-                            <a mat-icon-button
-                                class="connectionSchemaButton"
-                                routerLink="/edit-database-schema/{{connectionItem.connection.id}}"
-                                matTooltip="Edit schema"
-                                (click)="$event.stopPropagation()">
-                                <mat-icon>schema</mat-icon>
-                            </a>
-                        }
                     </div>
+                    @if (connectionItem.accessLevel === 'edit') {
+                        <a mat-button color="accent"
+                            class="connectionSchemaButton"
+                            routerLink="/edit-database-schema/{{connectionItem.connection.id}}"
+                            (click)="$event.stopPropagation()">
+                            <mat-icon class="connectionSchemaButton__ai">auto_awesome</mat-icon>
+                            <span>Edit schema</span>
+                            <mat-icon iconPositionEnd class="connectionSchemaButton__arrow">arrow_forward</mat-icon>
+                        </a>
+                    }
                 </a>
             </li>
         }
