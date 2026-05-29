@@ -54,12 +54,17 @@ export interface SchemaChangeResponse {
 	createdAt: string;
 	appliedAt: string | null;
 	rolledBackAt: string | null;
+	aiAutoFixApplied?: boolean;
+	aiAutoFixOriginalForwardSql?: string | null;
+	aiAutoFixOriginalRollbackSql?: string | null;
+	aiAutoFixOriginalError?: string | null;
 }
 
 export interface SchemaChangeBatchResponse {
-	batchId: string;
+	batchId: string | null;
 	changes: SchemaChangeResponse[];
 	threadId?: string | null;
+	assistantMessage?: string | null;
 }
 
 @Injectable({

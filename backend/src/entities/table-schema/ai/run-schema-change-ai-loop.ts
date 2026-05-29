@@ -34,10 +34,9 @@ export interface RunSchemaChangeAiLoopOptions {
 	logger?: Logger;
 }
 
-export interface SchemaChangeAiLoopResult {
-	proposals: ProposeSchemaChangeArgs[];
-	responseId: string | null;
-}
+export type SchemaChangeAiLoopResult =
+	| { kind: 'proposals'; proposals: ProposeSchemaChangeArgs[]; responseId: string | null }
+	| { kind: 'clarification'; assistantMessage: string; responseId: string | null };
 
 export async function runSchemaChangeAiLoop(opts: RunSchemaChangeAiLoopOptions): Promise<SchemaChangeAiLoopResult> {
 	const { aiCoreService, provider, dao, userEmail, logger } = opts;
@@ -77,15 +76,16 @@ export async function runSchemaChangeAiLoop(opts: RunSchemaChangeAiLoopOptions):
 		const proposalCall = pendingToolCalls.find((tc) => TERMINAL_PROPOSAL_TOOL_NAMES.has(tc.name));
 		if (proposalCall) {
 			const proposals = coerceAndValidateProposals(proposalCall);
-			return { proposals, responseId: lastResponseId };
+			return { kind: 'proposals', proposals, responseId: lastResponseId };
 		}
 
 		if (pendingToolCalls.length === 0) {
-			const hint = accumulatedContent
-				? `AI replied with text but no tool call: "${accumulatedContent.slice(0, 200)}"`
-				: 'AI produced no tool calls and no text.';
+			const trimmed = accumulatedContent.trim();
+			if (trimmed.length > 0) {
+				return { kind: 'clarification', assistantMessage: trimmed, responseId: lastResponseId };
+			}
 			throw new Error(
-				`${hint} The model must call proposeSchemaChange (SQL), proposeMongoSchemaChange (Mongo), proposeDynamoDbSchemaChange (DynamoDB), or proposeElasticsearchSchemaChange (Elasticsearch) with structured arguments.`,
+				'AI produced no tool calls and no text. The model must call proposeSchemaChange (SQL), proposeMongoSchemaChange (Mongo), proposeDynamoDbSchemaChange (DynamoDB), or proposeElasticsearchSchemaChange (Elasticsearch) with structured arguments, or ask a focused clarifying question in plain text.',
 			);
 		}
 

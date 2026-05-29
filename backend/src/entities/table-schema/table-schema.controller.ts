@@ -72,7 +72,7 @@ export class TableSchemaController {
 
 	@ApiOperation({
 		summary:
-			'Generate one or more schema changes from a natural-language prompt. The response is always a batch envelope; single-change prompts return a length-1 array. Pass an optional threadId in the body to continue an existing conversation; the response returns the threadId to use for follow-up turns.',
+			"Generate one or more schema changes from a natural-language prompt. The response is always a batch envelope; single-change prompts return a length-1 array. Pass an optional threadId in the body to continue an existing conversation; the response returns the threadId to use for follow-up turns. If the AI needs more context (e.g. the request is too vague), the response carries an assistantMessage with a clarifying question, batchId is null, and changes is empty — resubmit the user's answer with the same threadId to continue.",
 	})
 	@ApiParam({ name: 'connectionId', type: String })
 	@ApiBody({ type: GenerateSchemaChangeDto })

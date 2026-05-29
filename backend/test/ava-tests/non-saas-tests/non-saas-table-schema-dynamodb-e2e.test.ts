@@ -47,6 +47,7 @@ interface DynamoProposedChange {
 }
 
 let nextProposal: DynamoProposedChange | null = null;
+let nextFixProposal: DynamoProposedChange | null = null;
 
 function createDynamoProposalStream(proposal: DynamoProposedChange) {
 	return {
@@ -64,8 +65,21 @@ function createDynamoProposalStream(proposal: DynamoProposedChange) {
 	};
 }
 
+function isFixCall(messages: unknown): boolean {
+	if (!Array.isArray(messages)) return false;
+	for (const m of messages) {
+		const content = (m as { content?: unknown })?.content;
+		if (typeof content === 'string' && content.includes('DDL repair assistant')) return true;
+	}
+	return false;
+}
+
 const mockAICoreService = {
-	streamChatWithToolsAndProvider: async () => {
+	streamChatWithToolsAndProvider: async (_provider: unknown, messages: unknown) => {
+		if (isFixCall(messages)) {
+			if (!nextFixProposal) throw new Error('Test invoked the AI fix loop but nextFixProposal was not set.');
+			return createDynamoProposalStream(nextFixProposal);
+		}
 		if (!nextProposal) throw new Error('Test must set nextProposal.');
 		return createDynamoProposalStream(nextProposal);
 	},
@@ -688,4 +702,96 @@ test.serial('DynamoDB: runtime failure marks FAILED and attempts auto-rollback',
 	t.is(record.status, SchemaChangeStatusEnum.FAILED);
 	t.true(record.autoRollbackAttempted);
 	t.truthy(record.executionError);
+});
+
+test.serial('DynamoDB: runtime failure is repaired by AI auto-fix and applied', async (t) => {
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const connectionId = await createConnection(token);
+	const tableName = randomTableName('ra_ddb_fix');
+	createdTables.push(tableName);
+
+	await seedTable(tableName, [{ AttributeName: 'id', KeyType: 'HASH' }], [{ AttributeName: 'id', AttributeType: 'S' }]);
+
+	const fixedIndexName = 'gsi_fixed_email';
+	const originalForwardOp = JSON.stringify({
+		operation: 'updateTable',
+		tableName,
+		globalSecondaryIndexUpdates: [{ delete: { indexName: 'nonexistent_gsi' } }],
+	});
+	const originalRollbackOp = JSON.stringify({
+		operation: 'updateTable',
+		tableName,
+		attributeDefinitions: [
+			{ attributeName: 'id', attributeType: 'S' },
+			{ attributeName: 'email', attributeType: 'S' },
+		],
+		globalSecondaryIndexUpdates: [
+			{
+				create: {
+					indexName: 'nonexistent_gsi',
+					keySchema: [{ attributeName: 'email', keyType: 'HASH' }],
+					projection: { projectionType: 'ALL' },
+				},
+			},
+		],
+	});
+	const fixedForwardOp = JSON.stringify({
+		operation: 'updateTable',
+		tableName,
+		attributeDefinitions: [
+			{ attributeName: 'id', attributeType: 'S' },
+			{ attributeName: 'email', attributeType: 'S' },
+		],
+		globalSecondaryIndexUpdates: [
+			{
+				create: {
+					indexName: fixedIndexName,
+					keySchema: [{ attributeName: 'email', keyType: 'HASH' }],
+					projection: { projectionType: 'ALL' },
+				},
+			},
+		],
+	});
+	const fixedRollbackOp = JSON.stringify({
+		operation: 'updateTable',
+		tableName,
+		globalSecondaryIndexUpdates: [{ delete: { indexName: fixedIndexName } }],
+	});
+
+	nextProposal = {
+		forwardOp: originalForwardOp,
+		rollbackOp: originalRollbackOp,
+		changeType: SchemaChangeTypeEnum.DYNAMODB_UPDATE_TABLE,
+		targetTableName: tableName,
+		isReversible: true,
+		summary: 'delete missing GSI',
+		reasoning: '',
+	};
+	nextFixProposal = {
+		forwardOp: fixedForwardOp,
+		rollbackOp: fixedRollbackOp,
+		changeType: SchemaChangeTypeEnum.DYNAMODB_UPDATE_TABLE,
+		targetTableName: tableName,
+		isReversible: true,
+		summary: 'AI repaired to create a real GSI',
+		reasoning: '',
+	};
+
+	const generateResp = await request(app.getHttpServer())
+		.post(`/table-schema/${connectionId}/generate`)
+		.set('Cookie', token)
+		.send({ userPrompt: 'update the table' });
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
+
+	const approveResp = await request(app.getHttpServer())
+		.post(`/table-schema/change/${changeId}/approve`)
+		.set('Cookie', token)
+		.send({});
+	t.is(approveResp.status, 200);
+	const applied = JSON.parse(approveResp.text);
+	t.is(applied.status, SchemaChangeStatusEnum.APPLIED);
+	t.true(applied.aiAutoFixApplied);
+	t.truthy(applied.aiAutoFixOriginalError);
+	t.is(applied.aiAutoFixOriginalForwardSql, originalForwardOp);
+	t.is(applied.forwardSql, fixedForwardOp);
 });

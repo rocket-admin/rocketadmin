@@ -569,10 +569,10 @@ export async function createTestPostgresTableWithSchema(
 	connectionParams: any,
 	testEntitiesSeedsCount = 42,
 	testSearchedUserName = 'Vasia',
+	testSchema = 'test_schema',
 ) {
 	const Knex = getTestKnex(connectionParams);
 	const testTableName = getRandomTestTableName();
-	const testSchema = 'test_schema';
 	await Knex.schema.dropTableIfExists(testTableName);
 
 	const testTableColumnName = 'name';
@@ -611,6 +611,7 @@ export async function createTestPostgresTableWithSchema(
 		testTableColumnName: testTableColumnName,
 		testTableSecondColumnName: testTableSecondColumnName,
 		testEntitiesSeedsCount: testEntitiesSeedsCount,
+		testSchema: testSchema,
 	};
 }
 
