@@ -16,4 +16,13 @@ export const actionEventsCustomRepositoryExtension: IActionEventsRepository = {
 			.andWhere('action_events.event = :event', { event: TableActionEventEnum.CUSTOM })
 			.getMany();
 	},
+
+	async findEventByIdInConnection(eventId: string, connectionId: string): Promise<ActionEventsEntity | null> {
+		return await this.createQueryBuilder('action_events')
+			.leftJoinAndSelect('action_events.action_rule', 'action_rule')
+			.leftJoin('action_rule.connection', 'connection')
+			.where('action_events.id = :eventId', { eventId })
+			.andWhere('connection.id = :connectionId', { connectionId })
+			.getOne();
+	},
 };

@@ -28,6 +28,7 @@ import { GetConnectionDiagramUseCase } from './use-cases/get-connection-diagram.
 import { GetPermissionsForGroupInConnectionUseCase } from './use-cases/get-permissions-for-group-in-connection.use.case.js';
 import { GetUserGroupsInConnectionUseCase } from './use-cases/get-user-groups-in-connection.use.case.js';
 import { GetUserPermissionsForGroupInConnectionUseCase } from './use-cases/get-user-permissions-for-group-in-connection.use.case.js';
+import { PreviewConnectionDiagramUseCase } from './use-cases/preview-connection-diagram.use.case.js';
 import { RefreshConnectionAgentTokenUseCase } from './use-cases/refresh-connection-agent-token.use.case.js';
 import { RestoreConnectionUseCase } from './use-cases/restore-connection-use.case.js';
 import { TestConnectionUseCase } from './use-cases/test-connection.use.case.js';
@@ -140,6 +141,10 @@ import { ValidateConnectionTokenUseCase } from './use-cases/validate-connection-
 			provide: UseCaseType.GET_CONNECTION_DIAGRAM,
 			useClass: GetConnectionDiagramUseCase,
 		},
+		{
+			provide: UseCaseType.PREVIEW_CONNECTION_DIAGRAM,
+			useClass: PreviewConnectionDiagramUseCase,
+		},
 	],
 	controllers: [ConnectionController],
 })
@@ -168,6 +173,7 @@ export class ConnectionModule implements NestModule {
 				{ path: '/connection/unfreeze/:connectionId', method: RequestMethod.PUT },
 				{ path: '/connection/title/:connectionId', method: RequestMethod.PUT },
 				{ path: '/connection/diagram/:connectionId', method: RequestMethod.GET },
+				{ path: '/connection/diagram/:connectionId/preview', method: RequestMethod.POST },
 			)
 			.apply(AuthWithApiMiddleware)
 			.forRoutes({ path: 'connections', method: RequestMethod.GET });

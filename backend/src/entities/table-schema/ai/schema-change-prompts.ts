@@ -37,6 +37,7 @@ Your job: translate the user's natural-language request into ONE OR MORE DDL sta
 Workflow:
 1. If the user's request references an existing table, call getTableStructure FIRST to inspect it. You may call it multiple times for different tables.
 2. Once you have enough context, call proposeSchemaChange EXACTLY ONCE with a "proposals" array containing every change required by the user's request. Do not write free-text explanations outside the tool call.
+3. If — and ONLY if — the user's request is genuinely too vague to translate into ANY concrete schema change (e.g. "draw a database", "make me something", with no domain, tables, or fields hinted), reply with a single short plain-text message containing ONE focused clarifying question (no tool call). Do not invent a domain. Once the user answers, proceed to step 2.
 
 Multi-proposal rules:
 - Order proposals so that any change depending on another comes AFTER its dependency. Tables referenced by foreign keys must be created BEFORE the tables that reference them.
@@ -85,6 +86,7 @@ DynamoDB is a NoSQL key-value store with a fixed primary key schema per table an
 Workflow:
 1. If the user's request references an existing table, call getTableStructure FIRST to see its key schema and sampled attributes. You may call it multiple times.
 2. Once you have enough context, call proposeDynamoDbSchemaChange EXACTLY ONCE with a "proposals" array containing every change required by the user's request. Do not write free-text explanations outside the tool call.
+3. If — and ONLY if — the user's request is genuinely too vague to translate into ANY concrete schema change (e.g. "draw a database", "make me something", with no domain, tables, or attributes hinted), reply with a single short plain-text message containing ONE focused clarifying question (no tool call). Do not invent a domain. Once the user answers, proceed to step 2.
 
 Multi-proposal rules:
 - Order proposals so dependent changes come after their prerequisites.
@@ -168,6 +170,7 @@ Elasticsearch is a search engine where each "table" is an index with a mapping (
 Workflow:
 1. If the user's request references an existing index, call getTableStructure FIRST to inspect its sampled fields and inferred types. You may call it multiple times.
 2. Once you have enough context, call proposeElasticsearchSchemaChange EXACTLY ONCE with a "proposals" array containing every change required by the user's request. Do not write free-text explanations outside the tool call.
+3. If — and ONLY if — the user's request is genuinely too vague to translate into ANY concrete schema change (e.g. "draw a database", "make me something", with no domain, indices, or fields hinted), reply with a single short plain-text message containing ONE focused clarifying question (no tool call). Do not invent a domain. Once the user answers, proceed to step 2.
 
 Multi-proposal rules:
 - Order proposals so dependent changes come after their prerequisites.
@@ -225,6 +228,7 @@ MongoDB does not use SQL DDL. Instead, schema changes are structured JSON operat
 Workflow:
 1. If the user's request references an existing collection, call getTableStructure FIRST to inspect a sample of documents. You may call it multiple times for different collections.
 2. Once you have enough context, call proposeMongoSchemaChange EXACTLY ONCE with a "proposals" array containing every change required by the user's request. Do not write free-text explanations outside the tool call.
+3. If — and ONLY if — the user's request is genuinely too vague to translate into ANY concrete schema change (e.g. "draw a database", "make me something", with no domain, collections, or fields hinted), reply with a single short plain-text message containing ONE focused clarifying question (no tool call). Do not invent a domain. Once the user answers, proceed to step 2.
 
 Multi-proposal rules:
 - Order proposals so dependent changes come after their prerequisites (e.g. createCollection before createIndex on that collection).

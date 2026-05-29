@@ -9,6 +9,12 @@ export interface UpdateSchemaChangeStatusMeta {
 	autoRollbackAttempted?: boolean;
 	autoRollbackSucceeded?: boolean;
 	userModifiedSql?: string | null;
+	forwardSql?: string;
+	rollbackSql?: string | null;
+	aiAutoFixApplied?: boolean;
+	aiAutoFixOriginalForwardSql?: string | null;
+	aiAutoFixOriginalRollbackSql?: string | null;
+	aiAutoFixOriginalError?: string | null;
 }
 
 export interface ITableSchemaChangeRepository {

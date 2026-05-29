@@ -46,12 +46,14 @@ import { SaaSGatewayModule } from './microservices/gateways/saas-gateway.ts/saas
 import { SaasModule } from './microservices/saas-microservice/saas.module.js';
 import { AppLoggerMiddleware } from './middlewares/logging-middleware/app-logger-middlewate.js';
 import { SelfHostedOperationsModule } from './selfhosted-operations/selhosted-operations.module.js';
+import { ConfigModule } from './shared/config/config.module.js';
 import { DatabaseModule } from './shared/database/database.module.js';
 import { SharedModule } from './shared/shared.module.js';
 import { GetHelloUseCase } from './use-cases-app/get-hello.use.case.js';
 
 @Module({
 	imports: [
+		ConfigModule,
 		ScheduleModule.forRoot(),
 		ThrottlerModule.forRoot({
 			throttlers: [

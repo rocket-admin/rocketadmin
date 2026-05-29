@@ -1,3 +1,3 @@
-export function enumToString(en: any): string {
+export function enumToString<E extends Record<string, string | number>>(en: E): string {
 	return Object.values(en).join(', ');
 }

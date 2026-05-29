@@ -5,6 +5,7 @@ import PQueue from 'p-queue';
 import { Repository } from 'typeorm';
 import { UserActionEnum } from '../../../enums/user-action.enum.js';
 import { Constants } from '../../../helpers/constants/constants.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { getUniqArrayStrings } from '../../../helpers/get-uniq-array-strings.js';
 import { UserEntity } from '../../user/user.entity.js';
 import { UserActionEntity } from '../user-action.entity.js';
@@ -35,7 +36,7 @@ export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActio
 							}
 						});
 					} catch (error) {
-						console.error(`Error processing user ${user.id}: ${error.message}`);
+						console.error(`Error processing user ${user.id}: ${getErrorMessage(error)}`);
 						Sentry.captureException(error);
 					}
 				}

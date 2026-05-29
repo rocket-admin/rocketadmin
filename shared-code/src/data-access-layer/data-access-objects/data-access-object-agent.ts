@@ -1,3 +1,4 @@
+import { MulterFile } from '../../types/multer-file.js';
 /* eslint-disable security/detect-object-injection */
 
 import { Readable, Stream } from 'node:stream';
@@ -711,7 +712,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
 		});
 	}
 
-	public async importCSVInTable(file: Express.Multer.File, tableName: string, userEmail: string): Promise<void> {
+	public async importCSVInTable(file: MulterFile, tableName: string, userEmail: string): Promise<void> {
 		const jwtAuthToken = this.generateJWT(this.connection.token);
 		axios.defaults.headers.common.Authorization = `Bearer ${jwtAuthToken}`;
 

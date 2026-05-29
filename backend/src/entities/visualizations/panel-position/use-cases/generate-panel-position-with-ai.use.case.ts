@@ -15,6 +15,7 @@ import { IGlobalDatabaseContext } from '../../../../common/application/global-da
 import { BaseType } from '../../../../common/data-injection.tokens.js';
 import { DashboardWidgetTypeEnum } from '../../../../enums/dashboard-widget-type.enum.js';
 import { Messages } from '../../../../exceptions/text/messages.js';
+import { getErrorMessage } from '../../../../helpers/get-error-message.js';
 import { isConnectionTypeAgent } from '../../../../helpers/is-connection-entity-agent.js';
 import { validateQuerySafety } from '../../panel/utils/check-query-is-safe.util.js';
 import { GeneratePanelPositionWithAiDs } from '../data-structures/generate-panel-position-with-ai.ds.js';
@@ -285,7 +286,7 @@ IMPORTANT GUIDELINES:
 						result = encodeError({ error: `Unknown tool: ${toolCall.name}` });
 				}
 			} catch (error) {
-				result = encodeError({ error: error.message });
+				result = encodeError({ error: getErrorMessage(error) });
 			}
 
 			results.push({ toolCallId: toolCall.id, result });
@@ -306,7 +307,7 @@ IMPORTANT GUIDELINES:
 
 			return parsed;
 		} catch (error) {
-			this.logger.error('Error parsing AI response:', error.message);
+			this.logger.error('Error parsing AI response:', getErrorMessage(error));
 			throw new BadRequestException(
 				'Failed to generate panel configuration from AI. Please try again with a different description.',
 			);
@@ -382,7 +383,7 @@ IMPORTANT GUIDELINES:
 			const result = await (dao as IDataAccessObject).executeRawQuery(explainQuery, '');
 			return { success: true, result: JSON.stringify(result, null, 2) };
 		} catch (error) {
-			return { success: false, error: error.message };
+			return { success: false, error: getErrorMessage(error) };
 		}
 	}
 

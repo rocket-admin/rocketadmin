@@ -15,7 +15,7 @@ import { DynamicModule } from 'ng-dynamic-component';
 import { SignalComponentIoModule } from 'ng-dynamic-component/signal-component-io';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { CookieService } from 'ngx-cookie-service';
-import { MERMAID_OPTIONS, MarkdownModule, provideMarkdown } from 'ngx-markdown';
+import { MarkdownModule, MERMAID_OPTIONS, provideMarkdown } from 'ngx-markdown';
 import { NgxStripeModule } from 'ngx-stripe';
 import { AppComponent } from './app/app.component';
 import { AppRoutingModule } from './app/app-routing.module';
@@ -128,9 +128,34 @@ bootstrapApplication(AppComponent, {
 		provideMarkdown({
 			mermaidOptions: {
 				provide: MERMAID_OPTIONS,
-				useValue: {
+				useValue: window.matchMedia('(prefers-color-scheme: dark)').matches ? {
 					startOnLoad: false,
-					theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default',
+					theme: 'base',
+					themeVariables: {
+						darkMode: true,
+						background: '#15102b',
+						primaryColor: '#1d143a',
+						primaryBorderColor: '#3d2b6e',
+						primaryTextColor: '#ede9fe',
+						secondaryColor: '#251a47',
+						tertiaryColor: '#1d143a',
+						lineColor: '#a78bfa',
+						mainBkg: '#1d143a',
+						nodeBkg: '#1d143a',
+						nodeBorder: '#3d2b6e',
+						clusterBkg: '#1d143a',
+						clusterBorder: '#3d2b6e',
+						attributeBackgroundColorOdd: '#1d143a',
+						attributeBackgroundColorEven: '#1d143a',
+						titleColor: '#ede9fe',
+						edgeLabelBackground: '#1d143a',
+						textColor: '#ede9fe',
+						labelTextColor: '#ede9fe',
+						nodeTextColor: '#ede9fe',
+					},
+				} : {
+					startOnLoad: false,
+					theme: 'default',
 				},
 			},
 		}),

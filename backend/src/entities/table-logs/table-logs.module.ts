@@ -43,7 +43,7 @@ import { FindLogsUseCase } from './use-cases/find-logs.use.case.js';
 	exports: [TableLogsService],
 })
 export class TableLogsModule {
-	public configure(consumer: MiddlewareConsumer): any {
+	public configure(consumer: MiddlewareConsumer): void {
 		consumer
 			.apply(AuthMiddleware)
 			.forRoutes(

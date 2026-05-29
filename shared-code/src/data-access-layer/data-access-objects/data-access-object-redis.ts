@@ -1,3 +1,4 @@
+import { MulterFile } from '../../types/multer-file.js';
 /* eslint-disable security/detect-object-injection */
 
 import { Readable, Stream } from 'node:stream';
@@ -1605,7 +1606,7 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
 		return rowsResult.data;
 	}
 
-	public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
+	public async importCSVInTable(file: MulterFile, tableName: string): Promise<void> {
 		const stream = new Readable();
 		stream.push(file.buffer);
 		stream.push(null);

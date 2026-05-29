@@ -81,12 +81,12 @@ export class GetS3FileUrlUseCase
 		}
 
 		const accessKeySecret = await this._dbContext.userSecretRepository.findSecretBySlugAndCompanyId(
-			params.access_key_id_secret_name,
+			params.access_key_id,
 			user.company.id,
 		);
 
 		const secretKeySecret = await this._dbContext.userSecretRepository.findSecretBySlugAndCompanyId(
-			params.secret_access_key_secret_name,
+			params.access_key,
 			user.company.id,
 		);
 

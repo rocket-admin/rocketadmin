@@ -281,8 +281,8 @@ export class DbTableWidgetsComponent implements OnInit {
 // region: Region for the bucket (default: us-east-1; for cloudflare-r2 use "auto")
 // account_id: Cloudflare account ID. Required when provider is "cloudflare-r2".
 // type: "file" (default) - accepts all file types, "image" - accepts only images
-// access_key_id_secret_name: Unique identifier of the secret containing the Access Key ID
-// secret_access_key_secret_name: Unique identifier of the secret containing the Secret Access Key
+// access_key_id: Unique identifier of the secret containing the Access Key ID
+// access_key: Unique identifier of the secret containing the Secret Access Key
 //
 // ⚠️ IMPORTANT: DO NOT INCLUDE BUCKET SECRETS DIRECTLY IN WIDGET SETTINGS!
 // Store your credentials as secrets in Rocketadmin and reference them here by their unique identifiers to ensure security and prevent exposure of sensitive information.
@@ -293,8 +293,8 @@ export class DbTableWidgetsComponent implements OnInit {
   "prefix": "uploads/",
   "region": "us-east-1",
   "type": "file",
-  "access_key_id_secret_name": "bucket-access-key-id",
-  "secret_access_key_secret_name": "bucket-secret-access-key"
+  "access_key_id": "COMPANY-SECRET/bucket-access-key-id",
+  "access_key": "COMPANY-SECRET/bucket-access-key"
 }
 `,
 	};

@@ -5702,6 +5702,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/pegjs@npm:^0.10.0":
+  version: 0.10.6
+  resolution: "@types/pegjs@npm:0.10.6"
+  checksum: be219504714e219b37daee7ef3214b6876d98405cc56b2d084763134032fd46394c5d0e387216ee3e52bd519fe7341e25bdec855f2a911c49a593b21fd8ea4a6
+  languageName: node
+  linkType: hard
+
 "@types/qs@npm:*":
   version: 6.14.0
   resolution: "@types/qs@npm:6.14.0"
@@ -6696,6 +6703,13 @@ __metadata:
   dependencies:
     require-from-string: ^2.0.2
   checksum: 877c5dcfd69a35fd30fee9e49a03faf205a7a4cd04a38af7648974a659cab7b1cd51fa881d7957c07bd1fc5adf22b90a56da3617bb0885ee69d58ff41117658c
+  languageName: node
+  linkType: hard
+
+"big-integer@npm:^1.6.48":
+  version: 1.6.52
+  resolution: "big-integer@npm:1.6.52"
+  checksum: 6e86885787a20fed96521958ae9086960e4e4b5e74d04f3ef7513d4d0ad631a9f3bde2730fc8aaa4b00419fc865f6ec573e5320234531ef37505da7da192c40b
   languageName: node
   linkType: hard
 
@@ -11446,6 +11460,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"node-sql-parser@npm:^5.4.0":
+  version: 5.4.0
+  resolution: "node-sql-parser@npm:5.4.0"
+  dependencies:
+    "@types/pegjs": ^0.10.0
+    big-integer: ^1.6.48
+  checksum: 1cb296d3551912b523da1cf7c7b8f4c1c8fbba560f04ca90a7aa287e6ccde4cd8945d3056dadb128f0db29f5a710f521a3c163c1594131802f31b23f51963220
+  languageName: node
+  linkType: hard
+
 "nopt@npm:^9.0.0":
   version: 9.0.0
   resolution: "nopt@npm:9.0.0"
@@ -12804,6 +12828,7 @@ __metadata:
     ngx-cookie-service: ^19.0.0
     ngx-markdown: ^19.1.1
     ngx-stripe: ^19.0.0
+    node-sql-parser: ^5.4.0
     playwright: ^1.57.0
     pluralize: ^8.0.0
     postgres-interval: ^4.0.2

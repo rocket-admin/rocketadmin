@@ -20,11 +20,10 @@ export class ConversionController {
 	) {}
 
 	@Get('/conversions')
-	async getConversions(@Res() res: Response): Promise<any> {
+	async getConversions(@Res() res: Response): Promise<void> {
 		const csvData = await this.getConversionsUseCase.execute(undefined, InTransactionEnum.OFF);
 		res.setHeader('Content-Type', 'text/csv');
 		res.setHeader('Content-Disposition', 'attachment; filename=conversions.csv');
 		res.status(200).end(csvData);
-		return;
 	}
 }

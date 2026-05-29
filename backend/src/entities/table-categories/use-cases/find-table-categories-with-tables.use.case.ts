@@ -8,6 +8,7 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
 import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
@@ -37,7 +38,8 @@ export class FindTableCategoriesWithTablesUseCase
 		try {
 			connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
 		} catch (error) {
-			if (error.message === Messages.MASTER_PASSWORD_MISSING) {
+			const errMessage = getErrorMessage(error);
+			if (errMessage === Messages.MASTER_PASSWORD_MISSING) {
 				throw new HttpException(
 					{
 						message: Messages.MASTER_PASSWORD_MISSING,
@@ -46,7 +48,7 @@ export class FindTableCategoriesWithTablesUseCase
 					HttpStatus.BAD_REQUEST,
 				);
 			}
-			if (error.message === Messages.MASTER_PASSWORD_INCORRECT) {
+			if (errMessage === Messages.MASTER_PASSWORD_INCORRECT) {
 				throw new HttpException(
 					{
 						message: Messages.MASTER_PASSWORD_INCORRECT,
@@ -75,11 +77,15 @@ export class FindTableCategoriesWithTablesUseCase
 			tables = await dao.getTablesFromDB(userEmail);
 		} catch (e) {
 			Sentry.captureException(e);
-			throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_TABLES);
+			throw new UnknownSQLException(getErrorMessage(e), ExceptionOperations.FAILED_TO_GET_TABLES);
 		}
 
 		const tableNames = tables.map((t) => t.tableName);
-		const permissionsArr = await this.cedarPermissions.getUserPermissionsForAvailableTables(userId, connectionId, tableNames);
+		const permissionsArr = await this.cedarPermissions.getUserPermissionsForAvailableTables(
+			userId,
+			connectionId,
+			tableNames,
+		);
 		const tablesWithPermissions: Array<ITableAndViewPermissionData> = permissionsArr.map((perm) => ({
 			...perm,
 			isView: tables.find((t) => t.tableName === perm.tableName)?.isView || false,
@@ -95,7 +101,9 @@ export class FindTableCategoriesWithTablesUseCase
 		const foundTableCategories =
 			await this._dbContext.tableCategoriesRepository.findTableCategoriesForConnection(connectionId);
 
-		const storedAllTablesCategory = foundTableCategories.find((category) => category.category_id === 'all-tables-kitten');
+		const storedAllTablesCategory = foundTableCategories.find(
+			(category) => category.category_id === 'all-tables-kitten',
+		);
 		const otherCategories = foundTableCategories.filter((category) => category.category_id !== 'all-tables-kitten');
 
 		let allTablesOrdered: Array<FoundTableDs>;
@@ -159,5 +167,4 @@ export class FindTableCategoriesWithTablesUseCase
 			};
 		});
 	}
-
 }

@@ -11,6 +11,7 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { MessageRole } from '../../ai/ai-conversation-history/ai-chat-messages/message-role.enum.js';
 import { runSchemaChangeAiLoop } from '../ai/run-schema-change-ai-loop.js';
 import { buildSchemaChangePrompt } from '../ai/schema-change-prompts.js';
@@ -105,9 +106,9 @@ export class GenerateSchemaChangeUseCase
 			});
 		}
 
-		let proposals: ProposeSchemaChangeArgs[];
+		let loopResult;
 		try {
-			const result = await runSchemaChangeAiLoop({
+			loopResult = await runSchemaChangeAiLoop({
 				aiCoreService: this.aiCoreService,
 				provider: this.provider,
 				messages,
@@ -116,11 +117,26 @@ export class GenerateSchemaChangeUseCase
 				userEmail: undefined,
 				logger: this.logger,
 			});
-			proposals = result.proposals;
 		} catch (err) {
-			this.logger.error(`AI loop failed: ${(err as Error).message}`);
-			throw new BadRequestException(`AI generation failed: ${(err as Error).message}`);
+			this.logger.error(`AI loop failed: ${getErrorMessage(err)}`);
+			throw new BadRequestException(`AI generation failed: ${getErrorMessage(err)}`);
 		}
+
+		if (loopResult.kind === 'clarification') {
+			await this._dbContext.schemaChangeChatMessageRepository.saveMessage(
+				chat.id,
+				loopResult.assistantMessage,
+				MessageRole.ai,
+			);
+			return {
+				batchId: null,
+				threadId: chat.id,
+				changes: [],
+				assistantMessage: loopResult.assistantMessage,
+			};
+		}
+
+		const proposals: ProposeSchemaChangeArgs[] = loopResult.proposals;
 
 		for (let i = 0; i < proposals.length; i++) {
 			this.validateProposal(proposals[i], connectionType, i);
@@ -140,7 +156,7 @@ export class GenerateSchemaChangeUseCase
 			previousChangeId,
 			forwardSql: proposal.forwardSql,
 			rollbackSql: proposal.rollbackSql ?? null,
-			userModifiedSql: null,
+			userModifiedSql: null as string | null,
 			status: SchemaChangeStatusEnum.PENDING,
 			changeType: proposal.changeType,
 			targetTableName: proposal.targetTableName,
@@ -316,7 +332,7 @@ User request: `;
 				}
 			}
 		} catch (err) {
-			const message = (err as Error).message ?? 'validation error';
+			const message = getErrorMessage(err) ?? 'validation error';
 			throw new BadRequestException(`${fieldHint}: ${message}`);
 		}
 	}

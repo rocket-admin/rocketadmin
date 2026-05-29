@@ -128,7 +128,7 @@ test.serial(`${currentTest} - should return registered custom domain`, async (t)
 		t.is(Object.hasOwn(registerDomainResponseRO, 'createdAt'), true);
 		t.is(Object.keys(registerDomainResponseRO).length, 5);
 	} catch (error) {
-		t.fail(error.message);
+		t.fail((error as Error).message);
 	}
 });
 
@@ -166,7 +166,7 @@ test.serial(`${currentTest} - should throw exception when hostname is incorrect`
 		);
 		t.is(registerDomainResponse.status, 400);
 	} catch (error) {
-		t.fail(error.message);
+		t.fail((error as Error).message);
 	}
 });
 
@@ -243,7 +243,7 @@ test.serial(`${currentTest} - should return found custom domain`, async (t) => {
 		t.is(Object.hasOwn(foundCompanyFullInfoResponseRO, 'custom_domain'), true);
 		t.is(foundCompanyFullInfoResponseRO.custom_domain, requestDomainData.hostname);
 	} catch (error) {
-		t.fail(error.message);
+		t.fail((error as Error).message);
 	}
 });
 
@@ -296,7 +296,7 @@ test.serial(`${currentTest} - should throw exception when company id is invalid`
 		);
 		t.is(foundDomainResponse.status, 404);
 	} catch (error) {
-		t.fail(error.message);
+		t.fail((error as Error).message);
 	}
 });
 
@@ -362,7 +362,7 @@ test.serial(`${currentTest} - should return updated custom domain`, async (t) =>
 		t.is(Object.hasOwn(updateDomainResponseRO, 'updatedAt'), true);
 		t.is(Object.keys(updateDomainResponseRO).length, 5);
 	} catch (error) {
-		t.fail(error.message);
+		t.fail((error as Error).message);
 	}
 });
 
@@ -418,7 +418,7 @@ test.serial(`${currentTest} - should throw exception when hostname is invalid`, 
 		);
 		t.is(updateDomainResponse.status, 400);
 	} catch (error) {
-		t.fail(error.message);
+		t.fail((error as Error).message);
 	}
 });
 
@@ -475,7 +475,7 @@ test.serial(`${currentTest} - should throw exception when company id is incorrec
 		);
 		t.is(updateDomainResponse.status, 404);
 	} catch (error) {
-		t.fail(error.message);
+		t.fail((error as Error).message);
 	}
 });
 
@@ -546,6 +546,6 @@ test.serial(`${currentTest} - should delete custom domain`, async (t) => {
 		t.is(Object.hasOwn(foundDomainResponseRO, 'domain_info'), true);
 		t.is(foundDomainResponseRO.domain_info, null);
 	} catch (error) {
-		t.fail(error.message);
+		t.fail((error as Error).message);
 	}
 });

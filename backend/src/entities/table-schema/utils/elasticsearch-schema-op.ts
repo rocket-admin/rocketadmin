@@ -1,5 +1,6 @@
 import { Client } from '@elastic/elasticsearch';
 import { BadRequestException } from '@nestjs/common';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { SchemaChangeTypeEnum } from '../table-schema-change-enums.js';
 
 export interface ElasticsearchExecutionConnection {
@@ -54,7 +55,7 @@ export function validateProposedElasticsearchOp(input: ValidateElasticsearchOpIn
 	try {
 		parsed = JSON.parse(opJson);
 	} catch (err) {
-		throw new BadRequestException(`Proposed Elasticsearch operation is not valid JSON: ${(err as Error).message}`);
+		throw new BadRequestException(`Proposed Elasticsearch operation is not valid JSON: ${getErrorMessage(err)}`);
 	}
 
 	if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
@@ -144,7 +145,7 @@ export async function executeElasticsearchSchemaOp(
 	try {
 		await dispatchElasticsearchOp(client, op);
 	} finally {
-		await client.close().catch(() => undefined);
+		await client.close().catch((): void => undefined);
 	}
 }
 

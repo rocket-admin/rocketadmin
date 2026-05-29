@@ -10,6 +10,8 @@ import { AmplitudeEventTypeEnum } from '../../../enums/amplitude-event-type.enum
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { isTest as isTestEnv } from '../../../helpers/app/is-test.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
@@ -44,7 +46,8 @@ export class FindTablesInConnectionUseCase
 		try {
 			connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
 		} catch (error) {
-			if (error.message === Messages.MASTER_PASSWORD_MISSING) {
+			const errMessage = getErrorMessage(error);
+			if (errMessage === Messages.MASTER_PASSWORD_MISSING) {
 				throw new HttpException(
 					{
 						message: Messages.MASTER_PASSWORD_MISSING,
@@ -53,7 +56,7 @@ export class FindTablesInConnectionUseCase
 					HttpStatus.BAD_REQUEST,
 				);
 			}
-			if (error.message === Messages.MASTER_PASSWORD_INCORRECT) {
+			if (errMessage === Messages.MASTER_PASSWORD_INCORRECT) {
 				throw new HttpException(
 					{
 						message: Messages.MASTER_PASSWORD_INCORRECT,
@@ -87,7 +90,7 @@ export class FindTablesInConnectionUseCase
 		} catch (e) {
 			operationResult = false;
 			Sentry.captureException(e);
-			throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_TABLES);
+			throw new UnknownSQLException(getErrorMessage(e), ExceptionOperations.FAILED_TO_GET_TABLES);
 		} finally {
 			if (!connection.isTestConnection && tables && tables.length) {
 				this.logger.log({
@@ -102,12 +105,7 @@ export class FindTablesInConnectionUseCase
 				userId,
 				{ tablesCount: tables?.length ? tables.length : 0 },
 			);
-			if (
-				connection.saved_table_info === 0 &&
-				!connection.isTestConnection &&
-				operationResult &&
-				process.env.NODE_ENV !== 'test'
-			) {
+			if (connection.saved_table_info === 0 && !connection.isTestConnection && operationResult && !isTestEnv()) {
 				saveTableInfoInDatabase(connection.id, tables, masterPwd, this._dbContext);
 			}
 		}

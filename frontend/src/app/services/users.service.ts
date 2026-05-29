@@ -1,8 +1,11 @@
 import { HttpClient, HttpResourceRef } from '@angular/common/http';
 import { computed, Injectable, inject, signal } from '@angular/core';
 import { catchError, EMPTY, map } from 'rxjs';
+import { PolicyAction, PolicyActionGroup } from 'src/app/lib/cedar-policy-items';
+import { groupNameForAction, PERMISSION_GROUP_ORDER } from 'src/app/lib/permission-display';
 import { GroupUser, Permissions, UserGroup, UserGroupInfo } from 'src/app/models/user';
 import { ApiService } from './api.service';
+import { AuthService } from './auth.service';
 import { NotificationsService } from './notifications.service';
 
 export type GroupUpdateEvent =
@@ -19,6 +22,7 @@ export type GroupUpdateEvent =
 })
 export class UsersService {
 	private _api = inject(ApiService);
+	private _auth = inject(AuthService);
 	private _http = inject(HttpClient);
 	private _notifications = inject(NotificationsService);
 
@@ -43,6 +47,28 @@ export class UsersService {
 		});
 	});
 	public readonly groupsLoading = computed(() => this._groupsResource.isLoading());
+
+	private _availablePermissionsResource: HttpResourceRef<{ actions: PolicyAction[] } | undefined> = this._api.resource<{
+		actions: PolicyAction[];
+	}>(() => (this._auth.isAuthenticated() ? '/permissions/available' : undefined));
+
+	public readonly availablePermissions = computed<PolicyAction[]>(
+		() => this._availablePermissionsResource.value()?.actions ?? [],
+	);
+
+	public readonly availablePermissionGroups = computed<PolicyActionGroup[]>(() => {
+		const byGroup = new Map<string, PolicyAction[]>();
+		for (const action of this.availablePermissions()) {
+			const groupName = groupNameForAction(action.value);
+			const list = byGroup.get(groupName);
+			if (list) list.push(action);
+			else byGroup.set(groupName, [action]);
+		}
+		return PERMISSION_GROUP_ORDER.filter((name) => byGroup.has(name)).map((name) => ({
+			group: name,
+			actions: byGroup.get(name)!,
+		}));
+	});
 
 	// Group users - managed imperatively (per-group parallel fetch)
 	private _groupUsers = signal<Record<string, GroupUser[] | 'empty'>>({});

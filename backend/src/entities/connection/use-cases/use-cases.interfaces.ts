@@ -14,6 +14,7 @@ import { FoundPermissionsInConnectionDs } from '../application/data-structures/f
 import { GetConnectionDiagramDs } from '../application/data-structures/get-connection-diagram.ds.js';
 import { GetGroupsInConnectionDs } from '../application/data-structures/get-groups-in-connection.ds.js';
 import { GetPermissionsInConnectionDs } from '../application/data-structures/get-permissions-in-connection.ds.js';
+import { PreviewConnectionDiagramDs } from '../application/data-structures/preview-connection-diagram.ds.js';
 import { RestoredConnectionDs } from '../application/data-structures/restored-connection.ds.js';
 import { TestConnectionResultDs } from '../application/data-structures/test-connection-result.ds.js';
 import { TokenDs } from '../application/data-structures/token.ds.js';
@@ -22,6 +23,7 @@ import { UpdateConnectionDs } from '../application/data-structures/update-connec
 import { UpdateConnectionTitleDs } from '../application/data-structures/update-connection-title.ds.js';
 import { UpdateMasterPasswordDs } from '../application/data-structures/update-master-password.ds.js';
 import { ValidateConnectionMasterPasswordDs } from '../application/data-structures/validate-connection-master-password.ds.js';
+import { ConnectionDiagramPreviewResponseDTO } from '../application/dto/connection-diagram-preview-response.dto.js';
 import { ConnectionDiagramResponseDTO } from '../application/dto/connection-diagram-response.dto.js';
 import { CreatedConnectionDTO } from '../application/dto/created-connection.dto.js';
 import { FoundUserGroupsInConnectionDTO } from '../application/dto/found-user-groups-in-connection.dto.js';
@@ -111,4 +113,11 @@ export interface IUpdateConnectionTitle {
 
 export interface IGetConnectionDiagram {
 	execute(inputData: GetConnectionDiagramDs, inTransaction: InTransactionEnum): Promise<ConnectionDiagramResponseDTO>;
+}
+
+export interface IPreviewConnectionDiagram {
+	execute(
+		inputData: PreviewConnectionDiagramDs,
+		inTransaction: InTransactionEnum,
+	): Promise<ConnectionDiagramPreviewResponseDTO>;
 }

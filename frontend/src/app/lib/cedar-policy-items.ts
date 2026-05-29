@@ -1,5 +1,7 @@
 import { AccessLevel, Permissions } from '../models/user';
 
+export type PolicyActionResource = 'connection' | 'group' | 'table' | 'actionEvent' | 'dashboard' | 'panel';
+
 export interface CedarPolicyItem {
 	action: string;
 	tableName?: string;
@@ -8,58 +10,13 @@ export interface CedarPolicyItem {
 
 export interface PolicyAction {
 	value: string;
-	label: string;
-	needsTable: boolean;
-	needsDashboard: boolean;
+	resource?: PolicyActionResource;
 }
 
 export interface PolicyActionGroup {
 	group: string;
 	actions: PolicyAction[];
 }
-
-export const POLICY_ACTION_GROUPS: PolicyActionGroup[] = [
-	{
-		group: 'General',
-		actions: [{ value: '*', label: 'Full access (all permissions)', needsTable: false, needsDashboard: false }],
-	},
-	{
-		group: 'Connection',
-		actions: [
-			{ value: 'connection:read', label: 'Connection read', needsTable: false, needsDashboard: false },
-			{ value: 'connection:edit', label: 'Connection full access', needsTable: false, needsDashboard: false },
-		],
-	},
-	{
-		group: 'Group',
-		actions: [
-			{ value: 'group:read', label: 'Group read', needsTable: false, needsDashboard: false },
-			{ value: 'group:edit', label: 'Group manage', needsTable: false, needsDashboard: false },
-		],
-	},
-	{
-		group: 'Table',
-		actions: [
-			{ value: 'table:*', label: 'Full table access', needsTable: true, needsDashboard: false },
-			{ value: 'table:read', label: 'Table read', needsTable: true, needsDashboard: false },
-			{ value: 'table:add', label: 'Table add', needsTable: true, needsDashboard: false },
-			{ value: 'table:edit', label: 'Table edit', needsTable: true, needsDashboard: false },
-			{ value: 'table:delete', label: 'Table delete', needsTable: true, needsDashboard: false },
-		],
-	},
-	{
-		group: 'Dashboard',
-		actions: [
-			{ value: 'dashboard:*', label: 'Full dashboard access', needsTable: false, needsDashboard: true },
-			{ value: 'dashboard:read', label: 'Dashboard read', needsTable: false, needsDashboard: true },
-			{ value: 'dashboard:create', label: 'Dashboard create', needsTable: false, needsDashboard: false },
-			{ value: 'dashboard:edit', label: 'Dashboard edit', needsTable: false, needsDashboard: true },
-			{ value: 'dashboard:delete', label: 'Dashboard delete', needsTable: false, needsDashboard: true },
-		],
-	},
-];
-
-export const POLICY_ACTIONS: PolicyAction[] = POLICY_ACTION_GROUPS.flatMap((g) => g.actions);
 
 export function permissionsToPolicyItems(permissions: Permissions): CedarPolicyItem[] {
 	const items: CedarPolicyItem[] = [];

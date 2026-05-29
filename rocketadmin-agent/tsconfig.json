@@ -1,23 +1,22 @@
 {
-  "compilerOptions": {
-    "module": "ESNext",
-    "declaration": true,
-    "removeComments": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "allowJs": true,
-    "esModuleInterop": true,
-    "target": "ESNext",
-    "sourceMap": true,
-    "outDir": "./dist",
-    "baseUrl": "./",
-    "incremental": true,
-    "moduleResolution": "node",
-    "skipLibCheck": true
-  },
-  "references": [
-    { "path": "../shared-code" },
-],
-  "include": ["src", "test"],
-  "exclude": ["node_modules", "dist"]
+	"compilerOptions": {
+		"module": "NodeNext",
+		"declaration": true,
+		"removeComments": true,
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"allowJs": true,
+		"esModuleInterop": true,
+		"target": "ESNext",
+		"sourceMap": true,
+		"outDir": "./dist",
+		"rootDir": "./src",
+		"incremental": true,
+		"moduleResolution": "NodeNext",
+		"skipLibCheck": true,
+		"strict": false
+	},
+	"references": [{ "path": "../shared-code" }],
+	"include": ["src", "test"],
+	"exclude": ["node_modules", "dist"]
 }

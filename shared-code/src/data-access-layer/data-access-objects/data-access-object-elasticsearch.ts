@@ -1,11 +1,11 @@
-import { Client } from '@elastic/elasticsearch';
-import { MgetResponse } from '@elastic/elasticsearch/lib/api/types.js';
+import { Client, estypes } from '@elastic/elasticsearch';
 import * as csv from 'csv';
 import { Readable, Stream } from 'stream';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
 import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
+import { MulterFile } from '../../types/multer-file.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
 import { ForeignKeyDS } from '../shared/data-structures/foreign-key.ds.js';
@@ -136,7 +136,7 @@ export class DataAccessObjectElasticsearch extends BasicDataAccessObject impleme
 		const response = (await client.mget({
 			index: tableName,
 			ids: primaryDocs.map((doc) => doc._id),
-		})) as MgetResponse<Record<string, unknown>>;
+		})) as estypes.MgetResponse<Record<string, unknown>>;
 
 		let availableFields: string[] = [];
 		if (settings) {
@@ -590,7 +590,7 @@ export class DataAccessObjectElasticsearch extends BasicDataAccessObject impleme
 		return result.data as any;
 	}
 
-	public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
+	public async importCSVInTable(file: MulterFile, tableName: string): Promise<void> {
 		const client = this.getElasticClient();
 		const stream = new Readable();
 		stream.push(file.buffer);

@@ -1,3 +1,4 @@
+import { MulterFile } from '../../types/multer-file.js';
 /* eslint-disable security/detect-object-injection */
 
 import { Readable, Stream } from 'node:stream';
@@ -694,7 +695,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
 		return rowsAsStream;
 	}
 
-	public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
+	public async importCSVInTable(file: MulterFile, tableName: string): Promise<void> {
 		const knex = await this.configureKnex();
 		const structure = await this.getTableStructure(tableName);
 		const timestampColumnNames = structure

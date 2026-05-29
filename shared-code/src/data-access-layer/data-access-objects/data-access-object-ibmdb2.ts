@@ -10,6 +10,7 @@ import { getTunnel } from '../../helpers/get-ssh-tunnel.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { FilterCriteriaEnum } from '../../shared/enums/filter-criteria.enum.js';
 import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
+import { MulterFile } from '../../types/multer-file.js';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
 import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
@@ -709,7 +710,7 @@ ORDER BY
 		return fastCount;
 	}
 
-	public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
+	public async importCSVInTable(file: MulterFile, tableName: string): Promise<void> {
 		const stream = new Readable();
 		stream.push(file.buffer);
 		stream.push(null);

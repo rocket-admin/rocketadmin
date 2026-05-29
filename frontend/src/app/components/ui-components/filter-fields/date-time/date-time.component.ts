@@ -148,14 +148,14 @@ export class DateTimeFilterComponent extends BaseFilterFieldComponent implements
 
 	private _restoreBetween(value: string[]): void {
 		if (value[0]) {
-			const lower = new Date(value[0]);
-			this.lowerDate = format(lower, 'yyyy-MM-dd');
-			this.lowerTime = format(lower, 'HH:mm:ss');
+			const iso = new Date(value[0]).toISOString();
+			this.lowerDate = iso.slice(0, 10);
+			this.lowerTime = iso.slice(11, 19);
 		}
 		if (value[1]) {
-			const upper = new Date(value[1]);
-			this.upperDate = format(upper, 'yyyy-MM-dd');
-			this.upperTime = format(upper, 'HH:mm:ss');
+			const iso = new Date(value[1]).toISOString();
+			this.upperDate = iso.slice(0, 10);
+			this.upperTime = iso.slice(11, 19);
 		}
 	}
 

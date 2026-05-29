@@ -21,6 +21,7 @@ import { UserId } from '../../../decorators/user-id.decorator.js';
 import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { ActionEventTriggerGuard } from '../../../guards/action-event-trigger.guard.js';
 import { ConnectionEditGuard } from '../../../guards/connection-edit.guard.js';
 import { ConnectionReadGuard } from '../../../guards/connection-read.guard.js';
 import { validateStringWithEnum } from '../../../helpers/validators/validate-string-with-enum.js';
@@ -239,7 +240,7 @@ export class ActionRulesController {
 		isArray: true,
 	})
 	@ApiBody({ type: Object })
-	// @UseGuards(ConnectionReadGuard)
+	@UseGuards(ActionEventTriggerGuard)
 	@Post('/event/actions/activate/:eventId/:connectionId')
 	async activateTableActionsInRule(
 		@SlugUuid('connectionId') connectionId: string,
