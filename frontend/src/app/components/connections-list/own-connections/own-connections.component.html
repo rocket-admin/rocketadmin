@@ -31,7 +31,7 @@
                             <span class="mat-body-2">{{ supportedDatabasesTitles[connectionItem.connection.type] }}</span>
                         </div>
                     </div>
-                    @if (connectionItem.accessLevel === 'edit') {
+                    @if (connectionItem.accessLevel === 'edit' && supportsSchemaEditing(connectionItem.connection.type)) {
                         <a mat-button color="accent"
                             class="connectionSchemaButton"
                             routerLink="/edit-database-schema/{{connectionItem.connection.id}}"

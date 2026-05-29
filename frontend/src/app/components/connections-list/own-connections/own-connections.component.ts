@@ -10,7 +10,7 @@ import { firstValueFrom } from 'rxjs';
 import { supportedDatabasesTitles, supportedOrderedDatabases } from 'src/app/consts/databases';
 import { AlertActionType, AlertType } from 'src/app/models/alert';
 import { CompanyMember, CompanyMemberRole } from 'src/app/models/company';
-import { ConnectionItem } from 'src/app/models/connection';
+import { ConnectionItem, DBtype } from 'src/app/models/connection';
 import { UiSettings } from 'src/app/models/ui-settings';
 import { SubscriptionPlans, User } from 'src/app/models/user';
 import { CompanyService } from 'src/app/services/company.service';
@@ -112,6 +112,17 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 	showLess() {
 		this.displayedCardCount = 3;
 		this._uiSettings.updateGlobalSetting('connectionsListCollapsed', true);
+	}
+
+	supportsSchemaEditing(type: DBtype | string): boolean {
+		return (
+			type === DBtype.Postgres ||
+			type === DBtype.MySQL ||
+			type === DBtype.Oracle ||
+			type === DBtype.MSSQL ||
+			type === DBtype.DB2 ||
+			type === DBtype.ClickHouse
+		);
 	}
 
 	getMainTitle(database: string): string {
