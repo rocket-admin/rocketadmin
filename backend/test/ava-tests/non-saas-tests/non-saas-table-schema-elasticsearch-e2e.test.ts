@@ -39,6 +39,7 @@ interface ElasticProposedChange {
 }
 
 let nextProposal: ElasticProposedChange | null = null;
+let nextFixProposal: ElasticProposedChange | null = null;
 
 function createElasticProposalStream(proposal: ElasticProposedChange) {
 	return {
@@ -56,8 +57,21 @@ function createElasticProposalStream(proposal: ElasticProposedChange) {
 	};
 }
 
+function isFixCall(messages: unknown): boolean {
+	if (!Array.isArray(messages)) return false;
+	for (const m of messages) {
+		const content = (m as { content?: unknown })?.content;
+		if (typeof content === 'string' && content.includes('DDL repair assistant')) return true;
+	}
+	return false;
+}
+
 const mockAICoreService = {
-	streamChatWithToolsAndProvider: async () => {
+	streamChatWithToolsAndProvider: async (_provider: unknown, messages: unknown) => {
+		if (isFixCall(messages)) {
+			if (!nextFixProposal) throw new Error('Test invoked the AI fix loop but nextFixProposal was not set.');
+			return createElasticProposalStream(nextFixProposal);
+		}
 		if (!nextProposal) throw new Error('Test must set nextProposal.');
 		return createElasticProposalStream(nextProposal);
 	},
@@ -384,6 +398,69 @@ test.serial('Elasticsearch: invalid op marks FAILED and attempts auto-rollback',
 	t.is(record.status, SchemaChangeStatusEnum.FAILED);
 	t.true(record.autoRollbackAttempted);
 	t.truthy(record.executionError);
+});
+
+test.serial('Elasticsearch: invalid op is repaired by AI auto-fix and applied', async (t) => {
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const connectionId = await createConnection(token);
+	const indexName = randomIndexName('ra_es_fix');
+	createdIndices.push(indexName);
+
+	await createIndexWithMapping(indexName, { properties: { name: { type: 'keyword' } } });
+
+	const originalForwardOp = JSON.stringify({
+		operation: 'updateMapping',
+		indexName,
+		properties: { bad_field: { type: 'totally_made_up_type' } },
+	});
+	const originalRollbackOp = JSON.stringify({ operation: 'deleteIndex', indexName });
+	const fixedForwardOp = JSON.stringify({
+		operation: 'updateMapping',
+		indexName,
+		properties: { phone: { type: 'keyword' } },
+	});
+	const fixedRollbackOp = JSON.stringify({ operation: 'deleteIndex', indexName });
+
+	nextProposal = {
+		forwardOp: originalForwardOp,
+		rollbackOp: originalRollbackOp,
+		changeType: SchemaChangeTypeEnum.ELASTICSEARCH_UPDATE_MAPPING,
+		targetTableName: indexName,
+		isReversible: false,
+		summary: 'mapping with bogus type',
+		reasoning: '',
+	};
+	nextFixProposal = {
+		forwardOp: fixedForwardOp,
+		rollbackOp: fixedRollbackOp,
+		changeType: SchemaChangeTypeEnum.ELASTICSEARCH_UPDATE_MAPPING,
+		targetTableName: indexName,
+		isReversible: false,
+		summary: 'AI repaired the bogus type to keyword',
+		reasoning: '',
+	};
+
+	const generateResp = await request(app.getHttpServer())
+		.post(`/table-schema/${connectionId}/generate`)
+		.set('Cookie', token)
+		.send({ userPrompt: 'add a field' });
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
+
+	const approveResp = await request(app.getHttpServer())
+		.post(`/table-schema/change/${changeId}/approve`)
+		.set('Cookie', token)
+		.send({ confirmedDestructive: true });
+	t.is(approveResp.status, 200);
+	const applied = JSON.parse(approveResp.text);
+	t.is(applied.status, SchemaChangeStatusEnum.APPLIED);
+	t.true(applied.aiAutoFixApplied);
+	t.truthy(applied.aiAutoFixOriginalError);
+	t.is(applied.aiAutoFixOriginalForwardSql, originalForwardOp);
+	t.is(applied.forwardSql, fixedForwardOp);
+
+	const mapping = await getMapping(indexName);
+	const properties = (mapping?.properties as Record<string, { type?: string }>) ?? {};
+	t.is(properties.phone?.type, 'keyword');
 });
 
 test.serial('Elasticsearch: userModifiedSql JSON op is validated and applied', async (t) => {
