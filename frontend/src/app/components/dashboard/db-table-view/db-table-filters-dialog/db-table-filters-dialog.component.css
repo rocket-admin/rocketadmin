@@ -6,6 +6,11 @@
 	margin-bottom: 12px;
 }
 
+.filters-header__settings {
+	flex: 0 0 auto;
+	margin-left: auto;
+}
+
 .filters-header__text {
 	display: flex;
 	flex-direction: column;

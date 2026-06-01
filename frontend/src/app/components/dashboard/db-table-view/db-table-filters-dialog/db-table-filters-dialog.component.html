@@ -5,6 +5,7 @@
             <span class="filters-header__table">Table: {{ data.displayTableName }}</span>
         </span>
         <a mat-icon-button mat-dialog-close
+            class="filters-header__settings"
             routerLink="/dashboard/{{data.connectionID}}/{{data.tableName}}/settings"
             matTooltip="Advanced settings">
             <mat-icon>settings</mat-icon>

@@ -20,6 +20,26 @@
         <button type="button" mat-icon-button class="refresh-button" (click)="loadRowsPage()">
             <mat-icon>refresh</mat-icon>
         </button>
+
+        <button mat-icon-button type="button"
+            class="table-title__ai"
+            matTooltip="AI assistant"
+            angulartics2On="click"
+            angularticsAction="Dashboard: AI is clicked"
+            (click)="handleViewAIpanel(); posthog.capture('Dashboard: AI is clicked')">
+            <mat-icon svgIcon="ai_rocket" class="ai-icon"></mat-icon>
+        </button>
+
+        <button mat-icon-button type="button"
+            class="table-title__settings"
+            *ngIf="canEditConnection()"
+            [matMenuTriggerFor]="settingsMenu"
+            matTooltip="Table settings"
+            angulartics2On="click"
+            angularticsAction="Dashboard: settings dropdown is clicked"
+            (click)="posthog.capture('Dashboard: settings dropdown is clicked')">
+            <mat-icon fontSet="material-symbols-outlined">settings</mat-icon>
+        </button>
     </div>
     <div *ngIf="selection.selected.length; else generalActions" class="db-table-bulk-actions">
         <div class="actions">
@@ -49,24 +69,37 @@
     </div>
     <ng-template #generalActions>
         <div class="db-table-actions">
-            <form #searchForm="ngForm"
-                class="search-form"
-                [class.search-form_filled]="searchString"
-                angulartics2On="submit"
-                angularticsAction="Dashboard: search is applied"
-                (submit)="posthog.capture('Dashboard: search is applied')"
-                (ngSubmit)="handleSearch()">
-                <mat-form-field appearance="fill" class="search-input">
-                    <mat-icon matPrefix class="search-input__icon">search</mat-icon>
-                    <input matInput name="search"
-                        placeholder="Search"
-                        [(ngModel)]="searchString">
-                    <button type="button" mat-icon-button matSuffix *ngIf="searchString"
-                        (click)="clearSearch()">
-                        <mat-icon>close</mat-icon>
+            <div class="search-row">
+                <form #searchForm="ngForm"
+                    class="search-form"
+                    [class.search-form_filled]="searchString"
+                    angulartics2On="submit"
+                    angularticsAction="Dashboard: search is applied"
+                    (submit)="posthog.capture('Dashboard: search is applied')"
+                    (ngSubmit)="handleSearch()">
+                    <mat-form-field appearance="fill" class="search-input">
+                        <mat-icon matPrefix class="search-input__icon">search</mat-icon>
+                        <input matInput name="search"
+                            placeholder="Search"
+                            [(ngModel)]="searchString">
+                        <button type="button" mat-icon-button matSuffix *ngIf="searchString"
+                            (click)="clearSearch()">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </mat-form-field>
+                </form>
+                <div class="search-row__buttons">
+                    <button mat-stroked-button type="button" *ngIf="tableData && tableData.structure"
+                        class="search-row__filter"
+                        [ngClass]="{'action_active': getFiltersCount(activeFilters)}"
+                        angulartics2On="click"
+                        angularticsAction="Dashboard: filters is clicked"
+                        (click)="handleOpenFilters(); posthog.capture('Dashboard: filters is clicked')">
+                        <mat-icon fontSet="material-symbols-outlined">filter_list</mat-icon>
+                        Filter
                     </button>
-                </mat-form-field>
-            </form>
+                </div>
+            </div>
             <div class="actions">
                 <button mat-button type="button"
                     class="ai-insights-button"
@@ -78,7 +111,7 @@
                     <span class="action-label">AI insights</span>
                 </button>
 
-                <a mat-button *ngIf="tableData && canAddRow() && (!tableData.isEmptyTable || searchString || getFiltersCount(activeFilters))"
+                <a mat-button class="actions__add-row" *ngIf="tableData && canAddRow() && (!tableData.isEmptyTable || searchString || getFiltersCount(activeFilters))"
                     routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
                     data-testid="table-add-record-link"
                     matTooltip="Add row"
@@ -90,6 +123,7 @@
                 </a>
 
                 <button mat-button type="button" *ngIf="tableData && tableData.structure"
+                    class="actions__filter"
                     [ngClass]="{'action_active': getFiltersCount(activeFilters)}"
                     matTooltip="Filter"
                     angulartics2On="click"
@@ -137,12 +171,13 @@
                     </mat-menu>
                 </div>
                 <button mat-icon-button type="button"
+                    class="actions__transfer"
                     *ngIf="canEditConnection() && tableData && (tableData.isImportAllowed || tableData.isExportAllowed)"
                     matTooltip="Import / Export"
-                    [matMenuTriggerFor]="isMobileView ? null : transferDataMenu"
+                    [matMenuTriggerFor]="transferDataMenu"
                     angulartics2On="click"
                     angularticsAction="Dashboard: settings dropdown is clicked"
-                    (click)="isMobileView && openTransferSheet(); posthog.capture('Dashboard: settings dropdown is clicked')">
+                    (click)="posthog.capture('Dashboard: settings dropdown is clicked')">
                     <mat-icon fontSet="material-symbols-outlined">swap_vert</mat-icon>
                 </button>
                 <mat-menu #transferDataMenu="matMenu">
@@ -160,6 +195,7 @@
                     </button>
                 </mat-menu>
                 <button mat-icon-button type="button"
+                    class="actions__settings"
                     *ngIf="canEditConnection()"
                     [matMenuTriggerFor]="settingsMenu"
                     angulartics2On="click"
@@ -167,39 +203,73 @@
                     (click)="posthog.capture('Dashboard: settings dropdown is clicked')">
                     <mat-icon fontSet="material-symbols-outlined">settings</mat-icon>
                 </button>
-                <mat-menu #settingsMenu="matMenu">
-                    <a mat-menu-item *ngIf="tableData"
-                        routerLink="/dashboard/{{connectionID}}/{{name}}/widgets"
-                        [ngClass]="{'action_active': tableData.widgetsCount}"
-                        angulartics2On="click"
-                        angularticsAction="Dashboard: widgets is clicked"
-                        (click)="posthog.capture('Dashboard: widgets is clicked')">
-                        UI Widgets
-                    </a>
-                    <a mat-menu-item *ngIf="tableData" [ngClass]="{ 'action-button_disabled': !tableData.keyAttributes?.length }"
-                        routerLink="/dashboard/{{connectionID}}/{{name}}/actions"
-                        [disabled]="!tableData.keyAttributes?.length"
-                        angulartics2On="click"
-                        angularticsAction="Dashboard: actions is clicked"
-                        (click)="posthog.capture('Dashboard: actions is clicked')">
-                        Automations
-                        <br />
-                        <span *ngIf="!tableData.keyAttributes?.length" class="mat-small">
-                            Primary keys are required.
-                        </span>
-                    </a>
-                    <a mat-menu-item *ngIf="canEditConnection()"
-                        routerLink="/dashboard/{{connectionID}}/{{name}}/settings"
-                        angulartics2On="click"
-                        angularticsAction="Dashboard: settings is clicked"
-                        (click)="posthog.capture('Dashboard: settings is clicked')">
-                        Settings
-                    </a>
-                </mat-menu>
             </div>
         </div>
     </ng-template>
+
+    <mat-menu #settingsMenu="matMenu">
+        <a mat-menu-item *ngIf="tableData"
+            routerLink="/dashboard/{{connectionID}}/{{name}}/widgets"
+            [ngClass]="{'action_active': tableData.widgetsCount}"
+            angulartics2On="click"
+            angularticsAction="Dashboard: widgets is clicked"
+            (click)="posthog.capture('Dashboard: widgets is clicked')">
+            UI Widgets
+        </a>
+        <a mat-menu-item *ngIf="tableData" [ngClass]="{ 'action-button_disabled': !tableData.keyAttributes?.length }"
+            routerLink="/dashboard/{{connectionID}}/{{name}}/actions"
+            [disabled]="!tableData.keyAttributes?.length"
+            angulartics2On="click"
+            angularticsAction="Dashboard: actions is clicked"
+            (click)="posthog.capture('Dashboard: actions is clicked')">
+            Automations
+            <br />
+            <span *ngIf="!tableData.keyAttributes?.length" class="mat-small">
+                Primary keys are required.
+            </span>
+        </a>
+        <a mat-menu-item *ngIf="canEditConnection()"
+            routerLink="/dashboard/{{connectionID}}/{{name}}/settings"
+            angulartics2On="click"
+            angularticsAction="Dashboard: settings is clicked"
+            (click)="posthog.capture('Dashboard: settings is clicked')">
+            Settings
+        </a>
+
+        <mat-divider class="settings-menu__transfer"
+            *ngIf="canEditConnection() && tableData && (tableData.isImportAllowed || tableData.isExportAllowed)"></mat-divider>
+        <button mat-menu-item type="button"
+            class="settings-menu__transfer"
+            *ngIf="tableData && tableData.isImportAllowed"
+            angulartics2On="click"
+            angularticsAction="Dashboard: import is clicked"
+            (click)="handleOpenImportDialog(); posthog.capture('Dashboard: import is clicked')">
+            <mat-icon fontSet="material-symbols-outlined">upload</mat-icon>
+            <span>Import</span>
+        </button>
+        <button mat-menu-item type="button"
+            class="settings-menu__transfer"
+            *ngIf="tableData && tableData.isExportAllowed"
+            angulartics2On="click"
+            angularticsAction="Dashboard: export is clicked"
+            (click)="handleOpenExportDialog(); posthog.capture('Dashboard: export is clicked')">
+            <mat-icon fontSet="material-symbols-outlined">download</mat-icon>
+            <span>Export</span>
+        </button>
+    </mat-menu>
 </div>
+
+<a mat-fab extended class="add-row-fab"
+    *ngIf="tableData && canAddRow()"
+    color="primary"
+    routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
+    data-testid="table-add-record-link"
+    angulartics2On="click"
+    angularticsAction="Dashboard: add row is clicked"
+    (click)="stashUrlParams(); posthog.capture('Dashboard: add row is clicked')">
+    <mat-icon>add</mat-icon>
+    Add row
+</a>
 
 <div *ngIf="getFiltersCount(activeFilters) !== 0 && !hasSavedFilterActive" class="active-filters">
     <mat-chip-row *ngFor="let activeFilter of activeFilters | keyvalue"
@@ -226,10 +296,18 @@
         (filterSelected)="onFilterSelected($event)"
     ></app-saved-filters-panel>
 
+    <button mat-icon-button type="button" *ngIf="tableData && tableData.displayedColumns && tableData.columns"
+        class="saved-filters-row__columns"
+        matTooltip="Columns"
+        (click)="openColumnsSheet()">
+        <mat-icon fontSet="material-symbols-outlined">view_week</mat-icon>
+    </button>
+
     <button mat-button type="button" *ngIf="tableData && tableData.displayedDataColumns?.length"
         class="mobile-sort-button"
         [ngClass]="{'mobile-sort-button_active': sort.active && sort.direction}"
         (click)="openSortSheet()">
+        <mat-icon fontSet="material-symbols-outlined">swap_vert</mat-icon>
         <span class="mobile-sort-button__label">Sort by</span>
     </button>
 </div>
@@ -308,7 +386,9 @@
                         </button>
                     </mat-menu>
                 </mat-header-cell>
-                <mat-cell *matCellDef="let element; let i = index" [attr.data-label]="tableData.dataNormalizedColumns[column]" class="db-table-cell ph-no-capture">
+                <mat-cell *matCellDef="let element; let i = index"
+                    [attr.data-label]="tableData.dataNormalizedColumns[column] + (sort.active === column && sort.direction ? (sort.direction === 'asc' ? ' ↑' : ' ↓') : '')"
+                    class="db-table-cell ph-no-capture">
                     <div class="table-cell-content">
                         <ng-container *ngIf="isForeignKey(column); else contentCell">
                             <app-display-foreign-key
@@ -525,33 +605,38 @@
     </div>
 
     <div class="table-sheet__list">
-        <div class="sort-sheet__row" *ngFor="let column of sortableDataColumns">
-            <span class="sort-sheet__col-name">{{ tableData.dataNormalizedColumns[column] }}</span>
-            <div class="sort-sheet__controls">
-                <button type="button" mat-icon-button
-                    class="sort-sheet__dir-btn"
-                    [class.sort-sheet__dir-btn_active]="sort.active === column && sort.direction === 'asc'"
-                    matTooltip="Ascending (A-Z)"
+        <ng-container *ngFor="let column of sortableDataColumns">
+            <button type="button" class="sort-sheet__row"
+                [class.sort-sheet__row_expanded]="sortExpandedColumn === column"
+                (click)="toggleSortColumn(column)">
+                <span class="sort-sheet__col-name">{{ tableData.dataNormalizedColumns[column] }}</span>
+                <mat-icon class="sort-sheet__row-indicator">
+                    {{ sort.active === column && sort.direction ? (sort.direction === 'asc' ? 'arrow_upward' : 'arrow_downward') : 'unfold_more' }}
+                </mat-icon>
+            </button>
+
+            <div class="sort-sheet__options" *ngIf="sortExpandedColumn === column">
+                <button type="button" class="sort-sheet__opt"
+                    [class.sort-sheet__opt_active]="sort.active === column && sort.direction === 'asc'"
                     (click)="applySort(column, 'asc')">
                     <mat-icon>arrow_upward</mat-icon>
+                    <span>Ascending (A-Z)</span>
                 </button>
-                <button type="button" mat-icon-button
-                    class="sort-sheet__dir-btn"
-                    [class.sort-sheet__dir-btn_active]="sort.active === column && sort.direction === 'desc'"
-                    matTooltip="Descending (Z-A)"
+                <button type="button" class="sort-sheet__opt"
+                    [class.sort-sheet__opt_active]="sort.active === column && sort.direction === 'desc'"
                     (click)="applySort(column, 'desc')">
                     <mat-icon>arrow_downward</mat-icon>
+                    <span>Descending (Z-A)</span>
                 </button>
-                <button type="button" mat-icon-button
-                    class="sort-sheet__default-btn"
-                    [class.sort-sheet__default-btn_active]="isDefaultSort(column)"
+                <button type="button" class="sort-sheet__opt sort-sheet__opt_default"
+                    [class.sort-sheet__opt_active]="isDefaultSort(column)"
                     [disabled]="(sort.active !== column || !sort.direction) && !isDefaultSort(column)"
-                    [matTooltip]="isDefaultSort(column) ? 'Remove default sort' : 'Set as default sort'"
                     (click)="toggleDefaultSort(column)">
-                    <mat-icon>{{ isDefaultSort(column) ? 'lock' : 'lock_open' }}</mat-icon>
+                    <mat-icon fontSet="material-symbols-outlined">push_pin</mat-icon>
+                    <span>{{ isDefaultSort(column) ? 'Remove default' : 'Set as default' }}</span>
                 </button>
             </div>
-        </div>
+        </ng-container>
     </div>
 </div>
 

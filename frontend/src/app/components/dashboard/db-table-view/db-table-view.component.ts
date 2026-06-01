@@ -350,6 +350,7 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 	public tableSwitcherOpen = false;
 	public collapsedFolders = new Set<string>();
 	public sortSheetOpen = false;
+	public sortExpandedColumn: string | null = null;
 	public columnsSheetOpen = false;
 
 	get isMobileView(): boolean {
@@ -362,6 +363,11 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 
 	closeSortSheet() {
 		this.sortSheetOpen = false;
+		this.sortExpandedColumn = null;
+	}
+
+	toggleSortColumn(column: string) {
+		this.sortExpandedColumn = this.sortExpandedColumn === column ? null : column;
 	}
 
 	openColumnsSheet() {
