@@ -7,8 +7,21 @@
 			</div>
 			<h2 class="card__title">Configuring your database</h2>
 			<p class="card__subtitle">We're analyzing your structure and applying the best settings. This is running in the background.</p>
-			<div class="progress-bar">
-				<div class="progress-bar__fill"></div>
+
+			<p *ngIf="progress() as p" class="card__status">
+				<ng-container *ngIf="p.table">
+					{{ p.step || 'Configuring' }}
+					<strong>{{ p.table }}</strong>
+				</ng-container>
+				<ng-container *ngIf="!p.table && p.message">{{ p.message }}</ng-container>
+				<span *ngIf="p.current && p.total" class="card__status-counter">
+					· {{ p.current }} of {{ p.total }}
+				</span>
+			</p>
+
+			<div class="progress-bar" [class.progress-bar_determinate]="percent() !== null">
+				<div class="progress-bar__fill"
+					[style.width.%]="percent() !== null ? percent() : null"></div>
 			</div>
 		</div>
 		<div class="card__footer">
