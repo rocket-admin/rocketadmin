@@ -1,31 +1,56 @@
+<div class="pull-refresh-indicator"
+    [class.pull-refresh-indicator_active]="pullDistance > 0 || pullRefreshing"
+    [style.height.px]="pullRefreshing ? 44 : pullDistance">
+    <mat-icon class="pull-refresh-indicator__icon"
+        [class.pull-refresh-indicator__icon_spinning]="pullRefreshing"
+        [style.transform]="pullRefreshing ? null : 'rotate(' + (pullDistance * 3) + 'deg)'">
+        refresh
+    </mat-icon>
+</div>
+
 <div class="db-table-header" #focus>
     <div class="db-table-title">
         <h2 class="mat-h2 table-name">{{ displayName }}</h2>
 
-        <mat-form-field appearance="outline" class="table-switcher">
-            <mat-label>Table</mat-label>
-            <mat-select [value]="name" (selectionChange)="switchTable($event.value)">
-                <ng-container *ngFor="let folder of tableFoldersForSelect">
-                    <mat-optgroup [label]="folder.category_name">
-                        <mat-option *ngFor="let table of getFolderTables(folder)" [value]="table.table">
-                            {{table.normalizedTableName || table.display_name || table.table}}
-                        </mat-option>
-                    </mat-optgroup>
-                </ng-container>
-                <mat-optgroup *ngIf="uncategorizedTables.length" label="Others">
-                    <mat-option *ngFor="let table of uncategorizedTables" [value]="table.table">
-                        {{table.normalizedTableName || table.display_name || table.table}}
-                    </mat-option>
-                </mat-optgroup>
-            </mat-select>
-        </mat-form-field>
+        <button type="button" mat-button class="table-switcher" (click)="openTableSwitcher()">
+            <span class="table-switcher__name">{{ displayName }}</span>
+            <mat-icon iconPositionEnd class="table-switcher__chevron">arrow_drop_down</mat-icon>
+        </button>
 
-        <button type="button" mat-icon-button (click)="loadRowsPage()">
+        <button type="button" mat-icon-button class="refresh-button" (click)="loadRowsPage()">
             <mat-icon>refresh</mat-icon>
+        </button>
+
+        <button mat-icon-button type="button"
+            class="table-title__ai"
+            matTooltip="AI assistant"
+            angulartics2On="click"
+            angularticsAction="Dashboard: AI is clicked"
+            (click)="handleViewAIpanel(); posthog.capture('Dashboard: AI is clicked')">
+            <mat-icon svgIcon="ai_rocket" class="ai-icon"></mat-icon>
+        </button>
+
+        <button mat-icon-button type="button"
+            class="table-title__settings"
+            *ngIf="canEditConnection()"
+            [matMenuTriggerFor]="settingsMenu"
+            matTooltip="Table settings"
+            angulartics2On="click"
+            angularticsAction="Dashboard: settings dropdown is clicked"
+            (click)="posthog.capture('Dashboard: settings dropdown is clicked')">
+            <mat-icon fontSet="material-symbols-outlined">settings</mat-icon>
         </button>
     </div>
     <div *ngIf="selection.selected.length; else generalActions" class="db-table-bulk-actions">
         <div class="actions">
+            <button type="button" mat-button class="bulk-actions__select-all"
+                *ngIf="tableData && !tableData.isEmptyTable"
+                (click)="toggleAllRows()">
+                <mat-icon>
+                    {{ isAllSelected() ? 'check_box' : 'check_box_outline_blank' }}
+                </mat-icon>
+                {{ isAllSelected() ? 'Deselect all' : 'Select all' }}
+            </button>
             <ng-container *ngIf="tableData.tableBulkActions && tableData.tableBulkActions.length">
                 <button type="button" mat-button *ngFor="let action of tableData.tableBulkActions"
                 (click)="handleActions(action)">
@@ -44,21 +69,37 @@
     </div>
     <ng-template #generalActions>
         <div class="db-table-actions">
-            <form #searchForm="ngForm"
-                angulartics2On="submit"
-                angularticsAction="Dashboard: search is applied"
-                (submit)="posthog.capture('Dashboard: search is applied')"
-                (ngSubmit)="handleSearch()">
-                <mat-form-field appearance="fill" class="search-input">
-                    <input matInput name="search"
-                        placeholder="Search"
-                        [(ngModel)]="searchString">
-                    <button type="button" mat-icon-button matSuffix *ngIf="searchString"
-                        (click)="clearSearch()">
-                        <mat-icon>close</mat-icon>
+            <div class="search-row">
+                <form #searchForm="ngForm"
+                    class="search-form"
+                    [class.search-form_filled]="searchString"
+                    angulartics2On="submit"
+                    angularticsAction="Dashboard: search is applied"
+                    (submit)="posthog.capture('Dashboard: search is applied')"
+                    (ngSubmit)="handleSearch()">
+                    <mat-form-field appearance="fill" class="search-input">
+                        <mat-icon matPrefix class="search-input__icon">search</mat-icon>
+                        <input matInput name="search"
+                            placeholder="Search"
+                            [(ngModel)]="searchString">
+                        <button type="button" mat-icon-button matSuffix *ngIf="searchString"
+                            (click)="clearSearch()">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </mat-form-field>
+                </form>
+                <div class="search-row__buttons">
+                    <button mat-stroked-button type="button" *ngIf="tableData && tableData.structure"
+                        class="search-row__filter"
+                        [ngClass]="{'action_active': getFiltersCount(activeFilters)}"
+                        angulartics2On="click"
+                        angularticsAction="Dashboard: filters is clicked"
+                        (click)="handleOpenFilters(); posthog.capture('Dashboard: filters is clicked')">
+                        <mat-icon fontSet="material-symbols-outlined">filter_list</mat-icon>
+                        Filter
                     </button>
-                </mat-form-field>
-            </form>
+                </div>
+            </div>
             <div class="actions">
                 <button mat-button type="button"
                     class="ai-insights-button"
@@ -67,34 +108,40 @@
                     angularticsAction="Dashboard: AI is clicked"
                     (click)="handleViewAIpanel(); posthog.capture('Dashboard: AI is clicked')">
                     <mat-icon svgIcon="ai_rocket" class="ai-icon"></mat-icon>
-                    AI insights
+                    <span class="action-label">AI insights</span>
                 </button>
 
-                <a mat-button *ngIf="tableData && canAddRow() && (!tableData.isEmptyTable || searchString || getFiltersCount(activeFilters))"
+                <a mat-button class="actions__add-row" *ngIf="tableData && canAddRow() && (!tableData.isEmptyTable || searchString || getFiltersCount(activeFilters))"
                     routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
                     data-testid="table-add-record-link"
+                    matTooltip="Add row"
                     angulartics2On="click"
                     angularticsAction="Dashboard: add row is clicked"
                     (click)="stashUrlParams(); posthog.capture('Dashboard: add row is clicked')">
-                    <mat-icon>add</mat-icon>
-                    Add row
+                    <mat-icon fontSet="material-symbols-outlined">add</mat-icon>
+                    <span class="action-label">Add row</span>
                 </a>
 
                 <button mat-button type="button" *ngIf="tableData && tableData.structure"
+                    class="actions__filter"
                     [ngClass]="{'action_active': getFiltersCount(activeFilters)}"
+                    matTooltip="Filter"
                     angulartics2On="click"
                     angularticsAction="Dashboard: filters is clicked"
                     (click)="handleOpenFilters(); posthog.capture('Dashboard: filters is clicked')">
-                    <mat-icon>filter_list</mat-icon>
-                    Filter
+                    <mat-icon fontSet="material-symbols-outlined">filter_list</mat-icon>
+                    <span class="action-label">Filter</span>
                 </button>
+
                 <div *ngIf="tableData" class="db-table-manage-columns-button">
-                    <button type="button" *ngIf="tableData.displayedColumns && tableData.columns" mat-button [matMenuTriggerFor]="menu"
+                    <button type="button" *ngIf="tableData.displayedColumns && tableData.columns" mat-button
+                        [matMenuTriggerFor]="isMobileView ? null : menu"
+                        matTooltip="Columns"
                         angulartics2On="click"
                         angularticsAction="Dashboard: columns multiselect is clicked"
-                        (click)="posthog.capture('Dashboard: columns multiselect is clicked')">
+                        (click)="isMobileView && openColumnsSheet(); posthog.capture('Dashboard: columns multiselect is clicked')">
                         <mat-icon fontSet="material-symbols-outlined">view_week</mat-icon>
-                        Columns
+                        <span class="action-label">Columns</span>
                             <span class="db-table-manage-columns-button__count">
                                 ({{ tableData.displayedDataColumns.length   }}
                                 /
@@ -124,13 +171,14 @@
                     </mat-menu>
                 </div>
                 <button mat-icon-button type="button"
+                    class="actions__transfer"
                     *ngIf="canEditConnection() && tableData && (tableData.isImportAllowed || tableData.isExportAllowed)"
                     matTooltip="Import / Export"
                     [matMenuTriggerFor]="transferDataMenu"
                     angulartics2On="click"
                     angularticsAction="Dashboard: settings dropdown is clicked"
                     (click)="posthog.capture('Dashboard: settings dropdown is clicked')">
-                    <mat-icon>swap_vert</mat-icon>
+                    <mat-icon fontSet="material-symbols-outlined">swap_vert</mat-icon>
                 </button>
                 <mat-menu #transferDataMenu="matMenu">
                     <button mat-menu-item *ngIf="tableData && tableData.isImportAllowed" type="button"
@@ -147,6 +195,7 @@
                     </button>
                 </mat-menu>
                 <button mat-icon-button type="button"
+                    class="actions__settings"
                     *ngIf="canEditConnection()"
                     [matMenuTriggerFor]="settingsMenu"
                     angulartics2On="click"
@@ -154,39 +203,73 @@
                     (click)="posthog.capture('Dashboard: settings dropdown is clicked')">
                     <mat-icon fontSet="material-symbols-outlined">settings</mat-icon>
                 </button>
-                <mat-menu #settingsMenu="matMenu">
-                    <a mat-menu-item *ngIf="tableData"
-                        routerLink="/dashboard/{{connectionID}}/{{name}}/widgets"
-                        [ngClass]="{'action_active': tableData.widgetsCount}"
-                        angulartics2On="click"
-                        angularticsAction="Dashboard: widgets is clicked"
-                        (click)="posthog.capture('Dashboard: widgets is clicked')">
-                        UI Widgets
-                    </a>
-                    <a mat-menu-item *ngIf="tableData" [ngClass]="{ 'action-button_disabled': !tableData.keyAttributes?.length }"
-                        routerLink="/dashboard/{{connectionID}}/{{name}}/actions"
-                        [disabled]="!tableData.keyAttributes?.length"
-                        angulartics2On="click"
-                        angularticsAction="Dashboard: actions is clicked"
-                        (click)="posthog.capture('Dashboard: actions is clicked')">
-                        Automations
-                        <br />
-                        <span *ngIf="!tableData.keyAttributes?.length" class="mat-small">
-                            Primary keys are required.
-                        </span>
-                    </a>
-                    <a mat-menu-item *ngIf="canEditConnection()"
-                        routerLink="/dashboard/{{connectionID}}/{{name}}/settings"
-                        angulartics2On="click"
-                        angularticsAction="Dashboard: settings is clicked"
-                        (click)="posthog.capture('Dashboard: settings is clicked')">
-                        Settings
-                    </a>
-                </mat-menu>
             </div>
         </div>
     </ng-template>
+
+    <mat-menu #settingsMenu="matMenu">
+        <a mat-menu-item *ngIf="tableData"
+            routerLink="/dashboard/{{connectionID}}/{{name}}/widgets"
+            [ngClass]="{'action_active': tableData.widgetsCount}"
+            angulartics2On="click"
+            angularticsAction="Dashboard: widgets is clicked"
+            (click)="posthog.capture('Dashboard: widgets is clicked')">
+            UI Widgets
+        </a>
+        <a mat-menu-item *ngIf="tableData" [ngClass]="{ 'action-button_disabled': !tableData.keyAttributes?.length }"
+            routerLink="/dashboard/{{connectionID}}/{{name}}/actions"
+            [disabled]="!tableData.keyAttributes?.length"
+            angulartics2On="click"
+            angularticsAction="Dashboard: actions is clicked"
+            (click)="posthog.capture('Dashboard: actions is clicked')">
+            Automations
+            <br />
+            <span *ngIf="!tableData.keyAttributes?.length" class="mat-small">
+                Primary keys are required.
+            </span>
+        </a>
+        <a mat-menu-item *ngIf="canEditConnection()"
+            routerLink="/dashboard/{{connectionID}}/{{name}}/settings"
+            angulartics2On="click"
+            angularticsAction="Dashboard: settings is clicked"
+            (click)="posthog.capture('Dashboard: settings is clicked')">
+            Settings
+        </a>
+
+        <mat-divider class="settings-menu__transfer"
+            *ngIf="canEditConnection() && tableData && (tableData.isImportAllowed || tableData.isExportAllowed)"></mat-divider>
+        <button mat-menu-item type="button"
+            class="settings-menu__transfer"
+            *ngIf="tableData && tableData.isImportAllowed"
+            angulartics2On="click"
+            angularticsAction="Dashboard: import is clicked"
+            (click)="handleOpenImportDialog(); posthog.capture('Dashboard: import is clicked')">
+            <mat-icon fontSet="material-symbols-outlined">upload</mat-icon>
+            <span>Import</span>
+        </button>
+        <button mat-menu-item type="button"
+            class="settings-menu__transfer"
+            *ngIf="tableData && tableData.isExportAllowed"
+            angulartics2On="click"
+            angularticsAction="Dashboard: export is clicked"
+            (click)="handleOpenExportDialog(); posthog.capture('Dashboard: export is clicked')">
+            <mat-icon fontSet="material-symbols-outlined">download</mat-icon>
+            <span>Export</span>
+        </button>
+    </mat-menu>
 </div>
+
+<a mat-fab extended class="add-row-fab"
+    *ngIf="tableData && canAddRow()"
+    color="primary"
+    routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
+    data-testid="table-add-record-link"
+    angulartics2On="click"
+    angularticsAction="Dashboard: add row is clicked"
+    (click)="stashUrlParams(); posthog.capture('Dashboard: add row is clicked')">
+    <mat-icon>add</mat-icon>
+    Add row
+</a>
 
 <div *ngIf="getFiltersCount(activeFilters) !== 0 && !hasSavedFilterActive" class="active-filters">
     <mat-chip-row *ngFor="let activeFilter of activeFilters | keyvalue"
@@ -201,16 +284,35 @@
     </mat-chip-row>
 </div>
 
-<app-saved-filters-panel *ngIf="tableData && tableData.structure && tableData.widgets"
-    [connectionID]="connectionID"
-    [selectedTableName]="name"
-    [selectedTableDisplayName]="displayName"
-    [structure]="tableData.structure"
-    [tableWidgets]="tableData.widgets"
-    [tableForeignKeys]="tableData.foreignKeys"
-    [tableTypes]="tableData.tableTypes"
-    (filterSelected)="onFilterSelected($event)"
-></app-saved-filters-panel>
+<div class="saved-filters-row">
+    <div class="saved-filters-row__mobile-actions">
+        <button mat-icon-button type="button" *ngIf="tableData && tableData.displayedColumns && tableData.columns"
+            class="saved-filters-row__columns"
+            matTooltip="Columns"
+            (click)="openColumnsSheet()">
+            <mat-icon fontSet="material-symbols-outlined">view_week</mat-icon>
+        </button>
+
+        <button mat-button type="button" *ngIf="tableData && tableData.displayedDataColumns?.length"
+            class="mobile-sort-button"
+            [ngClass]="{'mobile-sort-button_active': sort.active && sort.direction}"
+            (click)="openSortSheet()">
+            <mat-icon fontSet="material-symbols-outlined">swap_vert</mat-icon>
+            <span class="mobile-sort-button__label">Sort by</span>
+        </button>
+    </div>
+
+    <app-saved-filters-panel *ngIf="tableData && tableData.structure && tableData.widgets"
+        [connectionID]="connectionID"
+        [selectedTableName]="name"
+        [selectedTableDisplayName]="displayName"
+        [structure]="tableData.structure"
+        [tableWidgets]="tableData.widgets"
+        [tableForeignKeys]="tableData.foreignKeys"
+        [tableTypes]="tableData.tableTypes"
+        (filterSelected)="onFilterSelected($event)"
+    ></app-saved-filters-panel>
+</div>
 
 <!-- Table View -->
 <div *ngIf="tableData && tableData.loading$ | async" class="skeleton mat-elevation-z4">
@@ -235,7 +337,8 @@
                         [aria-label]="checkboxLabel()">
                   </mat-checkbox>
                 </th>
-                <td mat-cell *matCellDef="let row; let i = index" class="db-table-cell-checkbox">
+                <td mat-cell *matCellDef="let row; let i = index" class="db-table-cell-checkbox"
+                    (click)="$event.stopPropagation()">
                   <mat-checkbox class="db-table-checkbox"
                         attr.data-testid="table-select-record-{{i}}-checkbox"
                         (click)="$event.stopPropagation()"
@@ -285,7 +388,9 @@
                         </button>
                     </mat-menu>
                 </mat-header-cell>
-                <mat-cell *matCellDef="let element; let i = index" [attr.data-label]="tableData.dataNormalizedColumns[column]" class="db-table-cell ph-no-capture">
+                <mat-cell *matCellDef="let element; let i = index"
+                    [attr.data-label]="tableData.dataNormalizedColumns[column] + (sort.active === column && sort.direction ? (sort.direction === 'asc' ? ' ↑' : ' ↓') : '')"
+                    class="db-table-cell ph-no-capture">
                     <div class="table-cell-content">
                         <ng-container *ngIf="isForeignKey(column); else contentCell">
                             <app-display-foreign-key
@@ -331,7 +436,8 @@
             <ng-container matColumnDef="actions" [stickyEnd]="true">
                 <mat-header-cell *matHeaderCellDef class="db-table-header-actions">Actions</mat-header-cell>
 
-                <mat-cell *matCellDef="let element; let i = index" class="db-table-cell-actions">
+                <mat-cell *matCellDef="let element; let i = index" class="db-table-cell-actions"
+                    (click)="$event.stopPropagation()">
                     <ng-container *ngIf="tableData.tableActions && tableData.tableActions.length">
                         <button type="button" mat-icon-button *ngFor="let action of tableData.tableActions"
                             class="db-table-cell-action-button"
@@ -397,11 +503,14 @@
         <p class="mat-body-1">If you want to find <u>substring</u>, please, use <strong>Filter</strong>.</p>
     </div>
 
-    <div *ngIf="tableData.isEmptyTable && getFiltersCount(activeFilters) && !searchString" class="empty-table">
-        <p class="mat-body-1">No field matches this filter.</p>
+    <div *ngIf="tableData.isEmptyTable && (getFiltersCount(activeFilters) || hasSavedFilterActive) && !searchString" class="empty-table">
+        <mat-icon class="empty-table__icon">filter_list_off</mat-icon>
+        <p class="mat-body-1">
+            {{ hasSavedFilterActive ? 'No records match the selected fast filter.' : 'No records match this filter.' }}
+        </p>
     </div>
 
-    <div *ngIf="tableData.isEmptyTable && !(getFiltersCount(activeFilters) || searchString)" class="empty-table">
+    <div *ngIf="tableData.isEmptyTable && !(getFiltersCount(activeFilters) || hasSavedFilterActive || searchString)" class="empty-table">
         <a mat-button color="accent"
             routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
             angulartics2On="click"
@@ -419,4 +528,175 @@
         [showFirstLastButtons]="!tableData.largeDataset">
     </mat-paginator>
     <!--(page)="scrollUp()"}-->
+</div>
+
+<!-- Table selector bottom sheet (rendered at root to avoid stacking-context clipping) -->
+<div *ngIf="tableSwitcherOpen" class="table-sheet-backdrop" (click)="closeTableSwitcher()"></div>
+<div *ngIf="tableSwitcherOpen" class="table-sheet">
+    <div class="table-sheet__handle" aria-hidden="true"></div>
+    <div class="table-sheet__header">
+        <span class="table-sheet__title">Select table</span>
+        <button type="button" mat-icon-button (click)="closeTableSwitcher()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <div class="table-sheet__search">
+        <mat-icon class="table-sheet__search-icon">search</mat-icon>
+        <input #tableSwitcherSearchInput type="text"
+            class="table-sheet__search-input"
+            placeholder="Search tables"
+            [(ngModel)]="tableSwitcherSearch"
+            autocomplete="off" />
+        <mat-icon *ngIf="tableSwitcherSearch"
+            class="table-sheet__search-clear"
+            (click)="clearTableSwitcherSearch()">
+            close
+        </mat-icon>
+    </div>
+
+    <div class="table-sheet__list">
+        <ng-container *ngFor="let folder of filteredTableFoldersForSelect">
+            <button type="button" class="table-sheet__group-label"
+                (click)="toggleFolderCollapse(folder.category_id)">
+                <mat-icon class="material-symbols-outlined table-sheet__group-icon"
+                    [style.color]="folder.category_id === 'all-tables-kitten' ? null : (folder.category_color || null)">
+                    {{ folder.category_id === 'all-tables-kitten' ? 'dehaze' : 'folder' }}
+                </mat-icon>
+                <span class="table-sheet__group-name">{{ folder.category_name }}</span>
+                <span class="table-sheet__group-count">{{ folder.tables.length }}</span>
+                <mat-icon class="table-sheet__group-chevron">
+                    {{ isFolderCollapsed(folder.category_id) ? 'chevron_right' : 'expand_more' }}
+                </mat-icon>
+            </button>
+            <ng-container *ngIf="!isFolderCollapsed(folder.category_id)">
+                <button type="button" class="table-sheet__item" *ngFor="let table of folder.tables"
+                    [class.table-sheet__item_active]="table.table === name"
+                    (click)="switchTableFromSheet(table.table)">
+                    <span class="table-sheet__item-name">{{ table.normalizedTableName || table.display_name || table.table }}</span>
+                    <mat-icon *ngIf="table.table === name" class="table-sheet__item-check">check</mat-icon>
+                </button>
+            </ng-container>
+        </ng-container>
+        <ng-container *ngIf="filteredUncategorizedTables.length">
+            <div class="table-sheet__group-label">Others</div>
+            <button type="button" class="table-sheet__item" *ngFor="let table of filteredUncategorizedTables"
+                [class.table-sheet__item_active]="table.table === name"
+                (click)="switchTableFromSheet(table.table)">
+                <span class="table-sheet__item-name">{{ table.normalizedTableName || table.display_name || table.table }}</span>
+                <mat-icon *ngIf="table.table === name" class="table-sheet__item-check">check</mat-icon>
+            </button>
+        </ng-container>
+
+        <div *ngIf="tableSwitcherSearch && !filteredTableFoldersForSelect.length && !filteredUncategorizedTables.length"
+            class="table-sheet__empty">
+            No tables match "{{ tableSwitcherSearch }}".
+        </div>
+    </div>
+</div>
+
+<!-- Sort bottom sheet -->
+<div *ngIf="sortSheetOpen" class="table-sheet-backdrop" (click)="closeSortSheet()"></div>
+<div *ngIf="sortSheetOpen" class="table-sheet">
+    <div class="table-sheet__handle" aria-hidden="true"></div>
+    <div class="table-sheet__header">
+        <span class="table-sheet__title">Sort by</span>
+        <button type="button" mat-icon-button (click)="closeSortSheet()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <div class="table-sheet__list">
+        <ng-container *ngFor="let column of sortableDataColumns">
+            <button type="button" class="sort-sheet__row"
+                [class.sort-sheet__row_expanded]="sortExpandedColumn === column"
+                (click)="toggleSortColumn(column)">
+                <span class="sort-sheet__col-name">{{ tableData.dataNormalizedColumns[column] }}</span>
+                <mat-icon class="sort-sheet__row-indicator">
+                    {{ sort.active === column && sort.direction ? (sort.direction === 'asc' ? 'arrow_upward' : 'arrow_downward') : 'unfold_more' }}
+                </mat-icon>
+            </button>
+
+            <div class="sort-sheet__options" *ngIf="sortExpandedColumn === column">
+                <button type="button" class="sort-sheet__opt"
+                    [class.sort-sheet__opt_active]="sort.active === column && sort.direction === 'asc'"
+                    (click)="applySort(column, 'asc')">
+                    <mat-icon>arrow_upward</mat-icon>
+                    <span>Ascending (A-Z)</span>
+                </button>
+                <button type="button" class="sort-sheet__opt"
+                    [class.sort-sheet__opt_active]="sort.active === column && sort.direction === 'desc'"
+                    (click)="applySort(column, 'desc')">
+                    <mat-icon>arrow_downward</mat-icon>
+                    <span>Descending (Z-A)</span>
+                </button>
+                <button type="button" class="sort-sheet__opt sort-sheet__opt_default"
+                    [class.sort-sheet__opt_active]="isDefaultSort(column)"
+                    [disabled]="(sort.active !== column || !sort.direction) && !isDefaultSort(column)"
+                    (click)="toggleDefaultSort(column)">
+                    <mat-icon fontSet="material-symbols-outlined">push_pin</mat-icon>
+                    <span>{{ isDefaultSort(column) ? 'Remove default' : 'Set as default' }}</span>
+                </button>
+            </div>
+        </ng-container>
+    </div>
+</div>
+
+<!-- Columns bottom sheet -->
+<div *ngIf="columnsSheetOpen" class="table-sheet-backdrop" (click)="closeColumnsSheet()"></div>
+<div *ngIf="columnsSheetOpen" class="table-sheet">
+    <div class="table-sheet__handle" aria-hidden="true"></div>
+    <div class="table-sheet__header">
+        <span class="table-sheet__title">Columns</span>
+        <button type="button" mat-icon-button (click)="closeColumnsSheet()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <div class="table-sheet__list" *ngIf="tableData">
+        <div cdkDropList (cdkDropListDropped)="onColumnsMenuDrop($event)" class="columns-sheet__list">
+            <div *ngFor="let column of sortedColumns"
+                cdkDrag
+                [cdkDragData]="column"
+                class="columns-sheet__item">
+                <mat-icon class="columns-sheet__drag-handle" cdkDragHandle>drag_indicator</mat-icon>
+                <mat-checkbox
+                    class="columns-sheet__checkbox"
+                    [disabled]="tableData.displayedDataColumns.length === 1 && column.selected"
+                    (change)="onColumnVisibilityChange()"
+                    [(ngModel)]="column.selected">
+                    {{ column.normalizedTitle }}
+                </mat-checkbox>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Import / Export bottom sheet -->
+<div *ngIf="transferSheetOpen" class="table-sheet-backdrop" (click)="closeTransferSheet()"></div>
+<div *ngIf="transferSheetOpen" class="table-sheet">
+    <div class="table-sheet__handle" aria-hidden="true"></div>
+    <div class="table-sheet__header">
+        <span class="table-sheet__title">Import / Export</span>
+        <button type="button" mat-icon-button (click)="closeTransferSheet()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <div class="table-sheet__list" *ngIf="tableData">
+        <button type="button" class="table-sheet__item" *ngIf="tableData.isImportAllowed"
+            angulartics2On="click"
+            angularticsAction="Dashboard: import is clicked"
+            (click)="closeTransferSheet(); handleOpenImportDialog(); posthog.capture('Dashboard: import is clicked')">
+            <mat-icon class="table-sheet__item-icon" fontSet="material-symbols-outlined">upload</mat-icon>
+            <span class="table-sheet__item-name">Import</span>
+        </button>
+        <button type="button" class="table-sheet__item" *ngIf="tableData.isExportAllowed"
+            angulartics2On="click"
+            angularticsAction="Dashboard: export is clicked"
+            (click)="closeTransferSheet(); handleOpenExportDialog(); posthog.capture('Dashboard: export is clicked')">
+            <mat-icon class="table-sheet__item-icon" fontSet="material-symbols-outlined">download</mat-icon>
+            <span class="table-sheet__item-name">Export</span>
+        </button>
+    </div>
 </div>

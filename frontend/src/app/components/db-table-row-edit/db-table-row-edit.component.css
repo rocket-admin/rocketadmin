@@ -2,10 +2,20 @@
 	--alert-margin: 24px;
 }
 
+:host app-alert:empty {
+	display: none;
+}
+
 .page {
 	display: flex;
 	height: 100%;
-	margin: 2.5em 0 16px;
+	margin: 16px 0;
+}
+
+@media (width <= 600px) {
+	.page {
+		margin: 8px 0 0;
+	}
 }
 
 .wrapper {
@@ -30,14 +40,44 @@
 .row-edit-header {
 	display: flex;
 	align-items: center;
+	justify-content: space-between;
 	gap: 16px;
+}
+
+.row-edit-header__main {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	min-width: 0;
+}
+
+.row-edit-header__back {
+	flex: 0 0 auto;
+}
+
+.row-edit-header__text {
+	display: flex;
+	flex-direction: column;
+	line-height: 1.2;
+	min-width: 0;
+}
+
+.row-edit-header__title {
+	font-size: 18px;
+	font-weight: 600;
+}
+
+.row-edit-header__subtitle {
+	font-size: 12px;
+	font-weight: 500;
+	opacity: 0.6;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 @media (width <= 600px) {
 	.row-edit-header {
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 8px;
 		width: 100%;
 	}
 }
@@ -180,7 +220,8 @@
 .actions-box {
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
+	justify-content: flex-end;
+	gap: 8px;
 	width: 100%;
 }
 
@@ -206,9 +247,55 @@
 	}
 }
 
+@media (width <= 600px) {
+	.wrapper {
+		padding-bottom: 132px;
+	}
+
+	.actions {
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		width: 100%;
+		height: auto;
+		min-height: 0;
+		margin: 0;
+		padding: 8px 16px max(8px, env(safe-area-inset-bottom, 0px));
+		box-sizing: border-box;
+		border-top: 1px solid rgba(0, 0, 0, 0.08);
+		z-index: 100;
+	}
+
+	.wrapper_shifted .actions {
+		left: 0;
+	}
+
+	.actions-box {
+		flex-direction: row;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: flex-end;
+		gap: 8px;
+		width: 100%;
+		margin-left: 0;
+	}
+
+	.actions__continue {
+		margin-right: auto !important;
+		margin-left: 0 !important;
+	}
+}
+
+@media (prefers-color-scheme: dark) and (width <= 600px) {
+	.actions {
+		border-top-color: rgba(255, 255, 255, 0.1);
+	}
+}
+
 .actions__continue {
-	margin-left: auto;
-	margin-right: 20px;
+	margin-right: auto;
+	margin-left: 0;
 }
 
 .error-details {

@@ -19,7 +19,13 @@
 }
 
 .foreign-key ::ng-deep .mat-mdc-form-field-subscript-wrapper {
-	margin-bottom: 16px;
+	display: none;
+}
+
+@media (width <= 600px) {
+	.foreign-key__link-icon {
+		margin-top: 6px;
+	}
 }
 
 .foreign-key__link {
