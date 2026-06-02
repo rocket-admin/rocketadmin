@@ -198,7 +198,7 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 		private cdr: ChangeDetectorRef,
 		private paginatorIntl: MatPaginatorIntl,
 	) {
-		this.paginatorIntl.itemsPerPageLabel = 'per page:';
+		this.paginatorIntl.itemsPerPageLabel = 'Per page:';
 		this.paginatorIntl.changes.next();
 	}
 

@@ -75,7 +75,7 @@
 	width: calc(100vw - 65px);
 	padding-left: 0;
 	border-left: none;
-	z-index: 3;
+	z-index: 100;
 	transition:
 		left 400ms cubic-bezier(0.4, 0, 0.2, 1),
 		width 400ms cubic-bezier(0.4, 0, 0.2, 1),
