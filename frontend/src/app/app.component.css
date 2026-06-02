@@ -22,6 +22,34 @@
 	width: 60vw;
 }
 
+.main-menu-sidenav .account-section-item {
+	--mdc-list-list-item-label-text-size: 13px;
+	--mat-list-list-item-leading-icon-size: 18px;
+	--mdc-list-list-item-one-line-container-height: 40px;
+	--mdc-list-list-item-two-line-container-height: 52px;
+}
+
+.main-menu-sidenav .account-section-item .mat-icon {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+}
+
+@media (width <= 600px) {
+	.main-menu-sidenav.mat-drawer {
+		top: 44px !important;
+		height: calc(100vh - 44px) !important;
+	}
+
+	.main-menu-container ::ng-deep .mat-drawer-backdrop.mat-drawer-shown {
+		top: 44px !important;
+	}
+
+	.main-menu-sidenav mat-toolbar {
+		display: none !important;
+	}
+}
+
 .nav-bar {
 	position: sticky;
 	top: 0;
@@ -218,8 +246,6 @@
 		display: flex;
 		flex-direction: column;
 		align-items: flex-start;
-		border-top: var(--mat-table-row-item-outline-width, 1px) solid
-			var(--mat-table-row-item-outline-color, rgba(0, 0, 0, 0.12));
 		border-bottom: var(--mat-table-row-item-outline-width, 1px) solid
 			var(--mat-table-row-item-outline-color, rgba(0, 0, 0, 0.12));
 		margin-left: 8px;
@@ -243,7 +269,7 @@
 	}
 
 	.connection-navigation__upgrade-button {
-		margin-top: 8px;
+		margin-top: -12px;
 		margin-left: 8px;
 		width: calc(100% - 16px);
 	}

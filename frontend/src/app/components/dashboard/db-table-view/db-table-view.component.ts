@@ -195,7 +195,7 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 		private cdr: ChangeDetectorRef,
 		private paginatorIntl: MatPaginatorIntl,
 	) {
-		this.paginatorIntl.itemsPerPageLabel = 'Per page:';
+		this.paginatorIntl.itemsPerPageLabel = 'per page:';
 		this.paginatorIntl.changes.next();
 	}
 
@@ -298,6 +298,11 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 	ngOnInit() {
 		this.searchString = this.route.snapshot.queryParams.search;
 		// this.hasSavedFilterActive = !!this.route.snapshot.queryParams.saved_filter;
+
+		// On mobile, never restore a previously open AI panel — user should land on the table, not the chat.
+		if (this.isMobileView) {
+			this._tableState.closeAIpanel();
+		}
 
 		const connectionType = this._connections.currentConnection.type;
 		this.displayCellComponents = tableDisplayTypes[connectionType];

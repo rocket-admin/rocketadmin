@@ -65,7 +65,7 @@ export class DbTableAiPanelComponent implements OnInit, AfterViewInit, OnDestroy
 	public activeCompletions: string[] = [];
 	public showCompletions: boolean = false;
 	public submitting: boolean = false;
-	public isExpanded: boolean = false;
+	public isExpanded: boolean = true;
 	public textareaRows: number = 4;
 	public currentLoadingStep: string = '';
 
@@ -97,8 +97,8 @@ export class DbTableAiPanelComponent implements OnInit, AfterViewInit, OnDestroy
 			this.isAIpanelOpened = isAIpanelOpened;
 		});
 
-		this._tableState.aiPanelExpandedCast.subscribe((isExpanded) => {
-			this.isExpanded = isExpanded;
+		this._tableState.aiPanelExpandedCast.subscribe(() => {
+			this.isExpanded = true;
 		});
 
 		this.adjustTextareaRows();

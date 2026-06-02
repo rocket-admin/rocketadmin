@@ -21,7 +21,7 @@
                     {{navigationTabs[tab].caption}}
                 </a>
             </mat-nav-list>
-            <a mat-list-item routerLink="/user-settings" class="connection-navigation__item_user" data-testid="account-link-account-menu">
+            <a mat-list-item routerLink="/user-settings" class="connection-navigation__item_user account-section-item" data-testid="account-link-account-menu">
                 <mat-icon matListItemIcon class="connection-navigation__icon connection-navigation__icon_account"
                     matBadge="1" [matBadgeHidden]="currentUser.isActive"
                     matBadgeColor="accent" matBadgeSize="small">
@@ -30,19 +30,27 @@
                 <div matListItemTitle>Account</div>
                 <div matListItemLine>{{currentUser.email}}</div>
             </a>
-            <a mat-list-item routerLink="/company" data-testid="company-link-account-menu">
+            <a mat-list-item routerLink="/company" class="account-section-item" data-testid="company-link-account-menu">
                 <mat-icon matListItemIcon class="connection-navigation__icon">
                     apartment
                 </mat-icon>
                 <div matListItemTitle>Company</div>
             </a>
-            <a mat-list-item routerLink="/secrets" data-testid="secrets-link-account-menu">
+            <a mat-list-item routerLink="/hosted-databases"
+                routerLinkActive="nav-bar__button_active"
+                aria-label="Hosted databases">
+                <mat-icon matListItemIcon fontSet="material-symbols-outlined" class="connection-navigation__icon">
+                    database
+                </mat-icon>
+                <div matListItemTitle>Hosted databases</div>
+            </a>
+            <a mat-list-item routerLink="/secrets" class="account-section-item" data-testid="secrets-link-account-menu">
                 <mat-icon matListItemIcon class="connection-navigation__icon">
                     key
                 </mat-icon>
                 <div matListItemTitle>Secrets</div>
             </a>
-            <a mat-list-item *ngIf="isSaas" routerLink="/zapier" data-testid="zapier-link-account-menu">
+            <a mat-list-item *ngIf="isSaas" routerLink="/zapier" class="account-section-item" data-testid="zapier-link-account-menu">
                 <mat-icon matListItemIcon class="connection-navigation__icon">
                     electric_bolt
                 </mat-icon>
@@ -53,11 +61,11 @@
                 <mat-icon fontSet="material-symbols-outlined">chat_bubble</mat-icon>
                 <span>Chat with support</span>
             </button>
-            <a mat-list-item href="https://docs.rocketadmin.com/" target="_blank">
+            <a mat-list-item class="account-section-item" href="https://docs.rocketadmin.com/" target="_blank">
                 <mat-icon matListItemIcon class="connection-navigation__icon" fontSet="material-symbols-outlined">help</mat-icon>
                 <div matListItemTitle>Help center</div>
             </a>
-            <mat-list-item (click)="logOut()" data-testid="logout-button-account-menu">
+            <mat-list-item class="account-section-item" (click)="logOut()" data-testid="logout-button-account-menu">
                 <mat-icon matListItemIcon class="connection-navigation__icon">logout</mat-icon>
                 <div matListItemTitle>Log out</div>
             </mat-list-item>
@@ -94,7 +102,7 @@
                             class="logo__image">
                         <ng-template #defaultRocketLogo>
                             <picture>
-                                <source media="(max-width: 600px)" srcset="../assets/rocketadmin_logo_white-short.svg">
+                                <source *ngIf="connectionID" media="(max-width: 600px)" srcset="../assets/rocketadmin_logo_white-short.svg">
                                 <img src="../assets/rocketadmin_logo_white.svg" alt="Rocketadmin logo" class="logo__image">
                             </picture>
                         </ng-template>
@@ -130,6 +138,11 @@
                             routerLink="/dashboard/{{connection.connection.id}}"
                             [ngClass]="{'connection_active': connectionID === connection.connection.id}">
                             {{connection.displayTitle}}
+                        </a>
+                        <mat-divider></mat-divider>
+                        <a mat-menu-item routerLink="/hosted-databases">
+                            <mat-icon class="nav-menu__list-link-icon" fontSet="material-symbols-outlined">database</mat-icon>
+                            <span>Hosted databases</span>
                         </a>
                     </ng-template>
                 </mat-menu>

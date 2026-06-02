@@ -73,7 +73,7 @@
 .ai-panel-sidebar-content_open.ai-panel-sidebar-content_expanded {
 	left: 65px;
 	width: calc(100vw - 65px);
-	padding-left: 175px;
+	padding-left: 0;
 	border-left: none;
 	z-index: 100;
 	transition:
@@ -99,6 +99,7 @@
 	.ai-panel-sidebar-content_open.ai-panel-sidebar-content_expanded {
 		left: 0;
 		width: 100%;
+		padding-left: 0;
 	}
 }
 
@@ -677,19 +678,8 @@
 }
 
 .ai-panel-sidebar-content_expanded .ai-panel-sidebar__header {
-	position: relative;
 	width: 100%;
-	max-width: 800px;
-	margin: 0 auto;
-	padding-left: 0;
-	padding-right: 0;
-	justify-content: flex-start;
-}
-
-.ai-panel-sidebar-content_expanded .ai-panel-sidebar__actions {
-	position: fixed;
-	right: 16px;
-	top: 64px;
+	justify-content: space-between;
 }
 
 .ai-panel-sidebar-content_expanded .ai-welcome__section {
