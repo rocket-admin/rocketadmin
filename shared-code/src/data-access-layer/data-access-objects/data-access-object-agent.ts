@@ -821,13 +821,12 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
 	}
 
 	private generateJWT(connectionToken: string): string {
-		const exp = new Date();
-		exp.setDate(exp.getDate() + 60);
+		const exp = Math.floor(Date.now() / 1000) + 120;
 		const secret = process.env.JWT_SECRET;
 		return jwt.sign(
 			{
 				token: connectionToken,
-				exp: Math.floor(exp.getTime() / 1000),
+				exp,
 			},
 			secret,
 		);
