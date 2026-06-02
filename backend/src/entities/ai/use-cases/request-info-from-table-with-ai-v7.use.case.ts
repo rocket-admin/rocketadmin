@@ -21,7 +21,12 @@ import { collectMongoPipelineCollections } from '../../../ai-core/tools/collect-
 import { createDatabaseTools } from '../../../ai-core/tools/database-tools.js';
 import { searchDocumentation } from '../../../ai-core/tools/documentation-search.js';
 import { createDatabaseQuerySystemPrompt } from '../../../ai-core/tools/prompts.js';
-import { isValidMongoDbCommand, isValidSQLQuery, wrapQueryWithLimit } from '../../../ai-core/tools/query-validators.js';
+import {
+	isReadOnlyMongoAggregationPipeline,
+	isValidMongoDbCommand,
+	isValidSQLQuery,
+	wrapQueryWithLimit,
+} from '../../../ai-core/tools/query-validators.js';
 import { MessageBuilder } from '../../../ai-core/utils/message-builder.js';
 import { encodeError, encodeToToon } from '../../../ai-core/utils/toon-encoder.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
@@ -296,6 +301,12 @@ export class RequestInfoFromTableWithAIUseCaseV7
 						if (!isValidMongoDbCommand(pipeline)) {
 							throw new Error(
 								'Invalid MongoDB command. Please ensure it is a read-only aggregation pipeline without any forbidden keywords.',
+							);
+						}
+						if (!isReadOnlyMongoAggregationPipeline(pipeline)) {
+							throw new Error(
+								'Invalid MongoDB command. Aggregation stages that write data ($out, $merge) or execute ' +
+									'server-side JavaScript ($function, $accumulator, $where) are not allowed.',
 							);
 						}
 						await this.assertUserCanReadPipelineCollections(
