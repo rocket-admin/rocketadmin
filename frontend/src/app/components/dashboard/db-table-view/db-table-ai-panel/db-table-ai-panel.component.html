@@ -4,14 +4,8 @@
 <div class="ai-panel-sidebar-content ai-panel-sidebar-content_open"
     [ngClass]="{'ai-panel-sidebar-content_expanded': isExpanded, 'ai-panel-sidebar-content_sidebar-collapsed': !sidebarExpanded}">
     <div class="ai-panel-sidebar__header">
-        <h2 class="mat-heading-2 ai-panel-sidebar__title">
-            <span *ngIf="isExpanded">AI insights for {{displayName}}</span>
-            <span *ngIf="!isExpanded">AI insights</span>
-        </h2>
+        <h2 class="mat-heading-2 ai-panel-sidebar__title">AI insights</h2>
         <div class="ai-panel-sidebar__actions">
-            <button type="button" mat-icon-button (click)="toggleExpand()">
-                <mat-icon>{{isExpanded ? 'close_fullscreen' : 'open_in_full'}}</mat-icon>
-            </button>
             <button type="button" mat-icon-button (click)="handleClose()">
                 <mat-icon>close</mat-icon>
             </button>

@@ -357,3 +357,34 @@
 		color: rgba(255, 255, 255, 0.54);
 	}
 }
+
+@media (width <= 600px) {
+	.empty-state {
+		flex-direction: column;
+	}
+
+	.empty-divider,
+	.empty-right,
+	.empty-icon-box {
+		display: none !important;
+	}
+
+	.empty-left {
+		width: 100%;
+		max-width: 100%;
+		padding: 16px 0;
+	}
+
+	.empty-cta {
+		justify-content: flex-end;
+		gap: 12px;
+	}
+
+	.empty-cta > button {
+		order: 2;
+	}
+
+	.empty-cta > .empty-docs-link {
+		order: 1;
+	}
+}

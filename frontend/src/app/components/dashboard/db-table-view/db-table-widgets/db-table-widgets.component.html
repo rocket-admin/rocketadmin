@@ -3,6 +3,15 @@
 
 <div *ngIf="widgets" class="wrapper">
     <header class="header">
+        <div class="mobile-header">
+            <a mat-icon-button class="mobile-header__back" routerLink="/dashboard/{{connectionID}}/{{tableName}}" aria-label="Back to table">
+                <mat-icon>arrow_back</mat-icon>
+            </a>
+            <div class="mobile-header__titles">
+                <h1 class="mobile-header__title">Widgets</h1>
+                <span class="mobile-header__subtitle">{{ tableName }}</span>
+            </div>
+        </div>
         <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title || currentConnection.database)" class="row-breadcrumbs"></app-breadcrumbs>
 
         <div *ngIf="widgets.length" class="header-actions-box">
@@ -61,7 +70,7 @@
 
 
         <div class="actions">
-            <a mat-stroked-button routerLink="/dashboard/{{connectionID}}/{{tableName}}">
+            <a mat-stroked-button routerLink="/dashboard/{{connectionID}}/{{tableName}}" class="actions__back">
                 Back
             </a>
 
@@ -75,7 +84,7 @@
     <ng-template #emptyState>
         <app-widgets-empty-state (onAddWidget)="addNewWidget()"></app-widgets-empty-state>
 
-        <div class="actions">
+        <div class="actions actions_empty-state">
             <a mat-stroked-button routerLink="/dashboard/{{connectionID}}/{{tableName}}">
                 Back
             </a>

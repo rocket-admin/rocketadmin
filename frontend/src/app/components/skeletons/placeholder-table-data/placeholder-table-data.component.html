@@ -1,5 +1,14 @@
-<div class="mat-elevation-z4 data-table">
+<div class="mat-elevation-z4 data-table data-table_desktop">
     <div *ngFor="let _ of numberOfDivs; let i = index" class="table-cell">
         <div class="bone table-cell-content"></div>
+    </div>
+</div>
+
+<div class="data-table_mobile">
+    <div *ngFor="let _ of numberOfCards; let i = index" class="mobile-card mat-elevation-z2">
+        <div class="bone mobile-card__value mobile-card__value_short"></div>
+        <div class="bone mobile-card__value"></div>
+        <div class="bone mobile-card__value mobile-card__value_medium"></div>
+        <div class="bone mobile-card__value mobile-card__value_long"></div>
     </div>
 </div>

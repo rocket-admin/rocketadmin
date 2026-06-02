@@ -776,7 +776,7 @@
 		align-items: center;
 		border: 1px solid var(--mdc-outlined-button-outline-color, rgba(0, 0, 0, 0.12));
 		background: transparent;
-		color: var(--color-primaryPalette-700);
+		color: rgba(0, 0, 0, 0.87);
 		font-size: 13px;
 		font-weight: 500;
 		padding: 0 8px 0 12px;
@@ -817,7 +817,7 @@
 	@media (prefers-color-scheme: dark) {
 		.search-row__quick-chip {
 			border-color: var(--mdc-outlined-button-outline-color, rgba(255, 255, 255, 0.24));
-			color: var(--color-primaryPalette-100);
+			color: rgba(255, 255, 255, 0.87);
 		}
 	}
 
@@ -919,6 +919,11 @@
 }
 
 @media (width <= 600px) {
+	.skeleton.mat-elevation-z4 {
+		box-shadow: none !important;
+		background: transparent !important;
+	}
+
 	.saved-filters-row {
 		display: flex;
 		flex-wrap: wrap;
