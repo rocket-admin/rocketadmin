@@ -5,7 +5,12 @@
 
     @if (!loading() && policies().length === 0 && !showAddForm) {
         <div class="empty-state">
-            No policies defined. Add a policy to grant permissions.
+            <p>No policies defined. Add a policy to grant permissions.</p>
+            <button type="button" mat-flat-button color="accent"
+                (click)="showAddForm = true">
+                <mat-icon>add</mat-icon>
+                Add policy
+            </button>
         </div>
     }
 
