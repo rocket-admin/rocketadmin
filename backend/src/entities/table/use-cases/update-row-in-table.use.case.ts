@@ -14,6 +14,7 @@ import { ExceptionOperations } from '../../../exceptions/custom-exceptions/excep
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { compareArrayElements } from '../../../helpers/compare-array-elements.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
 import { toPrettyErrorsMsg } from '../../../helpers/to-pretty-errors-msg.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
@@ -24,6 +25,7 @@ import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { UpdateRowInTableDs } from '../application/data-structures/update-row-in-table.ds.js';
 import { ReferencedTableNamesAndColumnsDs, TableRowRODs } from '../table-datastructures.js';
 import { attachForeignColumnNames } from '../utils/attach-foreign-column-names.util.js';
+import { buildCommonTableSettingsInput } from '../utils/build-common-table-settings-input.util.js';
 import { buildTableSettingsForResponse } from '../utils/build-table-settings-for-response.util.js';
 import { convertHexDataInRowUtil } from '../utils/convert-hex-data-in-row.util.js';
 import { extractForeignKeysFromWidgets } from '../utils/extract-foreign-keys-from-widgets.util.js';
@@ -102,7 +104,10 @@ export class UpdateRowInTableUseCase
 			dao.getReferencedTableNamesAndColumns(tableName, userEmail),
 		]);
 
-		const builtDAOsTableSettings = buildDAOsTableSettingsDs(tableSettings, personalTableSettings);
+		const builtDAOsTableSettings = buildDAOsTableSettingsDs(
+			buildCommonTableSettingsInput(tableSettings),
+			personalTableSettings,
+		);
 
 		await filterReferencedTablesByPermission(
 			referencedTableNamesAndColumns,
@@ -184,7 +189,7 @@ export class UpdateRowInTableUseCase
 		try {
 			oldRowData = await dao.getRowByPrimaryKey(tableName, primaryKey, builtDAOsTableSettings, userEmail);
 		} catch (e) {
-			throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_UPDATE_ROW_IN_TABLE);
+			throw new UnknownSQLException(getErrorMessage(e), ExceptionOperations.FAILED_TO_UPDATE_ROW_IN_TABLE);
 		}
 		if (!oldRowData) {
 			throw new HttpException(
@@ -200,9 +205,11 @@ export class UpdateRowInTableUseCase
 		};
 
 		const futureRowData = Object.assign(oldRowData, row);
-		let futurePrimaryKey = {};
+		let futurePrimaryKey: Record<string, unknown> = {};
 		for (const primaryColumn of tablePrimaryKeys) {
-			futurePrimaryKey[primaryColumn.column_name] = futureRowData[primaryColumn.column_name];
+			futurePrimaryKey[primaryColumn.column_name] = (futureRowData as Record<string, unknown>)[
+				primaryColumn.column_name
+			];
 		}
 		if (isObjectEmpty(futurePrimaryKey)) {
 			futurePrimaryKey = primaryKey;
@@ -225,7 +232,10 @@ export class UpdateRowInTableUseCase
 				table_widgets: tableWidgets,
 				display_name: tableSettings?.display_name ? tableSettings.display_name : null,
 				readonly_fields: tableSettings?.readonly_fields ? tableSettings.readonly_fields : [],
-				list_fields: personalTableSettings?.list_fields?.length > 0 ? personalTableSettings.list_fields : [],
+				list_fields:
+					personalTableSettings?.list_fields && personalTableSettings.list_fields.length > 0
+						? personalTableSettings.list_fields
+						: [],
 				identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
 				referenced_table_names_and_columns: referencedTableNamesAndColumnsWithTablesDisplayNames,
 				excluded_fields: tableSettings?.excluded_fields ? tableSettings.excluded_fields : [],
@@ -236,7 +246,7 @@ export class UpdateRowInTableUseCase
 			};
 		} catch (e) {
 			operationResult = OperationResultStatusEnum.unsuccessfully;
-			throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_UPDATE_ROW_IN_TABLE);
+			throw new UnknownSQLException(getErrorMessage(e), ExceptionOperations.FAILED_TO_UPDATE_ROW_IN_TABLE);
 		} finally {
 			const logRecord = {
 				table_name: tableName,

@@ -10,8 +10,8 @@ export class FoundTableSettingsDs {
 	@ApiProperty()
 	table_name: string;
 
-	@ApiProperty()
-	display_name: string;
+	@ApiProperty({ nullable: true })
+	display_name: string | null;
 
 	@ApiProperty({ isArray: true, type: String })
 	search_fields: Array<string>;
@@ -22,14 +22,14 @@ export class FoundTableSettingsDs {
 	@ApiProperty({ isArray: true, type: String })
 	identification_fields: Array<string>;
 
-	@ApiProperty()
-	identity_column: string;
+	@ApiProperty({ nullable: true })
+	identity_column: string | null;
 
 	@ApiProperty({ isArray: true, type: String })
 	readonly_fields: Array<string>;
 
-	@ApiProperty({ isArray: true, type: String })
-	sensitive_fields: Array<string>;
+	@ApiProperty({ isArray: true, type: String, nullable: true })
+	sensitive_fields: Array<string> | null;
 
 	@ApiProperty({ isArray: true, type: String })
 	sortable_by: Array<string>;
@@ -37,8 +37,8 @@ export class FoundTableSettingsDs {
 	@ApiProperty({ isArray: true, type: String })
 	autocomplete_columns: Array<string>;
 
-	@ApiProperty({ isArray: true, type: String })
-	columns_view: Array<string>;
+	@ApiProperty({ isArray: true, type: String, nullable: true })
+	columns_view: Array<string> | null;
 
 	@ApiProperty()
 	connection_id: string;
@@ -61,8 +61,8 @@ export class FoundTableSettingsDs {
 	@ApiProperty()
 	can_update: boolean;
 
-	@ApiProperty()
-	icon: string;
+	@ApiProperty({ nullable: true })
+	icon: string | null;
 
 	@ApiProperty()
 	allow_csv_export: boolean;
@@ -73,12 +73,12 @@ export class FoundTableSettingsDs {
 	@ApiProperty({ isArray: true, type: 'string' })
 	list_fields: string[];
 
-	@ApiProperty()
-	list_per_page: number;
+	@ApiProperty({ nullable: true })
+	list_per_page: number | null;
 
 	@ApiProperty()
 	ordering: string;
 
-	@ApiProperty()
-	ordering_field: string;
+	@ApiProperty({ nullable: true })
+	ordering_field: string | null;
 }

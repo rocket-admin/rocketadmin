@@ -176,7 +176,7 @@ import { VerifyInviteUserInCompanyAndConnectionGroupUseCase } from './use-cases/
 	controllers: [CompanyInfoController],
 })
 export class CompanyInfoModule implements NestModule {
-	public configure(consumer: MiddlewareConsumer): any {
+	public configure(consumer: MiddlewareConsumer): void {
 		consumer
 			.apply(AuthMiddleware)
 			.forRoutes(

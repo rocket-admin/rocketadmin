@@ -6,6 +6,7 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { AccessLevelEnum } from '../../../enums/access-level.enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { isTest } from '../../../helpers/app/is-test.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
 import { slackPostMessage } from '../../../helpers/slack/slack-post-message.js';
@@ -38,7 +39,7 @@ export class CreateConnectionUseCase
 		const {
 			creation_info: { authorId, masterPwd },
 		} = createConnectionData;
-		const connectionAuthor: UserEntity = await this._dbContext.userRepository.findOneUserById(authorId);
+		const connectionAuthor: UserEntity | null = await this._dbContext.userRepository.findOneUserById(authorId);
 
 		if (!connectionAuthor) {
 			throw new InternalServerErrorException(Messages.USER_NOT_FOUND);
@@ -92,7 +93,7 @@ export class CreateConnectionUseCase
 				connectionCopy = Encryptor.decryptConnectionCredentials(connectionCopy, masterPwd);
 			}
 
-			let token: string;
+			let token: string | null = null;
 			if (isConnectionTypeAgent(savedConnection.type)) {
 				token = await this._dbContext.agentRepository.createNewAgentForConnectionAndReturnToken(savedConnection);
 			}
@@ -116,8 +117,10 @@ export class CreateConnectionUseCase
 				const connection = await this._dbContext.connectionRepository.findOne({
 					where: { id: savedConnection.id },
 				});
-				connection.company = foundUserCompany;
-				await this._dbContext.connectionRepository.saveUpdatedConnection(connection);
+				if (connection) {
+					connection.company = foundUserCompany;
+					await this._dbContext.connectionRepository.saveUpdatedConnection(connection);
+				}
 			}
 			await slackPostMessage(
 				Messages.USER_CREATED_CONNECTION(connectionAuthor.email, createConnectionData.connection_parameters.type),
@@ -125,7 +128,12 @@ export class CreateConnectionUseCase
 			const connectionRO = buildCreatedConnectionDs(savedConnection, token, masterPwd);
 			return connectionRO;
 		} finally {
-			if (connectionCopy && isConnectionTestedSuccessfully && !isConnectionTypeAgent(connectionCopy.type)) {
+			if (
+				connectionCopy &&
+				isConnectionTestedSuccessfully &&
+				!isConnectionTypeAgent(connectionCopy.type) &&
+				!isTest()
+			) {
 				// Fire-and-forget: run AI scan in background without blocking response
 				this.sharedJobsService.scanDatabaseAndCreateSettingsAndWidgetsWithAI(connectionCopy).catch((error) => {
 					console.error('Background AI scan failed:', error);

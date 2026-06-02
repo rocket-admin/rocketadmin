@@ -10,6 +10,7 @@ import { LogOperationTypeEnum } from '../../../enums/log-operation-type.enum.js'
 import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
 import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
 import { toPrettyErrorsMsg } from '../../../helpers/to-pretty-errors-msg.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
@@ -20,6 +21,7 @@ import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { AddRowInTableDs } from '../application/data-structures/add-row-in-table.ds.js';
 import { ReferencedTableNamesAndColumnsDs, TableRowRODs } from '../table-datastructures.js';
 import { attachForeignColumnNames } from '../utils/attach-foreign-column-names.util.js';
+import { buildCommonTableSettingsInput } from '../utils/build-common-table-settings-input.util.js';
 import { buildTableSettingsForResponse } from '../utils/build-table-settings-for-response.util.js';
 import { convertHexDataInRowUtil } from '../utils/convert-hex-data-in-row.util.js';
 import { extractForeignKeysFromWidgets } from '../utils/extract-foreign-keys-from-widgets.util.js';
@@ -161,8 +163,11 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
 
 		const formedTableStructure = formFullTableStructure(tableStructure, tableSettings);
 		let addedRow: Record<string, unknown> = {};
-		let addedRowPrimaryKey: Record<string, unknown>;
-		const builtDAOsTableSettings = buildDAOsTableSettingsDs(tableSettings, personalTableSettings);
+		let addedRowPrimaryKey: Record<string, unknown> = {};
+		const builtDAOsTableSettings = buildDAOsTableSettingsDs(
+			buildCommonTableSettingsInput(tableSettings),
+			personalTableSettings,
+		);
 		try {
 			row = await hashPasswordsInRowUtil(row, tableWidgets);
 			row = processUuidsInRowUtil(row, tableWidgets);
@@ -180,7 +185,10 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
 					table_widgets: tableWidgets,
 					display_name: tableSettings?.display_name ? tableSettings.display_name : null,
 					readonly_fields: tableSettings?.readonly_fields ? tableSettings.readonly_fields : [],
-					list_fields: personalTableSettings?.list_fields?.length > 0 ? personalTableSettings.list_fields : [],
+					list_fields:
+						personalTableSettings?.list_fields && personalTableSettings.list_fields.length > 0
+							? personalTableSettings.list_fields
+							: [],
 					identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
 					referenced_table_names_and_columns: referencedTableNamesAndColumnsWithTablesDisplayNames,
 					excluded_fields: tableSettings?.excluded_fields ? tableSettings.excluded_fields : [],
@@ -194,10 +202,10 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
 			operationResult = OperationResultStatusEnum.unsuccessfully;
 			throw new HttpException(
 				{
-					message: e.message.includes('duplicate key value')
+					message: getErrorMessage(e).includes('duplicate key value')
 						? Messages.CANT_INSERT_DUPLICATE_KEY
 						: `${Messages.FAILED_ADD_ROW_IN_TABLE}
-         ${Messages.ERROR_MESSAGE} ${e.message} ${Messages.TRY_AGAIN_LATER}`,
+         ${Messages.ERROR_MESSAGE} ${getErrorMessage(e)} ${Messages.TRY_AGAIN_LATER}`,
 				},
 				HttpStatus.BAD_REQUEST,
 			);
@@ -232,5 +240,11 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
 				TableActionEventEnum.ADD_ROW,
 			);
 		}
+		throw new HttpException(
+			{
+				message: Messages.FAILED_ADD_ROW_IN_TABLE,
+			},
+			HttpStatus.BAD_REQUEST,
+		);
 	}
 }

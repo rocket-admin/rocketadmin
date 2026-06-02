@@ -3,6 +3,7 @@ import { IGlobalDatabaseContext } from '../../common/application/global-database
 import { BaseType } from '../../common/data-injection.tokens.js';
 import { SubscriptionLevelEnum } from '../../enums/subscription-level.enum.js';
 import { isSaaS } from '../../helpers/app/is-saas.js';
+import { isTest } from '../../helpers/app/is-test.js';
 import { Constants } from '../../helpers/constants/constants.js';
 import { SaasCompanyGatewayService } from '../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 
@@ -15,7 +16,7 @@ export class CompanyInfoHelperService {
 	) {}
 
 	public async canInviteMoreUsers(companyId: string): Promise<boolean> {
-		if (!isSaaS() || process.env.NODE_ENV === 'test') {
+		if (!isSaaS() || isTest()) {
 			return true;
 		}
 
@@ -26,7 +27,7 @@ export class CompanyInfoHelperService {
 			this._dbContext.invitationInCompanyRepository.countNonExpiredInvitationsInCompany(companyId),
 		]);
 
-		if (companyInformationFromSaaS.subscriptionLevel === SubscriptionLevelEnum.FREE_PLAN) {
+		if (companyInformationFromSaaS?.subscriptionLevel === SubscriptionLevelEnum.FREE_PLAN) {
 			return countUsersInCompany + countInvitationsInCompany < Constants.FREE_PLAN_USERS_COUNT;
 		}
 		return true;

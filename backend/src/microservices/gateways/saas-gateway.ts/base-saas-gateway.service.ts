@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { appConfig } from '../../../shared/config/app-config.js';
 import { generateSaaSJwt } from './utils/generate-saas-jwt.js';
 
 export type SaaSRequestMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
@@ -11,12 +12,12 @@ export type SaaSResponse = {
 
 @Injectable()
 export class BaseSaasGatewayService {
-	private readonly baseSaaSUrl = process.env.SAAS_URL || 'http://rocketadmin-private-microservice:3001';
+	private readonly baseSaaSUrl = appConfig.thirdParty.saasUrl;
 
 	async sendRequestToSaaS(
 		patch: string,
 		method: SaaSRequestMethod,
-		body: Record<any, any>,
+		body: Record<any, any> | null,
 	): Promise<SaaSResponse | null> {
 		try {
 			if (!isSaaS()) {

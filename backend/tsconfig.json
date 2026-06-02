@@ -5,7 +5,6 @@
 		"removeComments": true,
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
-		"allowJs": true,
 		"esModuleInterop": true,
 		"target": "ESNext",
 		"sourceMap": true,
@@ -14,7 +13,11 @@
 		"incremental": true,
 		"moduleResolution": "NodeNext",
 		"skipLibCheck": true,
-		"strict": false
+		"strict": false,
+		"forceConsistentCasingInFileNames": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitOverride": true,
+		"useUnknownInCatchVariables": true
 	},
 	// "references": [
 	//   { "path": "../shared-code" },

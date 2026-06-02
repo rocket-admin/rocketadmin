@@ -15,6 +15,7 @@ import { IGlobalDatabaseContext } from '../../../../common/application/global-da
 import { BaseType } from '../../../../common/data-injection.tokens.js';
 import { DashboardWidgetTypeEnum } from '../../../../enums/dashboard-widget-type.enum.js';
 import { Messages } from '../../../../exceptions/text/messages.js';
+import { getErrorMessage } from '../../../../helpers/get-error-message.js';
 import { isConnectionTypeAgent } from '../../../../helpers/is-connection-entity-agent.js';
 import { DashboardEntity } from '../../dashboard/dashboard.entity.js';
 import { PanelEntity } from '../../panel/panel.entity.js';
@@ -102,9 +103,9 @@ export class GenerateTableDashboardWithAiUseCase
 
 		const dao = getDataAccessObject(foundConnection);
 
-		let userEmail: string;
+		let userEmail = '';
 		if (isConnectionTypeAgent(foundConnection.type)) {
-			userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
+			userEmail = (await this._dbContext.userRepository.getUserEmailOrReturnNull(userId)) ?? '';
 		}
 
 		const tools = createDashboardGenerationTools();
@@ -161,7 +162,7 @@ export class GenerateTableDashboardWithAiUseCase
 					},
 				});
 			} catch (error) {
-				this.logger.warn(`Panel "${panel.name}" skipped: ${error.message}`);
+				this.logger.warn(`Panel "${panel.name}" skipped: ${getErrorMessage(error)}`);
 			}
 		}
 
@@ -353,7 +354,7 @@ IMPORTANT GUIDELINES:
 						result = encodeError({ error: `Unknown tool: ${toolCall.name}` });
 				}
 			} catch (error) {
-				result = encodeError({ error: error.message });
+				result = encodeError({ error: getErrorMessage(error) });
 			}
 
 			results.push({ toolCallId: toolCall.id, result });
@@ -394,7 +395,7 @@ IMPORTANT GUIDELINES:
 
 			return parsed;
 		} catch (error) {
-			this.logger.error('Error parsing dashboard AI response:', error.message);
+			this.logger.error('Error parsing dashboard AI response:', getErrorMessage(error));
 			throw new BadRequestException('Failed to generate dashboard from AI. Please try again.');
 		}
 	}
@@ -415,7 +416,7 @@ IMPORTANT GUIDELINES:
 
 			const correctionPrompt = this.buildQueryCorrectionPrompt(
 				currentQuery,
-				explainResult.success ? explainResult.result : explainResult.error,
+				(explainResult.success ? explainResult.result : explainResult.error) ?? '',
 				!explainResult.success,
 				connectionType,
 				generatedPanel.name,
@@ -454,7 +455,7 @@ IMPORTANT GUIDELINES:
 			const result = await (dao as IDataAccessObject).executeRawQuery(explainQuery, '');
 			return { success: true, result: JSON.stringify(result, null, 2) };
 		} catch (error) {
-			return { success: false, error: error.message };
+			return { success: false, error: getErrorMessage(error) };
 		}
 	}
 

@@ -3,6 +3,8 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AmplitudeEventTypeEnum } from '../../enums/amplitude-event-type.enum.js';
+import { isTest } from '../../helpers/app/is-test.js';
+import { appConfig } from '../../shared/config/app-config.js';
 import { UserEntity } from '../user/user.entity.js';
 
 export interface AmplitudeLogOptions {
@@ -23,8 +25,9 @@ export class AmplitudeService implements OnModuleInit {
 	) {}
 
 	public onModuleInit(): void {
-		if (process.env.AMPLITUDE_API_KEY) {
-			this.client = Amplitude.init(process.env.AMPLITUDE_API_KEY);
+		const amplitudeApiKey = appConfig.thirdParty.amplitudeApiKey;
+		if (amplitudeApiKey) {
+			this.client = Amplitude.init(amplitudeApiKey);
 		}
 	}
 
@@ -34,7 +37,7 @@ export class AmplitudeService implements OnModuleInit {
 		options?: AmplitudeLogOptions,
 	): Promise<void> {
 		try {
-			if (process.env.NODE_ENV === 'test') return;
+			if (isTest()) return;
 			let user_email = (await this.userRepository.findOne({ where: { id: user_id } }))?.email;
 			if (!user_email && options) {
 				user_email = options.user_email;

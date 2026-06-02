@@ -1,7 +1,8 @@
-import { Inject, Injectable, Scope } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { UpdateCompanyNameDS } from '../application/data-structures/update-company-name.ds.js';
 import { IUpdateCompanyName } from './company-info-use-cases.interface.js';
@@ -21,6 +22,9 @@ export class UpdateCompanyNameUseCase
 	protected async implementation(inputData: UpdateCompanyNameDS): Promise<SuccessResponse> {
 		const { companyId, name } = inputData;
 		const foundCompany = await this._dbContext.companyInfoRepository.findOneBy({ id: companyId });
+		if (!foundCompany) {
+			throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
+		}
 		foundCompany.name = name;
 		await this._dbContext.companyInfoRepository.save(foundCompany);
 		return {

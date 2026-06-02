@@ -79,10 +79,11 @@ export class TestConnectionUseCase
 				}
 
 				['password', 'privateSSHKey', 'cert'].forEach((key) => {
+					const data = connectionData as unknown as Record<string, unknown>;
 					// eslint-disable-next-line security/detect-object-injection
-					if (!connectionData[key]) {
+					if (!data[key]) {
 						// eslint-disable-next-line security/detect-object-injection
-						delete connectionData[key];
+						delete data[key];
 					}
 				});
 
@@ -101,7 +102,7 @@ export class TestConnectionUseCase
 					!connectionData.password &&
 					(connectionData.host !== toUpdate.host || connectionData.port !== toUpdate.port) &&
 					!isConnectionTypeAgent(connectionData.type) &&
-					!isRedisConnectionUrl(connectionData.host)
+					!isRedisConnectionUrl(connectionData.host ?? '')
 				) {
 					return {
 						result: false,
@@ -134,7 +135,7 @@ export class TestConnectionUseCase
 			if (
 				!connectionData.password &&
 				!isConnectionTypeAgent(connectionData.type) &&
-				!isRedisConnectionUrl(connectionData.host)
+				!isRedisConnectionUrl(connectionData.host ?? '')
 			) {
 				return {
 					result: false,
@@ -164,7 +165,7 @@ export class TestConnectionUseCase
 		authorId: string,
 		connectionType: ConnectionTypesEnum,
 	): Promise<TestConnectionResultDs> {
-		let testResult: TestConnectionResultDs;
+		let testResult: TestConnectionResultDs | undefined;
 		try {
 			testResult = await dao.testConnect();
 			return testResult;
@@ -190,7 +191,7 @@ export class TestConnectionUseCase
 		} finally {
 			if (testResult?.result) {
 				const foundUser = await this._dbContext.userRepository.findOneUserById(authorId);
-				await slackPostMessage(Messages.USER_SUCCESSFULLY_TESTED_CONNECTION(foundUser?.email, connectionType));
+				await slackPostMessage(Messages.USER_SUCCESSFULLY_TESTED_CONNECTION(foundUser?.email ?? '', connectionType));
 			}
 		}
 	}

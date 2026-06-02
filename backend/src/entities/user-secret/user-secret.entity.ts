@@ -44,16 +44,16 @@ export class UserSecretEntity {
 	updatedAt: Date;
 
 	@Column({ type: 'timestamp', nullable: true })
-	lastAccessedAt: Date;
+	lastAccessedAt: Date | null;
 
 	@Column({ type: 'timestamp', nullable: true })
-	expiresAt: Date;
+	expiresAt: Date | null;
 
 	@Column({ default: false })
 	masterEncryption: boolean;
 
 	@Column({ type: 'varchar', length: 4096, nullable: true })
-	masterHash: string;
+	masterHash: string | null;
 
 	@OneToMany(
 		() => SecretAccessLogEntity,

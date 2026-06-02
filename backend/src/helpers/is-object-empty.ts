@@ -1,4 +1,4 @@
-export function isObjectEmpty(obj: any): boolean {
+export function isObjectEmpty(obj: object | null | undefined): boolean {
 	if (!obj) {
 		return true;
 	}

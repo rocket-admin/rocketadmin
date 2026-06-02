@@ -5,19 +5,19 @@ export class HostedConnectionCredentialsRO {
 	connectionId: string;
 
 	@ApiProperty()
-	host: string;
+	host?: string | null;
 
 	@ApiProperty()
-	port: number;
+	port?: number;
 
 	@ApiProperty()
-	database: string;
+	database?: string | null;
 
 	@ApiProperty()
-	username: string;
+	username?: string | null;
 
 	@ApiProperty()
-	password: string;
+	password?: string | null;
 
 	@ApiProperty()
 	is_frozen: boolean;

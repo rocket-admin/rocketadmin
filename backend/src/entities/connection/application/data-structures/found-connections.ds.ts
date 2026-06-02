@@ -13,28 +13,28 @@ export class FoundDirectConnectionsDs {
 	title?: string;
 
 	@ApiProperty()
-	masterEncryption: boolean;
+	masterEncryption?: boolean;
 
 	@ApiProperty({ enum: ConnectionTypesEnum })
-	type?: ConnectionTypesEnum;
+	type?: ConnectionTypesEnum | null;
 
 	@ApiProperty()
-	host?: string;
+	host?: string | null;
 
 	@ApiProperty()
 	port?: number | null;
 
 	@ApiProperty()
-	username?: string;
+	username?: string | null;
 
 	@ApiProperty()
-	database?: string;
+	database?: string | null;
 
 	@ApiProperty()
-	schema?: string;
+	schema?: string | null;
 
 	@ApiProperty({ required: false })
-	sid?: string;
+	sid?: string | null;
 
 	@ApiProperty({ required: false })
 	createdAt?: Date;
@@ -46,16 +46,16 @@ export class FoundDirectConnectionsDs {
 	ssh?: boolean;
 
 	@ApiProperty({ required: false })
-	sshHost?: string;
+	sshHost?: string | null;
 
 	@ApiProperty({ required: false })
-	sshPort?: number;
+	sshPort?: number | null;
 
 	@ApiProperty()
-	ssl?: boolean;
+	ssl?: boolean | null;
 
 	@ApiProperty({ required: false })
-	cert?: string;
+	cert?: string | null;
 
 	@ApiProperty({ required: false })
 	author?: string;
@@ -67,7 +67,7 @@ export class FoundDirectConnectionsDs {
 	azure_encryption?: boolean;
 
 	@ApiProperty()
-	signing_key: string;
+	signing_key?: string | null;
 
 	@ApiProperty({ required: false })
 	authSource?: string;
@@ -82,7 +82,7 @@ export class FoundDirectConnectionsDs {
 	connection_properties?: ConnectionPropertiesEntity;
 
 	@ApiProperty()
-	isFrozen: boolean;
+	isFrozen?: boolean;
 }
 
 export class FoundDirectConnectionsNonePermissionDs {

@@ -20,7 +20,7 @@ export class SignInAuditService {
 		const { email, userId, status, signInMethod, ipAddress, userAgent, failureReason } = data;
 
 		const newRecord = new SignInAuditEntity();
-		newRecord.email = email?.toLowerCase();
+		newRecord.email = email?.toLowerCase() ?? null;
 		newRecord.status = status;
 		newRecord.signInMethod = signInMethod;
 		newRecord.ipAddress = ipAddress || null;

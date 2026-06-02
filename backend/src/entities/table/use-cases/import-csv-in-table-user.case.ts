@@ -4,8 +4,9 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { validateConnection, getUserEmailForAgent } from '../utils/validate-connection.util.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { ImportCSVInTableDs } from '../application/data-structures/import-scv-in-table.ds.js';
+import { getUserEmailForAgent, validateConnection } from '../utils/validate-connection.util.js';
 import { IImportCSVFinTable } from './table-use-cases.interface.js';
 
 @Injectable()
@@ -56,7 +57,7 @@ export class ImportCSVInTableUseCase
 			}
 			throw new HttpException(
 				{
-					message: `${Messages.CSV_IMPORT_FAILED}. ${error.message}`,
+					message: `${Messages.CSV_IMPORT_FAILED}. ${getErrorMessage(error)}`,
 				},
 				HttpStatus.INTERNAL_SERVER_ERROR,
 			);

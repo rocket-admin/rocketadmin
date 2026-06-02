@@ -43,9 +43,17 @@ export class UpdateConnectionUseCase
 			connectionId,
 			masterPwd,
 		);
+		if (!foundConnectionToUpdate) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_NOT_FOUND,
+				},
+				HttpStatus.NOT_FOUND,
+			);
+		}
 		const testConnectionsHosts = Constants.getTestConnectionsHostNamesArr();
 
-		if (testConnectionsHosts.includes(foundConnectionToUpdate.host)) {
+		if (testConnectionsHosts.includes(foundConnectionToUpdate.host ?? '')) {
 			throw new HttpException(
 				{
 					message: Messages.TEST_CONNECTIONS_UPDATE_NOT_ALLOWED,
@@ -61,12 +69,14 @@ export class UpdateConnectionUseCase
 			.map(([key, _]) => key);
 
 		const keysToKeep = ['title', 'schema', ...booleanKeys];
+		const params = connection_parameters as unknown as Record<string, unknown>;
 		connection_parameters = Object.keys(connection_parameters).reduce(
 			(acc, key) => {
+				const accRec = acc as unknown as Record<string, unknown>;
 				// eslint-disable-next-line security/detect-object-injection
-				if (connection_parameters[key] || keysToKeep.includes(key)) {
+				if (params[key] || keysToKeep.includes(key)) {
 					// eslint-disable-next-line security/detect-object-injection
-					acc[key] = connection_parameters[key];
+					accRec[key] = params[key];
 				}
 				return acc;
 			},

@@ -6,6 +6,7 @@ import Mail from 'nodemailer/lib/mailer/index.js';
 import { Repository } from 'typeorm';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { Constants } from '../../helpers/constants/constants.js';
+import { getErrorMessage } from '../../helpers/get-error-message.js';
 import { slackPostMessage } from '../../helpers/slack/slack-post-message.js';
 import { ValidationHelper } from '../../helpers/validators/validation-helper.js';
 import { EmailService, ICronMessagingResults } from '../email/email/email.service.js';
@@ -79,7 +80,7 @@ export class CronJobsService {
 						const batchResults = await this.emailService.sendRemindersToUsers(emailsBatch);
 						allMailingResults.push(...batchResults);
 					} catch (error) {
-						console.error(`Error processing batch ${Math.floor(i / batchSize) + 1}: ${error.message}`);
+						console.error(`Error processing batch ${Math.floor(i / batchSize) + 1}: ${getErrorMessage(error)}`);
 						Sentry.captureException(error);
 					}
 					await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -94,15 +95,17 @@ export class CronJobsService {
 				await slackPostMessage(`morning cron finished at ${this.getCurrentTime()}`, Constants.EXCEPTIONS_CHANNELS);
 			} catch (innerError) {
 				console.error('Detailed error in email processing:', innerError);
-				const errorMessage = innerError.stack
-					? `${innerError.message}\n${innerError.stack.split('\n').slice(0, 5).join('\n')}`
-					: innerError.message;
+				const err = innerError instanceof Error ? innerError : new Error(String(innerError));
+				const errorMessage = err.stack
+					? `${err.message}\n${err.stack.split('\n').slice(0, 5).join('\n')}`
+					: err.message;
 				await slackPostMessage(`Error in email processing: ${errorMessage}`, Constants.EXCEPTIONS_CHANNELS);
 				Sentry.captureException(innerError);
 			}
 		} catch (e) {
 			console.error('Main cron handler error:', e);
-			const errorMessage = e.stack ? `${e.message}\n${e.stack.split('\n').slice(0, 5).join('\n')}` : e.message;
+			const err = e instanceof Error ? e : new Error(String(e));
+			const errorMessage = err.stack ? `${err.message}\n${err.stack.split('\n').slice(0, 5).join('\n')}` : err.message;
 			await slackPostMessage(`Error in morning cron: ${errorMessage}`, Constants.EXCEPTIONS_CHANNELS);
 			Sentry.captureException(e);
 		} finally {

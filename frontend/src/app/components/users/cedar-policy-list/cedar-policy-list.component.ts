@@ -1,17 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import {
-	CedarPolicyItem,
-	POLICY_ACTION_GROUPS,
-	POLICY_ACTIONS,
-	PolicyActionGroup,
-} from 'src/app/lib/cedar-policy-items';
+import { CedarPolicyItem, PolicyAction, PolicyActionGroup, PolicyActionResource } from 'src/app/lib/cedar-policy-items';
+import { actionIcon, actionLabel, actionShortLabel } from 'src/app/lib/permission-display';
+import { UsersService } from 'src/app/services/users.service';
 import { ContentLoaderComponent } from '../../ui-components/content-loader/content-loader.component';
 
 export interface AvailableTable {
@@ -31,6 +28,8 @@ export interface PolicyGroup {
 	colorClass: string;
 	policies: { item: CedarPolicyItem; originalIndex: number }[];
 }
+
+const WILDCARD_PREFIXES: PolicyActionResource[] = ['table', 'dashboard', 'panel'];
 
 @Component({
 	selector: 'app-cedar-policy-list',
@@ -66,26 +65,28 @@ export class CedarPolicyListComponent {
 
 	collapsedGroups = new Set<string>();
 
-	private _availableActions = POLICY_ACTIONS;
+	private _users = inject(UsersService);
 
-	// Computed derived views
+	private displayGroups = computed<PolicyActionGroup[]>(() => this._buildDisplayGroups());
+	private displayActions = computed<PolicyAction[]>(() => this.displayGroups().flatMap((g) => g.actions));
+
 	protected groupedPolicies = computed(() => this._computeGroupedPolicies());
 	protected addActionGroups = computed(() => this._buildFilteredGroups(-1));
 
 	get needsTable(): boolean {
-		return this._availableActions.find((a) => a.value === this.newAction)?.needsTable ?? false;
+		return this._needsTable(this.newAction);
 	}
 
 	get needsDashboard(): boolean {
-		return this._availableActions.find((a) => a.value === this.newAction)?.needsDashboard ?? false;
+		return this._needsDashboard(this.newAction);
 	}
 
 	get editNeedsTable(): boolean {
-		return this._availableActions.find((a) => a.value === this.editAction)?.needsTable ?? false;
+		return this._needsTable(this.editAction);
 	}
 
 	get editNeedsDashboard(): boolean {
-		return this._availableActions.find((a) => a.value === this.editAction)?.needsDashboard ?? false;
+		return this._needsDashboard(this.editAction);
 	}
 
 	protected usedTables = computed(() => {
@@ -93,7 +94,7 @@ export class CedarPolicyListComponent {
 		for (const p of this.policies()) {
 			if (p.tableName) {
 				const labels = map.get(p.tableName) || [];
-				labels.push(this._shortLabels[p.action] || p.action);
+				labels.push(this.getShortActionLabel(p.action));
 				map.set(p.tableName, labels);
 			}
 		}
@@ -105,7 +106,7 @@ export class CedarPolicyListComponent {
 		for (const p of this.policies()) {
 			if (p.dashboardId) {
 				const labels = map.get(p.dashboardId) || [];
-				labels.push(this._shortLabels[p.action] || p.action);
+				labels.push(this.getShortActionLabel(p.action));
 				map.set(p.dashboardId, labels);
 			}
 		}
@@ -133,15 +134,15 @@ export class CedarPolicyListComponent {
 	}
 
 	getActionIcon(action: string): string {
-		return this._actionIcons[action] || 'security';
+		return actionIcon(action);
 	}
 
 	getShortActionLabel(action: string): string {
-		return this._shortLabels[action] || action;
+		return actionShortLabel(action);
 	}
 
 	getActionLabel(action: string): string {
-		return this._availableActions.find((a) => a.value === action)?.label || action;
+		return actionLabel(action);
 	}
 
 	getTableDisplayName(tableName: string): string {
@@ -254,49 +255,63 @@ export class CedarPolicyListComponent {
 			colorClass: 'table',
 		},
 		{
+			prefix: 'actionEvent:',
+			label: 'ActionEvent',
+			description: 'Custom action event triggers',
+			icon: 'play_arrow',
+			colorClass: 'action-event',
+		},
+		{
 			prefix: 'dashboard:',
 			label: 'Dashboard',
 			description: 'Dashboard access',
 			icon: 'dashboard',
 			colorClass: 'dashboard',
 		},
+		{
+			prefix: 'panel:',
+			label: 'Panel',
+			description: 'Panel access',
+			icon: 'view_quilt',
+			colorClass: 'panel',
+		},
 	];
 
-	private _actionIcons: Record<string, string> = {
-		'*': 'shield',
-		'connection:read': 'visibility',
-		'connection:edit': 'edit',
-		'group:read': 'visibility',
-		'group:edit': 'settings',
-		'table:*': 'shield',
-		'table:read': 'visibility',
-		'table:add': 'add_circle',
-		'table:edit': 'edit',
-		'table:delete': 'delete',
-		'dashboard:*': 'shield',
-		'dashboard:read': 'visibility',
-		'dashboard:create': 'add_circle',
-		'dashboard:edit': 'edit',
-		'dashboard:delete': 'delete',
-	};
+	private _needsTable(value: string): boolean {
+		return this._scopeResource(value) === 'table';
+	}
 
-	private _shortLabels: Record<string, string> = {
-		'*': 'Full access',
-		'connection:read': 'Read',
-		'connection:edit': 'Full access',
-		'group:read': 'Read',
-		'group:edit': 'Manage',
-		'table:*': 'Full access',
-		'table:read': 'Read',
-		'table:add': 'Add',
-		'table:edit': 'Edit',
-		'table:delete': 'Delete',
-		'dashboard:*': 'Full access',
-		'dashboard:read': 'Read',
-		'dashboard:create': 'Create',
-		'dashboard:edit': 'Edit',
-		'dashboard:delete': 'Delete',
-	};
+	private _needsDashboard(value: string): boolean {
+		return this._scopeResource(value) === 'dashboard';
+	}
+
+	private _scopeResource(value: string): PolicyActionResource | undefined {
+		if (value === 'dashboard:create') return undefined;
+		return this._findAction(value)?.resource;
+	}
+
+	private _findAction(value: string): PolicyAction | undefined {
+		return this.displayActions().find((a) => a.value === value);
+	}
+
+	private _isSimpleAction(action: PolicyAction): boolean {
+		if (action.value === 'dashboard:create') return true;
+		return action.resource !== 'table' && action.resource !== 'dashboard';
+	}
+
+	private _buildDisplayGroups(): PolicyActionGroup[] {
+		const general: PolicyActionGroup = { group: 'General', actions: [{ value: '*' }] };
+		const groups = this._users.availablePermissionGroups().map((g) => this._withWildcardEntry(g));
+		return [general, ...groups];
+	}
+
+	private _withWildcardEntry(group: PolicyActionGroup): PolicyActionGroup {
+		if (group.actions.length === 0) return group;
+		const prefix = group.actions[0].value.split(':')[0] as PolicyActionResource;
+		if (!WILDCARD_PREFIXES.includes(prefix)) return group;
+		const wildcard: PolicyAction = { value: `${prefix}:*`, resource: prefix };
+		return { ...group, actions: [wildcard, ...group.actions] };
+	}
 
 	private _computeGroupedPolicies(): PolicyGroup[] {
 		const policies = this.policies();
@@ -315,24 +330,27 @@ export class CedarPolicyListComponent {
 
 	private _buildFilteredGroups(excludeIndex: number): PolicyActionGroup[] {
 		const policies = this.policies();
+		const actions = this.displayActions();
 		const existingSimple = new Set(
 			policies
 				.filter((p, i) => {
 					if (i === excludeIndex) return false;
-					const def = this._availableActions.find((a) => a.value === p.action);
-					return def && !def.needsTable && !def.needsDashboard;
+					const def = actions.find((a) => a.value === p.action);
+					return def != null && this._isSimpleAction(def);
 				})
 				.map((p) => p.action),
 		);
 
-		return POLICY_ACTION_GROUPS.map((group) => ({
-			...group,
-			actions: group.actions.filter((action) => {
-				if (!action.needsTable && !action.needsDashboard) {
-					return !existingSimple.has(action.value);
-				}
-				return true;
-			}),
-		})).filter((group) => group.actions.length > 0);
+		return this.displayGroups()
+			.map((group) => ({
+				...group,
+				actions: group.actions.filter((action) => {
+					if (this._isSimpleAction(action)) {
+						return !existingSimple.has(action.value);
+					}
+					return true;
+				}),
+			}))
+			.filter((group) => group.actions.length > 0);
 	}
 }

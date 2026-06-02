@@ -9,12 +9,14 @@ import { LogOperationTypeEnum } from '../../../enums/log-operation-type.enum.js'
 import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { hexToBinary, isBinary } from '../../../helpers/binary-to-hex.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
 import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
 import { slackPostMessage } from '../../../helpers/slack/slack-post-message.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { GetTableRowsDs } from '../application/data-structures/get-table-rows.ds.js';
 import { FilteringFieldsDs } from '../table-datastructures.js';
+import { buildCommonTableSettingsInput } from '../utils/build-common-table-settings-input.util.js';
 import { findFilteringFieldsUtil, parseFilteringFieldsFromBodyData } from '../utils/find-filtering-fields.util.js';
 import { findOrderingFieldUtil } from '../utils/find-ordering-field.util.js';
 import { isHexString } from '../utils/is-hex-string.js';
@@ -68,11 +70,14 @@ export class ExportCSVFromTableUseCase
 
 			const filteringFields: Array<FilteringFieldsDs> = isObjectEmpty(filters)
 				? findFilteringFieldsUtil(query, tableStructure)
-				: parseFilteringFieldsFromBodyData(filters, tableStructure);
+				: parseFilteringFieldsFromBodyData(filters ?? {}, tableStructure);
 
 			const orderingField = findOrderingFieldUtil(query, tableStructure, tableSettings);
 
-			const builtDAOsTableSettings = buildDAOsTableSettingsDs(tableSettings, personalTableSettings);
+			const builtDAOsTableSettings = buildDAOsTableSettingsDs(
+				buildCommonTableSettingsInput(tableSettings),
+				personalTableSettings,
+			);
 
 			if (orderingField) {
 				builtDAOsTableSettings.ordering_field = orderingField.field;
@@ -119,7 +124,7 @@ export class ExportCSVFromTableUseCase
 			}
 			// todo: temporary debug log
 			await slackPostMessage(`
-        CSV Export Failed with error: ${error.message}\n
+        CSV Export Failed with error: ${getErrorMessage(error)}\n
         Connection type: ${connection.type}\n
         SSH Option: ${connection.ssh}\n
         SSL Option: ${connection.ssl}\n
@@ -127,7 +132,7 @@ export class ExportCSVFromTableUseCase
 			throw new HttpException(
 				{
 					message: Messages.CSV_EXPORT_FAILED,
-					originalMessage: error.message,
+					originalMessage: getErrorMessage(error),
 				},
 				HttpStatus.INTERNAL_SERVER_ERROR,
 			);

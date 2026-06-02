@@ -54,7 +54,7 @@ import { UpdateRuleUseCase } from './use-cases/update-action-rule-with-actions-a
 	controllers: [ActionRulesController],
 })
 export class TableTriggersModule {
-	public configure(consumer: MiddlewareConsumer): any {
+	public configure(consumer: MiddlewareConsumer): void {
 		consumer
 			.apply(AuthMiddleware)
 			.forRoutes(

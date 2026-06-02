@@ -13,6 +13,7 @@ import {
 	PrimaryColumn,
 	Relation,
 } from 'typeorm';
+import { isTest } from '../../helpers/app/is-test.js';
 import { Encryptor } from '../../helpers/encryption/encryptor.js';
 import { isConnectionTypeAgent } from '../../helpers/is-connection-entity-agent.js';
 import { AgentEntity } from '../agent/agent.entity.js';
@@ -39,30 +40,30 @@ export class ConnectionEntity {
 	title?: string;
 
 	@Column({ default: false, type: 'boolean' })
-	masterEncryption: boolean;
+	masterEncryption?: boolean;
 
-	@Column({ default: null })
+	@Column({ type: 'varchar', default: null })
 	type?: ConnectionTypesEnum | null;
 
-	@Column({ default: null })
+	@Column({ type: 'varchar', default: null })
 	host?: string | null;
 
 	@Column({ default: null })
 	port?: number;
 
-	@Column({ default: null })
+	@Column({ type: 'varchar', default: null })
 	username?: string | null;
 
-	@Column({ default: null })
+	@Column({ type: 'varchar', default: null })
 	password?: string | null;
 
-	@Column({ default: null })
+	@Column({ type: 'varchar', default: null })
 	database?: string | null;
 
-	@Column({ default: null })
+	@Column({ type: 'varchar', default: null })
 	schema?: string | null;
 
-	@Column({ default: null, length: 255 })
+	@Column({ type: 'varchar', default: null, length: 255 })
 	sid?: string | null;
 
 	@Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
@@ -74,29 +75,29 @@ export class ConnectionEntity {
 	@Column({ default: false, type: 'boolean' })
 	ssh?: boolean;
 
-	@Column({ default: null })
+	@Column({ type: 'varchar', default: null })
 	privateSSHKey?: string | null;
 
-	@Column({ default: null })
+	@Column({ type: 'varchar', default: null })
 	sshHost?: string | null;
 
-	@Column({ default: null })
+	@Column({ type: 'int', default: null })
 	sshPort?: number | null;
 
-	@Column({ default: null })
+	@Column({ type: 'varchar', default: null })
 	sshUsername?: string | null;
 
 	@Column({ default: false, type: 'boolean' })
 	ssl?: boolean | null;
 
-	@Column({ default: null })
+	@Column({ type: 'varchar', default: null })
 	cert?: string | null;
 
 	@Column({ default: false, type: 'boolean' })
 	isTestConnection: boolean;
 
 	@Column({ default: false, type: 'boolean' })
-	azure_encryption: boolean;
+	azure_encryption?: boolean;
 
 	@Column({ default: false, type: 'boolean' })
 	is_frozen: boolean;
@@ -104,16 +105,16 @@ export class ConnectionEntity {
 	@Column({ default: 0 })
 	saved_table_info: number;
 
-	@Column({ default: null })
+	@Column({ type: 'varchar', default: null })
 	signing_key: string | null;
 
-	@Column({ default: null })
+	@Column({ type: 'varchar', default: null })
 	authSource?: string | null;
 
-	@Column({ default: null })
+	@Column({ type: 'varchar', default: null })
 	dataCenter?: string | null;
 
-	@Column({ default: null })
+	@Column({ type: 'varchar', default: null })
 	master_hash?: string | null;
 
 	/**
@@ -154,7 +155,7 @@ export class ConnectionEntity {
 			this.id = nanoid(8);
 		}
 		this.signing_key = Encryptor.generateRandomString(40);
-		if (process.env.NODE_ENV === 'test') {
+		if (isTest()) {
 			this.signing_key = 'test';
 		}
 		if (!isConnectionTypeAgent(this.type)) {

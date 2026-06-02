@@ -30,10 +30,16 @@ export class CreateGroupInConnectionUseCase
 			creation_info: { cognitoUserName },
 		} = inputData;
 		const connectionToUpdate = await this._dbContext.connectionRepository.findConnectionWithGroups(connectionId);
+		if (!connectionToUpdate) {
+			throw new BadRequestException(Messages.CONNECTION_NOT_FOUND);
+		}
 		if (connectionToUpdate.groups.find((group) => group.title === title)) {
 			throw new BadRequestException(Messages.GROUP_NAME_UNIQUE);
 		}
 		const foundUser = await this._dbContext.userRepository.findOneUserById(cognitoUserName);
+		if (!foundUser) {
+			throw new BadRequestException(Messages.USER_NOT_FOUND);
+		}
 		const newGroupEntity = buildNewGroupEntityForConnectionWithUser(connectionToUpdate, foundUser, title);
 		const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(newGroupEntity);
 		savedGroup.cedarPolicy = generateCedarPolicyForGroup(connectionId, false, {

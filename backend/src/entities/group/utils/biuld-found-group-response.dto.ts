@@ -7,6 +7,6 @@ export function buildFoundGroupResponseDto(group: GroupEntity): FoundGroupRespon
 		id: group.id,
 		title: group.title,
 		isMain: group.isMain,
-		users: group.users?.map((user) => buildSimpleUserInfoDs(user)),
+		users: group.users?.map((user) => buildSimpleUserInfoDs(user)).filter((user) => !!user),
 	};
 }

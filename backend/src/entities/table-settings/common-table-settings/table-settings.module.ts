@@ -62,7 +62,7 @@ import { UpdateTableSettingsUseCase } from './use-cases/update-table-settings.us
 	exports: [],
 })
 export class TableSettingsModule {
-	public configure(consumer: MiddlewareConsumer): any {
+	public configure(consumer: MiddlewareConsumer): void {
 		consumer
 			.apply(AuthMiddleware)
 			.forRoutes(

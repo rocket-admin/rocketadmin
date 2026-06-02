@@ -73,7 +73,7 @@ export class SaasUsualRegisterUseCase
 			createdAt: savedUser.createdAt,
 			isActive: savedUser.isActive,
 			email: savedUser.email,
-			intercom_hash: null,
+			intercom_hash: undefined,
 			name: savedUser.name,
 			role: savedUser.role,
 			is_2fa_enabled: false,
@@ -87,7 +87,7 @@ export class SaasUsualRegisterUseCase
 		savedUser: UserEntity,
 		testConnections: Array<ConnectionEntity>,
 		companyId: string,
-		companyName: string,
+		companyName: string | undefined,
 	): Promise<CompanyInfoEntity> {
 		if (!companyName) {
 			companyName = 'New Company';

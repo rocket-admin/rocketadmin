@@ -7,6 +7,7 @@ import {
 } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import validator from 'validator';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { isTest } from '../../../helpers/app/is-test.js';
 import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
 import { toPrettyErrorsMsg } from '../../../helpers/to-pretty-errors-msg.js';
 import { CreateConnectionDs } from '../application/data-structures/create-connection.ds.js';
@@ -43,7 +44,7 @@ export async function validateCreateConnectionData(
 		) {
 			if (!database) errors.push(Messages.DATABASE_MISSING);
 
-			if (process.env.NODE_ENV !== 'test' && !ssh && host) {
+			if (!isTest() && !ssh && host) {
 				if (!host.startsWith('mongodb+srv')) {
 					if (!validator.isFQDN(host) && !validator.isIP(host)) {
 						errors.push(Messages.HOST_NAME_INVALID);
@@ -51,7 +52,7 @@ export async function validateCreateConnectionData(
 				}
 			}
 
-			if (port < 0 || port > 65535 || !port) errors.push(Messages.PORT_MISSING);
+			if (!port || port < 0 || port > 65535) errors.push(Messages.PORT_MISSING);
 			if (typeof port !== 'number') errors.push(Messages.PORT_FORMAT_INCORRECT);
 			if (typeof ssh !== 'boolean') errors.push(Messages.SSH_FORMAT_INCORRECT);
 			if (ssh) {
@@ -89,7 +90,7 @@ export async function validateCreateConnectionData(
 }
 
 function validateConnectionType(type: string): boolean {
-	if (process.env.NODE_ENV === 'test') {
+	if (isTest()) {
 		return !!Object.keys(ConnectionTypeTestEnum).find((key) => key === type);
 	}
 	return !!Object.keys(ConnectionTypesEnum).find((key) => key === type);

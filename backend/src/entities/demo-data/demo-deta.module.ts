@@ -19,5 +19,5 @@ import { DemoDataService } from './demo-data.service.js';
 	exports: [DemoDataService],
 })
 export class DemoDataModule {
-	public configure(_consumer: MiddlewareConsumer): any {}
+	public configure(_consumer: MiddlewareConsumer): void {}
 }

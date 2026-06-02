@@ -62,7 +62,7 @@ import { UpdateCustomFieldUseCase } from './use-cases/update-custom-field.use.ca
 	exports: [],
 })
 export class CustomFieldModule {
-	public configure(consumer: MiddlewareConsumer): any {
+	public configure(consumer: MiddlewareConsumer): void {
 		consumer
 			.apply(AuthMiddleware)
 			.forRoutes(

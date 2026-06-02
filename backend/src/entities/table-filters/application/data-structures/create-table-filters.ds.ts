@@ -8,7 +8,7 @@ export class CreateTableFilterDs {
 	table_name: string;
 	connection_id: string;
 	filters: Record<string, any>;
-	masterPwd: string;
+	masterPwd: string | null;
 	filter_name: string;
 	dynamic_filtered_column: DynamicTableFiltersDs | null;
 }

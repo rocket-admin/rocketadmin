@@ -43,7 +43,7 @@ export class SecretListItemDto {
 		description: 'Date when the secret was last accessed',
 		example: '2025-01-25T09:15:00.000Z',
 	})
-	lastAccessedAt?: Date;
+	lastAccessedAt?: Date | null;
 
 	@ApiProperty({
 		type: Date,
@@ -51,7 +51,7 @@ export class SecretListItemDto {
 		description: 'Date when the secret expires (null if no expiration)',
 		example: '2025-12-31T23:59:59.000Z',
 	})
-	expiresAt?: Date;
+	expiresAt?: Date | null;
 
 	@ApiProperty({
 		type: Boolean,

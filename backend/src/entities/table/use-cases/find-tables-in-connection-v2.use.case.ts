@@ -9,17 +9,19 @@ import { AmplitudeEventTypeEnum } from '../../../enums/amplitude-event-type.enum
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { isTest as isTestEnv } from '../../../helpers/app/is-test.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
+import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util.js';
 import { WinstonLogger } from '../../logging/winston-logger.js';
 import { ITableAndViewPermissionData } from '../../permission/permission.interface.js';
 import { FindTablesDs } from '../application/data-structures/find-tables.ds.js';
 import { FoundTableDs, FoundTablesWithCategoriesDS } from '../application/data-structures/found-table.ds.js';
-import { saveTableInfoInDatabase } from '../utils/save-table-info-in-database-orchestrator.util.js';
 import { addDisplayNamesForTables } from '../utils/add-display-names-for-tables.util.js';
-import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
+import { saveTableInfoInDatabase } from '../utils/save-table-info-in-database-orchestrator.util.js';
 import { IFindTablesInConnectionV2 } from './table-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
@@ -39,11 +41,12 @@ export class FindTablesInConnectionV2UseCase
 
 	protected async implementation(inputData: FindTablesDs): Promise<FoundTablesWithCategoriesDS> {
 		const { connectionId, hiddenTablesOption, masterPwd, userId } = inputData;
-		let connection: ConnectionEntity;
+		let connection: ConnectionEntity | null = null;
 		try {
 			connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
 		} catch (error) {
-			if (error.message === Messages.MASTER_PASSWORD_MISSING) {
+			const errMessage = getErrorMessage(error);
+			if (errMessage === Messages.MASTER_PASSWORD_MISSING) {
 				throw new HttpException(
 					{
 						message: Messages.MASTER_PASSWORD_MISSING,
@@ -52,7 +55,7 @@ export class FindTablesInConnectionV2UseCase
 					HttpStatus.BAD_REQUEST,
 				);
 			}
-			if (error.message === Messages.MASTER_PASSWORD_INCORRECT) {
+			if (errMessage === Messages.MASTER_PASSWORD_INCORRECT) {
 				throw new HttpException(
 					{
 						message: Messages.MASTER_PASSWORD_INCORRECT,
@@ -71,19 +74,19 @@ export class FindTablesInConnectionV2UseCase
 			);
 		}
 		const dao = getDataAccessObject(connection);
-		let userEmail: string;
+		let userEmail = '';
 		let operationResult = false;
 		if (isConnectionTypeAgent(connection.type)) {
-			userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
+			userEmail = (await this._dbContext.userRepository.getUserEmailOrReturnNull(userId)) ?? '';
 		}
-		let tables: Array<TableDS>;
+		let tables: Array<TableDS> = [];
 		try {
 			tables = await dao.getTablesFromDB(userEmail);
 			operationResult = true;
 		} catch (e) {
 			operationResult = false;
 			Sentry.captureException(e);
-			throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_TABLES);
+			throw new UnknownSQLException(getErrorMessage(e), ExceptionOperations.FAILED_TO_GET_TABLES);
 		} finally {
 			if (!connection.isTestConnection && tables && tables.length) {
 				this.logger.log({
@@ -98,17 +101,16 @@ export class FindTablesInConnectionV2UseCase
 				userId,
 				{ tablesCount: tables?.length ? tables.length : 0 },
 			);
-			if (
-				connection.saved_table_info === 0 &&
-				!connection.isTestConnection &&
-				operationResult &&
-				process.env.NODE_ENV !== 'test'
-			) {
+			if (connection.saved_table_info === 0 && !connection.isTestConnection && operationResult && !isTestEnv()) {
 				saveTableInfoInDatabase(connection.id, tables, masterPwd, this._dbContext);
 			}
 		}
 		const tableNames = tables.map((t) => t.tableName);
-		const permissionsArr = await this.cedarPermissions.getUserPermissionsForAvailableTables(userId, connectionId, tableNames);
+		const permissionsArr = await this.cedarPermissions.getUserPermissionsForAvailableTables(
+			userId,
+			connectionId,
+			tableNames,
+		);
 		const tablesWithPermissions: Array<ITableAndViewPermissionData> = permissionsArr.map((perm) => ({
 			...perm,
 			isView: tables.find((t) => t.tableName === perm.tableName)?.isView || false,
@@ -117,16 +119,14 @@ export class FindTablesInConnectionV2UseCase
 			await this._dbContext.connectionPropertiesRepository.findConnectionPropertiesWithTablesCategories(connectionId);
 		const tableSettings = await this._dbContext.tableSettingsRepository.findTableSettingsInConnectionPure(connectionId);
 		let tablesRO = addDisplayNamesForTables(tableSettings, tablesWithPermissions);
-		if (foundConnectionProperties && foundConnectionProperties.hidden_tables.length > 0) {
+		if (foundConnectionProperties?.hidden_tables && foundConnectionProperties.hidden_tables.length > 0) {
+			const hiddenTables = foundConnectionProperties.hidden_tables;
 			if (!hiddenTablesOption) {
 				tablesRO = tablesRO.filter((tableRO) => {
-					return !foundConnectionProperties.hidden_tables.includes(tableRO.table);
+					return !hiddenTables.includes(tableRO.table);
 				});
 			} else {
-				const userConnectionEdit = await this.cedarPermissions.checkUserConnectionEdit(
-					userId,
-					connectionId,
-				);
+				const userConnectionEdit = await this.cedarPermissions.checkUserConnectionEdit(userId, connectionId);
 				if (!userConnectionEdit) {
 					throw new HttpException(
 						{

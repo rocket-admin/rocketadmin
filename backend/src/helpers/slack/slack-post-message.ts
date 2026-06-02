@@ -1,10 +1,11 @@
 import axios from 'axios';
+import { appConfig } from '../../shared/config/app-config.js';
 import { Constants } from '../constants/constants.js';
 
-export async function slackPostMessage(message: string, channel = Constants.DEFAULT_SLACK_CHANNEL): Promise<any> {
+export async function slackPostMessage(message: string, channel = Constants.DEFAULT_SLACK_CHANNEL): Promise<unknown> {
 	try {
-		const slackBotToken = process.env.SLACK_BOT_ACCESS_TOKEN;
-		if (process.env.NODE_ENV === 'test' || !slackBotToken) {
+		const slackBotToken = appConfig.thirdParty.slackBotAccessToken;
+		if (appConfig.isTest || !slackBotToken) {
 			return;
 		}
 		const url = 'https://slack.com/api/chat.postMessage';

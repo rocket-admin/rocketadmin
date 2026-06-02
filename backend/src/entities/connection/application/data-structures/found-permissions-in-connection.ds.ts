@@ -39,7 +39,7 @@ export class FoundTablesWithPermissionsDs {
 	tableName: string;
 
 	@ApiProperty()
-	display_name: string;
+	display_name: string | null;
 
 	@ApiProperty({ type: FoundTablePermissionsDs })
 	accessLevel: FoundTablePermissionsDs;

@@ -43,6 +43,7 @@ import { OtpSecretDS } from './application/data-structures/otp-secret.ds.js';
 import { OtpDisablingResultDS, OtpValidationResultDS } from './application/data-structures/otp-validation-result.ds.js';
 import { RegisteredUserDs } from './application/data-structures/registered-user.ds.js';
 import { ResetUsualUserPasswordDs } from './application/data-structures/reset-usual-user-password.ds.js';
+import { SaveUserSettingsDs } from './application/data-structures/save-user-settings.ds.js';
 import { UsualLoginDs } from './application/data-structures/usual-login.ds.js';
 import { DeleteUserAccountDTO } from './dto/delete-user-account-request.dto.js';
 import { EmailDto } from './dto/email.dto.js';
@@ -191,7 +192,7 @@ export class UserController {
 		description: 'Logged out.',
 	})
 	@Post('user/logout/')
-	async logOut(@Req() request: Request, @Res({ passthrough: true }) response: Response): Promise<any> {
+	async logOut(@Req() request: Request, @Res({ passthrough: true }) response: Response): Promise<boolean> {
 		const token = request.cookies[Constants.JWT_COOKIE_KEY_NAME];
 		if (!token) {
 			throw new HttpException(
@@ -448,7 +449,7 @@ export class UserController {
 		@Res({ passthrough: true }) response: Response,
 		@UserId() userId: string,
 		@Body() otpTokenData: OtpTokenDto,
-	): Promise<any> {
+	): Promise<ITokenExp> {
 		const { otpToken } = otpTokenData;
 		const ipAddress = (request.headers['x-forwarded-for'] as string) || request.ip;
 		const userAgent = request.headers['user-agent'] as string;
@@ -484,7 +485,7 @@ export class UserController {
 	async saveUserSessionSettings(
 		@Body() userSettings: UserSettingsDataRequestDto,
 		@UserId() userId: string,
-	): Promise<UserSettingsDataRequestDto> {
+	): Promise<SaveUserSettingsDs> {
 		return await this.saveUserSessionSettingsUseCase.execute(
 			{ userId, userSettings: userSettings.userSettings },
 			InTransactionEnum.OFF,
@@ -498,7 +499,7 @@ export class UserController {
 		type: UserSettingsDataRequestDto,
 	})
 	@Get('user/settings/')
-	async getUserSessionSettings(@UserId() userId: string): Promise<UserSettingsDataRequestDto> {
+	async getUserSessionSettings(@UserId() userId: string): Promise<SaveUserSettingsDs> {
 		return await this.getUserSessionSettingsUseCase.execute(userId, InTransactionEnum.OFF);
 	}
 

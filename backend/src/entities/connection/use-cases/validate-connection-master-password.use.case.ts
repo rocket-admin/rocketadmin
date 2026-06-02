@@ -24,7 +24,7 @@ export class ValidateConnectionMasterPasswordUseCase
 		validateConnectionMasterPasswordData: ValidateConnectionMasterPasswordDs,
 	): Promise<ValidationResultRo> {
 		const { connectionId, masterPassword } = validateConnectionMasterPasswordData;
-		const connection: ConnectionEntity = await this._dbContext.connectionRepository.findOne({
+		const connection: ConnectionEntity | null = await this._dbContext.connectionRepository.findOne({
 			where: { id: connectionId },
 		});
 

@@ -30,13 +30,16 @@ export class TableLogsService {
 		private readonly connectionPropertiesRepository: Repository<ConnectionPropertiesEntity>,
 	) {}
 
-	public async crateAndSaveNewLogUtil(logData: CreateLogRecordDs): Promise<CreatedLogRecordDs> {
+	public async crateAndSaveNewLogUtil(logData: CreateLogRecordDs): Promise<CreatedLogRecordDs | null> {
 		const { userId, connection, table_name, old_data, row } = logData;
 		const isAuditEnabled = await this.isTableAuditEnabledInConnectionProperties(connection.id);
 		if (!isAuditEnabled) {
-			return;
+			return null;
 		}
 		const foundUser = await this.userRepository.findOne({ where: { id: userId } });
+		if (!foundUser) {
+			return null;
+		}
 		const { email } = foundUser;
 		const tableSettingsQb = this.tableSettingsRepository
 			.createQueryBuilder('tableLogs')
@@ -48,6 +51,8 @@ export class TableLogsService {
 		const sensitive_fields = tableSettings?.sensitive_fields;
 
 		if (sensitive_fields && sensitive_fields.length > 0) {
+			const oldRec = old_data as Record<string, unknown>;
+			const rowRec = row as Record<string, unknown>;
 			for (const fieldName of sensitive_fields) {
 				if (
 					old_data &&
@@ -58,25 +63,25 @@ export class TableLogsService {
 					isObjectPropertyExists(row, fieldName)
 				) {
 					// eslint-disable-next-line security/detect-object-injection
-					if (this.compareValues(old_data[fieldName], row[fieldName])) {
+					if (this.compareValues(oldRec[fieldName], rowRec[fieldName])) {
 						// eslint-disable-next-line security/detect-object-injection
-						old_data[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
+						oldRec[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
 						// eslint-disable-next-line security/detect-object-injection
-						row[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
+						rowRec[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
 					} else {
 						// eslint-disable-next-line security/detect-object-injection
-						old_data[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_NOT_CHANGED;
+						oldRec[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_NOT_CHANGED;
 						// eslint-disable-next-line security/detect-object-injection
-						row[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
+						rowRec[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
 					}
 				} else {
 					if (old_data && typeof old_data === 'object' && isObjectPropertyExists(old_data, fieldName)) {
 						// eslint-disable-next-line security/detect-object-injection
-						old_data[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_NOT_CHANGED;
+						oldRec[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_NOT_CHANGED;
 					}
 					if (row && typeof row === 'object' && isObjectPropertyExists(row, fieldName)) {
 						// eslint-disable-next-line security/detect-object-injection
-						row[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
+						rowRec[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
 					}
 				}
 			}
@@ -124,12 +129,15 @@ export class TableLogsService {
 		connection: ConnectionEntity,
 		table_name: string,
 		operationType: LogOperationTypeEnum,
-	): Promise<Array<CreatedLogRecordDs>> {
+	): Promise<Array<CreatedLogRecordDs> | null> {
 		const isAuditEnabled = await this.isTableAuditEnabledInConnectionProperties(connection.id);
 		if (!isAuditEnabled) {
-			return;
+			return null;
 		}
 		const foundUser = await this.userRepository.findOne({ where: { id: userId } });
+		if (!foundUser) {
+			return null;
+		}
 		const { email } = foundUser;
 		const tableSettingsQb = this.tableSettingsRepository
 			.createQueryBuilder('tableLogs')

@@ -13,6 +13,7 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { OtpDisablingResultDS } from '../application/data-structures/otp-validation-result.ds.js';
 import { VerifyOtpDS } from '../application/data-structures/verify-otp.ds.js';
+import { legacyOtpGuardrails } from '../utils/otp-guardrails.js';
 import { IDisableOTP } from './user-use-cases.interfaces.js';
 
 @Injectable()
@@ -41,7 +42,11 @@ export class DisableOtpUseCase extends AbstractUseCase<VerifyOtpDS, OtpDisabling
 			throw new BadRequestException(Messages.OTP_NOT_ENABLED);
 		}
 		try {
-			const isValid = verifySync({ token: otpToken, secret: otpSecretKey }).valid;
+			const isValid = verifySync({
+				token: otpToken,
+				secret: otpSecretKey,
+				guardrails: legacyOtpGuardrails,
+			}).valid;
 			if (isValid) {
 				foundUser.isOTPEnabled = false;
 				foundUser.otpSecretKey = null;

@@ -33,7 +33,7 @@ import { FindTableCategoriesWithTablesUseCase } from './use-cases/find-table-cat
 	controllers: [TableCategoriesController],
 })
 export class TableCategoriesModule {
-	public configure(consumer: MiddlewareConsumer): any {
+	public configure(consumer: MiddlewareConsumer): void {
 		consumer
 			.apply(AuthMiddleware)
 			.forRoutes(

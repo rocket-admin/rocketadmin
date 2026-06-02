@@ -18,11 +18,32 @@
 	}
 }
 
-.feature-notification__image {
-	border-radius: 8px;
-	height: auto;
-	margin-bottom: 16px;
+@media (max-width: 640px) {
+	.feature-notification {
+		left: 12px;
+		right: 12px;
+		bottom: 12px;
+		width: auto;
+		max-width: 480px;
+		margin: 0 auto;
+		padding: 14px;
+		border-radius: 14px;
+		box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.12);
+	}
+}
+
+.feature-notification__animation {
 	width: 100%;
+	border-radius: 8px;
+	overflow: hidden;
+	margin-bottom: 16px;
+	color: #6384ff;
+}
+
+.fn-svg {
+	display: block;
+	width: 100%;
+	height: auto;
 }
 
 .feature-notification__title {
@@ -46,4 +67,292 @@
 	justify-content: flex-end;
 	gap: 8px;
 	margin-top: 16px;
+}
+
+/* ──────────────────────────────────────────── */
+/* Three-act animation                          */
+/* Cycle: 7s                                    */
+/*   Act 1 (0–1.5s   /  0–21%):  empty + Add db */
+/*   Act 2 (1.5–3.5s / 21–50%):  chat + typing  */
+/*   Act 3 (3.5–5.5s / 50–79%):  AI + diagram   */
+/*   Hold  (5.5–7s   / 79–100%): linger & loop  */
+/* ──────────────────────────────────────────── */
+
+.fn-placeholder,
+.fn-add-button,
+.fn-pointer-1,
+.fn-click-ripple,
+.fn-chat-title,
+.fn-chat-divider,
+.fn-input,
+.fn-caret,
+.fn-send-button,
+.fn-typing-clip,
+.fn-user-message,
+.fn-ai-avatar,
+.fn-table,
+.fn-link,
+.fn-schema-ready {
+	opacity: 0;
+}
+
+/* === ACT 1 elements === */
+
+.fn-placeholder,
+.fn-act--1 > circle,
+.fn-act--1 > path,
+.fn-act--1 > text {
+	animation: fn-fade-act1 10s ease-in-out infinite;
+}
+
+.fn-add-button {
+	animation: fn-add-btn 10s ease-in-out infinite;
+	transform-origin: 180px 93px;
+}
+
+.fn-pointer-1 {
+	animation: fn-pointer-1 10s ease-in-out infinite;
+}
+
+.fn-click-ripple {
+	animation: fn-click-ripple 10s ease-in-out infinite;
+}
+
+@keyframes fn-fade-act1 {
+	0%   { opacity: 0; }
+	3%   { opacity: 1; }
+	19%  { opacity: 1; }
+	22%  { opacity: 0; }
+	100% { opacity: 0; }
+}
+
+@keyframes fn-add-btn {
+	0%   { opacity: 0; transform: scale(0.95); }
+	3%   { opacity: 1; transform: scale(1); }
+	17%  { opacity: 1; transform: scale(1); }
+	18%  { opacity: 1; transform: scale(0.93); }
+	19%  { opacity: 1; transform: scale(1); }
+	22%  { opacity: 0; transform: scale(1); }
+	100% { opacity: 0; }
+}
+
+@keyframes fn-pointer-1 {
+	0%, 3%   { opacity: 0; transform: translate(60px, 40px); }
+	5%       { opacity: 1; transform: translate(60px, 40px); }
+	14%      { opacity: 1; transform: translate(178px, 86px); }
+	17%      { opacity: 1; transform: translate(178px, 86px) scale(0.85); }
+	19%      { opacity: 1; transform: translate(178px, 86px) scale(1); }
+	22%      { opacity: 0; transform: translate(178px, 86px); }
+	100%     { opacity: 0; }
+}
+
+@keyframes fn-click-ripple {
+	0%, 17%  { opacity: 0; r: 0; }
+	18%      { opacity: 0.85; r: 6; }
+	21%      { opacity: 0; r: 34; }
+	100%     { opacity: 0; r: 0; }
+}
+
+/* === ACT 2 elements === */
+
+.fn-chat-divider {
+	animation: fn-chat-frame 10s ease-in-out infinite;
+}
+
+.fn-chat-title--initial {
+	animation: fn-chat-title-initial 10s ease-in-out infinite;
+}
+
+.fn-chat-title--final {
+	animation: fn-chat-title-final 10s ease-in-out infinite;
+}
+
+@keyframes fn-chat-title-initial {
+	0%, 21%  { opacity: 0; }
+	24%      { opacity: 1; }
+	42%      { opacity: 1; }
+	45%      { opacity: 0; }
+	100%     { opacity: 0; }
+}
+
+@keyframes fn-chat-title-final {
+	0%, 42%  { opacity: 0; }
+	45%      { opacity: 1; }
+	93%      { opacity: 1; }
+	100%     { opacity: 0; }
+}
+
+.fn-input {
+	animation: fn-input-in 10s ease-in-out infinite;
+}
+
+.fn-typing-clip {
+	animation: fn-typing 10s linear infinite;
+}
+
+.fn-caret {
+	animation: fn-caret-track 10s linear infinite;
+}
+
+.fn-send-button {
+	animation: fn-send-button 10s ease-in-out infinite;
+	transform-origin: 326px 151px;
+}
+
+.fn-user-message {
+	animation: fn-user-message 10s ease-in-out infinite;
+}
+
+@keyframes fn-chat-frame {
+	0%, 21%  { opacity: 0; }
+	24%      { opacity: 1; }
+	93%      { opacity: 1; }
+	100%     { opacity: 0; }
+}
+
+@keyframes fn-input-in {
+	0%, 21%  { opacity: 0; transform: translateY(8px); }
+	24%      { opacity: 1; transform: translateY(0); }
+	48%      { opacity: 1; transform: translateY(0); }
+	50%      { opacity: 0; transform: translateY(0); }
+	100%     { opacity: 0; }
+}
+
+@keyframes fn-typing {
+	0%, 25%   { width: 0; }
+	40%       { width: 270px; }
+	48%       { width: 270px; }
+	50%       { width: 0; }
+	100%      { width: 0; }
+}
+
+@keyframes fn-caret-track {
+	0%, 25%  { opacity: 0; transform: translateX(0); }
+	27%      { opacity: 1; transform: translateX(0); }
+	40%      { opacity: 1; transform: translateX(255px); }
+	42%      { opacity: 0; transform: translateX(255px); }
+	44%      { opacity: 1; transform: translateX(255px); }
+	46%      { opacity: 0; transform: translateX(255px); }
+	48%      { opacity: 1; transform: translateX(255px); }
+	50%      { opacity: 0; transform: translateX(255px); }
+	100%     { opacity: 0; }
+}
+
+@keyframes fn-send-button {
+	0%, 40%  { opacity: 0; transform: scale(0.9); }
+	43%      { opacity: 1; transform: scale(0.9); }
+	44%      { opacity: 1; transform: scale(1.15); }
+	46%      { opacity: 1; transform: scale(1); }
+	47%      { opacity: 1; transform: scale(0.9); }
+	48%      { opacity: 1; transform: scale(1); }
+	50%      { opacity: 0; transform: scale(1); }
+	100%     { opacity: 0; }
+}
+
+@keyframes fn-user-message {
+	0%, 47%  { opacity: 0; transform: translateY(80px) scale(0.95); }
+	50%      { opacity: 1; transform: translateY(0) scale(1); }
+	93%      { opacity: 1; transform: translateY(0) scale(1); }
+	100%     { opacity: 0; }
+}
+
+/* === ACT 3 elements === */
+
+.fn-ai-avatar {
+	animation: fn-ai-avatar 10s ease-in-out infinite;
+	transform-origin: 22px 50px;
+}
+
+.fn-table--1 { animation: fn-table-1 10s ease-out infinite; transform-origin: 69px 107px; }
+.fn-table--2 { animation: fn-table-2 10s ease-out infinite; transform-origin: 181px 91px; }
+.fn-table--3 { animation: fn-table-3 10s ease-out infinite; transform-origin: 293px 109px; }
+
+.fn-link {
+	stroke-dasharray: 50;
+	stroke-dashoffset: 50;
+}
+
+.fn-link--1 { animation: fn-link-1 10s ease-in-out infinite; }
+.fn-link--2 { animation: fn-link-2 10s ease-in-out infinite; }
+
+.fn-schema-ready { animation: fn-schema-ready 10s ease-in-out infinite; }
+
+@keyframes fn-ai-avatar {
+	0%, 53%  { opacity: 0; transform: scale(0.7); }
+	56%      { opacity: 1; transform: scale(1.1); }
+	58%      { opacity: 1; transform: scale(1); }
+	93%      { opacity: 1; transform: scale(1); }
+	100%     { opacity: 0; }
+}
+
+@keyframes fn-table-1 {
+	0%, 56%  { opacity: 0; transform: translateY(8px) scale(0.92); }
+	60%      { opacity: 1; transform: translateY(0) scale(1); }
+	93%      { opacity: 1; transform: translateY(0) scale(1); }
+	100%     { opacity: 0; }
+}
+
+@keyframes fn-table-2 {
+	0%, 60%  { opacity: 0; transform: translateY(8px) scale(0.92); }
+	64%      { opacity: 1; transform: translateY(0) scale(1); }
+	93%      { opacity: 1; transform: translateY(0) scale(1); }
+	100%     { opacity: 0; }
+}
+
+@keyframes fn-table-3 {
+	0%, 64%  { opacity: 0; transform: translateY(8px) scale(0.92); }
+	68%      { opacity: 1; transform: translateY(0) scale(1); }
+	93%      { opacity: 1; transform: translateY(0) scale(1); }
+	100%     { opacity: 0; }
+}
+
+@keyframes fn-link-1 {
+	0%, 68%   { stroke-dashoffset: 50; opacity: 0; }
+	70%       { opacity: 1; }
+	74%       { stroke-dashoffset: 0; opacity: 1; }
+	93%       { stroke-dashoffset: 0; opacity: 1; }
+	100%      { stroke-dashoffset: 50; opacity: 0; }
+}
+
+@keyframes fn-link-2 {
+	0%, 72%   { stroke-dashoffset: 50; opacity: 0; }
+	74%       { opacity: 1; }
+	78%       { stroke-dashoffset: 0; opacity: 1; }
+	93%       { stroke-dashoffset: 0; opacity: 1; }
+	100%      { stroke-dashoffset: 50; opacity: 0; }
+}
+
+@keyframes fn-schema-ready {
+	0%, 76%  { opacity: 0; transform: translateY(4px); }
+	80%      { opacity: 1; transform: translateY(0); }
+	93%      { opacity: 1; transform: translateY(0); }
+	100%     { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.fn-placeholder,
+	.fn-add-button,
+	.fn-pointer-1,
+	.fn-click-ripple,
+	.fn-chat-title--final,
+	.fn-chat-divider,
+	.fn-input,
+	.fn-caret,
+	.fn-send-button,
+	.fn-user-message,
+	.fn-ai-avatar,
+	.fn-table,
+	.fn-link,
+	.fn-schema-ready {
+		animation: none !important;
+		opacity: 1 !important;
+		transform: none !important;
+		stroke-dashoffset: 0 !important;
+	}
+	.fn-typing-clip {
+		animation: none !important;
+		width: 270px !important;
+	}
+	.fn-chat-title--initial { display: none !important; }
+	.fn-act--1 { display: none !important; }
 }

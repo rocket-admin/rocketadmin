@@ -9,12 +9,13 @@ import { CreatedConnectionResponse, SuccessResponse } from '../data-structures/c
 import { CreateConnectionForHostedDbDto } from '../data-structures/create-connecttion-for-selfhosted-db.dto.js';
 import { DeleteConnectionForHostedDbDto } from '../data-structures/delete-connection-for-hosted-db.dto.js';
 import { FoundConnectionInfoRO } from '../data-structures/found-connection-info.ro.js';
+import { FoundUserInfoRO, FoundUserInfoWithoutCompanyRO } from '../data-structures/found-user-info.ro.js';
 import { FreezeConnectionsInCompanyDS } from '../data-structures/freeze-connections-in-company.ds.js';
 import { GetConnectionsInfoByIdsDS } from '../data-structures/get-connections-info-by-ids.ds.js';
 import { GetHostedConnectionCredentialsDto } from '../data-structures/get-hosted-connection-credentials.dto.js';
-import { HostedConnectionCredentialsRO } from '../data-structures/hosted-connection-credentials.ro.js';
 import { GetUserInfoByIdDS } from '../data-structures/get-user-info.ds.js';
 import { GetUsersInfosByEmailDS } from '../data-structures/get-users-infos-by-email.ds.js';
+import { HostedConnectionCredentialsRO } from '../data-structures/hosted-connection-credentials.ro.js';
 import { RegisterCompanyWebhookDS } from '../data-structures/register-company.ds.js';
 import { RegisteredCompanyDS } from '../data-structures/registered-company.ds.js';
 import { SaasRegisterUserWithGithub } from '../data-structures/saas-register-user-with-github.js';
@@ -28,11 +29,11 @@ export interface ICompanyRegistration {
 }
 
 export interface IGetUserInfo {
-	execute(userData: GetUserInfoByIdDS): Promise<UserEntity>;
+	execute(userData: GetUserInfoByIdDS): Promise<FoundUserInfoRO>;
 }
 
 export interface ISaasGetUsersInfosByEmail {
-	execute(userData: GetUsersInfosByEmailDS): Promise<UserEntity[]>;
+	execute(userData: GetUsersInfosByEmailDS): Promise<FoundUserInfoWithoutCompanyRO[]>;
 }
 
 export interface ISaasRegisterUser {

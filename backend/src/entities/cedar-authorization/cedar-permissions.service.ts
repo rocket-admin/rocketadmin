@@ -8,7 +8,13 @@ import { Cacher } from '../../helpers/cache/cacher.js';
 import { GroupEntity } from '../group/group.entity.js';
 import { ITablePermissionData } from '../permission/permission.interface.js';
 import { IUserAccessRepository } from '../user-access/repository/user-access.repository.interface.js';
-import { CEDAR_ACTION_TYPE, CEDAR_USER_TYPE, CedarAction, CedarResourceType } from './cedar-action-map.js';
+import {
+	ACTION_EVENT_PROBE_ID,
+	CEDAR_ACTION_TYPE,
+	CEDAR_USER_TYPE,
+	CedarAction,
+	CedarResourceType,
+} from './cedar-action-map.js';
 import { buildCedarEntities } from './cedar-entity-builder.js';
 import { CEDAR_SCHEMA } from './cedar-schema.js';
 
@@ -71,10 +77,12 @@ export class CedarPermissionsService implements IUserAccessRepository {
 		for (const group of allGroups) {
 			const connId = group.connection?.id;
 			if (!connId) continue;
-			if (!groupsByConnection.has(connId)) {
-				groupsByConnection.set(connId, []);
+			let connectionGroups = groupsByConnection.get(connId);
+			if (!connectionGroups) {
+				connectionGroups = [];
+				groupsByConnection.set(connId, connectionGroups);
 			}
-			groupsByConnection.get(connId).push(group);
+			connectionGroups.push(group);
 		}
 
 		for (const connectionId of connectionIds) {
@@ -84,7 +92,7 @@ export class CedarPermissionsService implements IUserAccessRepository {
 				continue;
 			}
 
-			const policies = userGroups.map((g) => g.cedarPolicy).filter(Boolean);
+			const policies = userGroups.map((g) => g.cedarPolicy).filter((policy): policy is string => Boolean(policy));
 			if (policies.length === 0) {
 				result.set(connectionId, AccessLevelEnum.none);
 				continue;
@@ -222,6 +230,7 @@ export class CedarPermissionsService implements IUserAccessRepository {
 					delete: false,
 					edit: false,
 					aiRequest: false,
+					triggerCustomAction: false,
 				},
 			};
 		}
@@ -251,7 +260,7 @@ export class CedarPermissionsService implements IUserAccessRepository {
 		cognitoUserName: string,
 		connectionId: string,
 		tableName: string,
-		_masterPwd: string,
+		_masterPwd?: string,
 	): Promise<boolean> {
 		const ctx = await this.loadContext(connectionId, cognitoUserName);
 		if (!ctx) return false;
@@ -322,6 +331,35 @@ export class CedarPermissionsService implements IUserAccessRepository {
 			CedarAction.TableEdit,
 			CedarResourceType.Table,
 			`${connectionId}/${tableName}`,
+			ctx.policies,
+			entities,
+		);
+	}
+
+	async checkActionEventTrigger(
+		cognitoUserName: string,
+		connectionId: string,
+		tableName: string,
+		actionEventId: string,
+		_masterPwd?: string,
+	): Promise<boolean> {
+		const ctx = await this.loadContext(connectionId, cognitoUserName);
+		if (!ctx) return false;
+
+		const entities = buildCedarEntities(
+			cognitoUserName,
+			ctx.userGroups,
+			connectionId,
+			tableName,
+			undefined,
+			undefined,
+			actionEventId,
+		);
+		return this.evaluatePolicies(
+			cognitoUserName,
+			CedarAction.ActionEventTrigger,
+			CedarResourceType.ActionEvent,
+			`${connectionId}/${tableName}/${actionEventId}`,
 			ctx.policies,
 			entities,
 		);
@@ -404,6 +442,27 @@ export class CedarPermissionsService implements IUserAccessRepository {
 			ctx.policies,
 			entities,
 		);
+		// "Blanket trigger on this table" — only `permit(... resource in Table::"...")` policies
+		// match this synthetic probe event. Per-event grants (resource == ActionEvent::"...x")
+		// won't match the probe id, so the table-level flag stays false unless the user truly
+		// has table-wide trigger.
+		const probeEntities = buildCedarEntities(
+			userId,
+			ctx.userGroups,
+			connectionId,
+			tableName,
+			undefined,
+			undefined,
+			ACTION_EVENT_PROBE_ID,
+		);
+		const canTriggerAnyCustomAction = this.evaluatePolicies(
+			userId,
+			CedarAction.ActionEventTrigger,
+			CedarResourceType.ActionEvent,
+			`${connectionId}/${tableName}/${ACTION_EVENT_PROBE_ID}`,
+			ctx.policies,
+			probeEntities,
+		);
 
 		return {
 			tableName,
@@ -414,6 +473,7 @@ export class CedarPermissionsService implements IUserAccessRepository {
 				delete: canDelete,
 				edit: canEdit,
 				aiRequest: canAiRequest,
+				triggerCustomAction: canTriggerAnyCustomAction,
 			},
 		};
 	}
@@ -449,7 +509,7 @@ export class CedarPermissionsService implements IUserAccessRepository {
 		const userGroups = await this.globalDbContext.groupRepository.findAllUserGroupsInConnection(connectionId, userId);
 		if (userGroups.length === 0) return null;
 
-		const policies = userGroups.map((g) => g.cedarPolicy).filter(Boolean);
+		const policies = userGroups.map((g) => g.cedarPolicy).filter((policy): policy is string => Boolean(policy));
 		if (policies.length === 0) return null;
 
 		return { userGroups, policies };

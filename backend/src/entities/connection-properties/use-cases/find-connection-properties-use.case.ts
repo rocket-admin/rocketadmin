@@ -18,7 +18,7 @@ export class FindConnectionPropertiesUseCase
 		super();
 	}
 
-	protected async implementation(connectionId: string): Promise<FoundConnectionPropertiesDs> {
+	protected async implementation(connectionId: string): Promise<FoundConnectionPropertiesDs | null> {
 		const foundConnectionProperties =
 			await this._dbContext.connectionPropertiesRepository.findConnectionProperties(connectionId);
 		if (!foundConnectionProperties) {

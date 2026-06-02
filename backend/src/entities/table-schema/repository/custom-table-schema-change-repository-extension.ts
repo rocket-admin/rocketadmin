@@ -77,6 +77,24 @@ export const customTableSchemaChangeRepositoryExtension: ITableSchemaChangeRepos
 			if (meta.userModifiedSql !== undefined) {
 				patch.userModifiedSql = meta.userModifiedSql;
 			}
+			if (meta.forwardSql !== undefined) {
+				patch.forwardSql = meta.forwardSql;
+			}
+			if (meta.rollbackSql !== undefined) {
+				patch.rollbackSql = meta.rollbackSql;
+			}
+			if (meta.aiAutoFixApplied !== undefined) {
+				patch.aiAutoFixApplied = meta.aiAutoFixApplied;
+			}
+			if (meta.aiAutoFixOriginalForwardSql !== undefined) {
+				patch.aiAutoFixOriginalForwardSql = meta.aiAutoFixOriginalForwardSql;
+			}
+			if (meta.aiAutoFixOriginalRollbackSql !== undefined) {
+				patch.aiAutoFixOriginalRollbackSql = meta.aiAutoFixOriginalRollbackSql;
+			}
+			if (meta.aiAutoFixOriginalError !== undefined) {
+				patch.aiAutoFixOriginalError = meta.aiAutoFixOriginalError;
+			}
 		}
 		await this.update({ id }, patch);
 		return await this.findOne({ where: { id } });

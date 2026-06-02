@@ -29,6 +29,14 @@ export class UpdateCustomFieldUseCase
 			connectionId,
 			masterPwd,
 		);
+		if (!foundConnection) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_NOT_FOUND,
+				},
+				HttpStatus.NOT_FOUND,
+			);
+		}
 		await validateCreateCustomFieldDto(updateFieldDto, foundConnection, tableName);
 		const fieldToUpdate = await this._dbContext.customFieldsRepository.findCustomFieldById(updateFieldDto.id);
 		if (!fieldToUpdate) {

@@ -43,7 +43,7 @@ export class RequestResetUserPasswordUseCase
 			rawToken,
 			companyCustomDomain,
 		);
-		const resultMessage = mailingResult.messageId
+		const resultMessage = mailingResult?.messageId
 			? Messages.PASSWORD_RESET_REQUESTED_SUCCESSFULLY
 			: Messages.PASSWORD_RESET_REQUESTED;
 		return { message: resultMessage };

@@ -3,16 +3,16 @@ import { TableActionMethodEnum } from '../../../../../enums/table-action-method-
 import { TableActionTypeEnum } from '../../../../../enums/table-action-type.enum.js';
 
 export class CreateTableActionData {
-	action_url: string;
+	action_url?: string;
 	action_method: TableActionMethodEnum;
-	action_slack_url: string;
-	action_emails: Array<string>;
+	action_slack_url?: string;
+	action_emails?: Array<string>;
 }
 
 export class CreateTableActionEventDS {
 	event: TableActionEventEnum;
-	event_title: string;
-	icon: string;
+	event_title: string | null;
+	icon?: string | null;
 	require_confirmation: boolean;
 	type: TableActionTypeEnum;
 }

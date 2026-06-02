@@ -1,0 +1,12 @@
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"noImplicitAny": true,
+		"strictBindCallApply": true,
+		"strictFunctionTypes": true,
+		"strictNullChecks": true,
+		"alwaysStrict": true
+	},
+	"include": ["src"],
+	"exclude": ["node_modules", "dist", "../node_modules", "test"]
+}

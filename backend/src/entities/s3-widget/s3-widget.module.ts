@@ -31,7 +31,7 @@ import { GetS3UploadUrlUseCase } from './use-cases/get-s3-upload-url.use.case.js
 	exports: [S3HelperService],
 })
 export class S3WidgetModule {
-	public configure(consumer: MiddlewareConsumer): any {
+	public configure(consumer: MiddlewareConsumer): void {
 		consumer
 			.apply(AuthMiddleware)
 			.forRoutes(

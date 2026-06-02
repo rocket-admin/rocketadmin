@@ -4,6 +4,7 @@ import dns from 'dns';
 import ipRangeCheck from 'ip-range-check';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { isTest } from '../../../helpers/app/is-test.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
 
@@ -15,21 +16,21 @@ export interface HostCheckData {
 }
 
 export async function isHostAllowed(connectionData: HostCheckData): Promise<boolean> {
-	if (isConnectionTypeAgent(connectionData.type) || process.env.NODE_ENV === 'test') {
+	if (isConnectionTypeAgent(connectionData.type) || isTest()) {
 		return true;
 	}
-	if (process.env.NODE_ENV !== 'test' && !isSaaS()) {
+	if (!isTest() && !isSaaS()) {
 		return true;
 	}
 
 	return new Promise<boolean>((resolve, reject) => {
 		const testHosts = Constants.getTestConnectionsHostNamesArr();
 		if (!connectionData.ssh) {
-			dns.lookup(connectionData.host, (err, address) => {
+			dns.lookup(connectionData.host ?? '', (err, address) => {
 				if (err) {
 					return reject(err);
 				}
-				if (ipRangeCheck(address, Constants.FORBIDDEN_HOSTS) && !testHosts.includes(connectionData.host)) {
+				if (ipRangeCheck(address, Constants.FORBIDDEN_HOSTS) && !testHosts.includes(connectionData.host ?? '')) {
 					resolve(false);
 				} else {
 					resolve(true);
@@ -40,7 +41,7 @@ export async function isHostAllowed(connectionData: HostCheckData): Promise<bool
 				if (err) {
 					return reject(err);
 				}
-				if (ipRangeCheck(address, Constants.FORBIDDEN_HOSTS) && !testHosts.includes(connectionData.host)) {
+				if (ipRangeCheck(address, Constants.FORBIDDEN_HOSTS) && !testHosts.includes(connectionData.host ?? '')) {
 					resolve(false);
 				} else {
 					resolve(true);

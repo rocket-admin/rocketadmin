@@ -4,6 +4,7 @@ export interface IComplexPermission {
 	connection: IConnectionPermissionData;
 	group: IGroupPermissionData;
 	tables: Array<ITablePermissionData>;
+	actionEvents?: Array<IActionEventPermissionData>;
 	dashboards?: Array<IDashboardPermissionData>;
 	panels?: Array<IPanelPermissionData>;
 }
@@ -25,6 +26,7 @@ export interface ITableAccessLevel {
 	delete: boolean;
 	edit: boolean;
 	aiRequest?: boolean;
+	triggerCustomAction?: boolean;
 }
 
 export interface ITablePermissionData {
@@ -34,6 +36,16 @@ export interface ITablePermissionData {
 
 export interface ITableAndViewPermissionData extends ITablePermissionData {
 	isView: boolean;
+}
+
+export interface IActionEventAccessLevel {
+	trigger: boolean;
+}
+
+export interface IActionEventPermissionData {
+	eventId: string;
+	tableName: string;
+	accessLevel: IActionEventAccessLevel;
 }
 
 export interface IDashboardAccessLevel {

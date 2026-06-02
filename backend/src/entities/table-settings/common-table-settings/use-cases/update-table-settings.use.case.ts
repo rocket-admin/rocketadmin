@@ -30,11 +30,19 @@ export class UpdateTableSettingsUseCase
 		const { connection_id, masterPwd, table_name } = inputData;
 		const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
 			connection_id,
-			masterPwd,
+			masterPwd ?? '',
 		);
+		if (!foundConnection) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_NOT_FOUND,
+				},
+				HttpStatus.NOT_FOUND,
+			);
+		}
 		const dao = getDataAccessObject(foundConnection);
 		const tableSettingsDs: ValidateTableSettingsDS = buildValidateTableSettingsDS(inputData);
-		const errors: Array<string> = await dao.validateSettings(tableSettingsDs, table_name, undefined);
+		const errors: Array<string> = await dao.validateSettings(tableSettingsDs, table_name, '');
 		if (errors.length > 0) {
 			throw new HttpException(
 				{
@@ -53,11 +61,12 @@ export class UpdateTableSettingsUseCase
 			);
 		}
 		const updateTableSettings = buildNewTableSettingsEntity(inputData, foundConnection);
+		const settingsRec = updateTableSettings as unknown as Record<string, unknown>;
 		for (const key in updateTableSettings) {
 			// eslint-disable-next-line security/detect-object-injection
-			if (updateTableSettings[key] === undefined) {
+			if (settingsRec[key] === undefined) {
 				// eslint-disable-next-line security/detect-object-injection
-				delete updateTableSettings[key];
+				delete settingsRec[key];
 			}
 		}
 		const updated = Object.assign(settingsToUpdate, updateTableSettings);

@@ -5,6 +5,7 @@ import { IGlobalDatabaseContext } from '../../../../common/application/global-da
 import { BaseType } from '../../../../common/data-injection.tokens.js';
 import { TableActionMethodEnum } from '../../../../enums/table-action-method-enum.js';
 import { Messages } from '../../../../exceptions/text/messages.js';
+import { isTest } from '../../../../helpers/app/is-test.js';
 import { isActionUrlHostAllowed } from '../../../../helpers/validators/is-action-url-host-allowed.js';
 import { validateStringWithEnum } from '../../../../helpers/validators/validate-string-with-enum.js';
 import { ValidationHelper } from '../../../../helpers/validators/validation-helper.js';
@@ -38,6 +39,9 @@ export class CreateActionRuleUseCase
 		await this.validateTableActionDataOrThrowException(table_actions_data);
 
 		const foundConnection = await this._dbContext.connectionRepository.findOne({ where: { id: connectionId } });
+		if (!foundConnection) {
+			throw new BadRequestException(Messages.CONNECTION_NOT_FOUND);
+		}
 		const newActionRule = buildEmptyActionRule(rule_data, foundConnection);
 		const savedActionRule = await this._dbContext.actionRulesRepository.saveNewOrUpdatedActionRule(newActionRule);
 
@@ -65,9 +69,9 @@ export class CreateActionRuleUseCase
 	): Promise<void> {
 		const companyWithUsers = await this._dbContext.companyInfoRepository.findUserCompanyWithUsers(userId);
 		const usersInCompanyEmails = companyWithUsers.users.map((user) => user.email);
-		const emailsFromEmailActions: Array<string> = table_actions_data.reduce((acc, table_action) => {
+		const emailsFromEmailActions: Array<string> = table_actions_data.reduce((acc: Array<string>, table_action) => {
 			if (table_action.action_method === TableActionMethodEnum.EMAIL) {
-				return acc.concat(table_action.action_emails);
+				return acc.concat(table_action.action_emails ?? []);
 			}
 			return acc;
 		}, []);
@@ -77,7 +81,7 @@ export class CreateActionRuleUseCase
 		}
 		const emailsNotVerified = emailsFromEmailActions.filter((email) => {
 			const foundUser = companyWithUsers.users.find((user) => user.email === email);
-			if (foundUser.id === userId) {
+			if (!foundUser || foundUser.id === userId) {
 				return false;
 			}
 			return !foundUser.isActive;
@@ -96,6 +100,9 @@ export class CreateActionRuleUseCase
 			connectionId,
 			masterPwd,
 		);
+		if (!foundConnection) {
+			throw new BadRequestException(Messages.CONNECTION_NOT_FOUND);
+		}
 		const dao = getDataAccessObject(foundConnection);
 		const tablesInConnection = await dao.getTablesFromDB();
 		const tableNamesInConnection = tablesInConnection.map((table) => table.tableName);
@@ -115,7 +122,7 @@ export class CreateActionRuleUseCase
 				if (!action.action_slack_url) {
 					throw new BadRequestException(Messages.SLACK_URL_MISSING);
 				}
-				if (process.env.NODE_ENV !== 'test' && !ValidationHelper.isValidUrl(action.action_slack_url)) {
+				if (!isTest() && !ValidationHelper.isValidUrl(action.action_slack_url)) {
 					throw new BadRequestException(Messages.URL_INVALID);
 				}
 				const isSlackUrlAllowed = await isActionUrlHostAllowed(action.action_slack_url);
@@ -127,10 +134,7 @@ export class CreateActionRuleUseCase
 				throw new BadRequestException(Messages.INVALID_ACTION_METHOD(action.action_method));
 			}
 			if (action.action_method === TableActionMethodEnum.URL) {
-				if (
-					process.env.NODE_ENV !== 'test' &&
-					(!action.action_url || !ValidationHelper.isValidUrl(action.action_url))
-				) {
+				if (!action.action_url || (!isTest() && !ValidationHelper.isValidUrl(action.action_url))) {
 					throw new BadRequestException(Messages.URL_INVALID);
 				}
 				const isUrlAllowed = await isActionUrlHostAllowed(action.action_url);

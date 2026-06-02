@@ -13,12 +13,14 @@ import { ExceptionOperations } from '../../../exceptions/custom-exceptions/excep
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { compareArrayElements } from '../../../helpers/compare-array-elements.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util.js';
 import { TableActionActivationService } from '../../table-actions/table-actions-module/table-action-activation.service.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { DeleteRowFromTableDs } from '../application/data-structures/delete-row-from-table.ds.js';
 import { DeletedRowFromTableDs } from '../application/data-structures/deleted-row-from-table.ds.js';
+import { buildCommonTableSettingsInput } from '../utils/build-common-table-settings-input.util.js';
 import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util.js';
 import { getUserEmailForAgent, validateConnection } from '../utils/validate-connection.util.js';
 import { IDeleteRowFromTable } from './table-use-cases.interface.js';
@@ -113,13 +115,16 @@ export class DeleteRowFromTableUseCase
 			tableName,
 		);
 
-		const builtTableSettings = buildDAOsTableSettingsDs(tableSettings, personalTableSettings);
+		const builtTableSettings = buildDAOsTableSettingsDs(
+			buildCommonTableSettingsInput(tableSettings),
+			personalTableSettings,
+		);
 
 		let oldRowData: Record<string, unknown>;
 		try {
 			oldRowData = await dao.getRowByPrimaryKey(tableName, primaryKey, builtTableSettings, userEmail);
 		} catch (e) {
-			throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_DELETE_ROW_FROM_TABLE);
+			throw new UnknownSQLException(getErrorMessage(e), ExceptionOperations.FAILED_TO_DELETE_ROW_FROM_TABLE);
 		}
 
 		if (!oldRowData) {
@@ -139,7 +144,7 @@ export class DeleteRowFromTableUseCase
 			};
 		} catch (e) {
 			operationResult = OperationResultStatusEnum.unsuccessfully;
-			throw new DeleteRowException(e.message);
+			throw new DeleteRowException(getErrorMessage(e));
 		} finally {
 			const logRecord = {
 				table_name: tableName,

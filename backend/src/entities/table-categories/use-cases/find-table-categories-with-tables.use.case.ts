@@ -8,12 +8,13 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { ITableAndViewPermissionData } from '../../permission/permission.interface.js';
 import { FindTablesDs } from '../../table/application/data-structures/find-tables.ds.js';
 import { FoundTableDs } from '../../table/application/data-structures/found-table.ds.js';
+import { getUserEmailForAgent } from '../../table/utils/validate-connection.util.js';
 import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';
 import { FoundTableCategoriesWithTablesRo } from '../dto/found-table-categories-with-tables.ro.js';
 import { IFindTableCategoriesWithTables } from './table-categories-use-cases.interface.js';
@@ -33,11 +34,12 @@ export class FindTableCategoriesWithTablesUseCase
 
 	protected async implementation(inputData: FindTablesDs): Promise<Array<FoundTableCategoriesWithTablesRo>> {
 		const { connectionId, masterPwd, userId } = inputData;
-		let connection: ConnectionEntity;
+		let connection: ConnectionEntity | null = null;
 		try {
 			connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
 		} catch (error) {
-			if (error.message === Messages.MASTER_PASSWORD_MISSING) {
+			const errMessage = getErrorMessage(error);
+			if (errMessage === Messages.MASTER_PASSWORD_MISSING) {
 				throw new HttpException(
 					{
 						message: Messages.MASTER_PASSWORD_MISSING,
@@ -46,7 +48,7 @@ export class FindTableCategoriesWithTablesUseCase
 					HttpStatus.BAD_REQUEST,
 				);
 			}
-			if (error.message === Messages.MASTER_PASSWORD_INCORRECT) {
+			if (errMessage === Messages.MASTER_PASSWORD_INCORRECT) {
 				throw new HttpException(
 					{
 						message: Messages.MASTER_PASSWORD_INCORRECT,
@@ -65,44 +67,47 @@ export class FindTableCategoriesWithTablesUseCase
 			);
 		}
 		const dao = getDataAccessObject(connection);
-		let userEmail: string;
-
-		if (isConnectionTypeAgent(connection.type)) {
-			userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
-		}
+		const userEmail = await getUserEmailForAgent(connection, userId, this._dbContext.userRepository);
 		let tables: Array<TableDS>;
 		try {
 			tables = await dao.getTablesFromDB(userEmail);
 		} catch (e) {
 			Sentry.captureException(e);
-			throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_TABLES);
+			throw new UnknownSQLException(getErrorMessage(e), ExceptionOperations.FAILED_TO_GET_TABLES);
 		}
 
 		const tableNames = tables.map((t) => t.tableName);
-		const permissionsArr = await this.cedarPermissions.getUserPermissionsForAvailableTables(userId, connectionId, tableNames);
+		const permissionsArr = await this.cedarPermissions.getUserPermissionsForAvailableTables(
+			userId,
+			connectionId,
+			tableNames,
+		);
 		const tablesWithPermissions: Array<ITableAndViewPermissionData> = permissionsArr.map((perm) => ({
 			...perm,
 			isView: tables.find((t) => t.tableName === perm.tableName)?.isView || false,
 		}));
 		const excludedTables = await this._dbContext.connectionPropertiesRepository.findConnectionProperties(connectionId);
 		let tablesRO = await this.addDisplayNamesForTables(connectionId, tablesWithPermissions);
-		if (excludedTables?.hidden_tables?.length) {
+		const hiddenTables = excludedTables?.hidden_tables;
+		if (hiddenTables?.length) {
 			tablesRO = tablesRO.filter((tableRO) => {
-				return !excludedTables.hidden_tables.includes(tableRO.table);
+				return !hiddenTables.includes(tableRO.table);
 			});
 		}
 
 		const foundTableCategories =
 			await this._dbContext.tableCategoriesRepository.findTableCategoriesForConnection(connectionId);
 
-		const storedAllTablesCategory = foundTableCategories.find((category) => category.category_id === 'all-tables-kitten');
+		const storedAllTablesCategory = foundTableCategories.find(
+			(category) => category.category_id === 'all-tables-kitten',
+		);
 		const otherCategories = foundTableCategories.filter((category) => category.category_id !== 'all-tables-kitten');
 
 		let allTablesOrdered: Array<FoundTableDs>;
 		if (storedAllTablesCategory) {
 			allTablesOrdered = storedAllTablesCategory.tables
 				.map((tableName) => tablesRO.find((tableRO) => tableRO.table === tableName))
-				.filter(Boolean);
+				.filter((tableRO): tableRO is FoundTableDs => Boolean(tableRO));
 
 			const storedTableNames = new Set(storedAllTablesCategory.tables);
 			const newTables = tablesRO.filter((tableRO) => !storedTableNames.has(tableRO.table));
@@ -125,7 +130,7 @@ export class FindTableCategoriesWithTablesUseCase
 		const foundTableCategoriesRO = otherCategories.map((category) => {
 			const tablesInCategory = category.tables
 				.map((tableName) => tablesRO.find((tableRO) => tableRO.table === tableName))
-				.filter(Boolean);
+				.filter((tableRO): tableRO is FoundTableDs => Boolean(tableRO));
 			return {
 				category_id: category.category_id,
 				category_color: category.category_color,
@@ -159,5 +164,4 @@ export class FindTableCategoriesWithTablesUseCase
 			};
 		});
 	}
-
 }

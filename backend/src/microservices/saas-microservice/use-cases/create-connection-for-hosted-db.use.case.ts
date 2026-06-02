@@ -7,6 +7,7 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { generateCedarPolicyForGroup } from '../../../entities/cedar-authorization/cedar-policy-generator.js';
 import { ConnectionEntity } from '../../../entities/connection/connection.entity.js';
 import { readSslCertificate } from '../../../entities/connection/ssl-certificate/read-certificate.js';
+import { GroupEntity } from '../../../entities/group/group.entity.js';
 import { AccessLevelEnum } from '../../../enums/access-level.enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { slackPostMessage } from '../../../helpers/slack/slack-post-message.js';
@@ -45,18 +46,18 @@ export class CreateConnectionForHostedDbUseCase
 			username: username,
 			password: password,
 			database: databaseName,
-			schema: null,
-			sid: null,
+			schema: null as string | null,
+			sid: null as string | null,
 			ssh: false,
-			privateSSHKey: null,
-			sshHost: null,
-			sshPort: null,
-			sshUsername: null,
+			privateSSHKey: null as string | null,
+			sshHost: null as string | null,
+			sshPort: null as number | null,
+			sshUsername: null as string | null,
 			ssl: true,
 			cert: cert,
 			azure_encryption: false,
-			authSource: null,
-			dataCenter: null,
+			authSource: null as string | null,
+			dataCenter: null as string | null,
 		};
 
 		const dao = getDataAccessObject(connectionParams);
@@ -89,7 +90,8 @@ export class CreateConnectionForHostedDbUseCase
 			tables: [],
 		});
 		await this._dbContext.groupRepository.saveNewOrUpdatedGroup(createdAdminGroup);
-		delete createdAdminGroup.connection;
+		const groupWithoutConnection: Partial<GroupEntity> = createdAdminGroup;
+		delete groupWithoutConnection.connection;
 		await this._dbContext.userRepository.saveUserEntity(connectionAuthor);
 		savedConnection.groups = [createdAdminGroup];
 
@@ -99,8 +101,10 @@ export class CreateConnectionForHostedDbUseCase
 			const connectionToUpdate = await this._dbContext.connectionRepository.findOne({
 				where: { id: savedConnection.id },
 			});
-			connectionToUpdate.company = foundCompany;
-			await this._dbContext.connectionRepository.saveUpdatedConnection(connectionToUpdate);
+			if (connectionToUpdate) {
+				connectionToUpdate.company = foundCompany;
+				await this._dbContext.connectionRepository.saveUpdatedConnection(connectionToUpdate);
+			}
 		}
 
 		await slackPostMessage(Messages.USER_CREATED_CONNECTION(connectionAuthor.email, ConnectionTypesEnum.postgres));

@@ -29,6 +29,9 @@ export class UpdateTableFiltersUseCase
 			connection_id,
 			masterPwd,
 		);
+		if (!foundConnection) {
+			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
+		}
 		if (foundConnection.is_frozen) {
 			throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
 		}
@@ -53,11 +56,12 @@ export class UpdateTableFiltersUseCase
 		}
 
 		const updatedFilterEntity = buildNewTableFiltersEntity(updatedTableFilterData);
+		const entityRec = updatedFilterEntity as unknown as Record<string, unknown>;
 		for (const key in updatedFilterEntity) {
 			// eslint-disable-next-line security/detect-object-injection
-			if (updatedFilterEntity[key] === undefined) {
+			if (entityRec[key] === undefined) {
 				// eslint-disable-next-line security/detect-object-injection
-				delete updatedFilterEntity[key];
+				delete entityRec[key];
 			}
 		}
 		const updatedFilters = Object.assign(filtersToUpdate, updatedFilterEntity);

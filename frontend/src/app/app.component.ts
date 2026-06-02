@@ -62,7 +62,7 @@ export class AppComponent {
 	public appVersion = version;
 	userActivity;
 	userInactive: Subject<any> = new Subject();
-	currentFeatureNotificationId: string = 'saved-filters';
+	currentFeatureNotificationId: string = 'edit-schema';
 	isFeatureNotificationShown: boolean = false;
 
 	userLoggedIn = null;
@@ -215,6 +215,7 @@ export class AppComponent {
 					localStorage.setItem('token_expiration', expirationTime.toISOString());
 					expirationToken = expirationTime.toISOString();
 				}
+				this._auth.setAuthenticated(true);
 
 				this.router.navigate(['/connections-list']);
 
@@ -236,6 +237,7 @@ export class AppComponent {
 					const expirationInterval = differenceInMilliseconds(expirationTime, currantTime);
 					console.log('expirationInterval', expirationInterval);
 					if (expirationInterval > 0) {
+						this._auth.setAuthenticated(true);
 						console.log('App component, session restoration');
 						this.initializeUserSession();
 
@@ -302,6 +304,7 @@ export class AppComponent {
 					user_hash: res.intercom_hash,
 					user_id: res.id,
 					email: res.email,
+					hide_default_launcher: window.innerWidth > 600,
 				});
 
 			if (this.isDemo)
@@ -343,6 +346,12 @@ export class AppComponent {
 		this.isFeatureNotificationShown = false;
 	}
 
+	openSupportChat() {
+		if (typeof window.Intercom !== 'undefined') {
+			window.Intercom('show');
+		}
+	}
+
 	setUserLoggedIn(state) {
 		this.userLoggedIn = state;
 		this.changeDetector.detectChanges();
@@ -355,6 +364,7 @@ export class AppComponent {
 			this._user.setIsDemo(false);
 			this.currentUser = null;
 			localStorage.removeItem('token_expiration');
+			this._auth.setAuthenticated(false);
 			this.router.navigate(['/registration']);
 		});
 	}
@@ -375,6 +385,7 @@ export class AppComponent {
 		this._auth.logOutUser().subscribe(() => {
 			this.setUserLoggedIn(null);
 			localStorage.removeItem('token_expiration');
+			this._auth.setAuthenticated(false);
 
 			if (this.isSaas) {
 				if (!isTokenExpired) window.location.href = 'https://rocketadmin.com/';

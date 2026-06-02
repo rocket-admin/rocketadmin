@@ -6,8 +6,10 @@ import * as nunjucks from 'nunjucks';
 import PQueue from 'p-queue';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
+import { isTest } from '../../../helpers/app/is-test.js';
 import { Constants } from '../../../helpers/constants/constants.js';
-import { getProcessVariable } from '../../../helpers/get-process-variable.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
+import { appConfig } from '../../../shared/config/app-config.js';
 import { WinstonLogger } from '../../logging/winston-logger.js';
 import { UserInfoMessageData } from '../../table-actions/table-actions-module/table-action-activation.service.js';
 import { EmailLetter } from '../email-messages/email-message.js';
@@ -25,7 +27,7 @@ export interface ICronMessagingResults {
 
 @Injectable()
 export class EmailService {
-	private readonly emailFrom = getProcessVariable('EMAIL_FROM') || Constants.AUTOADMIN_SUPPORT_MAIL;
+	private readonly emailFrom = appConfig.email.from;
 	constructor(
 		@Inject(BaseType.NUNJUCKS)
 		private readonly nunjucksEnv: nunjucks.Environment,
@@ -34,11 +36,12 @@ export class EmailService {
 	) {}
 
 	public async sendEmailToUser(letterContent: IMessage): Promise<SMTPTransport.SentMessageInfo | null> {
-		if (process.env.NODE_ENV === 'test') return;
+		if (isTest()) return null;
 		const mailResult = await this.sendEmailWithTimeout(letterContent);
 		if (mailResult) {
 			return mailResult;
 		}
+		return null;
 	}
 
 	public async sendEmailActionToUser(
@@ -82,7 +85,7 @@ export class EmailService {
 	public async sendRemindersToUsers(userEmails: Array<string>): Promise<Array<ICronMessagingResults | null>> {
 		const queue = new PQueue({ concurrency: 3 });
 
-		const mailingResults: Array<SMTPTransport.SentMessageInfo | undefined> = [];
+		const mailingResults: Array<SMTPTransport.SentMessageInfo | null | undefined> = [];
 
 		for (const email of userEmails) {
 			try {
@@ -91,7 +94,7 @@ export class EmailService {
 				});
 				mailingResults.push(result);
 			} catch (error) {
-				this.logger.error(`Failed to send reminder to ${email}: ${error.message}`);
+				this.logger.error(`Failed to send reminder to ${email}: ${getErrorMessage(error)}`);
 				Sentry.captureException(error);
 				mailingResults.push(null);
 			}
@@ -105,11 +108,11 @@ export class EmailService {
 	public async send2faEnabledInCompany(
 		userEmails: Array<string>,
 		companyName: string,
-	): Promise<Array<SMTPTransport.SentMessageInfo | undefined>> {
+	): Promise<Array<SMTPTransport.SentMessageInfo | null | undefined>> {
 		try {
 			const queue = new PQueue({ concurrency: 3 });
 
-			const mailingResults: Array<SMTPTransport.SentMessageInfo | undefined> = await Promise.all(
+			const mailingResults: Array<SMTPTransport.SentMessageInfo | null | undefined> = await Promise.all(
 				userEmails.map(async (email: string) => {
 					return await queue.add(async () => {
 						return await this.send2faEnabledInCompanyToUser(email, companyName);
@@ -119,10 +122,11 @@ export class EmailService {
 			return mailingResults;
 		} catch (error) {
 			this.logger.error(error);
+			return [];
 		}
 	}
 
-	public async sendInvitedInNewGroup(email: string, groupTitle: string): Promise<SMTPTransport.SentMessageInfo> {
+	public async sendInvitedInNewGroup(email: string, groupTitle: string): Promise<SMTPTransport.SentMessageInfo | null> {
 		const currentYear = new Date().getFullYear();
 		const letterContent: IMessage = {
 			from: this.emailFrom,
@@ -166,7 +170,7 @@ export class EmailService {
 		email: string,
 		verificationString: string,
 		customCompanyDomain: string | null,
-	): Promise<SMTPTransport.SentMessageInfo> {
+	): Promise<SMTPTransport.SentMessageInfo | null> {
 		const domain = customCompanyDomain ? customCompanyDomain : Constants.APP_DOMAIN_ADDRESS;
 		const link = `${domain}/external/user/email/verify/${verificationString}`;
 		const currentYear = new Date().getFullYear();
@@ -180,7 +184,7 @@ export class EmailService {
 		return await this.sendEmailToUser(letterContent);
 	}
 
-	public async sendEmailChanged(email: string): Promise<SMTPTransport.SentMessageInfo> {
+	public async sendEmailChanged(email: string): Promise<SMTPTransport.SentMessageInfo | null> {
 		const currentYear = new Date().getFullYear();
 		const letterContent: IMessage = {
 			from: this.emailFrom,
@@ -196,7 +200,7 @@ export class EmailService {
 		email: string,
 		requestString: string,
 		customCompanyDomain: string | null,
-	): Promise<SMTPTransport.SentMessageInfo> {
+	): Promise<SMTPTransport.SentMessageInfo | null> {
 		const currentYear = new Date().getFullYear();
 		const domain = customCompanyDomain ? customCompanyDomain : Constants.APP_DOMAIN_ADDRESS;
 		const linkToConfirm = `${domain}/external/user/email/change/verify/${requestString}`;
@@ -214,7 +218,7 @@ export class EmailService {
 		email: string,
 		requestString: string,
 		customCompanyDomain: string | null,
-	): Promise<SMTPTransport.SentMessageInfo> {
+	): Promise<SMTPTransport.SentMessageInfo | null> {
 		const currentYear = new Date().getFullYear();
 		const domain = customCompanyDomain ? customCompanyDomain : Constants.APP_DOMAIN_ADDRESS;
 		const linkToConfirm = `${domain}/external/user/password/reset/verify/${requestString}`;
@@ -255,7 +259,7 @@ export class EmailService {
 	private async send2faEnabledInCompanyToUser(
 		email: string,
 		companyName: string,
-	): Promise<SMTPTransport.SentMessageInfo> {
+	): Promise<SMTPTransport.SentMessageInfo | null> {
 		const letterContent: IMessage = {
 			from: this.emailFrom,
 			to: email,
@@ -269,7 +273,7 @@ export class EmailService {
 	}
 
 	private async sendEmailWithTimeout(letterContent: IMessage): Promise<SMTPTransport.SentMessageInfo | null> {
-		return new Promise<SMTPTransport.SentMessageInfo>(async (resolve) => {
+		return new Promise<SMTPTransport.SentMessageInfo | null>(async (resolve) => {
 			setTimeout(() => {
 				resolve(null);
 			}, 4000);
@@ -285,7 +289,7 @@ export class EmailService {
 	}
 
 	private buildMailingResults(
-		results: Array<SMTPTransport.SentMessageInfo | undefined>,
+		results: Array<SMTPTransport.SentMessageInfo | null | undefined>,
 	): Array<ICronMessagingResults | null> {
 		return results.map((result) => {
 			if (!result) {

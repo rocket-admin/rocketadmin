@@ -46,11 +46,28 @@ interface ProposedChange {
 
 let nextProposal: ProposedChange | null = null;
 let nextProposals: ProposedChange[] | null = null;
+let nextFixProposal: ProposedChange | null = null;
+let nextFixProposals: ProposedChange[] | null = null;
 
 function resolveProposals(): ProposedChange[] {
 	if (nextProposals && nextProposals.length > 0) return nextProposals;
 	if (nextProposal) return [nextProposal];
 	throw new Error('Test must set nextProposal or nextProposals before invoking AI.');
+}
+
+function resolveFixProposals(): ProposedChange[] {
+	if (nextFixProposals && nextFixProposals.length > 0) return nextFixProposals;
+	if (nextFixProposal) return [nextFixProposal];
+	throw new Error('Test invoked the AI fix loop but nextFixProposal/nextFixProposals was not set.');
+}
+
+function isFixCall(messages: unknown): boolean {
+	if (!Array.isArray(messages)) return false;
+	for (const m of messages) {
+		const content = (m as { content?: unknown })?.content;
+		if (typeof content === 'string' && content.includes('DDL repair assistant')) return true;
+	}
+	return false;
 }
 
 function createProposalStream(proposals: ProposedChange[]) {
@@ -70,7 +87,8 @@ function createProposalStream(proposals: ProposedChange[]) {
 }
 
 const mockAICoreService = {
-	streamChatWithToolsAndProvider: async () => createProposalStream(resolveProposals()),
+	streamChatWithToolsAndProvider: async (_provider: unknown, messages: unknown) =>
+		isFixCall(messages) ? createProposalStream(resolveFixProposals()) : createProposalStream(resolveProposals()),
 	complete: async () => 'Mocked completion',
 	chat: async () => ({ content: 'Mocked chat', responseId: faker.string.uuid() }),
 	streamChat: async () => ({
@@ -98,6 +116,8 @@ const mockAICoreService = {
 test.beforeEach(() => {
 	nextProposal = null;
 	nextProposals = null;
+	nextFixProposal = null;
+	nextFixProposals = null;
 });
 
 const mockFactory = new MockFactory();
@@ -309,9 +329,178 @@ test.serial('approve with invalid SQL marks FAILED and attempts auto-rollback', 
 	t.is(record.status, SchemaChangeStatusEnum.FAILED);
 	t.true(record.autoRollbackAttempted);
 	t.truthy(record.executionError);
+	t.false(record.aiAutoFixApplied);
 
 	const knex = getTestKnex(getTestData(mockFactory).connectionToPostgres);
 	t.false(await knex.schema.hasTable(tableName));
+});
+
+test.serial('approve with invalid SQL: AI auto-fix repairs and the change succeeds', async (t) => {
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const connectionId = await createConnection(token);
+	const tableName = `ra_fix_${faker.string.alphanumeric(6).toLowerCase()}`;
+	testTables.push(tableName);
+
+	nextProposal = {
+		forwardSql: `CREATE TABLE "${tableName}" (id INVALIDTYPE)`,
+		rollbackSql: `DROP TABLE IF EXISTS "${tableName}"`,
+		changeType: SchemaChangeTypeEnum.CREATE_TABLE,
+		targetTableName: tableName,
+		isReversible: true,
+		summary: 'initially broken',
+		reasoning: '',
+	};
+	nextFixProposal = {
+		forwardSql: `CREATE TABLE "${tableName}" (id SERIAL PRIMARY KEY)`,
+		rollbackSql: `DROP TABLE "${tableName}"`,
+		changeType: SchemaChangeTypeEnum.CREATE_TABLE,
+		targetTableName: tableName,
+		isReversible: true,
+		summary: 'repaired',
+		reasoning: 'replaced INVALIDTYPE with SERIAL PRIMARY KEY',
+	};
+
+	const generateResp = await request(app.getHttpServer())
+		.post(`/table-schema/${connectionId}/generate`)
+		.set('Cookie', token)
+		.send({ userPrompt: 'create a table' });
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
+
+	const approveResp = await request(app.getHttpServer())
+		.post(`/table-schema/change/${changeId}/approve`)
+		.set('Cookie', token)
+		.send({});
+	t.is(approveResp.status, 200);
+	const applied = JSON.parse(approveResp.text);
+	t.is(applied.status, SchemaChangeStatusEnum.APPLIED);
+	t.true(applied.aiAutoFixApplied);
+	t.truthy(applied.aiAutoFixOriginalError);
+	t.is(applied.aiAutoFixOriginalForwardSql, `CREATE TABLE "${tableName}" (id INVALIDTYPE)`);
+	t.is(applied.forwardSql, `CREATE TABLE "${tableName}" (id SERIAL PRIMARY KEY)`);
+
+	const knex = getTestKnex(getTestData(mockFactory).connectionToPostgres);
+	t.true(await knex.schema.hasTable(tableName));
+});
+
+test.serial('approve with invalid SQL: AI auto-fix returns still-broken SQL → FAILED', async (t) => {
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const connectionId = await createConnection(token);
+	const tableName = `ra_dblbad_${faker.string.alphanumeric(6).toLowerCase()}`;
+
+	nextProposal = {
+		forwardSql: `CREATE TABLE "${tableName}" (id INVALIDTYPE)`,
+		rollbackSql: `DROP TABLE IF EXISTS "${tableName}"`,
+		changeType: SchemaChangeTypeEnum.CREATE_TABLE,
+		targetTableName: tableName,
+		isReversible: true,
+		summary: 'broken',
+		reasoning: '',
+	};
+	nextFixProposal = {
+		forwardSql: `CREATE TABLE "${tableName}" (id STILLBADTYPE)`,
+		rollbackSql: `DROP TABLE IF EXISTS "${tableName}"`,
+		changeType: SchemaChangeTypeEnum.CREATE_TABLE,
+		targetTableName: tableName,
+		isReversible: true,
+		summary: 'also broken',
+		reasoning: '',
+	};
+
+	const generateResp = await request(app.getHttpServer())
+		.post(`/table-schema/${connectionId}/generate`)
+		.set('Cookie', token)
+		.send({ userPrompt: 'will fail twice' });
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
+
+	const approveResp = await request(app.getHttpServer())
+		.post(`/table-schema/change/${changeId}/approve`)
+		.set('Cookie', token)
+		.send({});
+	t.is(approveResp.status, 400);
+
+	const getResp = await request(app.getHttpServer()).get(`/table-schema/change/${changeId}`).set('Cookie', token);
+	const record = JSON.parse(getResp.text);
+	t.is(record.status, SchemaChangeStatusEnum.FAILED);
+	t.false(record.aiAutoFixApplied);
+	t.is(record.forwardSql, `CREATE TABLE "${tableName}" (id INVALIDTYPE)`);
+
+	const knex = getTestKnex(getTestData(mockFactory).connectionToPostgres);
+	t.false(await knex.schema.hasTable(tableName));
+});
+
+test.serial('batch approve: one item is auto-fixed by AI, batch completes', async (t) => {
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const connectionId = await createConnection(token);
+	const ok1 = `ra_bf_ok1_${faker.string.alphanumeric(6).toLowerCase()}`;
+	const fix = `ra_bf_fix_${faker.string.alphanumeric(6).toLowerCase()}`;
+	const ok2 = `ra_bf_ok2_${faker.string.alphanumeric(6).toLowerCase()}`;
+	testTables.push(ok1, fix, ok2);
+
+	nextProposals = [
+		{
+			forwardSql: `CREATE TABLE "${ok1}" (id SERIAL PRIMARY KEY)`,
+			rollbackSql: `DROP TABLE "${ok1}"`,
+			changeType: SchemaChangeTypeEnum.CREATE_TABLE,
+			targetTableName: ok1,
+			isReversible: true,
+			summary: 'ok1',
+			reasoning: '',
+		},
+		{
+			forwardSql: `CREATE TABLE "${fix}" (id INVALIDTYPE)`,
+			rollbackSql: `DROP TABLE IF EXISTS "${fix}"`,
+			changeType: SchemaChangeTypeEnum.CREATE_TABLE,
+			targetTableName: fix,
+			isReversible: true,
+			summary: 'will need a fix',
+			reasoning: '',
+		},
+		{
+			forwardSql: `CREATE TABLE "${ok2}" (id SERIAL PRIMARY KEY)`,
+			rollbackSql: `DROP TABLE "${ok2}"`,
+			changeType: SchemaChangeTypeEnum.CREATE_TABLE,
+			targetTableName: ok2,
+			isReversible: true,
+			summary: 'ok2',
+			reasoning: '',
+		},
+	];
+	nextFixProposal = {
+		forwardSql: `CREATE TABLE "${fix}" (id SERIAL PRIMARY KEY)`,
+		rollbackSql: `DROP TABLE "${fix}"`,
+		changeType: SchemaChangeTypeEnum.CREATE_TABLE,
+		targetTableName: fix,
+		isReversible: true,
+		summary: 'repaired',
+		reasoning: '',
+	};
+
+	const generateResp = await request(app.getHttpServer())
+		.post(`/table-schema/${connectionId}/generate`)
+		.set('Cookie', token)
+		.send({ userPrompt: 'three tables, one bad' });
+	const { batchId } = JSON.parse(generateResp.text);
+
+	const approveResp = await request(app.getHttpServer())
+		.post(`/table-schema/batch/${batchId}/approve`)
+		.set('Cookie', token)
+		.send({});
+	t.is(approveResp.status, 200);
+	const applied = JSON.parse(approveResp.text);
+	t.is(applied.changes.length, 3);
+	t.true(applied.changes.every((c: { status: string }) => c.status === SchemaChangeStatusEnum.APPLIED));
+
+	const fixedItem = applied.changes.find((c: { targetTableName: string }) => c.targetTableName === fix);
+	t.truthy(fixedItem);
+	t.true(fixedItem.aiAutoFixApplied);
+	t.truthy(fixedItem.aiAutoFixOriginalError);
+	t.is(fixedItem.aiAutoFixOriginalForwardSql, `CREATE TABLE "${fix}" (id INVALIDTYPE)`);
+	t.is(fixedItem.forwardSql, `CREATE TABLE "${fix}" (id SERIAL PRIMARY KEY)`);
+
+	const knex = getTestKnex(getTestData(mockFactory).connectionToPostgres);
+	t.true(await knex.schema.hasTable(ok1));
+	t.true(await knex.schema.hasTable(fix));
+	t.true(await knex.schema.hasTable(ok2));
 });
 
 test.serial('rollback of PENDING change is rejected', async (t) => {

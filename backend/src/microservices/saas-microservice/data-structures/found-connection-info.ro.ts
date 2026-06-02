@@ -6,31 +6,31 @@ export class FoundConnectionInfoRO {
 	id: string;
 
 	@ApiProperty()
-	title: string;
+	title?: string;
 
 	@ApiProperty({ enum: ConnectionTypesEnum })
-	type: ConnectionTypesEnum;
+	type?: ConnectionTypesEnum | null;
 
 	@ApiProperty()
-	host: string;
+	host?: string | null;
 
 	@ApiProperty()
-	port: number;
+	port?: number;
 
 	@ApiProperty()
-	database: string;
+	database?: string | null;
 
 	@ApiProperty()
-	schema: string;
+	schema?: string | null;
 
 	@ApiProperty()
-	sid: string;
+	sid?: string | null;
 
 	@ApiProperty()
-	ssh: boolean;
+	ssh?: boolean;
 
 	@ApiProperty()
-	ssl: boolean;
+	ssl?: boolean | null;
 
 	@ApiProperty()
 	createdAt: Date;
@@ -45,14 +45,14 @@ export class FoundConnectionInfoRO {
 	is_frozen: boolean;
 
 	@ApiProperty()
-	masterEncryption: boolean;
+	masterEncryption?: boolean;
 
 	@ApiProperty()
-	azure_encryption: boolean;
+	azure_encryption?: boolean;
 
 	@ApiProperty()
-	authSource: string;
+	authSource?: string | null;
 
 	@ApiProperty()
-	dataCenter: string | null;
+	dataCenter?: string | null;
 }

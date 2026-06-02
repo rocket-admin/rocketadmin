@@ -24,6 +24,14 @@ export class RequestChangeUserEmailUseCase
 
 	protected async implementation(userId: string): Promise<OperationResultMessageDs> {
 		const foundUser = await this._dbContext.userRepository.findOneUserById(userId);
+		if (!foundUser) {
+			throw new HttpException(
+				{
+					message: Messages.USER_NOT_FOUND,
+				},
+				HttpStatus.NOT_FOUND,
+			);
+		}
 		if (!foundUser.isActive) {
 			throw new HttpException(
 				{
@@ -40,7 +48,7 @@ export class RequestChangeUserEmailUseCase
 			rawToken,
 			companyCustomDomain,
 		);
-		const resultMessage = mailingResult.messageId
+		const resultMessage = mailingResult?.messageId
 			? Messages.EMAIL_CHANGE_REQUESTED_SUCCESSFULLY
 			: Messages.EMAIL_CHANGE_REQUESTED;
 		return { message: resultMessage };

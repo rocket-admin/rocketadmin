@@ -1,3 +1,3 @@
-export function getPropertyValueByDescriptor<T>(obj: T, propName: string): any {
-	return Object.getOwnPropertyDescriptor(obj, propName).value;
+export function getPropertyValueByDescriptor<T extends object>(obj: T, propName: string): unknown {
+	return Object.getOwnPropertyDescriptor(obj, propName)?.value;
 }

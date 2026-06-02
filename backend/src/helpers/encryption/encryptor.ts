@@ -5,6 +5,7 @@ import crypto, { createHmac, randomBytes, scrypt } from 'crypto';
 import CryptoJS from 'crypto-js';
 import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
 import { EncryptionAlgorithmEnum } from '../../enums/encryption-algorithm.enum.js';
+import { appConfig } from '../../shared/config/app-config.js';
 import { Constants } from '../constants/constants.js';
 
 const ENCRYPTION_VERSION_PREFIX = '$v2:k1$';
@@ -16,7 +17,11 @@ const KEY_LENGTH = 32;
 
 export class Encryptor {
 	static getPrivateKey(): string {
-		return process.env.PRIVATE_KEY;
+		const privateKey = appConfig.auth.privateKey;
+		if (!privateKey) {
+			throw new Error('Encryption private key is not configured.');
+		}
+		return privateKey;
 	}
 
 	private static deriveKey(passphrase: string, salt: Buffer): Buffer {
@@ -94,7 +99,9 @@ export class Encryptor {
 		return encryptedData.startsWith('$v2:');
 	}
 
-	static encryptData(data: string): string {
+	static encryptData(data: string): string;
+	static encryptData(data: string | null | undefined): string | null | undefined;
+	static encryptData(data: string | null | undefined): string | null | undefined {
 		if (data === null || data === undefined) {
 			return data;
 		}
@@ -107,7 +114,9 @@ export class Encryptor {
 		}
 	}
 
-	static decryptData(encryptedData: string): string {
+	static decryptData(encryptedData: string): string;
+	static decryptData(encryptedData: string | null | undefined): string | null | undefined;
+	static decryptData(encryptedData: string | null | undefined): string | null | undefined {
 		if (encryptedData === null || encryptedData === undefined) {
 			return encryptedData;
 		}
@@ -124,7 +133,9 @@ export class Encryptor {
 		}
 	}
 
-	static async decryptDataAsync(encryptedData: string): Promise<string> {
+	static async decryptDataAsync(encryptedData: string): Promise<string>;
+	static async decryptDataAsync(encryptedData: string | null | undefined): Promise<string | null | undefined>;
+	static async decryptDataAsync(encryptedData: string | null | undefined): Promise<string | null | undefined> {
 		if (encryptedData === null || encryptedData === undefined) {
 			return encryptedData;
 		}
@@ -141,14 +152,18 @@ export class Encryptor {
 		}
 	}
 
-	static encryptDataMasterPwd(data: string, masterPwd: string): string {
+	static encryptDataMasterPwd(data: string, masterPwd: string): string;
+	static encryptDataMasterPwd(data: string | null | undefined, masterPwd: string): string | null | undefined;
+	static encryptDataMasterPwd(data: string | null | undefined, masterPwd: string): string | null | undefined {
 		if (data === null || data === undefined) {
 			return data;
 		}
 		return Encryptor.encryptDataV2(data, masterPwd);
 	}
 
-	static decryptDataMasterPwd(encryptedData: string, masterPwd: string): string {
+	static decryptDataMasterPwd(encryptedData: string, masterPwd: string): string;
+	static decryptDataMasterPwd(encryptedData: string | null | undefined, masterPwd: string): string | null | undefined;
+	static decryptDataMasterPwd(encryptedData: string | null | undefined, masterPwd: string): string | null | undefined {
 		if (encryptedData === null || encryptedData === undefined) {
 			return encryptedData;
 		}
@@ -223,7 +238,7 @@ export class Encryptor {
 	}
 
 	static getUserIntercomHash(userId: string): string | null {
-		const intercomKey = process.env.INTERCOM_KEY;
+		const intercomKey = appConfig.thirdParty.intercomKey;
 		if (!intercomKey) {
 			return null;
 		}
@@ -332,9 +347,16 @@ export class Encryptor {
 		});
 	}
 
-	static async verifyUserPassword(receivedPassword: string, hashedPassword: string): Promise<boolean> {
+	static async verifyUserPassword(
+		receivedPassword: string,
+		hashedPassword: string | null | undefined,
+	): Promise<boolean> {
 		return new Promise<boolean>((resolve, reject) => {
 			try {
+				if (!hashedPassword) {
+					resolve(false);
+					return;
+				}
 				const passwordHashParts: Array<string> = hashedPassword.split('$');
 				const alg = passwordHashParts[0];
 				const iterations = parseInt(passwordHashParts[1], 10);

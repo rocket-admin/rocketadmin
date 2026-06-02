@@ -64,8 +64,10 @@
 		[cdkCopyToClipboard]="credentialsText"
 		(cdkCopyToClipboardCopied)="handleCredentialsCopied()">
 		@if (copied) {
-			<mat-icon class="hosted-dialog__copy-check">check</mat-icon>
-			Credentials copied
+			<ng-container>
+				<mat-icon class="hosted-dialog__copy-check">check</mat-icon>
+				Credentials copied
+			</ng-container>
 		} @else {
 			Copy connection string
 		}

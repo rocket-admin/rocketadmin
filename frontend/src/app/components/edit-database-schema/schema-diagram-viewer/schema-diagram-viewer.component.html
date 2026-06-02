@@ -1,0 +1,62 @@
+<div class="schema-diagram" [class.schema-diagram--panning]="isPanning()">
+	<div class="schema-diagram__header">
+		<h3 class="schema-diagram__title">{{ title }}</h3>
+		<div class="schema-diagram__toolbar">
+			<button mat-icon-button type="button" matTooltip="Toggle tables list"
+				[class.schema-diagram__toolbar-button--active]="sidebarOpen()"
+				(click)="onToggleSidebar()">
+				<mat-icon>list</mat-icon>
+			</button>
+			<span class="schema-diagram__toolbar-divider"></span>
+			<button mat-icon-button type="button" matTooltip="Zoom out" (click)="onZoomOut()">
+				<mat-icon>remove</mat-icon>
+			</button>
+			<span class="schema-diagram__zoom-label">{{ scaleLabel() }}</span>
+			<button mat-icon-button type="button" matTooltip="Zoom in" (click)="onZoomIn()">
+				<mat-icon>add</mat-icon>
+			</button>
+			<button mat-icon-button type="button" matTooltip="Fit to screen" (click)="onFitToScreen()">
+				<mat-icon>fit_screen</mat-icon>
+			</button>
+			<button mat-icon-button type="button" matTooltip="Reset view" (click)="onZoomReset()">
+				<mat-icon>restart_alt</mat-icon>
+			</button>
+		</div>
+	</div>
+
+	<div class="schema-diagram__body">
+		<div #viewport class="schema-diagram__viewport"
+			(mousedown)="onPanStart($event)"
+			(wheel)="onWheel($event)"
+			(dblclick)="onDoubleClick($event)">
+			<div #canvas class="schema-diagram__canvas" [style.transform]="transformStyle()">
+				<markdown mermaid [data]="_source()"></markdown>
+			</div>
+
+			@if (sidebarOpen()) {
+				<aside class="schema-diagram__sidebar" (wheel)="$event.stopPropagation()">
+					<div class="schema-diagram__sidebar-search">
+						<mat-icon class="schema-diagram__sidebar-search-icon">search</mat-icon>
+						<input type="text" placeholder="Search tables"
+							[ngModel]="tableSearch()"
+							(ngModelChange)="tableSearch.set($event)"
+							class="schema-diagram__sidebar-input" />
+					</div>
+					<div class="schema-diagram__sidebar-list">
+						@for (table of filteredTables(); track table) {
+							<button type="button" class="schema-diagram__sidebar-item"
+								(click)="onFocusTable(table)">
+								<mat-icon class="schema-diagram__sidebar-item-icon">table_chart</mat-icon>
+								<span>{{ table }}</span>
+							</button>
+						}
+						@if (filteredTables().length === 0) {
+							<p class="schema-diagram__sidebar-empty">No tables match your search.</p>
+						}
+					</div>
+				</aside>
+			}
+
+		</div>
+	</div>
+</div>

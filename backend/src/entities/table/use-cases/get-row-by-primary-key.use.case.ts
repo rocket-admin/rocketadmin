@@ -11,11 +11,13 @@ import { ExceptionOperations } from '../../../exceptions/custom-exceptions/excep
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { compareArrayElements } from '../../../helpers/compare-array-elements.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { buildActionEventDto } from '../../table-actions/table-action-rules-module/utils/build-found-action-event-dto.util.js';
 import { GetRowByPrimaryKeyDs } from '../application/data-structures/get-row-by-primary-key.ds.js';
 import { ReferencedTableNamesAndColumnsDs, TableRowRODs } from '../table-datastructures.js';
 import { attachForeignColumnNames } from '../utils/attach-foreign-column-names.util.js';
+import { buildCommonTableSettingsInput } from '../utils/build-common-table-settings-input.util.js';
 import { buildTableSettingsForResponse } from '../utils/build-table-settings-for-response.util.js';
 import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util.js';
 import { extractForeignKeysFromWidgets } from '../utils/extract-foreign-keys-from-widgets.util.js';
@@ -130,11 +132,14 @@ export class GetRowByPrimaryKeyUseCase
 			);
 		}
 		let rowData: Record<string, unknown>;
-		const builtDAOsTableSettings = buildDAOsTableSettingsDs(tableSettings, personalTableSettings);
+		const builtDAOsTableSettings = buildDAOsTableSettingsDs(
+			buildCommonTableSettingsInput(tableSettings),
+			personalTableSettings,
+		);
 		try {
 			rowData = await dao.getRowByPrimaryKey(tableName, primaryKey, builtDAOsTableSettings, userEmail);
 		} catch (e) {
-			throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_ROW_BY_PRIMARY_KEY);
+			throw new UnknownSQLException(getErrorMessage(e), ExceptionOperations.FAILED_TO_GET_ROW_BY_PRIMARY_KEY);
 		}
 
 		if (!rowData) {

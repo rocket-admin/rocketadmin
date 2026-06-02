@@ -1,11 +1,11 @@
-import { ForbiddenException, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../../common/data-injection.tokens.js';
 import { LogOperationTypeEnum } from '../../../../enums/log-operation-type.enum.js';
 import { OperationResultStatusEnum } from '../../../../enums/operation-result-status.enum.js';
+import { TableActionEventEnum } from '../../../../enums/table-action-event-enum.js';
 import { Messages } from '../../../../exceptions/text/messages.js';
-import { CedarPermissionsService } from '../../../cedar-authorization/cedar-permissions.service.js';
 import { TableLogsService } from '../../../table-logs/table-logs.service.js';
 import { TableActionActivationService } from '../../table-actions-module/table-action-activation.service.js';
 import { ActivateEventActionsDS } from '../application/data-structures/activate-rule-actions.ds.js';
@@ -22,7 +22,6 @@ export class ActivateActionsInEventUseCase
 		protected _dbContext: IGlobalDatabaseContext,
 		private tableLogsService: TableLogsService,
 		private tableActionActivationService: TableActionActivationService,
-		private readonly cedarPermissions: CedarPermissionsService,
 	) {
 		super();
 	}
@@ -46,17 +45,21 @@ export class ActivateActionsInEventUseCase
 			);
 		}
 		const tableName = foundActionsWithCustomEvents[0].action_rule.table_name;
-		const canUserReadTable = await this.cedarPermissions.checkTableRead(userId, connectionId, tableName, masterPwd);
-		if (!canUserReadTable) {
-			throw new ForbiddenException(Messages.DONT_HAVE_PERMISSIONS);
-		}
 
 		const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
 			connectionId,
 			masterPwd,
 		);
+		if (!foundConnection) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_NOT_FOUND,
+				},
+				HttpStatus.NOT_FOUND,
+			);
+		}
 
-		let locationFromResult: string = null;
+		let locationFromResult: string | null = null;
 		const activationResults: Array<{ actionId: string; result: OperationResultStatusEnum }> = [];
 
 		for (const action of foundActionsWithCustomEvents) {
@@ -69,7 +72,7 @@ export class ActivateActionsInEventUseCase
 						request_body,
 						userId,
 						tableName,
-						null,
+						TableActionEventEnum.CUSTOM,
 					);
 				operationResult = receivedOperationResult;
 				primaryKeyValuesArray = receivedPrimaryKeysObj;
@@ -80,11 +83,12 @@ export class ActivateActionsInEventUseCase
 			} catch (e) {
 				operationResult = OperationResultStatusEnum.unsuccessfully;
 				activationResults.push({ actionId: action.id, result: operationResult });
+				const err = e as Error & { response?: { status?: number } };
 				throw new HttpException(
 					{
-						message: e.message,
+						message: err.message,
 					},
-					e.response?.status || HttpStatus.BAD_REQUEST,
+					err.response?.status || HttpStatus.BAD_REQUEST,
 				);
 			} finally {
 				const eventTitle = action.action_rule.action_events?.find((e) => e.id === event_id)?.title ?? null;
@@ -96,7 +100,7 @@ export class ActivateActionsInEventUseCase
 						operationType: LogOperationTypeEnum.actionActivated,
 						operationStatusResult: operationResult,
 						row: primaryKey,
-						old_data: null,
+						old_data: null as Record<string, unknown> | null,
 						table_primary_key: primaryKey,
 						operation_custom_action_name: eventTitle,
 					};

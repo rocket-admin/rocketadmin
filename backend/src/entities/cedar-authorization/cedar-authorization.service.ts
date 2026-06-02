@@ -4,6 +4,7 @@ import { IGlobalDatabaseContext } from '../../common/application/global-database
 import { BaseType } from '../../common/data-injection.tokens.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { Cacher } from '../../helpers/cache/cacher.js';
+import { getErrorMessage } from '../../helpers/get-error-message.js';
 import { GroupEntity } from '../group/group.entity.js';
 import { IComplexPermission } from '../permission/permission.interface.js';
 import {
@@ -34,7 +35,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 	}
 
 	async validate(request: CedarValidationRequest): Promise<boolean> {
-		const { userId, action, groupId, tableName, dashboardId, panelId } = request;
+		const { userId, action, groupId, tableName, dashboardId, panelId, actionEventId } = request;
 		let { connectionId } = request;
 
 		const actionPrefix = action.split(':')[0];
@@ -43,20 +44,41 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 
 		switch (actionPrefix) {
 			case 'connection':
+				if (!connectionId) return false;
 				resourceType = CedarResourceType.Connection;
 				resourceId = connectionId;
 				break;
 			case 'group':
+				if (!groupId) return false;
 				resourceType = CedarResourceType.Group;
-				connectionId = await this.getConnectionIdForGroup(groupId);
+				connectionId = (await this.getConnectionIdForGroup(groupId)) ?? undefined;
 				if (!connectionId) return false;
 				resourceId = groupId;
 				break;
 			case 'table':
+				if (!connectionId) return false;
 				resourceType = CedarResourceType.Table;
 				resourceId = `${connectionId}/${tableName}`;
 				break;
+			case 'actionEvent': {
+				if (!connectionId) return false;
+				if (!tableName || !actionEventId) return false;
+				resourceType = CedarResourceType.ActionEvent;
+				resourceId = `${connectionId}/${tableName}/${actionEventId}`;
+				return this.evaluate(
+					userId,
+					connectionId,
+					action,
+					resourceType,
+					resourceId,
+					tableName,
+					undefined,
+					undefined,
+					actionEventId,
+				);
+			}
 			case 'dashboard': {
+				if (!connectionId) return false;
 				resourceType = CedarResourceType.Dashboard;
 				const needsSentinel = action === CedarAction.DashboardCreate || !dashboardId;
 				const effectiveDashboardId = needsSentinel ? '__new__' : dashboardId;
@@ -73,6 +95,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 				);
 			}
 			case 'panel': {
+				if (!connectionId) return false;
 				resourceType = CedarResourceType.Panel;
 				const needsSentinel = action === CedarAction.PanelCreate || !panelId;
 				const effectivePanelId = needsSentinel ? '__new__' : panelId;
@@ -92,6 +115,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 				return false;
 		}
 
+		if (!connectionId) return false;
 		return this.evaluate(userId, connectionId, action, resourceType, resourceId, tableName, dashboardId, undefined);
 	}
 
@@ -169,7 +193,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 				resource: { type: 'RocketAdmin::Connection', id: 'test' },
 				context: {},
 				policies: { staticPolicies: 'permit(principal, action, resource);' },
-				entities: [],
+				entities: [] as unknown[],
 				schema: schema,
 			};
 			const result = cedarWasm.isAuthorized(testCall as Parameters<typeof cedarWasm.isAuthorized>[0]);
@@ -182,7 +206,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 			}
 		} catch (e) {
 			if (e instanceof HttpException) throw e;
-			throw new HttpException({ message: `Invalid cedar schema: ${e.message}` }, HttpStatus.BAD_REQUEST);
+			throw new HttpException({ message: `Invalid cedar schema: ${getErrorMessage(e)}` }, HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -195,6 +219,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 		tableName?: string,
 		dashboardId?: string,
 		panelId?: string,
+		actionEventId?: string,
 	): Promise<boolean> {
 		await this.assertUserNotSuspended(userId);
 
@@ -204,7 +229,15 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 		const groupPolicies = this.loadPoliciesPerGroup(userGroups);
 		if (groupPolicies.length === 0) return false;
 
-		const entities = buildCedarEntities(userId, userGroups, connectionId, tableName, dashboardId, panelId);
+		const entities = buildCedarEntities(
+			userId,
+			userGroups,
+			connectionId,
+			tableName,
+			dashboardId,
+			panelId,
+			actionEventId,
+		);
 
 		for (const policy of groupPolicies) {
 			const call = {
@@ -231,7 +264,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 	}
 
 	private loadPoliciesPerGroup(userGroups: Array<GroupEntity>): string[] {
-		return userGroups.map((g) => g.cedarPolicy).filter(Boolean);
+		return userGroups.map((g) => g.cedarPolicy).filter((policy): policy is string => Boolean(policy));
 	}
 
 	private async assertUserNotSuspended(userId: string): Promise<void> {
@@ -266,12 +299,12 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 				resource: { type: 'RocketAdmin::Connection', id: 'test' },
 				context: {},
 				policies: { staticPolicies: policyText },
-				entities: [],
+				entities: [] as unknown[],
 				schema: this.schema,
 			};
 			cedarWasm.isAuthorized(testCall as Parameters<typeof cedarWasm.isAuthorized>[0]);
 		} catch (e) {
-			throw new HttpException({ message: `Invalid cedar policy: ${e.message}` }, HttpStatus.BAD_REQUEST);
+			throw new HttpException({ message: `Invalid cedar policy: ${getErrorMessage(e)}` }, HttpStatus.BAD_REQUEST);
 		}
 	}
 

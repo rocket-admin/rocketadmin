@@ -54,6 +54,25 @@ export class SchemaChangeResponseDto {
 	@ApiProperty()
 	autoRollbackSucceeded: boolean;
 
+	@ApiProperty({
+		description:
+			'True when the original AI-proposed SQL failed at apply time and the AI was asked to repair it. When true, forwardSql/rollbackSql reflect the repaired statements and the originals are preserved in aiAutoFixOriginalForwardSql/aiAutoFixOriginalRollbackSql.',
+	})
+	aiAutoFixApplied: boolean;
+
+	@ApiProperty({ required: false, nullable: true })
+	aiAutoFixOriginalForwardSql: string | null;
+
+	@ApiProperty({ required: false, nullable: true })
+	aiAutoFixOriginalRollbackSql: string | null;
+
+	@ApiProperty({
+		required: false,
+		nullable: true,
+		description: 'Database error returned when the original SQL was attempted, before the AI repaired it.',
+	})
+	aiAutoFixOriginalError: string | null;
+
 	@ApiProperty()
 	userPrompt: string;
 

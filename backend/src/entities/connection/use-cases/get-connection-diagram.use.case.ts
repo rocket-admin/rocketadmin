@@ -11,6 +11,7 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
 import { GetConnectionDiagramDs } from '../application/data-structures/get-connection-diagram.ds.js';
 import { ConnectionDiagramResponseDTO } from '../application/dto/connection-diagram-response.dto.js';
@@ -42,7 +43,7 @@ export class GetConnectionDiagramUseCase
 
 		const dao = getDataAccessObject(connection);
 		const userEmail = isConnectionTypeAgent(connection.type)
-			? await this._dbContext.userRepository.getUserEmailOrReturnNull(userId)
+			? ((await this._dbContext.userRepository.getUserEmailOrReturnNull(userId)) ?? undefined)
 			: undefined;
 
 		await validateSchemaCache(dao, userEmail);
@@ -52,7 +53,7 @@ export class GetConnectionDiagramUseCase
 		try {
 			tables = await dao.getTablesFromDB(userEmail);
 		} catch (e) {
-			throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_TABLES);
+			throw new UnknownSQLException(getErrorMessage(e), ExceptionOperations.FAILED_TO_GET_TABLES);
 		}
 
 		const realTables = tables.filter((t) => !t.isView);
@@ -76,9 +77,9 @@ export class GetConnectionDiagramUseCase
 		userEmail: string | undefined,
 	): Promise<MermaidTableInput> {
 		const [structure, primaryColumns, foreignKeys] = await Promise.all([
-			this.safe<Array<TableStructureDS>>(() => dao.getTableStructure(tableName, userEmail), []),
-			this.safe<Array<PrimaryKeyDS>>(() => dao.getTablePrimaryColumns(tableName, userEmail), []),
-			this.safe<Array<ForeignKeyDS>>(() => dao.getTableForeignKeys(tableName, userEmail), []),
+			this.safe<Array<TableStructureDS>>(() => dao.getTableStructure(tableName, userEmail ?? ''), []),
+			this.safe<Array<PrimaryKeyDS>>(() => dao.getTablePrimaryColumns(tableName, userEmail ?? ''), []),
+			this.safe<Array<ForeignKeyDS>>(() => dao.getTableForeignKeys(tableName, userEmail ?? ''), []),
 		]);
 		return { tableName, structure, primaryColumns, foreignKeys };
 	}

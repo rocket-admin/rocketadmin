@@ -2,6 +2,7 @@ import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
 import countries from 'i18n-iso-countries';
 import validator from 'validator';
 import { Messages } from '../../exceptions/text/messages.js';
+import { isTest } from '../app/is-test.js';
 import { Constants } from '../constants/constants.js';
 
 export class ValidationHelper {
@@ -41,7 +42,7 @@ export class ValidationHelper {
 		if (typeof jsonString !== 'string') {
 			return false;
 		}
-		validator.isJSON(jsonString);
+		return validator.isJSON(jsonString);
 	}
 
 	public static isValidJWT(token: string): boolean {
@@ -73,7 +74,7 @@ export class ValidationHelper {
 			return false;
 		}
 		for (let i = 0; i < id.length; i++) {
-			if (!validChars.includes(id.at(i))) {
+			if (!validChars.includes(id[i])) {
 				return false;
 			}
 		}
@@ -81,7 +82,7 @@ export class ValidationHelper {
 	}
 
 	public static isPasswordStrongOrThrowError(password: string): boolean {
-		if (process.env.NODE_ENV === 'test') {
+		if (isTest()) {
 			return true;
 		}
 		const result = validator.isStrongPassword(password, {
