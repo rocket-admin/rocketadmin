@@ -55,6 +55,7 @@ describe('NotificationsService', () => {
 			Object({
 				duration: 2500,
 				horizontalPosition: 'left',
+				verticalPosition: 'bottom',
 			}),
 		);
 	});
