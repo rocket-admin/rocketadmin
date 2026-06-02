@@ -83,14 +83,14 @@ export class LoginUserWithGithubUseCase
 		email: string,
 		userId: string | null,
 		status: SignInStatusEnum,
-		ipAddress: string,
-		userAgent: string,
+		ipAddress: string | undefined,
+		userAgent: string | undefined,
 		failureReason?: string,
 	): Promise<void> {
 		try {
 			await this.signInAuditService.createSignInAuditRecord({
 				email,
-				userId,
+				userId: userId ?? undefined,
 				status,
 				signInMethod: SignInMethodEnum.GITHUB,
 				ipAddress,

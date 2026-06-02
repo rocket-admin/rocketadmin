@@ -67,7 +67,7 @@ export class GenerateSchemaChangeUseCase
 
 		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(
 			connectionId,
-			masterPassword,
+			masterPassword ?? '',
 		);
 		if (!connection) {
 			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
@@ -106,9 +106,9 @@ export class GenerateSchemaChangeUseCase
 			});
 		}
 
-		let proposals: ProposeSchemaChangeArgs[];
+		let loopResult;
 		try {
-			const result = await runSchemaChangeAiLoop({
+			loopResult = await runSchemaChangeAiLoop({
 				aiCoreService: this.aiCoreService,
 				provider: this.provider,
 				messages,
@@ -117,11 +117,26 @@ export class GenerateSchemaChangeUseCase
 				userEmail: undefined,
 				logger: this.logger,
 			});
-			proposals = result.proposals;
 		} catch (err) {
 			this.logger.error(`AI loop failed: ${getErrorMessage(err)}`);
 			throw new BadRequestException(`AI generation failed: ${getErrorMessage(err)}`);
 		}
+
+		if (loopResult.kind === 'clarification') {
+			await this._dbContext.schemaChangeChatMessageRepository.saveMessage(
+				chat.id,
+				loopResult.assistantMessage,
+				MessageRole.ai,
+			);
+			return {
+				batchId: null,
+				threadId: chat.id,
+				changes: [],
+				assistantMessage: loopResult.assistantMessage,
+			};
+		}
+
+		const proposals: ProposeSchemaChangeArgs[] = loopResult.proposals;
 
 		for (let i = 0; i < proposals.length; i++) {
 			this.validateProposal(proposals[i], connectionType, i);

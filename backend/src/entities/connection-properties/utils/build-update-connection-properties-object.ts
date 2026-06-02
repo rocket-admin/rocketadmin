@@ -35,7 +35,7 @@ export interface IUpdateConnectionPropertiesObject {
 	logo_url?: string;
 	primary_color?: string;
 	secondary_color?: string;
-	hostname?: string;
+	hostname?: string | null;
 	company_name?: string;
 	tables_audit?: boolean;
 	human_readable_table_names?: boolean;

@@ -122,6 +122,7 @@ export class SaasModule {
 			.forRoutes(
 				{ path: 'saas/company/registered', method: RequestMethod.POST },
 				{ path: 'saas/user/:userId', method: RequestMethod.GET },
+				{ path: 'saas/users/email/:userEmail', method: RequestMethod.GET },
 				{ path: 'saas/user/register', method: RequestMethod.POST },
 				{ path: 'saas/user/demo/register', method: RequestMethod.POST },
 				{ path: 'saas/user/google/login', method: RequestMethod.POST },

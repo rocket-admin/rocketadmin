@@ -26,6 +26,14 @@ export class AddUserInGroupUseCase
 		const { groupId } = inputData;
 		const email = inputData.email.toLowerCase();
 		const foundGroup = await this._dbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
+		if (!foundGroup || !foundGroup.users) {
+			throw new HttpException(
+				{
+					message: Messages.GROUP_NOT_FOUND,
+				},
+				HttpStatus.NOT_FOUND,
+			);
+		}
 
 		const foundConnection =
 			await this._dbContext.connectionRepository.getConnectionByGroupIdWithCompanyAndUsersInCompany(groupId);

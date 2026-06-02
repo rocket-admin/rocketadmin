@@ -43,6 +43,7 @@ import { OtpSecretDS } from './application/data-structures/otp-secret.ds.js';
 import { OtpDisablingResultDS, OtpValidationResultDS } from './application/data-structures/otp-validation-result.ds.js';
 import { RegisteredUserDs } from './application/data-structures/registered-user.ds.js';
 import { ResetUsualUserPasswordDs } from './application/data-structures/reset-usual-user-password.ds.js';
+import { SaveUserSettingsDs } from './application/data-structures/save-user-settings.ds.js';
 import { UsualLoginDs } from './application/data-structures/usual-login.ds.js';
 import { DeleteUserAccountDTO } from './dto/delete-user-account-request.dto.js';
 import { EmailDto } from './dto/email.dto.js';
@@ -484,7 +485,7 @@ export class UserController {
 	async saveUserSessionSettings(
 		@Body() userSettings: UserSettingsDataRequestDto,
 		@UserId() userId: string,
-	): Promise<UserSettingsDataRequestDto> {
+	): Promise<SaveUserSettingsDs> {
 		return await this.saveUserSessionSettingsUseCase.execute(
 			{ userId, userSettings: userSettings.userSettings },
 			InTransactionEnum.OFF,
@@ -498,7 +499,7 @@ export class UserController {
 		type: UserSettingsDataRequestDto,
 	})
 	@Get('user/settings/')
-	async getUserSessionSettings(@UserId() userId: string): Promise<UserSettingsDataRequestDto> {
+	async getUserSessionSettings(@UserId() userId: string): Promise<SaveUserSettingsDs> {
 		return await this.getUserSessionSettingsUseCase.execute(userId, InTransactionEnum.OFF);
 	}
 

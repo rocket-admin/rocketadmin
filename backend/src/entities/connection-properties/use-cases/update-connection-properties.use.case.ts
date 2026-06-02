@@ -31,8 +31,16 @@ export class UpdateConnectionPropertiesUseCase
 		const { connectionId, master_password, table_categories } = inputData;
 		const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
 			connectionId,
-			master_password,
+			master_password ?? '',
 		);
+		if (!foundConnection) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_NOT_FOUND,
+				},
+				HttpStatus.NOT_FOUND,
+			);
+		}
 		await validateCreateConnectionPropertiesDs(inputData, foundConnection);
 		const connectionPropertiesToUpdate =
 			await this._dbContext.connectionPropertiesRepository.findConnectionProperties(connectionId);

@@ -9,12 +9,12 @@ import { ExceptionOperations } from '../../../exceptions/custom-exceptions/excep
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { getErrorMessage } from '../../../helpers/get-error-message.js';
-import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
 import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { ITableAndViewPermissionData } from '../../permission/permission.interface.js';
 import { FindTablesDs } from '../../table/application/data-structures/find-tables.ds.js';
 import { FoundTableDs } from '../../table/application/data-structures/found-table.ds.js';
+import { getUserEmailForAgent } from '../../table/utils/validate-connection.util.js';
 import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';
 import { FoundTableCategoriesWithTablesRo } from '../dto/found-table-categories-with-tables.ro.js';
 import { IFindTableCategoriesWithTables } from './table-categories-use-cases.interface.js';
@@ -34,7 +34,7 @@ export class FindTableCategoriesWithTablesUseCase
 
 	protected async implementation(inputData: FindTablesDs): Promise<Array<FoundTableCategoriesWithTablesRo>> {
 		const { connectionId, masterPwd, userId } = inputData;
-		let connection: ConnectionEntity;
+		let connection: ConnectionEntity | null = null;
 		try {
 			connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
 		} catch (error) {
@@ -67,11 +67,7 @@ export class FindTableCategoriesWithTablesUseCase
 			);
 		}
 		const dao = getDataAccessObject(connection);
-		let userEmail: string;
-
-		if (isConnectionTypeAgent(connection.type)) {
-			userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
-		}
+		const userEmail = await getUserEmailForAgent(connection, userId, this._dbContext.userRepository);
 		let tables: Array<TableDS>;
 		try {
 			tables = await dao.getTablesFromDB(userEmail);
@@ -92,9 +88,10 @@ export class FindTableCategoriesWithTablesUseCase
 		}));
 		const excludedTables = await this._dbContext.connectionPropertiesRepository.findConnectionProperties(connectionId);
 		let tablesRO = await this.addDisplayNamesForTables(connectionId, tablesWithPermissions);
-		if (excludedTables?.hidden_tables?.length) {
+		const hiddenTables = excludedTables?.hidden_tables;
+		if (hiddenTables?.length) {
 			tablesRO = tablesRO.filter((tableRO) => {
-				return !excludedTables.hidden_tables.includes(tableRO.table);
+				return !hiddenTables.includes(tableRO.table);
 			});
 		}
 
@@ -110,7 +107,7 @@ export class FindTableCategoriesWithTablesUseCase
 		if (storedAllTablesCategory) {
 			allTablesOrdered = storedAllTablesCategory.tables
 				.map((tableName) => tablesRO.find((tableRO) => tableRO.table === tableName))
-				.filter(Boolean);
+				.filter((tableRO): tableRO is FoundTableDs => Boolean(tableRO));
 
 			const storedTableNames = new Set(storedAllTablesCategory.tables);
 			const newTables = tablesRO.filter((tableRO) => !storedTableNames.has(tableRO.table));
@@ -133,7 +130,7 @@ export class FindTableCategoriesWithTablesUseCase
 		const foundTableCategoriesRO = otherCategories.map((category) => {
 			const tablesInCategory = category.tables
 				.map((tableName) => tablesRO.find((tableRO) => tableRO.table === tableName))
-				.filter(Boolean);
+				.filter((tableRO): tableRO is FoundTableDs => Boolean(tableRO));
 			return {
 				category_id: category.category_id,
 				category_color: category.category_color,

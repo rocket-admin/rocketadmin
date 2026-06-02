@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, Scope } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -28,8 +28,11 @@ export class CreateTableFiltersUseCase
 
 		const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
 			connection_id,
-			masterPwd,
+			masterPwd ?? '',
 		);
+		if (!foundConnection) {
+			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
+		}
 		if (foundConnection.is_frozen) {
 			throw new NonAvailableInFreePlanException(Messages.CONNECTION_IS_FROZEN);
 		}

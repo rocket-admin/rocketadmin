@@ -39,9 +39,9 @@ export async function buildConnectionEntity(
 	connection.type = type;
 	connection.ssh = ssh;
 	connection.ssl = ssl;
-	connection.azure_encryption = azure_encryption;
+	connection.azure_encryption = azure_encryption ?? false;
 	connection.author = connectionAuthor;
-	connection.masterEncryption = masterEncryption;
+	connection.masterEncryption = masterEncryption ?? false;
 	connection.host = host;
 	connection.port = port;
 	connection.username = username;

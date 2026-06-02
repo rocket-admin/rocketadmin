@@ -15,7 +15,11 @@ export class ConnectionDiagramGuard implements CanActivate {
 		return new Promise(async (resolve, reject) => {
 			const request: IRequestWithCognitoInfo = context.switchToHttp().getRequest();
 			const cognitoUserName = request.decoded.sub;
-			let connectionId: string = request.query.connectionId;
+			if (!cognitoUserName) {
+				reject(new ForbiddenException(Messages.DONT_HAVE_PERMISSIONS));
+				return;
+			}
+			let connectionId: string | undefined = request.query.connectionId;
 			if (!connectionId || (!validateUuidByRegex(connectionId) && !ValidationHelper.isValidNanoId(connectionId))) {
 				connectionId = request.params?.slug || request.params?.connectionId;
 			}

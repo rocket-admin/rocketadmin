@@ -193,8 +193,13 @@ test.serial(`${currentTest} streams human-readable progress and ends with a comp
 
 test.serial(`${currentTest} streams a no-new-tables message when settings already exist`, async (t) => {
 	const connectionToTestDB = getTestData(mockFactory).connectionToPostgresSchema;
+	// Use a schema unique to this test so concurrently-running test files (which share the
+	// same Postgres and the default "test_schema") cannot inject new tables between the two
+	// scans below, which would otherwise make the "no new tables" assertion flaky.
+	const isolatedSchema = `ai_stream_${faker.string.alphanumeric(10).toLowerCase()}`;
+	connectionToTestDB.schema = isolatedSchema;
 	const { token } = await registerUserAndReturnUserInfo(app);
-	const { testTableName } = await createTestPostgresTableWithSchema(connectionToTestDB);
+	const { testTableName } = await createTestPostgresTableWithSchema(connectionToTestDB, 42, 'Vasia', isolatedSchema);
 	testTables.push(testTableName);
 
 	const createConnectionResponse = await request(app.getHttpServer())

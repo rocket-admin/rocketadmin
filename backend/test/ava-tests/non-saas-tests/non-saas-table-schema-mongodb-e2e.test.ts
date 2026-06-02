@@ -39,6 +39,7 @@ interface MongoProposedChange {
 }
 
 let nextProposal: MongoProposedChange | null = null;
+let nextFixProposal: MongoProposedChange | null = null;
 
 function createMongoProposalStream(proposal: MongoProposedChange) {
 	return {
@@ -56,8 +57,21 @@ function createMongoProposalStream(proposal: MongoProposedChange) {
 	};
 }
 
+function isFixCall(messages: unknown): boolean {
+	if (!Array.isArray(messages)) return false;
+	for (const m of messages) {
+		const content = (m as { content?: unknown })?.content;
+		if (typeof content === 'string' && content.includes('DDL repair assistant')) return true;
+	}
+	return false;
+}
+
 const mockAICoreService = {
-	streamChatWithToolsAndProvider: async () => {
+	streamChatWithToolsAndProvider: async (_provider: unknown, messages: unknown) => {
+		if (isFixCall(messages)) {
+			if (!nextFixProposal) throw new Error('Test invoked the AI fix loop but nextFixProposal was not set.');
+			return createMongoProposalStream(nextFixProposal);
+		}
 		if (!nextProposal) throw new Error('Test must set nextProposal.');
 		return createMongoProposalStream(nextProposal);
 	},
@@ -555,6 +569,76 @@ test.serial('MongoDB: invalid op marks FAILED and attempts auto-rollback', async
 	t.is(record.status, SchemaChangeStatusEnum.FAILED);
 	t.true(record.autoRollbackAttempted);
 	t.truthy(record.executionError);
+});
+
+test.serial('MongoDB: invalid op is repaired by AI auto-fix and applied', async (t) => {
+	const { token } = await registerUserAndReturnUserInfo(app);
+	const connectionId = await createConnection(token);
+	const collectionName = randomCollectionName('ra_mfix');
+	createdCollections.push(collectionName);
+
+	const mongoParams = getTestData(mockFactory).mongoDbConnection;
+	await seedCollection(mongoParams, collectionName, [{ email: 'a@a.test' }]);
+	await withMongoClient(mongoParams, async (db) => {
+		await db.collection(collectionName).createIndex({ email: 1 }, { name: 'idx_real' });
+	});
+
+	const originalForwardOp = JSON.stringify({ operation: 'dropIndex', collectionName, indexName: 'idx_missing' });
+	const originalRollbackOp = JSON.stringify({
+		operation: 'createIndex',
+		collectionName,
+		indexName: 'idx_missing',
+		indexSpec: { x: 1 },
+		indexOptions: { name: 'idx_missing' },
+	});
+	const fixedForwardOp = JSON.stringify({ operation: 'dropIndex', collectionName, indexName: 'idx_real' });
+	const fixedRollbackOp = JSON.stringify({
+		operation: 'createIndex',
+		collectionName,
+		indexName: 'idx_real',
+		indexSpec: { email: 1 },
+		indexOptions: { name: 'idx_real' },
+	});
+
+	nextProposal = {
+		forwardOp: originalForwardOp,
+		rollbackOp: originalRollbackOp,
+		changeType: SchemaChangeTypeEnum.MONGO_DROP_INDEX,
+		targetTableName: collectionName,
+		isReversible: true,
+		summary: 'drop wrong index',
+		reasoning: '',
+	};
+	nextFixProposal = {
+		forwardOp: fixedForwardOp,
+		rollbackOp: fixedRollbackOp,
+		changeType: SchemaChangeTypeEnum.MONGO_DROP_INDEX,
+		targetTableName: collectionName,
+		isReversible: true,
+		summary: 'corrected index name',
+		reasoning: 'AI repaired indexName',
+	};
+
+	const generateResp = await request(app.getHttpServer())
+		.post(`/table-schema/${connectionId}/generate`)
+		.set('Cookie', token)
+		.send({ userPrompt: 'drop the email index' });
+	const changeId = JSON.parse(generateResp.text).changes[0].id;
+
+	const approveResp = await request(app.getHttpServer())
+		.post(`/table-schema/change/${changeId}/approve`)
+		.set('Cookie', token)
+		.send({});
+	t.is(approveResp.status, 200);
+	const applied = JSON.parse(approveResp.text);
+	t.is(applied.status, SchemaChangeStatusEnum.APPLIED);
+	t.true(applied.aiAutoFixApplied);
+	t.truthy(applied.aiAutoFixOriginalError);
+	t.is(applied.aiAutoFixOriginalForwardSql, originalForwardOp);
+	t.is(applied.forwardSql, fixedForwardOp);
+
+	const indexes = await getIndexes(mongoParams, collectionName);
+	t.falsy(indexes.find((idx) => idx.name === 'idx_real'));
 });
 
 test.serial('MongoDB: tool/changeType mismatch is rejected', async (t) => {

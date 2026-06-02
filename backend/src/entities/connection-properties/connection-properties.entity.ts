@@ -10,7 +10,7 @@ export class ConnectionPropertiesEntity {
 	@Column('varchar', { array: true, default: null })
 	hidden_tables: string[] | null;
 
-	@Column({ default: null })
+	@Column({ type: 'varchar', default: null })
 	logo_url: string | null;
 
 	@Column({ default: '' })
@@ -19,10 +19,10 @@ export class ConnectionPropertiesEntity {
 	@Column({ default: '' })
 	secondary_color: string;
 
-	@Column({ default: null })
+	@Column({ type: 'varchar', default: null })
 	hostname: string | null;
 
-	@Column({ default: null })
+	@Column({ type: 'varchar', default: null })
 	company_name: string | null;
 
 	@Column({ default: true, type: 'boolean' })
@@ -34,7 +34,7 @@ export class ConnectionPropertiesEntity {
 	@Column({ default: true, type: 'boolean' })
 	allow_ai_requests: boolean;
 
-	@Column({ default: null })
+	@Column({ type: 'varchar', default: null })
 	default_showing_table: string | null;
 
 	@OneToOne(

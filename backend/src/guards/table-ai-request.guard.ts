@@ -15,8 +15,12 @@ export class TableAiRequestGuard implements CanActivate {
 		return new Promise(async (resolve, reject) => {
 			const request: IRequestWithCognitoInfo = context.switchToHttp().getRequest();
 			const cognitoUserName = request.decoded.sub;
-			const connectionId: string = request.params?.slug || request.params?.connectionId;
-			const tableName: string = request.query?.tableName;
+			if (!cognitoUserName) {
+				reject(new ForbiddenException(Messages.DONT_HAVE_PERMISSIONS));
+				return;
+			}
+			const connectionId: string | undefined = request.params?.slug || request.params?.connectionId;
+			const tableName: string | undefined = request.query?.tableName;
 			if (!tableName) {
 				reject(new BadRequestException(Messages.TABLE_NAME_MISSING));
 				return;

@@ -3,7 +3,7 @@ import { SignInStatusEnum } from '../enums/sign-in-status.enum.js';
 
 export class CreateSignInAuditRecordDs {
 	email: string;
-	userId?: string;
+	userId?: string | null;
 	status: SignInStatusEnum;
 	signInMethod: SignInMethodEnum;
 	ipAddress?: string;

@@ -45,6 +45,9 @@ export class GetAllUsersInCompanyUseCase
 						user.id,
 					);
 					const userInfo = buildSimpleUserInfoDs(user);
+					if (!userInfo) {
+						return;
+					}
 					const userRO: SimpleFoundUserInCompanyInfoDs = {
 						...userInfo,
 						user_membership: usersConnectionsWithGroups.map((connection) => {

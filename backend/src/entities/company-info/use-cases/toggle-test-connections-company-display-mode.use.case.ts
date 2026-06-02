@@ -27,6 +27,9 @@ export class ToggleCompanyTestConnectionsDisplayModeUseCase
 		}
 
 		const companyToUpdate = await this._dbContext.companyInfoRepository.findOne({ where: { id: foundCompanyInfo.id } });
+		if (!companyToUpdate) {
+			throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
+		}
 		companyToUpdate.show_test_connections = displayMode;
 		await this._dbContext.companyInfoRepository.save(companyToUpdate);
 		return {

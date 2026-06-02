@@ -61,7 +61,7 @@ export class RestoreConnectionUseCase
 			);
 		}
 
-		const isTestConnection = isHostTest(connectionData.connection_parameters.host);
+		const isTestConnection = isHostTest(connectionData.connection_parameters.host ?? '');
 		const updatedConnection = await updateConnectionEntityForRestoration(
 			foundConnection,
 			connectionData,
@@ -74,6 +74,14 @@ export class RestoreConnectionUseCase
 		const foundConnectionAfterSave = await this._dbContext.connectionRepository.findOne({
 			where: { id: savedConnection.id },
 		});
+		if (!foundConnectionAfterSave) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_NOT_FOUND,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
 		await decryptConnectionCredentialsAsync(foundConnectionAfterSave);
 		const token = updatedConnection.agent?.token || null;
 		return {

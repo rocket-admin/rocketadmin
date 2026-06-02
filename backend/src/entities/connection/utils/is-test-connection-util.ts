@@ -6,7 +6,7 @@ export function isTestConnectionUtil(connection: ConnectionEntity | CreatedConne
 	if (connection.isTestConnection) {
 		return true;
 	}
-	return isHostTest(connection.host);
+	return isHostTest(connection.host ?? '');
 }
 
 export function isHostTest(hostname: string): boolean {

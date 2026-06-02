@@ -1,4 +1,11 @@
-import { BadRequestException, CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/common';
+import {
+	BadRequestException,
+	CanActivate,
+	ExecutionContext,
+	Inject,
+	Injectable,
+	UnauthorizedException,
+} from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { IRequestWithCognitoInfo } from '../authorization/cognito-decoded.interface.js';
 import { IGlobalDatabaseContext } from '../common/application/global-database-context.interface.js';
@@ -18,7 +25,11 @@ export class TablesReceiveGuard implements CanActivate {
 		return new Promise(async (resolve, reject) => {
 			const request: IRequestWithCognitoInfo = context.switchToHttp().getRequest();
 			const cognitoUserName = request.decoded.sub;
-			const connectionId: string = request.params?.slug || request.params?.connectionId;
+			if (!cognitoUserName) {
+				reject(new UnauthorizedException(Messages.DONT_HAVE_PERMISSIONS));
+				return;
+			}
+			const connectionId: string | undefined = request.params?.slug || request.params?.connectionId;
 			if (!connectionId || (!validateUuidByRegex(connectionId) && !ValidationHelper.isValidNanoId(connectionId))) {
 				reject(new BadRequestException(Messages.CONNECTION_ID_MISSING));
 				return;

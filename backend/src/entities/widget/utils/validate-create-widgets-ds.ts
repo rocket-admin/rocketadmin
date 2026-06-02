@@ -64,11 +64,15 @@ export async function validateCreateWidgetsDs(
 		}
 
 		if (widget_type && widget_type === WidgetTypeEnum.Foreign_key) {
+			if (!widgetDS.widget_params) {
+				errors.push(Messages.WIDGET_REQUIRED_PARAMETER_MISSING('widget_params'));
+				return errors;
+			}
 			const widget_params: ForeignKeyDSInfo = JSON5.parse(widgetDS.widget_params);
 
 			for (const key in widget_params) {
 				if (!Constants.FOREIGN_KEY_FIELDS.includes(key)) {
-					errors.push(Messages.WIDGET_PARAMETER_UNSUPPORTED(key, widgetDS.widget_type));
+					errors.push(Messages.WIDGET_PARAMETER_UNSUPPORTED(key, widget_type));
 					continue;
 				}
 				if (!getPropertyValueByDescriptor(widget_params, key) && key !== 'constraint_name') {
@@ -97,6 +101,10 @@ export async function validateCreateWidgetsDs(
 
 		if (widget_type && widget_type === WidgetTypeEnum.S3) {
 			const rawParams = widgetDS.widget_params;
+			if (!rawParams) {
+				errors.push(Messages.WIDGET_REQUIRED_PARAMETER_MISSING('widget_params'));
+				return errors;
+			}
 			const widget_params: Record<string, any> =
 				typeof rawParams === 'string' ? JSON5.parse(rawParams) : (rawParams as Record<string, any>);
 

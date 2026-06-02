@@ -44,20 +44,24 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 
 		switch (actionPrefix) {
 			case 'connection':
+				if (!connectionId) return false;
 				resourceType = CedarResourceType.Connection;
 				resourceId = connectionId;
 				break;
 			case 'group':
+				if (!groupId) return false;
 				resourceType = CedarResourceType.Group;
-				connectionId = await this.getConnectionIdForGroup(groupId);
+				connectionId = (await this.getConnectionIdForGroup(groupId)) ?? undefined;
 				if (!connectionId) return false;
 				resourceId = groupId;
 				break;
 			case 'table':
+				if (!connectionId) return false;
 				resourceType = CedarResourceType.Table;
 				resourceId = `${connectionId}/${tableName}`;
 				break;
 			case 'actionEvent': {
+				if (!connectionId) return false;
 				if (!tableName || !actionEventId) return false;
 				resourceType = CedarResourceType.ActionEvent;
 				resourceId = `${connectionId}/${tableName}/${actionEventId}`;
@@ -74,6 +78,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 				);
 			}
 			case 'dashboard': {
+				if (!connectionId) return false;
 				resourceType = CedarResourceType.Dashboard;
 				const needsSentinel = action === CedarAction.DashboardCreate || !dashboardId;
 				const effectiveDashboardId = needsSentinel ? '__new__' : dashboardId;
@@ -90,6 +95,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 				);
 			}
 			case 'panel': {
+				if (!connectionId) return false;
 				resourceType = CedarResourceType.Panel;
 				const needsSentinel = action === CedarAction.PanelCreate || !panelId;
 				const effectivePanelId = needsSentinel ? '__new__' : panelId;
@@ -109,6 +115,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 				return false;
 		}
 
+		if (!connectionId) return false;
 		return this.evaluate(userId, connectionId, action, resourceType, resourceId, tableName, dashboardId, undefined);
 	}
 
@@ -257,7 +264,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 	}
 
 	private loadPoliciesPerGroup(userGroups: Array<GroupEntity>): string[] {
-		return userGroups.map((g) => g.cedarPolicy).filter(Boolean);
+		return userGroups.map((g) => g.cedarPolicy).filter((policy): policy is string => Boolean(policy));
 	}
 
 	private async assertUserNotSuspended(userId: string): Promise<void> {

@@ -2,9 +2,9 @@ import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { Messages } from '../../../exceptions/text/messages.js';
 import { CreatedConnectionDTO } from '../../../entities/connection/application/dto/created-connection.dto.js';
 import { buildCreatedConnectionDs } from '../../../entities/connection/utils/build-created-connection.ds.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 import { DeleteConnectionForHostedDbDto } from '../data-structures/delete-connection-for-hosted-db.dto.js';
 import { IDeleteConnectionForHostedDb } from './saas-use-cases.interface.js';
 
@@ -25,13 +25,14 @@ export class DeleteConnectionForHostedDbUseCase
 
 		const connectionToDelete = await this._dbContext.connectionRepository.findAndDecryptConnection(
 			hostedDatabaseId,
-			null,
+			'',
 		);
 		if (!connectionToDelete) {
 			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
 		}
 
-		const foundCompany = await this._dbContext.companyInfoRepository.findCompanyInfoByCompanyIdWithoutConnections(companyId);
+		const foundCompany =
+			await this._dbContext.companyInfoRepository.findCompanyInfoByCompanyIdWithoutConnections(companyId);
 		if (!foundCompany) {
 			throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
 		}

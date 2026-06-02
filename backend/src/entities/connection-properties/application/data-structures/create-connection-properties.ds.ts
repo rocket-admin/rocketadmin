@@ -1,12 +1,12 @@
 export class CreateConnectionPropertiesDs {
-	userId: string;
+	userId: string | null;
 	connectionId: string;
-	master_password: string;
+	master_password: string | null;
 	hidden_tables?: Array<string>;
 	logo_url?: string;
 	primary_color?: string;
 	secondary_color?: string;
-	hostname?: string;
+	hostname?: string | null;
 	company_name?: string;
 	tables_audit?: boolean;
 	human_readable_table_names?: boolean;
@@ -17,5 +17,5 @@ export class CreateConnectionPropertiesDs {
 		tables: Array<string>;
 		category_color: string;
 		category_id: string;
-	}>;
+	}> | null;
 }

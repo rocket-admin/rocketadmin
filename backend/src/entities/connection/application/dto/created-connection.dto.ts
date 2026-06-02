@@ -13,7 +13,7 @@ export class CreatedGroupInConnectionDTO {
 	isMain: boolean;
 
 	@ApiProperty({ isArray: true, type: FoundUserDto })
-	users: Array<FoundUserDto>;
+	users?: Array<FoundUserDto>;
 }
 
 export class CreatedConnectionDTO {
@@ -21,52 +21,52 @@ export class CreatedConnectionDTO {
 	id: string;
 
 	@ApiProperty()
-	title: string;
+	title?: string;
 
 	@ApiProperty()
-	masterEncryption: boolean;
+	masterEncryption?: boolean;
 
 	@ApiProperty({ enum: ConnectionTypesEnum })
-	type: ConnectionTypesEnum;
+	type?: ConnectionTypesEnum | null;
 
 	@ApiProperty()
-	host: string;
+	host?: string | null;
 
 	@ApiProperty()
-	port: number;
+	port?: number;
 
 	@ApiProperty()
-	username: string;
+	username?: string | null;
 
 	@ApiProperty()
-	database: string;
+	database?: string | null;
 
 	@ApiProperty()
-	schema: string;
+	schema?: string | null;
 
 	@ApiProperty()
-	sid: string;
+	sid?: string | null;
 
 	@ApiProperty()
-	ssh: boolean;
+	ssh?: boolean;
 
 	@ApiProperty()
-	sshHost: string;
+	sshHost?: string | null;
 
 	@ApiProperty()
-	sshPort: number;
+	sshPort?: number | null;
 
 	@ApiProperty()
-	sshUsername: string;
+	sshUsername?: string | null;
 
 	@ApiProperty()
-	ssl: boolean;
+	ssl?: boolean | null;
 
 	@ApiProperty()
-	cert: string;
+	cert?: string | null;
 
 	@ApiProperty()
-	azure_encryption: boolean;
+	azure_encryption?: boolean;
 
 	@ApiProperty()
 	token: string | null;
@@ -84,16 +84,16 @@ export class CreatedConnectionDTO {
 	isFrozen: boolean;
 
 	@ApiProperty()
-	author: string;
+	author?: string;
 
 	@ApiProperty()
-	authSource: string;
+	authSource?: string | null;
 
 	@ApiProperty()
-	dataCenter: string | null;
+	dataCenter?: string | null;
 
 	@ApiProperty()
-	master_hash: string;
+	master_hash?: string | null;
 
 	@ApiProperty({ isArray: true, type: CreatedGroupInConnectionDTO })
 	groups: Array<CreatedGroupInConnectionDTO>;

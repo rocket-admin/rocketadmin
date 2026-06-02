@@ -42,7 +42,7 @@ export class ValidationHelper {
 		if (typeof jsonString !== 'string') {
 			return false;
 		}
-		validator.isJSON(jsonString);
+		return validator.isJSON(jsonString);
 	}
 
 	public static isValidJWT(token: string): boolean {
@@ -74,7 +74,7 @@ export class ValidationHelper {
 			return false;
 		}
 		for (let i = 0; i < id.length; i++) {
-			if (!validChars.includes(id.at(i))) {
+			if (!validChars.includes(id[i])) {
 				return false;
 			}
 		}

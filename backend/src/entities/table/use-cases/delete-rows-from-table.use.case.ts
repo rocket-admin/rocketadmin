@@ -14,6 +14,7 @@ import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { DeleteRowsFromTableDs } from '../application/data-structures/delete-row-from-table.ds.js';
+import { buildCommonTableSettingsInput } from '../utils/build-common-table-settings-input.util.js';
 import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util.js';
 import { findObjectsWithProperties } from '../utils/find-objects-with-properties.js';
 import { getUserEmailForAgent, validateConnection } from '../utils/validate-connection.util.js';
@@ -23,7 +24,7 @@ type DeleteRowsFromTableResult = {
 	operationStatusResult: OperationResultStatusEnum;
 	row: Record<string, unknown>;
 	old_data: Record<string, unknown>;
-	error: string;
+	error: string | null;
 	affected_primary_key: string;
 };
 
@@ -107,7 +108,10 @@ export class DeleteRowsFromTableUseCase
 			}
 		});
 		let oldRowsData: Array<Record<string, unknown>>;
-		const builtDAOsTableSettings = buildDAOsTableSettingsDs(tableSettings, personalTableSettings);
+		const builtDAOsTableSettings = buildDAOsTableSettingsDs(
+			buildCommonTableSettingsInput(tableSettings),
+			personalTableSettings,
+		);
 		try {
 			oldRowsData = await dao.bulkGetRowsFromTableByPrimaryKeys(
 				tableName,
@@ -132,7 +136,7 @@ export class DeleteRowsFromTableUseCase
 				deleteOperationsResults.push({
 					operationStatusResult: OperationResultStatusEnum.successfully,
 					row: primaryKey,
-					old_data: findObjectsWithProperties(oldRowsData, primaryKey).at(0),
+					old_data: findObjectsWithProperties(oldRowsData, primaryKey).at(0) ?? {},
 					error: null,
 					affected_primary_key: primaryKey as unknown as string,
 				});
@@ -143,7 +147,7 @@ export class DeleteRowsFromTableUseCase
 				deleteOperationsResults.push({
 					operationStatusResult: OperationResultStatusEnum.unsuccessfully,
 					row: primaryKey,
-					old_data: findObjectsWithProperties(oldRowsData, primaryKey).at(0),
+					old_data: findObjectsWithProperties(oldRowsData, primaryKey).at(0) ?? {},
 					error: getErrorMessage(error),
 					affected_primary_key: primaryKey as unknown as string,
 				});
@@ -161,7 +165,7 @@ export class DeleteRowsFromTableUseCase
 			await this.amplitudeService.formAndSendLogRecord(
 				isTest ? AmplitudeEventTypeEnum.tableRowDeletedTest : AmplitudeEventTypeEnum.tableRowDeleted,
 				userId,
-				{ operationCount: createdLogs.length },
+				{ operationCount: createdLogs?.length ?? 0 },
 			);
 		}
 	}

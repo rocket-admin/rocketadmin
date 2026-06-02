@@ -29,7 +29,7 @@ export class FoundUserCompanyInfoDs {
 	is_payment_method_added?: boolean;
 
 	@ApiProperty({ required: false })
-	is2faEnabled: boolean;
+	is2faEnabled?: boolean;
 
 	@ApiProperty()
 	show_test_connections: boolean;
@@ -37,14 +37,14 @@ export class FoundUserCompanyInfoDs {
 	@ApiProperty({ required: false })
 	custom_domain: string | null;
 
-	@ApiProperty({ required: false, type: FoundCompanyImageInfo })
-	logo: FoundCompanyImageInfo;
+	@ApiProperty({ required: false, type: FoundCompanyImageInfo, nullable: true })
+	logo: FoundCompanyImageInfo | null;
 
-	@ApiProperty({ required: false, type: FoundCompanyImageInfo })
-	favicon: FoundCompanyImageInfo;
+	@ApiProperty({ required: false, type: FoundCompanyImageInfo, nullable: true })
+	favicon: FoundCompanyImageInfo | null;
 
-	@ApiProperty({ required: false })
-	tab_title: string;
+	@ApiProperty({ required: false, nullable: true })
+	tab_title: string | null;
 }
 
 export class FoundUserFullCompanyInfoDs extends FoundUserCompanyInfoDs {

@@ -29,6 +29,14 @@ export class VerifyUserEmailUseCase extends AbstractUseCase<string, OperationRes
 			);
 		}
 		const foundUser = await this._dbContext.userRepository.findOneUserById(foundVerificationEntity.user.id);
+		if (!foundUser) {
+			throw new HttpException(
+				{
+					message: Messages.USER_NOT_FOUND,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
 		foundUser.isActive = true;
 		await this._dbContext.userRepository.saveUserEntity(foundUser);
 		await this._dbContext.emailVerificationRepository.removeVerificationEntity(foundVerificationEntity);

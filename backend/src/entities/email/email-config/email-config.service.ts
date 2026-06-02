@@ -10,12 +10,12 @@ export class EmailConfigService implements IEmailConfigService {
 			return configString;
 		}
 		return {
-			host: host,
+			host: host ?? '',
 			port: port,
 			secure: nonSecure,
 			auth: {
-				user: username,
-				pass: password,
+				user: username ?? '',
+				pass: password ?? '',
 			},
 			socketTimeout: 4 * 1000,
 			connectionTimeout: 4 * 1000,

@@ -30,7 +30,7 @@ export async function validateCreateCustomFieldDto(
 			HttpStatus.BAD_REQUEST,
 		);
 	}
-	const tableStructure = await dao.getTableStructure(tableName, undefined);
+	const tableStructure = await dao.getTableStructure(tableName, '');
 	const tableColumns = tableStructure.map((el) => el.column_name);
 	for (const field of tableFieldsFromTemplate) {
 		const fieldIndex = tableColumns.indexOf(field);

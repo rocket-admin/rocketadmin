@@ -62,7 +62,7 @@ export class AppComponent {
 	public appVersion = version;
 	userActivity;
 	userInactive: Subject<any> = new Subject();
-	currentFeatureNotificationId: string = 'saved-filters';
+	currentFeatureNotificationId: string = 'edit-schema';
 	isFeatureNotificationShown: boolean = false;
 
 	userLoggedIn = null;

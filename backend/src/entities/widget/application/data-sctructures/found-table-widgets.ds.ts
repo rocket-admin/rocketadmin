@@ -5,7 +5,7 @@ export class FoundTableWidgetsDs {
 	field_name: string;
 	id: string;
 	name?: string;
-	widget_options: string;
-	widget_params: string;
+	widget_options: string | null;
+	widget_params: string | null;
 	widget_type?: WidgetTypeEnum;
 }

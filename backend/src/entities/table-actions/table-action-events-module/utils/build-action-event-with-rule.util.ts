@@ -11,7 +11,7 @@ export function buildActionEventWithRule(
 	newActionEvent.action_rule = actionRule;
 	newActionEvent.event = event;
 	newActionEvent.title = event_title;
-	newActionEvent.icon = icon;
+	newActionEvent.icon = icon ?? null;
 	newActionEvent.type = type;
 	newActionEvent.require_confirmation = require_confirmation;
 	return newActionEvent;

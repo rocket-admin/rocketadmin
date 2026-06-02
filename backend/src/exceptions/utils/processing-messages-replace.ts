@@ -29,7 +29,7 @@ export const PROCESSING_MESSAGES_REPLACE = {
 		const regex = /(?<=\()[^)]+(?=\))/g;
 		const referencesWordIndex = words.indexOf('references');
 		const tableName = words.at(referencesWordIndex + 1);
-		const relatedColumnName = words.at(referencesWordIndex + 2).match(regex);
+		const relatedColumnName = words.at(referencesWordIndex + 2)?.match(regex);
 		const message = `
     You tried to change a record in a table ${tableName}, but another table references on ${relatedColumnName} field in this table.
     Before the operation, you need to update/delete the associated record in that table or set up in that table an option with operation for the associated entry ("Cascade option").

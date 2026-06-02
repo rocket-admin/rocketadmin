@@ -6,6 +6,7 @@ import { buildValidateTableSettingsDS } from '@rocketadmin/shared-code/dist/src/
 import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../../common/data-injection.tokens.js';
+import { Messages } from '../../../../exceptions/text/messages.js';
 import { toPrettyErrorsMsg } from '../../../../helpers/to-pretty-errors-msg.js';
 import { CreateTableSettingsDs } from '../../application/data-structures/create-table-settings.ds.js';
 import { FoundTableSettingsDs } from '../../application/data-structures/found-table-settings.ds.js';
@@ -29,11 +30,19 @@ export class CreateTableSettingsUseCase
 		const { connection_id, masterPwd, table_name } = inputData;
 		const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
 			connection_id,
-			masterPwd,
+			masterPwd ?? '',
 		);
+		if (!foundConnection) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_NOT_FOUND,
+				},
+				HttpStatus.NOT_FOUND,
+			);
+		}
 		const dao = getDataAccessObject(foundConnection);
 		const tableSettingsDs: ValidateTableSettingsDS = buildValidateTableSettingsDS(inputData);
-		const errors: Array<string> = await dao.validateSettings(tableSettingsDs, table_name, undefined);
+		const errors: Array<string> = await dao.validateSettings(tableSettingsDs, table_name, '');
 		if (errors.length > 0) {
 			throw new HttpException(
 				{

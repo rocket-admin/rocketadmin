@@ -16,6 +16,6 @@ const SQL_CONNECTION_TYPES: ReadonlySet<string> = new Set<string>([
 	ConnectionTypesEnum.agent_clickhouse,
 ]);
 
-export function isSqlConnectionType(type: ConnectionTypesEnum | string): boolean {
-	return SQL_CONNECTION_TYPES.has(type);
+export function isSqlConnectionType(type: ConnectionTypesEnum | string | null | undefined): boolean {
+	return type ? SQL_CONNECTION_TYPES.has(type) : false;
 }

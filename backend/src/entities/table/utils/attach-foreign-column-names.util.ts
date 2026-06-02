@@ -20,8 +20,9 @@ export async function attachForeignColumnNames(
 		]);
 
 		let columnNames = foreignTableStructure.map((el) => el.column_name);
-		if (foreignTableSettings?.autocomplete_columns?.length > 0) {
-			columnNames = columnNames.filter((el) => foreignTableSettings.autocomplete_columns.includes(el));
+		const autocompleteColumns = foreignTableSettings?.autocomplete_columns;
+		if (autocompleteColumns && autocompleteColumns.length > 0) {
+			columnNames = columnNames.filter((el) => autocompleteColumns.includes(el));
 		}
 
 		return {

@@ -1,4 +1,11 @@
-import { BadRequestException, CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/common';
+import {
+	BadRequestException,
+	CanActivate,
+	ExecutionContext,
+	Inject,
+	Injectable,
+	UnauthorizedException,
+} from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { IRequestWithCognitoInfo } from '../authorization/cognito-decoded.interface.js';
 import { IGlobalDatabaseContext } from '../common/application/global-database-context.interface.js';
@@ -21,8 +28,12 @@ export class PaidFeatureGuard implements CanActivate {
 	canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
 		return new Promise(async (resolve, reject) => {
 			const request: IRequestWithCognitoInfo = context.switchToHttp().getRequest();
-			const userId: string = request.decoded.sub;
-			let companyId: string = request.params?.companyId || request.params?.slug;
+			const userId: string | undefined = request.decoded.sub;
+			if (!userId) {
+				reject(new UnauthorizedException(Messages.DONT_HAVE_PERMISSIONS));
+				return;
+			}
+			let companyId: string | undefined = request.params?.companyId || request.params?.slug;
 			if (!companyId || !validateUuidByRegex(companyId)) {
 				companyId = request.body?.companyId;
 			}

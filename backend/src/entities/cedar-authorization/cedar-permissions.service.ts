@@ -77,10 +77,12 @@ export class CedarPermissionsService implements IUserAccessRepository {
 		for (const group of allGroups) {
 			const connId = group.connection?.id;
 			if (!connId) continue;
-			if (!groupsByConnection.has(connId)) {
-				groupsByConnection.set(connId, []);
+			let connectionGroups = groupsByConnection.get(connId);
+			if (!connectionGroups) {
+				connectionGroups = [];
+				groupsByConnection.set(connId, connectionGroups);
 			}
-			groupsByConnection.get(connId).push(group);
+			connectionGroups.push(group);
 		}
 
 		for (const connectionId of connectionIds) {
@@ -90,7 +92,7 @@ export class CedarPermissionsService implements IUserAccessRepository {
 				continue;
 			}
 
-			const policies = userGroups.map((g) => g.cedarPolicy).filter(Boolean);
+			const policies = userGroups.map((g) => g.cedarPolicy).filter((policy): policy is string => Boolean(policy));
 			if (policies.length === 0) {
 				result.set(connectionId, AccessLevelEnum.none);
 				continue;
@@ -258,7 +260,7 @@ export class CedarPermissionsService implements IUserAccessRepository {
 		cognitoUserName: string,
 		connectionId: string,
 		tableName: string,
-		_masterPwd: string,
+		_masterPwd?: string,
 	): Promise<boolean> {
 		const ctx = await this.loadContext(connectionId, cognitoUserName);
 		if (!ctx) return false;
@@ -507,7 +509,7 @@ export class CedarPermissionsService implements IUserAccessRepository {
 		const userGroups = await this.globalDbContext.groupRepository.findAllUserGroupsInConnection(connectionId, userId);
 		if (userGroups.length === 0) return null;
 
-		const policies = userGroups.map((g) => g.cedarPolicy).filter(Boolean);
+		const policies = userGroups.map((g) => g.cedarPolicy).filter((policy): policy is string => Boolean(policy));
 		if (policies.length === 0) return null;
 
 		return { userGroups, policies };

@@ -28,7 +28,11 @@ export class DashboardReadGuard implements CanActivate {
 		return new Promise(async (resolve, reject) => {
 			const request: IRequestWithCognitoInfo = context.switchToHttp().getRequest();
 			const cognitoUserName = request.decoded.sub;
-			let connectionId: string = request.params?.slug || request.params?.connectionId;
+			if (!cognitoUserName) {
+				reject(new ForbiddenException(Messages.DONT_HAVE_PERMISSIONS));
+				return;
+			}
+			let connectionId: string | undefined = request.params?.slug || request.params?.connectionId;
 			if (!connectionId || (!validateUuidByRegex(connectionId) && !ValidationHelper.isValidNanoId(connectionId))) {
 				connectionId = request.query.connectionId;
 			}
@@ -37,7 +41,7 @@ export class DashboardReadGuard implements CanActivate {
 				return;
 			}
 
-			const dashboardId: string = request.params?.dashboardId;
+			const dashboardId: string | undefined = request.params?.dashboardId;
 
 			try {
 				if (!dashboardId) {

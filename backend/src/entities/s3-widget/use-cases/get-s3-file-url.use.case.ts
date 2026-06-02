@@ -9,7 +9,8 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { WidgetTypeEnum } from '../../../enums/widget-type.enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
-import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
+import { buildCommonTableSettingsInput } from '../../table/utils/build-common-table-settings-input.util.js';
+import { getUserEmailForAgent } from '../../table/utils/validate-connection.util.js';
 import { BucketFileUrlResponseDs, GetBucketFileUrlDs } from '../application/data-structures/s3-operation.ds.js';
 import { BucketWidgetParams } from '../application/data-structures/s3-widget-params.ds.js';
 import { S3HelperService } from '../s3-helper.service.js';
@@ -48,15 +49,15 @@ export class GetS3FileUrlUseCase
 			throw new HttpException({ message: 'S3 widget not configured for this field' }, HttpStatus.BAD_REQUEST);
 		}
 
+		if (!widget.widget_params) {
+			throw new HttpException({ message: 'S3 widget params are not configured' }, HttpStatus.BAD_REQUEST);
+		}
 		const params: BucketWidgetParams =
 			typeof widget.widget_params === 'string' ? JSON5.parse(widget.widget_params) : widget.widget_params;
 
 		// Fetch the row from database to get the actual file key
 		const dao = getDataAccessObject(connection);
-		let userEmail: string;
-		if (isConnectionTypeAgent(connection.type)) {
-			userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
-		}
+		const userEmail = await getUserEmailForAgent(connection, userId, this._dbContext.userRepository);
 
 		const tableSettings = await this._dbContext.tableSettingsRepository.findTableSettingsPure(connectionId, tableName);
 		const personalTableSettings = await this._dbContext.personalTableSettingsRepository.findUserTableSettings(
@@ -67,7 +68,7 @@ export class GetS3FileUrlUseCase
 		const rowData = await dao.getRowByPrimaryKey(
 			tableName,
 			rowPrimaryKey,
-			buildDAOsTableSettingsDs(tableSettings, personalTableSettings),
+			buildDAOsTableSettingsDs(buildCommonTableSettingsInput(tableSettings), personalTableSettings),
 			userEmail,
 		);
 

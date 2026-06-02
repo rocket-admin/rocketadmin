@@ -22,7 +22,7 @@ export class UpdateGroupTitleUseCase
 	protected async implementation(groupData: UpdateGroupTitleDto): Promise<FoundGroupDataInfoDs> {
 		const { groupId, title } = groupData;
 		const groupToUpdate = await this._dbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
-		if (!groupToUpdate) {
+		if (!groupToUpdate || !groupToUpdate.connection) {
 			throw new HttpException(
 				{
 					message: Messages.GROUP_NOT_FOUND,
@@ -33,6 +33,14 @@ export class UpdateGroupTitleUseCase
 		const connectionWithGroups = await this._dbContext.connectionRepository.findConnectionWithGroups(
 			groupToUpdate.connection.id,
 		);
+		if (!connectionWithGroups) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_NOT_FOUND,
+				},
+				HttpStatus.NOT_FOUND,
+			);
+		}
 
 		if (connectionWithGroups.groups.find((group) => group.title === title)) {
 			throw new BadRequestException(Messages.GROUP_NAME_UNIQUE);

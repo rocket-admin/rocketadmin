@@ -75,9 +75,9 @@ export class SharedJobsService {
 				tablesToScan.map((table) =>
 					queue.add(async () => {
 						try {
-							const structure = await dao.getTableStructure(table.tableName, null);
-							const primaryColumns = await dao.getTablePrimaryColumns(table.tableName, null);
-							const foreignKeys = await dao.getTableForeignKeys(table.tableName, null);
+							const structure = await dao.getTableStructure(table.tableName, '');
+							const primaryColumns = await dao.getTablePrimaryColumns(table.tableName, '');
+							const foreignKeys = await dao.getTableForeignKeys(table.tableName, '');
 							message(`Inspected structure of table "${table.tableName}"`);
 							return {
 								table_name: table.tableName,
@@ -133,7 +133,7 @@ export class SharedJobsService {
 				normalizedSettings.map((setting) =>
 					validationQueue.add(async () => {
 						const validateSettingsDS = buildValidateTableSettingsDS(setting);
-						const errors = await dao.validateSettings(validateSettingsDS, setting.table_name, undefined);
+						const errors = await dao.validateSettings(validateSettingsDS, setting.table_name, '');
 						if (errors.length > 0) {
 							message(`Validation failed for table "${setting.table_name}", skipping`);
 							console.error(`Validation errors for table "${setting.table_name}":`, errors);
@@ -158,8 +158,8 @@ export class SharedJobsService {
 							widgetEntity.widget_type = widget.widget_type;
 							widgetEntity.widget_params = widget.widget_params || null;
 							widgetEntity.widget_options = widget.widget_options || null;
-							widgetEntity.name = widget.name || null;
-							widgetEntity.description = widget.description || null;
+							widgetEntity.name = widget.name || undefined;
+							widgetEntity.description = widget.description || undefined;
 							widgetEntity.settings = savedSetting;
 							widgetsToSave.push(widgetEntity);
 							message(
@@ -212,9 +212,10 @@ export class SharedJobsService {
 		connection: ConnectionEntity,
 	): Array<TableSettingsEntity> {
 		aiSettings.forEach((setting) => {
-			delete setting.id;
+			const mutableSetting = setting as Partial<TableSettingsEntity>;
+			delete mutableSetting.id;
 			setting.connection_id = connection;
-			delete setting.table_widgets;
+			delete mutableSetting.table_widgets;
 		});
 		return aiSettings;
 	}
@@ -224,7 +225,17 @@ export class SharedJobsService {
 		connection: ConnectionEntity,
 		dao: IDataAccessObject | IDataAccessObjectAgent,
 	): Promise<void> {
-		const { data } = await dao.getRowsFromTable(tableName, {} as any, 1, 10, null, null, null, null, null);
+		const { data } = await dao.getRowsFromTable(
+			tableName,
+			{} as any,
+			1,
+			10,
+			'',
+			[],
+			{ fields: [], value: '' },
+			null,
+			'',
+		);
 		if (data && data.length > 0) {
 			const columnNames: Set<string> = new Set();
 			data.forEach((row) => {

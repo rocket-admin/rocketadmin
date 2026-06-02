@@ -34,5 +34,5 @@ export class GroupEntity {
 		},
 	)
 	@JoinColumn()
-	connection: Relation<ConnectionEntity>;
+	connection?: Relation<ConnectionEntity>;
 }

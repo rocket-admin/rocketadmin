@@ -277,7 +277,7 @@ export class TableSettingsController {
 		return await this.deleteTableSettingsUseCase.execute(inputData, InTransactionEnum.ON);
 	}
 
-	private validateParameters(tableSettingsDTO: CreateTableSettingsDto): Array<string> {
+	private validateParameters(tableSettingsDTO: CreateTableSettingsDs): Array<string> {
 		const errors = [];
 		if (!tableSettingsDTO.table_name) {
 			errors.push(Messages.TABLE_NAME_MISSING);
