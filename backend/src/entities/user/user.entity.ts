@@ -38,11 +38,11 @@ export class UserEntity {
 	@Column({ default: null })
 	email: string;
 
-	@Column({ default: null })
-	password: string;
+	@Column({ type: 'varchar', default: null })
+	password: string | null;
 
-	@Column({ default: null })
-	name: string;
+	@Column({ type: 'varchar', default: null })
+	name: string | null;
 
 	@Column({ default: false, type: 'boolean' })
 	suspended: boolean;
@@ -77,14 +77,14 @@ export class UserEntity {
 	@Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
 	createdAt: Date;
 
-	@Column({ default: null })
-	gclid: string;
+	@Column({ type: 'varchar', default: null })
+	gclid: string | null;
 
 	@Column({ default: false, type: 'boolean' })
 	isOTPEnabled: boolean;
 
-	@Column({ default: null })
-	otpSecretKey: string;
+	@Column({ type: 'varchar', default: null })
+	otpSecretKey: string | null;
 
 	@OneToMany(
 		(_) => ConnectionEntity,
@@ -189,10 +189,10 @@ export class UserEntity {
 		enum: ExternalRegistrationProviderEnum,
 		default: null,
 	})
-	externalRegistrationProvider: ExternalRegistrationProviderEnum;
+	externalRegistrationProvider: ExternalRegistrationProviderEnum | null;
 
-	@Column({ default: null })
-	samlNameId: string;
+	@Column({ type: 'varchar', default: null })
+	samlNameId: string | null;
 
 	@Column({ default: true, type: 'boolean' })
 	showTestConnections: boolean;

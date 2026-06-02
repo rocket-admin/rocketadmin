@@ -27,7 +27,7 @@ export class CompanyInfoHelperService {
 			this._dbContext.invitationInCompanyRepository.countNonExpiredInvitationsInCompany(companyId),
 		]);
 
-		if (companyInformationFromSaaS.subscriptionLevel === SubscriptionLevelEnum.FREE_PLAN) {
+		if (companyInformationFromSaaS?.subscriptionLevel === SubscriptionLevelEnum.FREE_PLAN) {
 			return countUsersInCompany + countInvitationsInCompany < Constants.FREE_PLAN_USERS_COUNT;
 		}
 		return true;

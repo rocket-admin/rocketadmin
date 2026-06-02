@@ -17,6 +17,7 @@ import { buildActionEventDto } from '../../table-actions/table-action-rules-modu
 import { GetRowByPrimaryKeyDs } from '../application/data-structures/get-row-by-primary-key.ds.js';
 import { ReferencedTableNamesAndColumnsDs, TableRowRODs } from '../table-datastructures.js';
 import { attachForeignColumnNames } from '../utils/attach-foreign-column-names.util.js';
+import { buildCommonTableSettingsInput } from '../utils/build-common-table-settings-input.util.js';
 import { buildTableSettingsForResponse } from '../utils/build-table-settings-for-response.util.js';
 import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util.js';
 import { extractForeignKeysFromWidgets } from '../utils/extract-foreign-keys-from-widgets.util.js';
@@ -131,7 +132,10 @@ export class GetRowByPrimaryKeyUseCase
 			);
 		}
 		let rowData: Record<string, unknown>;
-		const builtDAOsTableSettings = buildDAOsTableSettingsDs(tableSettings, personalTableSettings);
+		const builtDAOsTableSettings = buildDAOsTableSettingsDs(
+			buildCommonTableSettingsInput(tableSettings),
+			personalTableSettings,
+		);
 		try {
 			rowData = await dao.getRowByPrimaryKey(tableName, primaryKey, builtDAOsTableSettings, userEmail);
 		} catch (e) {

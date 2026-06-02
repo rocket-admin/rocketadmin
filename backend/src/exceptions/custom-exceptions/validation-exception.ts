@@ -11,7 +11,7 @@ export class ValidationException extends HttpException {
 			originalMessage = originalMessage
 				.map((error) => {
 					return `Property "${error.property}" validation failed with following errors: ${Object.values(
-						error.constraints,
+						error.constraints ?? {},
 					).join(', ')}`;
 				})
 				.join('.\n');

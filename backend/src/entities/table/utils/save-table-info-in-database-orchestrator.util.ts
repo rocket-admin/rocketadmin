@@ -18,10 +18,10 @@ export async function saveTableInfoInDatabase(
 		if (!foundConnection) {
 			return;
 		}
-		const decryptedConnection = await dbContext.connectionRepository.findAndDecryptConnection(
-			connectionId,
-			masterPwd,
-		);
+		const decryptedConnection = await dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
+		if (!decryptedConnection) {
+			return;
+		}
 		const tableNames: Array<string> = tables.map((table) => table.tableName);
 		const queue = new PQueue({ concurrency: 2 });
 		const dao = getDataAccessObject(decryptedConnection);
@@ -31,7 +31,7 @@ export async function saveTableInfoInDatabase(
 		}> = (await Promise.all(
 			tableNames.map(async (tableName) => {
 				return await queue.add(async () => {
-					const structure = await dao.getTableStructure(tableName, undefined);
+					const structure = await dao.getTableStructure(tableName, '');
 					return {
 						tableName: tableName,
 						structure: structure,

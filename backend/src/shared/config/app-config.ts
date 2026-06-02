@@ -322,21 +322,21 @@ export class AppConfig {
 	}
 
 	private parseTypeORMUrl(url: string): {
-		host: string;
+		host: string | undefined;
 		port: number;
-		username: string;
-		password: string;
-		database: string;
+		username: string | undefined;
+		password: string | undefined;
+		database: string | undefined;
 		ssl: any;
 	} {
 		const parsingResult = parse.parse(url);
 		const { host, port, user, password, database, ssl } = parsingResult;
 		return {
-			host,
-			port: parseInt(port, 10),
-			username: user,
-			password,
-			database,
+			host: host ?? undefined,
+			port: parseInt(port ?? '', 10),
+			username: user ?? undefined,
+			password: password ?? undefined,
+			database: database ?? undefined,
 			ssl,
 		};
 	}

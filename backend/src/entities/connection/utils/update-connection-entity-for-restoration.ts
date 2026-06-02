@@ -18,7 +18,7 @@ export async function updateConnectionEntityForRestoration(
 	toUpdate.ssl = connection_parameters.ssl;
 	toUpdate.isTestConnection = isTestConnection;
 	if (!isConnectionTypeAgent(connection_parameters.type)) {
-		toUpdate.masterEncryption = connection_parameters.masterEncryption;
+		toUpdate.masterEncryption = connection_parameters.masterEncryption ?? false;
 		toUpdate.host = connection_parameters.host;
 		toUpdate.port = connection_parameters.port;
 		toUpdate.username =
@@ -49,7 +49,7 @@ export async function updateConnectionEntityForRestoration(
 				: connection_parameters.sshUsername;
 		toUpdate.cert = connection_parameters.cert;
 		toUpdate.schema = connection_parameters.schema;
-		toUpdate.azure_encryption = connection_parameters.azure_encryption;
+		toUpdate.azure_encryption = connection_parameters.azure_encryption ?? false;
 		toUpdate.authSource =
 			connection_parameters.masterEncryption && masterPwd
 				? Encryptor.encryptDataMasterPwd(connection_parameters.authSource, masterPwd)

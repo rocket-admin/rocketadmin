@@ -7,7 +7,7 @@ export function buildRemoveUserFromGroupResultDs(group: GroupEntity): RemoveUser
 		id: group.id,
 		isMain: group.isMain,
 		title: group.title,
-		users: group.users.map((u: UserEntity) => {
+		users: (group.users ?? []).map((u: UserEntity) => {
 			return {
 				id: u.id,
 				email: u.email,

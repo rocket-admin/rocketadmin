@@ -25,7 +25,7 @@ export async function decryptConnectionCredentialsAsync(connection: ConnectionEn
 			connection.authSource = foundTestConnectionByType.authSource;
 			connection.sid = foundTestConnectionByType.sid;
 			connection.schema = foundTestConnectionByType.schema;
-			connection.azure_encryption = foundTestConnectionByType.azure_encryption;
+			connection.azure_encryption = foundTestConnectionByType.azure_encryption ?? false;
 		}
 	} else if (!isConnectionTypeAgent(connection.type)) {
 		connection.host = await Encryptor.decryptDataAsync(connection.host);

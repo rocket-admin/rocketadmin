@@ -219,8 +219,8 @@ export class TableController {
 				HttpStatus.BAD_REQUEST,
 			);
 		}
-		let parsedPage: number;
-		let parsedPerPage: number;
+		let parsedPage = 0;
+		let parsedPerPage = 0;
 		if (page && perPage) {
 			parsedPage = parseInt(page, 10);
 			parsedPerPage = parseInt(perPage, 10);
@@ -292,8 +292,8 @@ export class TableController {
 				HttpStatus.BAD_REQUEST,
 			);
 		}
-		let parsedPage: number;
-		let parsedPerPage: number;
+		let parsedPage = 0;
+		let parsedPerPage = 0;
 		if (page && perPage) {
 			parsedPage = parseInt(page, 10);
 			parsedPerPage = parseInt(perPage, 10);
@@ -743,8 +743,8 @@ export class TableController {
 				HttpStatus.BAD_REQUEST,
 			);
 		}
-		let parsedPage: number;
-		let parsedPerPage: number;
+		let parsedPage = 0;
+		let parsedPerPage = 0;
 		if (page && perPage) {
 			parsedPage = parseInt(page, 10);
 			parsedPerPage = parseInt(perPage, 10);
@@ -834,9 +834,17 @@ export class TableController {
 	): Promise<Array<Record<string, unknown>>> {
 		const primaryKeys = [];
 		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
-		let userEmail: string;
+		if (!connection) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_NOT_FOUND,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		let userEmail = '';
 		if (isConnectionTypeAgent(connection.type)) {
-			userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
+			userEmail = (await this._dbContext.userRepository.getUserEmailOrReturnNull(userId)) ?? '';
 		}
 		const dao = getDataAccessObject(connection);
 		if (uncached) {

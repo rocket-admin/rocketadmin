@@ -33,7 +33,7 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
 		const { request_domain, ipAddress, userAgent } = userData;
 		let { companyId } = userData;
 		const email = userData.email.toLowerCase();
-		let user: UserEntity = null;
+		let user: UserEntity | null = null;
 
 		if (companyId) {
 			user = await this._dbContext.userRepository.findOneUserByEmailAndCompanyId(email, companyId);
@@ -129,8 +129,8 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
 		email: string,
 		userId: string | null,
 		status: SignInStatusEnum,
-		ipAddress: string,
-		userAgent: string,
+		ipAddress?: string,
+		userAgent?: string,
 		failureReason?: string,
 	): Promise<void> {
 		try {

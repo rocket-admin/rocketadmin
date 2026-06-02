@@ -20,6 +20,7 @@ import { TableActionActivationService } from '../../table-actions/table-actions-
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { DeleteRowFromTableDs } from '../application/data-structures/delete-row-from-table.ds.js';
 import { DeletedRowFromTableDs } from '../application/data-structures/deleted-row-from-table.ds.js';
+import { buildCommonTableSettingsInput } from '../utils/build-common-table-settings-input.util.js';
 import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util.js';
 import { getUserEmailForAgent, validateConnection } from '../utils/validate-connection.util.js';
 import { IDeleteRowFromTable } from './table-use-cases.interface.js';
@@ -114,7 +115,10 @@ export class DeleteRowFromTableUseCase
 			tableName,
 		);
 
-		const builtTableSettings = buildDAOsTableSettingsDs(tableSettings, personalTableSettings);
+		const builtTableSettings = buildDAOsTableSettingsDs(
+			buildCommonTableSettingsInput(tableSettings),
+			personalTableSettings,
+		);
 
 		let oldRowData: Record<string, unknown>;
 		try {

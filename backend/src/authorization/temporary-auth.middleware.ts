@@ -28,7 +28,7 @@ export class TemporaryAuthMiddleware implements NestMiddleware {
 	) {}
 	async use(req: IRequestWithCognitoInfo, _res: Response, next: NextFunction): Promise<void> {
 		console.log(`temporary auth middleware triggered ->: ${new Date().toISOString()}`);
-		let token: string;
+		let token: string | undefined;
 		try {
 			token = req.cookies[Constants.JWT_COOKIE_KEY_NAME];
 		} catch (_e) {
@@ -48,6 +48,9 @@ export class TemporaryAuthMiddleware implements NestMiddleware {
 
 		try {
 			const jwtSecret = appConfig.auth.temporaryJwtSecret;
+			if (!jwtSecret) {
+				throw new UnauthorizedException('JWT verification failed');
+			}
 			const data = jwt.verify(token, jwtSecret) as jwt.JwtPayload;
 			const userId = data.id;
 			if (!userId) {

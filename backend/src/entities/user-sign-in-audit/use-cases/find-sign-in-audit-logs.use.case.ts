@@ -85,8 +85,8 @@ export class FindSignInAuditLogsUseCase
 			perPage = Constants.DEFAULT_LOG_ROWS_LIMIT;
 		}
 
-		let searchedDateFrom: Date = null;
-		let searchedDateTo: Date = null;
+		let searchedDateFrom: Date | null = null;
+		let searchedDateTo: Date | null = null;
 		if (dateFrom && dateTo) {
 			let dateFromParsed = Date.parse(dateFrom);
 			let dateToParsed = Date.parse(dateTo);

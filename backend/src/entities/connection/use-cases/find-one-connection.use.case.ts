@@ -51,7 +51,7 @@ export class FindOneConnectionUseCase
 		}
 
 		if (connection.masterEncryption && inputData.masterPwd) {
-			const isMaterPwdValid = await Encryptor.verifyUserPassword(inputData.masterPwd, connection.master_hash);
+			const isMaterPwdValid = await Encryptor.verifyUserPassword(inputData.masterPwd, connection.master_hash ?? '');
 			if (!isMaterPwdValid) {
 				throw new HttpException(
 					{
@@ -101,7 +101,7 @@ export class FindOneConnectionUseCase
 			inputData.connectionId,
 			accessLevel,
 		);
-		const connectionProperties: FoundConnectionPropertiesDs = connection.connection_properties
+		const connectionProperties: FoundConnectionPropertiesDs | null = connection.connection_properties
 			? buildFoundConnectionPropertiesDs(connection.connection_properties)
 			: null;
 		return {

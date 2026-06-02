@@ -29,6 +29,9 @@ export class OtpLoginUseCase extends AbstractUseCase<VerifyOtpDS, IToken> implem
 		if (!foundUser) {
 			throw new NotFoundException(Messages.USER_NOT_FOUND);
 		}
+		if (!foundUser.otpSecretKey) {
+			throw new BadRequestException(Messages.OTP_NOT_ENABLED);
+		}
 		const isValid = verifySync({
 			token: otpToken,
 			secret: foundUser.otpSecretKey,
@@ -56,8 +59,8 @@ export class OtpLoginUseCase extends AbstractUseCase<VerifyOtpDS, IToken> implem
 		email: string,
 		userId: string | null,
 		status: SignInStatusEnum,
-		ipAddress: string,
-		userAgent: string,
+		ipAddress?: string,
+		userAgent?: string,
 		failureReason?: string,
 	): Promise<void> {
 		try {

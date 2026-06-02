@@ -10,6 +10,9 @@ import { FoundSassCompanyInfoDS } from './data-structures/found-saas-company-inf
 export class SaasCompanyGatewayService extends BaseSaasGatewayService {
 	public async getCompanyInfo(companyId: string): Promise<FoundSassCompanyInfoDS | null> {
 		const result = await this.sendRequestToSaaS(`/webhook/company/${companyId}/`, 'GET', null);
+		if (!result) {
+			return null;
+		}
 		if (this.isDataFoundSassCompanyInfoDS(result.body)) {
 			return result.body;
 		}
@@ -18,6 +21,9 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
 
 	public async deleteCompany(companyId: string): Promise<SuccessResponse | null> {
 		const result = await this.sendRequestToSaaS(`/webhook/company/${companyId}/`, 'DELETE', null);
+		if (!result) {
+			return null;
+		}
 		if (result.status > 299) {
 			throw new HttpException(
 				{
@@ -37,6 +43,9 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
 
 	public async getCompanyIdByCustomDomain(customCompanyDomain: string): Promise<string | null> {
 		const result = await this.sendRequestToSaaS(`/webhook/company/domain/${customCompanyDomain}/`, 'GET', null);
+		if (!result) {
+			return null;
+		}
 		if (result.status > 299) {
 			throw new HttpException(
 				{
@@ -57,6 +66,9 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
 			return null;
 		}
 		const result = await this.sendRequestToSaaS(`/webhook/company/${companyId}/domain/`, 'GET', null);
+		if (!result) {
+			return null;
+		}
 		if (result.status > 299) {
 			throw new HttpException(
 				{
@@ -77,6 +89,9 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
 			return null;
 		}
 		const result = await this.sendRequestToSaaS(`/webhook/company/${companyId}/recount/`, 'POST', null);
+		if (!result) {
+			return null;
+		}
 		if (result.status > 299) {
 			throw new HttpException(
 				{

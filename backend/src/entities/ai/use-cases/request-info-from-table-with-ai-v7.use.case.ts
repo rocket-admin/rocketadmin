@@ -61,7 +61,7 @@ export class RequestInfoFromTableWithAIUseCaseV7
 		const systemPrompt = createDatabaseQuerySystemPrompt(
 			tableName,
 			foundConnection.type as ConnectionTypesEnum,
-			foundConnection.schema,
+			foundConnection.schema ?? undefined,
 		);
 
 		let chatIdForHeader: string | null = null;
@@ -362,9 +362,9 @@ export class RequestInfoFromTableWithAIUseCaseV7
 			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
 		}
 
-		let userEmail: string;
+		let userEmail = '';
 		if (isConnectionTypeAgent(foundConnection.type)) {
-			userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(user_id);
+			userEmail = (await this._dbContext.userRepository.getUserEmailOrReturnNull(user_id)) ?? '';
 		}
 
 		const connectionProperties =

@@ -9,5 +9,6 @@ export interface IMessage {
 }
 
 export interface IEmailGenerator {
-	generateEmail<TPayload>(email: AbstractEmailLetter<TPayload>): IMessage;
+	// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+	generateEmail<TPayload extends {}>(email: AbstractEmailLetter<TPayload>): IMessage;
 }

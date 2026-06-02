@@ -52,7 +52,7 @@ export async function validateCreateConnectionData(
 				}
 			}
 
-			if (port < 0 || port > 65535 || !port) errors.push(Messages.PORT_MISSING);
+			if (!port || port < 0 || port > 65535) errors.push(Messages.PORT_MISSING);
 			if (typeof port !== 'number') errors.push(Messages.PORT_FORMAT_INCORRECT);
 			if (typeof ssh !== 'boolean') errors.push(Messages.SSH_FORMAT_INCORRECT);
 			if (ssh) {

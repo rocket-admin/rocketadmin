@@ -20,8 +20,8 @@ export interface IFindSignInAuditLogsOptions {
 	order: QueryOrderingEnum;
 	page: number;
 	perPage: number;
-	dateFrom?: Date;
-	dateTo?: Date;
+	dateFrom?: Date | null;
+	dateTo?: Date | null;
 	searchedEmail?: string;
 	status?: SignInStatusEnum;
 	signInMethod?: SignInMethodEnum;

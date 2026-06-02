@@ -75,10 +75,13 @@ export class UpdateRuleUseCase
 		const updatedTableActions = await Promise.all(
 			tableActionsToUpdate.map((tableAction) => {
 				const foundTableAction = table_actions.find((action) => action.id === tableAction.action_id);
+				if (!foundTableAction) {
+					throw new BadRequestException(Messages.TABLE_ACTION_NOT_FOUND);
+				}
 				foundTableAction.method = tableAction.action_method;
-				foundTableAction.url = tableAction.action_url;
-				foundTableAction.slack_url = tableAction.action_slack_url;
-				foundTableAction.emails = tableAction.action_emails;
+				foundTableAction.url = tableAction.action_url ?? null;
+				foundTableAction.slack_url = tableAction.action_slack_url ?? null;
+				foundTableAction.emails = tableAction.action_emails ?? [];
 				return this._dbContext.tableActionRepository.saveNewOrUpdatedTableAction(foundTableAction);
 			}),
 		);
@@ -101,9 +104,12 @@ export class UpdateRuleUseCase
 		const updatedActionEvents = await Promise.all(
 			actionEventsToUpdate.map((actionEvent) => {
 				const foundActionEvent = action_events.find((event) => event.id === actionEvent.event_id);
+				if (!foundActionEvent) {
+					throw new BadRequestException(Messages.ACTION_EVENT_NOT_FOUND);
+				}
 				foundActionEvent.event = actionEvent.event;
 				foundActionEvent.title = actionEvent.event_title;
-				foundActionEvent.icon = actionEvent.icon;
+				foundActionEvent.icon = actionEvent.icon ?? null;
 				foundActionEvent.type = actionEvent.type;
 				foundActionEvent.require_confirmation = actionEvent.require_confirmation;
 				return this._dbContext.actionEventsRepository.saveNewOrUpdatedActionEvent(foundActionEvent);
@@ -130,9 +136,9 @@ export class UpdateRuleUseCase
 	): Promise<void> {
 		const companyWithUsers = await this._dbContext.companyInfoRepository.findUserCompanyWithUsers(userId);
 		const usersInCompanyEmails = companyWithUsers.users.map((user) => user.email);
-		const emailsFromEmailActions: Array<string> = table_actions_data.reduce((acc, table_action) => {
+		const emailsFromEmailActions: Array<string> = table_actions_data.reduce((acc: Array<string>, table_action) => {
 			if (table_action.action_method === TableActionMethodEnum.EMAIL) {
-				return acc.concat(table_action.action_emails);
+				return acc.concat(table_action.action_emails ?? []);
 			}
 			return acc;
 		}, []);
@@ -142,7 +148,7 @@ export class UpdateRuleUseCase
 		}
 		const emailsNotVerified = emailsFromEmailActions.filter((email) => {
 			const foundUser = companyWithUsers.users.find((user) => user.email === email);
-			if (foundUser.id === userId) {
+			if (!foundUser || foundUser.id === userId) {
 				return false;
 			}
 			return !foundUser.isActive;
@@ -161,6 +167,9 @@ export class UpdateRuleUseCase
 			connectionId,
 			masterPwd,
 		);
+		if (!foundConnection) {
+			throw new BadRequestException(Messages.CONNECTION_NOT_FOUND);
+		}
 		const dao = getDataAccessObject(foundConnection);
 		const tablesInConnection = await dao.getTablesFromDB();
 		const tableNamesInConnection = tablesInConnection.map((table) => table.tableName);
@@ -194,7 +203,7 @@ export class UpdateRuleUseCase
 			}
 
 			if (action.action_method === TableActionMethodEnum.URL) {
-				if (!isTest() && (!action.action_url || !ValidationHelper.isValidUrl(action.action_url))) {
+				if (!action.action_url || (!isTest() && !ValidationHelper.isValidUrl(action.action_url))) {
 					throw new BadRequestException(Messages.URL_INVALID);
 				}
 				const isUrlAllowed = await isActionUrlHostAllowed(action.action_url);

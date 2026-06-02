@@ -7,6 +7,9 @@ export async function processAWSConnection(createConnectionData: CreateConnectio
 		return createConnectionData;
 	}
 	const { host } = createConnectionData.connection_parameters;
+	if (!host) {
+		return createConnectionData;
+	}
 
 	if (host.endsWith('.rds.amazonaws.com')) {
 		createConnectionData.connection_parameters.ssl = true;

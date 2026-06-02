@@ -26,6 +26,10 @@ export class TurnstileService {
 			throw new BadRequestException('Turnstile token is required.');
 		}
 
+		if (!secretKey) {
+			throw new BadRequestException('Turnstile secret key is not configured.');
+		}
+
 		const formData = new URLSearchParams();
 		formData.append('secret', secretKey);
 		formData.append('response', token);

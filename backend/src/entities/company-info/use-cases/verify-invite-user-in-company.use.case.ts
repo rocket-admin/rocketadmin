@@ -43,6 +43,14 @@ export class VerifyInviteUserInCompanyAndConnectionGroupUseCase
 			groupId,
 			role,
 		} = foundInvitation;
+		if (!foundInvitation.invitedUserEmail) {
+			throw new HttpException(
+				{
+					message: Messages.VERIFICATION_LINK_INCORRECT,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
 		const invitedUserEmail = foundInvitation.invitedUserEmail.toLowerCase();
 		const foundUser = users.find((user) => user.email === invitedUserEmail);
 		if (foundUser?.isActive) {
@@ -71,7 +79,7 @@ export class VerifyInviteUserInCompanyAndConnectionGroupUseCase
 		const savedUser = await this._dbContext.userRepository.saveUserEntity(newUser);
 		if (groupId) {
 			const foundGroup = await this._dbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
-			if (!foundGroup) {
+			if (!foundGroup || !foundGroup.users) {
 				throw new HttpException(
 					{
 						message: Messages.GROUP_NOT_FOUND,

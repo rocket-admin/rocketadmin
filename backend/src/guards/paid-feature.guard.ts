@@ -21,8 +21,12 @@ export class PaidFeatureGuard implements CanActivate {
 	canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
 		return new Promise(async (resolve, reject) => {
 			const request: IRequestWithCognitoInfo = context.switchToHttp().getRequest();
-			const userId: string = request.decoded.sub;
-			let companyId: string = request.params?.companyId || request.params?.slug;
+			const userId: string | undefined = request.decoded.sub;
+			if (!userId) {
+				reject(new BadRequestException(Messages.COMPANY_ID_MISSING));
+				return;
+			}
+			let companyId: string | undefined = request.params?.companyId || request.params?.slug;
 			if (!companyId || !validateUuidByRegex(companyId)) {
 				companyId = request.body?.companyId;
 			}

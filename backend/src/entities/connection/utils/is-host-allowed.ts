@@ -26,11 +26,11 @@ export async function isHostAllowed(connectionData: HostCheckData): Promise<bool
 	return new Promise<boolean>((resolve, reject) => {
 		const testHosts = Constants.getTestConnectionsHostNamesArr();
 		if (!connectionData.ssh) {
-			dns.lookup(connectionData.host, (err, address) => {
+			dns.lookup(connectionData.host ?? '', (err, address) => {
 				if (err) {
 					return reject(err);
 				}
-				if (ipRangeCheck(address, Constants.FORBIDDEN_HOSTS) && !testHosts.includes(connectionData.host)) {
+				if (ipRangeCheck(address, Constants.FORBIDDEN_HOSTS) && !testHosts.includes(connectionData.host ?? '')) {
 					resolve(false);
 				} else {
 					resolve(true);
@@ -41,7 +41,7 @@ export async function isHostAllowed(connectionData: HostCheckData): Promise<bool
 				if (err) {
 					return reject(err);
 				}
-				if (ipRangeCheck(address, Constants.FORBIDDEN_HOSTS) && !testHosts.includes(connectionData.host)) {
+				if (ipRangeCheck(address, Constants.FORBIDDEN_HOSTS) && !testHosts.includes(connectionData.host ?? '')) {
 					resolve(false);
 				} else {
 					resolve(true);

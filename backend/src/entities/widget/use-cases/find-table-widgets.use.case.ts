@@ -25,7 +25,15 @@ export class FindTableWidgetsUseCase
 	protected async implementation(inputData: FindTableWidgetsDs): Promise<Array<FoundTableWidgetsDs>> {
 		const { connectionId, masterPwd, tableName, userId } = inputData;
 		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
-		const tablesInConnection = await findTablesInConnectionUtil(connection, userId, null);
+		if (!connection) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_NOT_FOUND,
+				},
+				HttpStatus.NOT_FOUND,
+			);
+		}
+		const tablesInConnection = await findTablesInConnectionUtil(connection, userId, '');
 		if (!tablesInConnection.includes(tableName)) {
 			throw new HttpException(
 				{

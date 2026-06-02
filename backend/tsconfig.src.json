@@ -4,6 +4,7 @@
 		"noImplicitAny": true,
 		"strictBindCallApply": true,
 		"strictFunctionTypes": true,
+		"strictNullChecks": true,
 		"alwaysStrict": true
 	},
 	"include": ["src"],

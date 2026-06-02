@@ -8,8 +8,8 @@ export const VerificationString = createParamDecorator(
 	(paramName: SlugVerificationType, ctx: ExecutionContext): string => {
 		const request: IRequestWithCognitoInfo = ctx.switchToHttp().getRequest();
 		// eslint-disable-next-line security/detect-object-injection
-		const verificationString: string = request.params?.[paramName] || request.params?.slug;
-		const isValidString = ValidationHelper.isValidVerificationString(verificationString);
+		const verificationString: string | undefined = request.params?.[paramName] || request.params?.slug;
+		const isValidString = !!verificationString && ValidationHelper.isValidVerificationString(verificationString);
 		if (isValidString) {
 			return verificationString;
 		}

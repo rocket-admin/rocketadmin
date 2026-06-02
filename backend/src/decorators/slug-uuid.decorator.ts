@@ -41,9 +41,9 @@ export const SlugUuid = createParamDecorator(
 			throw new BadRequestException(Messages.UUID_INVALID);
 		}
 		// eslint-disable-next-line security/detect-object-injection
-		const uuId: string = request.params?.[parameterName];
+		const uuId: string | undefined = request.params?.[parameterName];
 
-		if (ValidationHelper.isValidUUID(uuId) || ValidationHelper.isValidNanoId(uuId)) {
+		if (uuId && (ValidationHelper.isValidUUID(uuId) || ValidationHelper.isValidNanoId(uuId))) {
 			return uuId;
 		}
 		throw new BadRequestException(Messages.UUID_INVALID);

@@ -88,9 +88,9 @@ export class GeneratePanelPositionWithAiUseCase
 
 		const dao = getDataAccessObject(foundConnection);
 
-		let userEmail: string;
+		let userEmail = '';
 		if (isConnectionTypeAgent(foundConnection.type)) {
-			userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
+			userEmail = (await this._dbContext.userRepository.getUserEmailOrReturnNull(userId)) ?? '';
 		}
 
 		const tools = createDashboardGenerationTools();
@@ -344,7 +344,7 @@ IMPORTANT GUIDELINES:
 
 			const correctionPrompt = this.buildQueryCorrectionPrompt(
 				currentQuery,
-				explainResult.success ? explainResult.result : explainResult.error,
+				(explainResult.success ? explainResult.result : explainResult.error) ?? '',
 				!explainResult.success,
 				connectionType,
 				generatedPanel.name,

@@ -8,8 +8,8 @@ export class FoundTableCategoriesWithTablesRo {
 	@ApiProperty({ type: String })
 	category_name: string;
 
-	@ApiProperty({ type: String })
-	category_color: string;
+	@ApiProperty({ type: String, nullable: true })
+	category_color: string | null;
 
 	@ApiProperty({ isArray: true, type: FoundTableDs })
 	tables: Array<FoundTableDs>;

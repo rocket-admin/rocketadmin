@@ -50,16 +50,33 @@ export class UpdateUsersCompanyRolesUseCase
 
 		const clearUsersWithNewRoles: Array<{ userId: string; role: UserRoleEnum }> = companyUsersToUpdateIds.map(
 			(userId) => {
+				const receivedUser = users.find((user) => user.userId === userId);
+				if (!receivedUser) {
+					throw new HttpException(
+						{
+							message: Messages.NO_USERS_FOUND_TO_UPDATE_ROLES,
+						},
+						HttpStatus.NOT_FOUND,
+					);
+				}
 				return {
 					userId: userId,
-					role: users.find((user) => user.userId === userId).role,
+					role: receivedUser.role,
 				};
 			},
 		);
 
 		const usersWithUpdatedRoles = companyUsersToUpdate.map((user) => {
-			const newUserRole = clearUsersWithNewRoles.find((userWithNewRole) => userWithNewRole.userId === user.id).role;
-			user.role = newUserRole;
+			const userWithNewRole = clearUsersWithNewRoles.find((userWithNewRole) => userWithNewRole.userId === user.id);
+			if (!userWithNewRole) {
+				throw new HttpException(
+					{
+						message: Messages.NO_USERS_FOUND_TO_UPDATE_ROLES,
+					},
+					HttpStatus.NOT_FOUND,
+				);
+			}
+			user.role = userWithNewRole.role;
 			return user;
 		});
 

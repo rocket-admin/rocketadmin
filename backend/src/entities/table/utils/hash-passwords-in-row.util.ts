@@ -13,6 +13,9 @@ export async function hashPasswordsInRowUtil(
 
 	for (const widget of passwordWidgets) {
 		try {
+			if (!widget.widget_params) {
+				continue;
+			}
 			const widgetParams = JSON5.parse(widget.widget_params) as unknown as IPasswordWidgetParams;
 			const fieldValue = row[widget.field_name];
 

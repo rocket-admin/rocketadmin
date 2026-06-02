@@ -39,7 +39,7 @@ export class CreateConnectionUseCase
 		const {
 			creation_info: { authorId, masterPwd },
 		} = createConnectionData;
-		const connectionAuthor: UserEntity = await this._dbContext.userRepository.findOneUserById(authorId);
+		const connectionAuthor: UserEntity | null = await this._dbContext.userRepository.findOneUserById(authorId);
 
 		if (!connectionAuthor) {
 			throw new InternalServerErrorException(Messages.USER_NOT_FOUND);
@@ -93,7 +93,7 @@ export class CreateConnectionUseCase
 				connectionCopy = Encryptor.decryptConnectionCredentials(connectionCopy, masterPwd);
 			}
 
-			let token: string;
+			let token: string | null = null;
 			if (isConnectionTypeAgent(savedConnection.type)) {
 				token = await this._dbContext.agentRepository.createNewAgentForConnectionAndReturnToken(savedConnection);
 			}
@@ -117,8 +117,10 @@ export class CreateConnectionUseCase
 				const connection = await this._dbContext.connectionRepository.findOne({
 					where: { id: savedConnection.id },
 				});
-				connection.company = foundUserCompany;
-				await this._dbContext.connectionRepository.saveUpdatedConnection(connection);
+				if (connection) {
+					connection.company = foundUserCompany;
+					await this._dbContext.connectionRepository.saveUpdatedConnection(connection);
+				}
 			}
 			await slackPostMessage(
 				Messages.USER_CREATED_CONNECTION(connectionAuthor.email, createConnectionData.connection_parameters.type),

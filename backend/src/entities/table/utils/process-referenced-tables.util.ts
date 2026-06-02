@@ -23,7 +23,7 @@ export async function filterReferencedTablesByPermission(
 						return canRead ? ref : null;
 					}),
 				)
-			).filter(Boolean);
+			).filter((ref): ref is { table_name: string; column_name: string } => ref !== null);
 		}),
 	);
 }
@@ -31,7 +31,7 @@ export async function filterReferencedTablesByPermission(
 export async function enrichReferencedTablesWithDisplayNames(
 	referencedTables: Array<ReferencedTableNamesAndColumnsDS>,
 	connectionId: string,
-	findTableSettings: (connectionId: string, tableName: string) => Promise<{ display_name?: string } | null>,
+	findTableSettings: (connectionId: string, tableName: string) => Promise<{ display_name?: string | null } | null>,
 ): Promise<Array<ReferencedTableNamesAndColumnsDs>> {
 	const allTableNames = new Set<string>();
 	for (const rt of referencedTables) {

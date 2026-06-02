@@ -44,7 +44,7 @@ export class PreviewConnectionDiagramUseCase
 
 		const dao = getDataAccessObject(connection);
 		const userEmail = isConnectionTypeAgent(connection.type)
-			? await this._dbContext.userRepository.getUserEmailOrReturnNull(userId)
+			? ((await this._dbContext.userRepository.getUserEmailOrReturnNull(userId)) ?? undefined)
 			: undefined;
 
 		await validateSchemaCache(dao, userEmail);
@@ -86,9 +86,9 @@ export class PreviewConnectionDiagramUseCase
 		userEmail: string | undefined,
 	): Promise<MermaidTableInput> {
 		const [structure, primaryColumns, foreignKeys] = await Promise.all([
-			this.safe<Array<TableStructureDS>>(() => dao.getTableStructure(tableName, userEmail), []),
-			this.safe<Array<PrimaryKeyDS>>(() => dao.getTablePrimaryColumns(tableName, userEmail), []),
-			this.safe<Array<ForeignKeyDS>>(() => dao.getTableForeignKeys(tableName, userEmail), []),
+			this.safe<Array<TableStructureDS>>(() => dao.getTableStructure(tableName, userEmail ?? ''), []),
+			this.safe<Array<PrimaryKeyDS>>(() => dao.getTablePrimaryColumns(tableName, userEmail ?? ''), []),
+			this.safe<Array<ForeignKeyDS>>(() => dao.getTableForeignKeys(tableName, userEmail ?? ''), []),
 		]);
 		return { tableName, structure, primaryColumns, foreignKeys };
 	}

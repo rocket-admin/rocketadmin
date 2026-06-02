@@ -26,8 +26,11 @@ export class ActionEventTriggerGuard implements CanActivate {
 	async canActivate(context: ExecutionContext): Promise<boolean> {
 		const request: IRequestWithCognitoInfo = context.switchToHttp().getRequest();
 		const cognitoUserName = request.decoded.sub;
-		const connectionId: string = request.params?.connectionId;
-		const eventId: string = request.params?.eventId;
+		if (!cognitoUserName) {
+			throw new ForbiddenException(Messages.DONT_HAVE_PERMISSIONS);
+		}
+		const connectionId: string | undefined = request.params?.connectionId;
+		const eventId: string | undefined = request.params?.eventId;
 
 		if (!connectionId || (!validateUuidByRegex(connectionId) && !ValidationHelper.isValidNanoId(connectionId))) {
 			throw new BadRequestException(Messages.CONNECTION_ID_MISSING);

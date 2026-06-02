@@ -2,7 +2,7 @@ import { DataSource } from 'typeorm';
 import { BaseType } from '../../common/data-injection.tokens.js';
 import { configService } from '../config/config.service.js';
 
-let appDataSourceCache: DataSource = null;
+let appDataSourceCache: DataSource | null = null;
 
 export const databaseProviders = [
 	{

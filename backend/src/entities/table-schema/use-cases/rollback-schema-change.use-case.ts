@@ -55,7 +55,7 @@ export class RollbackSchemaChangeUseCase
 
 		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(
 			change.connectionId,
-			masterPassword,
+			masterPassword ?? '',
 		);
 		if (!connection) {
 			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);

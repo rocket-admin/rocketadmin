@@ -40,6 +40,9 @@ export class GetS3UploadUrlUseCase
 			throw new HttpException({ message: 'S3 widget not configured for this field' }, HttpStatus.BAD_REQUEST);
 		}
 
+		if (!widget.widget_params) {
+			throw new HttpException({ message: 'S3 widget params are not configured' }, HttpStatus.BAD_REQUEST);
+		}
 		const params: BucketWidgetParams =
 			typeof widget.widget_params === 'string' ? JSON5.parse(widget.widget_params) : widget.widget_params;
 

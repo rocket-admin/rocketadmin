@@ -3,7 +3,7 @@ import { CreateConnectionPropertiesDs } from '../application/data-structures/cre
 import { FoundConnectionPropertiesDs } from '../application/data-structures/found-connection-properties.ds.js';
 
 export interface IFindConnectionProperties {
-	execute(connectionId: string, inTransaction: InTransactionEnum): Promise<FoundConnectionPropertiesDs>;
+	execute(connectionId: string, inTransaction: InTransactionEnum): Promise<FoundConnectionPropertiesDs | null>;
 }
 
 export interface ICreateConnectionProperties {

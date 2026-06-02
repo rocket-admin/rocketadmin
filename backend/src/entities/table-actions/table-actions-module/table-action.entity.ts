@@ -20,8 +20,8 @@ export class TableActionEntity {
 	@PrimaryGeneratedColumn('uuid')
 	id: string;
 
-	@Column({ default: null })
-	url: string;
+	@Column({ type: 'varchar', default: null })
+	url: string | null;
 
 	@Column('enum', {
 		nullable: false,
@@ -30,8 +30,8 @@ export class TableActionEntity {
 	})
 	method!: TableActionMethodEnum;
 
-	@Column({ default: null })
-	slack_url: string;
+	@Column({ type: 'varchar', default: null })
+	slack_url: string | null;
 
 	@Column('varchar', { array: true, default: {} })
 	emails: string[];

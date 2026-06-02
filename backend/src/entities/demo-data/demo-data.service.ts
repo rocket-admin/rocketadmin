@@ -6,6 +6,7 @@ import { AccessLevelEnum } from '../../enums/access-level.enum.js';
 import { FilterCriteriaEnum } from '../../enums/filter-criteria.enum.js';
 import { TableActionEventEnum } from '../../enums/table-action-event-enum.js';
 import { TableActionTypeEnum } from '../../enums/table-action-type.enum.js';
+import { WidgetTypeEnum } from '../../enums/widget-type.enum.js';
 import { isTest } from '../../helpers/app/is-test.js';
 import { Constants } from '../../helpers/constants/constants.js';
 import { getErrorMessage } from '../../helpers/get-error-message.js';
@@ -45,6 +46,7 @@ export class DemoDataService {
 		} catch (error) {
 			console.error(`Error during demo data creation for user with ID ${userId}:`, error);
 			await slackPostMessage(`Error during demo data creation for user with ID ${userId}: ${getErrorMessage(error)}`);
+			return [];
 		}
 	}
 
@@ -293,7 +295,7 @@ export class DemoDataService {
 			const createEventWidgetsData: Array<CreateTableWidgetDs> = [
 				{
 					field_name: 'organizer_id',
-					widget_type: '' as any,
+					widget_type: undefined,
 					name: 'Organizer',
 					description: '',
 					widget_params: null,
@@ -301,7 +303,7 @@ export class DemoDataService {
 				},
 				{
 					field_name: 'space_id',
-					widget_type: '' as any,
+					widget_type: undefined,
 					name: 'Space',
 					description: '',
 					widget_params: null,
@@ -309,7 +311,7 @@ export class DemoDataService {
 				},
 				{
 					field_name: 'start_time',
-					widget_type: '' as any,
+					widget_type: undefined,
 					name: 'Starts at',
 					description: '',
 					widget_params: null,
@@ -317,7 +319,7 @@ export class DemoDataService {
 				},
 				{
 					field_name: 'end_time',
-					widget_type: '' as any,
+					widget_type: undefined,
 					name: 'Ends at',
 					description: '',
 					widget_params: null,
@@ -325,7 +327,7 @@ export class DemoDataService {
 				},
 				{
 					field_name: 'title',
-					widget_type: '' as any,
+					widget_type: undefined,
 					name: 'Event name',
 					description: '',
 					widget_params: null,
@@ -333,7 +335,7 @@ export class DemoDataService {
 				},
 				{
 					field_name: 'image_url',
-					widget_type: 'Image' as any,
+					widget_type: WidgetTypeEnum.Image,
 					name: 'Poster',
 					description: '',
 					widget_params:
@@ -353,7 +355,7 @@ export class DemoDataService {
 			const createEventAttendeeWidgetsData: Array<CreateTableWidgetDs> = [
 				{
 					field_name: 'event_id',
-					widget_type: '' as any,
+					widget_type: undefined,
 					name: 'Event',
 					description: '',
 					widget_params: null,
@@ -361,7 +363,7 @@ export class DemoDataService {
 				},
 				{
 					field_name: 'user_id',
-					widget_type: '' as any,
+					widget_type: undefined,
 					name: 'User',
 					description: '',
 					widget_params: null,
@@ -369,7 +371,7 @@ export class DemoDataService {
 				},
 				{
 					field_name: 'status',
-					widget_type: 'Select' as any,
+					widget_type: WidgetTypeEnum.Select,
 					name: '',
 					description: '',
 					widget_params:
@@ -390,7 +392,7 @@ export class DemoDataService {
 			const createLocationWidgetsData: Array<CreateTableWidgetDs> = [
 				{
 					field_name: 'country',
-					widget_type: 'Country' as any,
+					widget_type: WidgetTypeEnum.Country,
 					name: '',
 					description: '',
 					widget_params:
@@ -411,7 +413,7 @@ export class DemoDataService {
 			const createMembershipWidgetsData: Array<CreateTableWidgetDs> = [
 				{
 					field_name: 'user_id',
-					widget_type: '' as any,
+					widget_type: undefined,
 					name: 'User',
 					description: '',
 					widget_params: '',
@@ -419,7 +421,7 @@ export class DemoDataService {
 				},
 				{
 					field_name: 'space_id',
-					widget_type: '' as any,
+					widget_type: undefined,
 					name: 'Space',
 					description: '',
 					widget_params: '',
@@ -439,7 +441,7 @@ export class DemoDataService {
 			const createSpaceWidgetsData: Array<CreateTableWidgetDs> = [
 				{
 					field_name: 'type',
-					widget_type: 'Select' as any,
+					widget_type: WidgetTypeEnum.Select,
 					name: '',
 					description: '',
 					widget_params:
@@ -448,7 +450,7 @@ export class DemoDataService {
 				},
 				{
 					field_name: 'location_id',
-					widget_type: '' as any,
+					widget_type: undefined,
 					name: 'Location',
 					description: '',
 					widget_params: null,
@@ -456,7 +458,7 @@ export class DemoDataService {
 				},
 				{
 					field_name: 'price_per_hour',
-					widget_type: 'Money' as any,
+					widget_type: WidgetTypeEnum.Money,
 					name: '',
 					description: '',
 					widget_params:
@@ -476,7 +478,7 @@ export class DemoDataService {
 			const createUserWidgetsData: Array<CreateTableWidgetDs> = [
 				{
 					field_name: 'role',
-					widget_type: 'Select' as any,
+					widget_type: WidgetTypeEnum.Select,
 					name: '',
 					description: '',
 					widget_params:
@@ -485,7 +487,7 @@ export class DemoDataService {
 				},
 				{
 					field_name: 'phone',
-					widget_type: 'Phone' as any,
+					widget_type: WidgetTypeEnum.Phone,
 					name: '',
 					description: '',
 					widget_params:
@@ -923,7 +925,7 @@ export class DemoDataService {
 			const createCertificatesWidgetsData: Array<CreateTableWidgetDs> = [
 				{
 					field_name: 'user_id',
-					widget_type: '' as any,
+					widget_type: undefined,
 					name: 'User',
 					description: '',
 					widget_params: null,
@@ -931,7 +933,7 @@ export class DemoDataService {
 				},
 				{
 					field_name: 'certificate_url',
-					widget_type: 'URL' as any,
+					widget_type: WidgetTypeEnum.URL,
 					name: '',
 					description: '',
 					widget_params:
@@ -940,7 +942,7 @@ export class DemoDataService {
 				},
 				{
 					field_name: 'course_id',
-					widget_type: '' as any,
+					widget_type: undefined,
 					name: 'Course',
 					description: "hi i'm a description",
 					widget_params: null,
@@ -959,7 +961,7 @@ export class DemoDataService {
 			const createCourseMentorsWidgetsData: Array<CreateTableWidgetDs> = [
 				{
 					field_name: 'course_id',
-					widget_type: '' as any,
+					widget_type: undefined,
 					name: 'Course',
 					description: '',
 					widget_params: '',
@@ -967,7 +969,7 @@ export class DemoDataService {
 				},
 				{
 					field_name: 'user_id',
-					widget_type: '' as any,
+					widget_type: undefined,
 					name: 'User',
 					description: '',
 					widget_params: null,
@@ -987,7 +989,7 @@ export class DemoDataService {
 			const createCourseModulesWidgetsData: Array<CreateTableWidgetDs> = [
 				{
 					field_name: 'course_id',
-					widget_type: '' as any,
+					widget_type: undefined,
 					name: 'Course',
 					description: '',
 					widget_params: '',
@@ -1007,7 +1009,7 @@ export class DemoDataService {
 			const createCoursesWidgetsData: Array<CreateTableWidgetDs> = [
 				{
 					field_name: 'price',
-					widget_type: 'Money' as any,
+					widget_type: WidgetTypeEnum.Money,
 					name: '',
 					description: '',
 					widget_params:
@@ -1028,7 +1030,7 @@ export class DemoDataService {
 			const createEnrollmentsWidgetsData: Array<CreateTableWidgetDs> = [
 				{
 					field_name: 'user_id',
-					widget_type: '' as any,
+					widget_type: undefined,
 					name: 'User',
 					description: '',
 					widget_params: null,
@@ -1036,7 +1038,7 @@ export class DemoDataService {
 				},
 				{
 					field_name: 'course_id',
-					widget_type: '' as any,
+					widget_type: undefined,
 					name: 'Course',
 					description: '',
 					widget_params: null,
@@ -1044,7 +1046,7 @@ export class DemoDataService {
 				},
 				{
 					field_name: 'progress',
-					widget_type: 'Range' as any,
+					widget_type: WidgetTypeEnum.Range,
 					name: '',
 					description: '',
 					widget_params:
@@ -1065,7 +1067,7 @@ export class DemoDataService {
 			const createLessonsWidgetsData: Array<CreateTableWidgetDs> = [
 				{
 					field_name: 'video_url',
-					widget_type: 'URL' as any,
+					widget_type: WidgetTypeEnum.URL,
 					name: '',
 					description: '',
 					widget_params:
@@ -1074,7 +1076,7 @@ export class DemoDataService {
 				},
 				{
 					field_name: 'module_id',
-					widget_type: '' as any,
+					widget_type: undefined,
 					name: 'Module',
 					description: '',
 					widget_params: null,
@@ -1082,7 +1084,7 @@ export class DemoDataService {
 				},
 				{
 					field_name: 'content_url',
-					widget_type: 'URL' as any,
+					widget_type: WidgetTypeEnum.URL,
 					name: '',
 					description: '',
 					widget_params:
@@ -1103,7 +1105,7 @@ export class DemoDataService {
 			const createQuizAttemptsWidgetsData: Array<CreateTableWidgetDs> = [
 				{
 					field_name: 'quiz_id',
-					widget_type: '' as any,
+					widget_type: undefined,
 					name: 'Quiz',
 					description: '',
 					widget_params: '',
@@ -1111,7 +1113,7 @@ export class DemoDataService {
 				},
 				{
 					field_name: 'user_id',
-					widget_type: '' as any,
+					widget_type: undefined,
 					name: 'User',
 					description: '',
 					widget_params: null,
@@ -1131,7 +1133,7 @@ export class DemoDataService {
 			const createQuizzesWidgetsData: Array<CreateTableWidgetDs> = [
 				{
 					field_name: 'lesson_id',
-					widget_type: '' as any,
+					widget_type: undefined,
 					name: 'Lesson',
 					description: '',
 					widget_params: '',
@@ -1151,7 +1153,7 @@ export class DemoDataService {
 			const createUsersWidgetsData: Array<CreateTableWidgetDs> = [
 				{
 					field_name: 'role',
-					widget_type: 'Select' as any,
+					widget_type: WidgetTypeEnum.Select,
 					name: '',
 					description: '',
 					widget_params:
@@ -1160,7 +1162,7 @@ export class DemoDataService {
 				},
 				{
 					field_name: 'password_hash',
-					widget_type: 'Password' as any,
+					widget_type: WidgetTypeEnum.Password,
 					name: 'Password',
 					description: '',
 					widget_params:

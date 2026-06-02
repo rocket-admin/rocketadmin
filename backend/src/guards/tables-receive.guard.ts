@@ -18,7 +18,11 @@ export class TablesReceiveGuard implements CanActivate {
 		return new Promise(async (resolve, reject) => {
 			const request: IRequestWithCognitoInfo = context.switchToHttp().getRequest();
 			const cognitoUserName = request.decoded.sub;
-			const connectionId: string = request.params?.slug || request.params?.connectionId;
+			if (!cognitoUserName) {
+				reject(new BadRequestException(Messages.CONNECTION_NOT_FOUND));
+				return;
+			}
+			const connectionId: string | undefined = request.params?.slug || request.params?.connectionId;
 			if (!connectionId || (!validateUuidByRegex(connectionId) && !ValidationHelper.isValidNanoId(connectionId))) {
 				reject(new BadRequestException(Messages.CONNECTION_ID_MISSING));
 				return;

@@ -10,7 +10,7 @@ export class UsualLoginDs {
 	@ApiProperty()
 	companyId: string;
 
-	gclidValue: string;
+	gclidValue: string | null;
 
 	request_domain: string;
 

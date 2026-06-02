@@ -30,13 +30,16 @@ export class TableLogsService {
 		private readonly connectionPropertiesRepository: Repository<ConnectionPropertiesEntity>,
 	) {}
 
-	public async crateAndSaveNewLogUtil(logData: CreateLogRecordDs): Promise<CreatedLogRecordDs> {
+	public async crateAndSaveNewLogUtil(logData: CreateLogRecordDs): Promise<CreatedLogRecordDs | null> {
 		const { userId, connection, table_name, old_data, row } = logData;
 		const isAuditEnabled = await this.isTableAuditEnabledInConnectionProperties(connection.id);
 		if (!isAuditEnabled) {
-			return;
+			return null;
 		}
 		const foundUser = await this.userRepository.findOne({ where: { id: userId } });
+		if (!foundUser) {
+			return null;
+		}
 		const { email } = foundUser;
 		const tableSettingsQb = this.tableSettingsRepository
 			.createQueryBuilder('tableLogs')
@@ -126,12 +129,15 @@ export class TableLogsService {
 		connection: ConnectionEntity,
 		table_name: string,
 		operationType: LogOperationTypeEnum,
-	): Promise<Array<CreatedLogRecordDs>> {
+	): Promise<Array<CreatedLogRecordDs> | null> {
 		const isAuditEnabled = await this.isTableAuditEnabledInConnectionProperties(connection.id);
 		if (!isAuditEnabled) {
-			return;
+			return null;
 		}
 		const foundUser = await this.userRepository.findOne({ where: { id: userId } });
+		if (!foundUser) {
+			return null;
+		}
 		const { email } = foundUser;
 		const tableSettingsQb = this.tableSettingsRepository
 			.createQueryBuilder('tableLogs')

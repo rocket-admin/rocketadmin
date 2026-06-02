@@ -25,7 +25,7 @@ export async function validateFiltersData(
 	if (errors.length > 0) {
 		return errors;
 	}
-	const tableStructure = await dao.getTableStructure(table_name, null);
+	const tableStructure = await dao.getTableStructure(table_name, '');
 	const tableColumnNames = tableStructure.map((el) => el.column_name);
 
 	for (const column_name in filters) {
