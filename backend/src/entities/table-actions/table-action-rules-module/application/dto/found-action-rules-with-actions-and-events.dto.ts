@@ -33,8 +33,8 @@ export class FoundActionEventDTO {
 	@ApiProperty({ enum: TableActionTypeEnum })
 	type: TableActionTypeEnum;
 
-	@ApiProperty()
-	title: string;
+	@ApiProperty({ type: String, nullable: true })
+	title: string | null;
 
 	@ApiProperty({ type: String, nullable: true })
 	icon: string | null;

@@ -28,7 +28,11 @@ export class PanelReadGuard implements CanActivate {
 		return new Promise(async (resolve, reject) => {
 			const request: IRequestWithCognitoInfo = context.switchToHttp().getRequest();
 			const cognitoUserName = request.decoded.sub;
-			let connectionId: string = request.params?.slug || request.params?.connectionId;
+			if (!cognitoUserName) {
+				reject(new ForbiddenException(Messages.DONT_HAVE_PERMISSIONS));
+				return;
+			}
+			let connectionId: string | undefined = request.params?.slug || request.params?.connectionId;
 			if (!connectionId || (!validateUuidByRegex(connectionId) && !ValidationHelper.isValidNanoId(connectionId))) {
 				connectionId = request.query.connectionId;
 			}
@@ -37,7 +41,7 @@ export class PanelReadGuard implements CanActivate {
 				return;
 			}
 
-			const panelId: string = request.params?.queryId;
+			const panelId: string | undefined = request.params?.queryId;
 
 			try {
 				// For list-all requests (no panelId), verify user belongs to the connection.

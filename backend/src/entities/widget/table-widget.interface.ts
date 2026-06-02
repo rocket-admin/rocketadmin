@@ -12,8 +12,8 @@ export class TableWidgetRO {
 	@ApiProperty({ enum: WidgetTypeEnum })
 	widget_type?: WidgetTypeEnum;
 
-	@ApiProperty()
-	widget_params: string;
+	@ApiProperty({ nullable: true })
+	widget_params: string | null;
 
 	@ApiProperty()
 	name?: string;

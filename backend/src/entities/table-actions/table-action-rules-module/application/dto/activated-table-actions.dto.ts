@@ -10,8 +10,8 @@ export class ActionActivationResultsStatusesDTO {
 }
 
 export class ActivatedTableActionsDTO {
-	@ApiProperty({ required: false, type: String })
-	location?: string | undefined;
+	@ApiProperty({ required: false, type: String, nullable: true })
+	location?: string | null;
 
 	@ApiProperty({ type: ActionActivationResultsStatusesDTO, isArray: true })
 	activationResults: Array<ActionActivationResultsStatusesDTO>;

@@ -12,9 +12,9 @@ export class RegisteredUserDs {
 	@ApiProperty()
 	token: IToken;
 
-	@ApiProperty()
-	name: string;
+	@ApiProperty({ nullable: true, type: String })
+	name: string | null;
 
 	@ApiProperty()
-	externalRegistrationProvider: ExternalRegistrationProviderEnum;
+	externalRegistrationProvider: ExternalRegistrationProviderEnum | null;
 }

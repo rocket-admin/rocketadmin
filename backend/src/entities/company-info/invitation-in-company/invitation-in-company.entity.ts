@@ -17,16 +17,16 @@ export class InvitationInCompanyEntity {
 	@PrimaryGeneratedColumn('uuid')
 	id: string;
 
-	@Column({ default: null })
+	@Column({ type: 'varchar', default: null })
 	verification_string: string | null;
 
-	@Column({ default: null })
+	@Column({ type: 'varchar', default: null })
 	groupId: string | null;
 
-	@Column({ default: null })
+	@Column({ type: 'varchar', default: null })
 	inviterId: string | null;
 
-	@Column({ default: null })
+	@Column({ type: 'varchar', default: null })
 	invitedUserEmail: string | null;
 
 	@Column('enum', {

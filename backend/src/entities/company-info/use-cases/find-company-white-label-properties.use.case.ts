@@ -2,6 +2,7 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
+import { SubscriptionLevelEnum } from '../../../enums/subscription-level.enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
@@ -27,13 +28,13 @@ export class FindCompanyWhiteLabelPropertiesUseCase
 			throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
 		}
 
-		let companySubscriptionLevel = null;
+		let companySubscriptionLevel: SubscriptionLevelEnum | null = null;
 		if (isSaaS()) {
 			const companyInfoFromSaas = await this.saasCompanyGatewayService.getCompanyInfo(companyId);
 			if (!companyInfoFromSaas) {
 				throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
 			}
-			companySubscriptionLevel = companyInfoFromSaas.subscriptionLevel;
+			companySubscriptionLevel = companyInfoFromSaas.subscriptionLevel ?? null;
 		}
 
 		return {

@@ -71,7 +71,7 @@ export class SaasRegisterDemoUserAccountUseCase
 			createdAt: savedUser.createdAt,
 			isActive: savedUser.isActive,
 			email: savedUser.email,
-			intercom_hash: null,
+			intercom_hash: undefined,
 			name: savedUser.name,
 			role: savedUser.role,
 			is_2fa_enabled: false,

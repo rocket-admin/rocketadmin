@@ -5,7 +5,7 @@ import { TableWidgetEntity } from '../../../widget/table-widget.entity.js';
 
 export class CreateTableSettingsDs {
 	@ApiProperty({ isArray: true, type: 'string' })
-	autocomplete_columns: Array<string>;
+	autocomplete_columns?: Array<string>;
 
 	connection_id: string;
 
@@ -13,52 +13,52 @@ export class CreateTableSettingsDs {
 	custom_fields?: Array<CustomFieldsEntity>;
 
 	@ApiProperty()
-	display_name: string;
+	display_name?: string | null;
 
 	@ApiProperty({ isArray: true, type: 'string' })
-	excluded_fields: Array<string>;
+	excluded_fields?: Array<string>;
 
 	@ApiProperty({ isArray: true, type: 'string' })
-	identification_fields: Array<string>;
+	identification_fields?: Array<string>;
 
 	@ApiProperty()
-	identity_column: string;
+	identity_column?: string | null;
 
-	masterPwd: string;
-
-	@ApiProperty({ isArray: true, type: 'string' })
-	readonly_fields: Array<string>;
+	masterPwd?: string | null;
 
 	@ApiProperty({ isArray: true, type: 'string' })
-	search_fields: Array<string>;
+	readonly_fields?: Array<string>;
 
 	@ApiProperty({ isArray: true, type: 'string' })
-	sortable_by: Array<string>;
+	search_fields?: Array<string>;
 
 	@ApiProperty({ isArray: true, type: 'string' })
-	sensitive_fields: Array<string>;
+	sortable_by?: Array<string>;
+
+	@ApiProperty({ isArray: true, type: 'string' })
+	sensitive_fields?: Array<string> | null;
 
 	table_name: string;
 
 	@ApiProperty({ isArray: true })
 	table_widgets?: Array<TableWidgetEntity>;
 
-	userId: string;
+	userId?: string | null;
 
 	@ApiProperty({ isArray: true })
 	table_actions?: Array<TableActionEntity>;
 
 	@ApiProperty()
-	can_delete: boolean;
+	can_delete?: boolean;
 
 	@ApiProperty()
-	can_update: boolean;
+	can_update?: boolean;
 
 	@ApiProperty()
-	can_add: boolean;
+	can_add?: boolean;
 
 	@ApiProperty()
-	icon: string;
+	icon?: string | null;
 
 	@ApiProperty()
 	allow_csv_export: boolean;

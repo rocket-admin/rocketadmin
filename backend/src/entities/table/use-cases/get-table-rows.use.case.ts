@@ -30,10 +30,11 @@ import { buildCreatedTableFilterRO } from '../../table-filters/utils/build-creat
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';
 import { PersonalTableSettingsEntity } from '../../table-settings/personal-table-settings/personal-table-settings.entity.js';
-import { FoundTableRowsDs } from '../application/data-structures/found-table-rows.ds.js';
+import { AutocompleteFieldsDs, FoundTableRowsDs } from '../application/data-structures/found-table-rows.ds.js';
 import { GetTableRowsDs } from '../application/data-structures/get-table-rows.ds.js';
 import { FilteringFieldsDs } from '../table-datastructures.js';
 import { attachForeignColumnNames } from '../utils/attach-foreign-column-names.util.js';
+import { buildCommonTableSettingsInput } from '../utils/build-common-table-settings-input.util.js';
 import { buildTableSettingsForResponse } from '../utils/build-table-settings-for-response.util.js';
 import { extractForeignKeysFromWidgets } from '../utils/extract-foreign-keys-from-widgets.util.js';
 import { filterForeignKeysByReadPermission } from '../utils/filter-foreign-keys-by-permission.util.js';
@@ -108,7 +109,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 			]);
 			const filteringFields: Array<FilteringFieldsDs> = isObjectEmpty(filters)
 				? findFilteringFieldsUtil(query, tableStructure)
-				: parseFilteringFieldsFromBodyData(filters, tableStructure);
+				: parseFilteringFieldsFromBodyData(filters ?? {}, tableStructure);
 
 			const orderingField = findOrderingFieldUtil(query, tableStructure, tableSettings);
 
@@ -126,12 +127,15 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 
 			const { autocomplete, referencedColumn } = query;
 
-			const autocompleteFields =
+			const autocompleteFields: AutocompleteFieldsDs =
 				autocomplete && referencedColumn
 					? findAutocompleteFieldsUtil(query, tableStructure, tableSettings, referencedColumn)
-					: undefined;
+					: { fields: [], value: '' };
 
-			const builtDAOsTableSettings = buildDAOsTableSettingsDs(tableSettings, personalTableSettings);
+			const builtDAOsTableSettings = buildDAOsTableSettingsDs(
+				buildCommonTableSettingsInput(tableSettings),
+				personalTableSettings,
+			);
 			if (orderingField) {
 				builtDAOsTableSettings.ordering_field = orderingField.field;
 				builtDAOsTableSettings.ordering = orderingField.value;
@@ -270,7 +274,10 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 
 				const identityPromises = Array.from(foreignKeyDataMap.values()).map(async ({ foreignKey, values }) => {
 					const foreignTableSettings = foreignTableSettingsMap.get(foreignKey.referenced_table_name);
-					const builtDAOsForeignTableSettings = buildDAOsTableSettingsDs(foreignTableSettings, {} as any);
+					const builtDAOsForeignTableSettings = buildDAOsTableSettingsDs(
+						buildCommonTableSettingsInput(foreignTableSettings),
+						null,
+					);
 					const identityColumns = await this.getBatchedIdentityColumns(
 						Array.from(values),
 						foreignKey,

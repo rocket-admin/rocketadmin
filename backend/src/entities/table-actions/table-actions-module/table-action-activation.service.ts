@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import axios, { AxiosResponse } from 'axios';
@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
 import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
 import { TableActionMethodEnum } from '../../../enums/table-action-method-enum.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { actionSlackPostMessage } from '../../../helpers/slack/action-slack-post-message.js';
@@ -26,7 +27,7 @@ export type ActionActivationResult = {
 export type UserInfoMessageData = {
 	userId: string;
 	email: string;
-	userName: string;
+	userName: string | null;
 };
 
 @Injectable()
@@ -48,6 +49,14 @@ export class TableActionActivationService {
 		const foundUser = await this.userRepository.findOne({
 			where: { id: userId },
 		});
+		if (!foundUser) {
+			throw new HttpException(
+				{
+					message: Messages.USER_NOT_FOUND,
+				},
+				HttpStatus.NOT_FOUND,
+			);
+		}
 		const userInfoMessageData: UserInfoMessageData = {
 			userId,
 			email: foundUser.email,
@@ -103,6 +112,9 @@ export class TableActionActivationService {
 		const slackMessage = this.generateMessageContent(userInfo, triggerOperation, tableName, primaryKeyValuesArray);
 
 		try {
+			if (!tableAction.slack_url) {
+				throw new Error('Slack URL is not configured for this action');
+			}
 			await actionSlackPostMessage(slackMessage, tableAction.slack_url);
 			operationResult = OperationResultStatusEnum.successfully;
 		} catch (_e) {
@@ -181,9 +193,25 @@ export class TableActionActivationService {
 			$$_actionId: tableAction.id,
 			$$_tableName: tableName,
 		});
+		if (!foundConnection.signing_key) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_NOT_FOUND,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
 		const autoadminSignatureHeader = Encryptor.hashDataHMACexternalKey(foundConnection.signing_key, actionRequestBody);
 
-		let result: AxiosResponse<any, any>;
+		if (!tableAction.url) {
+			throw new HttpException(
+				{
+					message: Messages.URL_INVALID,
+				},
+				HttpStatus.BAD_REQUEST,
+			);
+		}
+		let result: AxiosResponse<any, any> | undefined;
 		try {
 			result = await axios.post(tableAction.url, actionRequestBody, {
 				headers: { 'Rocketadmin-Signature': autoadminSignatureHeader, 'Content-Type': 'application/json' },
@@ -191,9 +219,9 @@ export class TableActionActivationService {
 				validateStatus: (status) => status <= 599,
 			});
 			if (!isSaaS()) {
-				console.info('HTTP action result data', result.data);
-				console.info('HTTP action result status', result.status);
-				console.info('HTTP action result headers', result.headers);
+				console.info('HTTP action result data', result?.data);
+				console.info('HTTP action result status', result?.status);
+				console.info('HTTP action result headers', result?.headers);
 			}
 		} catch (error) {
 			if (axios.isAxiosError(error)) {
@@ -212,6 +240,14 @@ export class TableActionActivationService {
 				);
 			}
 			throw error;
+		}
+		if (!result) {
+			throw new HttpException(
+				{
+					message: 'An error occurred',
+				},
+				HttpStatus.INTERNAL_SERVER_ERROR,
+			);
 		}
 		const operationStatusCode = result.status;
 		if (operationStatusCode >= 200 && operationStatusCode < 300) {
@@ -284,7 +320,7 @@ export class TableActionActivationService {
 		tableName: string,
 	): Promise<Array<Record<string, unknown>>> {
 		const dataAccessObject = getDataAccessObject(foundConnection);
-		const tablePrimaryKeys = await dataAccessObject.getTablePrimaryColumns(tableName, null);
+		const tablePrimaryKeys = await dataAccessObject.getTablePrimaryColumns(tableName, '');
 		const primaryKeyValuesArray: Array<Record<string, unknown>> = [];
 		for (const primaryKeyInBody of request_body) {
 			const pKeysObj: Record<string, unknown> = {};
@@ -323,7 +359,7 @@ export class TableActionActivationService {
 
 	private generateMessageContent(
 		userInfo: UserInfoMessageData,
-		triggerOperation: TableActionEventEnum,
+		triggerOperation: TableActionEventEnum | undefined,
 		tableName: string,
 		primaryKeyValuesArray: Array<Record<string, unknown>>,
 	): string {

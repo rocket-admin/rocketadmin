@@ -81,7 +81,7 @@ export class ApproveBatchSchemaChangesUseCase
 
 		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(
 			items[0].connectionId,
-			masterPassword,
+			masterPassword ?? '',
 		);
 		if (!connection) {
 			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);

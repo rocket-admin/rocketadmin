@@ -61,7 +61,7 @@ export class TestDbQueryUseCase extends AbstractUseCase<TestDbQueryDs, TestDbQue
 
 		const startTime = Date.now();
 
-		const executionResult = await dao.executeRawQuery(query_text, tableName, userEmail);
+		const executionResult = await dao.executeRawQuery(query_text, tableName ?? '', userEmail ?? '');
 		const processedResult = this.processQueryResult(executionResult, foundConnection.type as ConnectionTypesEnum);
 
 		const executionTime = Date.now() - startTime;

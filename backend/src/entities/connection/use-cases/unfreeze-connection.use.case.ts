@@ -1,7 +1,8 @@
-import { Inject, Injectable, Scope } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { UnfreezeConnectionDs } from '../application/data-structures/unfreeze-connection.ds.js';
 import { IUnfreezeConnection } from './use-cases.interfaces.js';
@@ -23,6 +24,9 @@ export class UnfreezeConnectionUseCase
 		const { connectionId } = inputData;
 
 		const connection = await this._dbContext.connectionRepository.findOne({ where: { id: connectionId } });
+		if (!connection) {
+			throw new BadRequestException(Messages.CONNECTION_NOT_FOUND);
+		}
 
 		// if (isSaaS()) {
 		//   const userCompany = await this._dbContext.companyInfoRepository.findCompanyInfoByUserId(userId);

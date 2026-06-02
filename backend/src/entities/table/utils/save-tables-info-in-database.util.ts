@@ -14,7 +14,7 @@ export function buildTableFieldInfoEntity(
 		newTableFieldInfoEntity.character_maximum_length = structure.character_maximum_length.toString();
 	}
 	newTableFieldInfoEntity.allow_null = structure.allow_null;
-	newTableFieldInfoEntity.column_default = structure.column_default;
+	newTableFieldInfoEntity.column_default = structure.column_default ?? '';
 	newTableFieldInfoEntity.data_type_params = structure.data_type_params;
 	newTableFieldInfoEntity.udt_name = structure.udt_name;
 	newTableFieldInfoEntity.table_info = tableInfo;

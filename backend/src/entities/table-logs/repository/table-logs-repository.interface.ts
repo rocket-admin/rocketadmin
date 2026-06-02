@@ -19,13 +19,13 @@ export interface ITableLogsRepository {
 export interface IFindLogsOptions {
 	connectionId: string;
 	currentUserId: string;
-	dateFrom: Date;
-	dateTo: Date;
+	dateFrom: Date | null;
+	dateTo: Date | null;
 	order: QueryOrderingEnum;
 	page: number;
 	perPage: number;
 	searchedEmail: string;
-	tableName: string;
+	tableName: string | null;
 	userConnectionEdit: boolean;
 	userInGroupsIds: Array<string>;
 	logOperationType: LogOperationTypeEnum;

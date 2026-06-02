@@ -13,8 +13,8 @@ export class SecretListItemDS {
 	companyId: string;
 	createdAt: Date;
 	updatedAt: Date;
-	lastAccessedAt?: Date;
-	expiresAt?: Date;
+	lastAccessedAt?: Date | null;
+	expiresAt?: Date | null;
 	masterEncryption: boolean;
 }
 

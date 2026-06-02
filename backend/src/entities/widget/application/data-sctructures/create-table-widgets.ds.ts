@@ -12,7 +12,7 @@ export class CreateTableWidgetDs {
 	description: string;
 	field_name: string;
 	name: string;
-	widget_options: string;
-	widget_params: string;
-	widget_type: WidgetTypeEnum;
+	widget_options: string | null;
+	widget_params: string | null;
+	widget_type?: WidgetTypeEnum;
 }

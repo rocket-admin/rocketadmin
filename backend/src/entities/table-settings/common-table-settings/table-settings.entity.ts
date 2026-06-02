@@ -26,8 +26,8 @@ export class TableSettingsEntity {
 	@Column({ default: null })
 	table_name: string;
 
-	@Column({ default: null })
-	display_name: string;
+	@Column({ type: 'varchar', default: null })
+	display_name: string | null;
 
 	@Column('varchar', { array: true, default: {} })
 	search_fields: string[];
@@ -42,7 +42,7 @@ export class TableSettingsEntity {
 	identification_fields: string[];
 
 	@Column('int', { default: null })
-	list_per_page: number;
+	list_per_page: number | null;
 
 	@Column('enum', {
 		nullable: true,
@@ -52,10 +52,10 @@ export class TableSettingsEntity {
 	ordering!: QueryOrderingEnum;
 
 	@Column('varchar', { default: null })
-	ordering_field: string;
+	ordering_field: string | null;
 
-	@Column({ default: null })
-	identity_column: string;
+	@Column({ type: 'varchar', default: null })
+	identity_column: string | null;
 
 	@Column('varchar', { array: true, default: {} })
 	readonly_fields: string[];
@@ -67,7 +67,7 @@ export class TableSettingsEntity {
 	autocomplete_columns: string[];
 
 	@Column('varchar', { array: true, default: null })
-	columns_view: string[];
+	columns_view: string[] | null;
 
 	@Column({ default: true, type: 'boolean' })
 	can_delete: boolean;
@@ -85,10 +85,10 @@ export class TableSettingsEntity {
 	allow_csv_import: boolean;
 
 	@Column('varchar', { array: true, default: null })
-	sensitive_fields: string[];
+	sensitive_fields: string[] | null;
 
 	@Column('varchar', { default: null })
-	icon: string;
+	icon: string | null;
 
 	@CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
 	created_at: Date;

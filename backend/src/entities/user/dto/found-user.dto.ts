@@ -26,8 +26,8 @@ export class FoundUserDto {
 	@ApiProperty({ required: false, type: String })
 	intercom_hash?: string;
 
-	@ApiProperty()
-	name: string;
+	@ApiProperty({ nullable: true, type: String })
+	name: string | null;
 
 	@ApiProperty()
 	is_2fa_enabled: boolean;
@@ -39,7 +39,7 @@ export class FoundUserDto {
 	company?: CompanyIdDS;
 
 	@ApiProperty({ enum: ExternalRegistrationProviderEnum })
-	externalRegistrationProvider: ExternalRegistrationProviderEnum;
+	externalRegistrationProvider: ExternalRegistrationProviderEnum | null;
 
 	@ApiProperty({ default: true })
 	show_test_connections: boolean;
@@ -61,8 +61,8 @@ export class SimpleFoundUserInfoDs {
 	@ApiProperty()
 	suspended: boolean;
 
-	@ApiProperty()
-	name: string;
+	@ApiProperty({ nullable: true, type: String })
+	name: string | null;
 
 	@ApiProperty()
 	is_2fa_enabled: boolean;
@@ -71,7 +71,7 @@ export class SimpleFoundUserInfoDs {
 	role: UserRoleEnum;
 
 	@ApiProperty({ enum: ExternalRegistrationProviderEnum })
-	externalRegistrationProvider: ExternalRegistrationProviderEnum;
+	externalRegistrationProvider: ExternalRegistrationProviderEnum | null;
 }
 
 export class UserGroupMembershipDto {
@@ -86,11 +86,11 @@ export class UserConnectionMembershipDto {
 	@ApiProperty()
 	id: string;
 
-	@ApiProperty()
-	title: string;
+	@ApiProperty({ required: false })
+	title?: string;
 
-	@ApiProperty()
-	database: string;
+	@ApiProperty({ required: false, nullable: true })
+	database?: string | null;
 
 	@ApiProperty({ type: UserConnectionMembershipDto, isArray: true })
 	groups: Array<UserGroupMembershipDto>;

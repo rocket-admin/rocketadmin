@@ -8,8 +8,8 @@ export class SignInAuditEntity {
 	@PrimaryGeneratedColumn('uuid')
 	id: string;
 
-	@Column({ default: null })
-	email: string;
+	@Column({ type: 'varchar', default: null })
+	email: string | null;
 
 	@Column('enum', {
 		nullable: false,
@@ -25,14 +25,14 @@ export class SignInAuditEntity {
 	})
 	signInMethod: SignInMethodEnum;
 
-	@Column({ default: null })
-	ipAddress: string;
+	@Column({ type: 'varchar', default: null })
+	ipAddress: string | null;
 
-	@Column({ default: null })
-	userAgent: string;
+	@Column({ type: 'varchar', default: null })
+	userAgent: string | null;
 
-	@Column({ default: null })
-	failureReason: string;
+	@Column({ type: 'varchar', default: null })
+	failureReason: string | null;
 
 	@Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
 	createdAt: Date;
@@ -41,6 +41,6 @@ export class SignInAuditEntity {
 	@JoinColumn({ name: 'userId' })
 	user: Relation<UserEntity>;
 
-	@Column({ nullable: true })
-	userId: string;
+	@Column({ type: 'uuid', nullable: true })
+	userId: string | null;
 }

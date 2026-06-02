@@ -11,6 +11,9 @@ export function processUuidsInRowUtil(
 
 	for (const widget of uuidWidgets) {
 		try {
+			if (!widget.widget_params) {
+				continue;
+			}
 			const widgetParams = JSON5.parse(widget.widget_params);
 			if (row[widget.field_name] && Buffer.isBuffer(widgetParams)) {
 				row[widget.field_name] = uuidStringify(widgetParams);

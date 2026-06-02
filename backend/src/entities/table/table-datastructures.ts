@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { FilterCriteriaEnum } from '../../enums/filter-criteria.enum.js';
 import { TableAccessLevelsDs } from '../permission/application/data-structures/create-permissions.ds.js';
 import { FoundActionEventDTO } from '../table-actions/table-action-rules-module/application/dto/found-action-rules-with-actions-and-events.dto.js';
+import { TableWidgetEntity } from '../widget/table-widget.entity.js';
 import { TableWidgetRO } from '../widget/table-widget.interface.js';
 import { TableSettingsInRowsDS } from './application/data-structures/found-table-rows.ds.js';
 
@@ -95,7 +96,7 @@ export class TableStructureDs {
 	list_fields?: Array<string>;
 
 	@ApiProperty()
-	display_name: string;
+	display_name: string | null;
 
 	@ApiProperty({ isArray: true })
 	excluded_fields: Array<string>;
@@ -106,7 +107,7 @@ export class ReferencedByTableInfoDs {
 	table_name: string;
 
 	@ApiProperty()
-	display_name: string;
+	display_name: string | null;
 
 	@ApiProperty()
 	column_name: string;
@@ -136,8 +137,8 @@ export class TableRowRODs {
 	@ApiProperty({ isArray: true })
 	readonly_fields: Array<string>;
 
-	@ApiProperty({ isArray: true, type: TableWidgetRO })
-	table_widgets: Array<TableWidgetRO>;
+	@ApiProperty({ isArray: true, type: TableWidgetEntity })
+	table_widgets: Array<TableWidgetEntity>;
 
 	@ApiProperty({ isArray: true })
 	list_fields: Array<string>;
@@ -152,10 +153,10 @@ export class TableRowRODs {
 	table_actions?: Array<FoundActionEventDTO>;
 
 	@ApiProperty()
-	identity_column: string;
+	identity_column: string | null;
 
 	@ApiProperty()
-	display_name: string;
+	display_name: string | null;
 
 	@ApiProperty()
 	table_access_level?: TableAccessLevelsDs;

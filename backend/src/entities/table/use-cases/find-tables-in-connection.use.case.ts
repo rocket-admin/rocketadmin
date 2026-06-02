@@ -42,7 +42,7 @@ export class FindTablesInConnectionUseCase
 
 	protected async implementation(inputData: FindTablesDs): Promise<Array<FoundTableDs>> {
 		const { connectionId, hiddenTablesOption, masterPwd, userId } = inputData;
-		let connection: ConnectionEntity;
+		let connection: ConnectionEntity | null = null;
 		try {
 			connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
 		} catch (error) {
@@ -75,15 +75,15 @@ export class FindTablesInConnectionUseCase
 			);
 		}
 		const dao = getDataAccessObject(connection);
-		let userEmail: string;
+		let userEmail = '';
 		let operationResult = false;
 		if (isConnectionTypeAgent(connection.type)) {
-			userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
+			userEmail = (await this._dbContext.userRepository.getUserEmailOrReturnNull(userId)) ?? '';
 		}
 
 		await validateSchemaCache(dao, userEmail);
 
-		let tables: Array<TableDS>;
+		let tables: Array<TableDS> = [];
 		try {
 			tables = await dao.getTablesFromDB(userEmail);
 			operationResult = true;
@@ -123,9 +123,10 @@ export class FindTablesInConnectionUseCase
 		const tableSettings = await this._dbContext.tableSettingsRepository.findTableSettingsInConnectionPure(connectionId);
 		let tablesRO = addDisplayNamesForTables(tableSettings, tablesWithPermissions);
 		if (excludedTables?.hidden_tables?.length) {
+			const hiddenTables = excludedTables.hidden_tables;
 			if (!hiddenTablesOption) {
 				tablesRO = tablesRO.filter((tableRO) => {
-					return !excludedTables.hidden_tables.includes(tableRO.table);
+					return !hiddenTables.includes(tableRO.table);
 				});
 			} else {
 				const userConnectionEdit = await this.cedarPermissions.checkUserConnectionEdit(userId, connectionId);

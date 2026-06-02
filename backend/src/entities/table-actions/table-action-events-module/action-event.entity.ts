@@ -23,11 +23,11 @@ export class ActionEventsEntity {
 	})
 	type!: TableActionTypeEnum;
 
-	@Column({ default: null })
-	title: string;
+	@Column({ type: 'varchar', default: null })
+	title: string | null;
 
-	@Column({ default: null })
-	icon: string;
+	@Column({ type: 'varchar', default: null })
+	icon: string | null;
 
 	@Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
 	created_at: Date;

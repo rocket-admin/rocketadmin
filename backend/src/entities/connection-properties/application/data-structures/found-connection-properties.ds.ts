@@ -5,14 +5,14 @@ export class FoundConnectionPropertiesDs {
 	@ApiProperty()
 	id: string;
 
-	@ApiProperty({ isArray: true, type: String })
-	hidden_tables: Array<string>;
+	@ApiProperty({ isArray: true, type: String, nullable: true })
+	hidden_tables: Array<string> | null;
 
-	@ApiProperty()
-	connectionId: string;
+	@ApiProperty({ required: false })
+	connectionId?: string;
 
-	@ApiProperty()
-	logo_url: string;
+	@ApiProperty({ nullable: true, type: String })
+	logo_url: string | null;
 
 	@ApiProperty()
 	primary_color: string;
@@ -20,11 +20,11 @@ export class FoundConnectionPropertiesDs {
 	@ApiProperty()
 	secondary_color: string;
 
-	@ApiProperty()
-	hostname: string;
+	@ApiProperty({ nullable: true, type: String })
+	hostname: string | null;
 
-	@ApiProperty()
-	company_name: string;
+	@ApiProperty({ nullable: true, type: String })
+	company_name: string | null;
 
 	@ApiProperty()
 	tables_audit: boolean;
@@ -35,8 +35,8 @@ export class FoundConnectionPropertiesDs {
 	@ApiProperty()
 	allow_ai_requests: boolean;
 
-	@ApiProperty()
-	default_showing_table: string;
+	@ApiProperty({ nullable: true, type: String })
+	default_showing_table: string | null;
 
 	@ApiProperty({ isArray: true })
 	table_categories: Array<FoundTableCategoryRo>;

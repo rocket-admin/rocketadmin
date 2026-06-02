@@ -9,7 +9,7 @@ export class UserSessionSettingsEntity {
 	userId: string;
 
 	@Column({ default: null, type: 'json' })
-	userSettings: string;
+	userSettings: string | null;
 
 	@Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
 	createdAt: Date;

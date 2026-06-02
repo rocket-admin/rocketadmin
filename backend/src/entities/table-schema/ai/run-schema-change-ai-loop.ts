@@ -229,8 +229,8 @@ async function executeInspectionToolCalls(
 			if (tc.name === GET_TABLE_STRUCTURE_TOOL_NAME) {
 				const tableName = tc.arguments.tableName as string;
 				if (!tableName) throw new Error('Missing argument "tableName"');
-				const structure = await dao.getTableStructure(tableName, userEmail);
-				const foreignKeys = await dao.getTableForeignKeys(tableName, userEmail);
+				const structure = await dao.getTableStructure(tableName, userEmail ?? '');
+				const foreignKeys = await dao.getTableForeignKeys(tableName, userEmail ?? '');
 				result = encodeToToon({ tableName, structure, foreignKeys });
 			} else if (TERMINAL_PROPOSAL_TOOL_NAMES.has(tc.name)) {
 				result = encodeError({

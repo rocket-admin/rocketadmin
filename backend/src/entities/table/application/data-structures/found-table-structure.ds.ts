@@ -5,13 +5,13 @@ export class FullTableStructureDs {
 	column_name: string;
 
 	@ApiProperty()
-	column_default: string | number;
+	column_default: string | number | null;
 
 	@ApiProperty()
 	data_type: string;
 
 	@ApiProperty()
-	data_type_params: string;
+	data_type_params?: string;
 
 	@ApiProperty()
 	isExcluded: boolean;
@@ -26,5 +26,5 @@ export class FullTableStructureDs {
 	allow_null: boolean;
 
 	@ApiProperty()
-	character_maximum_length: number;
+	character_maximum_length: number | null;
 }

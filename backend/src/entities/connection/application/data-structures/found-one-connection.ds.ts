@@ -18,5 +18,5 @@ export class FoundOneConnectionDs {
 	groupManagement: boolean;
 
 	@ApiProperty({ type: FoundConnectionPropertiesDs })
-	connectionProperties: FoundConnectionPropertiesDs;
+	connectionProperties: FoundConnectionPropertiesDs | null;
 }

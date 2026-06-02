@@ -17,7 +17,7 @@ export function formFullTableStructure(
 			data_type_params: data_type_params || undefined,
 			isExcluded: excluded_fields?.includes(column_name) || false,
 			isSearched: search_fields?.includes(column_name) || false,
-			auto_increment: checkFieldAutoincrement(column_default, extra),
+			auto_increment: checkFieldAutoincrement(column_default ?? '', extra),
 			allow_null,
 			character_maximum_length,
 		}),

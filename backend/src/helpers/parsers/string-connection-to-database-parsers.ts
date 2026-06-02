@@ -5,11 +5,11 @@ import { CreateConnectionDto } from '../../entities/connection/application/dto/c
 export const parseTestPostgresConnectionString = (connectionString: string): Partial<CreateConnectionDto> => {
 	const url = new URL(connectionString);
 	const config: Partial<CreateConnectionDto> = {};
-	config.host = url.hostname || null;
+	config.host = url.hostname || undefined;
 	config.port = parseInt(url.port, 10) || 5432;
-	config.username = url.username || null;
-	config.password = url.password || null;
-	config.database = url.pathname.split('/')[1] || null;
+	config.username = url.username || undefined;
+	config.password = url.password || undefined;
+	config.database = url.pathname.split('/')[1] || undefined;
 	config.schema = 'public';
 	config.type = ConnectionTypesEnum.postgres;
 	config.title = 'School of fish';
@@ -17,7 +17,7 @@ export const parseTestPostgresConnectionString = (connectionString: string): Par
 	config.ssh = url.searchParams.get('ssh') === 'true';
 	config.privateSSHKey = url.searchParams.get('privateSSHKey') || undefined;
 	config.sshHost = url.searchParams.get('sshHost') || undefined;
-	config.sshPort = parseInt(url.searchParams.get('sshPort'), 10) || undefined;
+	config.sshPort = parseInt(url.searchParams.get('sshPort') ?? '', 10) || undefined;
 	config.sshUsername = url.searchParams.get('sshUsername') || undefined;
 	config.ssl = url.searchParams.get('ssl') === 'true';
 	config.cert = url.searchParams.get('cert') || undefined;
@@ -28,18 +28,18 @@ export const parseTestPostgresConnectionString = (connectionString: string): Par
 export const parseTestMySQLConnectionString = (connectionString: string): Partial<CreateConnectionDto> => {
 	const url = new URL(connectionString);
 	const config: Partial<CreateConnectionDto> = {};
-	config.host = url.hostname || null;
+	config.host = url.hostname || undefined;
 	config.port = parseInt(url.port, 10) || 3306;
-	config.username = url.username || null;
-	config.password = url.password || null;
-	config.database = url.pathname.split('/')[1] || null;
-	config.type = ConnectionTypesEnum.mysql || null;
+	config.username = url.username || undefined;
+	config.password = url.password || undefined;
+	config.database = url.pathname.split('/')[1] || undefined;
+	config.type = ConnectionTypesEnum.mysql;
 	config.title = 'Coworking hub';
 	config.isTestConnection = true;
 	config.ssh = url.searchParams.get('ssh') === 'true';
 	config.privateSSHKey = url.searchParams.get('privateSSHKey') || undefined;
 	config.sshHost = url.searchParams.get('sshHost') || undefined;
-	config.sshPort = parseInt(url.searchParams.get('sshPort'), 10) || undefined;
+	config.sshPort = parseInt(url.searchParams.get('sshPort') ?? '', 10) || undefined;
 	config.sshUsername = url.searchParams.get('sshUsername') || undefined;
 	config.ssl = url.searchParams.get('ssl') === 'true';
 	config.cert = url.searchParams.get('cert') || undefined;
@@ -50,18 +50,18 @@ export const parseTestMySQLConnectionString = (connectionString: string): Partia
 export const parseTestMSSQLConnectionString = (connectionString: string): Partial<CreateConnectionDto> => {
 	const url = new URL(connectionString);
 	const config: Partial<CreateConnectionDto> = {};
-	config.host = url.hostname || null;
+	config.host = url.hostname || undefined;
 	config.port = parseInt(url.port, 10) || 1433;
-	config.username = url.username || null;
-	config.password = url.password || null;
-	config.database = url.pathname.split('/')[1] || null;
+	config.username = url.username || undefined;
+	config.password = url.password || undefined;
+	config.database = url.pathname.split('/')[1] || undefined;
 	config.type = ConnectionTypesEnum.mssql;
 	config.title = 'Online shop';
 	config.isTestConnection = true;
 	config.ssh = url.searchParams.get('ssh') === 'true';
 	config.privateSSHKey = url.searchParams.get('privateSSHKey') || undefined;
 	config.sshHost = url.searchParams.get('sshHost') || undefined;
-	config.sshPort = parseInt(url.searchParams.get('sshPort'), 10) || undefined;
+	config.sshPort = parseInt(url.searchParams.get('sshPort') ?? '', 10) || undefined;
 	config.sshUsername = url.searchParams.get('sshUsername') || undefined;
 	config.ssl = url.searchParams.get('ssl') === 'true';
 	config.cert = url.searchParams.get('cert') || undefined;
@@ -74,11 +74,11 @@ export const parseTestMSSQLConnectionString = (connectionString: string): Partia
 export const parseTestOracleDBConnectionString = (connectionString: string): Partial<CreateConnectionDto> => {
 	const url = new URL(connectionString);
 	const config: Partial<CreateConnectionDto> = {};
-	config.host = url.hostname || null;
+	config.host = url.hostname || undefined;
 	config.port = parseInt(url.port, 10) || 1521;
-	config.username = url.username || null;
-	config.password = url.password || null;
-	config.sid = url.pathname.split('/')[1] || null;
+	config.username = url.username || undefined;
+	config.password = url.password || undefined;
+	config.sid = url.pathname.split('/')[1] || undefined;
 	const params = new URLSearchParams(url.search);
 	config.database = params.get('database') || undefined;
 	config.type = ConnectionTypesEnum.oracledb;
@@ -88,7 +88,7 @@ export const parseTestOracleDBConnectionString = (connectionString: string): Par
 	config.ssh = params.get('ssh') === 'true';
 	config.privateSSHKey = params.get('privateSSHKey') || undefined;
 	config.sshHost = params.get('sshHost') || undefined;
-	config.sshPort = parseInt(params.get('sshPort'), 10) || undefined;
+	config.sshPort = parseInt(params.get('sshPort') ?? '', 10) || undefined;
 	config.sshUsername = params.get('sshUsername') || undefined;
 	config.ssl = params.get('ssl') === 'true';
 	config.cert = params.get('cert') || undefined;
@@ -99,11 +99,11 @@ export const parseTestOracleDBConnectionString = (connectionString: string): Par
 export const parseTestMongoDBConnectionString = (connectionString: string): Partial<CreateConnectionDto> => {
 	const url = new URL(connectionString);
 	const config: Partial<CreateConnectionDto> = {};
-	config.host = url.hostname || null;
+	config.host = url.hostname || undefined;
 	config.port = parseInt(url.port, 10) || 27017;
-	config.username = url.username || null;
-	config.password = url.password || null;
-	config.database = url.pathname.split('/')[1] || null;
+	config.username = url.username || undefined;
+	config.password = url.password || undefined;
+	config.database = url.pathname.split('/')[1] || undefined;
 	config.type = ConnectionTypesEnum.mongodb;
 	config.title = 'Movie theater';
 	const authSource = url.searchParams.get('authSource');
@@ -114,7 +114,7 @@ export const parseTestMongoDBConnectionString = (connectionString: string): Part
 	config.ssh = url.searchParams.get('ssh') === 'true';
 	config.privateSSHKey = url.searchParams.get('privateSSHKey') || undefined;
 	config.sshHost = url.searchParams.get('sshHost') || undefined;
-	config.sshPort = parseInt(url.searchParams.get('sshPort'), 10) || undefined;
+	config.sshPort = parseInt(url.searchParams.get('sshPort') ?? '', 10) || undefined;
 	config.sshUsername = url.searchParams.get('sshUsername') || undefined;
 	config.ssl = url.searchParams.get('ssl') === 'true';
 	config.cert = url.searchParams.get('cert') || undefined;
@@ -128,8 +128,8 @@ export const parseTestDynamoDBConnectionString = (connectionString: string): Par
 	const [username, password] = credentials.split(':');
 	const url = new URL(nestedUrl);
 	const config: Partial<CreateConnectionDto> = {};
-	config.username = username || null;
-	config.password = password || null;
+	config.username = username || undefined;
+	config.password = password || undefined;
 	const host = `${url.protocol}//${url.hostname}:${url.port}`;
 	config.host = host;
 	config.type = ConnectionTypesEnum.dynamodb;

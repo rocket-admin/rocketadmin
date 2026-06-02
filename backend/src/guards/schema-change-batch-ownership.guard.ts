@@ -26,7 +26,10 @@ export class SchemaChangeBatchOwnershipGuard implements CanActivate {
 	async canActivate(context: ExecutionContext): Promise<boolean> {
 		const request: IRequestWithCognitoInfo = context.switchToHttp().getRequest();
 		const userId = request.decoded.sub;
-		const batchId: string = request.params?.batchId;
+		if (!userId) {
+			throw new ForbiddenException(Messages.DONT_HAVE_PERMISSIONS);
+		}
+		const batchId: string | undefined = request.params?.batchId;
 
 		if (!batchId || !ValidationHelper.isValidUUID(batchId)) {
 			throw new BadRequestException('Invalid or missing batchId.');

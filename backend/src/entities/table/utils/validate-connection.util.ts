@@ -21,10 +21,10 @@ export function validateConnection(connection: ConnectionEntity | null): asserts
 export async function getUserEmailForAgent(
 	connection: ConnectionEntity,
 	userId: string,
-	userRepository: { getUserEmailOrReturnNull(userId: string): Promise<string> },
-): Promise<string | undefined> {
+	userRepository: { getUserEmailOrReturnNull(userId: string): Promise<string | null> },
+): Promise<string> {
 	if (isConnectionTypeAgent(connection.type)) {
-		return userRepository.getUserEmailOrReturnNull(userId);
+		return (await userRepository.getUserEmailOrReturnNull(userId)) ?? '';
 	}
-	return undefined;
+	return '';
 }

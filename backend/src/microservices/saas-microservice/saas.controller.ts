@@ -28,6 +28,7 @@ import { CreatedConnectionResponse, SuccessResponse } from './data-structures/co
 import { CreateConnectionForHostedDbDto } from './data-structures/create-connecttion-for-selfhosted-db.dto.js';
 import { DeleteConnectionForHostedDbDto } from './data-structures/delete-connection-for-hosted-db.dto.js';
 import { FoundConnectionInfoRO } from './data-structures/found-connection-info.ro.js';
+import { FoundUserInfoRO, FoundUserInfoWithoutCompanyRO } from './data-structures/found-user-info.ro.js';
 import { GetConnectionsInfoByIdsDS } from './data-structures/get-connections-info-by-ids.ds.js';
 import { GetHostedConnectionCredentialsDto } from './data-structures/get-hosted-connection-credentials.dto.js';
 import { HostedConnectionCredentialsRO } from './data-structures/hosted-connection-credentials.ro.js';
@@ -130,7 +131,7 @@ export class SaasController {
 		status: 200,
 	})
 	@Get('/user/:userId')
-	async getUserInfo(@Param('userId') userId: string, @Query('companyId') companyId: string): Promise<UserEntity> {
+	async getUserInfo(@Param('userId') userId: string, @Query('companyId') companyId: string): Promise<FoundUserInfoRO> {
 		return await this.getUserInfoUseCase.execute({ userId, companyId });
 	}
 
@@ -143,7 +144,7 @@ export class SaasController {
 	async getUsersInfoByEmail(
 		@Param('userEmail') userEmail: string,
 		@Query('externalProvider') externalProvider: ExternalRegistrationProviderEnum,
-	): Promise<Array<UserEntity>> {
+	): Promise<Array<FoundUserInfoWithoutCompanyRO>> {
 		return await this.getUsersInfosByEmailUseCase.execute({ userEmail, externalProvider });
 	}
 

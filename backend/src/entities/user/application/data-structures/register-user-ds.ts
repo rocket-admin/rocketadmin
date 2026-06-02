@@ -1,11 +1,11 @@
 import { UserRoleEnum } from '../../enums/user-role.enum.js';
 
 export class RegisterUserDs {
-	gclidValue: string;
+	gclidValue: string | null;
 	email: string;
-	password: string;
+	password: string | null;
 	isActive: boolean;
-	name: string;
+	name: string | null;
 	role?: UserRoleEnum;
 	samlNameId?: string;
 }

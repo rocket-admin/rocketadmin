@@ -23,7 +23,7 @@ export function buildConnectionEntitiesFromTestDtos(dtos: Array<CreateConnection
 		connection.ssl = dto.ssl || false;
 		connection.cert = dto.cert;
 		connection.azure_encryption = dto.azure_encryption || false;
-		connection.isTestConnection = dto.isTestConnection;
+		connection.isTestConnection = dto.isTestConnection ?? false;
 		connection.authSource = dto.authSource;
 		entities.push(connection);
 	}

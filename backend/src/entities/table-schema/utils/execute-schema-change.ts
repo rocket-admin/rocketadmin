@@ -75,5 +75,5 @@ export async function executeSchemaChange(opts: ExecuteSchemaChangeOptions): Pro
 	}
 
 	const dao = getDataAccessObject(connection);
-	await dao.executeRawQuery(sql, targetTableName, null);
+	await dao.executeRawQuery(sql, targetTableName, '');
 }

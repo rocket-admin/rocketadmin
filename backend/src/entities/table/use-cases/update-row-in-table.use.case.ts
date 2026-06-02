@@ -25,6 +25,7 @@ import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { UpdateRowInTableDs } from '../application/data-structures/update-row-in-table.ds.js';
 import { ReferencedTableNamesAndColumnsDs, TableRowRODs } from '../table-datastructures.js';
 import { attachForeignColumnNames } from '../utils/attach-foreign-column-names.util.js';
+import { buildCommonTableSettingsInput } from '../utils/build-common-table-settings-input.util.js';
 import { buildTableSettingsForResponse } from '../utils/build-table-settings-for-response.util.js';
 import { convertHexDataInRowUtil } from '../utils/convert-hex-data-in-row.util.js';
 import { extractForeignKeysFromWidgets } from '../utils/extract-foreign-keys-from-widgets.util.js';
@@ -103,7 +104,10 @@ export class UpdateRowInTableUseCase
 			dao.getReferencedTableNamesAndColumns(tableName, userEmail),
 		]);
 
-		const builtDAOsTableSettings = buildDAOsTableSettingsDs(tableSettings, personalTableSettings);
+		const builtDAOsTableSettings = buildDAOsTableSettingsDs(
+			buildCommonTableSettingsInput(tableSettings),
+			personalTableSettings,
+		);
 
 		await filterReferencedTablesByPermission(
 			referencedTableNamesAndColumns,
@@ -228,7 +232,10 @@ export class UpdateRowInTableUseCase
 				table_widgets: tableWidgets,
 				display_name: tableSettings?.display_name ? tableSettings.display_name : null,
 				readonly_fields: tableSettings?.readonly_fields ? tableSettings.readonly_fields : [],
-				list_fields: personalTableSettings?.list_fields?.length > 0 ? personalTableSettings.list_fields : [],
+				list_fields:
+					personalTableSettings?.list_fields && personalTableSettings.list_fields.length > 0
+						? personalTableSettings.list_fields
+						: [],
 				identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
 				referenced_table_names_and_columns: referencedTableNamesAndColumnsWithTablesDisplayNames,
 				excluded_fields: tableSettings?.excluded_fields ? tableSettings.excluded_fields : [],

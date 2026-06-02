@@ -326,7 +326,10 @@ IMPORTANT:
 				}
 			}
 			settings.columns_view = filteredColumnsView;
-			settings.ordering = this.mapOrdering(tableSettings.ordering);
+			const mappedOrdering = this.mapOrdering(tableSettings.ordering);
+			if (mappedOrdering !== null) {
+				settings.ordering = mappedOrdering;
+			}
 			settings.ordering_field = validColumnNames.includes(tableSettings.ordering_field)
 				? tableSettings.ordering_field
 				: null;
