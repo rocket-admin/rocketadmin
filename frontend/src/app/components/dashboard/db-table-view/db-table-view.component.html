@@ -98,6 +98,56 @@
                         <mat-icon fontSet="material-symbols-outlined">filter_list</mat-icon>
                         Filter
                     </button>
+                    <ng-container *ngIf="canEditConnection() && tableData && tableData.structure">
+                        <span class="search-row__divider" aria-hidden="true"></span>
+                        <button *ngIf="!savedFiltersPanel?.savedFilterData?.length"
+                            mat-stroked-button type="button"
+                            class="search-row__create-fast-filter"
+                            angulartics2On="click"
+                            angularticsAction="Saved filters: create new filter is clicked"
+                            (click)="handleOpenCreateQuickFilter(); posthog.capture('Saved filters: create new filter is clicked')">
+                            <mat-icon fontSet="material-symbols-outlined">add</mat-icon>
+                            Create fast filter
+                        </button>
+                    </ng-container>
+                    <div *ngIf="isMobileView && savedFiltersPanel?.savedFilterData?.length"
+                        class="search-row__quick-chips-slot">
+                        <div class="search-row__quick-chips">
+                            <button *ngIf="canEditConnection()" type="button"
+                                mat-icon-button
+                                class="search-row__add-quick-filter"
+                                matTooltip="Create new fast filter"
+                                angulartics2On="click"
+                                angularticsAction="Saved filters: create new filter is clicked"
+                                (click)="handleOpenCreateQuickFilter(); posthog.capture('Saved filters: create new filter is clicked')">
+                                <mat-icon fontSet="material-symbols-outlined">add</mat-icon>
+                            </button>
+                            <div *ngFor="let f of savedFiltersPanel?.savedFilterData"
+                                class="search-row__quick-chip"
+                                [class.search-row__quick-chip_active]="savedFiltersPanel?.selectedFilterSetId === f.id"
+                                (click)="savedFiltersPanel?.selectFiltersSet(f.id)">
+                                <span class="search-row__quick-chip-label">{{ f.name }}</span>
+                                <button *ngIf="canEditConnection()" type="button"
+                                    class="search-row__quick-chip-menu"
+                                    [matMenuTriggerFor]="quickChipMenu"
+                                    (click)="$event.stopPropagation(); chipFilterForMenu = f">
+                                    <mat-icon>more_vert</mat-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <mat-menu #quickChipMenu="matMenu">
+                        <button mat-menu-item type="button"
+                            (click)="savedFiltersPanel?.handleEditFilter(chipFilterForMenu)">
+                            <mat-icon fontSet="material-symbols-outlined">create</mat-icon>
+                            <span>Edit</span>
+                        </button>
+                        <button mat-menu-item type="button"
+                            (click)="savedFiltersPanel?.handleDeleteFilter(chipFilterForMenu)">
+                            <mat-icon fontSet="material-symbols-outlined">delete</mat-icon>
+                            <span>Delete</span>
+                        </button>
+                    </mat-menu>
                 </div>
             </div>
             <div class="actions">
@@ -504,7 +554,7 @@
     <div *ngIf="tableData.isEmptyTable && (getFiltersCount(activeFilters) || hasSavedFilterActive) && !searchString" class="empty-table">
         <mat-icon class="empty-table__icon">filter_list_off</mat-icon>
         <p class="mat-body-1">
-            {{ hasSavedFilterActive ? 'No records match the selected fast filter.' : 'No records match this filter.' }}
+            {{ hasSavedFilterActive ? 'No records match the selected fast filter' : 'No records match this filter' }}
         </p>
     </div>
 
