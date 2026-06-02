@@ -3,6 +3,7 @@ import { PrimaryKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-laye
 import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import sqlParser from 'node-sql-parser';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { connectionTypeToParserDialect } from '../../table-schema/utils/assert-dialect-supported.js';
 import { MermaidTableInput } from './build-mermaid-er-diagram.util.js';
 
@@ -65,7 +66,7 @@ export function applyProposedDdl(
 			diff.statementResults.push({
 				sql,
 				status: 'error',
-				message: `parse error: ${(err as Error).message}`,
+				message: `parse error: ${getErrorMessage(err)}`,
 			});
 			continue;
 		}
@@ -82,7 +83,7 @@ export function applyProposedDdl(
 				diff.statementResults.push({
 					sql,
 					status: 'error',
-					message: (err as Error).message,
+					message: getErrorMessage(err),
 				});
 			}
 		}

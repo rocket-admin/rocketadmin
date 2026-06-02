@@ -40,7 +40,7 @@ import { GetUserApiKeyUseCase } from './use-cases/get-user-api-key.use.case.js';
 	controllers: [ApiKeyController],
 })
 export class ApiKeyModule implements NestModule {
-	public configure(consumer: MiddlewareConsumer): any {
+	public configure(consumer: MiddlewareConsumer): void {
 		consumer
 			.apply(AuthMiddleware)
 			.forRoutes(

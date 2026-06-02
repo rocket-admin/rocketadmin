@@ -23,7 +23,10 @@ export interface ITableSettingsRepository {
 
 	findTableSettingsInConnectionPure(connectionId: string): Promise<Array<TableSettingsEntity>>;
 
-	findTableSettingsOrReturnEmpty(connectionId: string, tableName: string): Promise<any>;
+	findTableSettingsOrReturnEmpty(
+		connectionId: string,
+		tableName: string,
+	): Promise<TableSettingsEntity | Record<string, never>>;
 
 	removeTableSettings(tableSettings: TableSettingsEntity): Promise<TableSettingsEntity>;
 

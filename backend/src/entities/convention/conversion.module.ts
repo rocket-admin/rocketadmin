@@ -24,7 +24,7 @@ import { GetConversionsUseCase } from './use-cases/get-conversions.use.case.js';
 	controllers: [ConversionController],
 })
 export class ConversionModule implements NestModule {
-	public configure(consumer: MiddlewareConsumer): any {
+	public configure(consumer: MiddlewareConsumer): void {
 		consumer.apply(BasicAuthMiddleware).forRoutes({ path: '/conversions', method: RequestMethod.GET });
 	}
 }

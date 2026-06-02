@@ -22,6 +22,8 @@ import {
 	UpdateTimeToLiveCommand,
 } from '@aws-sdk/client-dynamodb';
 import { BadRequestException } from '@nestjs/common';
+import { isTest } from '../../../helpers/app/is-test.js';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { SchemaChangeTypeEnum } from '../table-schema-change-enums.js';
 
 export interface DynamoDbExecutionConnection {
@@ -95,7 +97,7 @@ export function validateProposedDynamoDbOp(input: ValidateDynamoDbOpInput): Dyna
 	try {
 		parsed = JSON.parse(opJson);
 	} catch (err) {
-		throw new BadRequestException(`Proposed DynamoDB operation is not valid JSON: ${(err as Error).message}`);
+		throw new BadRequestException(`Proposed DynamoDB operation is not valid JSON: ${getErrorMessage(err)}`);
 	}
 
 	if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
@@ -211,7 +213,7 @@ function buildDynamoDbClient(connection: DynamoDbExecutionConnection): DynamoDB 
 	const region = regionMatch ? regionMatch[1] : 'us-east-1';
 	return new DynamoDB({
 		endpoint,
-		region: process.env.NODE_ENV === 'test' ? 'localhost' : region,
+		region: isTest() ? 'localhost' : region,
 		credentials: {
 			accessKeyId: connection.username ?? '',
 			secretAccessKey: connection.password ?? '',

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import nodemailer from 'nodemailer';
-import SMTPTransport from 'nodemailer/lib/smtp-transport';
+import SMTPTransport from 'nodemailer/lib/smtp-transport/index.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { IMessage } from '../email/email.interface.js';
 import { EmailConfigService } from '../email-config/email-config.service.js';

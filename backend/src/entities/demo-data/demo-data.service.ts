@@ -8,6 +8,7 @@ import { TableActionEventEnum } from '../../enums/table-action-event-enum.js';
 import { TableActionTypeEnum } from '../../enums/table-action-type.enum.js';
 import { isTest } from '../../helpers/app/is-test.js';
 import { Constants } from '../../helpers/constants/constants.js';
+import { getErrorMessage } from '../../helpers/get-error-message.js';
 import { slackPostMessage } from '../../helpers/slack/slack-post-message.js';
 import { generateCedarPolicyForGroup } from '../cedar-authorization/cedar-policy-generator.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
@@ -43,7 +44,7 @@ export class DemoDataService {
 			return await this.createDemoData(userId);
 		} catch (error) {
 			console.error(`Error during demo data creation for user with ID ${userId}:`, error);
-			await slackPostMessage(`Error during demo data creation for user with ID ${userId}: ${error.message}`);
+			await slackPostMessage(`Error during demo data creation for user with ID ${userId}: ${getErrorMessage(error)}`);
 		}
 	}
 
@@ -519,7 +520,7 @@ export class DemoDataService {
 			savedEmptyActionRules.push(savedActionRule);
 		}
 		const foundSavedUserBlacklistActionRule = savedEmptyActionRules.find(
-			(rule) => rule.table_name === 'user' && rule.rule_title === 'Blacklist',
+			(rule) => rule.table_name === 'user' && rule.title === 'Blacklist',
 		);
 		if (foundSavedUserBlacklistActionRule) {
 			const createActionEventData: CreateTableActionEventDS = {
@@ -533,7 +534,7 @@ export class DemoDataService {
 			await this._dbContext.actionEventsRepository.saveNewOrUpdatedActionEvent(newActionEvent);
 		}
 		const foundSavedUserNotificationActionRule = savedEmptyActionRules.find(
-			(rule) => rule.table_name === 'user' && rule.rule_title === 'Notification on new user',
+			(rule) => rule.table_name === 'user' && rule.title === 'Notification on new user',
 		);
 		if (foundSavedUserNotificationActionRule) {
 			const createActionEventData: Array<CreateTableActionEventDS> = [

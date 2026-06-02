@@ -17,7 +17,9 @@ export const tableActionsCustomRepositoryExtension: ITableActionRepository = {
 			.where('connection.id = :connectionId', { connectionId })
 			.andWhere('action_rule.table_name = :tableName', { tableName });
 		const results = await qb.getMany();
-		const connections = results.flatMap((r) => (r.action_rule?.connection ? [r.action_rule.connection] : []));
+		const connections = results.flatMap((r: TableActionEntity) =>
+			r.action_rule?.connection ? [r.action_rule.connection] : [],
+		);
 		await decryptConnectionsCredentialsAsync(connections);
 		return results;
 	},
@@ -32,7 +34,9 @@ export const tableActionsCustomRepositoryExtension: ITableActionRepository = {
 			.andWhere('action_rule.table_name = :tableName', { tableName })
 			.andWhere('action_events.event = :eventType', { eventType: TableActionEventEnum.ADD_ROW });
 		const results = await qb.getMany();
-		const connections = results.flatMap((r) => (r.action_rule?.connection ? [r.action_rule.connection] : []));
+		const connections = results.flatMap((r: TableActionEntity) =>
+			r.action_rule?.connection ? [r.action_rule.connection] : [],
+		);
 		await decryptConnectionsCredentialsAsync(connections);
 		return results;
 	},
@@ -50,7 +54,9 @@ export const tableActionsCustomRepositoryExtension: ITableActionRepository = {
 			.andWhere('action_rule.table_name = :tableName', { tableName })
 			.andWhere('action_events.event = :eventType', { eventType: TableActionEventEnum.UPDATE_ROW });
 		const results = await qb.getMany();
-		const connections = results.flatMap((r) => (r.action_rule?.connection ? [r.action_rule.connection] : []));
+		const connections = results.flatMap((r: TableActionEntity) =>
+			r.action_rule?.connection ? [r.action_rule.connection] : [],
+		);
 		await decryptConnectionsCredentialsAsync(connections);
 		return results;
 	},
@@ -68,7 +74,9 @@ export const tableActionsCustomRepositoryExtension: ITableActionRepository = {
 			.andWhere('action_rule.table_name = :tableName', { tableName })
 			.andWhere('action_events.event = :eventType', { eventType: TableActionEventEnum.DELETE_ROW });
 		const results = await qb.getMany();
-		const connections = results.flatMap((r) => (r.action_rule?.connection ? [r.action_rule.connection] : []));
+		const connections = results.flatMap((r: TableActionEntity) =>
+			r.action_rule?.connection ? [r.action_rule.connection] : [],
+		);
 		await decryptConnectionsCredentialsAsync(connections);
 		return results;
 	},
@@ -85,7 +93,9 @@ export const tableActionsCustomRepositoryExtension: ITableActionRepository = {
 			.andWhere('action_events.id = :eventId', { eventId })
 			.andWhere('action_events.event = :eventType', { eventType: TableActionEventEnum.CUSTOM });
 		const results = await qb.getMany();
-		const connections = results.flatMap((r) => (r.action_rule?.connection ? [r.action_rule.connection] : []));
+		const connections = results.flatMap((r: TableActionEntity) =>
+			r.action_rule?.connection ? [r.action_rule.connection] : [],
+		);
 		await decryptConnectionsCredentialsAsync(connections);
 		return results;
 	},

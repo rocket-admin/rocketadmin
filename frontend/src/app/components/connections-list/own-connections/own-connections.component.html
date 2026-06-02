@@ -30,16 +30,17 @@
                             <h2 class="connectionInfo__connectionTitle">{{ $any(connectionItem).displayTitle }}</h2>
                             <span class="mat-body-2">{{ supportedDatabasesTitles[connectionItem.connection.type] }}</span>
                         </div>
-                        @if (connectionItem.accessLevel === 'edit') {
-                            <a mat-icon-button
-                                class="connectionSchemaButton"
-                                routerLink="/edit-database-schema/{{connectionItem.connection.id}}"
-                                matTooltip="Edit schema"
-                                (click)="$event.stopPropagation()">
-                                <mat-icon>schema</mat-icon>
-                            </a>
-                        }
                     </div>
+                    @if (connectionItem.accessLevel === 'edit') {
+                        <a mat-button color="accent"
+                            class="connectionSchemaButton"
+                            routerLink="/edit-database-schema/{{connectionItem.connection.id}}"
+                            (click)="$event.stopPropagation()">
+                            <mat-icon class="connectionSchemaButton__ai">auto_awesome</mat-icon>
+                            <span>Edit schema</span>
+                            <mat-icon iconPositionEnd class="connectionSchemaButton__arrow">arrow_forward</mat-icon>
+                        </a>
+                    }
                 </a>
             </li>
         }
@@ -119,7 +120,45 @@
 
 <!-- FAB actions (when connections exist) -->
 @if (connections?.length) {
-    <div class="fabActions">
+    <!-- Desktop: separate buttons -->
+    <div class="fabActions fabActions--desktop">
+        @if (showHostedDatabaseEntry) {
+            @if (hostedDbLimitReached) {
+                <a mat-stroked-button color="primary" class="fabHostedButton" routerLink="/upgrade">
+                    <mat-icon>cloud_queue</mat-icon>
+                    Upgrade to host more
+                </a>
+            } @else {
+                <button
+                    mat-stroked-button
+                    type="button"
+                    color="primary"
+                    class="fabHostedButton"
+                    data-testid="create-hosted-database-fab-button"
+                    [disabled]="creatingHostedDatabase()"
+                    (click)="createHostedDatabase()">
+                    <mat-icon>cloud_queue</mat-icon>
+                    {{ creatingHostedDatabase() ? 'Creating...' : 'Create hosted PostgreSQL' }}
+                </button>
+            }
+        }
+        @if (currentUser?.role === 'ADMIN' || currentUser?.role === 'DB_ADMIN') {
+            <a mat-flat-button
+                data-testid="add-connection-button"
+                color="primary"
+                class="fabAddButton"
+                routerLink="/connect-db"
+                angulartics2On="click"
+                angularticsAction="Connections: Add connection button is clicked"
+                (click)="posthog.capture('Connections: Add connection button is clicked')">
+                <mat-icon>add</mat-icon>
+                Add database
+            </a>
+        }
+    </div>
+
+    <!-- Mobile: single button with dropdown menu -->
+    <div class="fabActions fabActions--mobile">
         @if (currentUser?.role === 'ADMIN' || currentUser?.role === 'DB_ADMIN') {
             @if (showHostedDatabaseEntry) {
                 <button

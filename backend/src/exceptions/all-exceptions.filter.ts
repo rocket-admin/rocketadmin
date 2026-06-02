@@ -1,22 +1,38 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
 import Sentry from '@sentry/minimal';
 import { WinstonLogger } from '../entities/logging/winston-logger.js';
+import { getErrorMessage } from '../helpers/get-error-message.js';
 import { Messages } from './text/messages.js';
 import { processExceptionMessage } from './utils/process-exception-message.js';
 
 export type ExceptionType = 'no_master_key' | 'invalid_master_key' | 'query_timeout';
+
+interface RocketadminException {
+	response?: { type?: string };
+	originalMessage?: string;
+	internalCode?: string | number;
+}
+
+function asRocketadminException(exception: unknown): RocketadminException {
+	if (exception && typeof exception === 'object') {
+		return exception as RocketadminException;
+	}
+	return {};
+}
+
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
 	constructor(private readonly logger: WinstonLogger) {}
-	async catch(exception: any, host: ArgumentsHost) {
+	async catch(exception: unknown, host: ArgumentsHost) {
 		const ctx = host.switchToHttp();
 		const response = ctx.getResponse();
 		const request = ctx.getRequest();
-		let text = exception.message;
+		let text = getErrorMessage(exception);
 		text = processExceptionMessage(text);
-		const type = exception?.response?.type;
-		const originalMessage = exception?.originalMessage;
-		const internalCode = exception?.internalCode;
+		const meta = asRocketadminException(exception);
+		const type = meta.response?.type;
+		const originalMessage = meta.originalMessage;
+		const internalCode = meta.internalCode;
 		const status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
 		const sentryContextObject = {
 			extra: {

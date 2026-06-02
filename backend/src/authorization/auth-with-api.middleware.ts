@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import Sentry from '@sentry/minimal';
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { Repository } from 'typeorm';
 import { JwtScopesEnum } from '../entities/user/enums/jwt-scopes.enum.js';
@@ -19,6 +19,7 @@ import { Messages } from '../exceptions/text/messages.js';
 import { Constants } from '../helpers/constants/constants.js';
 import { Encryptor } from '../helpers/encryption/encryptor.js';
 import { isObjectEmpty } from '../helpers/is-object-empty.js';
+import { appConfig } from '../shared/config/app-config.js';
 import { IRequestWithCognitoInfo } from './cognito-decoded.interface.js';
 
 @Injectable()
@@ -28,7 +29,7 @@ export class AuthWithApiMiddleware implements NestMiddleware {
 		private readonly userRepository: Repository<UserEntity>,
 	) {}
 
-	async use(req: IRequestWithCognitoInfo, _res: Response, next: (err?: any, res?: any) => void): Promise<void> {
+	async use(req: IRequestWithCognitoInfo, _res: Response, next: NextFunction): Promise<void> {
 		try {
 			await this.authenticateRequest(req);
 			next();
@@ -60,7 +61,7 @@ export class AuthWithApiMiddleware implements NestMiddleware {
 
 	private async authenticateWithToken(tokenFromCookie: string, req: IRequestWithCognitoInfo): Promise<void> {
 		try {
-			const jwtSecret = process.env.JWT_SECRET;
+			const jwtSecret = appConfig.auth.jwtSecret;
 			const data = jwt.verify(tokenFromCookie, jwtSecret) as jwt.JwtPayload;
 			const userId = data.id;
 

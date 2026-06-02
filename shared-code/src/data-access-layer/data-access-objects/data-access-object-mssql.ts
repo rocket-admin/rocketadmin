@@ -1,3 +1,4 @@
+import { MulterFile } from '../../types/multer-file.js';
 /* eslint-disable security/detect-object-injection */
 
 import { Readable, Stream } from 'node:stream';
@@ -641,7 +642,7 @@ WHERE TABLE_TYPE = 'VIEW'
 		return rowsAsStream;
 	}
 
-	public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
+	public async importCSVInTable(file: MulterFile, tableName: string): Promise<void> {
 		const [knex, schemaName] = await Promise.all([this.configureKnex(), this.getSchemaName(tableName)]);
 		const tableWithSchema = `${schemaName}.[${tableName}]`;
 		const structure = await this.getTableStructure(tableName);

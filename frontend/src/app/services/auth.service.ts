@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import * as Sentry from '@sentry/angular';
 import { BehaviorSubject, EMPTY } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -16,11 +16,18 @@ export class AuthService {
 	private auth = new BehaviorSubject<any>('');
 	public cast = this.auth.asObservable();
 
+	private _isAuthenticated = signal<boolean>(AuthService._hasValidSessionToken());
+	public readonly isAuthenticated = this._isAuthenticated.asReadonly();
+
 	constructor(
 		private _http: HttpClient,
 		private _notifications: NotificationsService,
 		private _configuration: ConfigurationService,
 	) {}
+
+	setAuthenticated(value: boolean): void {
+		this._isAuthenticated.set(value);
+	}
 
 	signUpUser(userData: NewAuthUser) {
 		const config = this._configuration.getConfig();
@@ -327,5 +334,12 @@ export class AuthService {
 				return EMPTY;
 			}),
 		);
+	}
+
+	private static _hasValidSessionToken(): boolean {
+		const exp = localStorage.getItem('token_expiration');
+		if (!exp) return false;
+		const expiration = new Date(exp);
+		return !isNaN(expiration.getTime()) && expiration.getTime() > Date.now();
 	}
 }

@@ -4,7 +4,7 @@ import { Messages } from '../exceptions/text/messages.js';
 import { isObjectPropertyExists } from '../helpers/validators/is-object-property-exists-validator.js';
 import { ValidationHelper } from '../helpers/validators/validation-helper.js';
 
-export const BodyEmail = createParamDecorator((_data: any, ctx: ExecutionContext): string => {
+export const BodyEmail = createParamDecorator((_data: unknown, ctx: ExecutionContext): string => {
 	const request: IRequestWithCognitoInfo = ctx.switchToHttp().getRequest();
 	const body = request.body;
 	if (isObjectPropertyExists(body, 'email')) {

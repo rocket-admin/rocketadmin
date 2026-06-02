@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import jwt from 'jsonwebtoken';
+import { appConfig } from '../../../shared/config/app-config.js';
 import { JwtScopesEnum } from '../enums/jwt-scopes.enum.js';
 import { UserEntity } from '../user.entity.js';
 
@@ -7,7 +8,7 @@ export function generateGwtToken(user: UserEntity, scope: Array<JwtScopesEnum>):
 	const today = new Date();
 	const exp = new Date(today);
 	exp.setTime(today.getTime() + 60 * 60 * 1000 * 24 * 7);
-	const jwtSecret = process.env.JWT_SECRET;
+	const jwtSecret = appConfig.auth.jwtSecret;
 	const token = jwt.sign(
 		{
 			id: user.id,
@@ -28,7 +29,7 @@ export function generateTemporaryJwtToken(user: UserEntity): IToken {
 	const today = new Date();
 	const exp = new Date(today);
 	exp.setTime(today.getTime() + 1000 * 60 * 4);
-	const jwtSecret = process.env.TEMPORARY_JWT_SECRET;
+	const jwtSecret = appConfig.auth.temporaryJwtSecret;
 	const token = jwt.sign(
 		{
 			id: user.id,

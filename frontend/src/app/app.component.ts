@@ -215,6 +215,7 @@ export class AppComponent {
 					localStorage.setItem('token_expiration', expirationTime.toISOString());
 					expirationToken = expirationTime.toISOString();
 				}
+				this._auth.setAuthenticated(true);
 
 				this.router.navigate(['/connections-list']);
 
@@ -236,6 +237,7 @@ export class AppComponent {
 					const expirationInterval = differenceInMilliseconds(expirationTime, currantTime);
 					console.log('expirationInterval', expirationInterval);
 					if (expirationInterval > 0) {
+						this._auth.setAuthenticated(true);
 						console.log('App component, session restoration');
 						this.initializeUserSession();
 
@@ -362,6 +364,7 @@ export class AppComponent {
 			this._user.setIsDemo(false);
 			this.currentUser = null;
 			localStorage.removeItem('token_expiration');
+			this._auth.setAuthenticated(false);
 			this.router.navigate(['/registration']);
 		});
 	}
@@ -382,6 +385,7 @@ export class AppComponent {
 		this._auth.logOutUser().subscribe(() => {
 			this.setUserLoggedIn(null);
 			localStorage.removeItem('token_expiration');
+			this._auth.setAuthenticated(false);
 
 			if (this.isSaas) {
 				if (!isTokenExpired) window.location.href = 'https://rocketadmin.com/';

@@ -4,6 +4,7 @@ import sqlParser from 'node-sql-parser';
 
 const { Parser } = sqlParser;
 
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { isMongoSchemaChangeType, SchemaChangeTypeEnum } from '../table-schema-change-enums.js';
 import { connectionTypeToParserDialect } from './assert-dialect-supported.js';
 
@@ -109,7 +110,7 @@ export function validateProposedDdl(opts: ValidateProposedDdlOptions): void {
 		// block legitimate statements.
 		// eslint-disable-next-line no-console
 		console.warn(
-			`[validate-proposed-ddl] parser could not analyze SQL (${(err as Error).message}); falling back to regex checks. sql=${trimmed.slice(0, 200)}`,
+			`[validate-proposed-ddl] parser could not analyze SQL (${getErrorMessage(err)}); falling back to regex checks. sql=${trimmed.slice(0, 200)}`,
 		);
 		return;
 	}

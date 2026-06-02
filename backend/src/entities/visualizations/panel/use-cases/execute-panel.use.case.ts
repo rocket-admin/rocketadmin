@@ -6,8 +6,11 @@ import { IGlobalDatabaseContext } from '../../../../common/application/global-da
 import { BaseType } from '../../../../common/data-injection.tokens.js';
 import { Messages } from '../../../../exceptions/text/messages.js';
 import { isConnectionTypeAgent } from '../../../../helpers/is-connection-entity-agent.js';
+import { CedarAction } from '../../../cedar-authorization/cedar-action-map.js';
+import { CedarAuthorizationService } from '../../../cedar-authorization/cedar-authorization.service.js';
 import { ExecuteSavedDbQueryDs } from '../data-structures/execute-saved-db-query.ds.js';
 import { ExecuteSavedDbQueryResultDto } from '../dto/execute-saved-db-query-result.dto.js';
+import { assertUserCanReadQueryTables } from '../utils/assert-query-tables-readable.util.js';
 import { validateQuerySafety } from '../utils/check-query-is-safe.util.js';
 import { IExecuteSavedDbQuery } from './panel-use-cases.interface.js';
 
@@ -19,6 +22,7 @@ export class ExecuteSavedDbQueryUseCase
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
+		private readonly cedarAuthService: CedarAuthorizationService,
 	) {
 		super();
 	}
@@ -43,12 +47,27 @@ export class ExecuteSavedDbQueryUseCase
 
 		validateQuerySafety(foundQuery.query_text, foundConnection.type as ConnectionTypesEnum);
 
+		const dao = getDataAccessObject(foundConnection);
+
+		await assertUserCanReadQueryTables({
+			query: foundQuery.query_text,
+			connectionType: foundConnection.type as ConnectionTypesEnum,
+			connectionId,
+			validateTableRead: (referencedTableName) =>
+				this.cedarAuthService.validate({
+					userId,
+					action: CedarAction.TableRead,
+					connectionId,
+					tableName: referencedTableName,
+				}),
+			listAllTableNames: async () => (await dao.getTablesFromDB()).map((table) => table.tableName),
+		});
+
 		let userEmail: string | null = null;
 		if (isConnectionTypeAgent(foundConnection.type)) {
 			userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
 		}
 
-		const dao = getDataAccessObject(foundConnection);
 		const startTime = Date.now();
 
 		const executionResult = await dao.executeRawQuery(foundQuery.query_text, tableName, userEmail);

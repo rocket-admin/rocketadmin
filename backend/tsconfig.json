@@ -1,20 +1,23 @@
 {
 	"compilerOptions": {
-		"module": "ESNext",
+		"module": "NodeNext",
 		"declaration": true,
 		"removeComments": true,
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
-		"allowJs": true,
 		"esModuleInterop": true,
 		"target": "ESNext",
 		"sourceMap": true,
 		"outDir": "./dist",
 		"rootDir": "./",
-		"baseUrl": "./",
 		"incremental": true,
-		"moduleResolution": "node",
-		"skipLibCheck": true
+		"moduleResolution": "NodeNext",
+		"skipLibCheck": true,
+		"strict": false,
+		"forceConsistentCasingInFileNames": true,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitOverride": true,
+		"useUnknownInCatchVariables": true
 	},
 	// "references": [
 	//   { "path": "../shared-code" },

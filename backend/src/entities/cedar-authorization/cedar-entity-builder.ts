@@ -13,6 +13,7 @@ export function buildCedarEntities(
 	tableName?: string,
 	dashboardId?: string,
 	panelId?: string,
+	actionEventId?: string,
 ): Array<CedarEntityRecord> {
 	const entities: Array<CedarEntityRecord> = [];
 
@@ -42,12 +43,22 @@ export function buildCedarEntities(
 		parents: [],
 	});
 
-	// Table entity (if table-level check)
+	// Table entity (if table-level check, or as parent for an ActionEvent)
 	if (tableName) {
 		entities.push({
 			uid: { type: 'RocketAdmin::Table', id: `${connectionId}/${tableName}` },
 			attrs: { connectionId: connectionId },
 			parents: [{ type: 'RocketAdmin::Connection', id: connectionId }],
+		});
+	}
+
+	// ActionEvent entity, parented by its Table — required so `resource in Table::"..."`
+	// policies authorize triggering specific events without naming each event.
+	if (actionEventId && tableName) {
+		entities.push({
+			uid: { type: 'RocketAdmin::ActionEvent', id: `${connectionId}/${tableName}/${actionEventId}` },
+			attrs: { connectionId: connectionId, tableName: tableName },
+			parents: [{ type: 'RocketAdmin::Table', id: `${connectionId}/${tableName}` }],
 		});
 	}
 

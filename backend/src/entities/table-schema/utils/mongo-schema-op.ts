@@ -1,5 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { Db, Document, IndexDirection, MongoClient, MongoClientOptions } from 'mongodb';
+import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { SchemaChangeTypeEnum } from '../table-schema-change-enums.js';
 
 export interface MongoExecutionConnection {
@@ -65,7 +66,7 @@ export function validateProposedMongoOp(input: ValidateMongoOpInput): MongoSchem
 	try {
 		parsed = JSON.parse(opJson);
 	} catch (err) {
-		throw new BadRequestException(`Proposed Mongo operation is not valid JSON: ${(err as Error).message}`);
+		throw new BadRequestException(`Proposed Mongo operation is not valid JSON: ${getErrorMessage(err)}`);
 	}
 
 	if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
@@ -171,7 +172,7 @@ export async function executeMongoSchemaOp(connection: MongoExecutionConnection,
 	try {
 		await dispatchMongoOp(db, op);
 	} finally {
-		await client.close().catch(() => undefined);
+		await client.close().catch((): void => undefined);
 	}
 }
 

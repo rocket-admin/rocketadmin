@@ -9,6 +9,7 @@
 
 # dependencies
 /node_modules
+.yarn/
 
 # yarn berry cache (not tracked at repo root)
 /.yarn/cache

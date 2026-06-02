@@ -20,16 +20,21 @@ import {
 } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/found-action-rules-with-actions-and-events.dto.js';
 import { FoundTableActionRulesRoDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/found-table-action-rules.ro.dto.js';
 import { UpdateTableActionRuleBodyDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/update-action-rule-with-actions-and-events.dto.js';
+import { AccessLevelEnum } from '../../../src/enums/access-level.enum.js';
 import { TableActionEventEnum } from '../../../src/enums/table-action-event-enum.js';
 import { TableActionMethodEnum } from '../../../src/enums/table-action-method-enum.js';
 import { TableActionTypeEnum } from '../../../src/enums/table-action-type.enum.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
+import { Messages } from '../../../src/exceptions/text/messages.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { MockFactory } from '../../mock.factory.js';
-import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
+import {
+	inviteUserInCompanyAndAcceptInvitation,
+	registerUserAndReturnUserInfo,
+} from '../../utils/register-user-and-return-user-info.js';
 import { TestUtils } from '../../utils/test.utils.js';
 
 const mockFactory = new MockFactory();
@@ -1414,5 +1419,361 @@ test.serial(`${currentTest} should log custom action event title in operation_cu
 	t.truthy(actionActivatedLog);
 	t.is(actionActivatedLog.operation_custom_action_name, customEventTitle);
 
+	scope.done();
+});
+
+async function bootstrapTriggerPermissionFixture(): Promise<{
+	ownerToken: string;
+	inviteeToken: string;
+	connectionId: string;
+	eventId: string;
+	ruleId: string;
+	groupId: string;
+	fakeUrl: string;
+}> {
+	await resetPostgresTestDB();
+	const owner = await registerUserAndReturnUserInfo(app);
+	const invitee = await inviteUserInCompanyAndAcceptInvitation(owner.token, 'USER', app, undefined);
+
+	const createConnectionResult = await request(app.getHttpServer())
+		.post('/connection')
+		.send(newConnection)
+		.set('Cookie', owner.token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const connection = JSON.parse(createConnectionResult.text);
+	t_is201(createConnectionResult.status);
+
+	const fakeUrl = 'http://www.example.com';
+	const ruleDto: CreateTableActionRuleBodyDTO = {
+		title: 'Trigger permission rule',
+		table_name: testTableName,
+		events: [
+			{
+				type: TableActionTypeEnum.single,
+				event: TableActionEventEnum.CUSTOM,
+				title: 'Permission test event',
+				icon: 'test-icon',
+				require_confirmation: false,
+			},
+		],
+		table_actions: [
+			{
+				url: fakeUrl,
+				method: TableActionMethodEnum.URL,
+				slack_url: undefined,
+				emails: [],
+			},
+		],
+	};
+	const ruleResult = await request(app.getHttpServer())
+		.post(`/action/rule/${connection.id}`)
+		.send(ruleDto)
+		.set('Cookie', owner.token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const rule: FoundActionRulesWithActionsAndEventsDTO = JSON.parse(ruleResult.text);
+	t_is201(ruleResult.status);
+
+	const newGroup = new MockFactory().generateCreateGroupDto1();
+	const createGroupResult = await request(app.getHttpServer())
+		.post(`/connection/group/${connection.id}`)
+		.send(newGroup)
+		.set('Cookie', owner.token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const groupId = JSON.parse(createGroupResult.text).id;
+
+	await request(app.getHttpServer())
+		.put('/group/user')
+		.set('Cookie', owner.token)
+		.send({ groupId, email: invitee.email })
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	return {
+		ownerToken: owner.token,
+		inviteeToken: invitee.token,
+		connectionId: connection.id,
+		eventId: rule.events[0].id,
+		ruleId: rule.id,
+		groupId,
+		fakeUrl,
+	};
+}
+
+function t_is201(status: number): void {
+	if (status > 201) {
+		throw new Error(`Expected 2xx, got ${status}`);
+	}
+}
+
+async function setTablePermissions(
+	ownerToken: string,
+	connectionId: string,
+	groupId: string,
+	tableName: string,
+	tableAccessLevel: Record<string, boolean>,
+	actionEvents: Array<{ eventId: string; tableName: string; accessLevel: { trigger: boolean } }> = [],
+): Promise<number> {
+	const permissions = {
+		connection: { connectionId, accessLevel: AccessLevelEnum.none },
+		group: { groupId, accessLevel: AccessLevelEnum.none },
+		tables: [{ tableName, accessLevel: tableAccessLevel }],
+		actionEvents,
+	};
+	const res = await request(app.getHttpServer())
+		.put(`/permissions/${groupId}?connectionId=${connectionId}`)
+		.send({ permissions })
+		.set('Cookie', ownerToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	return res.status;
+}
+
+currentTest = 'POST /event/actions/activate/:eventId/:connectionId - trigger permission guard';
+
+test.serial(`${currentTest} owner can still trigger custom actions`, async (t) => {
+	const fx = await bootstrapTriggerPermissionFixture();
+	const scope = nock(fx.fakeUrl).post('/').reply(201, { status: 201 });
+
+	const res = await request(app.getHttpServer())
+		.post(`/event/actions/activate/${fx.eventId}/${fx.connectionId}`)
+		.set('Cookie', fx.ownerToken)
+		.send([{ id: 1 }])
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(res.status, 201);
+	const ro: ActivatedTableActionsDTO = JSON.parse(res.text);
+	t.is(Object.hasOwn(ro, 'activationResults'), true);
+	scope.done();
+});
+
+test.serial(`${currentTest} invitee with triggerCustomAction=true can trigger`, async (t) => {
+	const fx = await bootstrapTriggerPermissionFixture();
+	const setStatus = await setTablePermissions(fx.ownerToken, fx.connectionId, fx.groupId, testTableName, {
+		visibility: true,
+		readonly: true,
+		add: false,
+		delete: false,
+		edit: false,
+		triggerCustomAction: true,
+	});
+	t.true(setStatus < 300, `set permissions failed: ${setStatus}`);
+
+	const scope = nock(fx.fakeUrl).post('/').reply(201, { status: 201 });
+	const res = await request(app.getHttpServer())
+		.post(`/event/actions/activate/${fx.eventId}/${fx.connectionId}`)
+		.set('Cookie', fx.inviteeToken)
+		.send([{ id: 1 }])
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(res.status, 201);
+	const ro: ActivatedTableActionsDTO = JSON.parse(res.text);
+	t.is(Object.hasOwn(ro, 'activationResults'), true);
+	scope.done();
+});
+
+test.serial(`${currentTest} invitee with triggerCustomAction=false but other perms is denied`, async (t) => {
+	const fx = await bootstrapTriggerPermissionFixture();
+	const setStatus = await setTablePermissions(fx.ownerToken, fx.connectionId, fx.groupId, testTableName, {
+		visibility: true,
+		readonly: false,
+		add: true,
+		delete: true,
+		edit: true,
+		triggerCustomAction: false,
+	});
+	t.true(setStatus < 300, `set permissions failed: ${setStatus}`);
+
+	const res = await request(app.getHttpServer())
+		.post(`/event/actions/activate/${fx.eventId}/${fx.connectionId}`)
+		.set('Cookie', fx.inviteeToken)
+		.send([{ id: 1 }])
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(res.status, 403);
+	t.is(JSON.parse(res.text).message, Messages.DONT_HAVE_PERMISSIONS);
+});
+
+test.serial(`${currentTest} invitee with no permissions on the table is denied`, async (t) => {
+	const fx = await bootstrapTriggerPermissionFixture();
+
+	const res = await request(app.getHttpServer())
+		.post(`/event/actions/activate/${fx.eventId}/${fx.connectionId}`)
+		.set('Cookie', fx.inviteeToken)
+		.send([{ id: 1 }])
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(res.status, 403);
+	t.is(JSON.parse(res.text).message, Messages.DONT_HAVE_PERMISSIONS);
+});
+
+test.serial(`${currentTest} eventId from a different connection is rejected`, async (t) => {
+	const fx = await bootstrapTriggerPermissionFixture();
+	const ownerSecond = await registerUserAndReturnUserInfo(app);
+	const createConn2 = await request(app.getHttpServer())
+		.post('/connection')
+		.send(newConnection)
+		.set('Cookie', ownerSecond.token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	const conn2 = JSON.parse(createConn2.text);
+	t.is(createConn2.status, 201);
+
+	// Use the first event id against the SECOND connection id — guard's lookup should miss
+	const res = await request(app.getHttpServer())
+		.post(`/event/actions/activate/${fx.eventId}/${conn2.id}`)
+		.set('Cookie', ownerSecond.token)
+		.send([{ id: 1 }])
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(res.status, 403);
+	t.is(JSON.parse(res.text).message, Messages.DONT_HAVE_PERMISSIONS);
+});
+
+test.serial(`${currentTest} per-event grant allows triggering that specific event`, async (t) => {
+	const fx = await bootstrapTriggerPermissionFixture();
+	const setStatus = await setTablePermissions(
+		fx.ownerToken,
+		fx.connectionId,
+		fx.groupId,
+		testTableName,
+		{
+			visibility: true,
+			readonly: true,
+			add: false,
+			delete: false,
+			edit: false,
+			triggerCustomAction: false,
+		},
+		[{ eventId: fx.eventId, tableName: testTableName, accessLevel: { trigger: true } }],
+	);
+	t.true(setStatus < 300, `set permissions failed: ${setStatus}`);
+
+	const scope = nock(fx.fakeUrl).post('/').reply(201, { status: 201 });
+	const res = await request(app.getHttpServer())
+		.post(`/event/actions/activate/${fx.eventId}/${fx.connectionId}`)
+		.set('Cookie', fx.inviteeToken)
+		.send([{ id: 1 }])
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(res.status, 201);
+	scope.done();
+});
+
+test.serial(`${currentTest} per-event grant does not leak to other events on same table`, async (t) => {
+	const fx = await bootstrapTriggerPermissionFixture();
+
+	// Add a second custom event on the same rule by updating it
+	const fetchRule = await request(app.getHttpServer())
+		.get(`/action/rule/${fx.ruleId}/${fx.connectionId}`)
+		.set('Cookie', fx.ownerToken);
+	const existingRule: FoundActionRulesWithActionsAndEventsDTO = JSON.parse(fetchRule.text);
+
+	const updateDto: UpdateTableActionRuleBodyDTO = {
+		title: existingRule.title,
+		table_name: existingRule.table_name,
+		events: [
+			{
+				id: existingRule.events[0].id,
+				type: existingRule.events[0].type,
+				event: existingRule.events[0].event,
+				title: existingRule.events[0].title,
+				icon: existingRule.events[0].icon,
+				require_confirmation: existingRule.events[0].require_confirmation,
+			},
+			{
+				type: TableActionTypeEnum.single,
+				event: TableActionEventEnum.CUSTOM,
+				title: 'Second event',
+				icon: 'second-icon',
+				require_confirmation: false,
+			},
+		],
+		table_actions: existingRule.table_actions.map((a) => ({
+			id: a.id,
+			url: a.url ?? undefined,
+			method: a.method,
+			slack_url: a.slack_url ?? undefined,
+			emails: a.emails ?? undefined,
+		})),
+	};
+	const updateRes = await request(app.getHttpServer())
+		.put(`/action/rule/${fx.ruleId}/${fx.connectionId}`)
+		.send(updateDto)
+		.set('Cookie', fx.ownerToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(updateRes.status, 200);
+	const updatedRule: FoundActionRulesWithActionsAndEventsDTO = JSON.parse(updateRes.text);
+	const secondEvent = updatedRule.events.find((e) => e.id !== fx.eventId);
+	t.truthy(secondEvent);
+
+	// Grant trigger only on the FIRST event
+	const setStatus = await setTablePermissions(
+		fx.ownerToken,
+		fx.connectionId,
+		fx.groupId,
+		testTableName,
+		{
+			visibility: true,
+			readonly: true,
+			add: false,
+			delete: false,
+			edit: false,
+			triggerCustomAction: false,
+		},
+		[{ eventId: fx.eventId, tableName: testTableName, accessLevel: { trigger: true } }],
+	);
+	t.true(setStatus < 300, `set permissions failed: ${setStatus}`);
+
+	const scope = nock(fx.fakeUrl).post('/').reply(201, { status: 201 });
+	const firstRes = await request(app.getHttpServer())
+		.post(`/event/actions/activate/${fx.eventId}/${fx.connectionId}`)
+		.set('Cookie', fx.inviteeToken)
+		.send([{ id: 1 }])
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(firstRes.status, 201);
+	scope.done();
+
+	const secondRes = await request(app.getHttpServer())
+		.post(`/event/actions/activate/${secondEvent.id}/${fx.connectionId}`)
+		.set('Cookie', fx.inviteeToken)
+		.send([{ id: 1 }])
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(secondRes.status, 403);
+	t.is(JSON.parse(secondRes.text).message, Messages.DONT_HAVE_PERMISSIONS);
+});
+
+test.serial(`${currentTest} blanket trigger works without table:read`, async (t) => {
+	const fx = await bootstrapTriggerPermissionFixture();
+	const setStatus = await setTablePermissions(fx.ownerToken, fx.connectionId, fx.groupId, testTableName, {
+		visibility: false,
+		readonly: false,
+		add: false,
+		delete: false,
+		edit: false,
+		triggerCustomAction: true,
+	});
+	t.true(setStatus < 300, `set permissions failed: ${setStatus}`);
+
+	const scope = nock(fx.fakeUrl).post('/').reply(201, { status: 201 });
+	const res = await request(app.getHttpServer())
+		.post(`/event/actions/activate/${fx.eventId}/${fx.connectionId}`)
+		.set('Cookie', fx.inviteeToken)
+		.send([{ id: 1 }])
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(res.status, 201);
 	scope.done();
 });

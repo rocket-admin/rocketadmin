@@ -13,6 +13,7 @@ import {
 	UpdateDateColumn,
 } from 'typeorm';
 import { WidgetTypeEnum } from '../../enums/widget-type.enum.js';
+import { getErrorMessage } from '../../helpers/get-error-message.js';
 import { TableSettingsEntity } from '../table-settings/common-table-settings/table-settings.entity.js';
 
 @Entity('table_widget')
@@ -51,7 +52,7 @@ export class TableWidgetEntity {
 				this.widget_options = JSON.stringify(this.widget_options);
 			}
 		} catch (e) {
-			console.error('-> Error widget options stringify ' + e.message);
+			console.error('-> Error widget options stringify ' + getErrorMessage(e));
 		}
 	}
 
@@ -62,7 +63,7 @@ export class TableWidgetEntity {
 				this.widget_options = JSON.stringify(this.widget_options);
 			}
 		} catch (e) {
-			console.error('-> Error widget options stringify ' + e.message);
+			console.error('-> Error widget options stringify ' + getErrorMessage(e));
 		}
 	}
 
@@ -76,7 +77,7 @@ export class TableWidgetEntity {
 				});
 			}
 		} catch (e) {
-			console.error('-> Error widget options parse ' + e.message);
+			console.error('-> Error widget options parse ' + getErrorMessage(e));
 		}
 	}
 
