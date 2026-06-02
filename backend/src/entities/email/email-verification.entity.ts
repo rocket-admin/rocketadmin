@@ -9,6 +9,9 @@ export class EmailVerificationEntity {
 	@Column({ default: null })
 	verification_string: string;
 
+	@Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+	createdAt: Date;
+
 	@OneToOne(
 		() => UserEntity,
 		(user) => user.email_verification,
