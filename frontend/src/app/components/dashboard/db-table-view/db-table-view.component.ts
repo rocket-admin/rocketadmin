@@ -28,7 +28,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorIntl, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
@@ -193,7 +193,11 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 		public router: Router,
 		public dialog: MatDialog,
 		private cdr: ChangeDetectorRef,
-	) {}
+		private paginatorIntl: MatPaginatorIntl,
+	) {
+		this.paginatorIntl.itemsPerPageLabel = 'Per page:';
+		this.paginatorIntl.changes.next();
+	}
 
 	ngAfterViewInit() {
 		this.tableData.paginator = this.paginator;
