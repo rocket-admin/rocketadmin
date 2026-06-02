@@ -11,6 +11,12 @@
 /node_modules
 .yarn/
 
+# yarn berry cache (not tracked at repo root)
+/.yarn/cache
+/.yarn/install-state.gz
+/.yarn/unplugged
+/.yarn/build-state.yml
+
 # profiling files
 chrome-profiler-events*.json
 speed-measure-plugin*.json
