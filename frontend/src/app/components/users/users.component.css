@@ -131,3 +131,25 @@ header {
 .no-access {
 	margin-top: 32px !important;
 }
+
+@media (width <= 600px) {
+	.wrapper {
+		width: 100%;
+		padding: 0 16px;
+		box-sizing: border-box;
+	}
+
+	header {
+		flex-wrap: wrap;
+		gap: 8px;
+		margin: 16px 0 12px;
+	}
+
+	.add-group-button {
+		flex: 0 0 auto;
+	}
+
+	.mat-h1 {
+		font-size: 22px;
+	}
+}

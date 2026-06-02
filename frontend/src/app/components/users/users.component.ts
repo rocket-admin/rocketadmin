@@ -157,6 +157,7 @@ export class UsersComponent implements OnInit {
 			if (createdGroup) {
 				this._dialog.open(CedarPolicyEditorDialogComponent, {
 					width: '40em',
+					panelClass: 'mobile-bottom-sheet-dialog',
 					data: { groupId: createdGroup.id, groupTitle: createdGroup.title, cedarPolicy: null },
 				});
 			}
@@ -194,6 +195,7 @@ export class UsersComponent implements OnInit {
 	openCedarPolicyDialog(group: UserGroup) {
 		this._dialog.open(CedarPolicyEditorDialogComponent, {
 			width: '40em',
+			panelClass: 'mobile-bottom-sheet-dialog',
 			data: { groupId: group.id, groupTitle: group.title, cedarPolicy: group.cedarPolicy },
 		});
 	}
