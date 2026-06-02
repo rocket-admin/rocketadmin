@@ -9,6 +9,10 @@ import { validateConnectionToken } from '../services/token-validator.js';
 import { hashToken } from '../utils/crypto.js';
 import { logger } from '../utils/logger.js';
 
+interface AuthenticatedSocket extends WebSocket {
+	agentToken?: string;
+}
+
 export function setupWebSocketServer(server: Server): WebSocketServer {
 	const wss = new WebSocketServer({ server });
 
@@ -46,12 +50,22 @@ export function setupWebSocketServer(server: Server): WebSocketServer {
 				);
 				connectionToken = hashedToken;
 				data.connectionToken = connectionToken;
+				(ws as AuthenticatedSocket).agentToken = hashedToken;
 			}
 
 			if (operationType === COMMAND_TYPE.dataFromAgent && resId) {
 				const cachedResponse = responseCache.get(resId);
 
 				if (cachedResponse) {
+					const socketToken = (ws as AuthenticatedSocket).agentToken;
+					if (!socketToken || socketToken !== cachedResponse.routedToken) {
+						logger.warn(
+							{ resId, authenticated: !!socketToken },
+							'Discarding dataFromAgent from a socket not bound to the routed connection token',
+						);
+						return;
+					}
+
 					logger.debug({ resId }, 'Received data from agent');
 					cachedResponse.resolve(rawMessage.toString());
 					responseCache.delete(resId);
