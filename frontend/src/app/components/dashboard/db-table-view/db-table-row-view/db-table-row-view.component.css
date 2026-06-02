@@ -125,6 +125,7 @@
 }
 
 .row-preview-sidebar__field {
+	position: relative;
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
@@ -132,13 +133,19 @@
 	padding: 12px 20px;
 }
 
-.row-preview-sidebar__field:not(:last-child) {
-	border-bottom: solid 1px rgba(0, 0, 0, 0.12);
+.row-preview-sidebar__field:not(:last-child)::after {
+	content: '';
+	position: absolute;
+	left: 20px;
+	right: 20px;
+	bottom: 0;
+	height: 1px;
+	background: rgba(0, 0, 0, 0.12);
 }
 
 @media (prefers-color-scheme: dark) {
-	.row-preview-sidebar__field:not(:last-child) {
-		border-bottom: solid 1px rgba(255, 255, 255, 0.04);
+	.row-preview-sidebar__field:not(:last-child)::after {
+		background: rgba(255, 255, 255, 0.04);
 	}
 }
 

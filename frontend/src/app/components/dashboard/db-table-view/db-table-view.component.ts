@@ -179,6 +179,9 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 
 	@ViewChild(MatPaginator) paginator: MatPaginator;
 	@ViewChild(MatSort) sort: MatSort;
+	@ViewChild(SavedFiltersPanelComponent) savedFiltersPanel?: SavedFiltersPanelComponent;
+
+	public chipFilterForMenu: any = null;
 
 	public defaultSort: { column: string; direction: 'asc' | 'desc' } | null = null;
 	private sortInitialized: boolean = false;
@@ -195,7 +198,7 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 		private cdr: ChangeDetectorRef,
 		private paginatorIntl: MatPaginatorIntl,
 	) {
-		this.paginatorIntl.itemsPerPageLabel = 'per page:';
+		this.paginatorIntl.itemsPerPageLabel = 'Rows per page:';
 		this.paginatorIntl.changes.next();
 	}
 
@@ -595,6 +598,10 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 		this.searchString = '';
 	}
 
+	handleOpenCreateQuickFilter() {
+		this.savedFiltersPanel?.handleOpenSavedFiltersDialog();
+	}
+
 	handleSearch() {
 		this.searchString = this.searchString.trim();
 		this.staticSearchString = this.searchString;
@@ -907,6 +914,7 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 	handleActiveFilterClick(filterKey: string) {
 		const dialogRef = this.dialog.open(DbTableFiltersDialogComponent, {
 			width: '56em',
+			panelClass: 'mobile-bottom-sheet-dialog',
 			data: {
 				connectionID: this.connectionID,
 				tableName: this.name,
