@@ -30,6 +30,25 @@
 		display: inline-flex;
 	}
 
+	.saved-filters-trigger_active {
+		width: calc(100vw - 130px - 2*24px);
+		box-sizing: border-box;
+	}
+
+	/* let the button's label shrink and ellipsis when it can't fit into calc(100% - 130px) */
+	.saved-filters-trigger_active ::ng-deep .mdc-button__label {
+		display: flex;
+		align-items: center;
+		min-width: 0;
+		overflow: hidden;
+	}
+
+	.saved-filters-trigger_active .saved-filters-trigger__label {
+		max-width: none;
+		min-width: 0;
+		flex: 1 1 auto;
+	}
+
 	.create-filter-button,
 	.saved-filters-tabs {
 		display: none !important;
@@ -301,7 +320,8 @@
 		flex-direction: row;
 		flex-wrap: wrap;
 		gap: 6px;
-		margin: 8px 0 16px;
+		margin-top: 0;
+		margin-bottom: 16px;
 		padding: 8px 16px;
 		border-radius: 10px;
 		background: rgba(0, 0, 0, 0.03);

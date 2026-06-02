@@ -285,6 +285,23 @@
 </div>
 
 <div class="saved-filters-row">
+    <div class="saved-filters-row__mobile-actions">
+        <button mat-icon-button type="button" *ngIf="tableData && tableData.displayedColumns && tableData.columns"
+            class="saved-filters-row__columns"
+            matTooltip="Columns"
+            (click)="openColumnsSheet()">
+            <mat-icon fontSet="material-symbols-outlined">view_week</mat-icon>
+        </button>
+
+        <button mat-button type="button" *ngIf="tableData && tableData.displayedDataColumns?.length"
+            class="mobile-sort-button"
+            [ngClass]="{'mobile-sort-button_active': sort.active && sort.direction}"
+            (click)="openSortSheet()">
+            <mat-icon fontSet="material-symbols-outlined">swap_vert</mat-icon>
+            <span class="mobile-sort-button__label">Sort by</span>
+        </button>
+    </div>
+
     <app-saved-filters-panel *ngIf="tableData && tableData.structure && tableData.widgets"
         [connectionID]="connectionID"
         [selectedTableName]="name"
@@ -295,21 +312,6 @@
         [tableTypes]="tableData.tableTypes"
         (filterSelected)="onFilterSelected($event)"
     ></app-saved-filters-panel>
-
-    <button mat-icon-button type="button" *ngIf="tableData && tableData.displayedColumns && tableData.columns"
-        class="saved-filters-row__columns"
-        matTooltip="Columns"
-        (click)="openColumnsSheet()">
-        <mat-icon fontSet="material-symbols-outlined">view_week</mat-icon>
-    </button>
-
-    <button mat-button type="button" *ngIf="tableData && tableData.displayedDataColumns?.length"
-        class="mobile-sort-button"
-        [ngClass]="{'mobile-sort-button_active': sort.active && sort.direction}"
-        (click)="openSortSheet()">
-        <mat-icon fontSet="material-symbols-outlined">swap_vert</mat-icon>
-        <span class="mobile-sort-button__label">Sort by</span>
-    </button>
 </div>
 
 <!-- Table View -->

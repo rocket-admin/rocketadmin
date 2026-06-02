@@ -759,26 +759,41 @@
 	display: none !important;
 }
 
+.saved-filters-row__mobile-actions {
+	display: none;
+}
+
 @media (width <= 600px) {
 	.saved-filters-row {
 		display: flex;
+		flex-direction: column;
 		align-items: flex-start;
 		gap: 8px;
 	}
 
 	.saved-filters-row > app-saved-filters-panel {
-		flex: 1 1 auto;
+		flex: 0 1 auto;
 		min-width: 0;
 		display: block;
+	}
+
+	.saved-filters-row__mobile-actions {
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		/* grow to fill the row so the buttons sit on the far right; panel keeps its natural width to avoid overlapping .saved-filters-trigger_active */
+		flex: 1 1 auto;
+		min-width: 0;
+		width: 100%;
+		margin-bottom: -44px;
 	}
 
 	.mobile-sort-button {
 		display: inline-flex !important;
 		align-items: center;
-		gap: 4px;
 		flex: 0 0 auto;
 		min-height: 36px;
-		padding: 0 10px;
+		padding: 0 4px;
 		font-size: 13px;
 		font-weight: 500;
 	}
@@ -902,6 +917,13 @@
 	margin-bottom: 12px;
 }
 
+@media (width <= 600px) {
+	.active-filters {
+		margin-top: -12px;
+		margin-bottom: 16px;
+	}
+}
+
 ::ng-deep .active-filters .mat-mdc-chip {
 	--mdc-chip-container-color: #e8ecee !important;
 	--mdc-chip-elevated-container-color: #e8ecee !important;
@@ -965,14 +987,6 @@
 	}
 }
 
-.active-filters {
-	display: flex;
-	align-items: center;
-	flex-wrap: wrap;
-	gap: 8px;
-	margin-bottom: 12px;
-}
-
 .db-table-active-filter-chip ::ng-deep .mdc-evolution-chip__text-label {
 	max-width: 300px;
 	overflow: hidden;
@@ -1026,6 +1040,7 @@
 @media (width <= 600px) {
 	.db-table {
 		grid-template-columns: minmax(0, 120px) 1fr !important;
+		grid-row-gap: 8px;
 		background: transparent !important;
 	}
 
@@ -1040,6 +1055,10 @@
 	.table-surface {
 		background: transparent !important;
 		box-shadow: none !important;
+	}
+
+	.table-surface ::ng-deep mat-paginator {
+		margin-top: 20px;
 	}
 
 	.table-box {
