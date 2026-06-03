@@ -24,3 +24,9 @@
 .field-display:hover .field-copy-button {
 	opacity: 1;
 }
+
+@media (width <= 600px) {
+	.field-copy-button {
+		display: none !important;
+	}
+}

@@ -139,6 +139,20 @@
 .logo__image {
 	height: 24px;
 	margin-right: 12px;
+	display: block;
+	vertical-align: middle;
+}
+
+.logo picture {
+	display: inline-flex;
+	align-items: center;
+}
+
+@media (width <= 600px) {
+	.logo__image {
+		height: 28px;
+		margin-right: 8px;
+	}
 }
 
 .logo__demo-mark {

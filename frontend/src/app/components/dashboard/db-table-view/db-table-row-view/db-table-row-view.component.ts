@@ -313,7 +313,7 @@ export class DbTableRowViewComponent implements OnInit, OnDestroy {
 	}
 
 	showCopyNotification(message: string) {
-		this._notifications.showSuccessSnackbar(message);
+		this._notifications.showSuccessSnackbar(message, 'top');
 	}
 
 	stashUrlParams() {

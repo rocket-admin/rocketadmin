@@ -11,6 +11,21 @@
 	left: 0;
 }
 
+@media (width <= 600px) {
+	:host {
+		text-align: left;
+	}
+
+	.field-display {
+		justify-content: flex-start;
+	}
+
+	.field-copy-button {
+		right: 0;
+		left: auto;
+	}
+}
+
 .out-of-threshold {
 	display: flex;
 	align-items: center;

@@ -7,6 +7,7 @@ interface CachedResponse {
 	reject: (error: Error) => void;
 	sendError: (status: number, message: string) => void;
 	createdAt: Date;
+	routedToken: string;
 }
 
 export const responseCache = new LRUCache<string, CachedResponse>({
@@ -23,12 +24,14 @@ export function cacheResponse(
 	resolve: (data: string) => void,
 	reject: (error: Error) => void,
 	sendError: (status: number, message: string) => void,
+	routedToken: string,
 ): void {
 	responseCache.set(resId, {
 		resolve,
 		reject,
 		sendError,
 		createdAt: new Date(),
+		routedToken,
 	});
 	logger.debug({ resId }, 'Response cached');
 }
