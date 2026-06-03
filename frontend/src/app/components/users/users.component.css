@@ -112,20 +112,34 @@ header {
 	}
 }
 
+.user {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 8px 0;
+}
+
+.user__label {
+	display: flex;
+	flex-direction: column;
+}
+
+.user__email {
+	font-size: 12px;
+	color: rgba(0, 0, 0, 0.64);
+}
+
+@media (prefers-color-scheme: dark) {
+	.user__email {
+		color: rgba(255, 255, 255, 0.64);
+	}	
+}
+
 .group-members-count {
 	font-size: 11px;
 	opacity: 0.45;
 	margin-left: 6px;
 	white-space: nowrap;
-}
-
-.user {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	box-sizing: border-box;
-	padding-right: 1.5em;
-	width: calc(100% + 1em);
 }
 
 .no-access {
