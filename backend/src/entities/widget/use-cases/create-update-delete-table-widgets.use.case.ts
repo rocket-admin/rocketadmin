@@ -3,6 +3,7 @@ import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 import { toPrettyErrorsMsg } from '../../../helpers/to-pretty-errors-msg.js';
 import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';
 import { buildEmptyTableSettingsWithEmptyWidgets } from '../../table-settings/common-table-settings/utils/build-empty-table-settings.js';
@@ -32,7 +33,15 @@ export class CreateUpdateDeleteTableWidgetsUseCase
 			connectionId,
 			masterPwd,
 		);
-		const errors: Array<string> = await validateCreateWidgetsDs(widgets, userId, foundConnection, tableName, null);
+		if (!foundConnection) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_NOT_FOUND,
+				},
+				HttpStatus.NOT_FOUND,
+			);
+		}
+		const errors: Array<string> = await validateCreateWidgetsDs(widgets, userId, foundConnection, tableName, '');
 		if (errors.length > 0) {
 			throw new HttpException(
 				{

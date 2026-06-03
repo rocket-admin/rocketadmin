@@ -11,5 +11,5 @@ export class CreateLogRecordDs {
 	table_name: string;
 	userId: string;
 	affected_primary_key?: string | Record<string, unknown>;
-	operation_custom_action_name?: string;
+	operation_custom_action_name?: string | null;
 }

@@ -15,13 +15,13 @@ export class TableSettingsInRowsDS {
 	sortable_by: Array<string>;
 
 	@ApiProperty({ enum: QueryOrderingEnum })
-	ordering: QueryOrderingEnum;
+	ordering?: QueryOrderingEnum;
 
 	@ApiProperty()
-	ordering_field: string;
+	ordering_field?: string;
 
 	@ApiProperty()
-	identity_column: string;
+	identity_column: string | null;
 
 	@ApiProperty({ isArray: true })
 	list_fields: Array<string>;
@@ -58,13 +58,13 @@ export class FoundTableRowsDs {
 	sortable_by: Array<string>;
 
 	@ApiProperty()
-	ordering_field: string;
+	ordering_field?: string;
 
 	@ApiProperty({ enum: QueryOrderingEnum })
-	ordering: QueryOrderingEnum;
+	ordering?: QueryOrderingEnum;
 
 	@ApiProperty({ isArray: true })
-	columns_view: Array<string>;
+	columns_view?: Array<string>;
 
 	@ApiProperty({ isArray: true, type: FullTableStructureDs })
 	structure: Array<FullTableStructureDs>;
@@ -79,7 +79,7 @@ export class FoundTableRowsDs {
 	widgets: Array<TableWidgetEntity>;
 
 	@ApiProperty()
-	identity_column: string;
+	identity_column: string | null;
 
 	@ApiProperty()
 	table_permissions: TablePermissionDs;

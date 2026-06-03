@@ -42,7 +42,7 @@ export async function executeCommand(c: Context): Promise<Response> {
 			resolve(c.json({ error: message }, status as 400));
 		};
 
-		cacheResponse(resId, handleResolve, handleReject, handleSendError);
+		cacheResponse(resId, handleResolve, handleReject, handleSendError, connectionToken.token);
 
 		try {
 			sendCommandToClient(connectionToken.token, body, resId);

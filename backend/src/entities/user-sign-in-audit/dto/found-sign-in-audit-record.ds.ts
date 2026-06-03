@@ -6,8 +6,8 @@ export class FoundSignInAuditRecordDs {
 	@ApiProperty()
 	id: string;
 
-	@ApiProperty()
-	email: string;
+	@ApiProperty({ nullable: true })
+	email: string | null;
 
 	@ApiProperty({ enum: SignInStatusEnum })
 	status: SignInStatusEnum;
@@ -15,18 +15,18 @@ export class FoundSignInAuditRecordDs {
 	@ApiProperty({ enum: SignInMethodEnum })
 	signInMethod: SignInMethodEnum;
 
-	@ApiProperty()
-	ipAddress: string;
+	@ApiProperty({ nullable: true })
+	ipAddress: string | null;
 
-	@ApiProperty()
-	userAgent: string;
+	@ApiProperty({ nullable: true })
+	userAgent: string | null;
 
-	@ApiProperty()
-	failureReason: string;
+	@ApiProperty({ nullable: true })
+	failureReason: string | null;
 
 	@ApiProperty()
 	createdAt: Date;
 
-	@ApiProperty()
-	userId: string;
+	@ApiProperty({ nullable: true })
+	userId: string | null;
 }

@@ -41,7 +41,7 @@ export class FindTablesInConnectionV2UseCase
 
 	protected async implementation(inputData: FindTablesDs): Promise<FoundTablesWithCategoriesDS> {
 		const { connectionId, hiddenTablesOption, masterPwd, userId } = inputData;
-		let connection: ConnectionEntity;
+		let connection: ConnectionEntity | null = null;
 		try {
 			connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
 		} catch (error) {
@@ -74,12 +74,12 @@ export class FindTablesInConnectionV2UseCase
 			);
 		}
 		const dao = getDataAccessObject(connection);
-		let userEmail: string;
+		let userEmail = '';
 		let operationResult = false;
 		if (isConnectionTypeAgent(connection.type)) {
-			userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
+			userEmail = (await this._dbContext.userRepository.getUserEmailOrReturnNull(userId)) ?? '';
 		}
-		let tables: Array<TableDS>;
+		let tables: Array<TableDS> = [];
 		try {
 			tables = await dao.getTablesFromDB(userEmail);
 			operationResult = true;
@@ -119,10 +119,11 @@ export class FindTablesInConnectionV2UseCase
 			await this._dbContext.connectionPropertiesRepository.findConnectionPropertiesWithTablesCategories(connectionId);
 		const tableSettings = await this._dbContext.tableSettingsRepository.findTableSettingsInConnectionPure(connectionId);
 		let tablesRO = addDisplayNamesForTables(tableSettings, tablesWithPermissions);
-		if (foundConnectionProperties && foundConnectionProperties.hidden_tables.length > 0) {
+		if (foundConnectionProperties?.hidden_tables && foundConnectionProperties.hidden_tables.length > 0) {
+			const hiddenTables = foundConnectionProperties.hidden_tables;
 			if (!hiddenTablesOption) {
 				tablesRO = tablesRO.filter((tableRO) => {
-					return !foundConnectionProperties.hidden_tables.includes(tableRO.table);
+					return !hiddenTables.includes(tableRO.table);
 				});
 			} else {
 				const userConnectionEdit = await this.cedarPermissions.checkUserConnectionEdit(userId, connectionId);

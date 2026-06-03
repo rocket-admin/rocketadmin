@@ -10,7 +10,7 @@ export const QueryUuid = createParamDecorator((paramName: string, ctx: Execution
 	if (isObjectPropertyExists(query, paramName)) {
 		// eslint-disable-next-line security/detect-object-injection
 		const uuId = query[paramName];
-		if (ValidationHelper.isValidUUID(uuId) || ValidationHelper.isValidNanoId(uuId)) {
+		if (typeof uuId === 'string' && (ValidationHelper.isValidUUID(uuId) || ValidationHelper.isValidNanoId(uuId))) {
 			return uuId;
 		}
 		throw new BadRequestException(Messages.UUID_INVALID);

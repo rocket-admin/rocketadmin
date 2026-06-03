@@ -70,7 +70,7 @@ export class ExecuteSavedDbQueryUseCase
 
 		const startTime = Date.now();
 
-		const executionResult = await dao.executeRawQuery(foundQuery.query_text, tableName, userEmail);
+		const executionResult = await dao.executeRawQuery(foundQuery.query_text, tableName, userEmail ?? '');
 		const processedResult = this.processQueryResult(executionResult, foundConnection.type as ConnectionTypesEnum);
 
 		const executionTime = Date.now() - startTime;

@@ -43,9 +43,17 @@ export class UpdateConnectionUseCase
 			connectionId,
 			masterPwd,
 		);
+		if (!foundConnectionToUpdate) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_NOT_FOUND,
+				},
+				HttpStatus.NOT_FOUND,
+			);
+		}
 		const testConnectionsHosts = Constants.getTestConnectionsHostNamesArr();
 
-		if (testConnectionsHosts.includes(foundConnectionToUpdate.host)) {
+		if (testConnectionsHosts.includes(foundConnectionToUpdate.host ?? '')) {
 			throw new HttpException(
 				{
 					message: Messages.TEST_CONNECTIONS_UPDATE_NOT_ALLOWED,

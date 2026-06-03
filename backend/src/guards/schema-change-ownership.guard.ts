@@ -26,7 +26,10 @@ export class SchemaChangeOwnershipGuard implements CanActivate {
 	async canActivate(context: ExecutionContext): Promise<boolean> {
 		const request: IRequestWithCognitoInfo = context.switchToHttp().getRequest();
 		const userId = request.decoded.sub;
-		const changeId: string = request.params?.changeId;
+		if (!userId) {
+			throw new ForbiddenException(Messages.DONT_HAVE_PERMISSIONS);
+		}
+		const changeId: string | undefined = request.params?.changeId;
 
 		if (!changeId || !ValidationHelper.isValidUUID(changeId)) {
 			throw new BadRequestException('Invalid or missing changeId.');

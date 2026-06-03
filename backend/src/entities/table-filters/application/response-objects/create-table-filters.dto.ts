@@ -59,8 +59,8 @@ export class CreateTableFilterDto {
 	@IsObject()
 	filters: Record<string, unknown>;
 
-	@ApiProperty({ type: DynamicTableFilterDto, required: false })
+	@ApiProperty({ type: DynamicTableFilterDto, required: false, nullable: true })
 	@IsOptional()
 	@ValidateNested()
-	dynamic_column: DynamicTableFilterDto;
+	dynamic_column: DynamicTableFilterDto | null;
 }

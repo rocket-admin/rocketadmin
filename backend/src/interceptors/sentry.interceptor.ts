@@ -30,6 +30,7 @@ export class SentryInterceptor implements NestInterceptor {
 			);
 		} catch (e) {
 			console.error(e);
+			return next.handle();
 		}
 	}
 }

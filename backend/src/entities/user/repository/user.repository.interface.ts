@@ -6,7 +6,7 @@ import { UserEntity } from '../user.entity.js';
 export interface IUserRepository {
 	createUser(userData: CreateUserDs): Promise<UserEntity>;
 
-	findOneUserById(userId: string): Promise<UserEntity>;
+	findOneUserById(userId: string): Promise<UserEntity | null>;
 
 	findOneUserWithUserAction(userId: string): Promise<UserEntity>;
 
@@ -14,7 +14,7 @@ export interface IUserRepository {
 		email: string,
 		externalRegistrationProvider?: ExternalRegistrationProviderEnum,
 		samlNameId?: string,
-	): Promise<UserEntity>;
+	): Promise<UserEntity | null>;
 
 	findUserWithConnections(userId: string): Promise<UserEntity>;
 
@@ -35,7 +35,7 @@ export interface IUserRepository {
 
 	getUsersWithNotNullGCLIDsInTwoWeeks(): Promise<Array<UserEntity>>;
 
-	getUserEmailOrReturnNull(userId: string): Promise<string>;
+	getUserEmailOrReturnNull(userId: string): Promise<string | null>;
 
 	getTrue(): Promise<boolean>;
 
@@ -43,7 +43,7 @@ export interface IUserRepository {
 
 	findOneUserByGitHubId(gitHubId: number): Promise<UserEntity>;
 
-	findOneUserByEmailAndCompanyId(email: string, companyId: string): Promise<UserEntity>;
+	findOneUserByEmailAndCompanyId(email: string, companyId: string | null): Promise<UserEntity | null>;
 
 	findOneUserByIdAndCompanyId(userId: string, companyId: string): Promise<UserEntity>;
 

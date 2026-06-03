@@ -24,7 +24,7 @@ export async function validateCreateConnectionPropertiesDs(
 				errors.push(Messages.TABLE_WITH_NAME_NOT_EXISTS(hiddenTable));
 			}
 		}
-		if (hidden_tables.includes(default_showing_table)) {
+		if (default_showing_table && hidden_tables.includes(default_showing_table)) {
 			errors.push(Messages.CANT_SHOW_TABLE_AND_EXCLUDE(default_showing_table));
 		}
 	}

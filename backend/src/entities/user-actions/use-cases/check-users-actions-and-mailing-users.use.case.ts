@@ -65,11 +65,14 @@ export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActio
 			}
 		}
 		const foundUser = await this.userRepository.findOne({ where: { id: u.id } });
+		if (!foundUser) {
+			return;
+		}
 		const newUserActionEntity = buildNewConnectionNotFinishedEmailSentAction(foundUser);
 		await this.userActionRepository.save(newUserActionEntity);
 	}
 
-	private async findUserActionWithoutSentMail(userId: string): Promise<UserActionEntity> {
+	private async findUserActionWithoutSentMail(userId: string): Promise<UserActionEntity | null> {
 		const actionQb = this.userActionRepository
 			.createQueryBuilder('user_action')
 			.leftJoinAndSelect('user_action.user', 'user')

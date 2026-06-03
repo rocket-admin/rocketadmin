@@ -102,7 +102,7 @@ export class TestConnectionUseCase
 					!connectionData.password &&
 					(connectionData.host !== toUpdate.host || connectionData.port !== toUpdate.port) &&
 					!isConnectionTypeAgent(connectionData.type) &&
-					!isRedisConnectionUrl(connectionData.host)
+					!isRedisConnectionUrl(connectionData.host ?? '')
 				) {
 					return {
 						result: false,
@@ -135,7 +135,7 @@ export class TestConnectionUseCase
 			if (
 				!connectionData.password &&
 				!isConnectionTypeAgent(connectionData.type) &&
-				!isRedisConnectionUrl(connectionData.host)
+				!isRedisConnectionUrl(connectionData.host ?? '')
 			) {
 				return {
 					result: false,
@@ -165,7 +165,7 @@ export class TestConnectionUseCase
 		authorId: string,
 		connectionType: ConnectionTypesEnum,
 	): Promise<TestConnectionResultDs> {
-		let testResult: TestConnectionResultDs;
+		let testResult: TestConnectionResultDs | undefined;
 		try {
 			testResult = await dao.testConnect();
 			return testResult;
@@ -191,7 +191,7 @@ export class TestConnectionUseCase
 		} finally {
 			if (testResult?.result) {
 				const foundUser = await this._dbContext.userRepository.findOneUserById(authorId);
-				await slackPostMessage(Messages.USER_SUCCESSFULLY_TESTED_CONNECTION(foundUser?.email, connectionType));
+				await slackPostMessage(Messages.USER_SUCCESSFULLY_TESTED_CONNECTION(foundUser?.email ?? '', connectionType));
 			}
 		}
 	}

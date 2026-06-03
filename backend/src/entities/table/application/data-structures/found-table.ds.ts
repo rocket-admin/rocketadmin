@@ -4,7 +4,7 @@ import { FoundTableCategoryRo } from '../../../table-categories/dto/found-table-
 
 export class FoundTableDs {
 	@ApiProperty()
-	display_name?: string;
+	display_name?: string | null;
 
 	@ApiProperty()
 	table: string;
@@ -13,7 +13,7 @@ export class FoundTableDs {
 	isView: boolean;
 
 	@ApiProperty()
-	icon: string;
+	icon?: string | null;
 
 	@ApiProperty()
 	permissions: TableAccessLevelsDs;

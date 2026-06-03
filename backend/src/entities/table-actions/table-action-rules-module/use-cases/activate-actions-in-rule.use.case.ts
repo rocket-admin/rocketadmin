@@ -4,6 +4,7 @@ import { IGlobalDatabaseContext } from '../../../../common/application/global-da
 import { BaseType } from '../../../../common/data-injection.tokens.js';
 import { LogOperationTypeEnum } from '../../../../enums/log-operation-type.enum.js';
 import { OperationResultStatusEnum } from '../../../../enums/operation-result-status.enum.js';
+import { TableActionEventEnum } from '../../../../enums/table-action-event-enum.js';
 import { Messages } from '../../../../exceptions/text/messages.js';
 import { TableLogsService } from '../../../table-logs/table-logs.service.js';
 import { TableActionActivationService } from '../../table-actions-module/table-action-activation.service.js';
@@ -49,8 +50,16 @@ export class ActivateActionsInEventUseCase
 			connectionId,
 			masterPwd,
 		);
+		if (!foundConnection) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_NOT_FOUND,
+				},
+				HttpStatus.NOT_FOUND,
+			);
+		}
 
-		let locationFromResult: string = null;
+		let locationFromResult: string | null = null;
 		const activationResults: Array<{ actionId: string; result: OperationResultStatusEnum }> = [];
 
 		for (const action of foundActionsWithCustomEvents) {
@@ -63,7 +72,7 @@ export class ActivateActionsInEventUseCase
 						request_body,
 						userId,
 						tableName,
-						null,
+						TableActionEventEnum.CUSTOM,
 					);
 				operationResult = receivedOperationResult;
 				primaryKeyValuesArray = receivedPrimaryKeysObj;

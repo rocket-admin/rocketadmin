@@ -74,7 +74,7 @@ export class CheckUsersLogsAndUpdateActionsUseCase implements ICheckUsersLogsAnd
 		return !!userLogsCount;
 	}
 
-	private async findNonFinishedConnectionCreationUserAction(userId: string): Promise<UserActionEntity> {
+	private async findNonFinishedConnectionCreationUserAction(userId: string): Promise<UserActionEntity | null> {
 		const actionQb = this.userActionRepository
 			.createQueryBuilder('user_action')
 			.leftJoin('user_action.user', 'user')

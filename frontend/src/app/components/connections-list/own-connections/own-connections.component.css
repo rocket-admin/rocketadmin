@@ -5,6 +5,16 @@
 	width: 100%;
 }
 
+/* ── Page heading: shrink on mobile to match company name ── */
+
+@media (width <= 600px) {
+	:host h1.mat-display-1 {
+		font-size: 22px !important;
+		line-height: 1.2 !important;
+		margin-bottom: 20px;
+	}
+}
+
 /* ── Section labels ── */
 
 .section {
@@ -124,30 +134,50 @@
 	white-space: nowrap;
 }
 
+.hosted-banner__chevron {
+	display: none;
+	flex-shrink: 0;
+	color: var(--color-accentedPalette-700);
+}
+
 @media (width <= 600px) {
 	.hosted-banner {
-		flex-direction: column;
-		align-items: flex-start;
-		padding: 16px;
-		gap: 12px;
+		align-items: center;
+		padding: 10px 14px;
+		gap: 10px;
 	}
 
 	.hosted-banner__iconBox {
-		width: 36px;
-		height: 36px;
+		width: 30px;
+		height: 30px;
+	}
+
+	.hosted-banner__icon {
+		width: 18px !important;
+		height: 18px !important;
+		font-size: 18px !important;
+		line-height: 18px !important;
 	}
 
 	.hosted-banner__title {
-		font-size: 14px;
+		font-size: 13px;
+		line-height: 1.2;
 	}
 
 	.hosted-banner__subtitle {
-		font-size: 12px;
+		font-size: 11.5px;
+		line-height: 1.25;
 	}
 
 	.hosted-banner__badge {
-		align-self: flex-start;
-		font-size: 11px;
+		display: none;
+	}
+
+	.hosted-banner__chevron {
+		display: block;
+		font-size: 20px;
+		width: 20px;
+		height: 20px;
 	}
 }
 
@@ -167,6 +197,8 @@
 @media (width <= 600px) {
 	.dbGrid {
 		width: 100%;
+		grid-template-columns: 1fr;
+		grid-gap: 8px;
 	}
 }
 
@@ -189,6 +221,16 @@
 		0px 1px 3px 0px rgba(0, 0, 0, 0.2),
 		0px 2px 2px 0px rgba(0, 0, 0, 0.12),
 		0px 0px 2px 0px rgba(0, 0, 0, 0.14);
+}
+
+@media (width <= 600px) {
+	.dbCard {
+		flex-direction: row;
+		justify-content: flex-start;
+		gap: 12px;
+		padding: 10px 14px;
+		min-height: 54px;
+	}
 }
 
 .dbCard:hover {
@@ -251,6 +293,19 @@
 	margin-top: -2px;
 }
 
+@media (width <= 600px) {
+	.dbCard__label {
+		text-align: left;
+		line-height: 1.2;
+		flex: 1;
+		min-width: 0;
+	}
+
+	.dbCard__subLabel {
+		margin-top: 2px;
+	}
+}
+
 /* ── Existing connections list ── */
 
 .connections {
@@ -262,6 +317,10 @@
 	margin-bottom: 8px;
 	width: 100%;
 	padding: 0;
+}
+
+.connectionItem {
+	min-width: 0;
 }
 
 .connection {
@@ -302,6 +361,7 @@
 	flex-shrink: 0;
 	display: flex;
 	align-items: center;
+	min-width: 0;
 	gap: 12px;
 	background-color: var(--color-primaryPalette-500);
 	border-radius: 2px;
@@ -332,6 +392,39 @@
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	width: 100%;
+}
+
+/* ── Compact mobile layout (keep desktop dark banner, just shorter) ── */
+
+@media (width <= 600px) {
+	.connections {
+		grid-template-columns: 1fr;
+		gap: 8px;
+	}
+
+	.connection {
+		gap: 4px;
+		padding: 8px;
+	}
+
+	.connection:has(.connectionSchemaButton) {
+		padding: 8px 8px 4px;
+	}
+
+	.connectionLogoPreview {
+		height: 56px;
+		padding: 6px 10px;
+		gap: 10px;
+	}
+
+	.connectionInfo .connectionInfo__connectionTitle {
+		font-size: 14px !important;
+		margin-bottom: -8px;
+	}
+
+	.connectionLogoPreview .mat-body-2 {
+		font-size: 11px;
+	}
 }
 
 /* ── Schema button row at the bottom of the card ── */
@@ -410,6 +503,21 @@
 	margin-top: 52px;
 }
 
+/* Show separate buttons on desktop, dropdown menu on mobile */
+.fabActions--mobile {
+	display: none;
+}
+
+@media (width <= 600px) {
+	.fabActions--desktop {
+		display: none;
+	}
+
+	.fabActions--mobile {
+		display: flex;
+	}
+}
+
 .fabAddButton {
 	border-radius: 24px;
 	box-shadow:
@@ -417,7 +525,12 @@
 		0px 4px 5px 0px rgba(0, 0, 0, 0.12),
 		0px 2px 4px 0px rgba(0, 0, 0, 0.14);
 	height: 48px !important;
-	width: 178px;
+	min-width: 178px;
+	padding: 0 14px 0 16px !important;
+}
+
+.fabAddButton .mat-icon[iconPositionEnd] {
+	margin-left: 4px;
 }
 
 .fabHostedButton {
@@ -442,6 +555,128 @@
 	.fabHostedButton {
 		width: auto;
 		min-width: 178px;
+	}
+}
+
+/* ── Add-connection menu styling (panelClass="addConnectionMenu") ── */
+
+::ng-deep .addConnectionMenu.mat-mdc-menu-panel {
+	min-width: 320px !important;
+	max-width: 360px !important;
+	border-radius: 14px !important;
+	box-shadow:
+		0 12px 28px rgba(0, 0, 0, 0.16),
+		0 4px 8px rgba(0, 0, 0, 0.08);
+	padding: 6px !important;
+	margin-bottom: 20px !important;
+}
+
+::ng-deep .addConnectionMenu .mat-mdc-menu-content {
+	padding: 0 !important;
+}
+
+::ng-deep .addConnectionMenu .mat-mdc-menu-item {
+	padding: 0 !important;
+	min-height: auto !important;
+	border-radius: 10px;
+	margin: 2px 0;
+}
+
+::ng-deep .addConnectionMenu .mat-mdc-menu-item:hover {
+	background-color: rgba(0, 0, 0, 0.04);
+}
+
+::ng-deep .addConnectionMenu .mat-mdc-menu-item .mat-mdc-menu-item-text {
+	width: 100%;
+}
+
+.addConnectionItem {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+	padding: 10px 12px 10px 0;
+	line-height: 1;
+}
+
+.addConnectionItem mat-icon {
+	margin: 0 !important;
+}
+
+.addConnectionItem__iconBox {
+	flex-shrink: 0;
+	width: 32px;
+	height: 32px;
+	border-radius: 8px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	line-height: 1;
+}
+
+.addConnectionItem__iconBox mat-icon {
+	font-size: 18px !important;
+	width: 18px !important;
+	height: 18px !important;
+	line-height: 18px !important;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.addConnectionItem__iconBox--primary {
+	background-color: color-mix(in srgb, var(--color-accentedPalette-500) 14%, transparent);
+	color: var(--color-accentedPalette-500);
+}
+
+.addConnectionItem__iconBox--accent {
+	background-color: color-mix(in srgb, var(--color-alternativePalette-500) 14%, transparent);
+	color: var(--color-alternativePalette-500);
+}
+
+.addConnectionItem__iconBox--warn {
+	background-color: color-mix(in srgb, var(--color-warningPalette-500) 16%, transparent);
+	color: var(--color-warningPalette-500);
+}
+
+.addConnectionItem__text {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+.addConnectionItem__title {
+	font-size: 14px;
+	font-weight: 600;
+	color: rgba(0, 0, 0, 0.88);
+	line-height: 1.2;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.addConnectionItem__subtitle {
+	font-size: 12px;
+	color: rgba(0, 0, 0, 0.55);
+	line-height: 1.3;
+	white-space: normal;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+@media (prefers-color-scheme: dark) {
+	::ng-deep .addConnectionMenu .mat-mdc-menu-item:hover {
+		background-color: rgba(255, 255, 255, 0.06);
+	}
+
+	.addConnectionItem__title {
+		color: rgba(255, 255, 255, 0.92);
+	}
+
+	.addConnectionItem__subtitle {
+		color: rgba(255, 255, 255, 0.6);
 	}
 }
 

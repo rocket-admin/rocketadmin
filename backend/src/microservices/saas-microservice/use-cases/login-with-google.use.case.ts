@@ -29,7 +29,7 @@ export class LoginWithGoogleUseCase
 	protected async implementation(inputData: SaasRegisterUserWithGoogleDS): Promise<UserEntity> {
 		const { email, name, glidCookieValue, ipAddress, userAgent } = inputData;
 
-		const foundUser: UserEntity = await this._dbContext.userRepository.findOneUserByEmail(
+		const foundUser: UserEntity | null = await this._dbContext.userRepository.findOneUserByEmail(
 			email,
 			ExternalRegistrationProviderEnum.GOOGLE,
 		);
@@ -61,14 +61,14 @@ export class LoginWithGoogleUseCase
 		email: string,
 		userId: string | null,
 		status: SignInStatusEnum,
-		ipAddress: string,
-		userAgent: string,
+		ipAddress: string | undefined,
+		userAgent: string | undefined,
 		failureReason?: string,
 	): Promise<void> {
 		try {
 			await this.signInAuditService.createSignInAuditRecord({
 				email,
-				userId,
+				userId: userId ?? undefined,
 				status,
 				signInMethod: SignInMethodEnum.GOOGLE,
 				ipAddress,

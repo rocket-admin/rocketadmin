@@ -20,7 +20,19 @@
 <div class="page">
      <div *ngIf="tableRowValues" class="wrapper" [ngClass]="{'wrapper_shifted' :selectedRow}">
         <div class="row-edit-header">
-            <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title || currentConnection.database)"></app-breadcrumbs>
+            <div class="row-edit-header__main">
+                <a mat-icon-button class="row-edit-header__back"
+                    routerLink="/dashboard/{{connectionID}}/{{tableName}}"
+                    [queryParams]="backUrlParams"
+                    matTooltip="Back to table"
+                    data-testid="record-back-to-table-button">
+                    <mat-icon>arrow_back</mat-icon>
+                </a>
+                <div class="row-edit-header__text">
+                    <span class="row-edit-header__title">{{ pageTitle }}</span>
+                    <span class="row-edit-header__subtitle">{{ dispalyTableName }}</span>
+                </div>
+            </div>
             <div class="row-actions">
                 <a mat-icon-button *ngIf="canAddRow() && hasKeyAttributesFromURL"
                     routerLink="/dashboard/{{connectionID}}/{{tableName}}/entry"
@@ -134,13 +146,6 @@
                                     onFieldChange: { handler: updateField, args: ['$event', value] }
                                 }"
                             ></ndc-dynamic>
-                            <mat-icon *ngIf="tableWidgets[value].description"
-                                class="widget-info"
-                                [ngClass]="{ 'widget-info_centered': tableWidgets[value].widget_type === 'Boolean' || tableTypes[value] === 'boolean' }"
-                                [matTooltip]="tableWidgets[value].description"
-                                matTooltipPosition="above">
-                                info
-                            </mat-icon>
                         </div>
 
                         <ng-template #defaultTableField>
@@ -166,12 +171,6 @@
 
             <div class="actions">
                 <div class="actions-box">
-                    <a mat-stroked-button type="button" routerLink="/dashboard/{{connectionID}}/{{tableName}}"
-                        [queryParams]="backUrlParams"
-                        data-testid="record-back-to-table-button">
-                        Back
-                    </a>
-
                     <button type="button" mat-flat-button color="primary"
                         *ngIf="(keyAttributesListFromStructure.length || hasKeyAttributesFromURL) && canEditRow() && pageMode === 'view'"
                         data-testid="switch-to-editing-button"
@@ -186,7 +185,7 @@
                         data-testid="record-save-and-continue-editing-button"
                         [disabled]="submitting || editRowForm.form.invalid"
                         (click)="handleRowSubmitting(true)">
-                        Save and continue editing
+                        Save & continue
                     </button>
 
                     <button *ngIf="hasKeyAttributesFromURL && canEditRow() && !pageAction && pageMode !== 'view'"

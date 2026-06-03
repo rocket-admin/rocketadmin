@@ -48,6 +48,11 @@
                 </mat-icon>
                 <div matListItemTitle>Zapier</div>
             </a>
+            <button type="button" mat-menu-item (click)="openSupportChat()"
+                data-testid="support-chat-button-account-menu">
+                <mat-icon fontSet="material-symbols-outlined">chat_bubble</mat-icon>
+                <span>Chat with support</span>
+            </button>
             <a mat-list-item href="https://docs.rocketadmin.com/" target="_blank">
                 <mat-icon matListItemIcon class="connection-navigation__icon" fontSet="material-symbols-outlined">help</mat-icon>
                 <div matListItemTitle>Help center</div>
@@ -81,11 +86,18 @@
                 <a routerLink="/connections-list"
                     *ngIf="userLoggedIn"
                     class="logo">
-                    <img *ngIf="whiteLabelSettingsLoaded"
-                        [src]="whiteLabelSettings.logo || '../assets/rocketadmin_logo_white.svg'"
-                        alt="Logo"
-                        class="logo__image"
-                    >
+                    <ng-container *ngIf="whiteLabelSettingsLoaded">
+                        <img *ngIf="whiteLabelSettings.logo; else defaultRocketLogo"
+                            [src]="whiteLabelSettings.logo"
+                            alt="Logo"
+                            class="logo__image">
+                        <ng-template #defaultRocketLogo>
+                            <picture>
+                                <source media="(max-width: 600px)" srcset="../assets/rocketadmin_logo_white-short.svg">
+                                <img src="../assets/rocketadmin_logo_white.svg" alt="Rocketadmin logo" class="logo__image">
+                            </picture>
+                        </ng-template>
+                    </ng-container>
                 </a>
 
                 <a *ngIf="userLoggedIn === false" href="https://rocketadmin.com/" class="logo">

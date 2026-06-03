@@ -288,6 +288,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	openTableFilters(structure) {
 		let filterDialodRef = this.dialog.open(DbTableFiltersDialogComponent, {
 			width: '56em',
+			panelClass: 'mobile-bottom-sheet-dialog',
+			autoFocus: false,
 			data: {
 				connectionID: this.connectionID,
 				tableName: this.selectedTableName,

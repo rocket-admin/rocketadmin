@@ -30,11 +30,19 @@ export class UpdateTableSettingsUseCase
 		const { connection_id, masterPwd, table_name } = inputData;
 		const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
 			connection_id,
-			masterPwd,
+			masterPwd ?? '',
 		);
+		if (!foundConnection) {
+			throw new HttpException(
+				{
+					message: Messages.CONNECTION_NOT_FOUND,
+				},
+				HttpStatus.NOT_FOUND,
+			);
+		}
 		const dao = getDataAccessObject(foundConnection);
 		const tableSettingsDs: ValidateTableSettingsDS = buildValidateTableSettingsDS(inputData);
-		const errors: Array<string> = await dao.validateSettings(tableSettingsDs, table_name, undefined);
+		const errors: Array<string> = await dao.validateSettings(tableSettingsDs, table_name, '');
 		if (errors.length > 0) {
 			throw new HttpException(
 				{

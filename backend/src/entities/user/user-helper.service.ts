@@ -26,11 +26,11 @@ export class UserHelperService {
 			suspended: user.suspended,
 			isActive: user.isActive,
 			email: user.email,
-			intercom_hash: intercomHash,
+			intercom_hash: intercomHash ?? undefined,
 			name: user.name,
 			role: user.role,
 			is_2fa_enabled: user.otpSecretKey !== null && user.isOTPEnabled,
-			company: user.company ? { id: user.company.id } : null,
+			company: user.company ? { id: user.company.id } : undefined,
 			externalRegistrationProvider: user.externalRegistrationProvider,
 			show_test_connections: user.showTestConnections,
 		};

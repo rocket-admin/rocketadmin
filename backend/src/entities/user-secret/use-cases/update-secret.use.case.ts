@@ -45,6 +45,9 @@ export class UpdateSecretUseCase extends AbstractUseCase<UpdateSecretDS, Updated
 		}
 
 		if (secret.masterEncryption && masterPassword) {
+			if (!secret.masterHash) {
+				throw new ForbiddenException(Messages.SECRET_MASTER_PASSWORD_REQUIRED);
+			}
 			const isValid = await Encryptor.verifyUserPassword(masterPassword, secret.masterHash);
 			if (!isValid) {
 				await this._dbContext.secretAccessLogRepository.createAccessLog(

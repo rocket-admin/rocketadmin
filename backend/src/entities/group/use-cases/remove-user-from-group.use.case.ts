@@ -33,6 +33,14 @@ export class RemoveUserFromGroupUseCase
 			);
 		}
 		const groupToUpdate = await this._dbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
+		if (!groupToUpdate || !groupToUpdate.users) {
+			throw new HttpException(
+				{
+					message: Messages.GROUP_NOT_FOUND,
+				},
+				HttpStatus.NOT_FOUND,
+			);
+		}
 		if (groupToUpdate.isMain && groupToUpdate.users.length <= 1) {
 			throw new HttpException(
 				{

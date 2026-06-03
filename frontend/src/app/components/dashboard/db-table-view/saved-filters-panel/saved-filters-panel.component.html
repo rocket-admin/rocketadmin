@@ -11,6 +11,7 @@
             Create fast filter
         </button>
 
+        <!-- Desktop: chips + standalone create button -->
         <button *ngIf="canEditConnection() && savedFilterData.length !== 0"
             mat-icon-button type="button"
             class="create-filter-button"
@@ -18,7 +19,7 @@
             (click)="handleOpenSavedFiltersDialog(); posthog.capture('Saved filters: create new filter is clicked')"
             angulartics2On="click"
             angularticsAction="Saved filters: create new filter is clicked">
-            <mat-icon>add</mat-icon>
+            <mat-icon>bookmark_add</mat-icon>
         </button>
 
         <mat-chip-listbox [value]="selectedFilterSetId" class="saved-filters-tabs">
@@ -38,6 +39,47 @@
                 </button>
             </mat-chip-option>
         </mat-chip-listbox>
+
+        <!-- Mobile: combined dropdown -->
+        <button *ngIf="savedFilterData.length !== 0"
+            mat-stroked-button type="button"
+            class="saved-filters-trigger"
+            [class.saved-filters-trigger_active]="selectedFilterSetId"
+            [matMenuTriggerFor]="filtersMenu">
+            <mat-icon fontSet="material-symbols-outlined" class="saved-filters-trigger__icon">tune</mat-icon>
+            <span class="saved-filters-trigger__label">
+                {{ savedFilterMap[selectedFilterSetId]?.name || 'Fast filters' }}
+            </span>
+            <mat-icon iconPositionEnd class="saved-filters-trigger__chevron">arrow_drop_down</mat-icon>
+        </button>
+
+        <mat-menu #filtersMenu="matMenu" class="saved-filters-menu">
+            <button mat-menu-item type="button"
+                *ngFor="let filter of savedFilterData"
+                [class.saved-filters-menu__item_active]="filter.id === selectedFilterSetId"
+                (click)="selectFiltersSet(filter.id)">
+                <mat-icon class="saved-filters-menu__check"
+                    [class.saved-filters-menu__check_visible]="filter.id === selectedFilterSetId">check</mat-icon>
+                <span class="saved-filters-menu__name">{{ filter.name }}</span>
+                <span *ngIf="canEditConnection()"
+                    class="saved-filters-menu__row-menu"
+                    [matMenuTriggerFor]="filterMenu"
+                    (click)="$event.stopPropagation(); setCurrentFilter(filter)">
+                    <mat-icon>more_vert</mat-icon>
+                </span>
+            </button>
+
+            <button *ngIf="canEditConnection()"
+                mat-menu-item type="button"
+                class="saved-filters-menu__create"
+                angulartics2On="click"
+                angularticsAction="Saved filters: create new filter is clicked"
+                (click)="handleOpenSavedFiltersDialog(); posthog.capture('Saved filters: create new filter is clicked')">
+                <mat-icon>bookmark_add</mat-icon>
+                <span>New fast filter</span>
+            </button>
+        </mat-menu>
+
         <mat-menu #filterMenu="matMenu">
             <button mat-menu-item type="button" (click)="handleEditFilter(currentFilterForMenu)">
                 <mat-icon fontSet="material-symbols-outlined">create</mat-icon>

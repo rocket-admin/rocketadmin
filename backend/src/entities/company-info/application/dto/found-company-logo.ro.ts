@@ -8,11 +8,11 @@ export class FoundCompanyImageInfo {
 }
 
 export class FoundCompanyLogoRO {
-	@ApiProperty({ type: FoundCompanyImageInfo })
-	logo: FoundCompanyImageInfo;
+	@ApiProperty({ type: FoundCompanyImageInfo, nullable: true })
+	logo: FoundCompanyImageInfo | null;
 }
 
 export class FoundCompanyFaviconRO {
-	@ApiProperty({ type: FoundCompanyImageInfo })
-	favicon: FoundCompanyImageInfo;
+	@ApiProperty({ type: FoundCompanyImageInfo, nullable: true })
+	favicon: FoundCompanyImageInfo | null;
 }

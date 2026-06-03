@@ -1,8 +1,9 @@
-import { BadRequestException, Inject, Injectable, Scope } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../../common/data-injection.tokens.js';
+import { Messages } from '../../../../exceptions/text/messages.js';
 import { ConnectionEntity } from '../../../connection/connection.entity.js';
 import {
 	CreatePersonalTableSettingsDs,
@@ -36,6 +37,9 @@ export class CreateUpdatePersonalTableSettingsUseCase
 			connection_id,
 			master_password,
 		);
+		if (!foundConnection) {
+			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
+		}
 
 		await this.validatePersonalTableSettingsData(table_settings_data, foundConnection, table_name);
 
@@ -82,7 +86,7 @@ export class CreateUpdatePersonalTableSettingsUseCase
 	): Promise<void> {
 		const { columns_view, list_fields, list_per_page, ordering, ordering_field } = settingsData;
 		const dao = getDataAccessObject(connection);
-		const tableStructure = await dao.getTableStructure(tableName, null);
+		const tableStructure = await dao.getTableStructure(tableName, '');
 		const tableColumnNames = tableStructure.map((col) => col.column_name);
 		const errors = [];
 

@@ -225,7 +225,7 @@ export const Constants = {
 			return [];
 		}
 
-		const testConnections: Array<CreateConnectionDto> = Constants.getTestConnectionsFromDSN() || [];
+		const testConnections: Array<CreateConnectionDto | null> = Constants.getTestConnectionsFromDSN() || [];
 		if (!testConnections.length) {
 			testConnections.push(
 				Constants.TEST_CONNECTION_TO_ORACLE as CreateConnectionDto,
@@ -237,14 +237,17 @@ export const Constants = {
 			);
 		}
 
-		return testConnections.filter((dto) => {
+		return testConnections.filter((dto): dto is CreateConnectionDto => {
+			if (!dto) {
+				return false;
+			}
 			const values = Object.values(dto);
 			const nullElementIndex = values.indexOf(null);
 			return nullElementIndex < 0;
 		});
 	},
 
-	getTestConnectionsFromDSN: (): Array<CreateConnectionDto | null> => {
+	getTestConnectionsFromDSN: (): Array<CreateConnectionDto | null> | null => {
 		if (!isSaaS()) {
 			return [];
 		}

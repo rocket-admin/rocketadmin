@@ -16,6 +16,9 @@ export class SaaSAuthMiddleware implements NestMiddleware {
 		}
 		try {
 			const jwtSecret = appConfig.auth.microserviceJwtSecret;
+			if (!jwtSecret) {
+				throw new UnauthorizedException(Messages.AUTHORIZATION_REJECTED);
+			}
 			const data = jwt.verify(token, jwtSecret) as jwt.JwtPayload;
 			const requestId = data.request_id;
 

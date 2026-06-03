@@ -1,7 +1,7 @@
 import { SimpleFoundUserInfoDs } from '../dto/found-user.dto.js';
 import { UserEntity } from '../user.entity.js';
 
-export function buildSimpleUserInfoDs(user: UserEntity): SimpleFoundUserInfoDs {
+export function buildSimpleUserInfoDs(user: UserEntity): SimpleFoundUserInfoDs | null {
 	if (!user) {
 		return null;
 	}

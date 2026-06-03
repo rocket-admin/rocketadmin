@@ -76,8 +76,8 @@ export class FindLogsUseCase extends AbstractUseCase<FindLogsDs, FoundLogsDs> im
 			perPage = limit;
 		}
 
-		let searchedDateFrom: Date = null;
-		let searchedDateTo: Date = null;
+		let searchedDateFrom: Date | null = null;
+		let searchedDateTo: Date | null = null;
 		if (dateFrom && dateTo) {
 			let dateFromParsed = Date.parse(dateFrom);
 			let dateToParsed = Date.parse(dateTo);

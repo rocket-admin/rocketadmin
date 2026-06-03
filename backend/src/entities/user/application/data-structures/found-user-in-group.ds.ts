@@ -14,12 +14,12 @@ export class FoundUserInGroupDs {
 	@ApiProperty()
 	createdAt: Date;
 
-	@ApiProperty()
-	name: string;
+	@ApiProperty({ nullable: true, type: String })
+	name: string | null;
 
 	@ApiProperty()
 	suspended: boolean;
 
 	@ApiProperty()
-	externalRegistrationProvider: ExternalRegistrationProviderEnum;
+	externalRegistrationProvider: ExternalRegistrationProviderEnum | null;
 }

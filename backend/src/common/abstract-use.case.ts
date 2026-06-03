@@ -30,20 +30,27 @@ abstract class AbstractUseCase<TInputData = void, TOutputData = void> {
 
 	protected abstract implementation(inputData: TInputData): Promise<TOutputData> | TOutputData;
 
+	private getDbContext(): IDatabaseContext {
+		if (!this._dbContext) {
+			throw new Error('Database context is not initialized for this use case.');
+		}
+		return this._dbContext;
+	}
+
 	private async startTransaction(): Promise<void> {
-		await this._dbContext.startTransaction();
+		await this.getDbContext().startTransaction();
 	}
 
 	private async commitTransaction(): Promise<void> {
-		await this._dbContext.commitTransaction();
+		await this.getDbContext().commitTransaction();
 	}
 
 	private async rollbackTransaction(): Promise<void> {
-		await this._dbContext.rollbackTransaction();
+		await this.getDbContext().rollbackTransaction();
 	}
 
 	private async releaseQueryRunner(): Promise<void> {
-		await this._dbContext.releaseQueryRunner();
+		await this.getDbContext().releaseQueryRunner();
 	}
 }
 

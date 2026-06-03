@@ -28,10 +28,10 @@ export class TableWidgetEntity {
 	widget_type?: WidgetTypeEnum;
 
 	@Column('json', { default: null })
-	widget_params: string;
+	widget_params: string | null;
 
 	@Column('json', { default: null })
-	widget_options: string;
+	widget_options: string | null;
 
 	@Column({ default: null })
 	name?: string;

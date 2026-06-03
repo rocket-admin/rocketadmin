@@ -254,6 +254,7 @@ export class SavedFiltersPanelComponent implements OnInit, OnDestroy {
 	handleOpenSavedFiltersDialog(filtersSet: any = null) {
 		const _dialogRef = this.dialog.open(SavedFiltersDialogComponent, {
 			width: '56em',
+			panelClass: 'mobile-bottom-sheet-dialog',
 			data: {
 				connectionID: this.connectionID,
 				tableName: this.selectedTableName,

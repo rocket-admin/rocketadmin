@@ -9,12 +9,15 @@ export function generateGwtToken(user: UserEntity, scope: Array<JwtScopesEnum>):
 	const exp = new Date(today);
 	exp.setTime(today.getTime() + 60 * 60 * 1000 * 24 * 7);
 	const jwtSecret = appConfig.auth.jwtSecret;
+	if (!jwtSecret) {
+		throw new Error('JWT_SECRET is not configured');
+	}
 	const token = jwt.sign(
 		{
 			id: user.id,
 			email: user.email,
 			exp: Math.floor(exp.getTime() / 1000),
-			scope: scope ? scope : undefined,
+			scope: scope && scope.length ? scope : undefined,
 		},
 		jwtSecret,
 	);
@@ -30,6 +33,9 @@ export function generateTemporaryJwtToken(user: UserEntity): IToken {
 	const exp = new Date(today);
 	exp.setTime(today.getTime() + 1000 * 60 * 4);
 	const jwtSecret = appConfig.auth.temporaryJwtSecret;
+	if (!jwtSecret) {
+		throw new Error('TEMPORARY_JWT_SECRET is not configured');
+	}
 	const token = jwt.sign(
 		{
 			id: user.id,

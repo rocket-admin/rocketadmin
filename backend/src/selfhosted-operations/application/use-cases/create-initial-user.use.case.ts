@@ -55,6 +55,10 @@ export class CreateInitialUserUseCase
 		savedUser.company = savedCompanyInfo;
 		const finalUser = await this._dbContext.userRepository.saveUserEntity(savedUser);
 
-		return buildSimpleUserInfoDs(finalUser);
+		const userInfo = buildSimpleUserInfoDs(finalUser);
+		if (!userInfo) {
+			throw new BadRequestException(Messages.USER_NOT_FOUND);
+		}
+		return userInfo;
 	}
 }

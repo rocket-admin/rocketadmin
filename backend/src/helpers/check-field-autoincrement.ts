@@ -1,4 +1,4 @@
-export function checkFieldAutoincrement(defaultValue: string, extra: string = null): boolean {
+export function checkFieldAutoincrement(defaultValue: string | null, extra: string | null = null): boolean {
 	let result = false;
 	if (
 		defaultValue?.toLowerCase().includes('nextval') ||

@@ -17,7 +17,7 @@ export class BaseSaasGatewayService {
 	async sendRequestToSaaS(
 		patch: string,
 		method: SaaSRequestMethod,
-		body: Record<any, any>,
+		body: Record<any, any> | null,
 	): Promise<SaaSResponse | null> {
 		try {
 			if (!isSaaS()) {

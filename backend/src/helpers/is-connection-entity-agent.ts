@@ -21,7 +21,7 @@ export function isConnectionEntityAgent(connection: ConnectionEntity | CreateCon
 	return agentTypes.includes(connection.type as ConnectionTypesEnum);
 }
 
-export function isConnectionTypeAgent(type: ConnectionTypesEnum | string): boolean {
+export function isConnectionTypeAgent(type: ConnectionTypesEnum | string | null | undefined): boolean {
 	const connectionTypes = [
 		ConnectionTypeTestEnum.agent_postgres,
 		ConnectionTypeTestEnum.agent_mysql,

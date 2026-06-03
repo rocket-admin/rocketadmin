@@ -4,6 +4,14 @@
 	width: 100%;
 }
 
+@media (width <= 600px) {
+	:host h1.mat-display-1 {
+		font-size: 22px !important;
+		line-height: 1.2 !important;
+		margin-bottom: 20px;
+	}
+}
+
 .section__label {
 	display: block;
 	font-size: 11px;
@@ -17,11 +25,18 @@
 .demoGrid {
 	list-style: none;
 	display: grid;
-	grid-template-columns: repeat(3, 1fr);
+	grid-template-columns: repeat(3, minmax(0, 1fr));
 	gap: 12px;
 	width: 100%;
 	padding: 0;
 	margin: 0;
+	align-items: stretch;
+}
+
+@media (601px <= width <= 1024px) {
+	.demoGrid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
 }
 
 @media (width <= 600px) {
@@ -36,6 +51,7 @@
 	gap: 12px;
 	border-radius: 8px;
 	padding: 12px 16px;
+	height: 100%;
 	text-decoration: none;
 	color: inherit;
 	transition: box-shadow 200ms, background 200ms, border 200ms;
@@ -100,6 +116,12 @@
 	flex-direction: column;
 	flex: 1;
 	min-width: 0;
+}
+
+.demoCard__info strong {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .demoCard__type {

@@ -30,7 +30,7 @@ export class AuthMiddleware implements NestMiddleware {
 		private readonly logOutRepository: Repository<LogOutEntity>,
 	) {}
 	async use(req: IRequestWithCognitoInfo, _res: Response, next: NextFunction): Promise<void> {
-		let token: string;
+		let token: string | undefined;
 		try {
 			token = req.cookies[Constants.JWT_COOKIE_KEY_NAME];
 		} catch (_e) {
@@ -50,6 +50,9 @@ export class AuthMiddleware implements NestMiddleware {
 
 		try {
 			const jwtSecret = appConfig.auth.jwtSecret;
+			if (!jwtSecret) {
+				throw new UnauthorizedException('JWT verification failed');
+			}
 			const data = jwt.verify(token, jwtSecret) as jwt.JwtPayload;
 			const userId = data.id;
 

@@ -18,7 +18,7 @@ export const userCustomRepositoryExtension: IUserRepository = {
 
 	async saveRegisteringUser(
 		userData: RegisterUserDs,
-		externalRegistrationProvider: ExternalRegistrationProviderEnum = null,
+		externalRegistrationProvider: ExternalRegistrationProviderEnum | null = null,
 	): Promise<UserEntity> {
 		const newUser: UserEntity = new UserEntity();
 		newUser.gclid = userData.gclidValue;
@@ -47,8 +47,8 @@ export const userCustomRepositoryExtension: IUserRepository = {
 
 	findOneUserByEmail(
 		email: string,
-		externalRegistrationProvider: ExternalRegistrationProviderEnum = null,
-		samlNameId: string = null,
+		externalRegistrationProvider: ExternalRegistrationProviderEnum | null = null,
+		samlNameId: string | null = null,
 	): Promise<UserEntity | null> {
 		const userQb = this.createQueryBuilder('user').where('user.email = :userEmail', {
 			userEmail: email?.toLowerCase(),
@@ -101,9 +101,8 @@ export const userCustomRepositoryExtension: IUserRepository = {
 			});
 		const foundUsers = await usersQb.getMany();
 		return foundUsers.map((user: UserEntity) => {
-			delete user.connections;
-			delete user.groups;
-			return user;
+			const { connections: _connections, groups: _groups, ...userWithoutRelations } = user;
+			return userWithoutRelations;
 		});
 	},
 
@@ -142,7 +141,7 @@ export const userCustomRepositoryExtension: IUserRepository = {
 		return await usersQB.getMany();
 	},
 
-	async getUserEmailOrReturnNull(userId: string): Promise<string> {
+	async getUserEmailOrReturnNull(userId: string): Promise<string | null> {
 		const userQB = this.createQueryBuilder('user').where('user.id = :userId', { userId: userId });
 		const user = await userQB.getOne();
 		return user?.email ? user.email.toLowerCase() : null;
@@ -182,7 +181,7 @@ export const userCustomRepositoryExtension: IUserRepository = {
 		return await userQb.getOne();
 	},
 
-	async findOneUserByEmailAndCompanyId(userEmail: string, companyId: string): Promise<UserEntity> {
+	async findOneUserByEmailAndCompanyId(userEmail: string, companyId: string | null): Promise<UserEntity | null> {
 		const userQb = this.createQueryBuilder('user')
 			.leftJoinAndSelect('user.company', 'company')
 			.where('user.email = :userEmail', { userEmail: userEmail?.toLowerCase() });
@@ -211,7 +210,7 @@ export const userCustomRepositoryExtension: IUserRepository = {
 
 	async findAllUsersWithEmail(
 		email: string,
-		externalRegistrationProvider: ExternalRegistrationProviderEnum = null,
+		externalRegistrationProvider: ExternalRegistrationProviderEnum | null = null,
 	): Promise<Array<UserEntity>> {
 		const usersQb = this.createQueryBuilder('user')
 			.leftJoinAndSelect('user.company', 'company')

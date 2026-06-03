@@ -2,14 +2,14 @@ import { UserSessionSettingsEntity } from '../user-session-settings.entity.js';
 import { IUserSessionSettings } from './user-session-settings-repository.interface.js';
 
 export const userSessionSettingsRepositoryExtension: IUserSessionSettings = {
-	async getUserSettingsByUserId(userId: string): Promise<UserSessionSettingsEntity> {
+	async getUserSettingsByUserId(userId: string): Promise<UserSessionSettingsEntity | null> {
 		const qb = this.createQueryBuilder('user_session_settings').where('user_session_settings.userId = :userId', {
 			userId: userId,
 		});
 		return await qb.getOne();
 	},
 
-	async createOrUpdateUserSettings(userId: string, userSettings: string): Promise<UserSessionSettingsEntity> {
+	async createOrUpdateUserSettings(userId: string, userSettings: string | null): Promise<UserSessionSettingsEntity> {
 		const qb = this.createQueryBuilder('user_session_settings').where('user_session_settings.userId = :userId', {
 			userId: userId,
 		});

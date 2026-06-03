@@ -224,7 +224,7 @@ export class ConnectionController {
 		@MasterPassword() masterPwd: string,
 		@UserId() userId: string,
 	): Promise<FoundOneConnectionDs> {
-		let foundConnection: FoundOneConnectionDs = null;
+		let foundConnection: FoundOneConnectionDs | null = null;
 		try {
 			const findOneConnectionInput: FindOneConnectionDs = {
 				connectionId: connectionId,
@@ -381,7 +381,11 @@ export class ConnectionController {
 		const isTest = isTestConnectionUtil(deleteResult);
 		if (!isTest) {
 			const userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
-			const slackMessage = Messages.USER_DELETED_CONNECTION(userEmail, reasonData.reason, reasonData.message);
+			const slackMessage = Messages.USER_DELETED_CONNECTION(
+				userEmail ?? '',
+				reasonData.reason ?? '',
+				reasonData.message ?? '',
+			);
 			await slackPostMessage(slackMessage);
 		}
 		await this.amplitudeService.formAndSendLogRecord(
