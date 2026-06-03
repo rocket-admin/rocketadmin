@@ -18,10 +18,11 @@ export class NotificationsService {
 		});
 	}
 
-	showSuccessSnackbar(message: string) {
+	showSuccessSnackbar(message: string, verticalPosition: 'top' | 'bottom' = 'bottom') {
 		this.snackBar.open(message, null, {
 			duration: 2500,
 			horizontalPosition: 'left',
+			verticalPosition,
 		});
 	}
 

@@ -7,6 +7,7 @@ import {
 	Component,
 	computed,
 	EventEmitter,
+	HostListener,
 	Input,
 	inject,
 	OnChanges,
@@ -311,6 +312,8 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 		return this.tableFolders?.find((cat) => cat.category_id === null)?.tables || [];
 	}
 
+	public tableSwitcherSearch: string = '';
+
 	get tableFoldersForSelect(): TableCategory[] {
 		if (!this.tableFolders) return [];
 		return this.tableFolders.filter((cat) => cat.category_id !== null);
@@ -322,6 +325,105 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 			(folder.tables || []).forEach((t) => tablesInFolders.add(t.table));
 		});
 		return this.allTables.filter((t) => !tablesInFolders.has(t.table));
+	}
+
+	get filteredTableFoldersForSelect(): TableCategory[] {
+		const query = this.tableSwitcherSearch.trim().toLowerCase();
+		if (!query) return this.tableFoldersForSelect;
+		return this.tableFoldersForSelect
+			.map((folder) => ({
+				...folder,
+				tables: (folder.tables || []).filter((t) => this._matchesTableQuery(t, query)),
+			}))
+			.filter((folder) => folder.tables.length > 0);
+	}
+
+	get filteredUncategorizedTables(): TableProperties[] {
+		const query = this.tableSwitcherSearch.trim().toLowerCase();
+		if (!query) return this.uncategorizedTables;
+		return this.uncategorizedTables.filter((t) => this._matchesTableQuery(t, query));
+	}
+
+	@ViewChild('tableSwitcherSearchInput')
+	tableSwitcherSearchInputRef?: { nativeElement: HTMLInputElement };
+
+	public tableSwitcherOpen = false;
+	public collapsedFolders = new Set<string>();
+	public sortSheetOpen = false;
+	public sortExpandedColumn: string | null = null;
+	public columnsSheetOpen = false;
+
+	get isMobileView(): boolean {
+		return typeof window !== 'undefined' && window.innerWidth <= 600;
+	}
+
+	openSortSheet() {
+		this.sortSheetOpen = true;
+	}
+
+	closeSortSheet() {
+		this.sortSheetOpen = false;
+		this.sortExpandedColumn = null;
+	}
+
+	toggleSortColumn(column: string) {
+		this.sortExpandedColumn = this.sortExpandedColumn === column ? null : column;
+	}
+
+	openColumnsSheet() {
+		this.columnsSheetOpen = true;
+	}
+
+	closeColumnsSheet() {
+		this.columnsSheetOpen = false;
+	}
+
+	public transferSheetOpen = false;
+
+	openTransferSheet() {
+		this.transferSheetOpen = true;
+	}
+
+	closeTransferSheet() {
+		this.transferSheetOpen = false;
+	}
+
+	get sortableDataColumns(): string[] {
+		return (this.tableData?.displayedDataColumns || []).filter((c: string) => this.isSortable(c));
+	}
+
+	clearTableSwitcherSearch() {
+		this.tableSwitcherSearch = '';
+	}
+
+	toggleFolderCollapse(folderId: string) {
+		if (this.collapsedFolders.has(folderId)) {
+			this.collapsedFolders.delete(folderId);
+		} else {
+			this.collapsedFolders.add(folderId);
+		}
+	}
+
+	isFolderCollapsed(folderId: string): boolean {
+		if (this.tableSwitcherSearch.trim()) return false;
+		return this.collapsedFolders.has(folderId);
+	}
+
+	openTableSwitcher() {
+		this.tableSwitcherOpen = true;
+		setTimeout(() => {
+			this.tableSwitcherSearchInputRef?.nativeElement.focus();
+		}, 50);
+	}
+
+	closeTableSwitcher() {
+		this.tableSwitcherOpen = false;
+		this.clearTableSwitcherSearch();
+	}
+
+	switchTableFromSheet(tableName: string) {
+		this.closeTableSwitcher();
+		this.switchTable(tableName);
 	}
 
 	loadRowsPage() {
@@ -337,6 +439,49 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 			search: this.searchString,
 			isTablePageSwitched: true,
 		});
+	}
+
+	public pullDistance = 0;
+	public pullRefreshing = false;
+	private _pullStartY = 0;
+	private _pullTracking = false;
+	private readonly _pullThreshold = 70;
+
+	@HostListener('touchstart', ['$event'])
+	onPullTouchStart(event: TouchEvent) {
+		if (!this.isMobileView || this.pullRefreshing) return;
+		const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+		if (scrollTop > 0) return;
+		this._pullStartY = event.touches[0].clientY;
+		this._pullTracking = true;
+	}
+
+	@HostListener('touchmove', ['$event'])
+	onPullTouchMove(event: TouchEvent) {
+		if (!this._pullTracking || this.pullRefreshing) return;
+		const delta = event.touches[0].clientY - this._pullStartY;
+		if (delta <= 0) {
+			this.pullDistance = 0;
+			return;
+		}
+		this.pullDistance = Math.min(delta * 0.5, this._pullThreshold + 20);
+	}
+
+	@HostListener('touchend')
+	onPullTouchEnd() {
+		if (!this._pullTracking) return;
+		this._pullTracking = false;
+		if (this.pullDistance >= this._pullThreshold) {
+			this.pullRefreshing = true;
+			this.pullDistance = this._pullThreshold;
+			this.loadRowsPage();
+			setTimeout(() => {
+				this.pullRefreshing = false;
+				this.pullDistance = 0;
+			}, 800);
+		} else {
+			this.pullDistance = 0;
+		}
 	}
 
 	isSortable(column: string) {
@@ -925,5 +1070,17 @@ export class DbTableViewComponent implements OnInit, OnChanges {
 			const rid = this._tableResourceId();
 			return rid ? this._permissions.canI(action, 'Table', rid)() : null;
 		});
+	}
+
+	private _matchesTableQuery(table: TableProperties, query: string): boolean {
+		const haystack = [
+			(table as any).normalizedTableName,
+			table.display_name,
+			table.table,
+		]
+			.filter(Boolean)
+			.join(' ')
+			.toLowerCase();
+		return haystack.includes(query);
 	}
 }

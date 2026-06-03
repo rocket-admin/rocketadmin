@@ -3,6 +3,43 @@
 	align-items: center;
 	justify-content: space-between;
 	margin-top: 16px;
+	margin-bottom: 12px;
+}
+
+.filters-header__settings {
+	flex: 0 0 auto;
+	margin-left: auto;
+}
+
+.filters-header__text {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 2px;
+	line-height: 1.2;
+	text-align: left;
+}
+
+@media (width <= 600px) {
+	.filters-header {
+		justify-content: flex-start;
+		gap: 12px;
+	}
+
+	.filters-header__text {
+		flex: 1 1 auto;
+	}
+}
+
+.filters-header__label {
+	font-size: 18px;
+	font-weight: 600;
+}
+
+.filters-header__table {
+	font-size: 12px;
+	font-weight: 500;
+	opacity: 0.6;
 }
 
 .filters-content {
@@ -11,6 +48,11 @@
 	grid-column-gap: 8px;
 	align-content: flex-start;
 	align-items: flex-start;
+	padding-top: 8px !important;
+}
+
+.filters-select {
+	margin-top: 4px;
 }
 
 .filters-select {
@@ -57,6 +99,48 @@
 .filter-delete-button {
 	grid-column: 3;
 	margin-top: 4px;
+}
+
+.filter-line ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+	display: none;
+}
+
+.filter-line {
+	margin-bottom: 12px;
+}
+
+@media (width <= 600px) {
+	.filters-content {
+		grid-template-columns: 1fr 32px;
+	}
+
+	.filter-line {
+		grid-template-columns: 1fr 32px;
+		grid-template-areas:
+			"name name"
+			"field button";
+		row-gap: 2px;
+	}
+
+	.column-name {
+		grid-area: name;
+		grid-column: 1 / -1;
+		margin: 0;
+		font-size: 12px;
+		font-weight: 600;
+		opacity: 0.6;
+	}
+
+	.filter-line__field {
+		grid-area: field;
+		grid-column: 1;
+	}
+
+	.filter-delete-button {
+		grid-area: button;
+		grid-column: 2;
+		margin-top: 0;
+	}
 }
 
 .settings-form__reset-button {

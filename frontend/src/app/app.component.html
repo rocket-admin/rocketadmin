@@ -86,11 +86,18 @@
                 <a routerLink="/connections-list"
                     *ngIf="userLoggedIn"
                     class="logo">
-                    <img *ngIf="whiteLabelSettingsLoaded"
-                        [src]="whiteLabelSettings.logo || '../assets/rocketadmin_logo_white.svg'"
-                        alt="Logo"
-                        class="logo__image"
-                    >
+                    <ng-container *ngIf="whiteLabelSettingsLoaded">
+                        <img *ngIf="whiteLabelSettings.logo; else defaultRocketLogo"
+                            [src]="whiteLabelSettings.logo"
+                            alt="Logo"
+                            class="logo__image">
+                        <ng-template #defaultRocketLogo>
+                            <picture>
+                                <source media="(max-width: 600px)" srcset="../assets/rocketadmin_logo_white-short.svg">
+                                <img src="../assets/rocketadmin_logo_white.svg" alt="Rocketadmin logo" class="logo__image">
+                            </picture>
+                        </ng-template>
+                    </ng-container>
                 </a>
 
                 <a *ngIf="userLoggedIn === false" href="https://rocketadmin.com/" class="logo">

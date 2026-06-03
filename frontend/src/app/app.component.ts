@@ -304,7 +304,7 @@ export class AppComponent {
 					user_hash: res.intercom_hash,
 					user_id: res.id,
 					email: res.email,
-					hide_default_launcher: window.innerWidth > 600,
+					hide_default_launcher: window.innerWidth <= 600,
 				});
 
 			if (this.isDemo)

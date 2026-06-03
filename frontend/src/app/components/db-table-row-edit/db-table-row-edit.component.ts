@@ -516,6 +516,13 @@ export class DbTableRowEditComponent implements OnInit {
 		return this._connections.currentConnection;
 	}
 
+	get pageTitle(): string {
+		if (this.pageMode === 'view') return 'View row';
+		if (this.hasKeyAttributesFromURL && this.pageAction === 'dub') return 'Duplicate row';
+		if (this.hasKeyAttributesFromURL && !this.pageAction) return 'Edit row';
+		return 'Add row';
+	}
+
 	getCrumbs(name: string) {
 		let pageTitle = '';
 

@@ -1,11 +1,13 @@
 .saved-filters-container {
 	display: flex;
 	flex-direction: column;
+	min-width: 0;
+	max-width: 100%;
 }
 
 .saved-filters-list {
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	gap: 16px;
 	margin-bottom: 12px;
 }
@@ -14,7 +16,145 @@
 	transition: background 0.3s ease;
 }
 
-.create-filter-button {
+.saved-filters-trigger {
+	display: none;
+	align-items: center;
+	gap: 6px;
+	border-radius: 999px;
+	padding: 0 8px 0 12px;
+	min-height: 36px;
+}
+
+@media (width <= 600px) {
+	.saved-filters-trigger {
+		display: inline-flex;
+	}
+
+	.saved-filters-trigger_active {
+		width: calc(100vw - 130px - 2*24px);
+		box-sizing: border-box;
+	}
+
+	/* let the button's label shrink and ellipsis when it can't fit into calc(100% - 130px) */
+	.saved-filters-trigger_active ::ng-deep .mdc-button__label {
+		display: flex;
+		align-items: center;
+		min-width: 0;
+		overflow: hidden;
+	}
+
+	.saved-filters-trigger_active .saved-filters-trigger__label {
+		max-width: none;
+		min-width: 0;
+		flex: 1 1 auto;
+	}
+
+	.create-filter-button,
+	.saved-filters-tabs {
+		display: none !important;
+	}
+}
+
+.saved-filters-trigger__label {
+	max-width: 200px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.saved-filters-trigger__chevron {
+	margin-left: 0 !important;
+}
+
+@media (prefers-color-scheme: light) {
+	.saved-filters-trigger_active {
+		background: var(--color-accentedPalette-50);
+		border-color: var(--color-accentedPalette-300) !important;
+		color: var(--color-accentedPalette-700);
+	}
+
+	.saved-filters-trigger_active .saved-filters-trigger__icon {
+		color: var(--color-accentedPalette-700);
+	}
+}
+
+@media (prefers-color-scheme: dark) {
+	.saved-filters-trigger_active {
+		background: var(--color-accentedPalette-900);
+		border-color: var(--color-accentedPalette-600) !important;
+		color: var(--color-accentedPalette-100);
+	}
+
+	.saved-filters-trigger_active .saved-filters-trigger__icon {
+		color: var(--color-accentedPalette-200);
+	}
+}
+
+.saved-filters-menu__check {
+	color: var(--color-accentedPalette-600);
+	visibility: hidden;
+	flex-shrink: 0;
+}
+
+.saved-filters-menu__check_visible {
+	visibility: visible;
+}
+
+.saved-filters-menu__item_active .saved-filters-menu__name {
+	font-weight: 600;
+}
+
+::ng-deep .saved-filters-menu .mat-mdc-menu-item .mat-mdc-menu-item-text {
+	display: inline-flex;
+	align-items: center;
+	width: 100%;
+	gap: 8px;
+}
+
+.saved-filters-menu__name {
+	flex: 1 1 auto;
+	display: inline-flex;
+	align-items: center;
+}
+
+.saved-filters-menu__row-menu {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	margin-left: auto;
+	margin-right: -8px;
+	border-radius: 50%;
+	cursor: pointer;
+	flex-shrink: 0;
+}
+
+.saved-filters-menu__row-menu .mat-icon {
+	margin: 0 !important;
+	width: 20px;
+	height: 20px;
+	font-size: 20px;
+}
+
+.saved-filters-menu__row-menu:hover {
+	background: rgba(0, 0, 0, 0.06);
+}
+
+@media (prefers-color-scheme: dark) {
+	.saved-filters-menu__row-menu:hover {
+		background: rgba(255, 255, 255, 0.08);
+	}
+}
+
+.saved-filters-menu__create {
+	border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+	.saved-filters-menu__create {
+		border-top-color: rgba(255, 255, 255, 0.08);
+	}
 }
 
 @media (prefers-color-scheme: light) {
@@ -176,8 +316,107 @@
 
 @media (width <= 600px) {
 	.filters-container {
-		flex-direction: column;
+		align-items: center;
+		flex-direction: row;
+		flex-wrap: wrap;
+		gap: 6px;
+		margin-top: 0;
+		margin-bottom: 16px;
+		padding: 8px 16px;
+		border-radius: 10px;
+		background: rgba(0, 0, 0, 0.03);
 		transform: none;
+		max-width: 100%;
+		min-width: 0;
+		overflow-x: clip;
+		overflow-y: visible;
+	}
+
+
+	.dynamic-column-editor {
+		flex: 1 1 100%;
+		flex-direction: row;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 6px;
+		min-width: 0;
+	}
+
+	.dynamic-column-editor > * {
+		min-width: 0;
+	}
+
+	.dynamic-column-editor ::ng-deep .mat-mdc-form-field,
+	.dynamic-column-editor ::ng-deep .foreign-key {
+		flex: 1 1 100%;
+	}
+
+	.dynamic-column-editor .column-name {
+		flex: 1 1 100%;
+		font-size: 12px;
+		line-height: 1.3;
+		gap: 6px;
+		margin: 0;
+		opacity: 0.6;
+		font-weight: 600;
+		white-space: nowrap;
+	}
+
+	.dynamic-column-editor .column-name strong {
+		margin-left: 0;
+		font-size: 12px;
+		font-weight: 600;
+		color: inherit;
+		text-transform: none;
+	}
+
+	.dynamic-column-editor .comparator-text {
+		display: inline-flex;
+		align-items: center;
+		padding: 2px 8px;
+		border-radius: 999px;
+		background: var(--color-accentedPalette-50);
+		color: var(--color-accentedPalette-700);
+		font-size: 12px;
+		font-weight: 500;
+		white-space: nowrap;
+	}
+
+	.dynamic-column-editor ::ng-deep .foreign-key {
+		min-width: 0 !important;
+		flex: 1 1 auto;
+		margin-bottom: 0;
+	}
+
+	.dynamic-column-editor ::ng-deep .mat-mdc-form-field {
+		flex: 1 1 auto;
+		min-width: 0;
+		width: auto;
+	}
+
+	.dynamic-column-editor ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+		display: none;
+	}
+
+	.dynamic-column-editor ::ng-deep .mat-mdc-text-field-wrapper {
+		padding: 0 10px;
+	}
+}
+
+@media (prefers-color-scheme: dark) and (width <= 600px) {
+	.dynamic-column-editor .column-name strong {
+		color: rgba(255, 255, 255, 0.87);
+	}
+
+	.dynamic-column-editor .comparator-text {
+		background: var(--color-accentedPalette-900);
+		color: var(--color-accentedPalette-100);
+	}
+}
+
+@media (prefers-color-scheme: dark) and (width <= 600px) {
+	.filters-container {
+		background: rgba(255, 255, 255, 0.04);
 	}
 }
 
@@ -188,6 +427,12 @@
 	gap: 4px;
 	margin-top: -2px !important;
 	white-space: nowrap;
+}
+
+@media (width <= 600px) {
+	.filters-where-label {
+		margin-top: 0 !important;
+	}
 }
 
 .filters-where-label .column-name-icon {
@@ -225,6 +470,12 @@
 	align-items: center;
 	gap: 4px;
 	font-weight: 500;
+}
+
+@media (width <= 600px) {
+	.column-name {
+		margin-top: 0 !important;
+	}
 }
 
 .column-name-icon {
@@ -301,6 +552,7 @@
 @media (width <= 600px) {
 	.static-filters {
 		transform: none;
+		padding-bottom: 0;
 	}
 }
 

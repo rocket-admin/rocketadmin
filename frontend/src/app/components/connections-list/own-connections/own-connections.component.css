@@ -319,6 +319,10 @@
 	padding: 0;
 }
 
+.connectionItem {
+	min-width: 0;
+}
+
 .connection {
 	display: flex;
 	flex-direction: column;
@@ -357,6 +361,7 @@
 	flex-shrink: 0;
 	display: flex;
 	align-items: center;
+	min-width: 0;
 	gap: 12px;
 	background-color: var(--color-primaryPalette-500);
 	border-radius: 2px;
@@ -398,7 +403,12 @@
 	}
 
 	.connection {
+		gap: 4px;
 		padding: 8px;
+	}
+
+	.connection:has(.connectionSchemaButton) {
+		padding: 8px 8px 4px;
 	}
 
 	.connectionLogoPreview {
@@ -409,6 +419,7 @@
 
 	.connectionInfo .connectionInfo__connectionTitle {
 		font-size: 14px !important;
+		margin-bottom: -8px;
 	}
 
 	.connectionLogoPreview .mat-body-2 {
