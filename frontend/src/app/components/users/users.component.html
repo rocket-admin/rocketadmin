@@ -96,30 +96,32 @@
                     @if (groupUsers()[groupItem.group.id] === 'empty') {
                         <p class="body-2">No users in the group</p>
                     }
-                    <mat-list role="list">
+                    <ul>
                         @if (getGroupUsers(groupItem.group.id); as usersList) {
                             @for (user of usersList; track user.email) {
-                                <mat-list-item role="listitem">
-                                    <div class="user">
+                                <li class="user">
+                                    <div class="user__label">
                                         @if (user.name) {
-                                            <span>{{user.name}} ({{user.email}})</span>
+                                            <span class="user__name">{{user.name}}</span>
+                                            <span class="user__email">{{user.email}}</span>
                                         } @else {
-                                            <span>{{user.email}}</span>
-                                        }
-                                        @if (currentUser()?.email !== user.email && canManage()) {
-                                            <button type="button" mat-icon-button
-                                                angulartics2On="click"
-                                                angularticsAction="Users access: delete user is clicked"
-                                                matTooltip="Delete user"
-                                                (click)="openDeleteUserDialog(user, groupItem.group); posthog.capture('Users access: delete user is clicked')">
-                                                <mat-icon>person_remove</mat-icon>
-                                            </button>
+                                            <span class="user__name">{{user.email}}</span>
                                         }
                                     </div>
-                                </mat-list-item>
+                                    
+                                    @if (currentUser()?.email !== user.email && canManage()) {
+                                        <button matListItemMeta type="button" mat-icon-button
+                                            angulartics2On="click"
+                                            angularticsAction="Users access: delete user is clicked"
+                                            matTooltip="Delete user"
+                                            (click)="openDeleteUserDialog(user, groupItem.group); posthog.capture('Users access: delete user is clicked')">
+                                            <mat-icon>person_remove</mat-icon>
+                                        </button>
+                                    }
+                                </li>
                             }
                         }
-                    </mat-list>
+                    </ul>
                 </mat-expansion-panel>
             }
         </mat-accordion>
