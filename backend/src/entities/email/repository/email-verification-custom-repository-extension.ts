@@ -1,3 +1,4 @@
+import { Constants } from '../../../helpers/constants/constants.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { UserEntity } from '../../user/user.entity.js';
 import { EmailVerificationEntity } from '../email-verification.entity.js';
@@ -8,6 +9,9 @@ export const emailVerificationRepositoryExtension = {
 			.leftJoinAndSelect('email_verification.user', 'user')
 			.where('email_verification.verification_string = :ver_string', {
 				ver_string: verificationString,
+			})
+			.andWhere('email_verification.createdAt >= :valid_after', {
+				valid_after: Constants.ONE_DAY_AGO(),
 			});
 		return await qb.getOne();
 	},

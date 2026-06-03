@@ -1,3 +1,4 @@
+import { Constants } from '../../../../helpers/constants/constants.js';
 import { Encryptor } from '../../../../helpers/encryption/encryptor.js';
 import { UserEntity } from '../../user.entity.js';
 import { PasswordResetEntity } from '../password-reset.entity.js';
@@ -8,6 +9,9 @@ export const userPasswordResetCustomRepositoryExtension = {
 			.leftJoinAndSelect('password_reset.user', 'user')
 			.where('password_reset.verification_string = :ver_string', {
 				ver_string: verificationString,
+			})
+			.andWhere('password_reset.createdAt >= :valid_after', {
+				valid_after: Constants.ONE_DAY_AGO(),
 			});
 		return await qb.getOne();
 	},
