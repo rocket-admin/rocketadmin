@@ -2,13 +2,15 @@ import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from
 import Sentry from '@sentry/minimal';
 import { WinstonLogger } from '../entities/logging/winston-logger.js';
 import { getErrorMessage } from '../helpers/get-error-message.js';
+import { ExceptionType } from './custom-exceptions/exception-type.js';
 import { Messages } from './text/messages.js';
 import { processExceptionMessage } from './utils/process-exception-message.js';
 
-export type ExceptionType = 'no_master_key' | 'invalid_master_key' | 'query_timeout';
+export { ExceptionType };
 
 interface RocketadminException {
-	response?: { type?: string };
+	type?: ExceptionType;
+	response?: { type?: ExceptionType };
 	originalMessage?: string;
 	internalCode?: string | number;
 }
@@ -30,7 +32,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 		let text = getErrorMessage(exception);
 		text = processExceptionMessage(text);
 		const meta = asRocketadminException(exception);
-		const type = meta.response?.type;
+		const type = meta.type ?? meta.response?.type;
 		const originalMessage = meta.originalMessage;
 		const internalCode = meta.internalCode;
 		const status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;

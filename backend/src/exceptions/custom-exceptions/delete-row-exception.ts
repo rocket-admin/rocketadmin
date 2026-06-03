@@ -1,14 +1,17 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
+import { categorizeExceptionMessage } from '../utils/process-exception-message.js';
+import { BaseRocketAdminException } from './base-rocketadmin.exception.js';
 import { ExceptionsInternalCodes } from './custom-exceptions-internal-codes/exceptions-internal-codes.js';
 import { ErrorsMessages } from './messages/custom-errors-messages.js';
 
-export class DeleteRowException extends HttpException {
-	public readonly originalMessage: string;
-	public readonly internalCode: ExceptionsInternalCodes;
+export class DeleteRowException extends BaseRocketAdminException {
 	constructor(originalMessage: string) {
-		const readableMessage = ErrorsMessages.FAILED_TO_DELETE_ROW;
-		super(readableMessage, HttpStatus.INTERNAL_SERVER_ERROR);
-		this.originalMessage = originalMessage;
-		this.internalCode = ExceptionsInternalCodes.UNKNOWN_SQL_EXCEPTION;
+		const categorized = categorizeExceptionMessage(originalMessage);
+		const recognized = categorized.internalCode !== undefined;
+		super(recognized ? categorized.message : ErrorsMessages.FAILED_TO_DELETE_ROW, HttpStatus.INTERNAL_SERVER_ERROR, {
+			originalMessage,
+			internalCode: recognized ? categorized.internalCode : ExceptionsInternalCodes.UNKNOWN_SQL_EXCEPTION,
+			type: categorized.type,
+		});
 	}
 }

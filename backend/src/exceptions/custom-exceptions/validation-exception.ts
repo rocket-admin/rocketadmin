@@ -1,11 +1,9 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
 import { ValidationError } from 'class-validator';
+import { BaseRocketAdminException } from './base-rocketadmin.exception.js';
 import { ExceptionsInternalCodes } from './custom-exceptions-internal-codes/exceptions-internal-codes.js';
 
-export class ValidationException extends HttpException {
-	public readonly originalMessage: string;
-	public readonly internalCode: ExceptionsInternalCodes;
-
+export class ValidationException extends BaseRocketAdminException {
 	constructor(originalMessage: string | ValidationError[]) {
 		if (Array.isArray(originalMessage)) {
 			originalMessage = originalMessage
@@ -16,7 +14,6 @@ export class ValidationException extends HttpException {
 				})
 				.join('.\n');
 		}
-		super(originalMessage, HttpStatus.BAD_REQUEST);
-		this.internalCode = ExceptionsInternalCodes.VALIDATOR_EXCEPTION;
+		super(originalMessage, HttpStatus.BAD_REQUEST, { internalCode: ExceptionsInternalCodes.VALIDATOR_EXCEPTION });
 	}
 }
