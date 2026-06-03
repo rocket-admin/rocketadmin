@@ -33,13 +33,13 @@ const ssrfSafeHttpAgent = new http.Agent({ lookup: ssrfGuardLookup });
 const ssrfSafeHttpsAgent = new https.Agent({ lookup: ssrfGuardLookup });
 
 export function getSsrfSafeRequestConfig(): AxiosRequestConfig {
-	if (!isSaaS() || isTest()) {
-		return {};
+	const config: AxiosRequestConfig = { timeout: SSRF_REQUEST_TIMEOUT_MS };
+
+	if (isSaaS() && !isTest()) {
+		config.httpAgent = ssrfSafeHttpAgent;
+		config.httpsAgent = ssrfSafeHttpsAgent;
+		config.maxRedirects = 0;
 	}
-	return {
-		httpAgent: ssrfSafeHttpAgent,
-		httpsAgent: ssrfSafeHttpsAgent,
-		maxRedirects: 0,
-		timeout: SSRF_REQUEST_TIMEOUT_MS,
-	};
+
+	return config;
 }

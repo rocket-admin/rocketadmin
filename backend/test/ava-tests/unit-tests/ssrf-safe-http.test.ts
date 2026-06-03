@@ -62,14 +62,22 @@ test.serial('getSsrfSafeRequestConfig returns pinning agents + guards in SaaS mo
 	t.is(typeof config.timeout, 'number');
 });
 
-test.serial('getSsrfSafeRequestConfig is a no-op for self-hosted (non-SaaS)', (t) => {
+test.serial('getSsrfSafeRequestConfig applies a timeout but no SSRF pinning for self-hosted (non-SaaS)', (t) => {
 	process.env.NODE_ENV = 'development';
 	delete process.env.IS_SAAS;
-	t.deepEqual(getSsrfSafeRequestConfig(), {});
+	const config = getSsrfSafeRequestConfig();
+	t.is(typeof config.timeout, 'number');
+	t.is(config.httpAgent, undefined);
+	t.is(config.httpsAgent, undefined);
+	t.is(config.maxRedirects, undefined);
 });
 
-test.serial('getSsrfSafeRequestConfig is a no-op in test mode', (t) => {
+test.serial('getSsrfSafeRequestConfig applies a timeout but no SSRF pinning in test mode', (t) => {
 	process.env.NODE_ENV = 'test';
 	process.env.IS_SAAS = '1';
-	t.deepEqual(getSsrfSafeRequestConfig(), {});
+	const config = getSsrfSafeRequestConfig();
+	t.is(typeof config.timeout, 'number');
+	t.is(config.httpAgent, undefined);
+	t.is(config.httpsAgent, undefined);
+	t.is(config.maxRedirects, undefined);
 });
