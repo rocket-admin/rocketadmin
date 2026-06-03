@@ -1,5 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
+import { isReadOnlyMongoAggregationPipeline } from '../../../../ai-core/tools/query-validators.js';
 import { slackPostMessage } from '../../../../helpers/slack/slack-post-message.js';
 
 const FORBIDDEN_SQL_KEYWORDS = [
@@ -173,6 +174,14 @@ export function checkMongoQueryIsSafe(query: string): QuerySafetyResult {
 				forbiddenKeyword: operation,
 			};
 		}
+	}
+
+	if (!isReadOnlyMongoAggregationPipeline(query)) {
+		return {
+			isSafe: false,
+			reason:
+				'Query must be a read-only aggregation pipeline (write stages or server-side JavaScript operators such as $out, $merge, $function, $accumulator, $where are not allowed)',
+		};
 	}
 
 	return { isSafe: true };
