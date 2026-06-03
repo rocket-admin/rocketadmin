@@ -1,10 +1,10 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { AccessLevelEnum } from '../../../enums/access-level.enum.js';
-import { Messages } from '../../../exceptions/text/messages.js';
+import { ConnectionNotFoundException } from '../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { parseCedarPolicyToClassicalPermissions } from '../../cedar-authorization/cedar-policy-parser.js';
 import { TablePermissionDs } from '../../permission/application/data-structures/create-permissions.ds.js';
 import { FoundPermissionsInConnectionDs } from '../application/data-structures/found-permissions-in-connection.ds.js';
@@ -48,7 +48,7 @@ export class GetPermissionsForGroupInConnectionUseCase
 			inputData.masterPwd,
 		);
 		if (!connection) {
-			throw new BadRequestException(Messages.CONNECTION_NOT_FOUND);
+			throw new ConnectionNotFoundException(HttpStatus.BAD_REQUEST);
 		}
 		const dao = getDataAccessObject(connection);
 		const tables: Array<string> = (await dao.getTablesFromDB()).map((table) => table.tableName);

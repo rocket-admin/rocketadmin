@@ -1,11 +1,12 @@
-import { BadRequestException, Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../../common/data-injection.tokens.js';
+import { ConnectionNotFoundException } from '../../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { Messages } from '../../../../exceptions/text/messages.js';
-import { PanelPositionEntity } from '../panel-position.entity.js';
 import { CreatePanelPositionDs } from '../data-structures/create-panel-position.ds.js';
 import { FoundPanelPositionDto } from '../dto/found-panel-position.dto.js';
+import { PanelPositionEntity } from '../panel-position.entity.js';
 import { buildFoundPanelPositionDto } from '../utils/build-found-dashboard-widget-dto.util.js';
 import { ICreatePanelPositionWidget } from './panel-position-use-cases.interface.js';
 
@@ -30,7 +31,7 @@ export class CreatePanelPositionUseCase
 		);
 
 		if (!foundConnection) {
-			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
+			throw new ConnectionNotFoundException(HttpStatus.NOT_FOUND);
 		}
 
 		const foundDashboard = await this._dbContext.dashboardRepository.findDashboardByIdAndConnectionId(

@@ -1,6 +1,7 @@
 import {
 	BadRequestException,
 	ConflictException,
+	HttpStatus,
 	Inject,
 	Injectable,
 	Logger,
@@ -11,7 +12,7 @@ import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/en
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { Messages } from '../../../exceptions/text/messages.js';
+import { ConnectionNotFoundException } from '../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { RollbackBatchSchemaChangeDs } from '../application/data-structures/rollback-batch-schema-change.ds.js';
 import { SchemaChangeBatchResponseDto } from '../application/data-transfer-objects/schema-change-batch-response.dto.js';
@@ -64,7 +65,7 @@ export class RollbackBatchSchemaChangesUseCase
 			masterPassword ?? '',
 		);
 		if (!connection) {
-			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
+			throw new ConnectionNotFoundException(HttpStatus.NOT_FOUND);
 		}
 
 		const failures: Array<{ changeId: string; error: string }> = [];

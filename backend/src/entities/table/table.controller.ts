@@ -30,6 +30,7 @@ import { Timeout, TimeoutDefaults } from '../../decorators/timeout.decorator.js'
 import { UserId } from '../../decorators/user-id.decorator.js';
 import { AmplitudeEventTypeEnum } from '../../enums/amplitude-event-type.enum.js';
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
+import { ConnectionNotFoundException } from '../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { TableAddGuard } from '../../guards/table-add.guard.js';
 import { TableDeleteGuard } from '../../guards/table-delete.guard.js';
@@ -835,12 +836,7 @@ export class TableController {
 		const primaryKeys = [];
 		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
 		if (!connection) {
-			throw new HttpException(
-				{
-					message: Messages.CONNECTION_NOT_FOUND,
-				},
-				HttpStatus.BAD_REQUEST,
-			);
+			throw new ConnectionNotFoundException(HttpStatus.BAD_REQUEST);
 		}
 		let userEmail = '';
 		if (isConnectionTypeAgent(connection.type)) {

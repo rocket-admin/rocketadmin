@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, Logger, NotFoundException, Scope } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Inject, Injectable, Logger, Scope } from '@nestjs/common';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object.interface.js';
@@ -14,7 +14,7 @@ import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../../common/data-injection.tokens.js';
 import { DashboardWidgetTypeEnum } from '../../../../enums/dashboard-widget-type.enum.js';
-import { Messages } from '../../../../exceptions/text/messages.js';
+import { ConnectionNotFoundException } from '../../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { getErrorMessage } from '../../../../helpers/get-error-message.js';
 import { isConnectionTypeAgent } from '../../../../helpers/is-connection-entity-agent.js';
 import { DashboardEntity } from '../../dashboard/dashboard.entity.js';
@@ -98,7 +98,7 @@ export class GenerateTableDashboardWithAiUseCase
 		);
 
 		if (!foundConnection) {
-			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
+			throw new ConnectionNotFoundException(HttpStatus.NOT_FOUND);
 		}
 
 		const dao = getDataAccessObject(foundConnection);

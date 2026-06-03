@@ -1,4 +1,4 @@
-import { BadRequestException, HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
 import { validateSchemaCache } from '@rocketadmin/shared-code/dist/src/caching/schema-cache-validator.js';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
@@ -8,6 +8,7 @@ import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/en
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
+import { ConnectionNotFoundException } from '../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
@@ -36,7 +37,7 @@ export class PreviewConnectionDiagramUseCase
 		const { connectionId, masterPwd, userId, sqlCommands } = inputData;
 		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
 		if (!connection) {
-			throw new HttpException({ message: Messages.CONNECTION_NOT_FOUND }, HttpStatus.BAD_REQUEST);
+			throw new ConnectionNotFoundException(HttpStatus.BAD_REQUEST);
 		}
 		if (!isSqlConnectionType(connection.type)) {
 			throw new BadRequestException(Messages.DIAGRAM_NOT_SUPPORTED_FOR_CONNECTION_TYPE);

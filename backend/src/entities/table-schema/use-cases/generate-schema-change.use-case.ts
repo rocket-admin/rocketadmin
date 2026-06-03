@@ -1,5 +1,5 @@
 import { BaseMessage } from '@langchain/core/messages';
-import { BadRequestException, Inject, Injectable, Logger, NotFoundException, Scope } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Inject, Injectable, Logger, Scope } from '@nestjs/common';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import Sentry from '@sentry/minimal';
@@ -10,6 +10,7 @@ import { MessageBuilder } from '../../../ai-core/utils/message-builder.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
+import { ConnectionNotFoundException } from '../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { MessageRole } from '../../ai/ai-conversation-history/ai-chat-messages/message-role.enum.js';
@@ -70,7 +71,7 @@ export class GenerateSchemaChangeUseCase
 			masterPassword ?? '',
 		);
 		if (!connection) {
-			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
+			throw new ConnectionNotFoundException(HttpStatus.NOT_FOUND);
 		}
 
 		const connectionType = connection.type as ConnectionTypesEnum;

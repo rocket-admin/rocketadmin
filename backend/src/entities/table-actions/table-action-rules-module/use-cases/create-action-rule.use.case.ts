@@ -1,9 +1,10 @@
-import { BadRequestException, Inject, Injectable, Scope } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../../common/data-injection.tokens.js';
 import { TableActionMethodEnum } from '../../../../enums/table-action-method-enum.js';
+import { ConnectionNotFoundException } from '../../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { Messages } from '../../../../exceptions/text/messages.js';
 import { isTest } from '../../../../helpers/app/is-test.js';
 import { isActionUrlHostAllowed } from '../../../../helpers/validators/is-action-url-host-allowed.js';
@@ -40,7 +41,7 @@ export class CreateActionRuleUseCase
 
 		const foundConnection = await this._dbContext.connectionRepository.findOne({ where: { id: connectionId } });
 		if (!foundConnection) {
-			throw new BadRequestException(Messages.CONNECTION_NOT_FOUND);
+			throw new ConnectionNotFoundException(HttpStatus.BAD_REQUEST);
 		}
 		const newActionRule = buildEmptyActionRule(rule_data, foundConnection);
 		const savedActionRule = await this._dbContext.actionRulesRepository.saveNewOrUpdatedActionRule(newActionRule);
@@ -101,7 +102,7 @@ export class CreateActionRuleUseCase
 			masterPwd,
 		);
 		if (!foundConnection) {
-			throw new BadRequestException(Messages.CONNECTION_NOT_FOUND);
+			throw new ConnectionNotFoundException(HttpStatus.BAD_REQUEST);
 		}
 		const dao = getDataAccessObject(foundConnection);
 		const tablesInConnection = await dao.getTablesFromDB();

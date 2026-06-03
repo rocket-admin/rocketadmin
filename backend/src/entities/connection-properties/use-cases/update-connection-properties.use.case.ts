@@ -3,6 +3,7 @@ import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
+import { ConnectionNotFoundException } from '../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { CreateConnectionPropertiesDs } from '../application/data-structures/create-connection-properties.ds.js';
 import { FoundConnectionPropertiesDs } from '../application/data-structures/found-connection-properties.ds.js';
@@ -34,12 +35,7 @@ export class UpdateConnectionPropertiesUseCase
 			master_password ?? '',
 		);
 		if (!foundConnection) {
-			throw new HttpException(
-				{
-					message: Messages.CONNECTION_NOT_FOUND,
-				},
-				HttpStatus.NOT_FOUND,
-			);
+			throw new ConnectionNotFoundException(HttpStatus.NOT_FOUND);
 		}
 		await validateCreateConnectionPropertiesDs(inputData, foundConnection);
 		const connectionPropertiesToUpdate =

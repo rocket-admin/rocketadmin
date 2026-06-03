@@ -1,10 +1,10 @@
-import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../../common/data-injection.tokens.js';
+import { ConnectionNotFoundException } from '../../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { CedarAction } from '../../../cedar-authorization/cedar-action-map.js';
 import { CedarAuthorizationService } from '../../../cedar-authorization/cedar-authorization.service.js';
-import { Messages } from '../../../../exceptions/text/messages.js';
 import { FindAllPanelsDs } from '../data-structures/find-all-panels.ds.js';
 import { FoundPanelDto } from '../dto/found-saved-db-query.dto.js';
 import { buildFoundPanelDto } from '../utils/build-found-panel-dto.util.js';
@@ -32,7 +32,7 @@ export class FindAllSavedDbQueriesUseCase
 		);
 
 		if (!foundConnection) {
-			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
+			throw new ConnectionNotFoundException(HttpStatus.NOT_FOUND);
 		}
 
 		const foundQueries = await this._dbContext.panelRepository.findAllQueriesByConnectionId(connectionId);

@@ -1,8 +1,8 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { Messages } from '../../../exceptions/text/messages.js';
+import { ConnectionNotFoundException } from '../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { UpdateMasterPasswordDs } from '../application/data-structures/update-master-password.ds.js';
@@ -24,7 +24,7 @@ export class UpdateConnectionMasterPasswordUseCase
 		const { connectionId, newMasterPwd, oldMasterPwd } = inputData;
 		let connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, oldMasterPwd);
 		if (!connection) {
-			throw new BadRequestException(Messages.CONNECTION_NOT_FOUND);
+			throw new ConnectionNotFoundException(HttpStatus.BAD_REQUEST);
 		}
 		connection = Encryptor.encryptConnectionCredentials(connection, newMasterPwd);
 		connection.master_hash = await Encryptor.hashUserPassword(newMasterPwd);

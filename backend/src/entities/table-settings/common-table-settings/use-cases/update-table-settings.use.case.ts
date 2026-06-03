@@ -6,6 +6,7 @@ import { buildValidateTableSettingsDS } from '@rocketadmin/shared-code/dist/src/
 import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../../common/data-injection.tokens.js';
+import { ConnectionNotFoundException } from '../../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { Messages } from '../../../../exceptions/text/messages.js';
 import { toPrettyErrorsMsg } from '../../../../helpers/to-pretty-errors-msg.js';
 import { CreateTableSettingsDs } from '../../application/data-structures/create-table-settings.ds.js';
@@ -33,12 +34,7 @@ export class UpdateTableSettingsUseCase
 			masterPwd ?? '',
 		);
 		if (!foundConnection) {
-			throw new HttpException(
-				{
-					message: Messages.CONNECTION_NOT_FOUND,
-				},
-				HttpStatus.NOT_FOUND,
-			);
+			throw new ConnectionNotFoundException(HttpStatus.NOT_FOUND);
 		}
 		const dao = getDataAccessObject(foundConnection);
 		const tableSettingsDs: ValidateTableSettingsDS = buildValidateTableSettingsDS(inputData);

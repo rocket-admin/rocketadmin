@@ -1,8 +1,8 @@
-import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../../common/data-injection.tokens.js';
-import { Messages } from '../../../../exceptions/text/messages.js';
+import { ConnectionNotFoundException } from '../../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { DashboardEntity } from '../dashboard.entity.js';
 import { CreateDashboardDs } from '../data-structures/create-dashboard.ds.js';
 import { FoundDashboardDto } from '../dto/found-dashboard.dto.js';
@@ -30,7 +30,7 @@ export class CreateDashboardUseCase
 		);
 
 		if (!foundConnection) {
-			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
+			throw new ConnectionNotFoundException(HttpStatus.NOT_FOUND);
 		}
 
 		const newDashboard = new DashboardEntity();

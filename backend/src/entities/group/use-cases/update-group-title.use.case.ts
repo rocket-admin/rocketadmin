@@ -2,6 +2,7 @@ import { BadRequestException, HttpException, HttpStatus, Inject, Injectable, Sco
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
+import { ConnectionNotFoundException } from '../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { FoundGroupDataInfoDs } from '../application/data-sctructures/found-user-groups.ds.js';
 import { UpdateGroupTitleDto } from '../dto/update-group-title.dto.js';
@@ -34,12 +35,7 @@ export class UpdateGroupTitleUseCase
 			groupToUpdate.connection.id,
 		);
 		if (!connectionWithGroups) {
-			throw new HttpException(
-				{
-					message: Messages.CONNECTION_NOT_FOUND,
-				},
-				HttpStatus.NOT_FOUND,
-			);
+			throw new ConnectionNotFoundException(HttpStatus.NOT_FOUND);
 		}
 
 		if (connectionWithGroups.groups.find((group) => group.title === title)) {

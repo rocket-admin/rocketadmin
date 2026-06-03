@@ -1,8 +1,8 @@
-import { BadRequestException, Inject, Injectable, Scope } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { Messages } from '../../../exceptions/text/messages.js';
+import { ConnectionNotFoundException } from '../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { UnfreezeConnectionDs } from '../application/data-structures/unfreeze-connection.ds.js';
 import { IUnfreezeConnection } from './use-cases.interfaces.js';
@@ -25,7 +25,7 @@ export class UnfreezeConnectionUseCase
 
 		const connection = await this._dbContext.connectionRepository.findOne({ where: { id: connectionId } });
 		if (!connection) {
-			throw new BadRequestException(Messages.CONNECTION_NOT_FOUND);
+			throw new ConnectionNotFoundException(HttpStatus.BAD_REQUEST);
 		}
 
 		// if (isSaaS()) {

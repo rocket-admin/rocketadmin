@@ -1,6 +1,7 @@
 import {
 	BadRequestException,
 	ConflictException,
+	HttpStatus,
 	Inject,
 	Injectable,
 	Logger,
@@ -13,7 +14,7 @@ import { AICoreService } from '../../../ai-core/services/ai-core.service.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { Messages } from '../../../exceptions/text/messages.js';
+import { ConnectionNotFoundException } from '../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { runSchemaChangeFixAiLoop } from '../ai/run-schema-change-fix-ai-loop.js';
@@ -80,7 +81,7 @@ export class ApproveAndApplySchemaChangeUseCase
 			masterPassword ?? '',
 		);
 		if (!connection) {
-			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
+			throw new ConnectionNotFoundException(HttpStatus.NOT_FOUND);
 		}
 
 		const isMongo = isMongoSchemaChangeType(change.changeType);

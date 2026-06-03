@@ -1,8 +1,9 @@
-import { BadRequestException, Inject, Injectable, Scope } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { AccessLevelEnum } from '../../../enums/access-level.enum.js';
+import { ConnectionNotFoundException } from '../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Cacher } from '../../../helpers/cache/cacher.js';
 import { generateCedarPolicyForGroup } from '../../cedar-authorization/cedar-policy-generator.js';
@@ -31,7 +32,7 @@ export class CreateGroupInConnectionUseCase
 		} = inputData;
 		const connectionToUpdate = await this._dbContext.connectionRepository.findConnectionWithGroups(connectionId);
 		if (!connectionToUpdate) {
-			throw new BadRequestException(Messages.CONNECTION_NOT_FOUND);
+			throw new ConnectionNotFoundException(HttpStatus.BAD_REQUEST);
 		}
 		if (connectionToUpdate.groups.find((group) => group.title === title)) {
 			throw new BadRequestException(Messages.GROUP_NAME_UNIQUE);

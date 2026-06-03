@@ -3,6 +3,7 @@ import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
+import { ConnectionNotFoundException } from '../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { findTablesInConnectionUtil } from '../../table/utils/find-tables-in-connection.util.js';
 import { FindTableWidgetsDs } from '../application/data-sctructures/find-table-widgets.ds.js';
@@ -26,12 +27,7 @@ export class FindTableWidgetsUseCase
 		const { connectionId, masterPwd, tableName, userId } = inputData;
 		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
 		if (!connection) {
-			throw new HttpException(
-				{
-					message: Messages.CONNECTION_NOT_FOUND,
-				},
-				HttpStatus.NOT_FOUND,
-			);
+			throw new ConnectionNotFoundException(HttpStatus.NOT_FOUND);
 		}
 		const tablesInConnection = await findTablesInConnectionUtil(connection, userId, '');
 		if (!tablesInConnection.includes(tableName)) {

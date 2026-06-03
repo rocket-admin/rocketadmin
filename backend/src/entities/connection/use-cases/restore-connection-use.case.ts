@@ -3,6 +3,7 @@ import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
+import { ConnectionNotFoundException } from '../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isConnectionEntityAgent } from '../../../helpers/is-connection-entity-agent.js';
 import { RestoredConnectionDs } from '../application/data-structures/restored-connection.ds.js';
@@ -44,12 +45,7 @@ export class RestoreConnectionUseCase
 
 		const foundConnection = await this._dbContext.connectionRepository.findOneById(connectionId);
 		if (!foundConnection) {
-			throw new HttpException(
-				{
-					message: Messages.CONNECTION_NOT_FOUND,
-				},
-				HttpStatus.BAD_REQUEST,
-			);
+			throw new ConnectionNotFoundException(HttpStatus.BAD_REQUEST);
 		}
 		const hostCheckingResult = await isHostAllowed(connection_parameters);
 		if (!hostCheckingResult) {
@@ -75,12 +71,7 @@ export class RestoreConnectionUseCase
 			where: { id: savedConnection.id },
 		});
 		if (!foundConnectionAfterSave) {
-			throw new HttpException(
-				{
-					message: Messages.CONNECTION_NOT_FOUND,
-				},
-				HttpStatus.BAD_REQUEST,
-			);
+			throw new ConnectionNotFoundException(HttpStatus.BAD_REQUEST);
 		}
 		await decryptConnectionCredentialsAsync(foundConnectionAfterSave);
 		const token = updatedConnection.agent?.token || null;
