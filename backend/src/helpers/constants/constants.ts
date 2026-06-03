@@ -26,7 +26,17 @@ export type TestConnectionsFromJSON = {
 export const Constants = {
 	ROCKETADMIN_AUTHENTICATED_COOKIE: 'rocketadmin_authenticated',
 	JWT_COOKIE_KEY_NAME: 'rocketadmin_cookie',
-	FORBIDDEN_HOSTS: ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16', '127.0.0.0/8', 'fd00::/8'],
+	FORBIDDEN_HOSTS: [
+		'0.0.0.0/8',
+		'10.0.0.0/8',
+		'172.16.0.0/12',
+		'192.168.0.0/16',
+		'127.0.0.0/8',
+		'169.254.0.0/16',
+		'::1/128',
+		'fd00::/8',
+		'fe80::/10',
+	],
 	BINARY_DATATYPES: [
 		'binary',
 		'bytea',
