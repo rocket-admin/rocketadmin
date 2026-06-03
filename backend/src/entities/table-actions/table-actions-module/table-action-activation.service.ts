@@ -12,6 +12,7 @@ import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { actionSlackPostMessage } from '../../../helpers/slack/action-slack-post-message.js';
 import { isObjectPropertyExists } from '../../../helpers/validators/is-object-property-exists-validator.js';
+import { getSsrfSafeRequestConfig } from '../../../helpers/validators/ssrf-safe-http.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { EmailService } from '../../email/email/email.service.js';
 import { escapeHtml } from '../../email/utils/escape-html.util.js';
@@ -214,6 +215,7 @@ export class TableActionActivationService {
 		let result: AxiosResponse<any, any> | undefined;
 		try {
 			result = await axios.post(tableAction.url, actionRequestBody, {
+				...getSsrfSafeRequestConfig(),
 				headers: { 'Rocketadmin-Signature': autoadminSignatureHeader, 'Content-Type': 'application/json' },
 				maxRedirects: 0,
 				validateStatus: (status) => status <= 599,
