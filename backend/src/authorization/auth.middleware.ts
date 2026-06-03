@@ -1,5 +1,4 @@
 import {
-	BadRequestException,
 	HttpException,
 	Injectable,
 	InternalServerErrorException,
@@ -14,6 +13,7 @@ import { Repository } from 'typeorm';
 import { LogOutEntity } from '../entities/log-out/log-out.entity.js';
 import { JwtScopesEnum } from '../entities/user/enums/jwt-scopes.enum.js';
 import { UserEntity } from '../entities/user/user.entity.js';
+import { TwoFaRequiredException } from '../exceptions/custom-exceptions/two-fa-required-exception.js';
 import { Messages } from '../exceptions/text/messages.js';
 import { isTest } from '../helpers/app/is-test.js';
 import { Constants } from '../helpers/constants/constants.js';
@@ -72,7 +72,7 @@ export class AuthMiddleware implements NestMiddleware {
 			const addedScope: Array<JwtScopesEnum> = data.scope;
 			if (addedScope && addedScope.length > 0) {
 				if (addedScope.includes(JwtScopesEnum.TWO_FA_ENABLE)) {
-					throw new BadRequestException(Messages.TWO_FA_REQUIRED);
+					throw new TwoFaRequiredException();
 				}
 			}
 

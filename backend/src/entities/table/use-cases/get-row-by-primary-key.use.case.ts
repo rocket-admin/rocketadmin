@@ -8,6 +8,7 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
+import { PrimaryKeyMissingException } from '../../../exceptions/custom-exceptions/primary-key-missing-exception.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { compareArrayElements } from '../../../helpers/compare-array-elements.js';
@@ -15,7 +16,7 @@ import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { buildActionEventDto } from '../../table-actions/table-action-rules-module/utils/build-found-action-event-dto.util.js';
 import { GetRowByPrimaryKeyDs } from '../application/data-structures/get-row-by-primary-key.ds.js';
-import { ReferencedTableNamesAndColumnsDs, TableRowRODs } from '../table-datastructures.js';
+import { TableRowRODs } from '../table-datastructures.js';
 import { attachForeignColumnNames } from '../utils/attach-foreign-column-names.util.js';
 import { buildCommonTableSettingsInput } from '../utils/build-common-table-settings-input.util.js';
 import { buildTableSettingsForResponse } from '../utils/build-table-settings-for-response.util.js';
@@ -49,12 +50,7 @@ export class GetRowByPrimaryKeyUseCase
 		let { connectionId, masterPwd, primaryKey, tableName, userId } = inputData;
 		const { uncached } = inputData;
 		if (!primaryKey) {
-			throw new HttpException(
-				{
-					message: Messages.PRIMARY_KEY_MISSING,
-				},
-				HttpStatus.BAD_REQUEST,
-			);
+			throw new PrimaryKeyMissingException();
 		}
 
 		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);

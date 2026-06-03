@@ -7,6 +7,8 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { AmplitudeEventTypeEnum } from '../../../enums/amplitude-event-type.enum.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
+import { MasterPasswordIncorrectException } from '../../../exceptions/custom-exceptions/master-password-incorrect-exception.js';
+import { MasterPasswordMissingException } from '../../../exceptions/custom-exceptions/master-password-missing-exception.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isTest as isTestEnv } from '../../../helpers/app/is-test.js';
@@ -19,7 +21,7 @@ import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-
 import { WinstonLogger } from '../../logging/winston-logger.js';
 import { ITableAndViewPermissionData } from '../../permission/permission.interface.js';
 import { FindTablesDs } from '../application/data-structures/find-tables.ds.js';
-import { FoundTableDs, FoundTablesWithCategoriesDS } from '../application/data-structures/found-table.ds.js';
+import { FoundTablesWithCategoriesDS } from '../application/data-structures/found-table.ds.js';
 import { addDisplayNamesForTables } from '../utils/add-display-names-for-tables.util.js';
 import { saveTableInfoInDatabase } from '../utils/save-table-info-in-database-orchestrator.util.js';
 import { IFindTablesInConnectionV2 } from './table-use-cases.interface.js';
@@ -47,22 +49,10 @@ export class FindTablesInConnectionV2UseCase
 		} catch (error) {
 			const errMessage = getErrorMessage(error);
 			if (errMessage === Messages.MASTER_PASSWORD_MISSING) {
-				throw new HttpException(
-					{
-						message: Messages.MASTER_PASSWORD_MISSING,
-						type: 'no_master_key',
-					},
-					HttpStatus.BAD_REQUEST,
-				);
+				throw new MasterPasswordMissingException();
 			}
 			if (errMessage === Messages.MASTER_PASSWORD_INCORRECT) {
-				throw new HttpException(
-					{
-						message: Messages.MASTER_PASSWORD_INCORRECT,
-						type: 'invalid_master_key',
-					},
-					HttpStatus.BAD_REQUEST,
-				);
+				throw new MasterPasswordIncorrectException();
 			}
 		}
 		if (!connection) {
