@@ -23,32 +23,30 @@ export async function isHostAllowed(connectionData: HostCheckData): Promise<bool
 		return true;
 	}
 
+	const hostnameToCheck = connectionData.ssh ? connectionData.sshHost : connectionData.host;
+	if (!hostnameToCheck) {
+		return true;
+	}
+
+	const testHosts = Constants.getTestConnectionsHostNamesArr();
+	if (testHosts.includes(connectionData.host ?? '')) {
+		return true;
+	}
+
 	return new Promise<boolean>((resolve, reject) => {
-		const testHosts = Constants.getTestConnectionsHostNamesArr();
-		if (!connectionData.ssh) {
-			dns.lookup(connectionData.host ?? '', (err, address) => {
-				if (err) {
-					return reject(err);
-				}
-				if (ipRangeCheck(address, Constants.FORBIDDEN_HOSTS) && !testHosts.includes(connectionData.host ?? '')) {
-					resolve(false);
-				} else {
-					resolve(true);
-				}
-			});
-		} else if (connectionData.ssh && connectionData.sshHost) {
-			dns.lookup(connectionData.sshHost, (err, address) => {
-				if (err) {
-					return reject(err);
-				}
-				if (ipRangeCheck(address, Constants.FORBIDDEN_HOSTS) && !testHosts.includes(connectionData.host ?? '')) {
-					resolve(false);
-				} else {
-					resolve(true);
-				}
-			});
-		}
+		dns.lookup(hostnameToCheck, { all: true }, (err, addresses) => {
+			if (err) {
+				return reject(err);
+			}
+			const anyForbidden = addresses.some(({ address }) => isForbiddenAddress(address));
+			resolve(!anyForbidden);
+		});
 	}).catch((_e) => {
 		throw new HttpException({ message: Messages.CANNOT_CREATE_CONNECTION_TO_THIS_HOST }, HttpStatus.FORBIDDEN);
 	});
+}
+
+export function isForbiddenAddress(address: string): boolean {
+	const normalized = address.startsWith('::ffff:') && address.includes('.') ? address.slice('::ffff:'.length) : address;
+	return ipRangeCheck(normalized, Constants.FORBIDDEN_HOSTS);
 }
