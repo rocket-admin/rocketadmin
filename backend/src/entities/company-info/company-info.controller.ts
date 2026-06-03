@@ -81,8 +81,8 @@ import {
 	IRemoveUserFromCompany,
 	IRevokeUserInvitationInCompany,
 	ISuspendUsersInCompany,
-	IUnsuspendUsersInCompany,
 	IToggleCompanyTestConnectionsMode,
+	IUnsuspendUsersInCompany,
 	IUpdateCompanyName,
 	IUpdateUsers2faStatusInCompany,
 	IUpdateUsersCompanyRoles,
@@ -173,6 +173,7 @@ export class CompanyInfoController {
 		description: 'Get company name by id.',
 		type: FoundCompanyNameDs,
 	})
+	@Throttle({ default: { limit: isTest() ? 200 : 10, ttl: 60000 } })
 	@Get('name/:companyId')
 	async getCompanyNameById(@Param('companyId') companyId: string): Promise<FoundCompanyNameDs> {
 		return await this.getCompanyNameUseCase.execute(companyId);
