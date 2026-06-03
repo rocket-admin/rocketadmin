@@ -1,15 +1,42 @@
 <div class="page">
 	<div class="card">
 		<div class="card__body">
-			<div class="spinner">
+			<div *ngIf="!done()" class="spinner">
 				<div class="spinner__ring spinner__ring--outer"></div>
 				<div class="spinner__ring spinner__ring--inner"></div>
 			</div>
-			<h2 class="card__title">Configuring your database</h2>
-			<p class="card__subtitle">We're analyzing your structure and applying the best settings. This is running in the background.</p>
-			<div class="progress-bar">
-				<div class="progress-bar__fill"></div>
+			<div *ngIf="done()" class="success-mark" aria-label="Configuration complete">
+				<svg viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+					<circle class="success-mark__circle" cx="26" cy="26" r="25"></circle>
+					<path class="success-mark__check" d="M14 27 l8 8 l16 -18"></path>
+				</svg>
 			</div>
+			<h2 class="card__title">{{ done() ? 'Your database is ready' : 'Configuring your database' }}</h2>
+			<div class="card__head-detail">
+				<p *ngIf="!done()" class="card__subtitle">We're analyzing your structure and applying the best settings. This is running in the background.</p>
+				<div *ngIf="hasSummary()" class="summary-chips">
+					<span class="summary-chip"><strong>{{ tablesConfigured().size }}</strong> {{ tablesConfigured().size === 1 ? 'table' : 'tables' }}</span>
+					<span *ngIf="widgetsCount() > 0" class="summary-chip"><strong>{{ widgetsCount() }}</strong> {{ widgetsCount() === 1 ? 'widget' : 'widgets' }}</span>
+					<span *ngIf="settingsCount() > 0" class="summary-chip"><strong>{{ settingsCount() }}</strong> {{ settingsCount() === 1 ? 'setting' : 'settings' }}</span>
+				</div>
+				<p *ngIf="done() && !hasSummary()" class="card__subtitle">All set — opening your dashboard…</p>
+			</div>
+
+			<ul class="status-log" *ngIf="!errorText(); else errorBlock">
+				<li *ngFor="let m of messages(); let last = last; trackBy: trackByIndex"
+					class="status-log__item"
+					[class.status-log__item_current]="last"
+					[class.status-log__item_done]="!last">
+					<span class="status-log__icon" aria-hidden="true">
+						<span *ngIf="!last" class="status-log__check">&#10003;</span>
+						<span *ngIf="last" class="status-log__spinner"></span>
+					</span>
+					<span class="status-log__text">{{ m }}</span>
+				</li>
+			</ul>
+			<ng-template #errorBlock>
+				<p class="card__status card__status_error">{{ errorText() }}</p>
+			</ng-template>
 		</div>
 		<div class="card__footer">
 			<p class="card__footer-text">You can start working — setup will continue in the background.</p>
