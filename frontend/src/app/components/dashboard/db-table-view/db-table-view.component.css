@@ -962,11 +962,11 @@
 		display: flex;
 		align-items: center;
 		justify-content: flex-end;
+		gap: 8px;
 		/* grow to fill the row so the buttons sit on the far right; panel keeps its natural width to avoid overlapping .saved-filters-trigger_active */
 		flex: 1 1 auto;
 		min-width: 0;
 		width: 100%;
-		margin-bottom: -44px;
 	}
 
 	.mobile-sort-button {
