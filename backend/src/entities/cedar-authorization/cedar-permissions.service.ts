@@ -1,9 +1,9 @@
 import * as cedarWasm from '@cedar-policy/cedar-wasm/nodejs';
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../common/data-injection.tokens.js';
 import { AccessLevelEnum } from '../../enums/access-level.enum.js';
-import { Messages } from '../../exceptions/text/messages.js';
+import { ConnectionNotFoundException } from '../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { Cacher } from '../../helpers/cache/cacher.js';
 import { GroupEntity } from '../group/group.entity.js';
 import { ITablePermissionData } from '../permission/permission.interface.js';
@@ -368,7 +368,7 @@ export class CedarPermissionsService implements IUserAccessRepository {
 	async getConnectionId(groupId: string): Promise<string> {
 		const group = await this.globalDbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
 		if (!group?.connection?.id) {
-			throw new HttpException({ message: Messages.CONNECTION_NOT_FOUND }, HttpStatus.BAD_REQUEST);
+			throw new ConnectionNotFoundException(HttpStatus.BAD_REQUEST);
 		}
 		return group.connection.id;
 	}

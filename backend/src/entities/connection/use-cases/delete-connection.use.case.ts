@@ -1,7 +1,8 @@
-import { BadRequestException, Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
+import { ConnectionNotFoundException } from '../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { DeleteConnectionDs } from '../application/data-structures/delete-connection.ds.js';
 import { CreatedConnectionDTO } from '../application/dto/created-connection.dto.js';
@@ -26,7 +27,7 @@ export class DeleteConnectionUseCase
 			inputData.masterPwd,
 		);
 		if (!connectionToDelete) {
-			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
+			throw new ConnectionNotFoundException(HttpStatus.NOT_FOUND);
 		}
 		const userNonTestConnections = await this._dbContext.connectionRepository.findAllUserNonTestsConnections(
 			inputData.cognitoUserName,

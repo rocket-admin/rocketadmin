@@ -1,11 +1,14 @@
-import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { TableDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table.ds.js';
 import * as Sentry from '@sentry/node';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
+import { ConnectionNotFoundException } from '../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
+import { MasterPasswordIncorrectException } from '../../../exceptions/custom-exceptions/master-password-incorrect-exception.js';
+import { MasterPasswordMissingException } from '../../../exceptions/custom-exceptions/master-password-missing-exception.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { getErrorMessage } from '../../../helpers/get-error-message.js';
@@ -40,31 +43,14 @@ export class FindTableCategoriesWithTablesUseCase
 		} catch (error) {
 			const errMessage = getErrorMessage(error);
 			if (errMessage === Messages.MASTER_PASSWORD_MISSING) {
-				throw new HttpException(
-					{
-						message: Messages.MASTER_PASSWORD_MISSING,
-						type: 'no_master_key',
-					},
-					HttpStatus.BAD_REQUEST,
-				);
+				throw new MasterPasswordMissingException();
 			}
 			if (errMessage === Messages.MASTER_PASSWORD_INCORRECT) {
-				throw new HttpException(
-					{
-						message: Messages.MASTER_PASSWORD_INCORRECT,
-						type: 'invalid_master_key',
-					},
-					HttpStatus.BAD_REQUEST,
-				);
+				throw new MasterPasswordIncorrectException();
 			}
 		}
 		if (!connection) {
-			throw new HttpException(
-				{
-					message: Messages.CONNECTION_NOT_FOUND,
-				},
-				HttpStatus.BAD_REQUEST,
-			);
+			throw new ConnectionNotFoundException(HttpStatus.BAD_REQUEST);
 		}
 		const dao = getDataAccessObject(connection);
 		const userEmail = await getUserEmailForAgent(connection, userId, this._dbContext.userRepository);

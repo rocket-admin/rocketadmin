@@ -4,6 +4,8 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { AmplitudeEventTypeEnum } from '../../../enums/amplitude-event-type.enum.js';
+import { ConnectionNotFoundException } from '../../../exceptions/custom-exceptions/connection-not-found-exception.js';
+import { MasterPasswordIncorrectException } from '../../../exceptions/custom-exceptions/master-password-incorrect-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
@@ -44,12 +46,7 @@ export class UpdateConnectionUseCase
 			masterPwd,
 		);
 		if (!foundConnectionToUpdate) {
-			throw new HttpException(
-				{
-					message: Messages.CONNECTION_NOT_FOUND,
-				},
-				HttpStatus.NOT_FOUND,
-			);
+			throw new ConnectionNotFoundException(HttpStatus.NOT_FOUND);
 		}
 		const testConnectionsHosts = Constants.getTestConnectionsHostNamesArr();
 
@@ -93,7 +90,7 @@ export class UpdateConnectionUseCase
 			if (updatedConnection.master_hash) {
 				const isMasterPwdValid = await Encryptor.verifyUserPassword(masterPwd, updatedConnection.master_hash);
 				if (!isMasterPwdValid) {
-					throw new HttpException({ message: Messages.MASTER_PASSWORD_INCORRECT }, HttpStatus.BAD_REQUEST);
+					throw new MasterPasswordIncorrectException();
 				}
 			}
 			updatedConnection = Encryptor.encryptConnectionCredentials(updatedConnection, masterPwd);

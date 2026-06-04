@@ -1,9 +1,10 @@
-import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { CreatedConnectionDTO } from '../../../entities/connection/application/dto/created-connection.dto.js';
 import { buildCreatedConnectionDs } from '../../../entities/connection/utils/build-created-connection.ds.js';
+import { ConnectionNotFoundException } from '../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { DeleteConnectionForHostedDbDto } from '../data-structures/delete-connection-for-hosted-db.dto.js';
 import { IDeleteConnectionForHostedDb } from './saas-use-cases.interface.js';
@@ -28,7 +29,7 @@ export class DeleteConnectionForHostedDbUseCase
 			'',
 		);
 		if (!connectionToDelete) {
-			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
+			throw new ConnectionNotFoundException(HttpStatus.NOT_FOUND);
 		}
 
 		const foundCompany =

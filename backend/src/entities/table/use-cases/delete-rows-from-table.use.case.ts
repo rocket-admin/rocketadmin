@@ -7,6 +7,7 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { AmplitudeEventTypeEnum } from '../../../enums/amplitude-event-type.enum.js';
 import { LogOperationTypeEnum } from '../../../enums/log-operation-type.enum.js';
 import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
+import { PrimaryKeyMissingException } from '../../../exceptions/custom-exceptions/primary-key-missing-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { compareArrayElements } from '../../../helpers/compare-array-elements.js';
 import { getErrorMessage } from '../../../helpers/get-error-message.js';
@@ -46,12 +47,7 @@ export class DeleteRowsFromTableUseCase
 		// eslint-disable-next-line prefer-const
 		let { connectionId, masterPwd, primaryKeys, tableName, userId } = inputData;
 		if (!primaryKeys) {
-			throw new HttpException(
-				{
-					message: Messages.PRIMARY_KEY_MISSING,
-				},
-				HttpStatus.BAD_REQUEST,
-			);
+			throw new PrimaryKeyMissingException();
 		}
 		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
 		validateConnection(connection);

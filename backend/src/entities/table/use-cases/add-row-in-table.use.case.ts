@@ -9,6 +9,7 @@ import { AmplitudeEventTypeEnum } from '../../../enums/amplitude-event-type.enum
 import { LogOperationTypeEnum } from '../../../enums/log-operation-type.enum.js';
 import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
 import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
+import { TableNotFoundException } from '../../../exceptions/custom-exceptions/table-not-found-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
@@ -19,7 +20,7 @@ import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-
 import { TableActionActivationService } from '../../table-actions/table-actions-module/table-action-activation.service.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { AddRowInTableDs } from '../application/data-structures/add-row-in-table.ds.js';
-import { ReferencedTableNamesAndColumnsDs, TableRowRODs } from '../table-datastructures.js';
+import { TableRowRODs } from '../table-datastructures.js';
 import { attachForeignColumnNames } from '../utils/attach-foreign-column-names.util.js';
 import { buildCommonTableSettingsInput } from '../utils/build-common-table-settings-input.util.js';
 import { buildTableSettingsForResponse } from '../utils/build-table-settings-for-response.util.js';
@@ -65,12 +66,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
 		const tablesInConnection = await dao.getTablesFromDB(userEmail);
 		const isTableInConnection = tablesInConnection.some((el) => el.tableName === tableName);
 		if (!isTableInConnection) {
-			throw new HttpException(
-				{
-					message: Messages.TABLE_NOT_FOUND,
-				},
-				HttpStatus.BAD_REQUEST,
-			);
+			throw new TableNotFoundException();
 		}
 
 		const isView = await dao.isView(tableName, userEmail);

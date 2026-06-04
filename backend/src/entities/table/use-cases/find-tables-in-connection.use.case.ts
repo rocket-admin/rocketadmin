@@ -7,7 +7,10 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { AmplitudeEventTypeEnum } from '../../../enums/amplitude-event-type.enum.js';
+import { ConnectionNotFoundException } from '../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
+import { MasterPasswordIncorrectException } from '../../../exceptions/custom-exceptions/master-password-incorrect-exception.js';
+import { MasterPasswordMissingException } from '../../../exceptions/custom-exceptions/master-password-missing-exception.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isTest as isTestEnv } from '../../../helpers/app/is-test.js';
@@ -48,31 +51,14 @@ export class FindTablesInConnectionUseCase
 		} catch (error) {
 			const errMessage = getErrorMessage(error);
 			if (errMessage === Messages.MASTER_PASSWORD_MISSING) {
-				throw new HttpException(
-					{
-						message: Messages.MASTER_PASSWORD_MISSING,
-						type: 'no_master_key',
-					},
-					HttpStatus.BAD_REQUEST,
-				);
+				throw new MasterPasswordMissingException();
 			}
 			if (errMessage === Messages.MASTER_PASSWORD_INCORRECT) {
-				throw new HttpException(
-					{
-						message: Messages.MASTER_PASSWORD_INCORRECT,
-						type: 'invalid_master_key',
-					},
-					HttpStatus.BAD_REQUEST,
-				);
+				throw new MasterPasswordIncorrectException();
 			}
 		}
 		if (!connection) {
-			throw new HttpException(
-				{
-					message: Messages.CONNECTION_NOT_FOUND,
-				},
-				HttpStatus.BAD_REQUEST,
-			);
+			throw new ConnectionNotFoundException(HttpStatus.BAD_REQUEST);
 		}
 		const dao = getDataAccessObject(connection);
 		let userEmail = '';

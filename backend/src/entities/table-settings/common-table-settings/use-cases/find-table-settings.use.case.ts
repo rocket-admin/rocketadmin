@@ -1,8 +1,8 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../../common/data-injection.tokens.js';
-import { Messages } from '../../../../exceptions/text/messages.js';
+import { ConnectionNotFoundException } from '../../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { FindTableSettingsDs } from '../../application/data-structures/find-table-settings.ds.js';
 import { FoundTableSettingsDs } from '../../application/data-structures/found-table-settings.ds.js';
 import { buildFoundTableSettingsDs } from '../utils/build-found-table-settings-ds.js';
@@ -31,7 +31,7 @@ export class FindTableSettingsUseCase
 			masterPassword,
 		);
 		if (!foundConnection) {
-			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
+			throw new ConnectionNotFoundException(HttpStatus.NOT_FOUND);
 		}
 
 		return buildFoundTableSettingsDs(tableSettings);

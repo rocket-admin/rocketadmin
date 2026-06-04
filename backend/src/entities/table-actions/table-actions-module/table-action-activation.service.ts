@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
 import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
 import { TableActionMethodEnum } from '../../../enums/table-action-method-enum.js';
+import { ConnectionNotFoundException } from '../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
@@ -195,12 +196,7 @@ export class TableActionActivationService {
 			$$_tableName: tableName,
 		});
 		if (!foundConnection.signing_key) {
-			throw new HttpException(
-				{
-					message: Messages.CONNECTION_NOT_FOUND,
-				},
-				HttpStatus.BAD_REQUEST,
-			);
+			throw new ConnectionNotFoundException(HttpStatus.BAD_REQUEST);
 		}
 		const autoadminSignatureHeader = Encryptor.hashDataHMACexternalKey(foundConnection.signing_key, actionRequestBody);
 

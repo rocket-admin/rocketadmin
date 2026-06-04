@@ -1,9 +1,12 @@
-import { BadRequestException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { AccessLevelEnum } from '../../../enums/access-level.enum.js';
+import { ConnectionNotFoundException } from '../../../exceptions/custom-exceptions/connection-not-found-exception.js';
+import { MasterPasswordIncorrectException } from '../../../exceptions/custom-exceptions/master-password-incorrect-exception.js';
+import { MasterPasswordMissingException } from '../../../exceptions/custom-exceptions/master-password-missing-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
@@ -33,7 +36,7 @@ export class FindOneConnectionUseCase
 	protected async implementation(inputData: FindOneConnectionDs): Promise<FoundOneConnectionDs> {
 		const connection = await this._dbContext.connectionRepository.findOneConnection(inputData.connectionId);
 		if (!connection) {
-			throw new BadRequestException(Messages.CONNECTION_NOT_FOUND);
+			throw new ConnectionNotFoundException(HttpStatus.BAD_REQUEST);
 		}
 		const accessLevel: AccessLevelEnum = await this.cedarPermissions.getUserConnectionAccessLevel(
 			inputData.cognitoUserName,
@@ -41,25 +44,13 @@ export class FindOneConnectionUseCase
 		);
 
 		if (connection.masterEncryption && !inputData.masterPwd) {
-			throw new HttpException(
-				{
-					message: Messages.MASTER_PASSWORD_MISSING,
-					type: 'no_master_key',
-				},
-				HttpStatus.BAD_REQUEST,
-			);
+			throw new MasterPasswordMissingException();
 		}
 
 		if (connection.masterEncryption && inputData.masterPwd) {
 			const isMaterPwdValid = await Encryptor.verifyUserPassword(inputData.masterPwd, connection.master_hash ?? '');
 			if (!isMaterPwdValid) {
-				throw new HttpException(
-					{
-						message: Messages.MASTER_PASSWORD_INCORRECT,
-						type: 'invalid_master_key',
-					},
-					HttpStatus.BAD_REQUEST,
-				);
+				throw new MasterPasswordIncorrectException();
 			}
 		}
 

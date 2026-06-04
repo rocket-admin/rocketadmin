@@ -1,7 +1,8 @@
-import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../../common/data-injection.tokens.js';
+import { ConnectionNotFoundException } from '../../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { Messages } from '../../../../exceptions/text/messages.js';
 import { FindSavedDbQueryDs } from '../data-structures/find-panel.ds.js';
 import { FoundPanelDto } from '../dto/found-saved-db-query.dto.js';
@@ -29,7 +30,7 @@ export class DeleteSavedDbQueryUseCase
 		);
 
 		if (!foundConnection) {
-			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
+			throw new ConnectionNotFoundException(HttpStatus.NOT_FOUND);
 		}
 
 		const foundQuery = await this._dbContext.panelRepository.findQueryByIdAndConnectionId(queryId, connectionId);

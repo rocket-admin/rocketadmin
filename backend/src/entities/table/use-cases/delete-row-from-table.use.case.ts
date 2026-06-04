@@ -10,6 +10,7 @@ import { OperationResultStatusEnum } from '../../../enums/operation-result-statu
 import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
 import { DeleteRowException } from '../../../exceptions/custom-exceptions/delete-row-exception.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
+import { PrimaryKeyMissingException } from '../../../exceptions/custom-exceptions/primary-key-missing-exception.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { compareArrayElements } from '../../../helpers/compare-array-elements.js';
@@ -47,12 +48,7 @@ export class DeleteRowFromTableUseCase
 
 		let operationResult = OperationResultStatusEnum.unknown;
 		if (!primaryKey) {
-			throw new HttpException(
-				{
-					message: Messages.PRIMARY_KEY_MISSING,
-				},
-				HttpStatus.BAD_REQUEST,
-			);
+			throw new PrimaryKeyMissingException();
 		}
 
 		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);

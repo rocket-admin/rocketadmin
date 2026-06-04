@@ -1,4 +1,5 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { ExternalServiceException } from '../../../exceptions/custom-exceptions/external-service-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
@@ -25,12 +26,10 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
 			return null;
 		}
 		if (result.status > 299) {
-			throw new HttpException(
-				{
-					message: Messages.SAAS_DELETE_COMPANY_FAILED_UNHANDLED_ERROR,
-					originalMessage: result?.body?.message ? result.body.message : undefined,
-				},
+			throw new ExternalServiceException(
+				Messages.SAAS_DELETE_COMPANY_FAILED_UNHANDLED_ERROR,
 				result.status,
+				result?.body?.message ? (result.body.message as string) : undefined,
 			);
 		}
 		if (!isObjectEmpty(result.body)) {
@@ -47,12 +46,10 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
 			return null;
 		}
 		if (result.status > 299) {
-			throw new HttpException(
-				{
-					message: Messages.SAAS_GET_COMPANY_ID_BY_CUSTOM_DOMAIN_FAILED_UNHANDLED_ERROR,
-					originalMessage: result?.body?.message ? result.body.message : undefined,
-				},
+			throw new ExternalServiceException(
+				Messages.SAAS_GET_COMPANY_ID_BY_CUSTOM_DOMAIN_FAILED_UNHANDLED_ERROR,
 				result.status,
+				result?.body?.message ? (result.body.message as string) : undefined,
 			);
 		}
 		if (!isObjectEmpty(result.body)) {
@@ -70,12 +67,10 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
 			return null;
 		}
 		if (result.status > 299) {
-			throw new HttpException(
-				{
-					message: Messages.SAAS_GET_COMPANY_CUSTOM_DOMAIN_BY_ID_FAILED_UNHANDLED_ERROR,
-					originalMessage: result?.body?.message ? result.body.message : undefined,
-				},
+			throw new ExternalServiceException(
+				Messages.SAAS_GET_COMPANY_CUSTOM_DOMAIN_BY_ID_FAILED_UNHANDLED_ERROR,
 				result.status,
+				result?.body?.message ? (result.body.message as string) : undefined,
 			);
 		}
 		if (!isObjectEmpty(result.body)) {
@@ -93,12 +88,10 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
 			return null;
 		}
 		if (result.status > 299) {
-			throw new HttpException(
-				{
-					message: Messages.SAAS_RECOUNT_USERS_IN_COMPANY_FAILED_UNHANDLED_ERROR,
-					originalMessage: result?.body?.message ? result.body.message : undefined,
-				},
+			throw new ExternalServiceException(
+				Messages.SAAS_RECOUNT_USERS_IN_COMPANY_FAILED_UNHANDLED_ERROR,
 				result.status,
+				result?.body?.message ? (result.body.message as string) : undefined,
 			);
 		}
 		if (!isObjectEmpty(result.body)) {

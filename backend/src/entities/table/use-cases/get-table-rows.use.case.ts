@@ -1,8 +1,7 @@
-import { BadRequestException, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { validateSchemaCache } from '@rocketadmin/shared-code/dist/src/caching/schema-cache-validator.js';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
-import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
 import { TableSettingsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-settings.ds.js';
 import { buildDAOsTableSettingsDs } from '@rocketadmin/shared-code/dist/src/helpers/data-structures-builders/table-settings.ds.builder.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
@@ -17,6 +16,7 @@ import { AmplitudeEventTypeEnum } from '../../../enums/amplitude-event-type.enum
 import { LogOperationTypeEnum } from '../../../enums/log-operation-type.enum.js';
 import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
+import { TableNotFoundException } from '../../../exceptions/custom-exceptions/table-not-found-exception.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { hexToBinary, isBinary } from '../../../helpers/binary-to-hex.js';
@@ -74,7 +74,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 			const tableNames = tablesInConnection.map((table) => table.tableName);
 
 			if (!tableNames.includes(tableName)) {
-				throw new BadRequestException(Messages.TABLE_NOT_FOUND);
+				throw new TableNotFoundException();
 			}
 
 			const userEmail = await getUserEmailForAgent(connection, userId, this._dbContext.userRepository);

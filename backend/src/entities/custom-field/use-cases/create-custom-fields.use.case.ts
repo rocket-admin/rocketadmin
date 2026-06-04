@@ -1,8 +1,8 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { Messages } from '../../../exceptions/text/messages.js';
+import { ConnectionNotFoundException } from '../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { CreateTableSettingsDs } from '../../table-settings/application/data-structures/create-table-settings.ds.js';
 import { FoundTableSettingsDs } from '../../table-settings/application/data-structures/found-table-settings.ds.js';
 import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';
@@ -32,7 +32,7 @@ export class CreateCustomFieldsUseCase
 			masterPwd,
 		);
 		if (!foundConnection) {
-			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
+			throw new ConnectionNotFoundException(HttpStatus.NOT_FOUND);
 		}
 		await validateCreateCustomFieldDto(createFieldDto, foundConnection, tableName);
 		const foundTableSettingToUpdate: TableSettingsEntity =

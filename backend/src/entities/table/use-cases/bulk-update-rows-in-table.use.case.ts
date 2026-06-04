@@ -7,6 +7,7 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { LogOperationTypeEnum } from '../../../enums/log-operation-type.enum.js';
 import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
+import { PrimaryKeyMissingException } from '../../../exceptions/custom-exceptions/primary-key-missing-exception.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { getErrorMessage } from '../../../helpers/get-error-message.js';
@@ -39,12 +40,7 @@ export class BulkUpdateRowsInTableUseCase
 		let operationResult = OperationResultStatusEnum.unknown;
 
 		if (!primaryKeys?.length) {
-			throw new HttpException(
-				{
-					message: Messages.PRIMARY_KEY_MISSING,
-				},
-				HttpStatus.BAD_REQUEST,
-			);
+			throw new PrimaryKeyMissingException();
 		}
 
 		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);

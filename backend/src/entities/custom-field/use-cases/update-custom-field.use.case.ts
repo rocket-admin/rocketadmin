@@ -3,6 +3,7 @@ import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
+import { ConnectionNotFoundException } from '../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { FoundCustomFieldsDs } from '../application/data-structures/found-custom-fields.ds.js';
 import { UpdateCustomFieldsDs } from '../application/data-structures/update-custom-fields.ds.js';
@@ -30,12 +31,7 @@ export class UpdateCustomFieldUseCase
 			masterPwd,
 		);
 		if (!foundConnection) {
-			throw new HttpException(
-				{
-					message: Messages.CONNECTION_NOT_FOUND,
-				},
-				HttpStatus.NOT_FOUND,
-			);
+			throw new ConnectionNotFoundException(HttpStatus.NOT_FOUND);
 		}
 		await validateCreateCustomFieldDto(updateFieldDto, foundConnection, tableName);
 		const fieldToUpdate = await this._dbContext.customFieldsRepository.findCustomFieldById(updateFieldDto.id);

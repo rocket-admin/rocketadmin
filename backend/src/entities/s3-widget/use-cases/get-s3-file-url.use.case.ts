@@ -7,6 +7,7 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { WidgetTypeEnum } from '../../../enums/widget-type.enum.js';
+import { ConnectionNotFoundException } from '../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { buildCommonTableSettingsInput } from '../../table/utils/build-common-table-settings-input.util.js';
@@ -39,7 +40,7 @@ export class GetS3FileUrlUseCase
 
 		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
 		if (!connection) {
-			throw new HttpException({ message: Messages.CONNECTION_NOT_FOUND }, HttpStatus.BAD_REQUEST);
+			throw new ConnectionNotFoundException(HttpStatus.BAD_REQUEST);
 		}
 
 		const foundTableWidgets = await this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName);

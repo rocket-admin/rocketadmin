@@ -1,8 +1,8 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../../common/data-injection.tokens.js';
-import { Messages } from '../../../../exceptions/text/messages.js';
+import { ConnectionNotFoundException } from '../../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { FindPersonalTableSettingsDs } from '../data-structures/find-personal-table-settings.ds.js';
 import { FoundPersonalTableSettingsDto } from '../dto/found-personal-table-settings.dto.js';
 import { buildFoundTableSettingsDto } from '../utils/build-found-table-settings-dto.js';
@@ -29,7 +29,7 @@ export class FindPersonalTableSettingsUseCase
 		);
 
 		if (!foundConnection) {
-			throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
+			throw new ConnectionNotFoundException(HttpStatus.NOT_FOUND);
 		}
 
 		const foundPersonalTableSettings = await this._dbContext.personalTableSettingsRepository.findUserTableSettings(

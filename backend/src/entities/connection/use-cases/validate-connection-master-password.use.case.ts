@@ -1,7 +1,8 @@
-import { BadRequestException, Inject, Injectable, InternalServerErrorException, Scope } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
+import { ConnectionNotFoundException } from '../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { ValidateConnectionMasterPasswordDs } from '../application/data-structures/validate-connection-master-password.ds.js';
@@ -29,7 +30,7 @@ export class ValidateConnectionMasterPasswordUseCase
 		});
 
 		if (!connection) {
-			throw new InternalServerErrorException(Messages.CONNECTION_NOT_FOUND);
+			throw new ConnectionNotFoundException(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 		if (!connection.masterEncryption) {

@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException, Inject, Injectable } from '@nestjs/common';
 import { validateSchemaCache } from '@rocketadmin/shared-code/dist/src/caching/schema-cache-validator.js';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
@@ -6,8 +6,8 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
+import { TableNotFoundException } from '../../../exceptions/custom-exceptions/table-not-found-exception.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
-import { Messages } from '../../../exceptions/text/messages.js';
 import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { buildFoundTableWidgetDs } from '../../widget/utils/build-found-table-widget-ds.js';
@@ -45,12 +45,7 @@ export class GetTableStructureUseCase
 			const dao = getDataAccessObject(foundConnection);
 			const foundTalesInConnection = await dao.getTablesFromDB();
 			if (!foundTalesInConnection.find((el) => el.tableName === tableName)) {
-				throw new HttpException(
-					{
-						message: Messages.TABLE_NOT_FOUND,
-					},
-					HttpStatus.BAD_REQUEST,
-				);
+				throw new TableNotFoundException();
 			}
 			const userEmail = await getUserEmailForAgent(foundConnection, userId, this._dbContext.userRepository);
 

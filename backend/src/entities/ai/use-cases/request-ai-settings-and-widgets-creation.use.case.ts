@@ -1,10 +1,10 @@
-import { BadRequestException, Inject, Injectable, Scope } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
 import Sentry from '@sentry/minimal';
 import { Response } from 'express';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { Messages } from '../../../exceptions/text/messages.js';
+import { ConnectionNotFoundException } from '../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { SharedJobsService } from '../../shared-jobs/shared-jobs.service.js';
 import { IAISettingsAndWidgetsCreation } from '../ai-use-cases.interface.js';
@@ -28,7 +28,7 @@ export class RequestAISettingsAndWidgetsCreationUseCase
 
 		const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
 		if (!connection) {
-			throw new BadRequestException(Messages.CONNECTION_NOT_FOUND);
+			throw new ConnectionNotFoundException(HttpStatus.BAD_REQUEST);
 		}
 
 		this.setupResponseHeaders(response);
