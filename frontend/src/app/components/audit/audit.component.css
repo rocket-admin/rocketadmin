@@ -20,6 +20,21 @@ header {
 	margin: 0;
 }
 
+.title-block {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.title-block h1 {
+	margin: 0;
+	line-height: 1;
+}
+
+.back-button {
+	display: none !important;
+}
+
 .filters {
 	display: flex;
 	/* grid-template-columns: 1fr 1fr; */
@@ -213,5 +228,449 @@ td.mat-cell {
 @media (prefers-color-scheme: dark) {
 	.date-time {
 		color: rgba(255, 255, 255, 0.6);
+	}
+}
+
+@media (width <= 600px) {
+	.wrapper {
+		width: 100%;
+		max-width: 100%;
+		min-width: 0;
+		padding: 0 16px;
+		box-sizing: border-box;
+		overflow-x: clip;
+		overflow-y: visible;
+	}
+
+	header {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 12px;
+		margin: 16px 0 12px;
+	}
+
+	.back-button {
+		display: inline-flex !important;
+		align-items: center;
+		justify-content: center;
+		margin-left: -12px;
+	}
+
+	.title-block {
+		gap: 0;
+		align-items: center;
+	}
+
+	.title-block h1 {
+		font-size: 22px;
+		font-weight: 600;
+		line-height: 1;
+	}
+
+	.filters {
+		flex-direction: row;
+		gap: 8px;
+		width: 100%;
+		max-width: 100%;
+		min-width: 0;
+	}
+
+	.filters mat-form-field {
+		flex: 1 1 0;
+		min-width: 0;
+		max-width: 100%;
+		width: auto;
+	}
+
+	.filters mat-form-field ::ng-deep .mat-mdc-text-field-wrapper,
+	.filters mat-form-field ::ng-deep .mat-mdc-form-field-flex {
+		min-width: 0 !important;
+		width: 100% !important;
+	}
+
+	.filters mat-form-field ::ng-deep .mat-mdc-form-field-infix {
+		min-width: 0 !important;
+		flex: 1 1 auto !important;
+		width: auto !important;
+	}
+
+	.filters mat-form-field ::ng-deep .mat-mdc-select {
+		width: 100%;
+	}
+
+	.filters mat-form-field ::ng-deep .mat-mdc-select-arrow-wrapper {
+		padding-left: 4px;
+	}
+
+	.audit-banner {
+		margin: 0 -16px 12px;
+		width: calc(100% + 32px);
+	}
+
+	.table-wrapper {
+		width: 100%;
+		max-width: 100%;
+		min-width: 0;
+		background: transparent !important;
+		box-shadow: none !important;
+		box-sizing: border-box;
+	}
+
+	.table-wrapper table.mat-mdc-table,
+	.table-wrapper table.mat-mdc-table thead,
+	.table-wrapper table.mat-mdc-table tbody,
+	.table-wrapper table.mat-mdc-table tr {
+		display: block;
+		width: 100%;
+	}
+
+	.table-wrapper table.mat-mdc-table thead,
+	.table-wrapper table.mat-mdc-table tr.mat-mdc-header-row,
+	.table-wrapper table.mat-mdc-table th.mat-mdc-header-cell {
+		display: none !important;
+	}
+
+	.table-wrapper table.mat-mdc-table tbody {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+	}
+
+	.table-wrapper tr.mat-mdc-row {
+		background: var(--mat-table-background-color, #fff);
+		border-radius: 12px;
+		padding: 10px 14px;
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04);
+		display: grid !important;
+		grid-template-columns: auto 1fr;
+		grid-column-gap: 12px;
+		grid-row-gap: 4px;
+		height: auto !important;
+		width: calc(100vw - 32px) !important;
+		min-width: 0 !important;
+		max-width: calc(100vw - 32px) !important;
+		box-sizing: border-box;
+		margin: 0 !important;
+	}
+
+	.table-wrapper table.mat-mdc-table {
+		min-width: 0 !important;
+		max-width: 100% !important;
+		width: 100% !important;
+		background: transparent !important;
+	}
+
+	.table-wrapper table.mat-mdc-table tbody {
+		width: 100% !important;
+	}
+
+	.table-wrapper td.mat-mdc-cell {
+		display: block;
+		border: 0 !important;
+		padding: 0 !important;
+		font-size: 13px;
+	}
+
+	.table-wrapper td.mat-mdc-cell .table-cell-content {
+		padding: 0;
+	}
+
+	/* columns order: User(1) Table(2) Action(3) Status(4) Date(5) Changes(6)
+	   Card layout:
+	   row 1: User (name + email) full width
+	   row 2: Action + Table (inline)
+	   row 3: Status
+	   row 4: Date + Details */
+	.table-wrapper td.mat-mdc-cell:nth-of-type(1) {
+		grid-column: 1 / -1;
+		grid-row: 1;
+	}
+
+	.table-wrapper td.mat-mdc-cell:nth-of-type(3) {
+		grid-column: 1 / 2;
+		grid-row: 2;
+		font-weight: 500;
+	}
+
+	.table-wrapper td.mat-mdc-cell:nth-of-type(2) {
+		grid-column: 2 / 3;
+		grid-row: 2;
+		font-weight: 600;
+		font-size: 14px;
+		justify-self: start;
+	}
+
+	.table-wrapper td.mat-mdc-cell:nth-of-type(4) {
+		grid-column: 1 / -1;
+		grid-row: 3;
+	}
+
+	.table-wrapper td.mat-mdc-cell:nth-of-type(5) {
+		grid-column: 1 / 2;
+		grid-row: 4;
+		opacity: 0.75;
+		font-size: 12px;
+	}
+
+	.table-wrapper td.mat-mdc-cell:nth-of-type(6) {
+		grid-column: 2 / 3;
+		grid-row: 4;
+		justify-self: end;
+	}
+
+	.status-badge {
+		padding: 2px 8px;
+		font-size: 12px;
+	}
+
+	.mat-h1 {
+		font-size: 22px;
+	}
+
+	.table-wrapper mat-paginator ::ng-deep .mat-mdc-paginator-container {
+		flex-wrap: nowrap !important;
+		justify-content: space-between !important;
+		padding: 0 8px !important;
+		min-height: 48px;
+	}
+
+	.table-wrapper mat-paginator ::ng-deep .mat-mdc-paginator-page-size {
+		margin: 0 !important;
+		margin-right: auto !important;
+	}
+
+	.table-wrapper mat-paginator ::ng-deep .mat-mdc-paginator-range-label {
+		margin: 0 4px !important;
+	}
+
+	.table-wrapper mat-paginator {
+		margin-top: 8px;
+		background: transparent !important;
+	}
+}
+
+@media (prefers-color-scheme: dark) and (width <= 600px) {
+	.table-wrapper tr.mat-mdc-row {
+		background: var(--surface-dark-color);
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 4px rgba(0, 0, 0, 0.2);
+	}
+}
+
+@media (width <= 600px) {
+	.audit-feed {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		width: 100%;
+		max-width: 100%;
+		min-width: 0;
+		padding-bottom: 16px;
+	}
+
+	.audit-feed.hidden {
+		display: none;
+	}
+
+	.audit-feed__date-header {
+		position: sticky;
+		top: 44px;
+		z-index: 2;
+		background: var(--mat-sidenav-content-background-color, #fff);
+		padding: 8px 0 4px;
+		font-size: 12px;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: rgba(0, 0, 0, 0.54);
+	}
+
+	.audit-card {
+		display: flex;
+		align-items: flex-start;
+		gap: 12px;
+		background: var(--mat-table-background-color, #fff);
+		border-radius: 12px;
+		padding: 10px 14px;
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04);
+		cursor: pointer;
+		transition: opacity 200ms ease;
+	}
+
+	.audit-card_fade {
+		opacity: 0.6;
+	}
+
+	.audit-card__avatar {
+		flex: 0 0 36px;
+		width: 36px;
+		height: 36px;
+		border-radius: 50%;
+		background: var(--color-accentedPalette-100);
+		color: var(--color-accentedPalette-700);
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 13px;
+		font-weight: 600;
+	}
+
+	.audit-card__body {
+		flex: 1 1 auto;
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	.audit-card__row {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+	}
+
+	.audit-card__row_top {
+		justify-content: space-between;
+	}
+
+	.audit-card__user {
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		font-weight: 600;
+		font-size: 14px;
+	}
+
+	.audit-card__user-email {
+		font-weight: 400;
+		color: rgba(0, 0, 0, 0.72);
+	}
+
+	.audit-card__time {
+		flex: 0 0 auto;
+		font-size: 12px;
+		color: rgba(0, 0, 0, 0.54);
+	}
+
+	.audit-card__row_middle {
+		font-size: 13px;
+	}
+
+	.audit-card__action-icon {
+		font-size: 16px;
+		width: 16px;
+		height: 16px;
+	}
+
+	.audit-card__action {
+		font-weight: 500;
+	}
+
+	.audit-card__sep {
+		color: rgba(0, 0, 0, 0.3);
+	}
+
+	.audit-card__table {
+		font-family: "IBM Plex Mono", monospace;
+		font-size: 12px;
+		color: rgba(0, 0, 0, 0.72);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.audit-card__row_bottom {
+		justify-content: space-between;
+		margin-top: 2px;
+	}
+
+	.audit-card__details-link {
+		color: var(--color-accentedPalette-500);
+		font-size: 13px;
+		font-weight: 500;
+	}
+
+	.audit-feed__paginator {
+		margin-top: 12px;
+		background: transparent !important;
+	}
+
+	.audit-feed__paginator ::ng-deep .mat-mdc-paginator-outer-container,
+	.audit-feed__paginator ::ng-deep .mat-mdc-paginator-container {
+		justify-content: space-between !important;
+		flex-wrap: nowrap !important;
+		min-height: 48px;
+		padding: 0 !important;
+	}
+
+	.audit-feed__paginator ::ng-deep .mat-mdc-paginator-page-size {
+		margin: 0 !important;
+		padding: 0 !important;
+		margin-right: auto !important;
+		flex: 0 0 auto;
+	}
+
+	.audit-feed__paginator ::ng-deep .mat-mdc-paginator-page-size-label {
+		margin: 0 4px 0 0 !important;
+	}
+
+	.audit-feed__paginator ::ng-deep .mat-mdc-paginator-page-size-select {
+		margin: 0 8px 0 0 !important;
+		width: auto !important;
+	}
+
+	.audit-feed__paginator ::ng-deep .mat-mdc-paginator-page-size-select .mat-mdc-form-field-infix {
+		width: auto !important;
+		min-width: 36px !important;
+		padding-right: 4px !important;
+	}
+
+	.audit-feed__paginator ::ng-deep .mat-mdc-paginator-page-size-select .mat-mdc-select {
+		width: auto !important;
+	}
+
+	.audit-feed__paginator ::ng-deep .mat-mdc-paginator-page-size-select .mat-mdc-select-arrow-wrapper {
+		padding-left: 6px !important;
+	}
+
+	.audit-feed__paginator ::ng-deep .mat-mdc-paginator-page-size-select .mat-mdc-text-field-wrapper {
+		padding: 0 10px !important;
+	}
+
+	.audit-feed__paginator ::ng-deep .mat-mdc-paginator-range-actions {
+		flex: 0 0 auto;
+		margin: 0 !important;
+	}
+
+	.audit-feed__paginator ::ng-deep .mat-mdc-paginator-range-label {
+		margin: 0 4px !important;
+	}
+}
+
+@media (prefers-color-scheme: dark) and (width <= 600px) {
+	.audit-feed__date-header {
+		background: var(--surface-dark-color);
+		color: rgba(255, 255, 255, 0.6);
+	}
+
+	.audit-card {
+		background: var(--surface-dark-color);
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 4px rgba(0, 0, 0, 0.2);
+	}
+
+	.audit-card__user-email {
+		color: rgba(255, 255, 255, 0.7);
+	}
+
+	.audit-card__time {
+		color: rgba(255, 255, 255, 0.54);
+	}
+
+	.audit-card__sep {
+		color: rgba(255, 255, 255, 0.3);
+	}
+
+	.audit-card__table {
+		color: rgba(255, 255, 255, 0.72);
 	}
 }

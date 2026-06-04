@@ -189,8 +189,7 @@
 }
 
 .widget {
-	display: grid;
-	grid-template-columns: 0 1fr 36px;
+	display: block;
 }
 
 .widget-info {

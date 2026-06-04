@@ -82,21 +82,21 @@ describe('CedarPolicyListComponent', () => {
 		let emitted: { action: string; tableName?: string; dashboardId?: string }[] | null = null;
 		component.policiesChange.subscribe((v) => (emitted = v));
 
-		component.showAddForm = true;
+		component.showAddForm.set(true);
 		component.newAction = 'connection:read';
 		component.addPolicy();
 
 		expect(emitted).not.toBeNull();
 		expect(emitted!.length).toBe(1);
 		expect(emitted![0].action).toBe('connection:read');
-		expect(component.showAddForm).toBe(false);
+		expect(component.showAddForm()).toBe(false);
 	});
 
 	it('should add a table policy with tableName', () => {
 		let emitted: { action: string; tableName?: string; dashboardId?: string }[] | null = null;
 		component.policiesChange.subscribe((v) => (emitted = v));
 
-		component.showAddForm = true;
+		component.showAddForm.set(true);
 		component.newAction = 'table:read';
 		component.newTableName = 'customers';
 		component.addPolicy();
@@ -110,7 +110,7 @@ describe('CedarPolicyListComponent', () => {
 		let emitted: { action: string; tableName?: string; dashboardId?: string }[] | null = null;
 		component.policiesChange.subscribe((v) => (emitted = v));
 
-		component.showAddForm = true;
+		component.showAddForm.set(true);
 		component.newAction = 'table:edit';
 		component.newTableName = '*';
 		component.addPolicy();
@@ -124,7 +124,7 @@ describe('CedarPolicyListComponent', () => {
 		let emitted = false;
 		component.policiesChange.subscribe(() => (emitted = true));
 
-		component.showAddForm = true;
+		component.showAddForm.set(true);
 		component.newAction = '';
 		component.addPolicy();
 
@@ -135,7 +135,7 @@ describe('CedarPolicyListComponent', () => {
 		let emitted = false;
 		component.policiesChange.subscribe(() => (emitted = true));
 
-		component.showAddForm = true;
+		component.showAddForm.set(true);
 		component.newAction = 'table:read';
 		component.newTableName = '';
 		component.addPolicy();
@@ -211,12 +211,12 @@ describe('CedarPolicyListComponent', () => {
 	});
 
 	it('should reset add form', () => {
-		component.showAddForm = true;
+		component.showAddForm.set(true);
 		component.newAction = 'connection:read';
 		component.newTableName = 'test';
 		component.resetAddForm();
 
-		expect(component.showAddForm).toBe(false);
+		expect(component.showAddForm()).toBe(false);
 		expect(component.newAction).toBe('');
 		expect(component.newTableName).toBe('');
 	});
@@ -225,7 +225,7 @@ describe('CedarPolicyListComponent', () => {
 		let emitted: { action: string; tableName?: string; dashboardId?: string }[] | null = null;
 		component.policiesChange.subscribe((v) => (emitted = v));
 
-		component.showAddForm = true;
+		component.showAddForm.set(true);
 		component.newAction = 'dashboard:read';
 		component.newDashboardId = 'dash-1';
 		component.addPolicy();
@@ -239,7 +239,7 @@ describe('CedarPolicyListComponent', () => {
 		let emitted = false;
 		component.policiesChange.subscribe(() => (emitted = true));
 
-		component.showAddForm = true;
+		component.showAddForm.set(true);
 		component.newAction = 'dashboard:edit';
 		component.newDashboardId = '';
 		component.addPolicy();

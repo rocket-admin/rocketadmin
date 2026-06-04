@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorIntl, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { Title } from '@angular/platform-browser';
@@ -69,6 +69,12 @@ export class AuditComponent implements OnInit {
 
 	public dataSource: AuditDataSource = null;
 
+	public mobileGroupedLogs: { date: string; entries: any[] }[] = [];
+
+	get isMobileView(): boolean {
+		return typeof window !== 'undefined' && window.innerWidth <= 600;
+	}
+
 	@ViewChild(MatPaginator) paginator: MatPaginator;
 
 	constructor(
@@ -78,7 +84,11 @@ export class AuditComponent implements OnInit {
 		private _companyService: CompanyService,
 		public dialog: MatDialog,
 		private title: Title,
-	) {}
+		private paginatorIntl: MatPaginatorIntl,
+	) {
+		this.paginatorIntl.itemsPerPageLabel = 'Per page:';
+		this.paginatorIntl.changes.next();
+	}
 
 	ngAfterViewInit() {
 		this.dataSource.paginator = this.paginator;
@@ -100,6 +110,9 @@ export class AuditComponent implements OnInit {
 		this.columns = ['User', 'Table', 'Action', 'Status', 'Date', 'Changes'];
 		this.dataColumns = ['User', 'Table', 'Action', 'Status', 'Date'];
 		this.dataSource = new AuditDataSource(this._connections);
+		this.dataSource.connect(null as any).subscribe((rows) => {
+			this.mobileGroupedLogs = this.groupByDate(rows);
+		});
 		this.loadLogsPage();
 
 		this._tables.fetchTables(this.connectionID).subscribe(
@@ -148,5 +161,37 @@ export class AuditComponent implements OnInit {
 		if (!this.usersList) return null;
 		const user = this.usersList.find((u) => u.email === email);
 		return user?.name || null;
+	}
+
+	getInitials(email: string): string {
+		if (!email) return '?';
+		const name = this.getUserName(email);
+		if (name) {
+			const parts = name.trim().split(/\s+/);
+			return parts
+				.slice(0, 2)
+				.map((p) => p[0]?.toUpperCase() ?? '')
+				.join('');
+		}
+		const local = email.split('@')[0];
+		const parts = local.split(/[._-]/);
+		return parts
+			.slice(0, 2)
+			.map((p) => p[0]?.toUpperCase() ?? '')
+			.join('');
+	}
+
+	trackByDate(_index: number, group: { date: string }): string {
+		return group.date;
+	}
+
+	private groupByDate(rows: any[]): { date: string; entries: any[] }[] {
+		const groups = new Map<string, any[]>();
+		for (const row of rows) {
+			const date = row.DateOnly;
+			if (!groups.has(date)) groups.set(date, []);
+			groups.get(date)!.push(row);
+		}
+		return Array.from(groups, ([date, entries]) => ({ date, entries }));
 	}
 }

@@ -240,7 +240,7 @@ export class CedarPolicyEditorDialogComponent implements OnInit {
 
 	onAddPolicyClick() {
 		if (!this.policyList) return;
-		this.policyList.showAddForm = true;
+		this.policyList.showAddForm.set(true);
 		setTimeout(() => {
 			const el = this.dialogContent?.nativeElement;
 			if (el) {

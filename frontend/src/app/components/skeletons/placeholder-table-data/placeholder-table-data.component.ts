@@ -9,4 +9,5 @@ import { Component } from '@angular/core';
 })
 export class PlaceholderTableDataComponent {
 	public numberOfDivs = Array.from({ length: 42 }, (_, index) => index);
+	public numberOfCards = Array.from({ length: 6 }, (_, index) => index);
 }

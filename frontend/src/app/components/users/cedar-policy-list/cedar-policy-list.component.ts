@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -53,7 +53,7 @@ export class CedarPolicyListComponent {
 	readonly loading = input(false);
 	readonly policiesChange = output<CedarPolicyItem[]>();
 
-	showAddForm = false;
+	readonly showAddForm = signal(false);
 	newAction = '';
 	newTableName = '';
 	newDashboardId = '';
@@ -156,11 +156,11 @@ export class CedarPolicyListComponent {
 	}
 
 	hasPendingChanges(): boolean {
-		return (this.showAddForm && !!this.newAction) || this.editingIndex !== null;
+		return (this.showAddForm() && !!this.newAction) || this.editingIndex !== null;
 	}
 
 	discardPending() {
-		if (this.showAddForm) this.resetAddForm();
+		if (this.showAddForm()) this.resetAddForm();
 		if (this.editingIndex !== null) this.cancelEdit();
 	}
 
@@ -225,7 +225,7 @@ export class CedarPolicyListComponent {
 	}
 
 	resetAddForm() {
-		this.showAddForm = false;
+		this.showAddForm.set(false);
 		this.newAction = '';
 		this.newTableName = '';
 		this.newDashboardId = '';

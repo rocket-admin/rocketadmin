@@ -89,6 +89,10 @@ body {
     }
 }
 
+body:has(.ai-panel-sidebar-content_open) .add-row-fab {
+    display: none !important;
+}
+
 @keyframes shimmer {
     100% {
         transform: translateX(100%);

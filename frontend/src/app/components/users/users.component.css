@@ -112,6 +112,29 @@ header {
 	}
 }
 
+.user {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 8px 0;
+}
+
+.user__label {
+	display: flex;
+	flex-direction: column;
+}
+
+.user__email {
+	font-size: 12px;
+	color: rgba(0, 0, 0, 0.64);
+}
+
+@media (prefers-color-scheme: dark) {
+	.user__email {
+		color: rgba(255, 255, 255, 0.64);
+	}	
+}
+
 .group-members-count {
 	font-size: 11px;
 	opacity: 0.45;
@@ -119,15 +142,28 @@ header {
 	white-space: nowrap;
 }
 
-.user {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	box-sizing: border-box;
-	padding-right: 1.5em;
-	width: calc(100% + 1em);
-}
-
 .no-access {
 	margin-top: 32px !important;
+}
+
+@media (width <= 600px) {
+	.wrapper {
+		width: 100%;
+		padding: 0 16px;
+		box-sizing: border-box;
+	}
+
+	header {
+		flex-wrap: wrap;
+		gap: 8px;
+		margin: 16px 0 12px;
+	}
+
+	.add-group-button {
+		flex: 0 0 auto;
+	}
+
+	.mat-h1 {
+		font-size: 22px;
+	}
 }
