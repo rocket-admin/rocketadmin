@@ -1,5 +1,8 @@
 import { Repository } from 'typeorm';
-import { Messages } from '../../../exceptions/text/messages.js';
+import {
+	MasterPasswordIncorrectError,
+	MasterPasswordMissingError,
+} from '../../../exceptions/domain-errors/master-password.errors.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
@@ -111,14 +114,14 @@ export const customConnectionRepositoryExtension: IConnectionRepository &
 		await decryptConnectionCredentialsAsync(connection);
 
 		if (connection.masterEncryption && !masterPwd) {
-			throw new Error(Messages.MASTER_PASSWORD_MISSING);
+			throw new MasterPasswordMissingError();
 		}
 
 		if (connection.masterEncryption && masterPwd) {
 			if (connection.master_hash) {
 				const isMasterPwdCorrect = await Encryptor.verifyUserPassword(masterPwd, connection.master_hash);
 				if (!isMasterPwdCorrect) {
-					throw new Error(Messages.MASTER_PASSWORD_INCORRECT);
+					throw new MasterPasswordIncorrectError();
 				}
 			}
 			connection = Encryptor.decryptConnectionCredentials(connection, masterPwd);
