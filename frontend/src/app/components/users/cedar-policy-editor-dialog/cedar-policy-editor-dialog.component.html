@@ -50,7 +50,7 @@
     <mat-dialog-actions>
         <button type="button" mat-flat-button (click)="confirmClose()">Cancel</button>
         <span class="dialog-actions-spacer"></span>
-        @if (editorMode() === 'form' && !formParseError() && !loading() && !policyList?.showAddForm && policyList?.policies()?.length) {
+        @if (editorMode() === 'form' && !formParseError() && !loading() && !policyList?.showAddForm() && policyItems().length) {
             <button type="button" mat-button color="primary"
                 (click)="onAddPolicyClick()">
                 <mat-icon>add</mat-icon> Add policy

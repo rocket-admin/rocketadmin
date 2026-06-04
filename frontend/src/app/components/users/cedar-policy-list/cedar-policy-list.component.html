@@ -3,11 +3,11 @@
         <app-content-loader></app-content-loader>
     }
 
-    @if (!loading() && policies().length === 0 && !showAddForm) {
+    @if (!loading() && policies().length === 0 && !showAddForm()) {
         <div class="empty-state">
             <p>No policies defined. Add a policy to grant permissions.</p>
             <button type="button" mat-flat-button color="accent"
-                (click)="showAddForm = true">
+                (click)="showAddForm.set(true)">
                 <mat-icon>add</mat-icon>
                 Add policy
             </button>
@@ -120,7 +120,7 @@
     }
 
     <!-- Add form -->
-    @if (showAddForm) {
+    @if (showAddForm()) {
         <div class="policy-item policy-item--add">
             <div class="policy-item__edit-form">
                 <mat-form-field appearance="outline" class="policy-field">
