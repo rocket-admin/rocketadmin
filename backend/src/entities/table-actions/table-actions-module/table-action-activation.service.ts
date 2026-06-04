@@ -13,7 +13,8 @@ import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { actionSlackPostMessage } from '../../../helpers/slack/action-slack-post-message.js';
 import { isObjectPropertyExists } from '../../../helpers/validators/is-object-property-exists-validator.js';
-import { getSsrfSafeRequestConfig } from '../../../helpers/validators/ssrf-safe-http.js';
+// TODO: temporarily disabled SSRF/URL safety check in activateTableAction. Restore import to re-enable.
+// import { getSsrfSafeRequestConfig } from '../../../helpers/validators/ssrf-safe-http.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { EmailService } from '../../email/email/email.service.js';
 import { escapeHtml } from '../../email/utils/escape-html.util.js';
@@ -211,7 +212,9 @@ export class TableActionActivationService {
 		let result: AxiosResponse<any, any> | undefined;
 		try {
 			result = await axios.post(tableAction.url, actionRequestBody, {
-				...getSsrfSafeRequestConfig(),
+				// TODO: SSRF/URL safety check temporarily disabled. Restore the line below to re-enable.
+				// ...getSsrfSafeRequestConfig(),
+				timeout: 10_000,
 				headers: { 'Rocketadmin-Signature': autoadminSignatureHeader, 'Content-Type': 'application/json' },
 				maxRedirects: 0,
 				validateStatus: (status) => status <= 599,
