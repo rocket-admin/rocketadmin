@@ -13,7 +13,7 @@ export class BaseRocketAdminException extends HttpException {
 	public readonly internalCode?: ExceptionsInternalCodes;
 	public readonly type?: ExceptionType;
 
-	constructor(message: string, status: HttpStatus, options: RocketAdminExceptionOptions = {}) {
+	constructor(message: string, status: HttpStatus | number, options: RocketAdminExceptionOptions = {}) {
 		super(message, status);
 		this.originalMessage = options.originalMessage;
 		this.internalCode = options.internalCode;
