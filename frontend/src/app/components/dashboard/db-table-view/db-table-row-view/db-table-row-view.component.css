@@ -175,12 +175,69 @@
 }
 
 .related-records__table-name {
-	flex: 1 0 auto;
+	flex: 1 1 auto;
+	min-width: 0;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-right: 8px;
+}
+
+.related-records__table-name-text {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	min-width: 0;
 }
 
 .related-records__actions {
-	flex-grow: 0;
+	flex: 0 0 auto;
 	justify-content: flex-end;
+	/* Stay clickable even when the panel is disabled (no related records). */
+	pointer-events: auto;
+}
+
+/* Keep the action icons fully dark in every panel state (enabled or
+   disabled), instead of Material's lighter default icon color. */
+.related-records__actions .mat-icon {
+	color: rgba(0, 0, 0, 0.87);
+}
+
+@media (prefers-color-scheme: dark) {
+	.related-records__actions .mat-icon {
+		color: rgba(255, 255, 255, 0.87);
+	}
+}
+
+.related-records__empty-mark {
+	flex: 0 0 auto;
+	font-size: 11px;
+	line-height: 16px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	padding: 1px 6px;
+	border-radius: 8px;
+	color: rgba(0, 0, 0, 0.5);
+	background: rgba(0, 0, 0, 0.06);
+}
+
+.related-records__add-button {
+	flex: 0 0 auto;
+	white-space: nowrap;
+}
+
+/* Keep header content legible when the panel is disabled (no related
+   records) — disabling only blocks expand/collapse, not the actions. */
+.related-records__panel ::ng-deep .mat-expansion-panel-header[aria-disabled='true'] {
+	color: inherit;
+	cursor: default;
+}
+
+@media (prefers-color-scheme: dark) {
+	.related-records__empty-mark {
+		color: rgba(255, 255, 255, 0.6);
+		background: rgba(255, 255, 255, 0.1);
+	}
 }
 
 .related-record {
@@ -206,4 +263,8 @@
 
 .related-records__panel ::ng-deep .mat-expansion-panel-body {
 	padding: 0 8px;
+}
+.related-record ::ng-deep .mdc-list-item__end {
+	margin-right: -8px !important;
+	margin-left: 4px !important;
 }
