@@ -31,19 +31,33 @@
         <h3 class="related-records-section__title">Related records</h3>
 
         <mat-accordion multi="true">
-            <mat-expansion-panel *ngFor="let referencedTable of referencedTables; let i = index" class="related-records__panel">
+            <mat-expansion-panel *ngFor="let referencedTable of referencedTables; let i = index" class="related-records__panel"
+                [disabled]="referencedRecords[referencedTable.table_name] && !referencedRecords[referencedTable.table_name].rows.length"
+                [hideToggle]="referencedRecords[referencedTable.table_name] && !referencedRecords[referencedTable.table_name].rows.length">
                 <mat-expansion-panel-header class="related-records__header">
-                    <mat-panel-title class="related-records__table-name"> {{referencedTable.displayTableName}} </mat-panel-title>
+                    <mat-panel-title class="related-records__table-name">
+                        <span class="related-records__table-name-text" [matTooltip]="referencedTable.displayTableName">{{referencedTable.displayTableName}}</span>
+                        <span *ngIf="referencedRecords[referencedTable.table_name] && !referencedRecords[referencedTable.table_name].rows.length"
+                            class="related-records__empty-mark">
+                            Empty
+                        </span>
+                    </mat-panel-title>
                     <mat-panel-description class="related-records__actions">
                         <mat-spinner *ngIf="!referencedRecords[referencedTable.table_name]" diameter="20"></mat-spinner>
-                        <span *ngIf="referencedRecords[referencedTable.table_name] && !referencedRecords[referencedTable.table_name].rows.length">Absent</span>
-                        <a mat-icon-button *ngIf="referencedRecords[referencedTable.table_name] && referencedRecords[referencedTable.table_name].rows.length"
+                        <a mat-icon-button *ngIf="referencedRecords[referencedTable.table_name]" target="_blank"
+                            class="related-records__add-button"
+                            routerLink="/dashboard/{{selectedRow.connectionID}}/{{referencedTable.table_name}}/entry"
+                            matTooltip="Add a new record to {{referencedTable.displayTableName}}"
+                            (click)="handleClose(); $event.stopPropagation()">
+                            <mat-icon>add</mat-icon>
+                        </a>
+                        <!--<a mat-icon-button *ngIf="referencedRecords[referencedTable.table_name] && referencedRecords[referencedTable.table_name].rows.length"
                             target="_blank"
                             [routerLink]="['/dashboard', selectedRow.connectionID, referencedTable.table_name, 'settings']"
                             matTooltip="Set up records view"
                             (click)="handleClose()">
                             <mat-icon>settings</mat-icon>
-                        </a>
+                        </a>-->
                         <a mat-icon-button *ngIf="referencedRecords[referencedTable.table_name]" target="_blank"
                             routerLink="/dashboard/{{selectedRow.connectionID}}/{{referencedTable.table_name}}"
                             [queryParams]="referencedTablesURLParams[i]"
@@ -70,14 +84,17 @@
                             </span>
                         </span>
 
-                        <a matListItemMeta mat-icon-button
-                            class="related-record__open"
-                            matTooltip="Open record"
-                            [routerLink]="['/dashboard', selectedRow.connectionID, referencedTable.table_name, 'entry']"
-                            [queryParams]="referencedRecords[referencedTable.table_name]?.links[i]"
-                            (click)="handleClose()">
-                            <mat-icon>chevron_right</mat-icon>
-                        </a>
+                        <div matListItemMeta>
+                            <a mat-icon-button
+                                class="related-record__open"
+                                matTooltip="Open record"
+                                [routerLink]="['/dashboard', selectedRow.connectionID, referencedTable.table_name, 'entry']"
+                                [queryParams]="referencedRecords[referencedTable.table_name]?.links[i]"
+                                (click)="handleClose()">
+                                <mat-icon>chevron_right</mat-icon>
+                            </a>
+                        </div>
+                        
                     </mat-list-item>
                 </mat-list>
             </mat-expansion-panel>
