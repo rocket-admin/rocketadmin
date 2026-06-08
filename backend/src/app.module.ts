@@ -26,6 +26,7 @@ import { PermissionModule } from './entities/permission/permission.module.js';
 import { S3WidgetModule } from './entities/s3-widget/s3-widget.module.js';
 import { SharedJobsModule } from './entities/shared-jobs/shared-jobs.module.js';
 import { TableModule } from './entities/table/table.module.js';
+import { TablePureCrudOperationsModule } from './entities/table/table-pure-crud-operations/table-pure-crud-operations.module.js';
 import { TableTriggersModule } from './entities/table-actions/table-action-rules-module/action-rules.module.js';
 import { TableActionModule } from './entities/table-actions/table-actions-module/table-action.module.js';
 import { TableCategoriesModule } from './entities/table-categories/table-categories.module.js';
@@ -73,6 +74,7 @@ import { GetHelloUseCase } from './use-cases-app/get-hello.use.case.js';
 		PermissionModule,
 		TableLogsModule,
 		TableModule,
+		TablePureCrudOperationsModule,
 		TableSettingsModule,
 		TableWidgetModule,
 		UserModule,
