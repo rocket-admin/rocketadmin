@@ -175,12 +175,48 @@
 }
 
 .related-records__table-name {
-	flex: 1 0 auto;
+	flex: 1 1 auto;
+	min-width: 0;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-right: 8px;
+}
+
+.related-records__table-name-text {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	min-width: 0;
 }
 
 .related-records__actions {
-	flex-grow: 0;
+	flex: 0 0 auto;
 	justify-content: flex-end;
+}
+
+.related-records__empty-mark {
+	flex: 0 0 auto;
+	font-size: 11px;
+	line-height: 16px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	padding: 1px 6px;
+	border-radius: 8px;
+	color: rgba(0, 0, 0, 0.5);
+	background: rgba(0, 0, 0, 0.06);
+}
+
+.related-records__add-button {
+	flex: 0 0 auto;
+	white-space: nowrap;
+}
+
+@media (prefers-color-scheme: dark) {
+	.related-records__empty-mark {
+		color: rgba(255, 255, 255, 0.6);
+		background: rgba(255, 255, 255, 0.1);
+	}
 }
 
 .related-record {
