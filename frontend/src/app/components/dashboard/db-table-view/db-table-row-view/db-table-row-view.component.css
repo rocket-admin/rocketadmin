@@ -197,6 +197,18 @@
 	pointer-events: auto;
 }
 
+/* Keep the action icons fully dark in every panel state (enabled or
+   disabled), instead of Material's lighter default icon color. */
+.related-records__actions .mat-icon {
+	color: rgba(0, 0, 0, 0.87);
+}
+
+@media (prefers-color-scheme: dark) {
+	.related-records__actions .mat-icon {
+		color: rgba(255, 255, 255, 0.87);
+	}
+}
+
 .related-records__empty-mark {
 	flex: 0 0 auto;
 	font-size: 11px;

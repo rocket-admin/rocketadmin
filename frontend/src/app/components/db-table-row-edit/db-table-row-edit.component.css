@@ -178,6 +178,18 @@
 	pointer-events: auto;
 }
 
+/* Keep the action icons fully dark in every panel state (enabled or
+   disabled), instead of Material's lighter default icon color. */
+.related-records__actions .mat-icon {
+	color: rgba(0, 0, 0, 0.87);
+}
+
+@media (prefers-color-scheme: dark) {
+	.related-records__actions .mat-icon {
+		color: rgba(255, 255, 255, 0.87);
+	}
+}
+
 /* Keep header content legible when the panel is disabled (no related
    records) — disabling only blocks expand/collapse, not the actions. */
 .related-records__panel ::ng-deep .mat-expansion-panel-header[aria-disabled='true'] {
