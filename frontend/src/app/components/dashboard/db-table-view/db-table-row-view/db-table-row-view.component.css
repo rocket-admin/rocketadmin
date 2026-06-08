@@ -264,3 +264,7 @@
 .related-records__panel ::ng-deep .mat-expansion-panel-body {
 	padding: 0 8px;
 }
+.related-record ::ng-deep .mdc-list-item__end {
+	margin-right: -8px !important;
+	margin-left: 4px !important;
+}

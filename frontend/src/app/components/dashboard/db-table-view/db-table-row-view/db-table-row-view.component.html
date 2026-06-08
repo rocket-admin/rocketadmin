@@ -84,14 +84,17 @@
                             </span>
                         </span>
 
-                        <a matListItemMeta mat-icon-button
-                            class="related-record__open"
-                            matTooltip="Open record"
-                            [routerLink]="['/dashboard', selectedRow.connectionID, referencedTable.table_name, 'entry']"
-                            [queryParams]="referencedRecords[referencedTable.table_name]?.links[i]"
-                            (click)="handleClose()">
-                            <mat-icon>chevron_right</mat-icon>
-                        </a>
+                        <div matListItemMeta>
+                            <a mat-icon-button
+                                class="related-record__open"
+                                matTooltip="Open record"
+                                [routerLink]="['/dashboard', selectedRow.connectionID, referencedTable.table_name, 'entry']"
+                                [queryParams]="referencedRecords[referencedTable.table_name]?.links[i]"
+                                (click)="handleClose()">
+                                <mat-icon>chevron_right</mat-icon>
+                            </a>
+                        </div>
+                        
                     </mat-list-item>
                 </mat-list>
             </mat-expansion-panel>
