@@ -32,9 +32,31 @@ function lookup(host: string): Promise<{ address: string; family: number }> {
 	});
 }
 
+function lookupAll(host: string): Promise<Array<{ address: string; family: number }>> {
+	return new Promise((resolve, reject) => {
+		ssrfGuardLookup(host, { all: true }, (err, addresses) => {
+			if (err) {
+				reject(err);
+			} else {
+				resolve(addresses as Array<{ address: string; family: number }>);
+			}
+		});
+	});
+}
+
 // --- the validating lookup blocks internal targets, allows public ones --------------------------
 
-for (const host of ['127.0.0.1', '::1', '169.254.169.254', '10.0.0.5', '192.168.1.1', '::ffff:127.0.0.1']) {
+for (const host of [
+	'127.0.0.1',
+	'::1',
+	'169.254.169.254',
+	'10.0.0.5',
+	'192.168.1.1',
+	'::ffff:127.0.0.1',
+	'100.64.0.1', // carrier-grade NAT
+	'198.18.0.1', // benchmarking
+	'192.0.0.1', // IETF protocol assignments
+]) {
 	test(`ssrfGuardLookup rejects forbidden address ${host}`, async (t) => {
 		await t.throwsAsync(() => lookup(host), { message: /SSRF guard/ });
 	});
@@ -48,6 +70,22 @@ test('ssrfGuardLookup resolves a public IPv4 address', async (t) => {
 test('ssrfGuardLookup resolves a public IPv6 address', async (t) => {
 	const { address } = await lookup('2606:4700:4700::1111');
 	t.is(address, '2606:4700:4700::1111');
+});
+
+// --- the "all" form keeps every allowed address so Node can fall back across them -----------------
+
+test('ssrfGuardLookup returns the allowed address as an array when all=true', async (t) => {
+	const addresses = await lookupAll('8.8.8.8');
+	t.true(Array.isArray(addresses));
+	t.deepEqual(
+		addresses.map((a) => a.address),
+		['8.8.8.8'],
+	);
+});
+
+test('ssrfGuardLookup (all=true) rejects when every resolved address is forbidden', async (t) => {
+	// localhost resolves to 127.0.0.1 and ::1 — a multi-record host where nothing is usable.
+	await t.throwsAsync(() => lookupAll('localhost'), { message: /all resolved addresses are forbidden/ });
 });
 
 // --- gating: pinning config is applied only in SaaS, non-test ----------------------------------
