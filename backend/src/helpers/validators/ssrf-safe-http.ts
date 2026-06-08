@@ -15,16 +15,25 @@ export const ssrfGuardLookup: net.LookupFunction = (hostname, options, callback)
 			callback(err, '', 0);
 			return;
 		}
-		const forbidden = addresses.find(({ address }) => isForbiddenAddress(address));
-		if (forbidden) {
-			callback(new Error(`SSRF guard: refusing to connect to ${forbidden.address} for host ${hostname}`), '', 0);
+		// Keep only the public addresses. We deliberately do NOT reject the whole host just because one of
+		// its records is private (split-horizon DNS, stray records); we simply never connect to a forbidden
+		// one. The request is refused only when no usable address remains.
+		const allowed = addresses.filter(({ address }) => !isForbiddenAddress(address));
+		if (allowed.length === 0) {
+			callback(
+				new Error(`SSRF guard: refusing to connect to ${hostname}; all resolved addresses are forbidden`),
+				'',
+				0,
+			);
 			return;
 		}
-		const first = addresses[0];
-		if (!first) {
-			callback(new Error(`SSRF guard: no addresses resolved for host ${hostname}`), '', 0);
+		// Honour the "all" form so Node keeps every allowed address and can fall back across them
+		// (Happy Eyeballs / IPv6-first hosts on IPv4-only egress). Otherwise return the first allowed one.
+		if (options.all) {
+			callback(null, allowed);
 			return;
 		}
+		const first = allowed[0];
 		callback(null, first.address, first.family);
 	});
 };

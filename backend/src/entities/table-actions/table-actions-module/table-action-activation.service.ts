@@ -10,11 +10,12 @@ import { TableActionMethodEnum } from '../../../enums/table-action-method-enum.j
 import { ConnectionNotFoundException } from '../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { Constants } from '../../../helpers/constants/constants.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { actionSlackPostMessage } from '../../../helpers/slack/action-slack-post-message.js';
+import { slackPostMessage } from '../../../helpers/slack/slack-post-message.js';
 import { isObjectPropertyExists } from '../../../helpers/validators/is-object-property-exists-validator.js';
-// TODO: temporarily disabled SSRF/URL safety check in activateTableAction. Restore import to re-enable.
-// import { getSsrfSafeRequestConfig } from '../../../helpers/validators/ssrf-safe-http.js';
+import { getSsrfSafeRequestConfig } from '../../../helpers/validators/ssrf-safe-http.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { EmailService } from '../../email/email/email.service.js';
 import { escapeHtml } from '../../email/utils/escape-html.util.js';
@@ -212,9 +213,7 @@ export class TableActionActivationService {
 		let result: AxiosResponse<any, any> | undefined;
 		try {
 			result = await axios.post(tableAction.url, actionRequestBody, {
-				// TODO: SSRF/URL safety check temporarily disabled. Restore the line below to re-enable.
-				// ...getSsrfSafeRequestConfig(),
-				timeout: 10_000,
+				...getSsrfSafeRequestConfig(),
 				headers: { 'Rocketadmin-Signature': autoadminSignatureHeader, 'Content-Type': 'application/json' },
 				maxRedirects: 0,
 				validateStatus: (status) => status <= 599,
@@ -225,6 +224,23 @@ export class TableActionActivationService {
 				console.info('HTTP action result headers', result?.headers);
 			}
 		} catch (error) {
+			// TODO: temporary diagnostics for the SSRF safety check. A URL blocked by the guard surfaces
+			// here as a request failure carrying the "SSRF guard" message. Report those to the errors
+			// channel so we can confirm the guard is not rejecting legitimate action URLs, then remove.
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			if (errorMessage.includes('SSRF guard')) {
+				const host = (() => {
+					try {
+						return new URL(tableAction.url).host;
+					} catch {
+						return tableAction.url;
+					}
+				})();
+				slackPostMessage(
+					`[ssrf-check] Table action URL validation failed for host "${host}": ${errorMessage}`,
+					Constants.EXCEPTIONS_CHANNELS,
+				).catch(() => undefined);
+			}
 			if (axios.isAxiosError(error)) {
 				const errorMessage =
 					result?.data?.error ||
