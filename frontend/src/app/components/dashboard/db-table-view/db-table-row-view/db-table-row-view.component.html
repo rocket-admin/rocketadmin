@@ -31,7 +31,9 @@
         <h3 class="related-records-section__title">Related records</h3>
 
         <mat-accordion multi="true">
-            <mat-expansion-panel *ngFor="let referencedTable of referencedTables; let i = index" class="related-records__panel">
+            <mat-expansion-panel *ngFor="let referencedTable of referencedTables; let i = index" class="related-records__panel"
+                [disabled]="referencedRecords[referencedTable.table_name] && !referencedRecords[referencedTable.table_name].rows.length"
+                [hideToggle]="referencedRecords[referencedTable.table_name] && !referencedRecords[referencedTable.table_name].rows.length">
                 <mat-expansion-panel-header class="related-records__header">
                     <mat-panel-title class="related-records__table-name">
                         <span class="related-records__table-name-text" [matTooltip]="referencedTable.displayTableName">{{referencedTable.displayTableName}}</span>
