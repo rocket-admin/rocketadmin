@@ -35,7 +35,12 @@ export class UserAiChatController {
 		private readonly deleteUserAiChatUseCase: IDeleteUserAiChat,
 	) {}
 
-	@ApiOperation({ summary: 'Get all AI chats for current user' })
+	@ApiOperation({
+		summary: 'Get all AI chats for current user',
+		deprecated: true,
+		description:
+			'Deprecated: this endpoint moved to the agents microservice (same path and contract). It remains here only until traffic is switched over.',
+	})
 	@ApiResponse({
 		status: 200,
 		description: 'Returns list of AI chats.',
@@ -47,7 +52,12 @@ export class UserAiChatController {
 		return await this.findUserAiChatsUseCase.execute(inputData, InTransactionEnum.OFF);
 	}
 
-	@ApiOperation({ summary: 'Get AI chat by ID with all messages' })
+	@ApiOperation({
+		summary: 'Get AI chat by ID with all messages',
+		deprecated: true,
+		description:
+			'Deprecated: this endpoint moved to the agents microservice (same path and contract). It remains here only until traffic is switched over.',
+	})
 	@ApiResponse({
 		status: 200,
 		description: 'Returns AI chat with messages.',
@@ -60,7 +70,12 @@ export class UserAiChatController {
 		return await this.findUserAiChatByIdUseCase.execute(inputData, InTransactionEnum.OFF);
 	}
 
-	@ApiOperation({ summary: 'Delete AI chat by ID' })
+	@ApiOperation({
+		summary: 'Delete AI chat by ID',
+		deprecated: true,
+		description:
+			'Deprecated: this endpoint moved to the agents microservice (same path and contract). It remains here only until traffic is switched over.',
+	})
 	@ApiResponse({
 		status: 200,
 		description: 'AI chat deleted successfully.',

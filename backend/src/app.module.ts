@@ -43,6 +43,7 @@ import { DashboardModule } from './entities/visualizations/dashboard/dashboards.
 import { PanelModule } from './entities/visualizations/panel/panel.module.js';
 import { PanelPositionModule } from './entities/visualizations/panel-position/panel-position.module.js';
 import { TableWidgetModule } from './entities/widget/table-widget.module.js';
+import { AgentsModule } from './microservices/agents-microservice/agents.module.js';
 import { SaaSGatewayModule } from './microservices/gateways/saas-gateway.ts/saas-gateway.module.js';
 import { SaasModule } from './microservices/saas-microservice/saas.module.js';
 import { AppLoggerMiddleware } from './middlewares/logging-middleware/app-logger-middlewate.js';
@@ -84,6 +85,7 @@ import { GetHelloUseCase } from './use-cases-app/get-hello.use.case.js';
 		SharedModule,
 		TableActionModule,
 		SaasModule,
+		AgentsModule,
 		CompanyInfoModule,
 		SaaSGatewayModule,
 		TableTriggersModule,
