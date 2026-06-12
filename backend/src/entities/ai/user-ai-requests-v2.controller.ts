@@ -44,6 +44,9 @@ export class UserAIRequestsControllerV2 {
 
 	@ApiOperation({
 		summary: 'Request info from table in connection with AI with conversation history (Version 4)',
+		deprecated: true,
+		description:
+			'Deprecated: this endpoint moved to the agents microservice (same path and contract). It remains here only until traffic is switched over.',
 	})
 	@ApiResponse({
 		status: 201,
@@ -86,6 +89,9 @@ export class UserAIRequestsControllerV2 {
 
 	@ApiOperation({
 		summary: 'Request AI settings and widgets creation for connection',
+		deprecated: true,
+		description:
+			'Deprecated: this endpoint moved to the agents microservice (same path and contract). It remains here only until traffic is switched over.',
 	})
 	@ApiResponse({
 		status: 200,
