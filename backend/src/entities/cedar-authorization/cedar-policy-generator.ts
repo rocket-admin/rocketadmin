@@ -1,6 +1,41 @@
 import { AccessLevelEnum } from '../../enums/access-level.enum.js';
 import { IComplexPermission } from '../permission/permission.interface.js';
 
+export interface IPublicTablePermission {
+	tableName: string;
+	// Whitelist of columns readable by public users. Omitted/empty ⇒ all columns readable.
+	readableColumns?: Array<string>;
+}
+
+export function generatePublicCedarPolicy(connectionId: string, tables: Array<IPublicTablePermission>): string {
+	const policies: Array<string> = [];
+
+	for (const table of tables) {
+		if (!table.tableName) continue;
+		const tableRef = `RocketAdmin::Table::"${connectionId}/${table.tableName}"`;
+
+		policies.push(
+			`permit(\n  principal,\n  action == RocketAdmin::Action::"table:query",\n  resource == ${tableRef}\n);`,
+		);
+
+		const readableColumns = table.readableColumns;
+		if (readableColumns && readableColumns.length > 0) {
+			for (const columnName of readableColumns) {
+				const columnRef = `RocketAdmin::Column::"${connectionId}/${table.tableName}/${columnName}"`;
+				policies.push(
+					`permit(\n  principal,\n  action == RocketAdmin::Action::"column:read",\n  resource == ${columnRef}\n);`,
+				);
+			}
+		} else {
+			policies.push(
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"column:read",\n  resource in ${tableRef}\n);`,
+			);
+		}
+	}
+
+	return policies.join('\n\n');
+}
+
 export function generateCedarPolicyForGroup(
 	connectionId: string,
 	isMain: boolean,

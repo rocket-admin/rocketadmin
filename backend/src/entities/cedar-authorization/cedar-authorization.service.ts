@@ -13,9 +13,11 @@ import {
 	CedarAction,
 	CedarResourceType,
 	CedarValidationRequest,
+	PUBLIC_USER_ID,
 } from './cedar-action-map.js';
 import { ICedarAuthorizationService } from './cedar-authorization.service.interface.js';
 import { buildCedarEntities } from './cedar-entity-builder.js';
+import { generatePublicCedarPolicy, IPublicTablePermission } from './cedar-policy-generator.js';
 import { parseCedarPolicyToClassicalPermissions } from './cedar-policy-parser.js';
 import { CEDAR_SCHEMA } from './cedar-schema.js';
 
@@ -35,6 +37,10 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 	}
 
 	async validate(request: CedarValidationRequest): Promise<boolean> {
+		if (request.publicAccess) {
+			return this.validatePublic(request);
+		}
+
 		const { userId, action, groupId, tableName, columnName, dashboardId, panelId, actionEventId } = request;
 		let { connectionId } = request;
 
@@ -280,7 +286,18 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 			columnName,
 		);
 
-		for (const policy of groupPolicies) {
+		return this.isAllowedByPolicies(groupPolicies, userId, action, resourceType, resourceId, entities);
+	}
+
+	private isAllowedByPolicies(
+		policies: string[],
+		userId: string,
+		action: CedarAction,
+		resourceType: CedarResourceType,
+		resourceId: string,
+		entities: ReturnType<typeof buildCedarEntities>,
+	): boolean {
+		for (const policy of policies) {
 			const call = {
 				principal: { type: CEDAR_USER_TYPE, id: userId },
 				action: { type: CEDAR_ACTION_TYPE, id: action },
@@ -297,11 +314,124 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 					return true;
 				}
 			} else {
-				this.logger.warn(`Cedar authorization error for group policy: ${JSON.stringify(result.errors)}`);
+				this.logger.warn(`Cedar authorization error for policy: ${JSON.stringify(result.errors)}`);
 			}
 		}
 
 		return false;
+	}
+
+	// Evaluates the connection's public policy (unauthenticated access). Public access only ever
+	// grants QueryTable + ColumnRead, so any other action is denied outright.
+	private async validatePublic(request: CedarValidationRequest): Promise<boolean> {
+		const { action, tableName, columnName } = request;
+		const { connectionId } = request;
+		if (!connectionId) return false;
+
+		const publicPolicy = await this.loadPublicPolicy(connectionId);
+		if (!publicPolicy) return false;
+		const policies = [publicPolicy];
+
+		switch (action) {
+			case CedarAction.TableQuery:
+			case CedarAction.TableRead: {
+				if (!tableName) return false;
+				const entities = buildCedarEntities(PUBLIC_USER_ID, [], connectionId, tableName);
+				return this.isAllowedByPolicies(
+					policies,
+					PUBLIC_USER_ID,
+					CedarAction.TableQuery,
+					CedarResourceType.Table,
+					`${connectionId}/${tableName}`,
+					entities,
+				);
+			}
+			case CedarAction.ColumnRead: {
+				if (!tableName || !columnName) return false;
+				const entities = buildCedarEntities(
+					PUBLIC_USER_ID,
+					[],
+					connectionId,
+					tableName,
+					undefined,
+					undefined,
+					undefined,
+					columnName,
+				);
+				return this.isAllowedByPolicies(
+					policies,
+					PUBLIC_USER_ID,
+					CedarAction.ColumnRead,
+					CedarResourceType.Column,
+					`${connectionId}/${tableName}/${columnName}`,
+					entities,
+				);
+			}
+			default:
+				return false;
+		}
+	}
+
+	async isPublicAccessEnabled(connectionId: string): Promise<boolean> {
+		return (await this.loadPublicPolicy(connectionId)) !== null;
+	}
+
+	async getPublicPermissions(
+		connectionId: string,
+	): Promise<{ enabled: boolean; tables: Array<IPublicTablePermission> }> {
+		const policy = await this.loadPublicPolicy(connectionId);
+		if (!policy) {
+			return { enabled: false, tables: [] };
+		}
+		const parsed = parseCedarPolicyToClassicalPermissions(policy, connectionId, '');
+		const tables = parsed.tables.map((table) => ({
+			tableName: table.tableName,
+			readableColumns: table.readableColumns,
+		}));
+		return { enabled: true, tables };
+	}
+
+	async savePublicPermissions(
+		connectionId: string,
+		tables: Array<IPublicTablePermission>,
+	): Promise<{ enabled: boolean; publicCedarPolicy: string | null; tables: Array<IPublicTablePermission> }> {
+		const policy = generatePublicCedarPolicy(connectionId, tables);
+		const hasPolicy = policy.trim().length > 0;
+		if (hasPolicy) {
+			this.validateCedarPolicyText(policy);
+			await this.validatePolicyReferences(policy, connectionId);
+			this.validatePublicPolicyActions(policy);
+		}
+		const storedPolicy = hasPolicy ? policy : null;
+		await this.globalDbContext.connectionRepository.updateConnectionPublicCedarPolicy(connectionId, storedPolicy);
+		Cacher.invalidateCedarPolicyCache(connectionId);
+		return { enabled: hasPolicy, publicCedarPolicy: storedPolicy, tables: hasPolicy ? tables : [] };
+	}
+
+	// Caches the connection's public policy under the existing cedar policy cache (keyed by the
+	// public sentinel principal). An empty string is cached to mean "no public access".
+	private async loadPublicPolicy(connectionId: string): Promise<string | null> {
+		const cached = Cacher.getCedarPolicyCache(connectionId, PUBLIC_USER_ID);
+		if (cached !== null) {
+			return cached.trim().length > 0 ? cached : null;
+		}
+		const policy = await this.globalDbContext.connectionRepository.getConnectionPublicCedarPolicy(connectionId);
+		Cacher.setCedarPolicyCache(connectionId, PUBLIC_USER_ID, policy ?? '');
+		return policy && policy.trim().length > 0 ? policy : null;
+	}
+
+	private validatePublicPolicyActions(policyText: string): void {
+		// An unconstrained action (`permit(principal, action, resource)`) would grant everything.
+		if (/,\s*action\s*,/.test(policyText)) {
+			throw new HttpException({ message: Messages.PUBLIC_POLICY_ACTION_NOT_ALLOWED }, HttpStatus.BAD_REQUEST);
+		}
+		const allowed = new Set<string>([CedarAction.TableQuery, CedarAction.ColumnRead]);
+		const actions = [...policyText.matchAll(/action\s*==\s*RocketAdmin::Action::"([^"]+)"/g)].map((m) => m[1]);
+		for (const action of actions) {
+			if (!allowed.has(action)) {
+				throw new HttpException({ message: Messages.PUBLIC_POLICY_ACTION_NOT_ALLOWED }, HttpStatus.BAD_REQUEST);
+			}
+		}
 	}
 
 	private loadPoliciesPerGroup(userGroups: Array<GroupEntity>): string[] {

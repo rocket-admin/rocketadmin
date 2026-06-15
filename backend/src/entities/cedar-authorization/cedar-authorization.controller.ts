@@ -6,6 +6,7 @@ import {
 	HttpStatus,
 	Injectable,
 	Post,
+	Put,
 	UseGuards,
 	UseInterceptors,
 } from '@nestjs/common';
@@ -18,6 +19,7 @@ import { ConnectionReadGuard } from '../../guards/connection-read.guard.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { IComplexPermission } from '../permission/permission.interface.js';
 import { CedarAuthorizationService } from './cedar-authorization.service.js';
+import { PublicPermissionsResponseDto, SetPublicPermissionsDto } from './dto/public-permissions.dto.js';
 import { SaveCedarPolicyDto } from './dto/save-cedar-policy.dto.js';
 import { ValidateCedarSchemaDto } from './dto/validate-cedar-schema.dto.js';
 
@@ -86,5 +88,41 @@ export class CedarAuthorizationController {
 			throw new HttpException({ message: Messages.CONNECTION_ID_MISSING }, HttpStatus.BAD_REQUEST);
 		}
 		return this.cedarAuthService.saveCedarPolicy(connectionId, dto.groupId, dto.cedarPolicy);
+	}
+
+	@ApiOperation({
+		summary: 'Get the public (unauthenticated) read permissions configured for a connection',
+	})
+	@ApiResponse({ status: 200, description: 'Public permissions returned.', type: PublicPermissionsResponseDto })
+	@ApiParam({ name: 'connectionId', required: true })
+	@UseGuards(ConnectionEditGuard)
+	@Get('/connection/public-permissions/:connectionId')
+	async getPublicPermissions(@SlugUuid('connectionId') connectionId: string): Promise<PublicPermissionsResponseDto> {
+		if (!connectionId) {
+			throw new HttpException({ message: Messages.CONNECTION_ID_MISSING }, HttpStatus.BAD_REQUEST);
+		}
+		return this.cedarAuthService.getPublicPermissions(connectionId);
+	}
+
+	@ApiOperation({
+		summary: 'Set the public (unauthenticated) read permissions for a connection',
+		description:
+			'Generates and stores a Cedar policy granting public users QueryTable + ColumnRead on the listed tables. ' +
+			'Pass an empty "tables" array to disable public access.',
+	})
+	@ApiResponse({ status: 200, description: 'Public permissions saved.', type: PublicPermissionsResponseDto })
+	@ApiBody({ type: SetPublicPermissionsDto })
+	@ApiParam({ name: 'connectionId', required: true })
+	@UseGuards(ConnectionEditGuard)
+	@Put('/connection/public-permissions/:connectionId')
+	async setPublicPermissions(
+		@SlugUuid('connectionId') connectionId: string,
+		@Body() dto: SetPublicPermissionsDto,
+	): Promise<PublicPermissionsResponseDto> {
+		if (!connectionId) {
+			throw new HttpException({ message: Messages.CONNECTION_ID_MISSING }, HttpStatus.BAD_REQUEST);
+		}
+		const { enabled, tables } = await this.cedarAuthService.savePublicPermissions(connectionId, dto.tables ?? []);
+		return { enabled, tables };
 	}
 }

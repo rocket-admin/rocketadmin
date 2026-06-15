@@ -328,3 +328,49 @@ test('resource ref format validation', (t) => {
 	t.true(result.includes(`RocketAdmin::Connection::"${connectionId}"`));
 	t.true(result.includes(`RocketAdmin::Table::"${connectionId}/users"`));
 });
+
+import { generatePublicCedarPolicy } from '../../../src/entities/cedar-authorization/cedar-policy-generator.js';
+
+test('generatePublicCedarPolicy: empty tables produces an empty policy (public access disabled)', (t) => {
+	const result = generatePublicCedarPolicy(connectionId, []);
+	t.is(result.trim(), '');
+});
+
+test('generatePublicCedarPolicy: a table without readableColumns grants table:query + column:read on all columns', (t) => {
+	const result = generatePublicCedarPolicy(connectionId, [{ tableName: 'users' }]);
+	t.true(result.includes(`action == RocketAdmin::Action::"table:query"`));
+	t.true(result.includes(`resource == RocketAdmin::Table::"${connectionId}/users"`));
+	// all-columns alias uses `resource in Table`
+	t.true(result.includes(`action == RocketAdmin::Action::"column:read"`));
+	t.true(result.includes(`resource in RocketAdmin::Table::"${connectionId}/users"`));
+	// Only table:query + column:read may appear
+	t.false(result.includes('table:add'));
+	t.false(result.includes('table:edit'));
+	t.false(result.includes('table:delete'));
+});
+
+test('generatePublicCedarPolicy: readableColumns produces one column:read grant per column', (t) => {
+	const result = generatePublicCedarPolicy(connectionId, [{ tableName: 'users', readableColumns: ['id', 'name'] }]);
+	t.true(result.includes(`resource == RocketAdmin::Column::"${connectionId}/users/id"`));
+	t.true(result.includes(`resource == RocketAdmin::Column::"${connectionId}/users/name"`));
+	// no all-columns alias when an explicit whitelist is provided
+	t.false(
+		result.includes(
+			`action == RocketAdmin::Action::"column:read",\n  resource in RocketAdmin::Table::"${connectionId}/users"`,
+		),
+	);
+	const permits = result.match(/permit\(/g);
+	// 1 table:query + 2 column:read
+	t.is(permits.length, 3);
+});
+
+test('generatePublicCedarPolicy: only ever emits table:query and column:read actions', (t) => {
+	const result = generatePublicCedarPolicy(connectionId, [
+		{ tableName: 'users', readableColumns: ['id'] },
+		{ tableName: 'orders' },
+	]);
+	const actions = [...result.matchAll(/RocketAdmin::Action::"([^"]+)"/g)].map((m) => m[1]);
+	for (const action of actions) {
+		t.true(action === 'table:query' || action === 'column:read', `unexpected action ${action}`);
+	}
+});

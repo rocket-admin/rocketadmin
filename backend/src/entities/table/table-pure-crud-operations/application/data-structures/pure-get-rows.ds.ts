@@ -6,6 +6,6 @@ export class PureGetRowsDs {
 	query: Record<string, unknown>;
 	searchingFieldValue: string;
 	tableName: string;
-	userId: string;
+	userId: string | undefined;
 	filters?: Record<string, unknown>;
 }

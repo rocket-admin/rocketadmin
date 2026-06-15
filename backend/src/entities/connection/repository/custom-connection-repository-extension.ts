@@ -200,6 +200,22 @@ export const customConnectionRepositoryExtension: IConnectionRepository &
 		return this.save(connection);
 	},
 
+	async getConnectionPublicCedarPolicy(connectionId: string): Promise<string | null> {
+		const connection = await this.createQueryBuilder('connection')
+			.select(['connection.id', 'connection.public_cedar_policy'])
+			.where('connection.id = :connectionId', { connectionId })
+			.getOne();
+		return connection?.public_cedar_policy ?? null;
+	},
+
+	async updateConnectionPublicCedarPolicy(connectionId: string, publicCedarPolicy: string | null): Promise<void> {
+		await this.createQueryBuilder()
+			.update(ConnectionEntity)
+			.set({ public_cedar_policy: publicCedarPolicy })
+			.where('id = :connectionId', { connectionId })
+			.execute();
+	},
+
 	async isUserFromConnection(userId: string, connectionId: string): Promise<boolean> {
 		const qb = this.createQueryBuilder('connection')
 			.leftJoin('connection.groups', 'group')

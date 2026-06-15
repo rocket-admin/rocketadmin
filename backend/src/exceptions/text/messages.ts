@@ -102,6 +102,9 @@ export const Messages = {
 	CEDAR_POLICY_REFERENCES_FOREIGN_CONNECTION:
 		'Cedar policy references a connection that does not match the target connection',
 	CEDAR_POLICY_REFERENCES_FOREIGN_PRINCIPAL: 'Cedar policy principal must reference the target group',
+	PUBLIC_POLICY_ACTION_NOT_ALLOWED:
+		'Public permissions may only grant QueryTable (table:query) and ColumnRead (column:read)',
+	PUBLIC_ACCESS_NOT_CONFIGURED: 'Public access is not configured for this connection',
 	CSV_EXPORT_FAILED: 'CSV export failed',
 	CSV_EXPORT_DISABLED: 'CSV export is disabled',
 	CSV_IMPORT_FAILED: 'CSV import failed',

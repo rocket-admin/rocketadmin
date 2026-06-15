@@ -15,6 +15,7 @@ import {
 	CedarAction,
 	CedarResourceType,
 	COLUMN_PROBE_ID,
+	PUBLIC_USER_ID,
 } from './cedar-action-map.js';
 import { buildCedarEntities } from './cedar-entity-builder.js';
 import { CEDAR_SCHEMA } from './cedar-schema.js';
@@ -302,6 +303,30 @@ export class CedarPermissionsService implements IUserAccessRepository {
 		const readable = new Set<string>();
 		for (const columnName of allColumnNames) {
 			if (this.evaluateColumnRead(cognitoUserName, connectionId, tableName, columnName, ctx)) {
+				readable.add(columnName);
+			}
+		}
+		return readable;
+	}
+
+	// Public (unauthenticated) counterpart of getReadableColumns: evaluates the connection's
+	// public_cedar_policy instead of any user's group policies. Returns the readable subset, or an
+	// empty set when public access is disabled.
+	async getReadableColumnsForPublic(
+		connectionId: string,
+		tableName: string,
+		allColumnNames: Array<string>,
+	): Promise<Set<string>> {
+		const ctx = await this.loadPublicContext(connectionId);
+		if (!ctx) return new Set();
+
+		if (this.evaluateColumnRead(PUBLIC_USER_ID, connectionId, tableName, COLUMN_PROBE_ID, ctx)) {
+			return new Set(allColumnNames);
+		}
+
+		const readable = new Set<string>();
+		for (const columnName of allColumnNames) {
+			if (this.evaluateColumnRead(PUBLIC_USER_ID, connectionId, tableName, columnName, ctx)) {
 				readable.add(columnName);
 			}
 		}
@@ -597,5 +622,24 @@ export class CedarPermissionsService implements IUserAccessRepository {
 		if (policies.length === 0) return null;
 
 		return { userGroups, policies };
+	}
+
+	// Public-access context: no groups, a single policy taken from the connection's
+	// public_cedar_policy. The synthetic principal is irrelevant since generated policies leave the
+	// principal unconstrained.
+	private async loadPublicContext(connectionId: string): Promise<EvalContext | null> {
+		const policy = await this.loadPublicPolicy(connectionId);
+		if (!policy) return null;
+		return { userGroups: [], policies: [policy] };
+	}
+
+	private async loadPublicPolicy(connectionId: string): Promise<string | null> {
+		const cached = Cacher.getCedarPolicyCache(connectionId, PUBLIC_USER_ID);
+		if (cached !== null) {
+			return cached.trim().length > 0 ? cached : null;
+		}
+		const policy = await this.globalDbContext.connectionRepository.getConnectionPublicCedarPolicy(connectionId);
+		Cacher.setCedarPolicyCache(connectionId, PUBLIC_USER_ID, policy ?? '');
+		return policy && policy.trim().length > 0 ? policy : null;
 	}
 }

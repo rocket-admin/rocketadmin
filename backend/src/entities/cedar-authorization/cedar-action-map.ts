@@ -40,6 +40,8 @@ export const ACTION_EVENT_PROBE_ID = '__probe__';
 
 export const COLUMN_PROBE_ID = '__probe__';
 
+export const PUBLIC_USER_ID = '__public__';
+
 export interface CedarValidationRequest {
 	userId: string;
 	action: CedarAction;
@@ -50,4 +52,5 @@ export interface CedarValidationRequest {
 	actionEventId?: string;
 	dashboardId?: string;
 	panelId?: string;
+	publicAccess?: boolean;
 }

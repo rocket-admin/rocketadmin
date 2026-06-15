@@ -31,6 +31,8 @@ export class CedarAuthorizationModule implements NestModule {
 				{ path: '/connection/cedar-schema/:connectionId', method: RequestMethod.GET },
 				{ path: '/connection/cedar-schema/validate/:connectionId', method: RequestMethod.POST },
 				{ path: '/connection/cedar-policy/:connectionId', method: RequestMethod.POST },
+				{ path: '/connection/public-permissions/:connectionId', method: RequestMethod.GET },
+				{ path: '/connection/public-permissions/:connectionId', method: RequestMethod.PUT },
 			);
 	}
 }
