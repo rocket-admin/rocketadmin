@@ -37,6 +37,12 @@ import { attachForeignColumnNames } from '../utils/attach-foreign-column-names.u
 import { buildCommonTableSettingsInput } from '../utils/build-common-table-settings-input.util.js';
 import { buildTableSettingsForResponse } from '../utils/build-table-settings-for-response.util.js';
 import { extractForeignKeysFromWidgets } from '../utils/extract-foreign-keys-from-widgets.util.js';
+import {
+	filterColumnNamesByReadable,
+	filterRowsByReadableColumns,
+	filterStructureByReadableColumns,
+	isAllColumnsReadable,
+} from '../utils/filter-columns-by-read-permission.util.js';
 import { filterForeignKeysByReadPermission } from '../utils/filter-foreign-keys-by-permission.util.js';
 import { findAutocompleteFieldsUtil } from '../utils/find-autocomplete-fields.util.js';
 import { findAvailableFields } from '../utils/find-available-fields.utils.js';
@@ -210,6 +216,18 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 			const actionEventsDtos = customActionEvents.map((el) => buildActionEventDto(el));
 			const savedFiltersRO = savedTableFilters.map((el) => buildCreatedTableFilterRO(el));
 
+			// Column-level read permission (the ColumnRead half of table:read). Computed once;
+			// when the user lacks read access to some columns we strip them from the rows and
+			// metadata below, after foreign-key identity enrichment has run.
+			const allColumnNames = tableStructure.map((column) => column.column_name);
+			const readableColumns = await this.cedarPermissions.getReadableColumns(
+				userId,
+				connectionId,
+				tableName,
+				allColumnNames,
+			);
+			const restrictColumns = !isAllColumnsReadable(readableColumns, allColumnNames);
+
 			const rowsRO = {
 				rows: rows.data,
 				primaryColumns: tablePrimaryColumns,
@@ -340,6 +358,15 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 							? identityForCurrentValue
 							: originalValue;
 				}
+			}
+
+			if (restrictColumns) {
+				rowsRO.rows = filterRowsByReadableColumns(rowsRO.rows, readableColumns);
+				rowsRO.structure = filterStructureByReadableColumns(rowsRO.structure, readableColumns);
+				rowsRO.list_fields = filterColumnNamesByReadable(rowsRO.list_fields, readableColumns) ?? [];
+				rowsRO.sortable_by = filterColumnNamesByReadable(rowsRO.sortable_by, readableColumns) ?? [];
+				rowsRO.columns_view = filterColumnNamesByReadable(rowsRO.columns_view, readableColumns);
+				rowsRO.table_permissions.readableColumns = Array.from(readableColumns);
 			}
 
 			operationResult = OperationResultStatusEnum.successfully;

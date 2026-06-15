@@ -68,6 +68,7 @@ export function parseCedarPolicyToClassicalPermissions(
 				result.group.accessLevel = AccessLevelEnum.edit;
 				break;
 			case 'table:read':
+			case 'table:query':
 			case 'table:add':
 			case 'table:edit':
 			case 'table:delete':
@@ -76,6 +77,25 @@ export function parseCedarPolicyToClassicalPermissions(
 				if (!tableName) break;
 				const tableEntry = getOrCreateTableEntry(tableMap, tableName);
 				applyTableAction(tableEntry, permit.action);
+				break;
+			}
+			case 'column:read': {
+				if (permit.resourceType === 'RocketAdmin::Table' && permit.isInRelation) {
+					// Wildcard: read every column on this table (the table:read alias). No explicit
+					// column whitelist — leave readableColumns undefined ⇒ "all columns".
+					const tableName = extractTableName(permit.resourceId, connectionId);
+					if (!tableName) break;
+					getOrCreateTableEntry(tableMap, tableName);
+				} else if (permit.resourceType === 'RocketAdmin::Column') {
+					// Per-column grant: add this column to the table's readable whitelist.
+					const parts = extractColumnResource(permit.resourceId, connectionId);
+					if (!parts) break;
+					const tableEntry = getOrCreateTableEntry(tableMap, parts.tableName);
+					if (!tableEntry.readableColumns) tableEntry.readableColumns = [];
+					if (!tableEntry.readableColumns.includes(parts.columnName)) {
+						tableEntry.readableColumns.push(parts.columnName);
+					}
+				}
 				break;
 			}
 			case 'actionEvent:trigger': {
@@ -273,6 +293,7 @@ function getOrCreateTableEntry(map: Map<string, ITablePermissionData>, tableName
 function applyTableAction(entry: ITablePermissionData, action: string): void {
 	switch (action) {
 		case 'table:read':
+		case 'table:query':
 			entry.accessLevel.visibility = true;
 			break;
 		case 'table:add':
@@ -288,6 +309,20 @@ function applyTableAction(entry: ITablePermissionData, action: string): void {
 			entry.accessLevel.aiRequest = true;
 			break;
 	}
+}
+
+function extractColumnResource(
+	resourceId: string | null,
+	connectionId: string,
+): { tableName: string; columnName: string } | null {
+	if (!resourceId) return null;
+	const prefix = `${connectionId}/`;
+	const stripped = resourceId.startsWith(prefix) ? resourceId.slice(prefix.length) : resourceId;
+	const slash = stripped.indexOf('/');
+	if (slash <= 0 || slash === stripped.length - 1) return null;
+	const tableName = stripped.slice(0, slash);
+	const columnName = stripped.slice(slash + 1);
+	return { tableName, columnName };
 }
 
 function extractActionEventResource(

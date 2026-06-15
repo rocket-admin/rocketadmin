@@ -14,6 +14,7 @@ export function buildCedarEntities(
 	dashboardId?: string,
 	panelId?: string,
 	actionEventId?: string,
+	columnName?: string,
 ): Array<CedarEntityRecord> {
 	const entities: Array<CedarEntityRecord> = [];
 
@@ -49,6 +50,16 @@ export function buildCedarEntities(
 			uid: { type: 'RocketAdmin::Table', id: `${connectionId}/${tableName}` },
 			attrs: { connectionId: connectionId },
 			parents: [{ type: 'RocketAdmin::Connection', id: connectionId }],
+		});
+	}
+
+	// Column entity, parented by its Table — required so `resource in Table::"..."`
+	// policies authorize reading any column without naming each one (the table:read alias).
+	if (columnName && tableName) {
+		entities.push({
+			uid: { type: 'RocketAdmin::Column', id: `${connectionId}/${tableName}/${columnName}` },
+			attrs: { connectionId: connectionId, tableName: tableName },
+			parents: [{ type: 'RocketAdmin::Table', id: `${connectionId}/${tableName}` }],
 		});
 	}
 

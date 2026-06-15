@@ -136,9 +136,26 @@ export function generateCedarPolicyForGroup(
 		// action events is a side-effect-only capability and does not imply table visibility.
 		const hasAnyAccess = access.visibility || access.add || access.delete || access.edit;
 		if (hasAnyAccess) {
+			// QueryTable: may run a read query against the table at all (checked before the query).
 			policies.push(
-				`permit(\n  principal,\n  action == RocketAdmin::Action::"table:read",\n  resource == ${tableRef}\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"table:query",\n  resource == ${tableRef}\n);`,
 			);
+			// ColumnRead (checked after the query). `table:read` is an alias for
+			// QueryTable + ColumnRead(table, *): when no explicit column whitelist is given we
+			// grant every column via `resource in Table`; otherwise one grant per allowed column.
+			const readableColumns = table.readableColumns;
+			if (readableColumns && readableColumns.length > 0) {
+				for (const columnName of readableColumns) {
+					const columnRef = `RocketAdmin::Column::"${connectionId}/${table.tableName}/${columnName}"`;
+					policies.push(
+						`permit(\n  principal,\n  action == RocketAdmin::Action::"column:read",\n  resource == ${columnRef}\n);`,
+					);
+				}
+			} else {
+				policies.push(
+					`permit(\n  principal,\n  action == RocketAdmin::Action::"column:read",\n  resource in ${tableRef}\n);`,
+				);
+			}
 		}
 		if (access.add) {
 			policies.push(

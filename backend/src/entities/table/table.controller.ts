@@ -32,10 +32,10 @@ import { AmplitudeEventTypeEnum } from '../../enums/amplitude-event-type.enum.js
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { ConnectionNotFoundException } from '../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { Messages } from '../../exceptions/text/messages.js';
+import { QueryTableGuard } from '../../guards/query-table.guard.js';
 import { TableAddGuard } from '../../guards/table-add.guard.js';
 import { TableDeleteGuard } from '../../guards/table-delete.guard.js';
 import { TableEditGuard } from '../../guards/table-edit.guard.js';
-import { TableReadGuard } from '../../guards/table-read.guard.js';
 import { TablesReceiveGuard } from '../../guards/tables-receive.guard.js';
 import { Constants } from '../../helpers/constants/constants.js';
 import { isConnectionTypeAgent } from '../../helpers/is-connection-entity-agent.js';
@@ -194,7 +194,7 @@ export class TableController {
 		description: 'Returns all table rows.',
 		type: FoundTableRowsDs,
 	})
-	@UseGuards(TableReadGuard)
+	@UseGuards(QueryTableGuard)
 	@ApiQuery({ name: 'tableName', required: true })
 	@ApiQuery({ name: 'page', required: false })
 	@ApiQuery({ name: 'perPage', required: false })
@@ -268,7 +268,7 @@ export class TableController {
 		description:
 			'Invalidate table metadata cache before reading rows. Underscore prefix avoids column-name collisions.',
 	})
-	@UseGuards(TableReadGuard)
+	@UseGuards(QueryTableGuard)
 	@Timeout(TimeoutDefaults.EXTENDED)
 	@Throttle({ default: { limit: 300, ttl: 60000 } })
 	@HttpCode(HttpStatus.OK)
@@ -332,7 +332,7 @@ export class TableController {
 		type: TableStructureDs,
 	})
 	@ApiQuery({ name: 'tableName', required: true })
-	@UseGuards(TableReadGuard)
+	@UseGuards(QueryTableGuard)
 	@Get('/table/structure/:connectionId')
 	async getTableStructure(
 		@QueryTableName() tableName: string,
@@ -368,7 +368,7 @@ export class TableController {
 		type: TableStructureDs,
 	})
 	@ApiQuery({ name: 'tableName', required: true })
-	@UseGuards(TableReadGuard)
+	@UseGuards(QueryTableGuard)
 	@Get('/table/structure/no-cache/:connectionId')
 	async getTableStructureWithoutCache(
 		@QueryTableName() tableName: string,
@@ -656,7 +656,7 @@ export class TableController {
 		type: Boolean,
 		description: 'Invalidate table metadata cache before reading. Underscore prefix avoids column-name collisions.',
 	})
-	@UseGuards(TableReadGuard)
+	@UseGuards(QueryTableGuard)
 	@Get('/table/row/:connectionId')
 	async getRowByPrimaryKey(
 		@Query() query: Record<string, string>,
@@ -722,7 +722,7 @@ export class TableController {
 	@ApiProperty({ name: 'page', required: false })
 	@ApiProperty({ name: 'perPage', required: false })
 	@ApiProperty({ name: 'search', required: false })
-	@UseGuards(TableReadGuard)
+	@UseGuards(QueryTableGuard)
 	@Timeout(TimeoutDefaults.EXTENDED)
 	@Post('/table/csv/export/:connectionId')
 	async exportCSVFromTable(

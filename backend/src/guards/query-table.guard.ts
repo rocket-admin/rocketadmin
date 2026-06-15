@@ -8,7 +8,7 @@ import { ValidationHelper } from '../helpers/validators/validation-helper.js';
 import { validateUuidByRegex } from './utils/validate-uuid-by-regex.js';
 
 @Injectable()
-export class TableReadGuard implements CanActivate {
+export class QueryTableGuard implements CanActivate {
 	constructor(private readonly cedarAuthService: CedarAuthorizationService) {}
 
 	canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
@@ -33,7 +33,7 @@ export class TableReadGuard implements CanActivate {
 			try {
 				const allowed = await this.cedarAuthService.validate({
 					userId: cognitoUserName,
-					action: CedarAction.TableRead,
+					action: CedarAction.TableQuery,
 					connectionId,
 					tableName,
 				});

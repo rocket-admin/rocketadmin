@@ -36,6 +36,16 @@ export const CEDAR_SCHEMA = {
 					},
 				},
 			},
+			Column: {
+				memberOfTypes: ['Table'],
+				shape: {
+					type: 'Record',
+					attributes: {
+						connectionId: { type: 'String' },
+						tableName: { type: 'String' },
+					},
+				},
+			},
 			ActionEvent: {
 				memberOfTypes: ['Table'],
 				shape: {
@@ -100,6 +110,18 @@ export const CEDAR_SCHEMA = {
 				appliesTo: {
 					principalTypes: ['User'],
 					resourceTypes: ['Table'],
+				},
+			},
+			'table:query': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Table'],
+				},
+			},
+			'column:read': {
+				appliesTo: {
+					principalTypes: ['User'],
+					resourceTypes: ['Column'],
 				},
 			},
 			'table:add': {

@@ -192,6 +192,283 @@ test.serial(
 	},
 );
 
+test.serial(
+	`${currentTest} should enforce column-level read - user only sees whitelisted columns in rows and structure`,
+	async (t) => {
+		try {
+			const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+			const connectionId = testData.connections.firstId;
+			const groupId = testData.groups.createdGroupId;
+			const tableName = testData.firstTableInfo.testTableName;
+			const allowedColumn = testData.firstTableInfo.testTableColumnName;
+			const hiddenColumn = testData.firstTableInfo.testTableSecondColumnName;
+
+			// QueryTable + per-column ColumnRead for `id` and one column only (not the second column).
+			const cedarPolicy = [
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"table:query",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"column:read",\n  resource == RocketAdmin::Column::"${connectionId}/${tableName}/id"\n);`,
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"column:read",\n  resource == RocketAdmin::Column::"${connectionId}/${tableName}/${allowedColumn}"\n);`,
+			].join('\n\n');
+
+			const savePolicyResponse = await request(app.getHttpServer())
+				.post(`/connection/cedar-policy/${connectionId}`)
+				.send({ cedarPolicy, groupId })
+				.set('Cookie', testData.users.adminUserToken)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+
+			t.is(savePolicyResponse.status, 201);
+
+			const getTableRows = await request(app.getHttpServer())
+				.get(`/table/rows/${connectionId}?tableName=${tableName}`)
+				.set('Cookie', testData.users.simpleUserToken)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+
+			t.is(getTableRows.status, 200);
+			const body = getTableRows.body;
+
+			// Rows expose only the whitelisted columns.
+			t.true(body.rows.length > 0);
+			const rowKeys = Object.keys(body.rows[0]);
+			t.true(rowKeys.includes('id'));
+			t.true(rowKeys.includes(allowedColumn));
+			t.false(rowKeys.includes(hiddenColumn));
+
+			// Structure metadata hides the non-readable column too.
+			const structureColumns = body.structure.map((column: { column_name: string }) => column.column_name);
+			t.true(structureColumns.includes('id'));
+			t.true(structureColumns.includes(allowedColumn));
+			t.false(structureColumns.includes(hiddenColumn));
+
+			// The reported readable-columns whitelist excludes the hidden column.
+			t.true(body.table_permissions.readableColumns.includes(allowedColumn));
+			t.false(body.table_permissions.readableColumns.includes(hiddenColumn));
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	},
+);
+
+test.serial(
+	`${currentTest} should enforce QueryTable - user without table:query is denied before the query`,
+	async (t) => {
+		try {
+			const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+			const connectionId = testData.connections.firstId;
+			const groupId = testData.groups.createdGroupId;
+			const tableName = testData.firstTableInfo.testTableName;
+
+			// Connection read only — no table:query / table:read grant at all.
+			const cedarPolicy = `permit(\n  principal,\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`;
+
+			const savePolicyResponse = await request(app.getHttpServer())
+				.post(`/connection/cedar-policy/${connectionId}`)
+				.send({ cedarPolicy, groupId })
+				.set('Cookie', testData.users.adminUserToken)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+
+			t.is(savePolicyResponse.status, 201);
+
+			const getTableRows = await request(app.getHttpServer())
+				.get(`/table/rows/${connectionId}?tableName=${tableName}`)
+				.set('Cookie', testData.users.simpleUserToken)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+
+			t.is(getTableRows.status, 403);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	},
+);
+
+test.serial(`${currentTest} legacy table:read still grants full column read (alias)`, async (t) => {
+	try {
+		const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+		const connectionId = testData.connections.firstId;
+		const groupId = testData.groups.createdGroupId;
+		const tableName = testData.firstTableInfo.testTableName;
+		const firstColumn = testData.firstTableInfo.testTableColumnName;
+		const secondColumn = testData.firstTableInfo.testTableSecondColumnName;
+
+		// Only a direct table:read grant (no table:query / column:read) — must behave as the
+		// alias QueryTable + ColumnRead(table, *).
+		const cedarPolicy = [
+			`permit(\n  principal,\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
+			`permit(\n  principal,\n  action == RocketAdmin::Action::"table:read",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
+		].join('\n\n');
+
+		const savePolicyResponse = await request(app.getHttpServer())
+			.post(`/connection/cedar-policy/${connectionId}`)
+			.send({ cedarPolicy, groupId })
+			.set('Cookie', testData.users.adminUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+
+		t.is(savePolicyResponse.status, 201);
+
+		const getTableRows = await request(app.getHttpServer())
+			.get(`/table/rows/${connectionId}?tableName=${tableName}`)
+			.set('Cookie', testData.users.simpleUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+
+		t.is(getTableRows.status, 200);
+		const rowKeys = Object.keys(getTableRows.body.rows[0]);
+		t.true(rowKeys.includes(firstColumn));
+		t.true(rowKeys.includes(secondColumn));
+	} catch (error) {
+		console.error(error);
+		throw error;
+	}
+});
+
+test.serial(`${currentTest} should enforce column-level read on single-row GET /table/row/:id`, async (t) => {
+	try {
+		const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+		const connectionId = testData.connections.firstId;
+		const groupId = testData.groups.createdGroupId;
+		const tableName = testData.firstTableInfo.testTableName;
+		const allowedColumn = testData.firstTableInfo.testTableColumnName;
+		const hiddenColumn = testData.firstTableInfo.testTableSecondColumnName;
+
+		const cedarPolicy = [
+			`permit(\n  principal,\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
+			`permit(\n  principal,\n  action == RocketAdmin::Action::"table:query",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
+			`permit(\n  principal,\n  action == RocketAdmin::Action::"column:read",\n  resource == RocketAdmin::Column::"${connectionId}/${tableName}/id"\n);`,
+			`permit(\n  principal,\n  action == RocketAdmin::Action::"column:read",\n  resource == RocketAdmin::Column::"${connectionId}/${tableName}/${allowedColumn}"\n);`,
+		].join('\n\n');
+
+		const savePolicyResponse = await request(app.getHttpServer())
+			.post(`/connection/cedar-policy/${connectionId}`)
+			.send({ cedarPolicy, groupId })
+			.set('Cookie', testData.users.adminUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(savePolicyResponse.status, 201);
+
+		const getRow = await request(app.getHttpServer())
+			.get(`/table/row/${connectionId}?tableName=${tableName}&id=1`)
+			.set('Cookie', testData.users.simpleUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+
+		t.is(getRow.status, 200);
+		const rowKeys = Object.keys(getRow.body.row);
+		t.true(rowKeys.includes('id'));
+		t.true(rowKeys.includes(allowedColumn));
+		t.false(rowKeys.includes(hiddenColumn));
+
+		const structureColumns = getRow.body.structure.map((column: { column_name: string }) => column.column_name);
+		t.true(structureColumns.includes(allowedColumn));
+		t.false(structureColumns.includes(hiddenColumn));
+	} catch (error) {
+		console.error(error);
+		throw error;
+	}
+});
+
+test.serial(`${currentTest} should enforce column-level read on CSV export`, async (t) => {
+	try {
+		const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+		const connectionId = testData.connections.firstId;
+		const groupId = testData.groups.createdGroupId;
+		const tableName = testData.firstTableInfo.testTableName;
+		const allowedColumn = testData.firstTableInfo.testTableColumnName;
+		const hiddenColumn = testData.firstTableInfo.testTableSecondColumnName;
+
+		const cedarPolicy = [
+			`permit(\n  principal,\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
+			`permit(\n  principal,\n  action == RocketAdmin::Action::"table:query",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
+			`permit(\n  principal,\n  action == RocketAdmin::Action::"column:read",\n  resource == RocketAdmin::Column::"${connectionId}/${tableName}/id"\n);`,
+			`permit(\n  principal,\n  action == RocketAdmin::Action::"column:read",\n  resource == RocketAdmin::Column::"${connectionId}/${tableName}/${allowedColumn}"\n);`,
+		].join('\n\n');
+
+		const savePolicyResponse = await request(app.getHttpServer())
+			.post(`/connection/cedar-policy/${connectionId}`)
+			.send({ cedarPolicy, groupId })
+			.set('Cookie', testData.users.adminUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(savePolicyResponse.status, 201);
+
+		const csvResponse = await request(app.getHttpServer())
+			.post(`/table/csv/export/${connectionId}?tableName=${tableName}`)
+			.set('Cookie', testData.users.simpleUserToken)
+			.set('Content-Type', 'text/csv')
+			.set('Accept', 'text/csv');
+
+		t.is(csvResponse.status, 201);
+		// The exported file is returned as a binary body (Buffer), not parsed text.
+		const csvText = (csvResponse.body as Buffer)?.toString() ?? csvResponse.text;
+		// The CSV header is derived from row keys; the hidden column must not appear at all.
+		t.true(csvText.includes(allowedColumn));
+		t.false(csvText.includes(hiddenColumn));
+	} catch (error) {
+		console.error(error);
+		throw error;
+	}
+});
+
+test.serial(
+	`${currentTest} PUT /permissions with readableColumns persists, round-trips, and enforces column filtering`,
+	async (t) => {
+		try {
+			const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+			const connectionId = testData.connections.firstId;
+			const groupId = testData.groups.createdGroupId;
+			const tableName = testData.firstTableInfo.testTableName;
+			const allowedColumn = testData.firstTableInfo.testTableColumnName;
+			const hiddenColumn = testData.firstTableInfo.testTableSecondColumnName;
+
+			const permissions = {
+				connection: { connectionId, accessLevel: AccessLevelEnum.readonly },
+				group: { groupId, accessLevel: AccessLevelEnum.none },
+				tables: [
+					{
+						tableName,
+						accessLevel: { visibility: true, readonly: true, add: false, delete: false, edit: false },
+						readableColumns: ['id', allowedColumn],
+					},
+				],
+			};
+
+			const putResponse = await request(app.getHttpServer())
+				.put(`/permissions/${groupId}?connectionId=${connectionId}`)
+				.send({ permissions })
+				.set('Cookie', testData.users.adminUserToken)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+
+			t.is(putResponse.status, 200);
+			const savedTable = putResponse.body.tables.find((tb: { tableName: string }) => tb.tableName === tableName);
+			t.truthy(savedTable);
+			t.true(savedTable.readableColumns.includes(allowedColumn));
+			t.false(savedTable.readableColumns.includes(hiddenColumn));
+
+			// Enforcement: the invited group member only sees the whitelisted columns.
+			const getTableRows = await request(app.getHttpServer())
+				.get(`/table/rows/${connectionId}?tableName=${tableName}`)
+				.set('Cookie', testData.users.simpleUserToken)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+
+			t.is(getTableRows.status, 200);
+			const rowKeys = Object.keys(getTableRows.body.rows[0]);
+			t.true(rowKeys.includes(allowedColumn));
+			t.false(rowKeys.includes(hiddenColumn));
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	},
+);
+
 test.serial(`${currentTest} should enforce saved cedar policy - user without table:add cannot add rows`, async (t) => {
 	try {
 		const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);

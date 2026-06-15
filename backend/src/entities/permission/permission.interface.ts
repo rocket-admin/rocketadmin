@@ -32,6 +32,9 @@ export interface ITableAccessLevel {
 export interface ITablePermissionData {
 	tableName: string;
 	accessLevel: ITableAccessLevel;
+	// Whitelist of columns the user may read. Undefined/empty ⇒ all columns readable
+	// (the table:read alias = QueryTable + ColumnRead(table, *)).
+	readableColumns?: Array<string>;
 }
 
 export interface ITableAndViewPermissionData extends ITablePermissionData {

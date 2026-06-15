@@ -35,7 +35,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 	}
 
 	async validate(request: CedarValidationRequest): Promise<boolean> {
-		const { userId, action, groupId, tableName, dashboardId, panelId, actionEventId } = request;
+		const { userId, action, groupId, tableName, columnName, dashboardId, panelId, actionEventId } = request;
 		let { connectionId } = request;
 
 		const actionPrefix = action.split(':')[0];
@@ -59,7 +59,46 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 				if (!connectionId) return false;
 				resourceType = CedarResourceType.Table;
 				resourceId = `${connectionId}/${tableName}`;
+				if (action === CedarAction.TableQuery) {
+					// table:read is an alias for table:query + column:read(*). Honor legacy or
+					// hand-written policies that grant table:read directly as a QueryTable grant.
+					if (await this.evaluate(userId, connectionId, CedarAction.TableQuery, resourceType, resourceId, tableName)) {
+						return true;
+					}
+					return this.evaluate(userId, connectionId, CedarAction.TableRead, resourceType, resourceId, tableName);
+				}
 				break;
+			case 'column': {
+				if (!connectionId) return false;
+				if (!tableName || !columnName) return false;
+				resourceType = CedarResourceType.Column;
+				resourceId = `${connectionId}/${tableName}/${columnName}`;
+				if (
+					await this.evaluate(
+						userId,
+						connectionId,
+						action,
+						resourceType,
+						resourceId,
+						tableName,
+						undefined,
+						undefined,
+						undefined,
+						columnName,
+					)
+				) {
+					return true;
+				}
+				// Legacy alias: a direct table:read grant covers every column of the table.
+				return this.evaluate(
+					userId,
+					connectionId,
+					CedarAction.TableRead,
+					CedarResourceType.Table,
+					`${connectionId}/${tableName}`,
+					tableName,
+				);
+			}
 			case 'actionEvent': {
 				if (!connectionId) return false;
 				if (!tableName || !actionEventId) return false;
@@ -220,6 +259,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 		dashboardId?: string,
 		panelId?: string,
 		actionEventId?: string,
+		columnName?: string,
 	): Promise<boolean> {
 		await this.assertUserNotSuspended(userId);
 
@@ -237,6 +277,7 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 			dashboardId,
 			panelId,
 			actionEventId,
+			columnName,
 		);
 
 		for (const policy of groupPolicies) {
@@ -343,6 +384,19 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 
 		for (const tableRef of tableResourceIds) {
 			if (!tableRef.startsWith(`${connectionId}/`)) {
+				throw new HttpException(
+					{ message: Messages.CEDAR_POLICY_REFERENCES_FOREIGN_CONNECTION },
+					HttpStatus.BAD_REQUEST,
+				);
+			}
+		}
+
+		const columnResourceIds = [...cedarPolicy.matchAll(/resource\s*(?:==|in)\s*RocketAdmin::Column::"([^"]+)"/g)].map(
+			(m) => m[1],
+		);
+
+		for (const columnRef of columnResourceIds) {
+			if (!columnRef.startsWith(`${connectionId}/`)) {
 				throw new HttpException(
 					{ message: Messages.CEDAR_POLICY_REFERENCES_FOREIGN_CONNECTION },
 					HttpStatus.BAD_REQUEST,

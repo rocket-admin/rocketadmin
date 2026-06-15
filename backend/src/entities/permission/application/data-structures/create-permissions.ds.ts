@@ -62,6 +62,12 @@ export class TablePermissionDs {
 	@ApiProperty()
 	@IsString()
 	tableName: string;
+
+	@ApiProperty({ required: false, isArray: true, type: String })
+	@IsOptional()
+	@IsArray()
+	@IsString({ each: true })
+	readableColumns?: Array<string>;
 }
 
 export class GroupPermissionDs {

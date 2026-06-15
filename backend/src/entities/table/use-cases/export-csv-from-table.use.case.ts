@@ -1,3 +1,4 @@
+import { Transform } from 'node:stream';
 import { HttpException, HttpStatus, Inject, Injectable, StreamableFile } from '@nestjs/common';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { buildDAOsTableSettingsDs } from '@rocketadmin/shared-code/dist/src/helpers/data-structures-builders/table-settings.ds.builder.js';
@@ -13,10 +14,12 @@ import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
 import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
 import { slackPostMessage } from '../../../helpers/slack/slack-post-message.js';
+import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { GetTableRowsDs } from '../application/data-structures/get-table-rows.ds.js';
 import { FilteringFieldsDs } from '../table-datastructures.js';
 import { buildCommonTableSettingsInput } from '../utils/build-common-table-settings-input.util.js';
+import { filterRowByReadableColumns, isAllColumnsReadable } from '../utils/filter-columns-by-read-permission.util.js';
 import { findFilteringFieldsUtil, parseFilteringFieldsFromBodyData } from '../utils/find-filtering-fields.util.js';
 import { findOrderingFieldUtil } from '../utils/find-ordering-field.util.js';
 import { isHexString } from '../utils/is-hex-string.js';
@@ -32,6 +35,7 @@ export class ExportCSVFromTableUseCase
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
 		private tableLogsService: TableLogsService,
+		private readonly cedarPermissions: CedarPermissionsService,
 	) {
 		super();
 	}
@@ -102,6 +106,17 @@ export class ExportCSVFromTableUseCase
 
 			operationResult = OperationResultStatusEnum.successfully;
 
+			// Column-level read permission (the ColumnRead half of table:read): drop columns the
+			// user may not read from the exported rows.
+			const allColumnNames = tableStructure.map((column) => column.column_name);
+			const readableColumns = await this.cedarPermissions.getReadableColumns(
+				userId,
+				connectionId,
+				tableName,
+				allColumnNames,
+			);
+			const restrictColumns = !isAllColumnsReadable(readableColumns, allColumnNames);
+
 			//todo: rework as streams when node oracle driver will support it correctly
 			//todo: agent return data as array of table rows, not as stream, because we cant
 			//todo: transfer data as a stream from clint to server
@@ -114,7 +129,21 @@ export class ExportCSVFromTableUseCase
 				connection.type === 'redis' ||
 				isConnectionTypeAgent(connection.type)
 			) {
-				return new StreamableFile(csv.stringify(rowsStream as any, { header: true }));
+				const rowsArray = restrictColumns
+					? (rowsStream as unknown as Array<Record<string, unknown>>).map((row) =>
+							filterRowByReadableColumns(row, readableColumns),
+						)
+					: rowsStream;
+				return new StreamableFile(csv.stringify(rowsArray as any, { header: true }));
+			}
+			if (restrictColumns) {
+				const columnFilterTransform = new Transform({
+					objectMode: true,
+					transform(row, _encoding, callback) {
+						callback(null, filterRowByReadableColumns(row as Record<string, unknown>, readableColumns));
+					},
+				});
+				return new StreamableFile(rowsStream.pipe(columnFilterTransform).pipe(csv.stringify({ header: true })));
 			}
 			return new StreamableFile(rowsStream.pipe(csv.stringify({ header: true })));
 		} catch (error) {

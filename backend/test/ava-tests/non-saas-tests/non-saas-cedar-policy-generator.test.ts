@@ -95,7 +95,7 @@ test('group:readonly generates only group:read', (t) => {
 	t.is(permits.length, 1);
 });
 
-test('table with visibility=true only generates only table:read', (t) => {
+test('table with visibility=true generates table:query + wildcard column:read (table:read alias)', (t) => {
 	const result = generateCedarPolicyForGroup(
 		connectionId,
 		false,
@@ -108,15 +108,43 @@ test('table with visibility=true only generates only table:read', (t) => {
 			],
 		}),
 	);
-	t.true(result.includes('action == RocketAdmin::Action::"table:read"'));
+	t.true(result.includes('action == RocketAdmin::Action::"table:query"'));
+	t.true(result.includes('action == RocketAdmin::Action::"column:read"'));
+	// Wildcard column read: every column of the table via `resource in Table`.
+	t.true(result.includes(`resource in RocketAdmin::Table::"${connectionId}/users"`));
+	// table:read is no longer emitted directly; it is the alias = table:query + column:read(*).
+	t.false(result.includes('action == RocketAdmin::Action::"table:read"'));
 	t.false(result.includes('table:add'));
 	t.false(result.includes('table:edit'));
 	t.false(result.includes('table:delete'));
 	const permits = result.match(/permit\(/g);
-	t.is(permits.length, 1);
+	t.is(permits.length, 2);
 });
 
-test('table with all flags true generates table:read + table:add + table:edit + table:delete', (t) => {
+test('table with explicit readableColumns generates per-column column:read (no wildcard)', (t) => {
+	const result = generateCedarPolicyForGroup(
+		connectionId,
+		false,
+		makePermissions({
+			tables: [
+				{
+					tableName: 'users',
+					accessLevel: { visibility: true, readonly: false, add: false, delete: false, edit: false },
+					readableColumns: ['id', 'email'],
+				},
+			],
+		}),
+	);
+	t.true(result.includes('action == RocketAdmin::Action::"table:query"'));
+	t.true(result.includes(`resource == RocketAdmin::Column::"${connectionId}/users/id"`));
+	t.true(result.includes(`resource == RocketAdmin::Column::"${connectionId}/users/email"`));
+	// No table-wide wildcard when an explicit whitelist is given.
+	t.false(result.includes(`resource in RocketAdmin::Table::"${connectionId}/users"`));
+	const permits = result.match(/permit\(/g);
+	t.is(permits.length, 3); // table:query + 2 columns
+});
+
+test('table with all flags true generates table:query + column:read + table:add + table:edit + table:delete', (t) => {
 	const result = generateCedarPolicyForGroup(
 		connectionId,
 		false,
@@ -129,15 +157,16 @@ test('table with all flags true generates table:read + table:add + table:edit + 
 			],
 		}),
 	);
-	t.true(result.includes('table:read'));
+	t.true(result.includes('table:query'));
+	t.true(result.includes('column:read'));
 	t.true(result.includes('table:add'));
 	t.true(result.includes('table:edit'));
 	t.true(result.includes('table:delete'));
 	const permits = result.match(/permit\(/g);
-	t.is(permits.length, 4);
+	t.is(permits.length, 5);
 });
 
-test('table with add=true only generates table:read + table:add (hasAnyAccess triggers table:read)', (t) => {
+test('table with add=true only generates table:query + column:read + table:add (hasAnyAccess triggers read)', (t) => {
 	const result = generateCedarPolicyForGroup(
 		connectionId,
 		false,
@@ -150,12 +179,13 @@ test('table with add=true only generates table:read + table:add (hasAnyAccess tr
 			],
 		}),
 	);
-	t.true(result.includes('table:read'));
+	t.true(result.includes('table:query'));
+	t.true(result.includes('column:read'));
 	t.true(result.includes('table:add'));
 	t.false(result.includes('table:edit'));
 	t.false(result.includes('table:delete'));
 	const permits = result.match(/permit\(/g);
-	t.is(permits.length, 2);
+	t.is(permits.length, 3);
 });
 
 test('table with all flags false generates no policies for that table', (t) => {
@@ -199,9 +229,9 @@ test('multiple tables generate separate policies per table with correct resource
 	);
 	t.true(result.includes(`RocketAdmin::Table::"${connectionId}/users"`));
 	t.true(result.includes(`RocketAdmin::Table::"${connectionId}/orders"`));
-	// users: table:read only; orders: table:read + table:add
+	// users: table:query + column:read (2); orders: table:query + column:read + table:add (3)
 	const permits = result.match(/permit\(/g);
-	t.is(permits.length, 3);
+	t.is(permits.length, 5);
 });
 
 test('dashboard with read=true generates only dashboard:read', (t) => {

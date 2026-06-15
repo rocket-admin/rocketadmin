@@ -5,6 +5,8 @@ export enum CedarAction {
 	GroupRead = 'group:read',
 	GroupEdit = 'group:edit',
 	TableRead = 'table:read',
+	TableQuery = 'table:query',
+	ColumnRead = 'column:read',
 	TableAdd = 'table:add',
 	TableEdit = 'table:edit',
 	TableDelete = 'table:delete',
@@ -24,6 +26,7 @@ export enum CedarResourceType {
 	Connection = 'RocketAdmin::Connection',
 	Group = 'RocketAdmin::Group',
 	Table = 'RocketAdmin::Table',
+	Column = 'RocketAdmin::Column',
 	ActionEvent = 'RocketAdmin::ActionEvent',
 	Dashboard = 'RocketAdmin::Dashboard',
 	Panel = 'RocketAdmin::Panel',
@@ -35,12 +38,15 @@ export const CEDAR_GROUP_TYPE = 'RocketAdmin::Group';
 
 export const ACTION_EVENT_PROBE_ID = '__probe__';
 
+export const COLUMN_PROBE_ID = '__probe__';
+
 export interface CedarValidationRequest {
 	userId: string;
 	action: CedarAction;
 	connectionId?: string;
 	groupId?: string;
 	tableName?: string;
+	columnName?: string;
 	actionEventId?: string;
 	dashboardId?: string;
 	panelId?: string;
