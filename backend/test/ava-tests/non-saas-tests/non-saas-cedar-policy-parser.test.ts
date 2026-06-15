@@ -1,4 +1,5 @@
 import test from 'ava';
+import { generateCedarPolicyForGroup } from '../../../src/entities/cedar-authorization/cedar-policy-generator.js';
 import { parseCedarPolicyToClassicalPermissions } from '../../../src/entities/cedar-authorization/cedar-policy-parser.js';
 import { AccessLevelEnum } from '../../../src/enums/access-level.enum.js';
 
@@ -87,6 +88,71 @@ test('parses multiple tables separately', (t) => {
 	t.truthy(ordersTable);
 	t.is(usersTable.accessLevel.add, false);
 	t.is(ordersTable.accessLevel.add, true);
+});
+
+test('parses table:query + wildcard column:read into visibility with all columns readable', (t) => {
+	const policy = [
+		`permit(\n  principal,\n  action == RocketAdmin::Action::"table:query",\n  resource == RocketAdmin::Table::"${connectionId}/users"\n);`,
+		`permit(\n  principal,\n  action == RocketAdmin::Action::"column:read",\n  resource in RocketAdmin::Table::"${connectionId}/users"\n);`,
+	].join('\n\n');
+
+	const result = parseCedarPolicyToClassicalPermissions(policy, connectionId, groupId);
+	t.is(result.tables.length, 1);
+	t.is(result.tables[0].tableName, 'users');
+	t.is(result.tables[0].accessLevel.visibility, true);
+	t.is(result.tables[0].accessLevel.readonly, true);
+	// Wildcard column read ⇒ no explicit whitelist (all columns readable).
+	t.is(result.tables[0].readableColumns, undefined);
+});
+
+test('parses per-column column:read into readableColumns whitelist', (t) => {
+	const policy = [
+		`permit(\n  principal,\n  action == RocketAdmin::Action::"table:query",\n  resource == RocketAdmin::Table::"${connectionId}/users"\n);`,
+		`permit(\n  principal,\n  action == RocketAdmin::Action::"column:read",\n  resource == RocketAdmin::Column::"${connectionId}/users/id"\n);`,
+		`permit(\n  principal,\n  action == RocketAdmin::Action::"column:read",\n  resource == RocketAdmin::Column::"${connectionId}/users/email"\n);`,
+	].join('\n\n');
+
+	const result = parseCedarPolicyToClassicalPermissions(policy, connectionId, groupId);
+	t.is(result.tables.length, 1);
+	t.is(result.tables[0].accessLevel.visibility, true);
+	t.deepEqual(result.tables[0].readableColumns, ['id', 'email']);
+});
+
+test('generator → parser round-trip preserves readableColumns whitelist', (t) => {
+	const policy = generateCedarPolicyForGroup(connectionId, false, {
+		connection: { connectionId, accessLevel: AccessLevelEnum.none },
+		group: { groupId, accessLevel: AccessLevelEnum.none },
+		tables: [
+			{
+				tableName: 'users',
+				accessLevel: { visibility: true, readonly: true, add: false, delete: false, edit: false },
+				readableColumns: ['id', 'email'],
+			},
+		],
+	});
+
+	const result = parseCedarPolicyToClassicalPermissions(policy, connectionId, groupId);
+	t.is(result.tables.length, 1);
+	t.is(result.tables[0].accessLevel.visibility, true);
+	t.deepEqual(result.tables[0].readableColumns, ['id', 'email']);
+});
+
+test('generator → parser round-trip of full read leaves readableColumns undefined', (t) => {
+	const policy = generateCedarPolicyForGroup(connectionId, false, {
+		connection: { connectionId, accessLevel: AccessLevelEnum.none },
+		group: { groupId, accessLevel: AccessLevelEnum.none },
+		tables: [
+			{
+				tableName: 'users',
+				accessLevel: { visibility: true, readonly: true, add: false, delete: false, edit: false },
+			},
+		],
+	});
+
+	const result = parseCedarPolicyToClassicalPermissions(policy, connectionId, groupId);
+	t.is(result.tables.length, 1);
+	t.is(result.tables[0].accessLevel.visibility, true);
+	t.is(result.tables[0].readableColumns, undefined);
 });
 
 test('parses dashboard permissions', (t) => {

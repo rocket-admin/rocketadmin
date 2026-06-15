@@ -82,6 +82,33 @@ test('empty groups array means user has no parents', (t) => {
 	t.deepEqual(userEntity.parents, []);
 });
 
+test('column entity created when columnName provided, parented by its table', (t) => {
+	const tableName = 'users';
+	const columnName = 'email';
+	const entities = buildCedarEntities(
+		userId,
+		[makeGroup('g1', false)],
+		connectionId,
+		tableName,
+		undefined,
+		undefined,
+		undefined,
+		columnName,
+	);
+	const columnEntity = entities.find((e) => e.uid.type === 'RocketAdmin::Column');
+	t.truthy(columnEntity);
+	t.is(columnEntity.uid.id, `${connectionId}/${tableName}/${columnName}`);
+	t.is(columnEntity.attrs.connectionId, connectionId);
+	t.is(columnEntity.attrs.tableName, tableName);
+	t.deepEqual(columnEntity.parents, [{ type: 'RocketAdmin::Table', id: `${connectionId}/${tableName}` }]);
+});
+
+test('no column entity when columnName omitted', (t) => {
+	const entities = buildCedarEntities(userId, [makeGroup('g1', false)], connectionId, 'users');
+	const columnEntity = entities.find((e) => e.uid.type === 'RocketAdmin::Column');
+	t.falsy(columnEntity);
+});
+
 test('dashboard entity created when dashboardId provided with correct id and parent', (t) => {
 	const dashboardId = 'dash-1';
 	const entities = buildCedarEntities(userId, [makeGroup('g1', false)], connectionId, undefined, dashboardId);

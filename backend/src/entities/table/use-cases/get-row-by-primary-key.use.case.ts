@@ -22,6 +22,12 @@ import { buildCommonTableSettingsInput } from '../utils/build-common-table-setti
 import { buildTableSettingsForResponse } from '../utils/build-table-settings-for-response.util.js';
 import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util.js';
 import { extractForeignKeysFromWidgets } from '../utils/extract-foreign-keys-from-widgets.util.js';
+import {
+	filterColumnNamesByReadable,
+	filterRowByReadableColumns,
+	filterStructureByReadableColumns,
+	isAllColumnsReadable,
+} from '../utils/filter-columns-by-read-permission.util.js';
 import { filterForeignKeysByReadPermission } from '../utils/filter-foreign-keys-by-permission.util.js';
 import { findAvailableFields } from '../utils/find-available-fields.utils.js';
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
@@ -147,7 +153,23 @@ export class GetRowByPrimaryKeyUseCase
 			);
 		}
 		rowData = removePasswordsFromRowsUtil(rowData, tableWidgets);
-		const formedTableStructure = formFullTableStructure(tableStructure, tableSettings);
+		let formedTableStructure = formFullTableStructure(tableStructure, tableSettings);
+
+		// Column-level read permission (the ColumnRead half of table:read): strip columns the
+		// user may not read from the row and metadata.
+		const allColumnNames = tableStructure.map((column) => column.column_name);
+		const readableColumns = await this.cedarPermissions.getReadableColumns(
+			userId,
+			connectionId,
+			tableName,
+			allColumnNames,
+		);
+		let listFields = findAvailableFields(builtDAOsTableSettings, tableStructure);
+		if (!isAllColumnsReadable(readableColumns, allColumnNames)) {
+			rowData = filterRowByReadableColumns(rowData, readableColumns);
+			formedTableStructure = filterStructureByReadableColumns(formedTableStructure, readableColumns);
+			listFields = filterColumnNamesByReadable(listFields, readableColumns) ?? [];
+		}
 
 		await filterReferencedTablesByPermission(
 			referencedTableNamesAndColumns,
@@ -169,7 +191,7 @@ export class GetRowByPrimaryKeyUseCase
 			structure: formedTableStructure,
 			table_widgets: tableWidgets,
 			readonly_fields: tableSettings?.readonly_fields ? tableSettings.readonly_fields : [],
-			list_fields: findAvailableFields(builtDAOsTableSettings, tableStructure),
+			list_fields: listFields,
 			action_events: customActionEvents.map((event) => buildActionEventDto(event)),
 			table_actions: customActionEvents.map((el) => buildActionEventDto(el)),
 			identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,

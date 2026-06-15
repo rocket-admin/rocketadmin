@@ -14,6 +14,7 @@ import {
 	CEDAR_USER_TYPE,
 	CedarAction,
 	CedarResourceType,
+	COLUMN_PROBE_ID,
 } from './cedar-action-map.js';
 import { buildCedarEntities } from './cedar-entity-builder.js';
 import { CEDAR_SCHEMA } from './cedar-schema.js';
@@ -256,6 +257,8 @@ export class CedarPermissionsService implements IUserAccessRepository {
 		return result;
 	}
 
+	// "Table read" now means "may query this table" (the QueryTable half of the table:read
+	// alias). Column-level visibility is enforced separately via checkColumnRead/getReadableColumns.
 	async checkTableRead(
 		cognitoUserName: string,
 		connectionId: string,
@@ -265,15 +268,44 @@ export class CedarPermissionsService implements IUserAccessRepository {
 		const ctx = await this.loadContext(connectionId, cognitoUserName);
 		if (!ctx) return false;
 
-		const entities = buildCedarEntities(cognitoUserName, ctx.userGroups, connectionId, tableName);
-		return this.evaluatePolicies(
-			cognitoUserName,
-			CedarAction.TableRead,
-			CedarResourceType.Table,
-			`${connectionId}/${tableName}`,
-			ctx.policies,
-			entities,
-		);
+		return this.evaluateTableQuery(cognitoUserName, connectionId, tableName, ctx);
+	}
+
+	async checkColumnRead(
+		cognitoUserName: string,
+		connectionId: string,
+		tableName: string,
+		columnName: string,
+	): Promise<boolean> {
+		const ctx = await this.loadContext(connectionId, cognitoUserName);
+		if (!ctx) return false;
+
+		return this.evaluateColumnRead(cognitoUserName, connectionId, tableName, columnName, ctx);
+	}
+
+	// Returns the subset of `allColumnNames` the user may read. A single probe detects a
+	// table-wide grant (the table:read alias → ColumnRead(table, *)); only column-restricted
+	// tables pay a per-column evaluation.
+	async getReadableColumns(
+		cognitoUserName: string,
+		connectionId: string,
+		tableName: string,
+		allColumnNames: Array<string>,
+	): Promise<Set<string>> {
+		const ctx = await this.loadContext(connectionId, cognitoUserName);
+		if (!ctx) return new Set();
+
+		if (this.evaluateColumnRead(cognitoUserName, connectionId, tableName, COLUMN_PROBE_ID, ctx)) {
+			return new Set(allColumnNames);
+		}
+
+		const readable = new Set<string>();
+		for (const columnName of allColumnNames) {
+			if (this.evaluateColumnRead(cognitoUserName, connectionId, tableName, columnName, ctx)) {
+				readable.add(columnName);
+			}
+		}
+		return readable;
 	}
 
 	async checkTableAdd(
@@ -402,14 +434,7 @@ export class CedarPermissionsService implements IUserAccessRepository {
 		const entities = buildCedarEntities(userId, ctx.userGroups, connectionId, tableName);
 		const resourceId = `${connectionId}/${tableName}`;
 
-		const canRead = this.evaluatePolicies(
-			userId,
-			CedarAction.TableRead,
-			CedarResourceType.Table,
-			resourceId,
-			ctx.policies,
-			entities,
-		);
+		const canRead = this.evaluateTableQuery(userId, connectionId, tableName, ctx);
 		const canAdd = this.evaluatePolicies(
 			userId,
 			CedarAction.TableAdd,
@@ -476,6 +501,65 @@ export class CedarPermissionsService implements IUserAccessRepository {
 				triggerCustomAction: canTriggerAnyCustomAction,
 			},
 		};
+	}
+
+	// QueryTable check honoring the table:read alias: a direct table:read grant (legacy or
+	// hand-written policy) also permits querying the table.
+	private evaluateTableQuery(userId: string, connectionId: string, tableName: string, ctx: EvalContext): boolean {
+		const entities = buildCedarEntities(userId, ctx.userGroups, connectionId, tableName);
+		const resourceId = `${connectionId}/${tableName}`;
+		return (
+			this.evaluatePolicies(
+				userId,
+				CedarAction.TableQuery,
+				CedarResourceType.Table,
+				resourceId,
+				ctx.policies,
+				entities,
+			) ||
+			this.evaluatePolicies(userId, CedarAction.TableRead, CedarResourceType.Table, resourceId, ctx.policies, entities)
+		);
+	}
+
+	private evaluateColumnRead(
+		userId: string,
+		connectionId: string,
+		tableName: string,
+		columnName: string,
+		ctx: EvalContext,
+	): boolean {
+		const columnEntities = buildCedarEntities(
+			userId,
+			ctx.userGroups,
+			connectionId,
+			tableName,
+			undefined,
+			undefined,
+			undefined,
+			columnName,
+		);
+		if (
+			this.evaluatePolicies(
+				userId,
+				CedarAction.ColumnRead,
+				CedarResourceType.Column,
+				`${connectionId}/${tableName}/${columnName}`,
+				ctx.policies,
+				columnEntities,
+			)
+		) {
+			return true;
+		}
+		// Legacy alias: a direct table:read grant covers every column of the table.
+		const tableEntities = buildCedarEntities(userId, ctx.userGroups, connectionId, tableName);
+		return this.evaluatePolicies(
+			userId,
+			CedarAction.TableRead,
+			CedarResourceType.Table,
+			`${connectionId}/${tableName}`,
+			ctx.policies,
+			tableEntities,
+		);
 	}
 
 	private evaluatePolicies(

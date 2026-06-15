@@ -21,7 +21,7 @@ import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { ConnectionEditGuard } from '../../guards/connection-edit.guard.js';
 import { ConnectionReadGuard } from '../../guards/connection-read.guard.js';
-import { TableReadGuard } from '../../guards/table-read.guard.js';
+import { QueryTableGuard } from '../../guards/query-table.guard.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { CreateTableFilterDs } from './application/data-structures/create-table-filters.ds.js';
@@ -103,7 +103,7 @@ export class TableFiltersController {
 	})
 	@ApiQuery({ name: 'tableName', required: true })
 	@ApiParam({ name: 'connectionId', required: true })
-	@UseGuards(TableReadGuard)
+	@UseGuards(QueryTableGuard)
 	@Get('/:connectionId/all')
 	async findTableFilters(
 		@QueryTableName() tableName: string,

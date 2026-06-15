@@ -20,7 +20,7 @@ import { Timeout } from '../../../decorators/timeout.decorator.js';
 import { UserId } from '../../../decorators/user-id.decorator.js';
 import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { TableReadGuard } from '../../../guards/table-read.guard.js';
+import { QueryTableGuard } from '../../../guards/query-table.guard.js';
 import { SentryInterceptor } from '../../../interceptors/sentry.interceptor.js';
 import { CreatePersonalTableSettingsDs } from './data-structures/create-personal-table-settings.ds.js';
 import { FindPersonalTableSettingsDs } from './data-structures/find-personal-table-settings.ds.js';
@@ -53,7 +53,7 @@ export class PersonalTableSettingsController {
 	})
 	@ApiParam({ name: 'connectionId', required: true })
 	@ApiQuery({ name: 'tableName', required: true })
-	@UseGuards(TableReadGuard)
+	@UseGuards(QueryTableGuard)
 	@Get('/settings/personal/:connectionId')
 	async findAll(
 		@SlugUuid('connectionId') connectionId: string,
@@ -87,7 +87,7 @@ export class PersonalTableSettingsController {
 	@ApiBody({ type: CreatePersonalTableSettingsDto })
 	@ApiParam({ name: 'connectionId', required: true })
 	@ApiQuery({ name: 'tableName', required: true })
-	@UseGuards(TableReadGuard)
+	@UseGuards(QueryTableGuard)
 	@Put('/settings/personal/:connectionId')
 	async createOrUpdate(
 		@SlugUuid('connectionId') connectionId: string,

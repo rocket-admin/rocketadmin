@@ -57,7 +57,7 @@ export class ExecuteSavedDbQueryUseCase
 			validateTableRead: (referencedTableName) =>
 				this.cedarAuthService.validate({
 					userId,
-					action: CedarAction.TableRead,
+					action: CedarAction.TableQuery,
 					connectionId,
 					tableName: referencedTableName,
 				}),

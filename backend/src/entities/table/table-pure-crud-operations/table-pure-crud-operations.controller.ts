@@ -27,10 +27,10 @@ import { UserId } from '../../../decorators/user-id.decorator.js';
 import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { ConnectionNotFoundException } from '../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { QueryTableGuard } from '../../../guards/query-table.guard.js';
 import { TableAddGuard } from '../../../guards/table-add.guard.js';
 import { TableDeleteGuard } from '../../../guards/table-delete.guard.js';
 import { TableEditGuard } from '../../../guards/table-edit.guard.js';
-import { TableReadGuard } from '../../../guards/table-read.guard.js';
 import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
 import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
 import { isObjectPropertyExists } from '../../../helpers/validators/is-object-property-exists-validator.js';
@@ -113,7 +113,7 @@ export class TablePureCrudOperationsController {
 	@ApiQuery({ name: 'page', required: false })
 	@ApiQuery({ name: 'perPage', required: false })
 	@ApiQuery({ name: 'search', required: false })
-	@UseGuards(TableReadGuard)
+	@UseGuards(QueryTableGuard)
 	@Timeout(TimeoutDefaults.EXTENDED)
 	@Throttle({ default: { limit: 300, ttl: 60000 } })
 	@HttpCode(HttpStatus.OK)
@@ -161,7 +161,7 @@ export class TablePureCrudOperationsController {
 	})
 	@ApiResponse({ status: 200, description: 'Row found.', type: PureCrudRowResponseDs })
 	@ApiQuery({ name: 'tableName', required: true })
-	@UseGuards(TableReadGuard)
+	@UseGuards(QueryTableGuard)
 	@Get('/table/crud/:connectionId')
 	async readRow(
 		@Query() query: Record<string, string>,
