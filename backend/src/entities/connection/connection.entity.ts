@@ -117,6 +117,9 @@ export class ConnectionEntity {
 	@Column({ type: 'varchar', default: null })
 	master_hash?: string | null;
 
+	@Column({ type: 'text', nullable: true, default: null })
+	public_cedar_policy?: string | null;
+
 	/**
 	 * Non-persisted flag indicating whether credentials are currently in decrypted state.
 	 * Used by @BeforeUpdate to decide whether encryption is needed.

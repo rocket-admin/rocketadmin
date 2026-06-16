@@ -1,13 +1,61 @@
 import { AccessLevelEnum } from '../../enums/access-level.enum.js';
 import { IComplexPermission } from '../permission/permission.interface.js';
 
+export interface IPublicTablePermission {
+	tableName: string;
+	// Whitelist of columns readable by public users. Omitted/empty ⇒ all columns readable.
+	readableColumns?: Array<string>;
+}
+
+function escapeCedarString(value: string): string {
+	return value
+		.replace(/\\/g, '\\\\')
+		.replace(/"/g, '\\"')
+		.replace(/\n/g, '\\n')
+		.replace(/\r/g, '\\r')
+		.replace(/\t/g, '\\t');
+}
+
+function cedarEntityRef(entityType: string, id: string): string {
+	return `${entityType}::"${escapeCedarString(id)}"`;
+}
+
+export function generatePublicCedarPolicy(connectionId: string, tables: Array<IPublicTablePermission>): string {
+	const policies: Array<string> = [];
+
+	for (const table of tables) {
+		if (!table.tableName) continue;
+		const tableRef = cedarEntityRef('RocketAdmin::Table', `${connectionId}/${table.tableName}`);
+
+		policies.push(
+			`permit(\n  principal,\n  action == RocketAdmin::Action::"table:query",\n  resource == ${tableRef}\n);`,
+		);
+
+		const readableColumns = table.readableColumns;
+		if (readableColumns && readableColumns.length > 0) {
+			for (const columnName of readableColumns) {
+				const columnRef = cedarEntityRef('RocketAdmin::Column', `${connectionId}/${table.tableName}/${columnName}`);
+				policies.push(
+					`permit(\n  principal,\n  action == RocketAdmin::Action::"column:read",\n  resource == ${columnRef}\n);`,
+				);
+			}
+		} else {
+			policies.push(
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"column:read",\n  resource in ${tableRef}\n);`,
+			);
+		}
+	}
+
+	return policies.join('\n\n');
+}
+
 export function generateCedarPolicyForGroup(
 	connectionId: string,
 	isMain: boolean,
 	permissions: IComplexPermission,
 ): string {
 	const policies: Array<string> = [];
-	const connectionRef = `RocketAdmin::Connection::"${connectionId}"`;
+	const connectionRef = cedarEntityRef('RocketAdmin::Connection', connectionId);
 
 	if (isMain) {
 		policies.push(`permit(\n  principal,\n  action,\n  resource\n);`);
@@ -34,7 +82,7 @@ export function generateCedarPolicyForGroup(
 
 	// Group permissions
 	const groupAccess = permissions.group.accessLevel;
-	const groupResourceRef = `RocketAdmin::Group::"${permissions.group.groupId}"`;
+	const groupResourceRef = cedarEntityRef('RocketAdmin::Group', permissions.group.groupId);
 	if (groupAccess === AccessLevelEnum.edit) {
 		policies.push(
 			`permit(\n  principal,\n  action == RocketAdmin::Action::"group:read",\n  resource == ${groupResourceRef}\n);`,
@@ -52,7 +100,7 @@ export function generateCedarPolicyForGroup(
 		let hasCreatePermission = false;
 		let hasReadPermission = false;
 		for (const dashboard of permissions.dashboards) {
-			const dashboardRef = `RocketAdmin::Dashboard::"${connectionId}/${dashboard.dashboardId}"`;
+			const dashboardRef = cedarEntityRef('RocketAdmin::Dashboard', `${connectionId}/${dashboard.dashboardId}`);
 			const access = dashboard.accessLevel;
 
 			if (access.read) {
@@ -75,7 +123,7 @@ export function generateCedarPolicyForGroup(
 				);
 			}
 		}
-		const newDashboardRef = `RocketAdmin::Dashboard::"${connectionId}/__new__"`;
+		const newDashboardRef = cedarEntityRef('RocketAdmin::Dashboard', `${connectionId}/__new__`);
 		if (hasReadPermission) {
 			policies.push(
 				`permit(\n  principal,\n  action == RocketAdmin::Action::"dashboard:read",\n  resource == ${newDashboardRef}\n);`,
@@ -92,7 +140,7 @@ export function generateCedarPolicyForGroup(
 		let hasPanelCreatePermission = false;
 		let hasPanelReadPermission = false;
 		for (const panel of permissions.panels) {
-			const panelRef = `RocketAdmin::Panel::"${connectionId}/${panel.panelId}"`;
+			const panelRef = cedarEntityRef('RocketAdmin::Panel', `${connectionId}/${panel.panelId}`);
 			const access = panel.accessLevel;
 
 			if (access.read) {
@@ -115,7 +163,7 @@ export function generateCedarPolicyForGroup(
 				);
 			}
 		}
-		const newPanelRef = `RocketAdmin::Panel::"${connectionId}/__new__"`;
+		const newPanelRef = cedarEntityRef('RocketAdmin::Panel', `${connectionId}/__new__`);
 		if (hasPanelReadPermission) {
 			policies.push(
 				`permit(\n  principal,\n  action == RocketAdmin::Action::"panel:read",\n  resource == ${newPanelRef}\n);`,
@@ -129,7 +177,7 @@ export function generateCedarPolicyForGroup(
 	}
 
 	for (const table of permissions.tables) {
-		const tableRef = `RocketAdmin::Table::"${connectionId}/${table.tableName}"`;
+		const tableRef = cedarEntityRef('RocketAdmin::Table', `${connectionId}/${table.tableName}`);
 		const access = table.accessLevel;
 
 		// triggerCustomAction is intentionally excluded from hasAnyAccess: triggering custom
@@ -146,7 +194,7 @@ export function generateCedarPolicyForGroup(
 			const readableColumns = table.readableColumns;
 			if (readableColumns && readableColumns.length > 0) {
 				for (const columnName of readableColumns) {
-					const columnRef = `RocketAdmin::Column::"${connectionId}/${table.tableName}/${columnName}"`;
+					const columnRef = cedarEntityRef('RocketAdmin::Column', `${connectionId}/${table.tableName}/${columnName}`);
 					policies.push(
 						`permit(\n  principal,\n  action == RocketAdmin::Action::"column:read",\n  resource == ${columnRef}\n);`,
 					);
@@ -188,7 +236,10 @@ export function generateCedarPolicyForGroup(
 	if (permissions.actionEvents) {
 		for (const event of permissions.actionEvents) {
 			if (!event.accessLevel?.trigger) continue;
-			const eventRef = `RocketAdmin::ActionEvent::"${connectionId}/${event.tableName}/${event.eventId}"`;
+			const eventRef = cedarEntityRef(
+				'RocketAdmin::ActionEvent',
+				`${connectionId}/${event.tableName}/${event.eventId}`,
+			);
 			policies.push(
 				`permit(\n  principal,\n  action == RocketAdmin::Action::"actionEvent:trigger",\n  resource == ${eventRef}\n);`,
 			);

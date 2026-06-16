@@ -1,6 +1,6 @@
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthWithApiMiddleware } from '../../../authorization/auth-with-api.middleware.js';
+import { PublicOrAuthMiddleware } from '../../../authorization/public-or-auth.middleware.js';
 import { GlobalDatabaseContext } from '../../../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../../../common/data-injection.tokens.js';
 import { AgentModule } from '../../agent/agent.module.js';
@@ -69,8 +69,12 @@ import { PureUpdateRowInTableUseCase } from './use-cases/pure-update-row-in-tabl
 })
 export class TablePureCrudOperationsModule {
 	public configure(consumer: MiddlewareConsumer): void {
+		// Allow public (unauthenticated) requests through; the per-operation guards enforce the
+		// connection's public policy. Authenticated JWT / api-key requests behave as before.
+		// Write operations can never be granted publicly (only QueryTable + ColumnRead are allowed),
+		// so their guards reject public requests.
 		consumer
-			.apply(AuthWithApiMiddleware)
+			.apply(PublicOrAuthMiddleware)
 			.forRoutes(
 				{ path: '/table/crud/:connectionId', method: RequestMethod.POST },
 				{ path: '/table/crud/rows/:connectionId', method: RequestMethod.POST },

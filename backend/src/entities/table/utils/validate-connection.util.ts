@@ -16,10 +16,10 @@ export function validateConnection(connection: ConnectionEntity | null): asserts
 
 export async function getUserEmailForAgent(
 	connection: ConnectionEntity,
-	userId: string,
+	userId: string | undefined,
 	userRepository: { getUserEmailOrReturnNull(userId: string): Promise<string | null> },
 ): Promise<string> {
-	if (isConnectionTypeAgent(connection.type)) {
+	if (userId && isConnectionTypeAgent(connection.type)) {
 		return (await userRepository.getUserEmailOrReturnNull(userId)) ?? '';
 	}
 	return '';

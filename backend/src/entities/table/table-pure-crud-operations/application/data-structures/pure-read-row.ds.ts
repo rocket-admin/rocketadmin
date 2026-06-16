@@ -3,5 +3,5 @@ export class PureReadRowDs {
 	masterPwd: string;
 	primaryKey: Record<string, unknown>;
 	tableName: string;
-	userId: string;
+	userId: string | undefined;
 }

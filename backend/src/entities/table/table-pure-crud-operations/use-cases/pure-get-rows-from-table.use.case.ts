@@ -13,9 +13,14 @@ import { UnknownSQLException } from '../../../../exceptions/custom-exceptions/un
 import { hexToBinary, isBinary } from '../../../../helpers/binary-to-hex.js';
 import { getErrorMessage } from '../../../../helpers/get-error-message.js';
 import { isObjectEmpty } from '../../../../helpers/is-object-empty.js';
+import { CedarPermissionsService } from '../../../cedar-authorization/cedar-permissions.service.js';
 import { TableSettingsEntity } from '../../../table-settings/common-table-settings/table-settings.entity.js';
 import { FilteringFieldsDs } from '../../table-datastructures.js';
 import { buildCommonTableSettingsInput } from '../../utils/build-common-table-settings-input.util.js';
+import {
+	filterRowsByReadableColumns,
+	isAllColumnsReadable,
+} from '../../utils/filter-columns-by-read-permission.util.js';
 import { findFilteringFieldsUtil, parseFilteringFieldsFromBodyData } from '../../utils/find-filtering-fields.util.js';
 import { findOrderingFieldUtil } from '../../utils/find-ordering-field.util.js';
 import { isHexString } from '../../utils/is-hex-string.js';
@@ -33,6 +38,7 @@ export class PureGetRowsFromTableUseCase
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
+		private readonly cedarPermissions: CedarPermissionsService,
 	) {
 		super();
 	}
@@ -104,6 +110,14 @@ export class PureGetRowsFromTableUseCase
 		}
 
 		rows = processRowsUtil(rows, tableWidgets, tableCustomFields);
+
+		const allColumnNames = tableStructure.map((column) => column.column_name);
+		const readableColumns = userId
+			? await this.cedarPermissions.getReadableColumns(userId, connectionId, tableName, allColumnNames)
+			: await this.cedarPermissions.getReadableColumnsForPublic(connectionId, tableName, allColumnNames);
+		if (!isAllColumnsReadable(readableColumns, allColumnNames)) {
+			rows.data = filterRowsByReadableColumns(rows.data, readableColumns);
+		}
 
 		return {
 			rows: rows.data,

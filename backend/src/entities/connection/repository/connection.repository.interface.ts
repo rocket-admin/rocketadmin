@@ -28,6 +28,10 @@ export interface IConnectionRepository {
 
 	saveUpdatedConnection(connection: ConnectionEntity): Promise<ConnectionEntity>;
 
+	getConnectionPublicCedarPolicy(connectionId: string): Promise<string | null>;
+
+	updateConnectionPublicCedarPolicy(connectionId: string, publicCedarPolicy: string | null): Promise<void>;
+
 	findOneAgentConnectionByToken(connectionToken: string): Promise<ConnectionEntity | null>;
 
 	decryptConnectionField(field: string): string;

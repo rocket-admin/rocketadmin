@@ -11,8 +11,13 @@ import { UnknownSQLException } from '../../../../exceptions/custom-exceptions/un
 import { Messages } from '../../../../exceptions/text/messages.js';
 import { compareArrayElements } from '../../../../helpers/compare-array-elements.js';
 import { getErrorMessage } from '../../../../helpers/get-error-message.js';
+import { CedarPermissionsService } from '../../../cedar-authorization/cedar-permissions.service.js';
 import { buildCommonTableSettingsInput } from '../../utils/build-common-table-settings-input.util.js';
 import { convertHexDataInPrimaryKeyUtil } from '../../utils/convert-hex-data-in-primary-key.util.js';
+import {
+	filterRowByReadableColumns,
+	isAllColumnsReadable,
+} from '../../utils/filter-columns-by-read-permission.util.js';
 import { removePasswordsFromRowsUtil } from '../../utils/remove-password-from-row.util.js';
 import { getUserEmailForAgent, validateConnection } from '../../utils/validate-connection.util.js';
 import { PureCrudRowResponseDs } from '../application/data-structures/pure-crud-row-response.ds.js';
@@ -27,6 +32,7 @@ export class PureReadRowFromTableUseCase
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
+		private readonly cedarPermissions: CedarPermissionsService,
 	) {
 		super();
 	}
@@ -77,6 +83,15 @@ export class PureReadRowFromTableUseCase
 		}
 
 		rowData = removePasswordsFromRowsUtil(rowData, tableWidgets);
+
+		const allColumnNames = tableStructure.map((column) => column.column_name);
+		const readableColumns = userId
+			? await this.cedarPermissions.getReadableColumns(userId, connectionId, tableName, allColumnNames)
+			: await this.cedarPermissions.getReadableColumnsForPublic(connectionId, tableName, allColumnNames);
+		if (!isAllColumnsReadable(readableColumns, allColumnNames)) {
+			rowData = filterRowByReadableColumns(rowData, readableColumns);
+		}
+
 		return { row: rowData };
 	}
 }

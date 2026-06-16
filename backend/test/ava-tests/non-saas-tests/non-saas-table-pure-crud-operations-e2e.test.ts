@@ -383,3 +383,294 @@ test.serial(`${currentTest} should reject when connection does not exist`, async
 
 	t.not(getRowsResponse.status, 200);
 });
+
+currentTest = 'Public (unauthenticated) access';
+
+async function setPublicPermissions(
+	connectionId: string,
+	token: string,
+	tables: Array<{ tableName: string; readableColumns?: Array<string> }>,
+) {
+	return request(app.getHttpServer())
+		.put(`/connection/public-permissions/${connectionId}`)
+		.send({ tables })
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+}
+
+test.serial(`${currentTest} getRows is refused (403) when no public policy is configured`, async (t) => {
+	const { connectionId, testTableName } = await createConnectionAndTable();
+
+	const res = await request(app.getHttpServer())
+		.post(`/table/crud/rows/${connectionId}?tableName=${testTableName}&page=1&perPage=100`)
+		.send({})
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(res.status, 403);
+});
+
+test.serial(
+	`${currentTest} getRows returns rows to an unauthenticated user when public table:query is granted`,
+	async (t) => {
+		const { token, connectionId, testTableName, testTableColumnName } = await createConnectionAndTable();
+
+		const setRes = await setPublicPermissions(connectionId, token, [{ tableName: testTableName }]);
+		t.is(setRes.status, 200);
+		t.is(JSON.parse(setRes.text).enabled, true);
+
+		const res = await request(app.getHttpServer())
+			.post(`/table/crud/rows/${connectionId}?tableName=${testTableName}&page=1&perPage=100`)
+			.send({})
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+
+		t.is(res.status, 200);
+		const ro = JSON.parse(res.text);
+		t.is(Array.isArray(ro.rows), true);
+		t.is(ro.rows.length, 42);
+		// all columns readable
+		t.is(Object.hasOwn(ro.rows[0], 'id'), true);
+		t.is(Object.hasOwn(ro.rows[0], testTableColumnName), true);
+	},
+);
+
+test.serial(`${currentTest} getRows strips non-readable columns when only some columns are granted`, async (t) => {
+	const { token, connectionId, testTableName, testTableColumnName, testTableSecondColumnName } =
+		await createConnectionAndTable();
+
+	const setRes = await setPublicPermissions(connectionId, token, [
+		{ tableName: testTableName, readableColumns: [testTableColumnName] },
+	]);
+	t.is(setRes.status, 200);
+
+	const res = await request(app.getHttpServer())
+		.post(`/table/crud/rows/${connectionId}?tableName=${testTableName}&page=1&perPage=10`)
+		.send({})
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(res.status, 200);
+	const ro = JSON.parse(res.text);
+	t.true(ro.rows.length > 0);
+	for (const row of ro.rows) {
+		t.is(Object.hasOwn(row, testTableColumnName), true);
+		t.is(Object.hasOwn(row, testTableSecondColumnName), false);
+		t.is(Object.hasOwn(row, 'id'), false);
+	}
+});
+
+test.serial(
+	`${currentTest} readRow returns a single row to an unauthenticated user when public access is granted`,
+	async (t) => {
+		const { token, connectionId, testTableName, testTableColumnName } = await createConnectionAndTable();
+
+		await setPublicPermissions(connectionId, token, [{ tableName: testTableName }]);
+
+		const res = await request(app.getHttpServer())
+			.get(`/table/crud/${connectionId}?tableName=${testTableName}&id=1`)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+
+		t.is(res.status, 200);
+		const ro = JSON.parse(res.text);
+		t.is(Object.hasOwn(ro, 'row'), true);
+		t.is(Object.hasOwn(ro.row, testTableColumnName), true);
+	},
+);
+
+test.serial(
+	`${currentTest} write operations are refused for unauthenticated users even with public access enabled`,
+	async (t) => {
+		const { token, connectionId, testTableName, testTableColumnName, testTableSecondColumnName } =
+			await createConnectionAndTable();
+
+		await setPublicPermissions(connectionId, token, [{ tableName: testTableName }]);
+
+		const row = {
+			[testTableColumnName]: faker.person.firstName(),
+			[testTableSecondColumnName]: faker.internet.email(),
+		};
+
+		const createRes = await request(app.getHttpServer())
+			.post(`/table/crud/${connectionId}?tableName=${testTableName}`)
+			.send(JSON.stringify(row))
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(createRes.status, 403);
+
+		const deleteRes = await request(app.getHttpServer())
+			.delete(`/table/crud/${connectionId}?tableName=${testTableName}&id=1`)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(deleteRes.status, 403);
+	},
+);
+
+test.serial(`${currentTest} setting an empty tables array disables public access again`, async (t) => {
+	const { token, connectionId, testTableName } = await createConnectionAndTable();
+
+	await setPublicPermissions(connectionId, token, [{ tableName: testTableName }]);
+	const disableRes = await setPublicPermissions(connectionId, token, []);
+	t.is(disableRes.status, 200);
+	t.is(JSON.parse(disableRes.text).enabled, false);
+
+	const res = await request(app.getHttpServer())
+		.post(`/table/crud/rows/${connectionId}?tableName=${testTableName}&page=1&perPage=10`)
+		.send({})
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(res.status, 403);
+});
+
+test.serial(`${currentTest} GET public-permissions returns the configured tables`, async (t) => {
+	const { token, connectionId, testTableName, testTableColumnName } = await createConnectionAndTable();
+
+	await setPublicPermissions(connectionId, token, [
+		{ tableName: testTableName, readableColumns: [testTableColumnName] },
+	]);
+
+	const getRes = await request(app.getHttpServer())
+		.get(`/connection/public-permissions/${connectionId}`)
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(getRes.status, 200);
+	const ro = JSON.parse(getRes.text);
+	t.is(ro.enabled, true);
+	t.is(Array.isArray(ro.tables), true);
+	const tableEntry = ro.tables.find((tbl) => tbl.tableName === testTableName);
+	t.truthy(tableEntry);
+	t.deepEqual(tableEntry.readableColumns, [testTableColumnName]);
+});
+
+currentTest = 'Public access security invariants';
+
+test.serial(
+	`${currentTest} EVERY CRUD endpoint denies an unauthenticated user when no public policy is configured`,
+	async (t) => {
+		const { connectionId, testTableName, testTableColumnName, testTableSecondColumnName } =
+			await createConnectionAndTable();
+
+		const row = JSON.stringify({
+			[testTableColumnName]: faker.person.firstName(),
+			[testTableSecondColumnName]: faker.internet.email(),
+		});
+
+		// getRows
+		const getRows = await request(app.getHttpServer())
+			.post(`/table/crud/rows/${connectionId}?tableName=${testTableName}&page=1&perPage=100`)
+			.send({})
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(getRows.status, 403);
+		t.is(Object.hasOwn(JSON.parse(getRows.text), 'rows'), false);
+
+		// readRow by primary key
+		const readRow = await request(app.getHttpServer())
+			.get(`/table/crud/${connectionId}?tableName=${testTableName}&id=1`)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(readRow.status, 403);
+		t.is(Object.hasOwn(JSON.parse(readRow.text), 'row'), false);
+
+		// createRow
+		const createRow = await request(app.getHttpServer())
+			.post(`/table/crud/${connectionId}?tableName=${testTableName}`)
+			.send(row)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(createRow.status, 403);
+
+		// updateRow
+		const updateRow = await request(app.getHttpServer())
+			.put(`/table/crud/${connectionId}?tableName=${testTableName}&id=1`)
+			.send(row)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(updateRow.status, 403);
+
+		// deleteRow
+		const deleteRow = await request(app.getHttpServer())
+			.delete(`/table/crud/${connectionId}?tableName=${testTableName}&id=1`)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(deleteRow.status, 403);
+	},
+);
+
+test.serial(`${currentTest} a public policy scoped to one table does NOT grant access to other tables`, async (t) => {
+	const { token, connectionId, testTableName } = await createConnectionAndTable();
+
+	// A second table living in the same database (same connection).
+	const connectionToTestDB = getTestData(mockFactory).connectionToMySQL;
+	const secondTable = await createTestTable(connectionToTestDB);
+	testTables.push(secondTable.testTableName);
+
+	// Grant public access to the FIRST table only.
+	const setRes = await setPublicPermissions(connectionId, token, [{ tableName: testTableName }]);
+	t.is(setRes.status, 200);
+
+	// The granted table is reachable...
+	const allowed = await request(app.getHttpServer())
+		.post(`/table/crud/rows/${connectionId}?tableName=${testTableName}&page=1&perPage=10`)
+		.send({})
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(allowed.status, 200);
+
+	// ...but the OTHER table must not be: no row data may leak.
+	const deniedRows = await request(app.getHttpServer())
+		.post(`/table/crud/rows/${connectionId}?tableName=${secondTable.testTableName}&page=1&perPage=10`)
+		.send({})
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(deniedRows.status, 403);
+	t.is(Object.hasOwn(JSON.parse(deniedRows.text), 'rows'), false);
+
+	const deniedRead = await request(app.getHttpServer())
+		.get(`/table/crud/${connectionId}?tableName=${secondTable.testTableName}&id=1`)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(deniedRead.status, 403);
+});
+
+test.serial(`${currentTest} readRow strips non-readable columns for an unauthenticated user`, async (t) => {
+	const { token, connectionId, testTableName, testTableColumnName, testTableSecondColumnName } =
+		await createConnectionAndTable();
+
+	await setPublicPermissions(connectionId, token, [
+		{ tableName: testTableName, readableColumns: [testTableColumnName] },
+	]);
+
+	const res = await request(app.getHttpServer())
+		.get(`/table/crud/${connectionId}?tableName=${testTableName}&id=1`)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(res.status, 200);
+	const ro = JSON.parse(res.text);
+	t.is(Object.hasOwn(ro.row, testTableColumnName), true);
+	t.is(Object.hasOwn(ro.row, testTableSecondColumnName), false);
+	t.is(Object.hasOwn(ro.row, 'id'), false);
+});
+
+test.serial(`${currentTest} an invalid/expired JWT cookie is rejected, never treated as public`, async (t) => {
+	const { connectionId, token, testTableName } = await createConnectionAndTable();
+	// Enable public access so that, if the bad token were silently ignored, the request would succeed.
+	await setPublicPermissions(connectionId, token, [{ tableName: testTableName }]);
+
+	const res = await request(app.getHttpServer())
+		.post(`/table/crud/rows/${connectionId}?tableName=${testTableName}&page=1&perPage=10`)
+		.send({})
+		.set('Cookie', ['rocketadmin_cookie=this.is.not.a.valid.jwt'])
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	// A malformed credential must be rejected, never silently downgraded to public access.
+	// (The existing middleware surfaces this as a 4xx/5xx; the invariant is "not 200, no data leaked".)
+	t.not(res.status, 200);
+	t.is(Object.hasOwn(JSON.parse(res.text), 'rows'), false);
+});

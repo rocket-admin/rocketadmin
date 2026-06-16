@@ -20,6 +20,7 @@ import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-acce
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType, UseCaseType } from '../../../common/data-injection.tokens.js';
 import { MasterPassword } from '../../../decorators/master-password.decorator.js';
+import { OptionalUserId } from '../../../decorators/optional-user-id.decorator.js';
 import { QueryTableName } from '../../../decorators/query-table-name.decorator.js';
 import { SlugUuid } from '../../../decorators/slug-uuid.decorator.js';
 import { Timeout, TimeoutDefaults } from '../../../decorators/timeout.decorator.js';
@@ -125,7 +126,7 @@ export class TablePureCrudOperationsController {
 		@Query('search') searchingFieldValue: string,
 		@Query() query: Record<string, string>,
 		@SlugUuid('connectionId') connectionId: string,
-		@UserId() userId: string,
+		@OptionalUserId() userId: string | undefined,
 		@MasterPassword() masterPwd: string,
 		@Body() body: FindAllRowsWithBodyFiltersDto,
 	): Promise<PureFoundRowsResponseDs> {
@@ -167,7 +168,7 @@ export class TablePureCrudOperationsController {
 		@Query() query: Record<string, string>,
 		@MasterPassword() masterPwd: string,
 		@SlugUuid('connectionId') connectionId: string,
-		@UserId() userId: string,
+		@OptionalUserId() userId: string | undefined,
 		@QueryTableName() tableName: string,
 	): Promise<PureCrudRowResponseDs> {
 		const primaryKey = await this.extractPrimaryKeyFromQuery(userId, connectionId, tableName, query, masterPwd);
@@ -249,7 +250,7 @@ export class TablePureCrudOperationsController {
 	}
 
 	private async extractPrimaryKeyFromQuery(
-		userId: string,
+		userId: string | undefined,
 		connectionId: string,
 		tableName: string,
 		query: Record<string, string>,
@@ -260,7 +261,7 @@ export class TablePureCrudOperationsController {
 			throw new ConnectionNotFoundException(HttpStatus.BAD_REQUEST);
 		}
 		let userEmail = '';
-		if (isConnectionTypeAgent(connection.type)) {
+		if (userId && isConnectionTypeAgent(connection.type)) {
 			userEmail = (await this._dbContext.userRepository.getUserEmailOrReturnNull(userId)) ?? '';
 		}
 		const dao = getDataAccessObject(connection);

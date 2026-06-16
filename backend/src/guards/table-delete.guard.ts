@@ -1,7 +1,7 @@
 import { BadRequestException, CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { IRequestWithCognitoInfo } from '../authorization/cognito-decoded.interface.js';
-import { CedarAction } from '../entities/cedar-authorization/cedar-action-map.js';
+import { CedarAction, PUBLIC_USER_ID } from '../entities/cedar-authorization/cedar-action-map.js';
 import { CedarAuthorizationService } from '../entities/cedar-authorization/cedar-authorization.service.js';
 import { Messages } from '../exceptions/text/messages.js';
 import { ValidationHelper } from '../helpers/validators/validation-helper.js';
@@ -15,10 +15,6 @@ export class TableDeleteGuard implements CanActivate {
 		return new Promise(async (resolve, reject) => {
 			const request: IRequestWithCognitoInfo = context.switchToHttp().getRequest();
 			const cognitoUserName = request.decoded.sub;
-			if (!cognitoUserName) {
-				reject(new ForbiddenException(Messages.DONT_HAVE_PERMISSIONS));
-				return;
-			}
 			const connectionId: string | undefined = request.params?.slug || request.params?.connectionId;
 			const tableName: string | undefined = request.query?.tableName;
 			if (!tableName) {
@@ -31,6 +27,29 @@ export class TableDeleteGuard implements CanActivate {
 			}
 
 			try {
+				// Public requests can never write: refuse outright when unauthenticated. The public
+				// policy may only grant QueryTable + ColumnRead, so TableDelete is never permitted.
+				if (!cognitoUserName) {
+					const publicEnabled = await this.cedarAuthService.isPublicAccessEnabled(connectionId);
+					if (!publicEnabled) {
+						reject(new ForbiddenException(Messages.DONT_HAVE_PERMISSIONS));
+						return;
+					}
+					const allowedPublic = await this.cedarAuthService.validate({
+						userId: PUBLIC_USER_ID,
+						action: CedarAction.TableDelete,
+						connectionId,
+						tableName,
+						publicAccess: true,
+					});
+					if (allowedPublic) {
+						resolve(true);
+						return;
+					}
+					reject(new ForbiddenException(Messages.DONT_HAVE_PERMISSIONS));
+					return;
+				}
+
 				const allowed = await this.cedarAuthService.validate({
 					userId: cognitoUserName,
 					action: CedarAction.TableDelete,
