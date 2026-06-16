@@ -374,3 +374,50 @@ test('generatePublicCedarPolicy: only ever emits table:query and column:read act
 		t.true(action === 'table:query' || action === 'column:read', `unexpected action ${action}`);
 	}
 });
+
+test('generatePublicCedarPolicy escapes quotes/backslashes/newlines in table names (no policy injection)', (t) => {
+	const malicious = 'evil") ;\n\npermit(principal, action, resource);\n\n//';
+	const result = generatePublicCedarPolicy(connectionId, [{ tableName: malicious }]);
+	t.is(result.split('\n\n').length, 2);
+	t.true(result.includes('\\"'));
+	t.true(result.includes('\\n'));
+	const actions = [...result.matchAll(/action\s*==\s*RocketAdmin::Action::"([^"]+)"/g)].map((m) => m[1]);
+	t.deepEqual(new Set(actions), new Set(['table:query', 'column:read']));
+});
+
+test('generatePublicCedarPolicy escapes quotes/backslashes/newlines in column names (no policy injection)', (t) => {
+	const maliciousColumn = 'c") ;\npermit(principal, action, resource); //';
+	const result = generatePublicCedarPolicy(connectionId, [{ tableName: 'users', readableColumns: [maliciousColumn] }]);
+	t.is(result.split('\n\n').length, 2);
+	t.true(result.includes('\\"'));
+	const actions = [...result.matchAll(/action\s*==\s*RocketAdmin::Action::"([^"]+)"/g)].map((m) => m[1]);
+	t.deepEqual(new Set(actions), new Set(['table:query', 'column:read']));
+});
+
+test('generateCedarPolicyForGroup escapes malicious table names (no policy injection)', (t) => {
+	const malicious = 'evil") ;\n\npermit(principal, action, resource);\n\n//';
+	const result = generateCedarPolicyForGroup(
+		connectionId,
+		false,
+		makePermissions({
+			tables: [
+				{
+					tableName: malicious,
+					accessLevel: {
+						visibility: true,
+						readonly: true,
+						add: false,
+						delete: false,
+						edit: false,
+						aiRequest: false,
+						triggerCustomAction: false,
+					},
+				},
+			],
+		}),
+	);
+	t.is(result.split('\n\n').length, 2);
+	t.true(result.includes('\\"'));
+	const actions = [...result.matchAll(/action\s*==\s*RocketAdmin::Action::"([^"]+)"/g)].map((m) => m[1]);
+	t.deepEqual(new Set(actions), new Set(['table:query', 'column:read']));
+});
