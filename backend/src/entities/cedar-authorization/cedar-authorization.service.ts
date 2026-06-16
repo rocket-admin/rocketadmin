@@ -426,7 +426,10 @@ export class CedarAuthorizationService implements ICedarAuthorizationService, On
 			throw new HttpException({ message: Messages.PUBLIC_POLICY_ACTION_NOT_ALLOWED }, HttpStatus.BAD_REQUEST);
 		}
 		const allowed = new Set<string>([CedarAction.TableQuery, CedarAction.ColumnRead]);
-		const actions = [...policyText.matchAll(/action\s*==\s*RocketAdmin::Action::"([^"]+)"/g)].map((m) => m[1]);
+		// Capture every action literal regardless of the operator used: `action == Action::"x"`,
+		// `action in [Action::"x", Action::"y"]`, or `action in Action::"x"`. The Action type only
+		// ever appears in the action clause, so matching it anywhere in the policy text is correct.
+		const actions = [...policyText.matchAll(/RocketAdmin::Action::"([^"]+)"/g)].map((m) => m[1]);
 		for (const action of actions) {
 			if (!allowed.has(action)) {
 				throw new HttpException({ message: Messages.PUBLIC_POLICY_ACTION_NOT_ALLOWED }, HttpStatus.BAD_REQUEST);
