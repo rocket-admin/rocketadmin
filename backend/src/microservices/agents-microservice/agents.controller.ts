@@ -10,6 +10,7 @@ import { isTest } from '../../helpers/app/is-test.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import {
 	AiConnectionContextRO,
+	AiConnectionTablesRO,
 	AiQueryResultRO,
 	CompanySubscriptionInfoRO,
 	PermissionAllowedRO,
@@ -27,6 +28,7 @@ import {
 	IExecuteAiAggregationPipeline,
 	IExecuteAiRawQuery,
 	IGetAiConnectionContext,
+	IGetAiConnectionTables,
 	IGetAiTableStructure,
 	IGetCompanySubscriptionInfo,
 	IScanAndCreateSettings,
@@ -51,6 +53,8 @@ export class AgentsController {
 		private readonly validateConnectionEditUseCase: IValidateConnectionEdit,
 		@Inject(UseCaseType.AGENTS_GET_AI_CONNECTION_CONTEXT)
 		private readonly getAiConnectionContextUseCase: IGetAiConnectionContext,
+		@Inject(UseCaseType.AGENTS_GET_AI_CONNECTION_TABLES)
+		private readonly getAiConnectionTablesUseCase: IGetAiConnectionTables,
 		@Inject(UseCaseType.AGENTS_GET_AI_TABLE_STRUCTURE)
 		private readonly getAiTableStructureUseCase: IGetAiTableStructure,
 		@Inject(UseCaseType.AGENTS_EXECUTE_AI_RAW_QUERY)
@@ -102,6 +106,21 @@ export class AgentsController {
 		@Body() body: AiDataRequestBaseDto,
 	): Promise<AiConnectionContextRO> {
 		return await this.getAiConnectionContextUseCase.execute(
+			{ connectionId, userId: body.userId, masterPassword: body.masterPassword ?? null },
+			InTransactionEnum.OFF,
+		);
+	}
+
+	@ApiOperation({ summary: 'List connection tables the user may read (grounds website feasibility)' })
+	@ApiResponse({ status: 201, type: AiConnectionTablesRO })
+	@ApiBody({ type: AiDataRequestBaseDto })
+	@Timeout(!isTest() ? TimeoutDefaults.EXTENDED : TimeoutDefaults.EXTENDED_TEST)
+	@Post('/ai/data/:connectionId/tables')
+	public async getAiConnectionTables(
+		@SlugUuid('connectionId') connectionId: string,
+		@Body() body: AiDataRequestBaseDto,
+	): Promise<AiConnectionTablesRO> {
+		return await this.getAiConnectionTablesUseCase.execute(
 			{ connectionId, userId: body.userId, masterPassword: body.masterPassword ?? null },
 			InTransactionEnum.OFF,
 		);

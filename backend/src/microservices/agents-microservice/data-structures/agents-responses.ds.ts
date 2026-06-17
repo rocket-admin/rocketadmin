@@ -41,6 +41,11 @@ export class AiQueryResultRO {
 	result: unknown;
 }
 
+export class AiConnectionTablesRO {
+	@ApiProperty({ type: [String], description: 'Table names the user is permitted to read on the connection.' })
+	tables: Array<string>;
+}
+
 export class CompanySubscriptionInfoRO {
 	@ApiProperty({ description: 'Whether the backend is running in SaaS mode. When false, no subscription applies.' })
 	isSaaS: boolean;

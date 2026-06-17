@@ -11,6 +11,7 @@ import {
 } from '../data-structures/agents.ds.js';
 import {
 	AiConnectionContextRO,
+	AiConnectionTablesRO,
 	AiQueryResultRO,
 	CompanySubscriptionInfoRO,
 	PermissionAllowedRO,
@@ -35,6 +36,10 @@ export interface IGetAiConnectionContext {
 
 export interface IGetAiTableStructure {
 	execute(inputData: GetAiTableStructureDs, inTransaction: InTransactionEnum): Promise<Record<string, unknown>>;
+}
+
+export interface IGetAiConnectionTables {
+	execute(inputData: AiDataRequestDs, inTransaction: InTransactionEnum): Promise<AiConnectionTablesRO>;
 }
 
 export interface IExecuteAiRawQuery {
