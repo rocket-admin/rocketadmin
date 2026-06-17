@@ -11,6 +11,7 @@ import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import {
 	AiConnectionContextRO,
 	AiQueryResultRO,
+	CompanySubscriptionInfoRO,
 	PermissionAllowedRO,
 	ValidatedUserTokenRO,
 } from './data-structures/agents-responses.ds.js';
@@ -21,11 +22,13 @@ import {
 	GetAiTableStructureDto,
 } from './dto/agents-ai-data.dtos.js';
 import { ValidateConnectionEditDto, ValidateTableAiRequestDto, ValidateUserTokenDto } from './dto/agents-auth.dtos.js';
+import { GetCompanySubscriptionInfoDto } from './dto/agents-company.dtos.js';
 import {
 	IExecuteAiAggregationPipeline,
 	IExecuteAiRawQuery,
 	IGetAiConnectionContext,
 	IGetAiTableStructure,
+	IGetCompanySubscriptionInfo,
 	IScanAndCreateSettings,
 	IValidateConnectionEdit,
 	IValidateTableAiRequest,
@@ -56,6 +59,8 @@ export class AgentsController {
 		private readonly executeAiAggregationPipelineUseCase: IExecuteAiAggregationPipeline,
 		@Inject(UseCaseType.AGENTS_SCAN_AND_CREATE_SETTINGS)
 		private readonly scanAndCreateSettingsUseCase: IScanAndCreateSettings,
+		@Inject(UseCaseType.AGENTS_GET_COMPANY_SUBSCRIPTION_INFO)
+		private readonly getCompanySubscriptionInfoUseCase: IGetCompanySubscriptionInfo,
 	) {}
 
 	@ApiOperation({ summary: 'Validate an end-user JWT on behalf of the agents microservice' })
@@ -183,5 +188,15 @@ export class AgentsController {
 			},
 			InTransactionEnum.OFF,
 		);
+	}
+
+	@ApiOperation({ summary: "Read a user's company subscription metadata (agents-core owns all feature policy)" })
+	@ApiResponse({ status: 201, type: CompanySubscriptionInfoRO })
+	@ApiBody({ type: GetCompanySubscriptionInfoDto })
+	@Post('/company/subscription-info')
+	public async getCompanySubscriptionInfo(
+		@Body() body: GetCompanySubscriptionInfoDto,
+	): Promise<CompanySubscriptionInfoRO> {
+		return await this.getCompanySubscriptionInfoUseCase.execute({ userId: body.userId }, InTransactionEnum.OFF);
 	}
 }

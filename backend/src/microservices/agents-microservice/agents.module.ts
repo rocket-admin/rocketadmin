@@ -8,6 +8,7 @@ import { ExecuteAiAggregationPipelineUseCase } from './use-cases/execute-ai-aggr
 import { ExecuteAiRawQueryUseCase } from './use-cases/execute-ai-raw-query.use.case.js';
 import { GetAiConnectionContextUseCase } from './use-cases/get-ai-connection-context.use.case.js';
 import { GetAiTableStructureUseCase } from './use-cases/get-ai-table-structure.use.case.js';
+import { GetCompanySubscriptionInfoUseCase } from './use-cases/get-company-subscription-info.use.case.js';
 import { ScanAndCreateSettingsUseCase } from './use-cases/scan-and-create-settings.use.case.js';
 import { ValidateConnectionEditUseCase } from './use-cases/validate-connection-edit.use.case.js';
 import { ValidateTableAiRequestUseCase } from './use-cases/validate-table-ai-request.use.case.js';
@@ -51,6 +52,10 @@ import { ValidateUserTokenUseCase } from './use-cases/validate-user-token.use.ca
 		{
 			provide: UseCaseType.AGENTS_SCAN_AND_CREATE_SETTINGS,
 			useClass: ScanAndCreateSettingsUseCase,
+		},
+		{
+			provide: UseCaseType.AGENTS_GET_COMPANY_SUBSCRIPTION_INFO,
+			useClass: GetCompanySubscriptionInfoUseCase,
 		},
 	],
 	controllers: [AgentsController],

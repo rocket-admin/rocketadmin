@@ -40,3 +40,17 @@ export class AiQueryResultRO {
 	@ApiProperty()
 	result: unknown;
 }
+
+export class CompanySubscriptionInfoRO {
+	@ApiProperty({ description: 'Whether the backend is running in SaaS mode. When false, no subscription applies.' })
+	isSaaS: boolean;
+
+	@ApiPropertyOptional({ nullable: true })
+	companyId: string | null;
+
+	@ApiPropertyOptional({ nullable: true, description: 'FREE_PLAN | TEAM_PLAN | ENTERPRISE_PLAN | ANNUAL_* | null' })
+	subscriptionLevel: string | null;
+
+	@ApiProperty()
+	isPaymentMethodAdded: boolean;
+}
