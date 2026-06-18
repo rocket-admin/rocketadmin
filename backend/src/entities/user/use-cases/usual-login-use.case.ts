@@ -153,7 +153,7 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
 			return;
 		}
 
-		const allowedDomains: Array<string> = [`saas.rocketadmin.com`, `app.rocketadmin.com`, Constants.APP_DOMAIN_ADDRESS];
+		const allowedDomains: Array<string> = [...Constants.PRIMARY_SAAS_DOMAINS, Constants.APP_DOMAIN_ADDRESS];
 
 		if (isTest()) {
 			allowedDomains.push(`127.0.0.1`);
