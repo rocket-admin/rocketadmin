@@ -313,15 +313,11 @@ export const Constants = {
 	},
 
 	APP_DOMAIN_ADDRESS: appConfig.app.domainAddress,
-	ALLOWED_REQUEST_DOMAIN: (): string => {
-		if (isTest()) {
-			return Constants.APP_DOMAIN_ADDRESS;
-		}
-		return `app.rocketadmin.com`;
-	},
+
+	PRIMARY_SAAS_DOMAINS: ['app.rocketadmin.com', 'saas.rocketadmin.com', 'rocket.sitenova.com'],
 
 	APP_REQUEST_DOMAINS(): Array<string> {
-		const allowedDomains = ['app.rocketadmin.com', 'saas.rocketadmin.com', Constants.APP_DOMAIN_ADDRESS];
+		const allowedDomains = [...Constants.PRIMARY_SAAS_DOMAINS, Constants.APP_DOMAIN_ADDRESS];
 		if (isTest()) {
 			allowedDomains.push('127.0.0.1', Constants.APP_DOMAIN_ADDRESS);
 		}
