@@ -12,6 +12,7 @@ import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
+import { publicCrudCorsMiddleware } from '../../../src/middlewares/public-crud-cors.middleware.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { MockFactory } from '../../mock.factory.js';
@@ -41,6 +42,7 @@ test.before(async () => {
 	_testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
 	app.use(cookieParser());
+	app.use(publicCrudCorsMiddleware);
 	app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
 	app.useGlobalPipes(
 		new ValidationPipe({
@@ -674,3 +676,106 @@ test.serial(`${currentTest} an invalid/expired JWT cookie is rejected, never tre
 	t.not(res.status, 200);
 	t.is(Object.hasOwn(JSON.parse(res.text), 'rows'), false);
 });
+
+currentTest = 'CORS for /table/crud routes';
+
+test.serial(
+	`${currentTest} OPTIONS preflight from an arbitrary origin is answered with 204 and the origin reflected`,
+	async (t) => {
+		const arbitraryOrigin = 'https://some-third-party-app.example.com';
+
+		const res = await request(app.getHttpServer())
+			.options(`/table/crud/${faker.string.uuid()}?tableName=whatever`)
+			.set('Origin', arbitraryOrigin)
+			.set('Access-Control-Request-Method', 'POST')
+			.set('Access-Control-Request-Headers', 'content-type, x-api-key');
+
+		// Preflight is short-circuited by our middleware before any guard / global allowlist runs.
+		t.is(res.status, 204);
+		// `*` cannot be combined with credentials, so the origin is reflected back instead.
+		t.is(res.headers['access-control-allow-origin'], arbitraryOrigin);
+		t.is(res.headers['access-control-allow-credentials'], 'true');
+		t.is(res.headers['vary'], 'Origin');
+		t.is(res.headers['access-control-allow-methods'], 'GET,PUT,POST,DELETE');
+		// Requested headers are echoed back so the browser allows them.
+		t.is(res.headers['access-control-allow-headers'], 'content-type, x-api-key');
+	},
+);
+
+test.serial(
+	`${currentTest} a real (authenticated) request carries the reflected origin and credentials headers`,
+	async (t) => {
+		const { token, connectionId, testTableName } = await createConnectionAndTable();
+		const arbitraryOrigin = 'https://another-origin.example.org';
+
+		const res = await request(app.getHttpServer())
+			.post(`/table/crud/rows/${connectionId}?tableName=${testTableName}&page=1&perPage=10`)
+			.send({})
+			.set('Origin', arbitraryOrigin)
+			.set('Cookie', token)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+
+		t.is(res.status, 200);
+		t.is(res.headers['access-control-allow-origin'], arbitraryOrigin);
+		t.is(res.headers['access-control-allow-credentials'], 'true');
+	},
+);
+
+test.serial(`${currentTest} when no Origin header is present, no CORS headers are added`, async (t) => {
+	const res = await request(app.getHttpServer())
+		.options(`/table/crud/${faker.string.uuid()}?tableName=whatever`)
+		.set('Access-Control-Request-Method', 'POST');
+
+	// Still a preflight (OPTIONS on a /table/crud route) so it is short-circuited...
+	t.is(res.status, 204);
+	// ...but with no Origin to reflect, we must not emit an allow-origin header.
+	t.is(res.headers['access-control-allow-origin'], undefined);
+	t.is(res.headers['access-control-allow-credentials'], undefined);
+});
+
+test.serial(`${currentTest} non /table/crud routes are not affected by the wildcard middleware`, async (t) => {
+	const arbitraryOrigin = 'https://some-third-party-app.example.com';
+
+	const res = await request(app.getHttpServer())
+		.options('/connection')
+		.set('Origin', arbitraryOrigin)
+		.set('Access-Control-Request-Method', 'GET');
+
+	// The middleware only reflects the origin for /table/crud routes; everything else is left to the
+	// global allowlist (which is not configured in this test app), so no wildcard reflection happens.
+	t.not(res.headers['access-control-allow-origin'], arbitraryOrigin);
+});
+
+test.serial(`${currentTest} a malformed Origin is not reflected back (header-injection guard)`, async (t) => {
+	const malformedOrigin = 'https://evil.example.com/path with spaces';
+
+	const res = await request(app.getHttpServer())
+		.options(`/table/crud/${faker.string.uuid()}?tableName=whatever`)
+		.set('Origin', malformedOrigin)
+		.set('Access-Control-Request-Method', 'POST');
+
+	// Still answered as a preflight, but a value that does not match a valid origin is dropped, not echoed.
+	t.is(res.status, 204);
+	t.is(res.headers['access-control-allow-origin'], undefined);
+	t.is(res.headers['access-control-allow-credentials'], undefined);
+});
+
+test.serial(
+	`${currentTest} a malformed Access-Control-Request-Headers falls back to the static allowlist`,
+	async (t) => {
+		const arbitraryOrigin = 'https://some-third-party-app.example.com';
+
+		const res = await request(app.getHttpServer())
+			.options(`/table/crud/${faker.string.uuid()}?tableName=whatever`)
+			.set('Origin', arbitraryOrigin)
+			.set('Access-Control-Request-Method', 'POST')
+			// Contains characters outside the header-list token grammar.
+			.set('Access-Control-Request-Headers', 'content-type; injected: value');
+
+		t.is(res.status, 204);
+		// Origin is valid so it is reflected, but the unsafe requested-headers value is replaced.
+		t.is(res.headers['access-control-allow-origin'], arbitraryOrigin);
+		t.is(res.headers['access-control-allow-headers'], 'Content-Type, Authorization, x-api-key, masterpwd');
+	},
+);

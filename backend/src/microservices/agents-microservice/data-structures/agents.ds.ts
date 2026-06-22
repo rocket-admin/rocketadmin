@@ -34,3 +34,7 @@ export class ExecuteAiAggregationPipelineDs extends AiDataRequestDs {
 export class ScanAndCreateSettingsDs extends AiDataRequestDs {
 	response: Response;
 }
+
+export class GetCompanySubscriptionInfoDs {
+	userId: string;
+}

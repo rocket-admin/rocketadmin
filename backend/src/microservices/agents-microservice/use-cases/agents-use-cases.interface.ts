@@ -4,13 +4,16 @@ import {
 	ExecuteAiAggregationPipelineDs,
 	ExecuteAiRawQueryDs,
 	GetAiTableStructureDs,
+	GetCompanySubscriptionInfoDs,
 	ScanAndCreateSettingsDs,
 	ValidateConnectionEditDs,
 	ValidateTableAiRequestDs,
 } from '../data-structures/agents.ds.js';
 import {
 	AiConnectionContextRO,
+	AiConnectionTablesRO,
 	AiQueryResultRO,
+	CompanySubscriptionInfoRO,
 	PermissionAllowedRO,
 	ValidatedUserTokenRO,
 } from '../data-structures/agents-responses.ds.js';
@@ -35,6 +38,10 @@ export interface IGetAiTableStructure {
 	execute(inputData: GetAiTableStructureDs, inTransaction: InTransactionEnum): Promise<Record<string, unknown>>;
 }
 
+export interface IGetAiConnectionTables {
+	execute(inputData: AiDataRequestDs, inTransaction: InTransactionEnum): Promise<AiConnectionTablesRO>;
+}
+
 export interface IExecuteAiRawQuery {
 	execute(inputData: ExecuteAiRawQueryDs, inTransaction: InTransactionEnum): Promise<AiQueryResultRO>;
 }
@@ -45,4 +52,11 @@ export interface IExecuteAiAggregationPipeline {
 
 export interface IScanAndCreateSettings {
 	execute(inputData: ScanAndCreateSettingsDs, inTransaction: InTransactionEnum): Promise<void>;
+}
+
+export interface IGetCompanySubscriptionInfo {
+	execute(
+		inputData: GetCompanySubscriptionInfoDs,
+		inTransaction: InTransactionEnum,
+	): Promise<CompanySubscriptionInfoRO>;
 }
