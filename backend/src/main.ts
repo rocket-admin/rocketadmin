@@ -12,6 +12,7 @@ import { WinstonLogger } from './entities/logging/winston-logger.js';
 import { AllExceptionsFilter } from './exceptions/all-exceptions.filter.js';
 import { ValidationException } from './exceptions/custom-exceptions/validation-exception.js';
 import { Constants } from './helpers/constants/constants.js';
+import { publicCrudCorsMiddleware } from './middlewares/public-crud-cors.middleware.js';
 import { appConfig } from './shared/config/app-config.js';
 
 async function bootstrap() {
@@ -37,6 +38,10 @@ async function bootstrap() {
 		app.useGlobalFilters(new AllExceptionsFilter(app.get(WinstonLogger)));
 
 		app.use(helmet());
+
+		// Wildcard CORS for the public table CRUD routes — registered before the global enableCors()
+		// so it owns these routes (including the OPTIONS preflight) before the global allowlist runs.
+		app.use(publicCrudCorsMiddleware);
 
 		app.enableCors({
 			origin: [
