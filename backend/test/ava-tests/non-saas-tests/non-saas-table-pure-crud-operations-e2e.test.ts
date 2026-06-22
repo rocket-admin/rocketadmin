@@ -746,3 +746,36 @@ test.serial(`${currentTest} non /table/crud routes are not affected by the wildc
 	// global allowlist (which is not configured in this test app), so no wildcard reflection happens.
 	t.not(res.headers['access-control-allow-origin'], arbitraryOrigin);
 });
+
+test.serial(`${currentTest} a malformed Origin is not reflected back (header-injection guard)`, async (t) => {
+	const malformedOrigin = 'https://evil.example.com/path with spaces';
+
+	const res = await request(app.getHttpServer())
+		.options(`/table/crud/${faker.string.uuid()}?tableName=whatever`)
+		.set('Origin', malformedOrigin)
+		.set('Access-Control-Request-Method', 'POST');
+
+	// Still answered as a preflight, but a value that does not match a valid origin is dropped, not echoed.
+	t.is(res.status, 204);
+	t.is(res.headers['access-control-allow-origin'], undefined);
+	t.is(res.headers['access-control-allow-credentials'], undefined);
+});
+
+test.serial(
+	`${currentTest} a malformed Access-Control-Request-Headers falls back to the static allowlist`,
+	async (t) => {
+		const arbitraryOrigin = 'https://some-third-party-app.example.com';
+
+		const res = await request(app.getHttpServer())
+			.options(`/table/crud/${faker.string.uuid()}?tableName=whatever`)
+			.set('Origin', arbitraryOrigin)
+			.set('Access-Control-Request-Method', 'POST')
+			// Contains characters outside the header-list token grammar.
+			.set('Access-Control-Request-Headers', 'content-type; injected: value');
+
+		t.is(res.status, 204);
+		// Origin is valid so it is reflected, but the unsafe requested-headers value is replaced.
+		t.is(res.headers['access-control-allow-origin'], arbitraryOrigin);
+		t.is(res.headers['access-control-allow-headers'], 'Content-Type, Authorization, x-api-key, masterpwd');
+	},
+);
