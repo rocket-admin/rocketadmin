@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -39,7 +39,7 @@ export class GetCompanySubscriptionInfoUseCase
 
 		const company = await this._dbContext.companyInfoRepository.findCompanyInfoByUserId(userId);
 		if (!company) {
-			throw new HttpException({ message: Messages.COMPANY_NOT_FOUND }, HttpStatus.FORBIDDEN);
+			throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
 		}
 
 		const companyInfo = await this.saasCompanyGatewayService.getCompanyInfo(company.id);
