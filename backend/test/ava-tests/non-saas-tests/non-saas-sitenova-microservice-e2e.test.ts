@@ -121,7 +121,7 @@ async function createUsersTable(connectionId: string, userId: string): Promise<s
 		.post(`/internal/sitenova/raw-query/${connectionId}`)
 		.send({
 			userId,
-			query: `CREATE TABLE ${usersTable} (id INT AUTO_INCREMENT PRIMARY KEY, email VARCHAR(255), password VARCHAR(512))`,
+			query: `CREATE TABLE ${usersTable} (id INT AUTO_INCREMENT PRIMARY KEY, email VARCHAR(255), password VARCHAR(1024))`,
 		})
 		.set('Authorization', microserviceAuthHeader())
 		.set('Content-Type', 'application/json')

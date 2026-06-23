@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { appConfig } from '../../../shared/config/app-config.js';
 import {
 	SITENOVA_ENDUSER_AUDIENCE,
 	SITENOVA_ENDUSER_TOKEN_TTL,
@@ -11,9 +12,13 @@ import {
 } from '../data-structures/sitenova-site.ds.js';
 
 // Provisions and uses a per-connection HS256 signing key for generated-site end-user (site visitor)
-// tokens. The key is stored as a company-scoped UserSecret (encrypted at rest with the app key,
-// no master-password layer so it can be decrypted unattended on public requests) and never leaves
-// the backend. Rotating/deleting the secret invalidates every token for that one site.
+// tokens, never exposed outside the backend.
+//
+// When the connection belongs to a company (SaaS), the key is a company-scoped UserSecret —
+// encrypted at rest with the app key, no master-password layer so it decrypts unattended on public
+// requests; rotating/deleting it invalidates every token for that site. When the connection has NO
+// company (self-hosted / single-tenant), we deterministically DERIVE the key from the platform
+// secret per connection instead — UserSecret requires a companyId, so storage isn't an option there.
 @Injectable()
 export class SitenovaEndUserAuthService {
 	constructor(
@@ -52,19 +57,29 @@ export class SitenovaEndUserAuthService {
 		return `sitenova:enduser-jwt:${connectionId}`;
 	}
 
-	private async resolveCompanyId(connectionId: string): Promise<string> {
+	private async resolveCompanyIdOrNull(connectionId: string): Promise<string | null> {
 		const connection = await this._dbContext.connectionRepository.findOne({
 			where: { id: connectionId },
 			relations: { company: true },
 		});
-		if (!connection || !connection.company) {
-			throw new InternalServerErrorException('Connection has no owning company; cannot manage signing key.');
+		return connection?.company?.id ?? null;
+	}
+
+	// Deterministic per-connection key for connections with no company. HMAC of the platform secret
+	// keeps it distinct from the raw JWT_SECRET and isolated per connection, with no storage needed.
+	private deriveConnectionKey(connectionId: string): string {
+		const base = appConfig.auth.jwtSecret;
+		if (!base) {
+			throw new InternalServerErrorException('No signing secret configured for SiteNova end-user tokens.');
 		}
-		return connection.company.id;
+		return crypto.createHmac('sha256', base).update(`sitenova:enduser:${connectionId}`).digest('hex');
 	}
 
 	private async getSigningKeyOrNull(connectionId: string): Promise<string | null> {
-		const companyId = await this.resolveCompanyId(connectionId);
+		const companyId = await this.resolveCompanyIdOrNull(connectionId);
+		if (!companyId) {
+			return this.deriveConnectionKey(connectionId);
+		}
 		const secret = await this._dbContext.userSecretRepository.findSecretBySlugAndCompanyId(
 			this.secretSlug(connectionId),
 			companyId,
@@ -76,7 +91,10 @@ export class SitenovaEndUserAuthService {
 	}
 
 	private async getOrCreateSigningKey(connectionId: string): Promise<string> {
-		const companyId = await this.resolveCompanyId(connectionId);
+		const companyId = await this.resolveCompanyIdOrNull(connectionId);
+		if (!companyId) {
+			return this.deriveConnectionKey(connectionId);
+		}
 		const slug = this.secretSlug(connectionId);
 		const existing = await this._dbContext.userSecretRepository.findSecretBySlugAndCompanyId(slug, companyId);
 		if (existing) {
