@@ -46,6 +46,7 @@ import { TableWidgetModule } from './entities/widget/table-widget.module.js';
 import { AgentsModule } from './microservices/agents-microservice/agents.module.js';
 import { SaaSGatewayModule } from './microservices/gateways/saas-gateway.ts/saas-gateway.module.js';
 import { SaasModule } from './microservices/saas-microservice/saas.module.js';
+import { SitenovaModule } from './microservices/sitenova-microservice/sitenova.module.js';
 import { AppLoggerMiddleware } from './middlewares/logging-middleware/app-logger-middlewate.js';
 import { SelfHostedOperationsModule } from './selfhosted-operations/selhosted-operations.module.js';
 import { ConfigModule } from './shared/config/config.module.js';
@@ -86,6 +87,7 @@ import { GetHelloUseCase } from './use-cases-app/get-hello.use.case.js';
 		TableActionModule,
 		SaasModule,
 		AgentsModule,
+		SitenovaModule,
 		CompanyInfoModule,
 		SaaSGatewayModule,
 		TableTriggersModule,
