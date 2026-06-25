@@ -1132,7 +1132,7 @@ test.serial(
 
 		const result = foundUserTestConnectionsInfo.body.connections;
 
-		t.is(result.length, 5);
+		t.is(result.length, 3);
 
 		// toggle to off
 		const toggleTestConnectionsResponse = await request(app.getHttpServer())
@@ -1171,7 +1171,7 @@ test.serial(
 		const resultAfterToggleOnRO = JSON.parse(resultAfterToggleOn.text);
 
 		t.is(resultAfterToggleOn.status, 200);
-		t.is(resultAfterToggleOnRO.connections.length, 5);
+		t.is(resultAfterToggleOnRO.connections.length, 3);
 	},
 );
 

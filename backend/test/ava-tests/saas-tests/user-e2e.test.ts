@@ -316,7 +316,7 @@ test.serial(`${currentTest} should toggle test connections display mode`, async 
 	const getUserConnectionsRO = JSON.parse(getUserConnectionsResult.text);
 	t.is(getUserConnectionsResult.status, 200);
 	t.is(Object.hasOwn(getUserConnectionsRO, 'connections'), true);
-	t.is(getUserConnectionsRO.connections.length, 4);
+	t.is(getUserConnectionsRO.connections.length, 2);
 
 	const toggleTestConnectionsDisplayModeResult = await request(app.getHttpServer())
 		.put('/user/test/connections/display/?displayMode=off')
@@ -448,7 +448,7 @@ test.serial(`${currentTest} should register demo user`, async (t) => {
 	const getUserConnectionsRO = JSON.parse(getUserConnectionsResult.text);
 	t.is(getUserConnectionsResult.status, 200);
 	t.is(Object.hasOwn(getUserConnectionsRO, 'connections'), true);
-	t.is(getUserConnectionsRO.connections.length, 4);
+	t.is(getUserConnectionsRO.connections.length, 2);
 
 	//check user can add connection and use it
 
@@ -512,7 +512,7 @@ test.serial(`${currentTest} should register demo user`, async (t) => {
 	t.is(getUserCompanyRO.show_test_connections, true);
 	t.is(Object.hasOwn(getUserCompanyRO, 'connections'), true);
 	t.true(Array.isArray(getUserCompanyRO.connections));
-	t.is(getUserCompanyRO.connections.length, 5);
+	t.is(getUserCompanyRO.connections.length, 3);
 
 	for (const connection of getUserCompanyRO.connections) {
 		t.is(typeof connection.id, 'string');

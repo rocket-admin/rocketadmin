@@ -87,7 +87,7 @@ test.serial(`${currentTest} should return all connections for this user`, async 
 		.set('Accept', 'application/json');
 
 	t.is(findAllConnectionsResponse.status, 200);
-	t.is(findAllConnectionsResponse.body.connections.length, 4);
+	t.is(findAllConnectionsResponse.body.connections.length, 2);
 
 	let createConnectionResult = await request(app.getHttpServer())
 		.post('/connection')
@@ -117,13 +117,12 @@ test.serial(`${currentTest} should return all connections for this user`, async 
 
 	const result = findAll.body.connections;
 
-	t.is(result.length, 6);
+	t.is(result.length, 4);
 	t.is(Object.hasOwn(result[0], 'connection'), true);
 	t.is(Object.hasOwn(result[1], 'accessLevel'), true);
 	t.is(result[2].accessLevel, AccessLevelEnum.edit);
 
 	t.is(Object.hasOwn(result[3], 'accessLevel'), true);
-	t.is(Object.hasOwn(result[4].connection, 'host'), true);
 	t.is(Object.hasOwn(result[3].connection, 'host'), true);
 	t.is(typeof result[0].connection.port, 'number');
 	t.is(Object.hasOwn(result[2].connection, 'username'), true);
@@ -132,9 +131,9 @@ test.serial(`${currentTest} should return all connections for this user`, async 
 	t.is(Object.hasOwn(result[1].connection, 'updatedAt'), true);
 	t.is(Object.hasOwn(result[2].connection, 'password'), false);
 	t.is(Object.hasOwn(result[3].connection, 'groups'), false);
-	const oracleConnectionIndex = result.findIndex((e) => e.connection.type === ConnectionTypesEnum.oracledb);
+	const mysqlConnectionIndex = result.findIndex((e) => e.connection.type === ConnectionTypesEnum.mysql);
 	// eslint-disable-next-line security/detect-object-injection
-	t.is(Object.hasOwn(result[oracleConnectionIndex].connection, 'sid'), true);
+	t.is(Object.hasOwn(result[mysqlConnectionIndex].connection, 'host'), true);
 	t.pass();
 });
 

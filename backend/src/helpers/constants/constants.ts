@@ -164,32 +164,6 @@ export const Constants = {
 		isTestConnection: true,
 	},
 
-	TEST_CONNECTION_TO_MSSQL: {
-		title: 'MSSQL',
-		masterEncryption: false,
-		type: ConnectionTypesEnum.mssql,
-		host: appConfig.testDb.mssql.host,
-		port: appConfig.testDb.mssql.port,
-		password: appConfig.testDb.mssql.password,
-		username: appConfig.testDb.mssql.username,
-		database: appConfig.testDb.mssql.database,
-		ssh: false,
-		ssl: false,
-		isTestConnection: true,
-	},
-
-	TEST_CONNECTION_TO_ORACLE: {
-		title: 'Oracle',
-		type: ConnectionTypesEnum.oracledb,
-		host: appConfig.testDb.oracle.host,
-		port: appConfig.testDb.oracle.port,
-		username: appConfig.testDb.oracle.username,
-		password: appConfig.testDb.oracle.password,
-		database: appConfig.testDb.oracle.database,
-		sid: appConfig.testDb.oracle.sid,
-		isTestConnection: true,
-	},
-
 	TEST_SSH_CONNECTION_TO_MYSQL: {
 		title: 'MySQL',
 		type: ConnectionTypesEnum.mysql,
@@ -206,30 +180,6 @@ export const Constants = {
 		privateSSHKey: appConfig.testDb.mysql.sshKey,
 	},
 
-	TEST_CONNECTION_TO_MONGO: {
-		title: 'MongoDB',
-		type: ConnectionTypesEnum.mongodb,
-		host: appConfig.testDb.mongo.host,
-		port: appConfig.testDb.mongo.port,
-		username: appConfig.testDb.mongo.username,
-		password: appConfig.testDb.mongo.password,
-		database: appConfig.testDb.mongo.database,
-		authSource: appConfig.testDb.mongo.authSource,
-		isTestConnection: true,
-	},
-
-	TEST_CONNECTION_TO_IBMBD2: {
-		title: 'IBM DB2',
-		type: ConnectionTypesEnum.ibmdb2,
-		host: appConfig.testDb.ibmdb2.host,
-		port: appConfig.testDb.ibmdb2.port,
-		username: appConfig.testDb.ibmdb2.username,
-		password: appConfig.testDb.ibmdb2.password,
-		database: appConfig.testDb.ibmdb2.database,
-		schema: appConfig.testDb.ibmdb2.schema,
-		isTestConnection: true,
-	},
-
 	REMOVED_PASSWORD_VALUE: '***',
 	REMOVED_SENSITIVE_FIELD_IF_CHANGED: '* * * sensitive data, no logs stored * * *',
 	REMOVED_SENSITIVE_FIELD_IF_NOT_CHANGED: '',
@@ -242,17 +192,22 @@ export const Constants = {
 		const testConnections: Array<CreateConnectionDto | null> = Constants.getTestConnectionsFromDSN() || [];
 		if (!testConnections.length) {
 			testConnections.push(
-				Constants.TEST_CONNECTION_TO_ORACLE as CreateConnectionDto,
 				Constants.TEST_CONNECTION_TO_POSTGRES as CreateConnectionDto,
 				Constants.TEST_SSH_CONNECTION_TO_MYSQL as unknown as CreateConnectionDto,
-				Constants.TEST_CONNECTION_TO_MSSQL as CreateConnectionDto,
-				Constants.TEST_CONNECTION_TO_MONGO as CreateConnectionDto,
-				Constants.TEST_CONNECTION_TO_IBMBD2 as CreateConnectionDto,
 			);
 		}
 
+		// Only MySQL and Postgres are provided as test connections for registered users.
+		const allowedTestConnectionTypes: Array<ConnectionTypesEnum> = [
+			ConnectionTypesEnum.mysql,
+			ConnectionTypesEnum.postgres,
+		];
+
 		return testConnections.filter((dto): dto is CreateConnectionDto => {
 			if (!dto) {
+				return false;
+			}
+			if (!allowedTestConnectionTypes.includes(dto.type)) {
 				return false;
 			}
 			const values = Object.values(dto);
