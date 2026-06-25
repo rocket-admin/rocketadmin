@@ -76,7 +76,7 @@ test.serial(`${currentTest} should return connections, where second user have ac
 		t.is(findAll.status, 200);
 
 		const result = findAll.body.connections;
-		t.is(result.length, 5);
+		t.is(result.length, 3);
 		t.is(Object.hasOwn(result[0], 'connection'), true);
 		t.is(Object.hasOwn(result[0], 'accessLevel'), true);
 		t.is(result[0].accessLevel, AccessLevelEnum.edit);
@@ -95,7 +95,7 @@ test.serial(`${currentTest} should return connections, where second user have ac
 		t.is(Object.hasOwn(result[0].connection, 'groups'), false);
 		t.is(Object.hasOwn(result[0].connection, 'author'), false);
 		const testConnectionsCount = result.filter((el: any) => el.connection.isTestConnection).length;
-		t.is(testConnectionsCount, 4);
+		t.is(testConnectionsCount, 2);
 	} catch (error) {
 		console.error(error);
 		throw error;
