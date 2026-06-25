@@ -2,6 +2,11 @@ import { NextFunction, Request, Response } from 'express';
 
 const PUBLIC_CRUD_ROUTE_REGEX = /\/table\/crud(\/|$)/;
 
+// Browser-facing SiteNova site API (register/login + data CRUD) served to AI-generated sites from
+// arbitrary CDN origins. Anchored at the start of the path so it matches `/sitenova/...` but never
+// the server-to-server `/internal/sitenova/...` controller, which needs no CORS.
+const SITENOVA_PUBLIC_ROUTE_REGEX = /^\/sitenova\//;
+
 // `scheme://host[:port]` (or the literal "null" origin). Deliberately strict: any value that does
 // not look like a real origin is dropped rather than reflected.
 const VALID_ORIGIN_REGEX = /^(null|[a-z][a-z0-9+.-]*:\/\/[a-z0-9.-]+(:\d+)?)$/i;
@@ -26,7 +31,7 @@ const DEFAULT_ALLOWED_HEADERS = 'Content-Type, Authorization, x-api-key, masterp
  * (defense-in-depth against header injection / CWE-113).
  */
 export function publicCrudCorsMiddleware(req: Request, res: Response, next: NextFunction): void {
-	if (PUBLIC_CRUD_ROUTE_REGEX.test(req.path)) {
+	if (PUBLIC_CRUD_ROUTE_REGEX.test(req.path) || SITENOVA_PUBLIC_ROUTE_REGEX.test(req.path)) {
 		const requestOrigin = req.headers.origin;
 		if (requestOrigin && VALID_ORIGIN_REGEX.test(requestOrigin)) {
 			const requestedHeaders = req.headers['access-control-request-headers'];
