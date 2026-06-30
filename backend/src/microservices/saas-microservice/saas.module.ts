@@ -21,6 +21,7 @@ import { LoginWithGoogleUseCase } from './use-cases/login-with-google.use.case.j
 import { RegisteredCompanyWebhookUseCase } from './use-cases/register-company-webhook.use.case.js';
 import { SaasRegisterDemoUserAccountUseCase } from './use-cases/register-demo-user-account.use.case.js';
 import { SaaSRegisterUserWIthSamlUseCase } from './use-cases/register-user-with-saml-use.case.js';
+import { SaasUsualLoginUseCase } from './use-cases/saas-usual-login.use.case.js';
 import { SaasUsualRegisterUseCase } from './use-cases/saas-usual-register-user.use.case.js';
 import { SuspendUsersUseCase } from './use-cases/suspend-users.use.case.js';
 import { SuspendUsersOverLimitUseCase } from './use-cases/suspend-users-over-limit.use.case.js';
@@ -45,6 +46,10 @@ import { UpdateHostedConnectionPasswordUseCase } from './use-cases/update-hosted
 		{
 			provide: UseCaseType.SAAS_USUAL_REGISTER_USER,
 			useClass: SaasUsualRegisterUseCase,
+		},
+		{
+			provide: UseCaseType.SAAS_USUAL_LOGIN_USER,
+			useClass: SaasUsualLoginUseCase,
 		},
 		{
 			provide: UseCaseType.SAAS_LOGIN_USER_WITH_GOOGLE,
@@ -124,6 +129,7 @@ export class SaasModule {
 				{ path: 'saas/user/:userId', method: RequestMethod.GET },
 				{ path: 'saas/users/email/:userEmail', method: RequestMethod.GET },
 				{ path: 'saas/user/register', method: RequestMethod.POST },
+				{ path: 'saas/user/login', method: RequestMethod.POST },
 				{ path: 'saas/user/demo/register', method: RequestMethod.POST },
 				{ path: 'saas/user/google/login', method: RequestMethod.POST },
 				{ path: 'saas/user/github/login', method: RequestMethod.POST },

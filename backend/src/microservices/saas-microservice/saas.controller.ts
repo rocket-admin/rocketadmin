@@ -54,6 +54,7 @@ import {
 	ISaasGetUsersInfosByEmail,
 	ISaasRegisterUser,
 	ISaasSAMLRegisterUser,
+	ISaasUsualLoginUser,
 	ISuspendUsers,
 	ISuspendUsersOverLimit,
 	IUpdateHostedConnectionPassword,
@@ -76,6 +77,8 @@ export class SaasController {
 		private readonly getUsersInfosByEmailUseCase: ISaasGetUsersInfosByEmail,
 		@Inject(UseCaseType.SAAS_USUAL_REGISTER_USER)
 		private readonly usualRegisterUserUseCase: ISaasRegisterUser,
+		@Inject(UseCaseType.SAAS_USUAL_LOGIN_USER)
+		private readonly usualLoginUserUseCase: ISaasUsualLoginUser,
 		@Inject(UseCaseType.SAAS_DEMO_USER_REGISTRATION)
 		private readonly demoRegisterUserUseCase: ISaasDemoRegisterUser,
 		@Inject(UseCaseType.SAAS_LOGIN_USER_WITH_GOOGLE)
@@ -168,6 +171,27 @@ export class SaasController {
 			throw new BadRequestException(Messages.COMPANY_ID_MISSING);
 		}
 		return await this.usualRegisterUserUseCase.execute({ email, password, gclidValue, name, companyId, companyName });
+	}
+
+	@ApiOperation({ summary: 'User login webhook' })
+	@ApiResponse({
+		status: 200,
+		description: 'Credentials verified; user info returned (no token is signed here — the caller signs the cookie).',
+		type: FoundUserDto,
+	})
+	@Post('user/login')
+	async usualUserLogin(
+		@Body('email') email: string,
+		@Body('password') password: string,
+		@Body('companyId') companyId: string,
+		@Body('request_domain') request_domain: string,
+		@Body('ipAddress') ipAddress: string,
+		@Body('userAgent') userAgent: string,
+	): Promise<FoundUserDto> {
+		return await this.usualLoginUserUseCase.execute(
+			{ email, password, companyId, request_domain, ipAddress, userAgent, gclidValue: null },
+			InTransactionEnum.OFF,
+		);
 	}
 
 	@ApiOperation({ summary: 'Register demo user register webhook' })
