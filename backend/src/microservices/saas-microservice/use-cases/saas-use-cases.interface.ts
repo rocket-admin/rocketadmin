@@ -1,3 +1,4 @@
+import { FoundUserEmailCompaniesInfoDs } from '../../../entities/company-info/application/data-structures/found-company-info.ds.js';
 import { CompanyInfoEntity } from '../../../entities/company-info/company-info.entity.js';
 import { CreatedConnectionDTO } from '../../../entities/connection/application/dto/created-connection.dto.js';
 import { SaaSRegisterDemoUserAccountDS } from '../../../entities/user/application/data-structures/demo-user-account-register.ds.js';
@@ -43,6 +44,10 @@ export interface ISaasRegisterUser {
 
 export interface ISaasUsualLoginUser {
 	execute(userData: UsualLoginDs, inTransaction?: InTransactionEnum): Promise<FoundUserDto>;
+}
+
+export interface ISaasGetUserEmailCompanies {
+	execute(userEmail: string): Promise<Array<FoundUserEmailCompaniesInfoDs>>;
 }
 
 export interface ISaasDemoRegisterUser {

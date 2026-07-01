@@ -15,6 +15,7 @@ import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nes
 import { SkipThrottle } from '@nestjs/throttler';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { Timeout } from '../../decorators/timeout.decorator.js';
+import { FoundUserEmailCompaniesInfoDs } from '../../entities/company-info/application/data-structures/found-company-info.ds.js';
 import { CompanyInfoEntity } from '../../entities/company-info/company-info.entity.js';
 import { CreatedConnectionDTO } from '../../entities/connection/application/dto/created-connection.dto.js';
 import { SaasUsualUserRegisterDS } from '../../entities/user/application/data-structures/usual-register-user.ds.js';
@@ -23,6 +24,7 @@ import { ExternalRegistrationProviderEnum } from '../../entities/user/enums/exte
 import { UserEntity } from '../../entities/user/user.entity.js';
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { Messages } from '../../exceptions/text/messages.js';
+import { ValidationHelper } from '../../helpers/validators/validation-helper.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { CreatedConnectionResponse, SuccessResponse } from './data-structures/common-responce.ds.js';
 import { CreateConnectionForHostedDbDto } from './data-structures/create-connecttion-for-selfhosted-db.dto.js';
@@ -51,6 +53,7 @@ import {
 	ISaaSGetCompanyInfoByUserId,
 	ISaaSGetUsersCountInCompany,
 	ISaasDemoRegisterUser,
+	ISaasGetUserEmailCompanies,
 	ISaasGetUsersInfosByEmail,
 	ISaasRegisterUser,
 	ISaasSAMLRegisterUser,
@@ -79,6 +82,8 @@ export class SaasController {
 		private readonly usualRegisterUserUseCase: ISaasRegisterUser,
 		@Inject(UseCaseType.SAAS_USUAL_LOGIN_USER)
 		private readonly usualLoginUserUseCase: ISaasUsualLoginUser,
+		@Inject(UseCaseType.SAAS_GET_USER_EMAIL_COMPANIES)
+		private readonly getUserEmailCompaniesUseCase: ISaasGetUserEmailCompanies,
 		@Inject(UseCaseType.SAAS_DEMO_USER_REGISTRATION)
 		private readonly demoRegisterUserUseCase: ISaasDemoRegisterUser,
 		@Inject(UseCaseType.SAAS_LOGIN_USER_WITH_GOOGLE)
@@ -192,6 +197,19 @@ export class SaasController {
 			{ email, password, companyId, request_domain, ipAddress, userAgent, gclidValue: null },
 			InTransactionEnum.OFF,
 		);
+	}
+
+	@ApiOperation({ summary: 'Get companies where a user with this email is registered' })
+	@ApiResponse({
+		status: 200,
+		description: 'Companies where a user with this email is registered.',
+		type: FoundUserEmailCompaniesInfoDs,
+		isArray: true,
+	})
+	@Get('user/email/:email/companies')
+	async getUserEmailCompanies(@Param('email') email: string): Promise<Array<FoundUserEmailCompaniesInfoDs>> {
+		ValidationHelper.validateOrThrowHttpExceptionEmail(email);
+		return await this.getUserEmailCompaniesUseCase.execute(email);
 	}
 
 	@ApiOperation({ summary: 'Register demo user register webhook' })
