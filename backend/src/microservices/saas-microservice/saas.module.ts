@@ -135,7 +135,7 @@ export class SaasModule {
 				{ path: 'saas/users/email/:userEmail', method: RequestMethod.GET },
 				{ path: 'saas/user/register', method: RequestMethod.POST },
 				{ path: 'saas/user/login', method: RequestMethod.POST },
-				{ path: 'saas/user/email/:email/companies', method: RequestMethod.GET },
+				{ path: 'saas/company/my/email/:email', method: RequestMethod.GET },
 				{ path: 'saas/user/demo/register', method: RequestMethod.POST },
 				{ path: 'saas/user/google/login', method: RequestMethod.POST },
 				{ path: 'saas/user/github/login', method: RequestMethod.POST },

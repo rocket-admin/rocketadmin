@@ -206,7 +206,7 @@ export class SaasController {
 		type: FoundUserEmailCompaniesInfoDs,
 		isArray: true,
 	})
-	@Get('user/email/:email/companies')
+	@Get('company/my/email/:email')
 	async getUserEmailCompanies(@Param('email') email: string): Promise<Array<FoundUserEmailCompaniesInfoDs>> {
 		ValidationHelper.validateOrThrowHttpExceptionEmail(email);
 		return await this.getUserEmailCompaniesUseCase.execute(email);
