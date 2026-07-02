@@ -269,7 +269,7 @@ export const Constants = {
 
 	APP_DOMAIN_ADDRESS: appConfig.app.domainAddress,
 
-	PRIMARY_SAAS_DOMAINS: ['app.rocketadmin.com', 'saas.rocketadmin.com', 'rocket.sitenova.com'],
+	PRIMARY_SAAS_DOMAINS: ['app.rocketadmin.com', 'saas.rocketadmin.com', 'rocket.sitenova.com', 'app.sitenova.com'],
 
 	APP_REQUEST_DOMAINS(): Array<string> {
 		const allowedDomains = [...Constants.PRIMARY_SAAS_DOMAINS, Constants.APP_DOMAIN_ADDRESS];
