@@ -12,6 +12,7 @@ import {
 	AiConnectionContextRO,
 	AiConnectionTablesRO,
 	AiQueryResultRO,
+	AiSampleRowsRO,
 	CompanySubscriptionInfoRO,
 	PermissionAllowedRO,
 	ValidatedUserTokenRO,
@@ -20,6 +21,7 @@ import {
 	AiDataRequestBaseDto,
 	ExecuteAiAggregationPipelineDto,
 	ExecuteAiRawQueryDto,
+	GetAiSampleRowsDto,
 	GetAiTableStructureDto,
 } from './dto/agents-ai-data.dtos.js';
 import { ValidateConnectionEditDto, ValidateTableAiRequestDto, ValidateUserTokenDto } from './dto/agents-auth.dtos.js';
@@ -29,6 +31,7 @@ import {
 	IExecuteAiRawQuery,
 	IGetAiConnectionContext,
 	IGetAiConnectionTables,
+	IGetAiSampleRows,
 	IGetAiTableStructure,
 	IGetCompanySubscriptionInfo,
 	IScanAndCreateSettings,
@@ -61,6 +64,8 @@ export class AgentsController {
 		private readonly executeAiRawQueryUseCase: IExecuteAiRawQuery,
 		@Inject(UseCaseType.AGENTS_EXECUTE_AI_AGGREGATION_PIPELINE)
 		private readonly executeAiAggregationPipelineUseCase: IExecuteAiAggregationPipeline,
+		@Inject(UseCaseType.AGENTS_GET_AI_SAMPLE_ROWS)
+		private readonly getAiSampleRowsUseCase: IGetAiSampleRows,
 		@Inject(UseCaseType.AGENTS_SCAN_AND_CREATE_SETTINGS)
 		private readonly scanAndCreateSettingsUseCase: IScanAndCreateSettings,
 		@Inject(UseCaseType.AGENTS_GET_COMPANY_SUBSCRIPTION_INFO)
@@ -162,6 +167,27 @@ export class AgentsController {
 				masterPassword: body.masterPassword ?? null,
 				tableName: body.tableName,
 				query: body.query,
+			},
+			InTransactionEnum.OFF,
+		);
+	}
+
+	@ApiOperation({ summary: 'Fetch permission-filtered sample rows and a row count (grounds website generation)' })
+	@ApiResponse({ status: 201, type: AiSampleRowsRO })
+	@ApiBody({ type: GetAiSampleRowsDto })
+	@Timeout(!isTest() ? TimeoutDefaults.EXTENDED : TimeoutDefaults.EXTENDED_TEST)
+	@Post('/ai/data/:connectionId/sample-rows')
+	public async getAiSampleRows(
+		@SlugUuid('connectionId') connectionId: string,
+		@Body() body: GetAiSampleRowsDto,
+	): Promise<AiSampleRowsRO> {
+		return await this.getAiSampleRowsUseCase.execute(
+			{
+				connectionId,
+				userId: body.userId,
+				masterPassword: body.masterPassword ?? null,
+				tableName: body.tableName,
+				limit: body.limit ?? null,
 			},
 			InTransactionEnum.OFF,
 		);

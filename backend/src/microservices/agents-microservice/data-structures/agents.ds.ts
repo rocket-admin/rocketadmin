@@ -26,6 +26,11 @@ export class ExecuteAiRawQueryDs extends AiDataRequestDs {
 	query: string;
 }
 
+export class GetAiSampleRowsDs extends AiDataRequestDs {
+	tableName: string;
+	limit: number | null;
+}
+
 export class ExecuteAiAggregationPipelineDs extends AiDataRequestDs {
 	tableName: string;
 	pipeline: string;

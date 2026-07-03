@@ -8,6 +8,7 @@ import { ExecuteAiAggregationPipelineUseCase } from './use-cases/execute-ai-aggr
 import { ExecuteAiRawQueryUseCase } from './use-cases/execute-ai-raw-query.use.case.js';
 import { GetAiConnectionContextUseCase } from './use-cases/get-ai-connection-context.use.case.js';
 import { GetAiConnectionTablesUseCase } from './use-cases/get-ai-connection-tables.use.case.js';
+import { GetAiSampleRowsUseCase } from './use-cases/get-ai-sample-rows.use.case.js';
 import { GetAiTableStructureUseCase } from './use-cases/get-ai-table-structure.use.case.js';
 import { GetCompanySubscriptionInfoUseCase } from './use-cases/get-company-subscription-info.use.case.js';
 import { ScanAndCreateSettingsUseCase } from './use-cases/scan-and-create-settings.use.case.js';
@@ -53,6 +54,10 @@ import { ValidateUserTokenUseCase } from './use-cases/validate-user-token.use.ca
 		{
 			provide: UseCaseType.AGENTS_EXECUTE_AI_AGGREGATION_PIPELINE,
 			useClass: ExecuteAiAggregationPipelineUseCase,
+		},
+		{
+			provide: UseCaseType.AGENTS_GET_AI_SAMPLE_ROWS,
+			useClass: GetAiSampleRowsUseCase,
 		},
 		{
 			provide: UseCaseType.AGENTS_SCAN_AND_CREATE_SETTINGS,

@@ -104,11 +104,13 @@ services:
 
   rocketadmin-private-microservice:
     build:
-      context: ../rocketadmin-saas
-      dockerfile: Dockerfile.test
+      # rocketadmin-saas now lives in the sitenova monorepo; its Dockerfile.test
+      # needs the monorepo root as build context (root pnpm lockfile/workspace).
+      context: ../sitenova
+      dockerfile: rocketadmin-saas/Dockerfile.test
     ports:
       - 3001:3001
-    env_file: ../rocketadmin-saas/.env
+    env_file: ../sitenova/rocketadmin-saas/.env
     environment:
       # Path to the Go proxy's contract fixture (mounted below). Lets the
       # SaaS contract test find it regardless of on-disk layout.
