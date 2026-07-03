@@ -3,6 +3,7 @@ import {
 	AiDataRequestDs,
 	ExecuteAiAggregationPipelineDs,
 	ExecuteAiRawQueryDs,
+	GetAiSampleRowsDs,
 	GetAiTableStructureDs,
 	GetCompanySubscriptionInfoDs,
 	ScanAndCreateSettingsDs,
@@ -13,6 +14,7 @@ import {
 	AiConnectionContextRO,
 	AiConnectionTablesRO,
 	AiQueryResultRO,
+	AiSampleRowsRO,
 	CompanySubscriptionInfoRO,
 	PermissionAllowedRO,
 	ValidatedUserTokenRO,
@@ -40,6 +42,10 @@ export interface IGetAiTableStructure {
 
 export interface IGetAiConnectionTables {
 	execute(inputData: AiDataRequestDs, inTransaction: InTransactionEnum): Promise<AiConnectionTablesRO>;
+}
+
+export interface IGetAiSampleRows {
+	execute(inputData: GetAiSampleRowsDs, inTransaction: InTransactionEnum): Promise<AiSampleRowsRO>;
 }
 
 export interface IExecuteAiRawQuery {

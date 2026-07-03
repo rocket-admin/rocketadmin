@@ -41,6 +41,21 @@ export class AiQueryResultRO {
 	result: unknown;
 }
 
+export class AiSampleRowsRO {
+	@ApiProperty({
+		type: 'array',
+		items: { type: 'object', additionalProperties: true },
+		description: 'Sample rows, filtered to the columns the user may read.',
+	})
+	rows: Array<Record<string, unknown>>;
+
+	@ApiProperty({ description: 'Total row count in the table (may be an estimate for large datasets).' })
+	rowCount: number;
+
+	@ApiProperty({ description: 'When true, rowCount is an estimate rather than an exact COUNT.' })
+	largeDataset: boolean;
+}
+
 export class AiConnectionTablesRO {
 	@ApiProperty({ type: [String], description: 'Table names the user is permitted to read on the connection.' })
 	tables: Array<string>;
