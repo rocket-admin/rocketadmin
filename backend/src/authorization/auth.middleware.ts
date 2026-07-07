@@ -79,6 +79,7 @@ export class AuthMiddleware implements NestMiddleware {
 			const payload = {
 				sub: userId,
 				email: data.email,
+				companyId: data.companyId ?? null,
 				exp: data.exp,
 				iat: data.iat,
 			};

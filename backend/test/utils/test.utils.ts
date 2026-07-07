@@ -48,6 +48,7 @@ export class TestUtils {
 	verifyJwtToken(token: string): {
 		sub: string;
 		email: string;
+		companyId: string | null;
 		exp: number;
 		iat: number;
 	} {
@@ -57,6 +58,7 @@ export class TestUtils {
 		return {
 			sub: data.id,
 			email: data.email,
+			companyId: data.companyId ?? null,
 			exp: data.exp,
 			iat: data.iat,
 		};

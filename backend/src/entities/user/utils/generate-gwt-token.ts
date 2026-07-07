@@ -4,7 +4,7 @@ import { appConfig } from '../../../shared/config/app-config.js';
 import { JwtScopesEnum } from '../enums/jwt-scopes.enum.js';
 import { UserEntity } from '../user.entity.js';
 
-export function generateGwtToken(user: UserEntity, scope: Array<JwtScopesEnum>): IToken {
+export function generateGwtToken(user: UserEntity, scope: Array<JwtScopesEnum>, companyId?: string | null): IToken {
 	const today = new Date();
 	const exp = new Date(today);
 	exp.setTime(today.getTime() + 60 * 60 * 1000 * 24 * 7);
@@ -16,6 +16,7 @@ export function generateGwtToken(user: UserEntity, scope: Array<JwtScopesEnum>):
 		{
 			id: user.id,
 			email: user.email,
+			companyId: companyId ?? user.company?.id ?? undefined,
 			exp: Math.floor(exp.getTime() / 1000),
 			scope: scope && scope.length ? scope : undefined,
 		},

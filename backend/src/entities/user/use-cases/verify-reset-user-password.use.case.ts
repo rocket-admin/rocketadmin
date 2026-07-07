@@ -53,7 +53,7 @@ export class VerifyResetUserPasswordUseCase
 		return {
 			id: foundUser.id,
 			email: foundUser.email,
-			token: generateGwtToken(foundUser, get2FaScope(foundUser, foundUserCompany)),
+			token: generateGwtToken(foundUser, get2FaScope(foundUser, foundUserCompany), foundUserCompany?.id),
 			name: foundUser.name,
 			externalRegistrationProvider: foundUser.externalRegistrationProvider,
 		};

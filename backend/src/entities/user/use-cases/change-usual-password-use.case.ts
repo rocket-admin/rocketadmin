@@ -36,6 +36,6 @@ export class ChangeUsualPasswordUseCase
 		user.password = await Encryptor.hashUserPassword(userData.newPassword);
 		const updatedUser = await this._dbContext.userRepository.saveUserEntity(user);
 		const foundUserCompany = await this._dbContext.companyInfoRepository.findCompanyInfoByUserId(updatedUser.id);
-		return generateGwtToken(updatedUser, get2FaScope(updatedUser, foundUserCompany));
+		return generateGwtToken(updatedUser, get2FaScope(updatedUser, foundUserCompany), foundUserCompany?.id);
 	}
 }

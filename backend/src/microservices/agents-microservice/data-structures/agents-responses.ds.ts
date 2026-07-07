@@ -7,6 +7,9 @@ export class ValidatedUserTokenRO {
 	@ApiPropertyOptional()
 	email: string | null;
 
+	@ApiPropertyOptional({ description: "Id of the user's company; null for tokens issued before the claim was added." })
+	companyId: string | null;
+
 	@ApiPropertyOptional()
 	exp: number | null;
 

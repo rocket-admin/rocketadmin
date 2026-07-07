@@ -5,6 +5,7 @@ import { Test } from '@nestjs/testing';
 import test from 'ava';
 import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
+import jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
@@ -115,6 +116,32 @@ test.serial(`${currentTest} should return expiration token when user login`, asy
 	const loginUserRO = JSON.parse(loginUserResult.text);
 	t.is(Object.hasOwn(loginUserRO, 'expires'), true);
 	t.pass();
+});
+
+test.serial(`${currentTest} login token should contain the id of the user's company`, async (t) => {
+	const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+	const { email, password } = adminUserRegisterInfo;
+
+	const loginUserResult = await request(app.getHttpServer())
+		.post('/user/login/')
+		.send({ email, password })
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(loginUserResult.status, 201);
+
+	const cookieToken = loginUserResult.headers['set-cookie'][0].split(';')[0].replace('rocketadmin_cookie=', '');
+	const decodedToken = jwt.verify(cookieToken, process.env.JWT_SECRET) as jwt.JwtPayload;
+
+	const foundCompanyInfo = await request(app.getHttpServer())
+		.get('/company/my')
+		.set('Cookie', `rocketadmin_cookie=${cookieToken}`)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(foundCompanyInfo.status, 200);
+	const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+
+	t.truthy(decodedToken.companyId);
+	t.is(decodedToken.companyId, foundCompanyInfoRO.id);
 });
 
 test.serial(`${currentTest} reject authorization when try to login with wrong password`, async (t) => {
