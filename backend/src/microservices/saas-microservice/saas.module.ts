@@ -3,9 +3,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { SaaSAuthMiddleware } from '../../authorization/saas-auth.middleware.js';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
+import { LogOutUseCase } from '../../entities/user/use-cases/log-out.use.case.js';
 import { UserEntity } from '../../entities/user/user.entity.js';
 import { SignInAuditEntity } from '../../entities/user-sign-in-audit/sign-in-audit.entity.js';
 import { SignInAuditService } from '../../entities/user-sign-in-audit/sign-in-audit.service.js';
+import { ValidateUserTokenUseCase } from '../agents-microservice/use-cases/validate-user-token.use.case.js';
 import { SaasController } from './saas.controller.js';
 import { CreateConnectionForHostedDbUseCase } from './use-cases/create-connection-for-hosted-db.use.case.js';
 import { DeleteConnectionForHostedDbUseCase } from './use-cases/delete-connection-for-hosted-db.use.case.js';
@@ -35,6 +37,14 @@ import { UpdateHostedConnectionPasswordUseCase } from './use-cases/update-hosted
 		{
 			provide: BaseType.GLOBAL_DB_CONTEXT,
 			useClass: GlobalDatabaseContext,
+		},
+		{
+			provide: UseCaseType.LOG_OUT,
+			useClass: LogOutUseCase,
+		},
+		{
+			provide: UseCaseType.AGENTS_VALIDATE_USER_TOKEN,
+			useClass: ValidateUserTokenUseCase,
 		},
 		{
 			provide: UseCaseType.SAAS_COMPANY_REGISTRATION,
@@ -135,6 +145,8 @@ export class SaasModule {
 				{ path: 'saas/users/email/:userEmail', method: RequestMethod.GET },
 				{ path: 'saas/user/register', method: RequestMethod.POST },
 				{ path: 'saas/user/login', method: RequestMethod.POST },
+				{ path: 'saas/user/logout', method: RequestMethod.POST },
+				{ path: 'saas/user/validate-token', method: RequestMethod.POST },
 				{ path: 'saas/company/my/email/:email', method: RequestMethod.GET },
 				{ path: 'saas/user/demo/register', method: RequestMethod.POST },
 				{ path: 'saas/user/google/login', method: RequestMethod.POST },
