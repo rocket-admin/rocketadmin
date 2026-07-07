@@ -65,7 +65,7 @@ export class VerifyInviteUserInCompanyAndConnectionGroupUseCase
 			foundUser.isActive = true;
 			foundUser.role = role;
 			await this._dbContext.userRepository.saveUserEntity(foundUser);
-			return generateGwtToken(foundUser, get2FaScope(foundUser, foundInvitation.company));
+			return generateGwtToken(foundUser, get2FaScope(foundUser, foundInvitation.company), foundInvitation.company?.id);
 		}
 		const newUser = await this._dbContext.userRepository.saveRegisteringUser({
 			email: invitedUserEmail,
@@ -97,6 +97,6 @@ export class VerifyInviteUserInCompanyAndConnectionGroupUseCase
 		}
 		await this._dbContext.invitationInCompanyRepository.remove(foundInvitation);
 		await this.saasCompanyGatewayService.recountUsersInCompanyRequest(companyId);
-		return generateGwtToken(newUser, get2FaScope(newUser, foundInvitation.company));
+		return generateGwtToken(newUser, get2FaScope(newUser, foundInvitation.company), foundInvitation.company?.id);
 	}
 }

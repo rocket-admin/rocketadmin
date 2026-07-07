@@ -64,6 +64,7 @@ export class ValidateUserTokenUseCase
 			return {
 				sub: userId,
 				email: data.email ?? null,
+				companyId: data.companyId ?? null,
 				exp: data.exp ?? null,
 				iat: data.iat ?? null,
 			};

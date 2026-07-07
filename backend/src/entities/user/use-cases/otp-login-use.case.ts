@@ -52,7 +52,7 @@ export class OtpLoginUseCase extends AbstractUseCase<VerifyOtpDS, IToken> implem
 		await this.recordSignInAudit(foundUser.email, userId, SignInStatusEnum.SUCCESS, ipAddress, userAgent);
 
 		const foundUserCompany = await this._dbContext.companyInfoRepository.findCompanyInfoByUserId(foundUser.id);
-		return generateGwtToken(foundUser, get2FaScope(foundUser, foundUserCompany));
+		return generateGwtToken(foundUser, get2FaScope(foundUser, foundUserCompany), foundUserCompany?.id);
 	}
 
 	private async recordSignInAudit(

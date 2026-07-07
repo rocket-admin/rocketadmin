@@ -13,6 +13,8 @@ export interface ICognitoDecodedData {
 	exp: number;
 	iat: number;
 	email: string;
+	/** Id of the user's company; null for tokens issued before the claim was added. */
+	companyId: string | null;
 }
 
 /**
