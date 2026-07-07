@@ -21,11 +21,15 @@ import { CreatedConnectionDTO } from '../../entities/connection/application/dto/
 import { SaasUsualUserRegisterDS } from '../../entities/user/application/data-structures/usual-register-user.ds.js';
 import { FoundUserDto } from '../../entities/user/dto/found-user.dto.js';
 import { ExternalRegistrationProviderEnum } from '../../entities/user/enums/external-registration-provider.enum.js';
+import { ILogOut } from '../../entities/user/use-cases/user-use-cases.interfaces.js';
 import { UserEntity } from '../../entities/user/user.entity.js';
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { ValidationHelper } from '../../helpers/validators/validation-helper.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
+import { ValidatedUserTokenRO } from '../agents-microservice/data-structures/agents-responses.ds.js';
+import { ValidateUserTokenDto } from '../agents-microservice/dto/agents-auth.dtos.js';
+import { IValidateUserToken } from '../agents-microservice/use-cases/agents-use-cases.interface.js';
 import { CreatedConnectionResponse, SuccessResponse } from './data-structures/common-responce.ds.js';
 import { CreateConnectionForHostedDbDto } from './data-structures/create-connecttion-for-selfhosted-db.dto.js';
 import { DeleteConnectionForHostedDbDto } from './data-structures/delete-connection-for-hosted-db.dto.js';
@@ -72,6 +76,10 @@ import {
 @Injectable()
 export class SaasController {
 	constructor(
+		@Inject(UseCaseType.LOG_OUT)
+		private readonly logOutUseCase: ILogOut,
+		@Inject(UseCaseType.AGENTS_VALIDATE_USER_TOKEN)
+		private readonly validateUserTokenUseCase: IValidateUserToken,
 		@Inject(UseCaseType.SAAS_COMPANY_REGISTRATION)
 		private readonly companyRegistrationUseCase: ICompanyRegistration,
 		@Inject(UseCaseType.SAAS_GET_USER_INFO)
@@ -176,6 +184,33 @@ export class SaasController {
 			throw new BadRequestException(Messages.COMPANY_ID_MISSING);
 		}
 		return await this.usualRegisterUserUseCase.execute({ email, password, gclidValue, name, companyId, companyName });
+	}
+
+	@ApiOperation({ summary: 'Validate an end-user JWT on behalf of the SaaS service' })
+	@ApiResponse({
+		status: 201,
+		description: 'Token is valid (signature, logout blacklist, user existence, suspension, 2FA scope).',
+		type: ValidatedUserTokenRO,
+	})
+	@ApiBody({ type: ValidateUserTokenDto })
+	@Post('user/validate-token')
+	async validateUserToken(@Body() body: ValidateUserTokenDto): Promise<ValidatedUserTokenRO> {
+		return await this.validateUserTokenUseCase.execute(body.token, InTransactionEnum.OFF);
+	}
+
+	@ApiOperation({ summary: 'User logout webhook — blacklist an end-user JWT issued by the SaaS service' })
+	@ApiResponse({
+		status: 201,
+		description: 'Token added to the logout blacklist; every later validation of it fails.',
+		type: SuccessResponse,
+	})
+	@Post('user/logout')
+	async usualUserLogout(@Body('token') token: string): Promise<SuccessResponse> {
+		if (!token || typeof token !== 'string') {
+			throw new BadRequestException(Messages.TOKEN_MISSING);
+		}
+		const success = await this.logOutUseCase.execute(token, InTransactionEnum.ON);
+		return { success };
 	}
 
 	@ApiOperation({ summary: 'User login webhook' })
