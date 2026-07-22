@@ -29,4 +29,10 @@ export interface IRequestWithCognitoInfo extends Omit<Request, 'query' | 'params
 	query: Record<string, string | undefined>;
 	params: Record<string, string | undefined>;
 	decoded: Partial<ICognitoDecodedData>;
+	/**
+	 * Set by `SaaSAuthMiddleware` once a request has passed microservice-JWT auth.
+	 * The global throttler's `skipIf` reads this to exempt internal service-to-service
+	 * calls from rate limiting (they all originate from the same satellite IPs).
+	 */
+	isMicroserviceRequest?: boolean;
 }
