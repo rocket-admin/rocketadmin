@@ -4,6 +4,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AICoreModule } from './ai-core/ai-core.module.js';
 import { AppController } from './app.controller.js';
+import { IRequestWithCognitoInfo } from './authorization/cognito-decoded.interface.js';
 import { GlobalDatabaseContext } from './common/application/global-database-context.js';
 import { BaseType, UseCaseType } from './common/data-injection.tokens.js';
 import { AIModule } from './entities/ai/ai.module.js';
@@ -65,6 +66,14 @@ import { GetHelloUseCase } from './use-cases-app/get-hello.use.case.js';
 					limit: 200,
 				},
 			],
+			// Skip rate limiting for internal service-to-service calls: they are
+			// gated by SaaSAuthMiddleware (microservice JWT), which flags the request.
+			// All such calls share the satellites' IPs, so a per-IP limit would
+			// throttle them collectively; auth already bounds who can make them.
+			skipIf: (context) => {
+				const req = context.switchToHttp().getRequest<IRequestWithCognitoInfo>();
+				return req.isMicroserviceRequest === true;
+			},
 		}),
 		CedarAuthorizationModule,
 		AICoreModule,

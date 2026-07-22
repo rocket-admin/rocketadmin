@@ -27,6 +27,9 @@ export class SaaSAuthMiddleware implements NestMiddleware {
 			}
 
 			req.decoded = data;
+			// Mark the request as an internal service-to-service call so the global
+			// throttler skips it (see ThrottlerModule `skipIf` in app.module).
+			req.isMicroserviceRequest = true;
 			next();
 		} catch (_e) {
 			throw new UnauthorizedException(Messages.AUTHORIZATION_REJECTED);
