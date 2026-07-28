@@ -147,10 +147,14 @@ export class EmailService {
 		companyId: string,
 		invitedCompanyName: string,
 		customCompanyDomain: string | null,
+		verificationLinkBase: string | null = null,
 	): Promise<SMTPTransport.SentMessageInfo | null> {
 		const currentYear = new Date().getFullYear();
 		const domain = customCompanyDomain ? customCompanyDomain : Constants.APP_DOMAIN_ADDRESS;
-		const link = `${domain}/company/${companyId}/verify/${verificationString}/`;
+		// A satellite-provided base already carries the company id in its path.
+		const link = verificationLinkBase
+			? `${verificationLinkBase}/${verificationString}`
+			: `${domain}/company/${companyId}/verify/${verificationString}/`;
 		const companyName = invitedCompanyName ? ` "${invitedCompanyName}" ` : ` `;
 		const letterContent: IMessage = {
 			from: this.emailFrom,
@@ -170,9 +174,12 @@ export class EmailService {
 		email: string,
 		verificationString: string,
 		customCompanyDomain: string | null,
+		verificationLinkBase: string | null = null,
 	): Promise<SMTPTransport.SentMessageInfo | null> {
 		const domain = customCompanyDomain ? customCompanyDomain : Constants.APP_DOMAIN_ADDRESS;
-		const link = `${domain}/external/user/email/verify/${verificationString}`;
+		const link = verificationLinkBase
+			? `${verificationLinkBase}/${verificationString}`
+			: `${domain}/external/user/email/verify/${verificationString}`;
 		const currentYear = new Date().getFullYear();
 		const letterContent: IMessage = {
 			from: this.emailFrom,
@@ -200,10 +207,13 @@ export class EmailService {
 		email: string,
 		requestString: string,
 		customCompanyDomain: string | null,
+		verificationLinkBase: string | null = null,
 	): Promise<SMTPTransport.SentMessageInfo | null> {
 		const currentYear = new Date().getFullYear();
 		const domain = customCompanyDomain ? customCompanyDomain : Constants.APP_DOMAIN_ADDRESS;
-		const linkToConfirm = `${domain}/external/user/email/change/verify/${requestString}`;
+		const linkToConfirm = verificationLinkBase
+			? `${verificationLinkBase}/${requestString}`
+			: `${domain}/external/user/email/change/verify/${requestString}`;
 		const letterContent: IMessage = {
 			from: this.emailFrom,
 			to: email,
@@ -218,10 +228,13 @@ export class EmailService {
 		email: string,
 		requestString: string,
 		customCompanyDomain: string | null,
+		verificationLinkBase: string | null = null,
 	): Promise<SMTPTransport.SentMessageInfo | null> {
 		const currentYear = new Date().getFullYear();
 		const domain = customCompanyDomain ? customCompanyDomain : Constants.APP_DOMAIN_ADDRESS;
-		const linkToConfirm = `${domain}/external/user/password/reset/verify/${requestString}`;
+		const linkToConfirm = verificationLinkBase
+			? `${verificationLinkBase}/${requestString}`
+			: `${domain}/external/user/password/reset/verify/${requestString}`;
 		const letterContent: IMessage = {
 			from: this.emailFrom,
 			to: email,

@@ -5,14 +5,17 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
-import { generateGwtToken, IToken } from '../../user/utils/generate-gwt-token.js';
+import { generateGwtToken } from '../../user/utils/generate-gwt-token.js';
 import { get2FaScope } from '../../user/utils/is-jwt-scope-need.util.js';
-import { AcceptUserValidationInCompany } from '../application/data-structures/accept-user-invitation-in-company.ds.js';
+import {
+	AcceptedCompanyInvitationDs,
+	AcceptUserValidationInCompany,
+} from '../application/data-structures/accept-user-invitation-in-company.ds.js';
 import { IVerifyInviteUserInCompanyAndConnectionGroup } from './company-info-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class VerifyInviteUserInCompanyAndConnectionGroupUseCase
-	extends AbstractUseCase<AcceptUserValidationInCompany, IToken>
+	extends AbstractUseCase<AcceptUserValidationInCompany, AcceptedCompanyInvitationDs>
 	implements IVerifyInviteUserInCompanyAndConnectionGroup
 {
 	constructor(
@@ -23,7 +26,7 @@ export class VerifyInviteUserInCompanyAndConnectionGroupUseCase
 		super();
 	}
 
-	protected async implementation(inputData: AcceptUserValidationInCompany): Promise<IToken> {
+	protected async implementation(inputData: AcceptUserValidationInCompany): Promise<AcceptedCompanyInvitationDs> {
 		const { verificationString, userPassword, userName } = inputData;
 		const hashedToken = Encryptor.hashVerificationToken(verificationString);
 		const foundInvitation =
@@ -65,7 +68,18 @@ export class VerifyInviteUserInCompanyAndConnectionGroupUseCase
 			foundUser.isActive = true;
 			foundUser.role = role;
 			await this._dbContext.userRepository.saveUserEntity(foundUser);
-			return generateGwtToken(foundUser, get2FaScope(foundUser, foundInvitation.company), foundInvitation.company?.id);
+			const tokenInfo = generateGwtToken(
+				foundUser,
+				get2FaScope(foundUser, foundInvitation.company),
+				foundInvitation.company?.id,
+			);
+			return {
+				...tokenInfo,
+				userId: foundUser.id,
+				userEmail: foundUser.email,
+				userName: foundUser.name ?? null,
+				companyId,
+			};
 		}
 		const newUser = await this._dbContext.userRepository.saveRegisteringUser({
 			email: invitedUserEmail,
@@ -97,6 +111,17 @@ export class VerifyInviteUserInCompanyAndConnectionGroupUseCase
 		}
 		await this._dbContext.invitationInCompanyRepository.remove(foundInvitation);
 		await this.saasCompanyGatewayService.recountUsersInCompanyRequest(companyId);
-		return generateGwtToken(newUser, get2FaScope(newUser, foundInvitation.company), foundInvitation.company?.id);
+		const tokenInfo = generateGwtToken(
+			newUser,
+			get2FaScope(newUser, foundInvitation.company),
+			foundInvitation.company?.id,
+		);
+		return {
+			...tokenInfo,
+			userId: savedUser.id,
+			userEmail: savedUser.email,
+			userName: savedUser.name ?? null,
+			companyId,
+		};
 	}
 }

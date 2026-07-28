@@ -5,6 +5,7 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { isTest } from '../../../helpers/app/is-test.js';
+import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
 import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { EmailService } from '../../email/email/email.service.js';
 import { WinstonLogger } from '../../logging/winston-logger.js';
@@ -79,6 +80,7 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
 				foundInvitedUser.email,
 				rawToken,
 				companyCustomDomain,
+				ValidationHelper.resolveEmailVerificationLinkBase(inputData.emailVerificationLinkBase),
 			);
 
 			if (!sendEmailResult && !isTest() && !isSaaS()) {
@@ -115,6 +117,7 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
 			companyId,
 			foundCompany.name,
 			companyCustomDomain,
+			ValidationHelper.resolveEmailVerificationLinkBase(inputData.inviteLinkBase),
 		);
 		const invitationRO: any = {
 			companyId: companyId,

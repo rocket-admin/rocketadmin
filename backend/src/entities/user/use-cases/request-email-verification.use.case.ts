@@ -3,14 +3,16 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
 import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { EmailService } from '../../email/email/email.service.js';
 import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds.js';
+import { RequestEmailVerificationDs } from '../application/data-structures/request-email-change.ds.js';
 import { IRequestEmailVerification } from './user-use-cases.interfaces.js';
 
 @Injectable()
 export class RequestEmailVerificationUseCase
-	extends AbstractUseCase<string, OperationResultMessageDs>
+	extends AbstractUseCase<RequestEmailVerificationDs, OperationResultMessageDs>
 	implements IRequestEmailVerification
 {
 	constructor(
@@ -22,7 +24,8 @@ export class RequestEmailVerificationUseCase
 		super();
 	}
 
-	protected async implementation(userId: string): Promise<OperationResultMessageDs> {
+	protected async implementation(inputData: RequestEmailVerificationDs): Promise<OperationResultMessageDs> {
+		const { userId } = inputData;
 		const foundUser = await this._dbContext.userRepository.findOneUserWithEmailVerification(userId);
 		if (!foundUser) {
 			throw new HttpException(
@@ -44,7 +47,12 @@ export class RequestEmailVerificationUseCase
 		const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(foundUserCompany.id);
 
 		const { rawToken } = await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(foundUser);
-		await this.emailService.sendEmailConfirmation(foundUser.email, rawToken, companyCustomDomain);
+		await this.emailService.sendEmailConfirmation(
+			foundUser.email,
+			rawToken,
+			companyCustomDomain,
+			ValidationHelper.resolveEmailVerificationLinkBase(inputData.verificationLinkBase),
+		);
 		return { message: Messages.EMAIL_VERIFICATION_REQUESTED };
 	}
 }

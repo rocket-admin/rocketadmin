@@ -12,6 +12,10 @@ import {
 	OtpValidationResultDS,
 } from '../application/data-structures/otp-validation-result.ds.js';
 import { RegisteredUserDs } from '../application/data-structures/registered-user.ds.js';
+import {
+	RequestEmailChangeDs,
+	RequestEmailVerificationDs,
+} from '../application/data-structures/request-email-change.ds.js';
 import { ResetUsualUserPasswordDs } from '../application/data-structures/reset-usual-user-password.ds.js';
 import { SaveUserSettingsDs } from '../application/data-structures/save-user-settings.ds.js';
 import { ToggleConnectionDisplayModeDs } from '../application/data-structures/toggle-connection-display-mode.ds.js';
@@ -54,7 +58,7 @@ export interface IRequestPasswordReset {
 }
 
 export interface IRequestEmailChange {
-	execute(userId: string, inTransaction: InTransactionEnum): Promise<OperationResultMessageDs>;
+	execute(inputData: RequestEmailChangeDs, inTransaction: InTransactionEnum): Promise<OperationResultMessageDs>;
 }
 
 export interface IVerifyEmailChange {
@@ -62,7 +66,7 @@ export interface IVerifyEmailChange {
 }
 
 export interface IRequestEmailVerification {
-	execute(userId: string, inTransaction: InTransactionEnum): Promise<OperationResultMessageDs>;
+	execute(inputData: RequestEmailVerificationDs, inTransaction: InTransactionEnum): Promise<OperationResultMessageDs>;
 }
 
 export interface IDeleteUserAccount {

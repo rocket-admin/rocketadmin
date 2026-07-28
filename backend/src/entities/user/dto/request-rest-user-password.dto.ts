@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class RequestRestUserPasswordDto {
 	@ApiProperty()
@@ -13,4 +13,14 @@ export class RequestRestUserPasswordDto {
 	@IsString()
 	@IsUUID()
 	companyId: string;
+
+	@ApiProperty({
+		required: false,
+		description:
+			'Full URL prefix the reset token is appended to (satellite-provided; validated against the SaaS ' +
+			'domain allowlist, otherwise the legacy frontend link is built).',
+	})
+	@IsOptional()
+	@IsString()
+	verificationLinkBase?: string;
 }

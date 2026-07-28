@@ -14,14 +14,38 @@ import {
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
+import { VerificationString } from '../../decorators/slug-verification.decorator.js';
 import { Timeout } from '../../decorators/timeout.decorator.js';
+import {
+	AcceptedCompanyInvitationDs,
+	AcceptUserValidationInCompany,
+} from '../../entities/company-info/application/data-structures/accept-user-invitation-in-company.ds.js';
 import { FoundUserEmailCompaniesInfoDs } from '../../entities/company-info/application/data-structures/found-company-info.ds.js';
+import { InvitedUserInCompanyAndConnectionGroupDs } from '../../entities/company-info/application/data-structures/invited-user-in-company-and-connection-group.ds.js';
+import { VerifyCompanyInvitationRequestDto } from '../../entities/company-info/application/dto/verify-company-invitation-request-dto.js';
 import { CompanyInfoEntity } from '../../entities/company-info/company-info.entity.js';
+import {
+	IInviteUserInCompanyAndConnectionGroup,
+	IVerifyInviteUserInCompanyAndConnectionGroup,
+} from '../../entities/company-info/use-cases/company-info-use-cases.interface.js';
 import { CreatedConnectionDTO } from '../../entities/connection/application/dto/created-connection.dto.js';
+import { OperationResultMessageDs } from '../../entities/user/application/data-structures/operation-result-message.ds.js';
+import { RegisteredUserDs } from '../../entities/user/application/data-structures/registered-user.ds.js';
 import { SaasUsualUserRegisterDS } from '../../entities/user/application/data-structures/usual-register-user.ds.js';
+import { EmailDto } from '../../entities/user/dto/email.dto.js';
 import { FoundUserDto } from '../../entities/user/dto/found-user.dto.js';
+import { PasswordDto } from '../../entities/user/dto/password.dto.js';
+import { RequestRestUserPasswordDto } from '../../entities/user/dto/request-rest-user-password.dto.js';
 import { ExternalRegistrationProviderEnum } from '../../entities/user/enums/external-registration-provider.enum.js';
-import { ILogOut } from '../../entities/user/use-cases/user-use-cases.interfaces.js';
+import {
+	ILogOut,
+	IRequestEmailChange,
+	IRequestEmailVerification,
+	IRequestPasswordReset,
+	IVerifyEmail,
+	IVerifyEmailChange,
+	IVerifyPasswordReset,
+} from '../../entities/user/use-cases/user-use-cases.interfaces.js';
 import { UserEntity } from '../../entities/user/user.entity.js';
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { Messages } from '../../exceptions/text/messages.js';
@@ -40,6 +64,7 @@ import { GetHostedConnectionCredentialsDto } from './data-structures/get-hosted-
 import { HostedConnectionCredentialsRO } from './data-structures/hosted-connection-credentials.ro.js';
 import { RegisterCompanyWebhookDS } from './data-structures/register-company.ds.js';
 import { RegisteredCompanyDS } from './data-structures/registered-company.ds.js';
+import { SaasInviteUserInCompanyDto, SaasUserIdWithLinkBaseDto } from './data-structures/saas-email-flows.dtos.js';
 import { SaasRegisterUserWithGithub } from './data-structures/saas-register-user-with-github.js';
 import { SaasSAMLUserRegisterDS } from './data-structures/saas-saml-user-register.ds.js';
 import { SaasRegisterUserWithGoogleDS } from './data-structures/sass-register-user-with-google.js';
@@ -122,6 +147,22 @@ export class SaasController {
 		private readonly getConnectionsInfoByIdsUseCase: IGetConnectionsInfoByIds,
 		@Inject(UseCaseType.SAAS_GET_HOSTED_CONNECTION_CREDENTIALS)
 		private readonly getHostedConnectionCredentialsUseCase: IGetHostedConnectionCredentials,
+		@Inject(UseCaseType.VERIFY_EMAIL)
+		private readonly verifyEmailUseCase: IVerifyEmail,
+		@Inject(UseCaseType.REQUEST_RESET_USER_PASSWORD)
+		private readonly requestResetUserPasswordUseCase: IRequestPasswordReset,
+		@Inject(UseCaseType.VERIFY_RESET_USER_PASSWORD)
+		private readonly verifyResetUserPasswordUseCase: IVerifyPasswordReset,
+		@Inject(UseCaseType.REQUEST_CHANGE_USER_EMAIL)
+		private readonly requestChangeUserEmailUseCase: IRequestEmailChange,
+		@Inject(UseCaseType.VERIFY_EMAIL_CHANGE)
+		private readonly verifyChangeUserEmailUseCase: IVerifyEmailChange,
+		@Inject(UseCaseType.VERIFY_EMAIL_REQUEST)
+		private readonly requestEmailVerificationUseCase: IRequestEmailVerification,
+		@Inject(UseCaseType.INVITE_USER_IN_COMPANY_AND_CONNECTION_GROUP)
+		private readonly inviteUserInCompanyUseCase: IInviteUserInCompanyAndConnectionGroup,
+		@Inject(UseCaseType.VERIFY_INVITE_USER_IN_COMPANY_AND_CONNECTION_GROUP)
+		private readonly verifyInviteUserInCompanyUseCase: IVerifyInviteUserInCompanyAndConnectionGroup,
 	) {}
 
 	@ApiOperation({ summary: 'Company registered webhook' })
@@ -179,11 +220,144 @@ export class SaasController {
 		@Body('name') name: string,
 		@Body('companyId') companyId: string,
 		@Body('companyName') companyName: string,
+		@Body('emailVerificationLinkBase') emailVerificationLinkBase: string,
 	): Promise<FoundUserDto> {
 		if (!companyId) {
 			throw new BadRequestException(Messages.COMPANY_ID_MISSING);
 		}
-		return await this.usualRegisterUserUseCase.execute({ email, password, gclidValue, name, companyId, companyName });
+		return await this.usualRegisterUserUseCase.execute({
+			email,
+			password,
+			gclidValue,
+			name,
+			companyId,
+			companyName,
+			emailVerificationLinkBase,
+		});
+	}
+
+	// NOTE: declared before `user/email/verify/:verificationString` so the literal `request`
+	// segment is not captured as a verification token.
+	@ApiOperation({ summary: 'Re-send the email-confirmation letter on behalf of the SaaS service' })
+	@ApiBody({ type: SaasUserIdWithLinkBaseDto })
+	@ApiResponse({ status: 201, type: OperationResultMessageDs })
+	@Post('user/email/verify/request')
+	async requestSaasUserEmailVerification(@Body() body: SaasUserIdWithLinkBaseDto): Promise<OperationResultMessageDs> {
+		return await this.requestEmailVerificationUseCase.execute(
+			{ userId: body.userId, verificationLinkBase: body.verificationLinkBase },
+			InTransactionEnum.ON,
+		);
+	}
+
+	@ApiOperation({ summary: 'Verify user email on behalf of the SaaS service' })
+	@ApiResponse({
+		status: 201,
+		description: 'Email verified — the user is activated and the verification token is consumed.',
+		type: OperationResultMessageDs,
+	})
+	@Post('user/email/verify/:verificationString')
+	async verifySaasUserEmail(
+		@VerificationString('verificationString') verificationString: string,
+	): Promise<OperationResultMessageDs> {
+		return await this.verifyEmailUseCase.execute(verificationString, InTransactionEnum.ON);
+	}
+
+	@ApiOperation({ summary: 'Request a password-reset email on behalf of the SaaS service' })
+	@ApiBody({ type: RequestRestUserPasswordDto })
+	@ApiResponse({ status: 201, type: OperationResultMessageDs })
+	@Post('user/password/reset/request')
+	async requestSaasUserPasswordReset(@Body() body: RequestRestUserPasswordDto): Promise<OperationResultMessageDs> {
+		return await this.requestResetUserPasswordUseCase.execute(body, InTransactionEnum.ON);
+	}
+
+	@ApiOperation({ summary: 'Consume a password-reset token on behalf of the SaaS service' })
+	@ApiBody({ type: PasswordDto })
+	@ApiResponse({
+		status: 201,
+		description:
+			'Password replaced; returns the user identity (the core-signed token is ignored by the SaaS caller, ' +
+			'which signs its own cookie).',
+		type: RegisteredUserDs,
+	})
+	@Post('user/password/reset/verify/:verificationString')
+	async verifySaasUserPasswordReset(
+		@VerificationString('verificationString') verificationString: string,
+		@Body() passwordData: PasswordDto,
+	): Promise<RegisteredUserDs> {
+		return await this.verifyResetUserPasswordUseCase.execute(
+			{ verificationString, newUserPassword: passwordData.password },
+			InTransactionEnum.ON,
+		);
+	}
+
+	@ApiOperation({ summary: 'Request an email-change letter on behalf of the SaaS service' })
+	@ApiBody({ type: SaasUserIdWithLinkBaseDto })
+	@ApiResponse({ status: 201, type: OperationResultMessageDs })
+	@Post('user/email/change/request')
+	async requestSaasUserEmailChange(@Body() body: SaasUserIdWithLinkBaseDto): Promise<OperationResultMessageDs> {
+		return await this.requestChangeUserEmailUseCase.execute(
+			{ userId: body.userId, verificationLinkBase: body.verificationLinkBase },
+			InTransactionEnum.ON,
+		);
+	}
+
+	@ApiOperation({ summary: 'Consume an email-change token on behalf of the SaaS service' })
+	@ApiBody({ type: EmailDto })
+	@ApiResponse({ status: 201, type: OperationResultMessageDs })
+	@Post('user/email/change/verify/:verificationString')
+	async verifySaasUserEmailChange(
+		@VerificationString('verificationString') verificationString: string,
+		@Body() emailData: EmailDto,
+	): Promise<OperationResultMessageDs> {
+		return await this.verifyChangeUserEmailUseCase.execute(
+			{ verificationString, newEmail: emailData.email },
+			InTransactionEnum.OFF,
+		);
+	}
+
+	@ApiOperation({ summary: 'Invite a user into a company on behalf of the SaaS service' })
+	@ApiBody({ type: SaasInviteUserInCompanyDto })
+	@ApiResponse({ status: 201, type: InvitedUserInCompanyAndConnectionGroupDs })
+	@Post('company/:companyId/invite')
+	async inviteSaasUserInCompany(
+		@Param('companyId') companyId: string,
+		@Body() body: SaasInviteUserInCompanyDto,
+	): Promise<InvitedUserInCompanyAndConnectionGroupDs> {
+		if (!ValidationHelper.isValidUUID(companyId)) {
+			throw new BadRequestException(Messages.COMPANY_ID_MISSING);
+		}
+		// Authorization (company admin, ownership of inviterId) is enforced by the SaaS caller —
+		// this bridge only trusts the microservice JWT, exactly like `saas/user/register`.
+		return await this.inviteUserInCompanyUseCase.execute({
+			inviterId: body.inviterId,
+			companyId,
+			groupId: body.groupId ?? null,
+			invitedUserEmail: body.email,
+			invitedUserCompanyRole: body.role,
+			inviteLinkBase: body.inviteLinkBase,
+			emailVerificationLinkBase: body.emailVerificationLinkBase,
+		});
+	}
+
+	@ApiOperation({ summary: 'Accept a company invitation on behalf of the SaaS service' })
+	@ApiBody({ type: VerifyCompanyInvitationRequestDto })
+	@ApiResponse({
+		status: 201,
+		description: 'Invitation accepted; returns the user identity so the SaaS caller can sign its own cookie.',
+		type: AcceptedCompanyInvitationDs,
+	})
+	@Post('company/invite/verify/:verificationString')
+	async verifySaasCompanyInvitation(
+		@VerificationString('verificationString') verificationString: string,
+		@Body() verificationData: VerifyCompanyInvitationRequestDto,
+	): Promise<AcceptedCompanyInvitationDs> {
+		ValidationHelper.isPasswordStrongOrThrowError(verificationData.password);
+		const inputData: AcceptUserValidationInCompany = {
+			verificationString,
+			userPassword: verificationData.password,
+			userName: verificationData.userName,
+		};
+		return await this.verifyInviteUserInCompanyUseCase.execute(inputData, InTransactionEnum.OFF);
 	}
 
 	@ApiOperation({ summary: 'Validate an end-user JWT on behalf of the SaaS service' })

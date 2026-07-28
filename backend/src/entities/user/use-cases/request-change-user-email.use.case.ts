@@ -3,14 +3,16 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
 import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { EmailService } from '../../email/email/email.service.js';
 import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds.js';
+import { RequestEmailChangeDs } from '../application/data-structures/request-email-change.ds.js';
 import { IRequestEmailChange } from './user-use-cases.interfaces.js';
 
 @Injectable()
 export class RequestChangeUserEmailUseCase
-	extends AbstractUseCase<string, OperationResultMessageDs>
+	extends AbstractUseCase<RequestEmailChangeDs, OperationResultMessageDs>
 	implements IRequestEmailChange
 {
 	constructor(
@@ -22,7 +24,8 @@ export class RequestChangeUserEmailUseCase
 		super();
 	}
 
-	protected async implementation(userId: string): Promise<OperationResultMessageDs> {
+	protected async implementation(inputData: RequestEmailChangeDs): Promise<OperationResultMessageDs> {
+		const { userId } = inputData;
 		const foundUser = await this._dbContext.userRepository.findOneUserById(userId);
 		if (!foundUser) {
 			throw new HttpException(
@@ -47,6 +50,7 @@ export class RequestChangeUserEmailUseCase
 			foundUser.email,
 			rawToken,
 			companyCustomDomain,
+			ValidationHelper.resolveEmailVerificationLinkBase(inputData.verificationLinkBase),
 		);
 		const resultMessage = mailingResult?.messageId
 			? Messages.EMAIL_CHANGE_REQUESTED_SUCCESSFULLY
