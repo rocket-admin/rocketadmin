@@ -259,7 +259,7 @@ export class UserController {
 	@Throttle({ default: { limit: isTest() ? 200 : 5, ttl: 60000 } })
 	@Get('user/email/verify/request')
 	async requestEmailVerification(@UserId() userId: string): Promise<OperationResultMessageDs> {
-		return await this.requestEmailVerificationUseCase.execute(userId, InTransactionEnum.ON);
+		return await this.requestEmailVerificationUseCase.execute({ userId }, InTransactionEnum.ON);
 	}
 
 	@ApiOperation({ summary: 'Verify user email' })
@@ -318,7 +318,7 @@ export class UserController {
 	@Throttle({ default: { limit: isTest() ? 200 : 5, ttl: 60000 } })
 	@Get('user/email/change/request/')
 	async askChangeUserEmail(@UserId() userId: string): Promise<OperationResultMessageDs> {
-		return await this.requestChangeUserEmailUseCase.execute(userId, InTransactionEnum.ON);
+		return await this.requestChangeUserEmailUseCase.execute({ userId }, InTransactionEnum.ON);
 	}
 
 	@ApiOperation({ summary: 'Verify user email change' })

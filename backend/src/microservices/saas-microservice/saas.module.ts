@@ -3,7 +3,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { SaaSAuthMiddleware } from '../../authorization/saas-auth.middleware.js';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
+import { CompanyInfoHelperService } from '../../entities/company-info/company-info-helper.service.js';
+import { InviteUserInCompanyAndConnectionGroupUseCase } from '../../entities/company-info/use-cases/invite-user-in-company.use.case.js';
+import { VerifyInviteUserInCompanyAndConnectionGroupUseCase } from '../../entities/company-info/use-cases/verify-invite-user-in-company.use.case.js';
 import { LogOutUseCase } from '../../entities/user/use-cases/log-out.use.case.js';
+import { RequestChangeUserEmailUseCase } from '../../entities/user/use-cases/request-change-user-email.use.case.js';
+import { RequestEmailVerificationUseCase } from '../../entities/user/use-cases/request-email-verification.use.case.js';
+import { RequestResetUserPasswordUseCase } from '../../entities/user/use-cases/request-reset-user-password.use.case.js';
+import { VerifyChangeUserEmailUseCase } from '../../entities/user/use-cases/verify-change-user-email.use.case.js';
+import { VerifyResetUserPasswordUseCase } from '../../entities/user/use-cases/verify-reset-user-password.use.case.js';
+import { VerifyUserEmailUseCase } from '../../entities/user/use-cases/verify-user-email.use.case.js';
 import { UserEntity } from '../../entities/user/user.entity.js';
 import { SignInAuditEntity } from '../../entities/user-sign-in-audit/sign-in-audit.entity.js';
 import { SignInAuditService } from '../../entities/user-sign-in-audit/sign-in-audit.service.js';
@@ -130,6 +139,39 @@ import { UpdateHostedConnectionPasswordUseCase } from './use-cases/update-hosted
 			provide: UseCaseType.SAAS_GET_HOSTED_CONNECTION_CREDENTIALS,
 			useClass: GetHostedConnectionCredentialsUseCase,
 		},
+		{
+			provide: UseCaseType.VERIFY_EMAIL,
+			useClass: VerifyUserEmailUseCase,
+		},
+		{
+			provide: UseCaseType.REQUEST_RESET_USER_PASSWORD,
+			useClass: RequestResetUserPasswordUseCase,
+		},
+		{
+			provide: UseCaseType.VERIFY_RESET_USER_PASSWORD,
+			useClass: VerifyResetUserPasswordUseCase,
+		},
+		{
+			provide: UseCaseType.REQUEST_CHANGE_USER_EMAIL,
+			useClass: RequestChangeUserEmailUseCase,
+		},
+		{
+			provide: UseCaseType.VERIFY_EMAIL_CHANGE,
+			useClass: VerifyChangeUserEmailUseCase,
+		},
+		{
+			provide: UseCaseType.VERIFY_EMAIL_REQUEST,
+			useClass: RequestEmailVerificationUseCase,
+		},
+		{
+			provide: UseCaseType.INVITE_USER_IN_COMPANY_AND_CONNECTION_GROUP,
+			useClass: InviteUserInCompanyAndConnectionGroupUseCase,
+		},
+		{
+			provide: UseCaseType.VERIFY_INVITE_USER_IN_COMPANY_AND_CONNECTION_GROUP,
+			useClass: VerifyInviteUserInCompanyAndConnectionGroupUseCase,
+		},
+		CompanyInfoHelperService,
 		SignInAuditService,
 	],
 	controllers: [SaasController],
@@ -144,6 +186,14 @@ export class SaasModule {
 				{ path: 'saas/user/:userId', method: RequestMethod.GET },
 				{ path: 'saas/users/email/:userEmail', method: RequestMethod.GET },
 				{ path: 'saas/user/register', method: RequestMethod.POST },
+				{ path: 'saas/user/email/verify/request', method: RequestMethod.POST },
+				{ path: 'saas/user/email/verify/:verificationString', method: RequestMethod.POST },
+				{ path: 'saas/user/password/reset/request', method: RequestMethod.POST },
+				{ path: 'saas/user/password/reset/verify/:verificationString', method: RequestMethod.POST },
+				{ path: 'saas/user/email/change/request', method: RequestMethod.POST },
+				{ path: 'saas/user/email/change/verify/:verificationString', method: RequestMethod.POST },
+				{ path: 'saas/company/:companyId/invite', method: RequestMethod.POST },
+				{ path: 'saas/company/invite/verify/:verificationString', method: RequestMethod.POST },
 				{ path: 'saas/user/login', method: RequestMethod.POST },
 				{ path: 'saas/user/logout', method: RequestMethod.POST },
 				{ path: 'saas/user/validate-token', method: RequestMethod.POST },

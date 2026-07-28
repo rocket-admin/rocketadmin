@@ -1,8 +1,10 @@
 import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { SimpleFoundUserInCompanyInfoDs } from '../../user/dto/found-user.dto.js';
-import { IToken } from '../../user/utils/generate-gwt-token.js';
-import { AcceptUserValidationInCompany } from '../application/data-structures/accept-user-invitation-in-company.ds.js';
+import {
+	AcceptedCompanyInvitationDs,
+	AcceptUserValidationInCompany,
+} from '../application/data-structures/accept-user-invitation-in-company.ds.js';
 import { AddCompanyTabTitleDs } from '../application/data-structures/add-company-tab-title.ds.js';
 import {
 	FoundUserCompanyInfoDs,
@@ -29,7 +31,10 @@ export interface IInviteUserInCompanyAndConnectionGroup {
 }
 
 export interface IVerifyInviteUserInCompanyAndConnectionGroup {
-	execute(inputData: AcceptUserValidationInCompany, inTransaction?: InTransactionEnum): Promise<IToken>;
+	execute(
+		inputData: AcceptUserValidationInCompany,
+		inTransaction?: InTransactionEnum,
+	): Promise<AcceptedCompanyInvitationDs>;
 }
 
 export interface IGetUserCompany {

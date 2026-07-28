@@ -3,6 +3,7 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
 import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { EmailService } from '../../email/email/email.service.js';
 import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds.js';
@@ -42,6 +43,7 @@ export class RequestResetUserPasswordUseCase
 			foundUser.email,
 			rawToken,
 			companyCustomDomain,
+			ValidationHelper.resolveEmailVerificationLinkBase(emailData.verificationLinkBase),
 		);
 		const resultMessage = mailingResult?.messageId
 			? Messages.PASSWORD_RESET_REQUESTED_SUCCESSFULLY

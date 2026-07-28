@@ -24,4 +24,12 @@ export class SaasUsualUserRegisterDS extends UsualRegisterUserDs {
 
 	@ApiProperty({ required: false })
 	companyName?: string;
+
+	@ApiProperty({
+		required: false,
+		description:
+			'Full URL prefix the confirmation token is appended to (e.g. "https://app.sitenova.com/saas/user/email/verify"). ' +
+			'When omitted or not allowed, the legacy frontend link is built instead.',
+	})
+	emailVerificationLinkBase?: string;
 }
