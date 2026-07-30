@@ -72,7 +72,10 @@ export class PublicAccessPanelComponent implements OnInit {
 	protected canDisable = computed(() => this.publicPermissions().enabled);
 
 	constructor() {
-		// Seed the local editing state whenever the server state (re)loads.
+		// Seed the local editing state whenever the server state (re)loads, so an external change
+		// to public access is picked up. Editing is blocked while a save is in flight (see the
+		// submitting() bindings in the template), which is the only window where this re-seed
+		// could otherwise discard an unsaved edit.
 		effect(() => {
 			const stored = this.publicPermissions().tables;
 			const seeded: TableSelection = new Map();
@@ -81,13 +84,13 @@ export class PublicAccessPanelComponent implements OnInit {
 			}
 			this.selection.set(seeded);
 
+			// Every already-public table needs its columns, not just the restricted ones: an
+			// unrestricted table still renders the column picker, which would otherwise be empty.
 			// Kept untracked: _loadColumns both reads and writes the column signals, so tracking it
 			// would make a finished column fetch re-run this effect and clobber edits made meanwhile.
 			untracked(() => {
 				for (const table of stored) {
-					if (table.readableColumns?.length) {
-						this._loadColumns(table.tableName);
-					}
+					this._loadColumns(table.tableName);
 				}
 			});
 		});
@@ -97,17 +100,22 @@ export class PublicAccessPanelComponent implements OnInit {
 		this.connectionID = this._connections.currentConnectionID;
 		this._usersService.loadPublicPermissions(this.connectionID);
 
+		// fetchTables does not swallow errors, so clear the loading state on failure too —
+		// otherwise the panel body is stuck on the content loader forever.
 		this._tablesService
 			.fetchTables(this.connectionID)
 			.pipe(takeUntilDestroyed(this._destroyRef))
-			.subscribe((tables) => {
-				this.tables.set(
-					tables.map((t) => ({
-						tableName: t.table,
-						displayName: t.display_name || normalizeTableName(t.table),
-					})),
-				);
-				this.tablesLoading.set(false);
+			.subscribe({
+				next: (tables) => {
+					this.tables.set(
+						tables.map((t) => ({
+							tableName: t.table,
+							displayName: t.display_name || normalizeTableName(t.table),
+						})),
+					);
+					this.tablesLoading.set(false);
+				},
+				error: () => this.tablesLoading.set(false),
 			});
 	}
 

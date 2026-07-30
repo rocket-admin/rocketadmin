@@ -6,6 +6,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { provideRouter } from '@angular/router';
 import { Angulartics2Module } from 'angulartics2';
 import { of } from 'rxjs';
+import { PublicPermissions } from 'src/app/models/user';
 import { CedarPermissionService } from 'src/app/services/cedar-permission.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { UsersService } from 'src/app/services/users.service';
@@ -56,8 +57,8 @@ describe('UsersComponent', () => {
 		fetchGroupUsers: vi.fn().mockResolvedValue([]),
 		fetchAllGroupUsers: vi.fn().mockResolvedValue(undefined),
 		fetchConnectionUsers: vi.fn(),
-		publicPermissions: signal({ enabled: false, tables: [] }).asReadonly() as any,
-		publicPermissionsLoading: signal(false).asReadonly() as any,
+		publicPermissions: signal<PublicPermissions>({ enabled: false, tables: [] }).asReadonly(),
+		publicPermissionsLoading: signal(false).asReadonly(),
 		loadPublicPermissions: vi.fn(),
 		savePublicPermissions: vi.fn().mockResolvedValue(undefined),
 	};

@@ -1,7 +1,7 @@
 import { Signal, signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { PublicPermissions } from 'src/app/models/user';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { TablesService } from 'src/app/services/tables.service';
@@ -13,6 +13,7 @@ type PublicAccessPanelTestable = PublicAccessPanelComponent & {
 	selectedCount: Signal<number>;
 	canDisable: Signal<boolean>;
 	tablesLoading: WritableSignal<boolean>;
+	submitting: WritableSignal<boolean>;
 	tables: Signal<Array<{ tableName: string; displayName: string }>>;
 };
 
@@ -107,9 +108,19 @@ describe('PublicAccessPanelComponent', () => {
 		expect(component.selectedColumns('orders')).toEqual([]);
 		expect(testable.statusLabel()).toBe('2 tables');
 		expect(testable.canDisable()).toBe(true);
-		// Columns are only fetched for tables that already carry a whitelist.
+	});
+
+	it('should preload columns for every stored table, restricted or not', () => {
+		publicPermissions.set({
+			enabled: true,
+			tables: [{ tableName: 'customers', readableColumns: ['id'] }, { tableName: 'orders' }],
+		});
+		fixture.detectChanges();
+
+		// An unrestricted table still renders the column picker, so it needs its options too.
 		expect(mockTablesService.fetchTableStructure).toHaveBeenCalledWith(CONNECTION_ID, 'customers');
-		expect(mockTablesService.fetchTableStructure).not.toHaveBeenCalledWith(CONNECTION_ID, 'orders');
+		expect(mockTablesService.fetchTableStructure).toHaveBeenCalledWith(CONNECTION_ID, 'orders');
+		expect(component.availableColumns('orders')).toEqual(['id', 'name', 'secret']);
 	});
 
 	it('should singularize the status label for one table', () => {
@@ -163,6 +174,38 @@ describe('PublicAccessPanelComponent', () => {
 		expect(mockUsersService.savePublicPermissions).toHaveBeenCalledWith(CONNECTION_ID, [
 			{ tableName: 'orders', readableColumns: undefined },
 		]);
+	});
+
+	it('should clear the loading state when the table list fails to load', () => {
+		mockTablesService.fetchTables = vi.fn().mockReturnValue(throwError(() => new Error('boom')));
+
+		const failing = TestBed.createComponent(PublicAccessPanelComponent);
+		failing.detectChanges();
+
+		expect((failing.componentInstance as PublicAccessPanelTestable).tablesLoading()).toBe(false);
+	});
+
+	it('should block editing while a save is in flight', async () => {
+		let resolveSave: () => void = () => {};
+		mockUsersService.savePublicPermissions = vi
+			.fn()
+			.mockReturnValue(new Promise<void>((resolve) => (resolveSave = resolve)));
+
+		component.toggleTable('customers', true);
+		const saving = component.save();
+		fixture.detectChanges();
+
+		// The re-seed after reload can only discard an edit made in this window, so it is closed off.
+		expect((component as PublicAccessPanelTestable).submitting()).toBe(true);
+		const host: HTMLElement = fixture.nativeElement;
+		fixture.nativeElement.querySelector('mat-expansion-panel-header').click();
+		fixture.detectChanges();
+		await fixture.whenStable();
+		expect(host.querySelector('mat-checkbox input')?.hasAttribute('disabled')).toBe(true);
+
+		resolveSave();
+		await saving;
+		expect((component as PublicAccessPanelTestable).submitting()).toBe(false);
 	});
 
 	it('should render the table list and column picker once expanded', async () => {

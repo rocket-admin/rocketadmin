@@ -30,6 +30,7 @@
                     <li class="public-access-table" [class.public-access-table_selected]="selected">
                         <mat-checkbox
                             [checked]="selected"
+                            [disabled]="submitting()"
                             (change)="toggleTable(table.tableName, $event.checked)">
                             {{ table.displayName }}
                         </mat-checkbox>
@@ -42,6 +43,7 @@
                                     <mat-label>Readable columns</mat-label>
                                     <mat-select multiple
                                         [value]="selectedColumns(table.tableName)"
+                                        [disabled]="submitting()"
                                         (valueChange)="setColumns(table.tableName, $event)"
                                         placeholder="All columns">
                                         @for (column of availableColumns(table.tableName); track column) {
