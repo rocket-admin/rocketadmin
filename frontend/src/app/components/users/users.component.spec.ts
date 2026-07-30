@@ -5,7 +5,9 @@ import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dial
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { provideRouter } from '@angular/router';
 import { Angulartics2Module } from 'angulartics2';
+import { of } from 'rxjs';
 import { CedarPermissionService } from 'src/app/services/cedar-permission.service';
+import { TablesService } from 'src/app/services/tables.service';
 import { UsersService } from 'src/app/services/users.service';
 import { GroupAddDialogComponent } from './group-add-dialog/group-add-dialog.component';
 import { GroupDeleteDialogComponent } from './group-delete-dialog/group-delete-dialog.component';
@@ -54,6 +56,15 @@ describe('UsersComponent', () => {
 		fetchGroupUsers: vi.fn().mockResolvedValue([]),
 		fetchAllGroupUsers: vi.fn().mockResolvedValue(undefined),
 		fetchConnectionUsers: vi.fn(),
+		publicPermissions: signal({ enabled: false, tables: [] }).asReadonly() as any,
+		publicPermissionsLoading: signal(false).asReadonly() as any,
+		loadPublicPermissions: vi.fn(),
+		savePublicPermissions: vi.fn().mockResolvedValue(undefined),
+	};
+
+	const mockTablesService: Partial<TablesService> = {
+		fetchTables: vi.fn().mockReturnValue(of([])),
+		fetchTableStructure: vi.fn().mockReturnValue(of({ structure: [] })),
 	};
 
 	const mockPermissions: Partial<CedarPermissionService> = {
@@ -69,6 +80,7 @@ describe('UsersComponent', () => {
 				provideRouter([]),
 				{ provide: MatDialogRef, useValue: {} },
 				{ provide: UsersService, useValue: mockUsersService },
+				{ provide: TablesService, useValue: mockTablesService },
 				{ provide: CedarPermissionService, useValue: mockPermissions },
 			],
 		}).compileComponents();

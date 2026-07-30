@@ -24,6 +24,7 @@ import { CedarPolicyEditorDialogComponent } from './cedar-policy-editor-dialog/c
 import { GroupAddDialogComponent } from './group-add-dialog/group-add-dialog.component';
 import { GroupDeleteDialogComponent } from './group-delete-dialog/group-delete-dialog.component';
 import { GroupNameEditDialogComponent } from './group-name-edit-dialog/group-name-edit-dialog.component';
+import { PublicAccessPanelComponent } from './public-access-panel/public-access-panel.component';
 import { UserAddDialogComponent } from './user-add-dialog/user-add-dialog.component';
 import { UserDeleteDialogComponent } from './user-delete-dialog/user-delete-dialog.component';
 
@@ -40,6 +41,7 @@ import { UserDeleteDialogComponent } from './user-delete-dialog/user-delete-dial
 		Angulartics2OnModule,
 		PlaceholderUserGroupsComponent,
 		PlaceholderUserGroupComponent,
+		PublicAccessPanelComponent,
 	],
 	templateUrl: './users.component.html',
 	styleUrls: ['./users.component.css'],
@@ -126,6 +128,13 @@ export class UsersComponent implements OnInit {
 	}
 
 	protected canCreateGroup = this._permissions.canI('group:edit', 'Group', this._connections.currentConnectionID);
+
+	// Matches ConnectionEditGuard on the public-permissions endpoints.
+	protected canEditConnection = this._permissions.canI(
+		'connection:edit',
+		'Connection',
+		this._connections.currentConnectionID,
+	);
 
 	canManageGroup(groupId: string) {
 		return this._permissions.canI('group:edit', 'Group', groupId);
