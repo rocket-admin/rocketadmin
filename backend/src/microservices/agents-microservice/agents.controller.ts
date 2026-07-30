@@ -15,6 +15,7 @@ import {
 	AiSampleRowsRO,
 	CompanySubscriptionInfoRO,
 	PermissionAllowedRO,
+	PublicPermissionsRO,
 	ValidatedUserTokenRO,
 } from './data-structures/agents-responses.ds.js';
 import {
@@ -26,6 +27,7 @@ import {
 } from './dto/agents-ai-data.dtos.js';
 import { ValidateConnectionEditDto, ValidateTableAiRequestDto, ValidateUserTokenDto } from './dto/agents-auth.dtos.js';
 import { GetCompanySubscriptionInfoDto } from './dto/agents-company.dtos.js';
+import { SetAgentsPublicPermissionsDto } from './dto/agents-public-permissions.dtos.js';
 import {
 	IExecuteAiAggregationPipeline,
 	IExecuteAiRawQuery,
@@ -35,6 +37,7 @@ import {
 	IGetAiTableStructure,
 	IGetCompanySubscriptionInfo,
 	IScanAndCreateSettings,
+	ISetPublicPermissions,
 	IValidateConnectionEdit,
 	IValidateTableAiRequest,
 	IValidateUserToken,
@@ -54,6 +57,8 @@ export class AgentsController {
 		private readonly validateTableAiRequestUseCase: IValidateTableAiRequest,
 		@Inject(UseCaseType.AGENTS_VALIDATE_CONNECTION_EDIT)
 		private readonly validateConnectionEditUseCase: IValidateConnectionEdit,
+		@Inject(UseCaseType.AGENTS_SET_PUBLIC_PERMISSIONS)
+		private readonly setPublicPermissionsUseCase: ISetPublicPermissions,
 		@Inject(UseCaseType.AGENTS_GET_AI_CONNECTION_CONTEXT)
 		private readonly getAiConnectionContextUseCase: IGetAiConnectionContext,
 		@Inject(UseCaseType.AGENTS_GET_AI_CONNECTION_TABLES)
@@ -98,6 +103,26 @@ export class AgentsController {
 	public async validateConnectionEdit(@Body() body: ValidateConnectionEditDto): Promise<PermissionAllowedRO> {
 		return await this.validateConnectionEditUseCase.execute(
 			{ userId: body.userId, connectionId: body.connectionId },
+			InTransactionEnum.OFF,
+		);
+	}
+
+	@ApiOperation({
+		summary: 'Grant public (anonymous) read on connection tables — website-generation agent flow',
+		description:
+			'Re-checks Cedar connection:edit for the given user, then merges the tables into the existing public ' +
+			'policy (mode=merge, default) or replaces it (mode=replace). Called by agents-core after the user ' +
+			'approved the set_public_read_permissions consent question.',
+	})
+	@ApiResponse({ status: 201, type: PublicPermissionsRO })
+	@ApiBody({ type: SetAgentsPublicPermissionsDto })
+	@Post('/connection/public-permissions/:connectionId')
+	public async setPublicPermissions(
+		@SlugUuid('connectionId') connectionId: string,
+		@Body() body: SetAgentsPublicPermissionsDto,
+	): Promise<PublicPermissionsRO> {
+		return await this.setPublicPermissionsUseCase.execute(
+			{ connectionId, userId: body.userId, tables: body.tables, mode: body.mode ?? 'merge' },
 			InTransactionEnum.OFF,
 		);
 	}
