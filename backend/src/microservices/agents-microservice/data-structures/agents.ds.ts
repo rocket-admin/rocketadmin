@@ -11,6 +11,13 @@ export class ValidateConnectionEditDs {
 	connectionId: string;
 }
 
+export class SetPublicPermissionsDs {
+	userId: string;
+	connectionId: string;
+	tables: Array<{ tableName: string; readableColumns?: Array<string> }>;
+	mode: 'merge' | 'replace';
+}
+
 export class AiDataRequestDs {
 	connectionId: string;
 	userId: string;
