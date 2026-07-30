@@ -22,6 +22,18 @@ export class PermissionAllowedRO {
 	allowed: boolean;
 }
 
+export class PublicPermissionsRO {
+	@ApiProperty({ description: 'Whether public access is enabled for this connection after the update.' })
+	enabled: boolean;
+
+	@ApiProperty({
+		type: 'array',
+		items: { type: 'object', additionalProperties: true },
+		description: 'The effective public tables after the update (merged view, not just the request).',
+	})
+	tables: Array<{ tableName: string; readableColumns?: Array<string> }>;
+}
+
 export class AiConnectionContextRO {
 	@ApiProperty()
 	connectionId: string;

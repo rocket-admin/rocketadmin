@@ -7,6 +7,7 @@ import {
 	GetAiTableStructureDs,
 	GetCompanySubscriptionInfoDs,
 	ScanAndCreateSettingsDs,
+	SetPublicPermissionsDs,
 	ValidateConnectionEditDs,
 	ValidateTableAiRequestDs,
 } from '../data-structures/agents.ds.js';
@@ -17,6 +18,7 @@ import {
 	AiSampleRowsRO,
 	CompanySubscriptionInfoRO,
 	PermissionAllowedRO,
+	PublicPermissionsRO,
 	ValidatedUserTokenRO,
 } from '../data-structures/agents-responses.ds.js';
 
@@ -30,6 +32,10 @@ export interface IValidateTableAiRequest {
 
 export interface IValidateConnectionEdit {
 	execute(inputData: ValidateConnectionEditDs, inTransaction: InTransactionEnum): Promise<PermissionAllowedRO>;
+}
+
+export interface ISetPublicPermissions {
+	execute(inputData: SetPublicPermissionsDs, inTransaction: InTransactionEnum): Promise<PublicPermissionsRO>;
 }
 
 export interface IGetAiConnectionContext {
