@@ -1,0 +1,79 @@
+<mat-expansion-panel class="public-access-panel">
+    <mat-expansion-panel-header>
+        <mat-panel-title>
+            <mat-icon fontSet="material-symbols-outlined" class="public-access-icon">public</mat-icon>
+            <span>Public access</span>
+            <span class="public-access-badge"
+                [class.public-access-badge_on]="selectedCount() > 0">
+                {{ statusLabel() }}
+            </span>
+        </mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <ng-template matExpansionPanelContent>
+        <div class="public-access-warning">
+            <mat-icon>warning</mat-icon>
+            <span>
+                Anyone on the internet can read the tables listed below without signing in.
+                Public access is read-only — rows can never be added, edited or deleted.
+            </span>
+        </div>
+
+        @if (tablesLoading() || loadingPermissions()) {
+            <app-content-loader></app-content-loader>
+        } @else if (tables().length === 0) {
+            <p class="body-2">No tables in this connection.</p>
+        } @else {
+            <ul class="public-access-tables">
+                @for (table of tables(); track table.tableName) {
+                    @let selected = isSelected(table.tableName);
+                    <li class="public-access-table" [class.public-access-table_selected]="selected">
+                        <mat-checkbox
+                            [checked]="selected"
+                            [disabled]="submitting()"
+                            (change)="toggleTable(table.tableName, $event.checked)">
+                            {{ table.displayName }}
+                        </mat-checkbox>
+
+                        @if (selected) {
+                            @if (isLoadingColumns(table.tableName)) {
+                                <span class="public-access-columns-hint">Loading columns…</span>
+                            } @else {
+                                <mat-form-field class="public-access-columns" subscriptSizing="dynamic">
+                                    <mat-label>Readable columns</mat-label>
+                                    <mat-select multiple
+                                        [value]="selectedColumns(table.tableName)"
+                                        [disabled]="submitting()"
+                                        (valueChange)="setColumns(table.tableName, $event)"
+                                        placeholder="All columns">
+                                        @for (column of availableColumns(table.tableName); track column) {
+                                            <mat-option [value]="column">{{ column }}</mat-option>
+                                        }
+                                    </mat-select>
+                                    <mat-hint>Leave empty to expose all columns</mat-hint>
+                                </mat-form-field>
+                            }
+                        }
+                    </li>
+                }
+            </ul>
+
+            <div class="public-access-actions">
+                @if (canDisable()) {
+                    <button type="button" mat-button
+                        matTooltip="Remove public access to every table"
+                        [disabled]="submitting()"
+                        (click)="disablePublicAccess(); posthog.capture('Users access: public access disabled')">
+                        Disable public access
+                    </button>
+                }
+                <span class="public-access-actions-spacer"></span>
+                <button type="button" mat-flat-button color="primary"
+                    [disabled]="submitting()"
+                    (click)="save(); posthog.capture('Users access: public access saved')">
+                    Save
+                </button>
+            </div>
+        }
+    </ng-template>
+</mat-expansion-panel>

@@ -3,7 +3,14 @@ import { computed, Injectable, inject, signal } from '@angular/core';
 import { catchError, EMPTY, map } from 'rxjs';
 import { PolicyAction, PolicyActionGroup } from 'src/app/lib/cedar-policy-items';
 import { groupNameForAction, PERMISSION_GROUP_ORDER } from 'src/app/lib/permission-display';
-import { GroupUser, Permissions, UserGroup, UserGroupInfo } from 'src/app/models/user';
+import {
+	GroupUser,
+	Permissions,
+	PublicPermissions,
+	PublicTablePermission,
+	UserGroup,
+	UserGroupInfo,
+} from 'src/app/models/user';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { NotificationsService } from './notifications.service';
@@ -70,6 +77,25 @@ export class UsersService {
 		}));
 	});
 
+	// Public (unauthenticated) access. The endpoint is connection:edit guarded, while
+	// setActiveConnection is called for every URL carrying a connection id — so the request is
+	// gated on an explicit opt-in to keep it off pages where the user may lack that permission.
+	// The opt-in names its connection, so navigating to a different one does not refire the
+	// request against a connection the user may not administer.
+	private _publicPermissionsFor = signal<string | null>(null);
+
+	private _publicPermissionsResource: HttpResourceRef<PublicPermissions | undefined> =
+		this._api.resource<PublicPermissions>(() => {
+			const id = this._activeConnectionId();
+			if (!id || this._publicPermissionsFor() !== id) return undefined;
+			return `/connection/public-permissions/${id}`;
+		});
+
+	public readonly publicPermissions = computed<PublicPermissions>(
+		() => this._publicPermissionsResource.value() ?? { enabled: false, tables: [] },
+	);
+	public readonly publicPermissionsLoading = computed(() => this._publicPermissionsResource.isLoading());
+
 	// Group users - managed imperatively (per-group parallel fetch)
 	private _groupUsers = signal<Record<string, GroupUser[] | 'empty'>>({});
 	public readonly groupUsers = this._groupUsers.asReadonly();
@@ -84,6 +110,21 @@ export class UsersService {
 
 	clearGroupsUpdated(): void {
 		this._groupsUpdated.set('');
+	}
+
+	loadPublicPermissions(connectionId: string): void {
+		this._publicPermissionsFor.set(connectionId);
+	}
+
+	async savePublicPermissions(connectionId: string, tables: PublicTablePermission[]): Promise<void> {
+		await this._api.put(
+			`/connection/public-permissions/${connectionId}`,
+			{ tables },
+			{
+				successMessage: 'Public access has been updated.',
+			},
+		);
+		this._publicPermissionsResource.reload();
 	}
 
 	async fetchGroupUsers(groupId: string): Promise<GroupUser[]> {

@@ -97,6 +97,18 @@ export interface Permissions {
 	tables: TablePermission[];
 }
 
+// Public (unauthenticated) access to a connection. Mirrors the backend
+// PublicTablePermissionDto: an omitted/empty readableColumns means "all columns".
+export interface PublicTablePermission {
+	tableName: string;
+	readableColumns?: string[];
+}
+
+export interface PublicPermissions {
+	enabled: boolean;
+	tables: PublicTablePermission[];
+}
+
 export interface ApiKey {
 	title: string;
 	id: string;

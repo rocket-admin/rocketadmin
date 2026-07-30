@@ -16,6 +16,10 @@
         <app-placeholder-user-groups></app-placeholder-user-groups>
     }
 
+    @if (canEditConnection()) {
+        <app-public-access-panel></app-public-access-panel>
+    }
+
     @if (groups(); as groupsList) {
         <mat-accordion multi="true">
             @for (groupItem of groupsList; track groupItem.group.id) {

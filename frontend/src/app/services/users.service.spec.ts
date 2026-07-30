@@ -340,4 +340,61 @@ describe('UsersService', () => {
 
 		expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledWith(fakeError.message);
 	});
+
+	describe('public permissions', () => {
+		// ApiService.resource is mocked, so the request factories it was handed are never run.
+		// Pull them back out and exercise the one that owns the public-permissions URL.
+		function publicPermissionsUrl(): string | undefined {
+			for (const [request] of mockApi.resource.mock.calls) {
+				const url = request();
+				if (typeof url === 'string' && url.includes('/connection/public-permissions/')) return url;
+			}
+			return undefined;
+		}
+
+		it('should not request public permissions until opted in', () => {
+			service.setActiveConnection('conn-a');
+
+			expect(publicPermissionsUrl()).toBeUndefined();
+		});
+
+		it('should request public permissions once opted in for the active connection', () => {
+			service.setActiveConnection('conn-a');
+			service.loadPublicPermissions('conn-a');
+
+			expect(publicPermissionsUrl()).toBe('/connection/public-permissions/conn-a');
+		});
+
+		it('should not carry the opt-in over to another connection', () => {
+			service.setActiveConnection('conn-a');
+			service.loadPublicPermissions('conn-a');
+			service.setActiveConnection('conn-b');
+
+			expect(publicPermissionsUrl()).toBeUndefined();
+		});
+
+		it('should save public permissions via ApiService', async () => {
+			mockApi.put.mockResolvedValue({ enabled: true, tables: [{ tableName: 'users' }] });
+
+			await service.savePublicPermissions('conn-a', [{ tableName: 'users', readableColumns: ['id', 'name'] }]);
+
+			expect(mockApi.put).toHaveBeenCalledWith(
+				'/connection/public-permissions/conn-a',
+				{ tables: [{ tableName: 'users', readableColumns: ['id', 'name'] }] },
+				{ successMessage: 'Public access has been updated.' },
+			);
+		});
+
+		it('should send an empty table list to disable public access', async () => {
+			mockApi.put.mockResolvedValue({ enabled: false, tables: [] });
+
+			await service.savePublicPermissions('conn-a', []);
+
+			expect(mockApi.put).toHaveBeenCalledWith(
+				'/connection/public-permissions/conn-a',
+				{ tables: [] },
+				{ successMessage: 'Public access has been updated.' },
+			);
+		});
+	});
 });
