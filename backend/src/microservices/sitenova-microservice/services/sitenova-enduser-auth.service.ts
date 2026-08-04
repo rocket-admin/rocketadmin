@@ -53,6 +53,12 @@ export class SitenovaEndUserAuthService {
 		}
 	}
 
+	// Exposes the signing key to the internal (microservice-JWT) connection-credentials endpoint,
+	// so the universal-backend service can sign/verify the same end-user tokens locally.
+	public async getEndUserSigningKey(connectionId: string): Promise<string> {
+		return await this.getOrCreateSigningKey(connectionId);
+	}
+
 	private secretSlug(connectionId: string): string {
 		return `sitenova:enduser-jwt:${connectionId}`;
 	}
