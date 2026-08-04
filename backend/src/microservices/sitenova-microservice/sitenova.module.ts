@@ -29,8 +29,10 @@ import { SitenovaEndUserAuthService } from './services/sitenova-enduser-auth.ser
 import { SitenovaInternalController } from './sitenova-internal.controller.js';
 import { SitenovaSiteController } from './sitenova-site.controller.js';
 import { SitenovaExecuteRawQueryUseCase } from './use-cases/sitenova-execute-raw-query.use.case.js';
+import { SitenovaGetConnectionUseCase } from './use-cases/sitenova-get-connection.use.case.js';
 import { SitenovaLoginEndUserUseCase } from './use-cases/sitenova-login-enduser.use.case.js';
 import { SitenovaRegisterEndUserUseCase } from './use-cases/sitenova-register-enduser.use.case.js';
+import { SitenovaValidatePublicReadUseCase } from './use-cases/sitenova-validate-public-read.use.case.js';
 
 @Module({
 	imports: [
@@ -63,6 +65,14 @@ import { SitenovaRegisterEndUserUseCase } from './use-cases/sitenova-register-en
 		{
 			provide: UseCaseType.SITENOVA_EXECUTE_RAW_QUERY,
 			useClass: SitenovaExecuteRawQueryUseCase,
+		},
+		{
+			provide: UseCaseType.SITENOVA_GET_CONNECTION,
+			useClass: SitenovaGetConnectionUseCase,
+		},
+		{
+			provide: UseCaseType.SITENOVA_VALIDATE_PUBLIC_READ,
+			useClass: SitenovaValidatePublicReadUseCase,
 		},
 		{
 			provide: UseCaseType.SITENOVA_REGISTER_ENDUSER,

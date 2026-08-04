@@ -5,3 +5,13 @@ export class SitenovaExecuteRawQueryDs {
 	query: string;
 	tableName: string | null;
 }
+
+export class SitenovaGetConnectionDs {
+	connectionId: string;
+}
+
+export class SitenovaValidatePublicReadDs {
+	connectionId: string;
+	tableName: string;
+	columnNames: Array<string> | null;
+}
