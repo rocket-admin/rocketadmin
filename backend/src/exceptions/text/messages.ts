@@ -105,6 +105,9 @@ export const Messages = {
 	PUBLIC_POLICY_ACTION_NOT_ALLOWED:
 		'Public permissions may only grant QueryTable (table:query) and ColumnRead (column:read)',
 	PUBLIC_ACCESS_NOT_CONFIGURED: 'Public access is not configured for this connection',
+	PUBLIC_GRANT_ON_AUTH_TABLE_NOT_ALLOWED:
+		"Public read cannot be granted on the site's visitor accounts table or its credential column",
+	SITE_RUNTIME_POLICY_INVALID: 'Site runtime policy must be a JSON object',
 	CSV_EXPORT_FAILED: 'CSV export failed',
 	CSV_EXPORT_DISABLED: 'CSV export is disabled',
 	CSV_IMPORT_FAILED: 'CSV import failed',

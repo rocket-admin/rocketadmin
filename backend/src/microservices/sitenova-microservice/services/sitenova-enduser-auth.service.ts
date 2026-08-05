@@ -26,10 +26,22 @@ export class SitenovaEndUserAuthService {
 		private readonly _dbContext: IGlobalDatabaseContext,
 	) {}
 
-	public async signEndUserToken(connectionId: string, sub: string): Promise<string> {
+	// `uid` (the users-table row primary key) is the basis for row-level authorization in the
+	// universal-backend runtime (plan 13). It is optional here: the core's own register/login sites
+	// are being retired to universal-backend, so the core keeps issuing uid-less tokens, and the
+	// universal-backend verifier accepts them through its grace window. Verification is symmetric
+	// regardless — same key, same audience — so a uid-bearing token from either service validates on
+	// the other during cutover.
+	public async signEndUserToken(connectionId: string, sub: string, uid?: string): Promise<string> {
 		const key = await this.getOrCreateSigningKey(connectionId);
 		const payload: SitenovaEndUserTokenPayload = { sub, cid: connectionId, aud: SITENOVA_ENDUSER_AUDIENCE };
-		return jwt.sign(payload, key, { algorithm: 'HS256', expiresIn: SITENOVA_ENDUSER_TOKEN_TTL });
+		if (uid !== undefined) {
+			payload.uid = uid;
+		}
+		return jwt.sign(payload, key, {
+			algorithm: 'HS256',
+			expiresIn: SITENOVA_ENDUSER_TOKEN_TTL as jwt.SignOptions['expiresIn'],
+		});
 	}
 
 	// Returns the decoded payload when the token is a valid end-user token bound to this connection,

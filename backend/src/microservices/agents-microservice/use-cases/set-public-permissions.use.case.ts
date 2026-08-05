@@ -1,4 +1,4 @@
-import { ForbiddenException, Inject, Injectable, Logger, Scope } from '@nestjs/common';
+import { ForbiddenException, HttpException, HttpStatus, Inject, Injectable, Logger, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -80,6 +80,8 @@ export class SetPublicPermissionsUseCase
 			throw new ForbiddenException(Messages.DONT_HAVE_PERMISSIONS);
 		}
 
+		await this.refuseGrantOnSiteAuthTable(connectionId, userId, tables);
+
 		let effective: Array<IPublicTablePermission> = tables;
 		if (mode !== 'replace') {
 			const existing = await this.cedarAuthService.getPublicPermissions(connectionId);
@@ -93,5 +95,36 @@ export class SetPublicPermissionsUseCase
 				`-> enabled=${saved.enabled} tables=[${saved.tables.map((t) => t.tableName).join(', ')}]`,
 		);
 		return { enabled: saved.enabled, tables: saved.tables };
+	}
+
+	// "Never publicly grant the users/auth table or a password column" used to be generation-prompt
+	// text only (plan 13 §3) — a misbehaving agent could still expose every visitor account to the
+	// anonymous internet. With the site manifest stored server-side (Step 2b) the rule is enforced
+	// here: a requested table matching the manifest's auth table is refused outright, and so is any
+	// column whitelist naming the manifest's password column (that column holds credentials wherever
+	// it appears). Connections without a manifest (plain admin-panel connections) are unaffected.
+	private async refuseGrantOnSiteAuthTable(
+		connectionId: string,
+		userId: string,
+		tables: Array<IPublicTablePermission>,
+	): Promise<void> {
+		const policy = await this._dbContext.connectionRepository.getConnectionSiteRuntimePolicy(connectionId);
+		const auth = policy?.auth as { tableName?: unknown; passwordField?: unknown } | undefined;
+		const authTable = typeof auth?.tableName === 'string' ? auth.tableName : null;
+		const passwordField = typeof auth?.passwordField === 'string' ? auth.passwordField : null;
+		if (!authTable) {
+			return;
+		}
+		for (const table of tables) {
+			const namesAuthTable = table.tableName === authTable;
+			const namesPasswordColumn = Boolean(passwordField && table.readableColumns?.includes(passwordField));
+			if (namesAuthTable || namesPasswordColumn) {
+				this.logger.warn(
+					`Public-read grant REFUSED (site auth table/credential column): connection=${connectionId} ` +
+						`user=${userId} table=${table.tableName} authTable=${authTable}`,
+				);
+				throw new HttpException({ message: Messages.PUBLIC_GRANT_ON_AUTH_TABLE_NOT_ALLOWED }, HttpStatus.BAD_REQUEST);
+			}
+		}
 	}
 }

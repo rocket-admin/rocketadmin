@@ -55,6 +55,9 @@ export class SitenovaGetConnectionUseCase
 				dataCenter: connection.dataCenter,
 			},
 			endUserJwtKey,
+			// Rides the existing 60 s cache on universal-backend — no extra round trip. Null for any
+			// connection that does not back a generated site (plan 13 Step 2a).
+			siteRuntimePolicy: connection.site_runtime_policy ?? null,
 		};
 	}
 }

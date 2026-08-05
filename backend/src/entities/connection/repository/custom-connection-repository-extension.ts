@@ -216,6 +216,25 @@ export const customConnectionRepositoryExtension: IConnectionRepository &
 			.execute();
 	},
 
+	async getConnectionSiteRuntimePolicy(connectionId: string): Promise<Record<string, unknown> | null> {
+		const connection = await this.createQueryBuilder('connection')
+			.select(['connection.id', 'connection.site_runtime_policy'])
+			.where('connection.id = :connectionId', { connectionId })
+			.getOne();
+		return connection?.site_runtime_policy ?? null;
+	},
+
+	async updateConnectionSiteRuntimePolicy(
+		connectionId: string,
+		siteRuntimePolicy: Record<string, unknown> | null,
+	): Promise<void> {
+		await this.createQueryBuilder()
+			.update(ConnectionEntity)
+			.set({ site_runtime_policy: siteRuntimePolicy })
+			.where('id = :connectionId', { connectionId })
+			.execute();
+	},
+
 	async isUserFromConnection(userId: string, connectionId: string): Promise<boolean> {
 		const qb = this.createQueryBuilder('connection')
 			.leftJoin('connection.groups', 'group')

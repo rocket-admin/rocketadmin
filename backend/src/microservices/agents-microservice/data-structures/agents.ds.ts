@@ -18,6 +18,12 @@ export class SetPublicPermissionsDs {
 	mode: 'merge' | 'replace';
 }
 
+export class SetSiteRuntimePolicyDs {
+	userId: string;
+	connectionId: string;
+	policy: Record<string, unknown>;
+}
+
 export class AiDataRequestDs {
 	connectionId: string;
 	userId: string;
