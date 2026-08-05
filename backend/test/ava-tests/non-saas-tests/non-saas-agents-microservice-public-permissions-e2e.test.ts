@@ -301,3 +301,118 @@ test.serial(`${currentTest} refuses a policy that is not a JSON object (400)`, a
 	const stringPolicy = await siteRuntimePolicyRequest(connectionId, { userId, policy: 'not-an-object' });
 	t.is(stringPolicy.status, 400);
 });
+
+// --- plan 13 P0-3: a public column whitelist must bound the QUERY, not just the response ---
+//
+// `readableColumns` used to be applied only as a projection over rows the query had already
+// returned, so an anonymous caller could still filter or search on a WITHHELD column and read its
+// values back out of which rows came back (`pagination.total` as a per-character oracle over a
+// password hash). These tests pin the fix on the core's anonymous `/table/crud` branch: the
+// readable set now feeds filtering, search and the select list. (universal-backend enforces the
+// same rule for the generated-site runtime — plan 13 Step 0.)
+//
+// The seeded table has 42 rows; `testTableColumnName` holds the value 'Vasia' in exactly 3 of them
+// and `testTableSecondColumnName` holds a unique email per row. Assertions deliberately use a
+// filter/search that matches a NON-EMPTY subset when applied, because the MySQL DAO's
+// `getRowsCount` treats a filtered count of 0 as falsy and falls back to the whole-table count —
+// so "total === 0" is not a usable signal here, while "total === 3 vs 42" is.
+
+function anonymousCrudRowsRequest(
+	connectionId: string,
+	tableName: string,
+	body: Record<string, unknown> = {},
+	extraQuery = '',
+): request.Test {
+	return request(app.getHttpServer())
+		.post(`/table/crud/rows/${connectionId}?tableName=${tableName}&page=1&perPage=10${extraQuery}`)
+		.send(body)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+}
+
+currentTest = 'POST /table/crud/rows/:connectionId (anonymous, public Cedar policy)';
+
+test.serial(`${currentTest} returns only the publicly readable columns`, async (t) => {
+	const { userId, connectionId, testTableName, testTableColumnName, testTableSecondColumnName } =
+		await createConnectionAndTable();
+	await grantRequest(connectionId, {
+		userId,
+		tables: [{ tableName: testTableName, readableColumns: [testTableColumnName] }],
+	});
+
+	const response = await anonymousCrudRowsRequest(connectionId, testTableName);
+	t.is(response.status, 200);
+	const { rows } = JSON.parse(response.text);
+	t.is(rows.length, 10);
+	t.deepEqual(Object.keys(rows[0]), [testTableColumnName]);
+	t.false(Object.keys(rows[0]).includes(testTableSecondColumnName));
+	t.false(Object.keys(rows[0]).includes('id'));
+});
+
+test.serial(`${currentTest} ignores a filter on a withheld column (kills the pagination oracle)`, async (t) => {
+	const { userId, connectionId, testTableName, testTableColumnName, testTableSecondColumnName } =
+		await createConnectionAndTable();
+	// Grant the EMAIL column only — the name column (3 rows of 'Vasia') is withheld.
+	await grantRequest(connectionId, {
+		userId,
+		tables: [{ tableName: testTableName, readableColumns: [testTableSecondColumnName] }],
+	});
+
+	// Body-filter form: before the fix this ran in SQL and answered "3 rows match 'Vasia'" about a
+	// column the caller may not read. Now it is ignored exactly like a filter on a column that does
+	// not exist, so the result set stays the unfiltered one.
+	const bodyFiltered = await anonymousCrudRowsRequest(connectionId, testTableName, {
+		filters: { [testTableColumnName]: { eq: 'Vasia' } },
+	});
+	t.is(bodyFiltered.status, 200);
+	const bodyFilteredRO = JSON.parse(bodyFiltered.text);
+	t.is(bodyFilteredRO.pagination.total, 42);
+	t.is(bodyFilteredRO.rows.length, 10);
+	t.deepEqual(Object.keys(bodyFilteredRO.rows[0]), [testTableSecondColumnName]);
+
+	// Query-string filter form is bounded the same way.
+	const queryFiltered = await anonymousCrudRowsRequest(
+		connectionId,
+		testTableName,
+		{},
+		`&f_${testTableColumnName}__eq=Vasia`,
+	);
+	t.is(queryFiltered.status, 200);
+	t.is(JSON.parse(queryFiltered.text).pagination.total, 42);
+});
+
+test.serial(`${currentTest} never searches a withheld column`, async (t) => {
+	const { userId, connectionId, testTableName, testTableColumnName, testTableSecondColumnName } =
+		await createConnectionAndTable();
+	await grantRequest(connectionId, {
+		userId,
+		tables: [{ tableName: testTableName, readableColumns: [testTableSecondColumnName] }],
+	});
+
+	// 'Vasia' exists only in the withheld column: the search must match nothing rather than
+	// returning those 3 rows (before the fix, search ILIKEd every column of the table).
+	const response = await anonymousCrudRowsRequest(connectionId, testTableName, {}, '&search=Vasia');
+	t.is(response.status, 200);
+	const body = JSON.parse(response.text);
+	t.is(body.rows.length, 0);
+	t.not(body.pagination.total, 3);
+});
+
+test.serial(`${currentTest} still applies a filter and search on a readable column`, async (t) => {
+	const { userId, connectionId, testTableName, testTableColumnName } = await createConnectionAndTable();
+	await grantRequest(connectionId, {
+		userId,
+		tables: [{ tableName: testTableName, readableColumns: [testTableColumnName] }],
+	});
+
+	const filtered = await anonymousCrudRowsRequest(connectionId, testTableName, {
+		filters: { [testTableColumnName]: { eq: 'Vasia' } },
+	});
+	t.is(filtered.status, 200);
+	t.is(JSON.parse(filtered.text).pagination.total, 3);
+	t.is(JSON.parse(filtered.text).rows.length, 3);
+
+	const searched = await anonymousCrudRowsRequest(connectionId, testTableName, {}, '&search=Vasia');
+	t.is(searched.status, 200);
+	t.is(JSON.parse(searched.text).rows.length, 3);
+});

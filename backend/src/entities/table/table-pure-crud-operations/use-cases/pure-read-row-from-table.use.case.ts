@@ -19,6 +19,7 @@ import {
 	isAllColumnsReadable,
 } from '../../utils/filter-columns-by-read-permission.util.js';
 import { removePasswordsFromRowsUtil } from '../../utils/remove-password-from-row.util.js';
+import { assertSomeColumnReadable } from '../../utils/restrict-query-to-readable-columns.util.js';
 import { getUserEmailForAgent, validateConnection } from '../../utils/validate-connection.util.js';
 import { PureCrudRowResponseDs } from '../application/data-structures/pure-crud-row-response.ds.js';
 import { PureReadRowDs } from '../application/data-structures/pure-read-row.ds.js';
@@ -88,6 +89,9 @@ export class PureReadRowFromTableUseCase
 		const readableColumns = userId
 			? await this.cedarPermissions.getReadableColumns(userId, connectionId, tableName, allColumnNames)
 			: await this.cedarPermissions.getReadableColumnsForPublic(connectionId, tableName, allColumnNames);
+		// Fail closed (plan 13 P0-3): no readable column ⇒ 403, not a 200 carrying an empty object —
+		// the 200-vs-400 outcome of the primary-key lookup is itself a row-existence signal.
+		assertSomeColumnReadable(readableColumns);
 		if (!isAllColumnsReadable(readableColumns, allColumnNames)) {
 			rowData = filterRowByReadableColumns(rowData, readableColumns);
 		}
