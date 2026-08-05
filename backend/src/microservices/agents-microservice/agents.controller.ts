@@ -16,6 +16,7 @@ import {
 	CompanySubscriptionInfoRO,
 	PermissionAllowedRO,
 	PublicPermissionsRO,
+	SiteRuntimePolicyRO,
 	ValidatedUserTokenRO,
 } from './data-structures/agents-responses.ds.js';
 import {
@@ -28,6 +29,7 @@ import {
 import { ValidateConnectionEditDto, ValidateTableAiRequestDto, ValidateUserTokenDto } from './dto/agents-auth.dtos.js';
 import { GetCompanySubscriptionInfoDto } from './dto/agents-company.dtos.js';
 import { SetAgentsPublicPermissionsDto } from './dto/agents-public-permissions.dtos.js';
+import { SetSiteRuntimePolicyDto } from './dto/agents-site-runtime-policy.dtos.js';
 import {
 	IExecuteAiAggregationPipeline,
 	IExecuteAiRawQuery,
@@ -38,6 +40,7 @@ import {
 	IGetCompanySubscriptionInfo,
 	IScanAndCreateSettings,
 	ISetPublicPermissions,
+	ISetSiteRuntimePolicy,
 	IValidateConnectionEdit,
 	IValidateTableAiRequest,
 	IValidateUserToken,
@@ -59,6 +62,8 @@ export class AgentsController {
 		private readonly validateConnectionEditUseCase: IValidateConnectionEdit,
 		@Inject(UseCaseType.AGENTS_SET_PUBLIC_PERMISSIONS)
 		private readonly setPublicPermissionsUseCase: ISetPublicPermissions,
+		@Inject(UseCaseType.AGENTS_SET_SITE_RUNTIME_POLICY)
+		private readonly setSiteRuntimePolicyUseCase: ISetSiteRuntimePolicy,
 		@Inject(UseCaseType.AGENTS_GET_AI_CONNECTION_CONTEXT)
 		private readonly getAiConnectionContextUseCase: IGetAiConnectionContext,
 		@Inject(UseCaseType.AGENTS_GET_AI_CONNECTION_TABLES)
@@ -123,6 +128,26 @@ export class AgentsController {
 	): Promise<PublicPermissionsRO> {
 		return await this.setPublicPermissionsUseCase.execute(
 			{ connectionId, userId: body.userId, tables: body.tables, mode: body.mode ?? 'merge' },
+			InTransactionEnum.OFF,
+		);
+	}
+
+	@ApiOperation({
+		summary: 'Write the site data contract (runtime manifest) for a generated site — agent finalize flow',
+		description:
+			'Re-checks Cedar connection:edit for the given user, then stores the manifest on the connection ' +
+			'(site_runtime_policy, replacing any previous one). universal-backend enforces it at the generated-site ' +
+			'runtime: auth-table pinning, write allow-lists with ownership, owner-scoped reads (plan 13 Step 2b).',
+	})
+	@ApiResponse({ status: 201, type: SiteRuntimePolicyRO })
+	@ApiBody({ type: SetSiteRuntimePolicyDto })
+	@Post('/connection/site-runtime-policy/:connectionId')
+	public async setSiteRuntimePolicy(
+		@SlugUuid('connectionId') connectionId: string,
+		@Body() body: SetSiteRuntimePolicyDto,
+	): Promise<SiteRuntimePolicyRO> {
+		return await this.setSiteRuntimePolicyUseCase.execute(
+			{ connectionId, userId: body.userId, policy: body.policy },
 			InTransactionEnum.OFF,
 		);
 	}

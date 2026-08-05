@@ -32,6 +32,13 @@ export interface IConnectionRepository {
 
 	updateConnectionPublicCedarPolicy(connectionId: string, publicCedarPolicy: string | null): Promise<void>;
 
+	getConnectionSiteRuntimePolicy(connectionId: string): Promise<Record<string, unknown> | null>;
+
+	updateConnectionSiteRuntimePolicy(
+		connectionId: string,
+		siteRuntimePolicy: Record<string, unknown> | null,
+	): Promise<void>;
+
 	findOneAgentConnectionByToken(connectionToken: string): Promise<ConnectionEntity | null>;
 
 	decryptConnectionField(field: string): string;

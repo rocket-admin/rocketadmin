@@ -120,6 +120,16 @@ export class ConnectionEntity {
 	@Column({ type: 'text', nullable: true, default: null })
 	public_cedar_policy?: string | null;
 
+	// Server-side site data contract for the SiteNova generated-site runtime API (plan 13 §4),
+	// served to universal-backend inside the internal credentials response. Presence marks the
+	// connection as backing a real generated site (Step 2a allow-list); its shape (auth/write/
+	// owned-read rules) is consumed by universal-backend's SiteContractService in Step 2b. NULL for
+	// every ordinary admin-panel connection.
+	// jsonb value typed `Record<string, any>` to match the existing jsonb columns
+	// (e.g. TableFiltersEntity.filters) and keep TypeORM's update() deep-partial typings happy.
+	@Column({ type: 'jsonb', nullable: true, default: null })
+	site_runtime_policy?: Record<string, any> | null;
+
 	/**
 	 * Non-persisted flag indicating whether credentials are currently in decrypted state.
 	 * Used by @BeforeUpdate to decide whether encryption is needed.

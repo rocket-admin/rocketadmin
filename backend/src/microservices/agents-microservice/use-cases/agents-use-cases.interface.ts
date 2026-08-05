@@ -8,6 +8,7 @@ import {
 	GetCompanySubscriptionInfoDs,
 	ScanAndCreateSettingsDs,
 	SetPublicPermissionsDs,
+	SetSiteRuntimePolicyDs,
 	ValidateConnectionEditDs,
 	ValidateTableAiRequestDs,
 } from '../data-structures/agents.ds.js';
@@ -19,6 +20,7 @@ import {
 	CompanySubscriptionInfoRO,
 	PermissionAllowedRO,
 	PublicPermissionsRO,
+	SiteRuntimePolicyRO,
 	ValidatedUserTokenRO,
 } from '../data-structures/agents-responses.ds.js';
 
@@ -36,6 +38,10 @@ export interface IValidateConnectionEdit {
 
 export interface ISetPublicPermissions {
 	execute(inputData: SetPublicPermissionsDs, inTransaction: InTransactionEnum): Promise<PublicPermissionsRO>;
+}
+
+export interface ISetSiteRuntimePolicy {
+	execute(inputData: SetSiteRuntimePolicyDs, inTransaction: InTransactionEnum): Promise<SiteRuntimePolicyRO>;
 }
 
 export interface IGetAiConnectionContext {

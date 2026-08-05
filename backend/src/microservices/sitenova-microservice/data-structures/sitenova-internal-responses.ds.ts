@@ -61,6 +61,17 @@ export class SitenovaConnectionForSiteRuntimeRO {
 			'Lets the caller sign/verify the same tokens SitenovaEndUserAuthService does.',
 	})
 	endUserJwtKey: string;
+
+	@ApiPropertyOptional({
+		type: 'object',
+		additionalProperties: true,
+		nullable: true,
+		description:
+			'Server-side site data contract (plan 13 §4). Null unless this connection backs a generated ' +
+			'site. universal-backend refuses connections with no contract when SITE_CONTRACT_REQUIRED is on ' +
+			'(Step 2a allow-list); Step 2b consumes its auth/write/owned-read rules.',
+	})
+	siteRuntimePolicy?: Record<string, unknown> | null;
 }
 
 export class SitenovaPublicReadValidationRO {

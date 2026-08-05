@@ -220,3 +220,84 @@ test.serial(`${currentTest} refuses a user without connection:edit (403) and gra
 	const anonymous = await anonymousRowsRequest(connectionId, testTableName);
 	t.is(anonymous.status, 403);
 });
+
+// --- plan 13 step 2b: the site runtime policy (manifest) write + the auth-table grant refusal ---
+
+function siteRuntimePolicyRequest(connectionId: string, body: Record<string, unknown>): request.Test {
+	return request(app.getHttpServer())
+		.post(`/internal/agents/connection/site-runtime-policy/${connectionId}`)
+		.send(body)
+		.set('Authorization', microserviceAuthHeader())
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+}
+
+currentTest = 'POST /internal/agents/connection/site-runtime-policy/:connectionId (internal, microservice JWT)';
+
+test.serial(`${currentTest} stores the manifest and blocks public grants on its auth table`, async (t) => {
+	const { userId, connectionId, testTableName, testTableColumnName } = await createConnectionAndTable();
+
+	const manifest = {
+		auth: {
+			tableName: 'site_users',
+			emailField: 'email',
+			passwordField: 'password',
+			idColumn: 'id',
+			returnableColumns: ['id', 'email'],
+			allowedExtraColumns: [],
+			registrationOpen: true,
+		},
+		ownedRead: [],
+		write: [],
+	};
+	const written = await siteRuntimePolicyRequest(connectionId, { userId, policy: manifest });
+	t.is(written.status, 201);
+	t.is(JSON.parse(written.text).policy.auth.tableName, 'site_users');
+
+	// The rule that used to be generation-prompt text only: the manifest's auth table can never be
+	// publicly granted...
+	const refusedTable = await grantRequest(connectionId, { userId, tables: [{ tableName: 'site_users' }] });
+	t.is(refusedTable.status, 400);
+
+	// ...and neither can a column whitelist naming the manifest's credential column, on any table.
+	const refusedColumn = await grantRequest(connectionId, {
+		userId,
+		tables: [{ tableName: testTableName, readableColumns: ['password'] }],
+	});
+	t.is(refusedColumn.status, 400);
+
+	// Nothing was granted by the refused requests, and unrelated tables still grant normally.
+	const anonymousBefore = await anonymousRowsRequest(connectionId, testTableName);
+	t.is(anonymousBefore.status, 403);
+	const granted = await grantRequest(connectionId, {
+		userId,
+		tables: [{ tableName: testTableName, readableColumns: [testTableColumnName] }],
+	});
+	t.is(granted.status, 201);
+});
+
+test.serial(`${currentTest} refuses a user without connection:edit (403) and writes nothing`, async (t) => {
+	const { userId, connectionId } = await createConnectionAndTable();
+	const foreignUserToken = (await registerUserAndReturnUserInfo(app)).token;
+	const foreignUserId = userIdFromCookieToken(foreignUserToken);
+
+	const refused = await siteRuntimePolicyRequest(connectionId, {
+		userId: foreignUserId,
+		policy: { auth: { tableName: 'site_users', emailField: 'email', passwordField: 'password' } },
+	});
+	t.is(refused.status, 403);
+
+	// No manifest was stored: a public grant on that table by the real owner still succeeds.
+	const granted = await grantRequest(connectionId, { userId, tables: [{ tableName: 'site_users' }] });
+	t.is(granted.status, 201);
+});
+
+test.serial(`${currentTest} refuses a policy that is not a JSON object (400)`, async (t) => {
+	const { userId, connectionId } = await createConnectionAndTable();
+
+	const arrayPolicy = await siteRuntimePolicyRequest(connectionId, { userId, policy: [{ auth: {} }] });
+	t.is(arrayPolicy.status, 400);
+
+	const stringPolicy = await siteRuntimePolicyRequest(connectionId, { userId, policy: 'not-an-object' });
+	t.is(stringPolicy.status, 400);
+});

@@ -13,6 +13,7 @@ import { GetAiTableStructureUseCase } from './use-cases/get-ai-table-structure.u
 import { GetCompanySubscriptionInfoUseCase } from './use-cases/get-company-subscription-info.use.case.js';
 import { ScanAndCreateSettingsUseCase } from './use-cases/scan-and-create-settings.use.case.js';
 import { SetPublicPermissionsUseCase } from './use-cases/set-public-permissions.use.case.js';
+import { SetSiteRuntimePolicyUseCase } from './use-cases/set-site-runtime-policy.use.case.js';
 import { ValidateConnectionEditUseCase } from './use-cases/validate-connection-edit.use.case.js';
 import { ValidateTableAiRequestUseCase } from './use-cases/validate-table-ai-request.use.case.js';
 import { ValidateUserTokenUseCase } from './use-cases/validate-user-token.use.case.js';
@@ -39,6 +40,10 @@ import { ValidateUserTokenUseCase } from './use-cases/validate-user-token.use.ca
 		{
 			provide: UseCaseType.AGENTS_SET_PUBLIC_PERMISSIONS,
 			useClass: SetPublicPermissionsUseCase,
+		},
+		{
+			provide: UseCaseType.AGENTS_SET_SITE_RUNTIME_POLICY,
+			useClass: SetSiteRuntimePolicyUseCase,
 		},
 		{
 			provide: UseCaseType.AGENTS_GET_AI_CONNECTION_CONTEXT,

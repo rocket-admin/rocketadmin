@@ -34,6 +34,15 @@ export class PublicPermissionsRO {
 	tables: Array<{ tableName: string; readableColumns?: Array<string> }>;
 }
 
+export class SiteRuntimePolicyRO {
+	@ApiProperty({
+		type: 'object',
+		additionalProperties: true,
+		description: 'The site runtime policy (data contract) now stored on the connection.',
+	})
+	policy: Record<string, unknown>;
+}
+
 export class AiConnectionContextRO {
 	@ApiProperty()
 	connectionId: string;
