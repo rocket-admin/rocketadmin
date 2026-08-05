@@ -23,6 +23,11 @@ import { filterRowByReadableColumns, isAllColumnsReadable } from '../utils/filte
 import { findFilteringFieldsUtil, parseFilteringFieldsFromBodyData } from '../utils/find-filtering-fields.util.js';
 import { findOrderingFieldUtil } from '../utils/find-ordering-field.util.js';
 import { isHexString } from '../utils/is-hex-string.js';
+import {
+	assertSomeColumnReadable,
+	readableTableStructure,
+	restrictTableSettingsToReadableColumns,
+} from '../utils/restrict-query-to-readable-columns.util.js';
 import { getUserEmailForAgent, validateConnection } from '../utils/validate-connection.util.js';
 import { IExportCSVFromTable } from './table-use-cases.interface.js';
 
@@ -72,16 +77,31 @@ export class ExportCSVFromTableUseCase
 				);
 			}
 
-			const filteringFields: Array<FilteringFieldsDs> = isObjectEmpty(filters)
-				? findFilteringFieldsUtil(query, tableStructure)
-				: parseFilteringFieldsFromBodyData(filters ?? {}, tableStructure);
+			// Column-level read permissions bound the query, not just the exported rows (plan 13
+			// P0-3): a filter/search/ordering on a withheld column would otherwise reveal its
+			// values through which rows come back. This route requires a userId (`@UserId()`, no
+			// anonymous branch), so only the authenticated evaluation is needed here.
+			const allColumnNames = tableStructure.map((column) => column.column_name);
+			const readableColumns = await this.cedarPermissions.getReadableColumns(
+				userId,
+				connectionId,
+				tableName,
+				allColumnNames,
+			);
+			assertSomeColumnReadable(readableColumns);
+			const queryableStructure = readableTableStructure(tableStructure, readableColumns);
 
-			const orderingField = findOrderingFieldUtil(query, tableStructure, tableSettings);
+			const filteringFields: Array<FilteringFieldsDs> = isObjectEmpty(filters)
+				? findFilteringFieldsUtil(query, queryableStructure)
+				: parseFilteringFieldsFromBodyData(filters ?? {}, queryableStructure);
+
+			const orderingField = findOrderingFieldUtil(query, queryableStructure, tableSettings);
 
 			const builtDAOsTableSettings = buildDAOsTableSettingsDs(
 				buildCommonTableSettingsInput(tableSettings),
 				personalTableSettings,
 			);
+			restrictTableSettingsToReadableColumns(builtDAOsTableSettings, readableColumns, allColumnNames);
 
 			if (orderingField) {
 				builtDAOsTableSettings.ordering_field = orderingField.field;
@@ -90,7 +110,8 @@ export class ExportCSVFromTableUseCase
 
 			if (isHexString(searchingFieldValue)) {
 				searchingFieldValue = hexToBinary(searchingFieldValue) as any;
-				tableSettings.search_fields = tableStructure
+				// Readable columns only — a binary search must not reach a withheld column either.
+				tableSettings.search_fields = queryableStructure
 					.filter((field) => isBinary(field.data_type))
 					.map((field) => field.column_name);
 			}
@@ -106,15 +127,7 @@ export class ExportCSVFromTableUseCase
 
 			operationResult = OperationResultStatusEnum.successfully;
 
-			// Column-level read permission (the ColumnRead half of table:read): drop columns the
-			// user may not read from the exported rows.
-			const allColumnNames = tableStructure.map((column) => column.column_name);
-			const readableColumns = await this.cedarPermissions.getReadableColumns(
-				userId,
-				connectionId,
-				tableName,
-				allColumnNames,
-			);
+			// Response-side projection, on top of the query-level restriction above (defense in depth).
 			const restrictColumns = !isAllColumnsReadable(readableColumns, allColumnNames);
 
 			//todo: rework as streams when node oracle driver will support it correctly

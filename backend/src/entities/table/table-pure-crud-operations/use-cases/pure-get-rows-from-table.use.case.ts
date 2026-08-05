@@ -25,6 +25,11 @@ import { findFilteringFieldsUtil, parseFilteringFieldsFromBodyData } from '../..
 import { findOrderingFieldUtil } from '../../utils/find-ordering-field.util.js';
 import { isHexString } from '../../utils/is-hex-string.js';
 import { processRowsUtil } from '../../utils/process-found-rows-util.js';
+import {
+	assertSomeColumnReadable,
+	readableTableStructure,
+	restrictTableSettingsToReadableColumns,
+} from '../../utils/restrict-query-to-readable-columns.util.js';
 import { getUserEmailForAgent, validateConnection } from '../../utils/validate-connection.util.js';
 import { PureFoundRowsResponseDs } from '../application/data-structures/pure-found-rows-response.ds.js';
 import { PureGetRowsDs } from '../application/data-structures/pure-get-rows.ds.js';
@@ -66,12 +71,28 @@ export class PureGetRowsFromTableUseCase
 
 		const tableStructure = await dao.getTableStructure(tableName, userEmail);
 
+		// Column-level read permissions must bound the whole query, not just the response (plan 13
+		// P0-3): resolved here, BEFORE the filters/ordering are parsed, so a withheld column can be
+		// neither filtered, searched, ordered by nor selected. Anonymous callers (no userId — the
+		// public branch of QueryTableGuard) are evaluated against the connection's public policy.
+		const allColumnNames = tableStructure.map((column) => column.column_name);
+		const readableColumns = userId
+			? await this.cedarPermissions.getReadableColumns(userId, connectionId, tableName, allColumnNames)
+			: await this.cedarPermissions.getReadableColumnsForPublic(connectionId, tableName, allColumnNames);
+		assertSomeColumnReadable(readableColumns);
+		const queryableStructure = readableTableStructure(tableStructure, readableColumns);
+
 		const filteringFields: Array<FilteringFieldsDs> = isObjectEmpty(filters)
-			? findFilteringFieldsUtil(query, tableStructure)
-			: parseFilteringFieldsFromBodyData(filters ?? {}, tableStructure);
-		const orderingField = findOrderingFieldUtil(query, tableStructure, tableSettings ?? ({} as TableSettingsEntity));
+			? findFilteringFieldsUtil(query, queryableStructure)
+			: parseFilteringFieldsFromBodyData(filters ?? {}, queryableStructure);
+		const orderingField = findOrderingFieldUtil(
+			query,
+			queryableStructure,
+			tableSettings ?? ({} as TableSettingsEntity),
+		);
 
 		const builtTableSettings = buildDAOsTableSettingsDs(buildCommonTableSettingsInput(tableSettings), null);
+		restrictTableSettingsToReadableColumns(builtTableSettings, readableColumns, allColumnNames);
 		if (orderingField) {
 			builtTableSettings.ordering_field = orderingField.field;
 			builtTableSettings.ordering = orderingField.value;
@@ -79,12 +100,13 @@ export class PureGetRowsFromTableUseCase
 
 		if (
 			isHexString(searchingFieldValue) &&
-			(tableStructure.some((field) => isBinary(field.data_type)) ||
+			(queryableStructure.some((field) => isBinary(field.data_type)) ||
 				connection.type === ConnectionTypesEnum.mongodb ||
 				connection.type === ConnectionTypesEnum.agent_mongodb)
 		) {
 			searchingFieldValue = hexToBinary(searchingFieldValue) as unknown as string;
-			builtTableSettings.search_fields = tableStructure
+			// Readable columns only — a binary search must not reach a withheld column either.
+			builtTableSettings.search_fields = queryableStructure
 				.filter((field) => isBinary(field.data_type))
 				.map((field) => field.column_name);
 			if (connection.type === ConnectionTypesEnum.mongodb || connection.type === ConnectionTypesEnum.agent_mongodb) {
@@ -111,10 +133,8 @@ export class PureGetRowsFromTableUseCase
 
 		rows = processRowsUtil(rows, tableWidgets, tableCustomFields);
 
-		const allColumnNames = tableStructure.map((column) => column.column_name);
-		const readableColumns = userId
-			? await this.cedarPermissions.getReadableColumns(userId, connectionId, tableName, allColumnNames)
-			: await this.cedarPermissions.getReadableColumnsForPublic(connectionId, tableName, allColumnNames);
+		// Defense in depth on top of the query-level restriction above: a widget/custom field or a DAO
+		// that ignores excluded_fields must not put a withheld column into the response.
 		if (!isAllColumnsReadable(readableColumns, allColumnNames)) {
 			rows.data = filterRowsByReadableColumns(rows.data, readableColumns);
 		}
