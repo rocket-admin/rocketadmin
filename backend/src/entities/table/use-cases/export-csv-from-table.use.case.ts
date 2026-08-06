@@ -111,9 +111,14 @@ export class ExportCSVFromTableUseCase
 			if (isHexString(searchingFieldValue)) {
 				searchingFieldValue = hexToBinary(searchingFieldValue) as any;
 				// Readable columns only — a binary search must not reach a withheld column either.
-				tableSettings.search_fields = queryableStructure
+				// This must land on the settings object the DAO actually receives; assigning it to
+				// `tableSettings` (which was already consumed above) had no effect on the query.
+				const binarySearchFields = queryableStructure
 					.filter((field) => isBinary(field.data_type))
 					.map((field) => field.column_name);
+				if (binarySearchFields.length > 0) {
+					builtDAOsTableSettings.search_fields = binarySearchFields;
+				}
 			}
 
 			const rowsStream = await dao.getTableRowsStream(

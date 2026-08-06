@@ -252,6 +252,176 @@ test.serial(
 	},
 );
 
+// Plan 13 P0-3 on the AUTHENTICATED read path: stripping a withheld column from the response still
+// let a filter/search on it run in SQL, so `pagination.total` answered "does this column start with
+// X?" one character at a time. The readable set now bounds the query itself, so a filter on a
+// withheld column is ignored exactly like one naming a column that does not exist.
+// The seeded table has 42 rows, 3 of them carrying 'Vasia' in `testTableColumnName`; the counts below
+// are the oracle (42 = the filter was dropped, 3 = it ran).
+function readOnlyCedarPolicy(connectionId: string, tableName: string, readableColumns: Array<string>): string {
+	return [
+		`permit(\n  principal,\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
+		`permit(\n  principal,\n  action == RocketAdmin::Action::"table:query",\n  resource == RocketAdmin::Table::"${connectionId}/${tableName}"\n);`,
+		...readableColumns.map(
+			(columnName) =>
+				`permit(\n  principal,\n  action == RocketAdmin::Action::"column:read",\n  resource == RocketAdmin::Column::"${connectionId}/${tableName}/${columnName}"\n);`,
+		),
+	].join('\n\n');
+}
+
+test.serial(
+	`${currentTest} authenticated rows: a filter on a withheld column is ignored in both filter forms`,
+	async (t) => {
+		try {
+			const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+			const connectionId = testData.connections.firstId;
+			const groupId = testData.groups.createdGroupId;
+			const tableName = testData.firstTableInfo.testTableName;
+			// The 'Vasia' column is WITHHELD; only id + the email column are readable.
+			const hiddenColumn = testData.firstTableInfo.testTableColumnName;
+			const allowedColumn = testData.firstTableInfo.testTableSecondColumnName;
+
+			const savePolicyResponse = await request(app.getHttpServer())
+				.post(`/connection/cedar-policy/${connectionId}`)
+				.send({ cedarPolicy: readOnlyCedarPolicy(connectionId, tableName, ['id', allowedColumn]), groupId })
+				.set('Cookie', testData.users.adminUserToken)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+			t.is(savePolicyResponse.status, 201);
+
+			// Query-string filter form (`f_<col>__eq`), used by GET /table/rows.
+			const queryFiltered = await request(app.getHttpServer())
+				.get(`/table/rows/${connectionId}?tableName=${tableName}&page=1&perPage=10&f_${hiddenColumn}__eq=Vasia`)
+				.set('Cookie', testData.users.simpleUserToken)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+			t.is(queryFiltered.status, 200);
+			t.is(queryFiltered.body.pagination.total, 42);
+			t.false(Object.keys(queryFiltered.body.rows[0]).includes(hiddenColumn));
+
+			// Body filter form, used by POST /table/rows/find.
+			const bodyFiltered = await request(app.getHttpServer())
+				.post(`/table/rows/find/${connectionId}?tableName=${tableName}&page=1&perPage=10`)
+				.send({ filters: { [hiddenColumn]: { eq: 'Vasia' } } })
+				.set('Cookie', testData.users.simpleUserToken)
+				.set('Content-Type', 'application/json')
+				.set('Accept', 'application/json');
+			t.is(bodyFiltered.status, 200);
+			t.is(bodyFiltered.body.pagination.total, 42);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	},
+);
+
+test.serial(`${currentTest} authenticated rows: search never reaches a withheld column`, async (t) => {
+	try {
+		const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+		const connectionId = testData.connections.firstId;
+		const groupId = testData.groups.createdGroupId;
+		const tableName = testData.firstTableInfo.testTableName;
+		const hiddenColumn = testData.firstTableInfo.testTableColumnName;
+		const allowedColumn = testData.firstTableInfo.testTableSecondColumnName;
+
+		const savePolicyResponse = await request(app.getHttpServer())
+			.post(`/connection/cedar-policy/${connectionId}`)
+			.send({ cedarPolicy: readOnlyCedarPolicy(connectionId, tableName, ['id', allowedColumn]), groupId })
+			.set('Cookie', testData.users.adminUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(savePolicyResponse.status, 201);
+
+		// 'Vasia' exists only in the withheld column: the search must match nothing rather than
+		// returning those 3 rows (before the fix, search ILIKEd every text column of the table).
+		const searched = await request(app.getHttpServer())
+			.get(`/table/rows/${connectionId}?tableName=${tableName}&page=1&perPage=10&search=Vasia`)
+			.set('Cookie', testData.users.simpleUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(searched.status, 200);
+		t.is(searched.body.rows.length, 0);
+		t.not(searched.body.pagination.total, 3);
+	} catch (error) {
+		console.error(error);
+		throw error;
+	}
+});
+
+test.serial(`${currentTest} authenticated rows: filter and search on a READABLE column still work`, async (t) => {
+	try {
+		const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+		const connectionId = testData.connections.firstId;
+		const groupId = testData.groups.createdGroupId;
+		const tableName = testData.firstTableInfo.testTableName;
+		const allowedColumn = testData.firstTableInfo.testTableColumnName;
+
+		const savePolicyResponse = await request(app.getHttpServer())
+			.post(`/connection/cedar-policy/${connectionId}`)
+			.send({ cedarPolicy: readOnlyCedarPolicy(connectionId, tableName, ['id', allowedColumn]), groupId })
+			.set('Cookie', testData.users.adminUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(savePolicyResponse.status, 201);
+
+		const filtered = await request(app.getHttpServer())
+			.get(`/table/rows/${connectionId}?tableName=${tableName}&page=1&perPage=10&f_${allowedColumn}__eq=Vasia`)
+			.set('Cookie', testData.users.simpleUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(filtered.status, 200);
+		t.is(filtered.body.pagination.total, 3);
+		t.is(filtered.body.rows.length, 3);
+
+		const searched = await request(app.getHttpServer())
+			.get(`/table/rows/${connectionId}?tableName=${tableName}&page=1&perPage=10&search=Vasia`)
+			.set('Cookie', testData.users.simpleUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(searched.status, 200);
+		t.is(searched.body.rows.length, 3);
+	} catch (error) {
+		console.error(error);
+		throw error;
+	}
+});
+
+test.serial(`${currentTest} authenticated reads fail CLOSED when no column is readable at all`, async (t) => {
+	try {
+		const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+		const connectionId = testData.connections.firstId;
+		const groupId = testData.groups.createdGroupId;
+		const tableName = testData.firstTableInfo.testTableName;
+
+		// table:query but NOT a single column:read. Answering "rows with every column stripped"
+		// would still hand back a real pagination.total to mine, so this is a 403.
+		const savePolicyResponse = await request(app.getHttpServer())
+			.post(`/connection/cedar-policy/${connectionId}`)
+			.send({ cedarPolicy: readOnlyCedarPolicy(connectionId, tableName, []), groupId })
+			.set('Cookie', testData.users.adminUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(savePolicyResponse.status, 201);
+
+		const getRows = await request(app.getHttpServer())
+			.get(`/table/rows/${connectionId}?tableName=${tableName}&page=1&perPage=10`)
+			.set('Cookie', testData.users.simpleUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(getRows.status, 403);
+
+		const getRow = await request(app.getHttpServer())
+			.get(`/table/row/${connectionId}?tableName=${tableName}&id=1`)
+			.set('Cookie', testData.users.simpleUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(getRow.status, 403);
+	} catch (error) {
+		console.error(error);
+		throw error;
+	}
+});
+
 test.serial(
 	`${currentTest} should enforce QueryTable - user without table:query is denied before the query`,
 	async (t) => {
