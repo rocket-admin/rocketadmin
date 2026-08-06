@@ -36,6 +36,10 @@ import {
 	filterReferencedTablesByPermission,
 } from '../utils/process-referenced-tables.util.js';
 import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util.js';
+import {
+	assertSomeColumnReadable,
+	restrictTableSettingsToReadableColumns,
+} from '../utils/restrict-query-to-readable-columns.util.js';
 import { getUserEmailForAgent, validateConnection } from '../utils/validate-connection.util.js';
 import { IGetRowByPrimaryKey } from './table-use-cases.interface.js';
 
@@ -133,13 +137,31 @@ export class GetRowByPrimaryKeyUseCase
 				),
 			);
 		}
+		// Column-level read permission (the ColumnRead half of table:read), resolved BEFORE the query
+		// so a withheld column is never selected — and so a caller who may read no column at all gets
+		// a 403 instead of a row-existence answer (plan 13 P0-3; same rule as
+		// `pure-read-row-from-table.use.case.ts`).
+		const allColumnNames = tableStructure.map((column) => column.column_name);
+		const readableColumns = await this.cedarPermissions.getReadableColumns(
+			userId,
+			connectionId,
+			tableName,
+			allColumnNames,
+		);
+		assertSomeColumnReadable(readableColumns);
+
 		let rowData: Record<string, unknown>;
 		const builtDAOsTableSettings = buildDAOsTableSettingsDs(
 			buildCommonTableSettingsInput(tableSettings),
 			personalTableSettings,
 		);
+		// The DAO's copy carries the withheld columns in `excluded_fields`, which bounds its
+		// `select()` list. The response keeps the unrestricted copy so the withheld column NAMES are
+		// not disclosed through `table_settings`.
+		const daoTableSettings = { ...builtDAOsTableSettings };
+		restrictTableSettingsToReadableColumns(daoTableSettings, readableColumns, allColumnNames);
 		try {
-			rowData = await dao.getRowByPrimaryKey(tableName, primaryKey, builtDAOsTableSettings, userEmail);
+			rowData = await dao.getRowByPrimaryKey(tableName, primaryKey, daoTableSettings, userEmail);
 		} catch (e) {
 			throw new UnknownSQLException(getErrorMessage(e), ExceptionOperations.FAILED_TO_GET_ROW_BY_PRIMARY_KEY);
 		}
@@ -155,16 +177,9 @@ export class GetRowByPrimaryKeyUseCase
 		rowData = removePasswordsFromRowsUtil(rowData, tableWidgets);
 		let formedTableStructure = formFullTableStructure(tableStructure, tableSettings);
 
-		// Column-level read permission (the ColumnRead half of table:read): strip columns the
-		// user may not read from the row and metadata.
-		const allColumnNames = tableStructure.map((column) => column.column_name);
-		const readableColumns = await this.cedarPermissions.getReadableColumns(
-			userId,
-			connectionId,
-			tableName,
-			allColumnNames,
-		);
-		let listFields = findAvailableFields(builtDAOsTableSettings, tableStructure);
+		// Response-side projection, on top of the query-level restriction above (defense in depth: a
+		// widget or a DAO that ignores `excluded_fields` must not put a withheld column in the row).
+		let listFields = findAvailableFields(daoTableSettings, tableStructure);
 		if (!isAllColumnsReadable(readableColumns, allColumnNames)) {
 			rowData = filterRowByReadableColumns(rowData, readableColumns);
 			formedTableStructure = filterStructureByReadableColumns(formedTableStructure, readableColumns);

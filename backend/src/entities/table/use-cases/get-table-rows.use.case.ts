@@ -51,6 +51,11 @@ import { findOrderingFieldUtil } from '../utils/find-ordering-field.util.js';
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
 import { isHexString } from '../utils/is-hex-string.js';
 import { processRowsUtil } from '../utils/process-found-rows-util.js';
+import {
+	assertSomeColumnReadable,
+	readableTableStructure,
+	restrictTableSettingsToReadableColumns,
+} from '../utils/restrict-query-to-readable-columns.util.js';
 import { getUserEmailForAgent, validateConnection } from '../utils/validate-connection.util.js';
 import { IGetTableRows } from './table-use-cases.interface.js';
 
@@ -113,11 +118,28 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 				this._dbContext.tableFiltersRepository.findTableFiltersForTableInConnection(tableName, connectionId),
 				this._dbContext.personalTableSettingsRepository.findUserTableSettings(userId, connectionId, tableName),
 			]);
-			const filteringFields: Array<FilteringFieldsDs> = isObjectEmpty(filters)
-				? findFilteringFieldsUtil(query, tableStructure)
-				: parseFilteringFieldsFromBodyData(filters ?? {}, tableStructure);
+			// Column-level read permission (the ColumnRead half of table:read) must bound the QUERY,
+			// not only the response (plan 13 P0-3): resolved here, BEFORE filters, search, ordering
+			// and autocomplete are parsed, so a withheld column can be neither filtered, searched,
+			// ordered by nor selected. Stripping it from the rows afterwards still let
+			// `pagination.total` answer "does this column start with X?" one character at a time.
+			// Keep in step with the pure-CRUD twin (`pure-get-rows-from-table.use.case.ts`).
+			const allColumnNames = tableStructure.map((column) => column.column_name);
+			const readableColumns = await this.cedarPermissions.getReadableColumns(
+				userId,
+				connectionId,
+				tableName,
+				allColumnNames,
+			);
+			assertSomeColumnReadable(readableColumns);
+			const restrictColumns = !isAllColumnsReadable(readableColumns, allColumnNames);
+			const queryableStructure = readableTableStructure(tableStructure, readableColumns);
 
-			const orderingField = findOrderingFieldUtil(query, tableStructure, tableSettings);
+			const filteringFields: Array<FilteringFieldsDs> = isObjectEmpty(filters)
+				? findFilteringFieldsUtil(query, queryableStructure)
+				: parseFilteringFieldsFromBodyData(filters ?? {}, queryableStructure);
+
+			const orderingField = findOrderingFieldUtil(query, queryableStructure, tableSettings);
 
 			const configured = !!tableSettings;
 
@@ -135,7 +157,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 
 			const autocompleteFields: AutocompleteFieldsDs =
 				autocomplete && referencedColumn
-					? findAutocompleteFieldsUtil(query, tableStructure, tableSettings, referencedColumn)
+					? findAutocompleteFieldsUtil(query, queryableStructure, tableSettings, referencedColumn)
 					: { fields: [], value: '' };
 
 			const builtDAOsTableSettings = buildDAOsTableSettingsDs(
@@ -148,12 +170,13 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 			}
 			if (
 				isHexString(searchingFieldValue) &&
-				(tableStructure.some((field) => isBinary(field.data_type)) ||
+				(queryableStructure.some((field) => isBinary(field.data_type)) ||
 					connection.type === ConnectionTypesEnum.mongodb ||
 					connection.type === ConnectionTypesEnum.agent_mongodb)
 			) {
 				searchingFieldValue = hexToBinary(searchingFieldValue) as any;
-				builtDAOsTableSettings.search_fields = tableStructure
+				// Readable columns only — a binary search must not reach a withheld column either.
+				builtDAOsTableSettings.search_fields = queryableStructure
 					.filter((field) => isBinary(field.data_type))
 					.map((field) => field.column_name);
 				if (connection.type === 'mongodb' || connection.type === 'agent_mongodb') {
@@ -161,11 +184,17 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 				}
 			}
 
+			// The settings the DAO gets carry the withheld columns in `excluded_fields`, which bounds
+			// its `select()` list and its default search fields. The response keeps the unrestricted
+			// copy, so the withheld column NAMES are not disclosed through `table_settings`.
+			const daoTableSettings = { ...builtDAOsTableSettings };
+			restrictTableSettingsToReadableColumns(daoTableSettings, readableColumns, allColumnNames);
+
 			let rows: FoundRowsDS;
 			try {
 				rows = await dao.getRowsFromTable(
 					tableName,
-					builtDAOsTableSettings,
+					daoTableSettings,
 					page,
 					perPage,
 					searchingFieldValue,
@@ -212,21 +241,9 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 
 			const largeDataset = rows.large_dataset || rows.pagination.total > Constants.LARGE_DATASET_ROW_LIMIT;
 
-			const listFields = findAvailableFields(builtDAOsTableSettings, tableStructure);
+			const listFields = findAvailableFields(daoTableSettings, tableStructure);
 			const actionEventsDtos = customActionEvents.map((el) => buildActionEventDto(el));
 			const savedFiltersRO = savedTableFilters.map((el) => buildCreatedTableFilterRO(el));
-
-			// Column-level read permission (the ColumnRead half of table:read). Computed once;
-			// when the user lacks read access to some columns we strip them from the rows and
-			// metadata below, after foreign-key identity enrichment has run.
-			const allColumnNames = tableStructure.map((column) => column.column_name);
-			const readableColumns = await this.cedarPermissions.getReadableColumns(
-				userId,
-				connectionId,
-				tableName,
-				allColumnNames,
-			);
-			const restrictColumns = !isAllColumnsReadable(readableColumns, allColumnNames);
 
 			const rowsRO = {
 				rows: rows.data,
