@@ -6,13 +6,13 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
 import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { EmailService } from '../../email/email/email.service.js';
-import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds.js';
+import { OperationResultMessageWithEmailPayloadDs } from '../application/data-structures/operation-result-message.ds.js';
 import { RequestEmailChangeDs } from '../application/data-structures/request-email-change.ds.js';
 import { IRequestEmailChange } from './user-use-cases.interfaces.js';
 
 @Injectable()
 export class RequestChangeUserEmailUseCase
-	extends AbstractUseCase<RequestEmailChangeDs, OperationResultMessageDs>
+	extends AbstractUseCase<RequestEmailChangeDs, OperationResultMessageWithEmailPayloadDs>
 	implements IRequestEmailChange
 {
 	constructor(
@@ -24,7 +24,7 @@ export class RequestChangeUserEmailUseCase
 		super();
 	}
 
-	protected async implementation(inputData: RequestEmailChangeDs): Promise<OperationResultMessageDs> {
+	protected async implementation(inputData: RequestEmailChangeDs): Promise<OperationResultMessageWithEmailPayloadDs> {
 		const { userId } = inputData;
 		const foundUser = await this._dbContext.userRepository.findOneUserById(userId);
 		if (!foundUser) {
@@ -45,6 +45,21 @@ export class RequestChangeUserEmailUseCase
 		}
 		const { rawToken } = await this._dbContext.emailChangeRepository.createOrUpdateEmailChangeEntity(foundUser);
 		const userCompanyInfo = await this._dbContext.companyInfoRepository.findCompanyInfoByUserId(userId);
+
+		// Trigger inversion (plan 15 Phase 2): bridge callers send the letter themselves — return
+		// the raw token instead of sending (and never log it).
+		if (inputData.suppressEmail) {
+			return {
+				message: Messages.EMAIL_CHANGE_REQUESTED,
+				emailPayload: {
+					type: 'email_change_request',
+					to: foundUser.email,
+					rawToken,
+					companyId: userCompanyInfo.id,
+				},
+			};
+		}
+
 		const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(userCompanyInfo.id);
 		const mailingResult = await this.emailService.sendEmailChangeRequest(
 			foundUser.email,

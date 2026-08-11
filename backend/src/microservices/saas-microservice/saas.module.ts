@@ -6,14 +6,26 @@ import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
 import { CompanyInfoHelperService } from '../../entities/company-info/company-info-helper.service.js';
 import { InviteUserInCompanyAndConnectionGroupUseCase } from '../../entities/company-info/use-cases/invite-user-in-company.use.case.js';
 import { VerifyInviteUserInCompanyAndConnectionGroupUseCase } from '../../entities/company-info/use-cases/verify-invite-user-in-company.use.case.js';
+import { ChangeUserNameUseCase } from '../../entities/user/use-cases/change-user-name-use.case.js';
+import { ChangeUsualPasswordUseCase } from '../../entities/user/use-cases/change-usual-password-use.case.js';
+import { DeleteUserAccountUseCase } from '../../entities/user/use-cases/delete-user-account-use-case.js';
+import { DisableOtpUseCase } from '../../entities/user/use-cases/disable-otp.use.case.js';
+import { FindUserUseCase } from '../../entities/user/use-cases/find-user-use.case.js';
+import { GenerateOtpUseCase } from '../../entities/user/use-cases/generate-otp-use.case.js';
+import { GetUserSessionSettingsUseCase } from '../../entities/user/use-cases/get-user-session-settings.use.case.js';
 import { LogOutUseCase } from '../../entities/user/use-cases/log-out.use.case.js';
+import { OtpLoginUseCase } from '../../entities/user/use-cases/otp-login-use.case.js';
 import { RequestChangeUserEmailUseCase } from '../../entities/user/use-cases/request-change-user-email.use.case.js';
 import { RequestEmailVerificationUseCase } from '../../entities/user/use-cases/request-email-verification.use.case.js';
 import { RequestResetUserPasswordUseCase } from '../../entities/user/use-cases/request-reset-user-password.use.case.js';
+import { SaveUserSettingsUseCase } from '../../entities/user/use-cases/save-user-session-settings.use.case.js';
+import { ToggleTestConnectionsDisplayModeUseCase } from '../../entities/user/use-cases/toggle-test-connections-display-mode.use.case.js';
 import { VerifyChangeUserEmailUseCase } from '../../entities/user/use-cases/verify-change-user-email.use.case.js';
+import { VerifyOtpUseCase } from '../../entities/user/use-cases/verify-otp-use.case.js';
 import { VerifyResetUserPasswordUseCase } from '../../entities/user/use-cases/verify-reset-user-password.use.case.js';
 import { VerifyUserEmailUseCase } from '../../entities/user/use-cases/verify-user-email.use.case.js';
 import { UserEntity } from '../../entities/user/user.entity.js';
+import { UserHelperService } from '../../entities/user/user-helper.service.js';
 import { SignInAuditEntity } from '../../entities/user-sign-in-audit/sign-in-audit.entity.js';
 import { SignInAuditService } from '../../entities/user-sign-in-audit/sign-in-audit.service.js';
 import { ValidateUserTokenUseCase } from '../agents-microservice/use-cases/validate-user-token.use.case.js';
@@ -33,6 +45,7 @@ import { RegisteredCompanyWebhookUseCase } from './use-cases/register-company-we
 import { SaasRegisterDemoUserAccountUseCase } from './use-cases/register-demo-user-account.use.case.js';
 import { SaaSRegisterUserWIthSamlUseCase } from './use-cases/register-user-with-saml-use.case.js';
 import { SaasGetUserEmailCompaniesUseCase } from './use-cases/saas-get-user-email-companies.use.case.js';
+import { SaasOtpLoginUseCase } from './use-cases/saas-otp-login.use.case.js';
 import { SaasUsualLoginUseCase } from './use-cases/saas-usual-login.use.case.js';
 import { SaasUsualRegisterUseCase } from './use-cases/saas-usual-register-user.use.case.js';
 import { SuspendUsersUseCase } from './use-cases/suspend-users.use.case.js';
@@ -171,8 +184,59 @@ import { UpdateHostedConnectionPasswordUseCase } from './use-cases/update-hosted
 			provide: UseCaseType.VERIFY_INVITE_USER_IN_COMPANY_AND_CONNECTION_GROUP,
 			useClass: VerifyInviteUserInCompanyAndConnectionGroupUseCase,
 		},
+		// Account-management bridges (plan 15 Phase 4) — reuse the user-entity use cases.
+		{
+			provide: UseCaseType.FIND_USER,
+			useClass: FindUserUseCase,
+		},
+		{
+			provide: UseCaseType.CHANGE_USUAL_PASSWORD,
+			useClass: ChangeUsualPasswordUseCase,
+		},
+		{
+			provide: UseCaseType.CHANGE_USER_NAME,
+			useClass: ChangeUserNameUseCase,
+		},
+		{
+			provide: UseCaseType.DELETE_USER_ACCOUNT,
+			useClass: DeleteUserAccountUseCase,
+		},
+		{
+			provide: UseCaseType.SAVE_USER_SESSION_SETTINGS,
+			useClass: SaveUserSettingsUseCase,
+		},
+		{
+			provide: UseCaseType.GET_USER_SESSION_SETTINGS,
+			useClass: GetUserSessionSettingsUseCase,
+		},
+		{
+			provide: UseCaseType.TOGGLE_TEST_CONNECTIONS_DISPLAY_MODE,
+			useClass: ToggleTestConnectionsDisplayModeUseCase,
+		},
+		// 2FA/OTP bridges (plan 15 Phase 5).
+		{
+			provide: UseCaseType.GENERATE_OTP,
+			useClass: GenerateOtpUseCase,
+		},
+		{
+			provide: UseCaseType.VERIFY_OTP,
+			useClass: VerifyOtpUseCase,
+		},
+		{
+			provide: UseCaseType.DISABLE_OTP,
+			useClass: DisableOtpUseCase,
+		},
+		{
+			provide: UseCaseType.OTP_LOGIN,
+			useClass: OtpLoginUseCase,
+		},
+		{
+			provide: UseCaseType.SAAS_OTP_LOGIN,
+			useClass: SaasOtpLoginUseCase,
+		},
 		CompanyInfoHelperService,
 		SignInAuditService,
+		UserHelperService,
 	],
 	controllers: [SaasController],
 	exports: [],
@@ -213,6 +277,17 @@ export class SaasModule {
 				{ path: 'saas/connection/hosted/password', method: RequestMethod.POST },
 				{ path: 'saas/connection/hosted/credentials', method: RequestMethod.POST },
 				{ path: 'saas/connections/info', method: RequestMethod.POST },
+				{ path: 'saas/user/:userId/profile', method: RequestMethod.GET },
+				{ path: 'saas/user/password/change', method: RequestMethod.POST },
+				{ path: 'saas/user/name', method: RequestMethod.PUT },
+				{ path: 'saas/user/delete', method: RequestMethod.PUT },
+				{ path: 'saas/user/settings', method: RequestMethod.POST },
+				{ path: 'saas/user/:userId/settings', method: RequestMethod.GET },
+				{ path: 'saas/user/test-connections', method: RequestMethod.PUT },
+				{ path: 'saas/user/otp/generate', method: RequestMethod.POST },
+				{ path: 'saas/user/otp/verify', method: RequestMethod.POST },
+				{ path: 'saas/user/otp/disable', method: RequestMethod.POST },
+				{ path: 'saas/user/otp/login', method: RequestMethod.POST },
 			);
 	}
 }

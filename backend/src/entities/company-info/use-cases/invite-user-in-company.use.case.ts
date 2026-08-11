@@ -5,6 +5,7 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { isTest } from '../../../helpers/app/is-test.js';
+import { Constants } from '../../../helpers/constants/constants.js';
 import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
 import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { EmailService } from '../../email/email/email.service.js';
@@ -72,28 +73,45 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
 		}
 
 		if (foundInvitedUser && !foundInvitedUser.isActive) {
-			const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(companyId);
+			// Trigger inversion (plan 15 Phase 2): with `suppressEmail` (bridge-only) the re-confirmation
+			// letter is NOT sent here — the raw token travels back as a MARKED SUCCESS (the global
+			// exception filter would strip extra fields from an error body) and the SaaS caller sends
+			// the letter, then surfaces the user-facing 400 itself. Never log the raw token here.
+			if (inputData.suppressEmail) {
+				const { rawToken: suppressedRawToken } =
+					await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(foundInvitedUser);
+				return {
+					companyId,
+					groupId: groupId ?? null,
+					email: foundInvitedUser.email,
+					role: invitedUserCompanyRole,
+					userAlreadyAddedInactive: true,
+					emailPayload: {
+						type: 'email_confirmation',
+						to: foundInvitedUser.email,
+						rawToken: suppressedRawToken,
+						companyId,
+					},
+				};
+			}
+
 			const { rawToken } =
 				await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(foundInvitedUser);
 
-			const sendEmailResult = await this.emailService.sendEmailConfirmation(
-				foundInvitedUser.email,
-				rawToken,
-				companyCustomDomain,
-				ValidationHelper.resolveEmailVerificationLinkBase(inputData.emailVerificationLinkBase),
-			);
-
-			if (!sendEmailResult && !isTest() && !isSaaS()) {
-				throw new HttpException(
-					{
-						message: Messages.EMAIL_SEND_FAILED(invitedUserEmail),
-					},
-					HttpStatus.INTERNAL_SERVER_ERROR,
+			if (isSaaS()) {
+				const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(companyId);
+				await this.emailService.sendEmailConfirmation(
+					foundInvitedUser.email,
+					rawToken,
+					companyCustomDomain,
+					ValidationHelper.resolveEmailVerificationLinkBase(inputData.emailVerificationLinkBase),
 				);
-			}
-
-			if (!isSaaS()) {
-				this.logger.printTechString(`Invitation verification string: ${rawToken}`);
+			} else {
+				// Plan 15 Phase 6 (rev 5): self-hosted sends no email — the admin takes the full
+				// confirmation link from the server logs and hands it to the user.
+				this.logger.printTechString(
+					`Email confirmation link: ${Constants.APP_DOMAIN_ADDRESS}/external/user/email/verify/${rawToken}`,
+				);
 			}
 			throw new HttpException(
 				{
@@ -110,21 +128,46 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
 			invitedUserEmail,
 			invitedUserCompanyRole,
 		);
-		const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(companyId);
-		await this.emailService.sendInvitationToCompany(
-			invitedUserEmail,
-			rawToken,
-			companyId,
-			foundCompany.name,
-			companyCustomDomain,
-			ValidationHelper.resolveEmailVerificationLinkBase(inputData.inviteLinkBase),
-		);
-		const invitationRO: any = {
+		const invitationRO: InvitedUserInCompanyAndConnectionGroupDs & { verificationString?: string } = {
 			companyId: companyId,
 			groupId: groupId,
 			email: invitedUserEmail,
 			role: invitedUserCompanyRole,
 		};
+
+		// Trigger inversion (plan 15 Phase 2): the SaaS caller builds the invite link and sends the
+		// letter itself — return the raw token instead of sending (and never log it).
+		if (inputData.suppressEmail) {
+			invitationRO.emailPayload = {
+				type: 'company_invite',
+				to: invitedUserEmail,
+				rawToken,
+				companyId,
+				companyName: foundCompany.name ?? null,
+			};
+			if (isTest()) {
+				invitationRO.verificationString = rawToken;
+			}
+			return invitationRO;
+		}
+
+		if (isSaaS()) {
+			const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(companyId);
+			await this.emailService.sendInvitationToCompany(
+				invitedUserEmail,
+				rawToken,
+				companyId,
+				foundCompany.name,
+				companyCustomDomain,
+				ValidationHelper.resolveEmailVerificationLinkBase(inputData.inviteLinkBase),
+			);
+		} else {
+			// Plan 15 Phase 6 (rev 5): self-hosted sends no email — the admin takes the full
+			// invitation link from the server logs and hands it to the invited user.
+			this.logger.printTechString(
+				`Invitation link: ${Constants.APP_DOMAIN_ADDRESS}/company/${companyId}/verify/${rawToken}/`,
+			);
+		}
 		if (isTest()) {
 			invitationRO.verificationString = rawToken;
 		}

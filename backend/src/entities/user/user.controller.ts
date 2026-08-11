@@ -306,7 +306,16 @@ export class UserController {
 	@Throttle({ default: { limit: isTest() ? 200 : 5, ttl: 60000 } })
 	@Post('user/password/reset/request/')
 	async askResetUserPassword(@Body() emailData: RequestRestUserPasswordDto): Promise<OperationResultMessageDs> {
-		return await this.requestResetUserPasswordUseCase.execute(emailData, InTransactionEnum.ON);
+		// Fields are copied explicitly: `suppressEmail` (plan 15 Phase 2) is bridge-only and the global
+		// ValidationPipe does not strip unknown body properties — never forward the raw body here.
+		return await this.requestResetUserPasswordUseCase.execute(
+			{
+				email: emailData.email,
+				companyId: emailData.companyId,
+				verificationLinkBase: emailData.verificationLinkBase,
+			},
+			InTransactionEnum.ON,
+		);
 	}
 
 	@ApiOperation({ summary: 'Request user email change' })

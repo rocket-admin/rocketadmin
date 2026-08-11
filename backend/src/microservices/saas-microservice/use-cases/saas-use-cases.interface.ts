@@ -20,6 +20,8 @@ import { GetUsersInfosByEmailDS } from '../data-structures/get-users-infos-by-em
 import { HostedConnectionCredentialsRO } from '../data-structures/hosted-connection-credentials.ro.js';
 import { RegisterCompanyWebhookDS } from '../data-structures/register-company.ds.js';
 import { RegisteredCompanyDS } from '../data-structures/registered-company.ds.js';
+import { SaasRegisteredUserRO } from '../data-structures/saas-email-flows.dtos.js';
+import { SaasOtpLoginDs } from '../data-structures/saas-otp-login.ds.js';
 import { SaasRegisterUserWithGithub } from '../data-structures/saas-register-user-with-github.js';
 import { SaasSAMLUserRegisterDS } from '../data-structures/saas-saml-user-register.ds.js';
 import { SaasRegisterUserWithGoogleDS } from '../data-structures/sass-register-user-with-google.js';
@@ -39,7 +41,7 @@ export interface ISaasGetUsersInfosByEmail {
 }
 
 export interface ISaasRegisterUser {
-	execute(userData: SaasUsualUserRegisterDS): Promise<FoundUserDto>;
+	execute(userData: SaasUsualUserRegisterDS): Promise<SaasRegisteredUserRO>;
 }
 
 export interface ISaasUsualLoginUser {
@@ -104,4 +106,8 @@ export interface IGetConnectionsInfoByIds {
 
 export interface IGetHostedConnectionCredentials {
 	execute(inputData: GetHostedConnectionCredentialsDto): Promise<HostedConnectionCredentialsRO>;
+}
+
+export interface ISaasOtpLogin {
+	execute(inputData: SaasOtpLoginDs, inTransaction: InTransactionEnum): Promise<FoundUserDto>;
 }

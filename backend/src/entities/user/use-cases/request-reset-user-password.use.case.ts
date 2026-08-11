@@ -6,12 +6,12 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
 import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { EmailService } from '../../email/email/email.service.js';
-import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds.js';
-import { RequestRestUserPasswordDto } from '../dto/request-rest-user-password.dto.js';
+import { OperationResultMessageWithEmailPayloadDs } from '../application/data-structures/operation-result-message.ds.js';
+import { RequestPasswordResetDs } from '../application/data-structures/request-password-reset.ds.js';
 import { IRequestPasswordReset } from './user-use-cases.interfaces.js';
 
 export class RequestResetUserPasswordUseCase
-	extends AbstractUseCase<RequestRestUserPasswordDto, OperationResultMessageDs>
+	extends AbstractUseCase<RequestPasswordResetDs, OperationResultMessageWithEmailPayloadDs>
 	implements IRequestPasswordReset
 {
 	constructor(
@@ -23,11 +23,17 @@ export class RequestResetUserPasswordUseCase
 		super();
 	}
 
-	protected async implementation(emailData: RequestRestUserPasswordDto): Promise<OperationResultMessageDs> {
-		const { companyId } = emailData;
+	protected async implementation(emailData: RequestPasswordResetDs): Promise<OperationResultMessageWithEmailPayloadDs> {
+		const { companyId, suppressEmail } = emailData;
 		const email = emailData.email.toLowerCase();
 		const foundUser = await this._dbContext.userRepository.findOneUserByEmailAndCompanyId(email, companyId);
 		if (!foundUser) {
+			// Trigger inversion (plan 15 Phase 2): the bridge answers the same `{message}` whether or
+			// not the user exists (no payload, no error) so the SaaS caller leaks nothing to the
+			// browser. The legacy path keeps today's behavior for old callers.
+			if (suppressEmail) {
+				return { message: Messages.PASSWORD_RESET_REQUESTED };
+			}
 			throw new HttpException(
 				{
 					message: Messages.USER_MISSING_EMAIL_OR_SOCIAL_REGISTERED,
@@ -35,6 +41,20 @@ export class RequestResetUserPasswordUseCase
 				HttpStatus.FORBIDDEN,
 			);
 		}
+
+		if (suppressEmail) {
+			const { rawToken } = await this._dbContext.passwordResetRepository.createOrUpdatePasswordResetEntity(foundUser);
+			return {
+				message: Messages.PASSWORD_RESET_REQUESTED,
+				emailPayload: {
+					type: 'password_reset_request',
+					to: foundUser.email,
+					rawToken,
+					companyId,
+				},
+			};
+		}
+
 		const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(companyId);
 
 		const { rawToken } = await this._dbContext.passwordResetRepository.createOrUpdatePasswordResetEntity(foundUser);

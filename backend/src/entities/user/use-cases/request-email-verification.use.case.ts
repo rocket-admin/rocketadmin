@@ -6,13 +6,13 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
 import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { EmailService } from '../../email/email/email.service.js';
-import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds.js';
+import { OperationResultMessageWithEmailPayloadDs } from '../application/data-structures/operation-result-message.ds.js';
 import { RequestEmailVerificationDs } from '../application/data-structures/request-email-change.ds.js';
 import { IRequestEmailVerification } from './user-use-cases.interfaces.js';
 
 @Injectable()
 export class RequestEmailVerificationUseCase
-	extends AbstractUseCase<RequestEmailVerificationDs, OperationResultMessageDs>
+	extends AbstractUseCase<RequestEmailVerificationDs, OperationResultMessageWithEmailPayloadDs>
 	implements IRequestEmailVerification
 {
 	constructor(
@@ -24,7 +24,9 @@ export class RequestEmailVerificationUseCase
 		super();
 	}
 
-	protected async implementation(inputData: RequestEmailVerificationDs): Promise<OperationResultMessageDs> {
+	protected async implementation(
+		inputData: RequestEmailVerificationDs,
+	): Promise<OperationResultMessageWithEmailPayloadDs> {
 		const { userId } = inputData;
 		const foundUser = await this._dbContext.userRepository.findOneUserWithEmailVerification(userId);
 		if (!foundUser) {
@@ -44,6 +46,22 @@ export class RequestEmailVerificationUseCase
 			);
 		}
 		const foundUserCompany = await this._dbContext.companyInfoRepository.findCompanyInfoByUserId(foundUser.id);
+
+		// Trigger inversion (plan 15 Phase 2): bridge callers send the letter themselves — return
+		// the raw token instead of sending (and never log it).
+		if (inputData.suppressEmail) {
+			const { rawToken } = await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(foundUser);
+			return {
+				message: Messages.EMAIL_VERIFICATION_REQUESTED,
+				emailPayload: {
+					type: 'email_confirmation',
+					to: foundUser.email,
+					rawToken,
+					companyId: foundUserCompany.id,
+				},
+			};
+		}
+
 		const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(foundUserCompany.id);
 
 		const { rawToken } = await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(foundUser);

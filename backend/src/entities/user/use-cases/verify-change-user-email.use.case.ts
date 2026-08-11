@@ -6,12 +6,12 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { EmailService } from '../../email/email/email.service.js';
 import { ChangeUserEmailDs } from '../application/data-structures/change-user-email.ds.js';
-import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds.js';
+import { OperationResultMessageWithEmailPayloadDs } from '../application/data-structures/operation-result-message.ds.js';
 import { IVerifyEmailChange } from './user-use-cases.interfaces.js';
 
 @Injectable()
 export class VerifyChangeUserEmailUseCase
-	extends AbstractUseCase<ChangeUserEmailDs, OperationResultMessageDs>
+	extends AbstractUseCase<ChangeUserEmailDs, OperationResultMessageWithEmailPayloadDs>
 	implements IVerifyEmailChange
 {
 	constructor(
@@ -22,7 +22,7 @@ export class VerifyChangeUserEmailUseCase
 		super();
 	}
 
-	protected async implementation(inputData: ChangeUserEmailDs): Promise<OperationResultMessageDs> {
+	protected async implementation(inputData: ChangeUserEmailDs): Promise<OperationResultMessageWithEmailPayloadDs> {
 		const { verificationString } = inputData;
 		const newEmail = inputData.newEmail.toLowerCase();
 		const hashedToken = Encryptor.hashVerificationToken(verificationString);
@@ -62,6 +62,19 @@ export class VerifyChangeUserEmailUseCase
 		foundUser.email = newEmail;
 		await this._dbContext.userRepository.saveUserEntity(foundUser);
 		await this._dbContext.emailChangeRepository.removeEmailChangeEntity(verificationEntity);
+
+		// Trigger inversion (plan 15 Phase 2): the bridge caller sends the "email changed" notice
+		// itself — hand back the notice context instead of sending.
+		if (inputData.suppressEmail) {
+			return {
+				message: Messages.EMAIL_CHANGED,
+				emailPayload: {
+					type: 'email_changed',
+					to: newEmail,
+				},
+			};
+		}
+
 		await this.emailService.sendEmailChanged(newEmail);
 		return { message: Messages.EMAIL_CHANGED };
 	}

@@ -29,26 +29,47 @@ import {
 	IVerifyInviteUserInCompanyAndConnectionGroup,
 } from '../../entities/company-info/use-cases/company-info-use-cases.interface.js';
 import { CreatedConnectionDTO } from '../../entities/connection/application/dto/created-connection.dto.js';
-import { OperationResultMessageDs } from '../../entities/user/application/data-structures/operation-result-message.ds.js';
+import { ChangeUsualUserPasswordDs } from '../../entities/user/application/data-structures/change-usual-user-password.ds.js';
+import {
+	OperationResultMessageDs,
+	OperationResultMessageWithEmailPayloadDs,
+} from '../../entities/user/application/data-structures/operation-result-message.ds.js';
+import { OtpSecretDS } from '../../entities/user/application/data-structures/otp-secret.ds.js';
+import {
+	OtpDisablingResultDS,
+	OtpValidationResultDS,
+} from '../../entities/user/application/data-structures/otp-validation-result.ds.js';
 import { RegisteredUserDs } from '../../entities/user/application/data-structures/registered-user.ds.js';
+import { SaveUserSettingsDs } from '../../entities/user/application/data-structures/save-user-settings.ds.js';
 import { SaasUsualUserRegisterDS } from '../../entities/user/application/data-structures/usual-register-user.ds.js';
-import { EmailDto } from '../../entities/user/dto/email.dto.js';
 import { FoundUserDto } from '../../entities/user/dto/found-user.dto.js';
 import { PasswordDto } from '../../entities/user/dto/password.dto.js';
-import { RequestRestUserPasswordDto } from '../../entities/user/dto/request-rest-user-password.dto.js';
+import { UserSettingsDataRequestDto } from '../../entities/user/dto/user-settings-data-request.dto.js';
 import { ExternalRegistrationProviderEnum } from '../../entities/user/enums/external-registration-provider.enum.js';
 import {
+	IChangeUserName,
+	IDeleteUserAccount,
+	IDisableOTP,
+	IFindUserUseCase,
+	IGenerateOTP,
+	IGetUserSettings,
 	ILogOut,
 	IRequestEmailChange,
 	IRequestEmailVerification,
 	IRequestPasswordReset,
+	ISaveUserSettings,
+	IToggleTestConnectionsMode,
+	IUsualPasswordChange,
 	IVerifyEmail,
 	IVerifyEmailChange,
+	IVerifyOTP,
 	IVerifyPasswordReset,
 } from '../../entities/user/use-cases/user-use-cases.interfaces.js';
 import { UserEntity } from '../../entities/user/user.entity.js';
+import { IToken } from '../../entities/user/utils/generate-gwt-token.js';
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { Messages } from '../../exceptions/text/messages.js';
+import { slackPostMessage } from '../../helpers/slack/slack-post-message.js';
 import { ValidationHelper } from '../../helpers/validators/validation-helper.js';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { ValidatedUserTokenRO } from '../agents-microservice/data-structures/agents-responses.ds.js';
@@ -64,9 +85,26 @@ import { GetHostedConnectionCredentialsDto } from './data-structures/get-hosted-
 import { HostedConnectionCredentialsRO } from './data-structures/hosted-connection-credentials.ro.js';
 import { RegisterCompanyWebhookDS } from './data-structures/register-company.ds.js';
 import { RegisteredCompanyDS } from './data-structures/registered-company.ds.js';
-import { SaasInviteUserInCompanyDto, SaasUserIdWithLinkBaseDto } from './data-structures/saas-email-flows.dtos.js';
+import {
+	SaasInviteUserInCompanyDto,
+	SaasRegisteredUserRO,
+	SaasRequestPasswordResetDto,
+	SaasUserIdWithLinkBaseDto,
+	SaasVerifyEmailChangeDto,
+} from './data-structures/saas-email-flows.dtos.js';
+import { SaasOtpLoginDs } from './data-structures/saas-otp-login.ds.js';
 import { SaasRegisterUserWithGithub } from './data-structures/saas-register-user-with-github.js';
 import { SaasSAMLUserRegisterDS } from './data-structures/saas-saml-user-register.ds.js';
+import {
+	SaasChangeUserNameDto,
+	SaasDeleteUserAccountDto,
+	SaasOtpCodeDto,
+	SaasOtpLoginDto,
+	SaasSaveUserSettingsDto,
+	SaasToggleTestConnectionsDto,
+	SaasUserIdDto,
+	SaasUserPasswordChangeDto,
+} from './data-structures/saas-user-account.dtos.js';
 import { SaasRegisterUserWithGoogleDS } from './data-structures/sass-register-user-with-google.js';
 import { UpdateHostedConnectionPasswordDto } from './data-structures/update-hosted-connection-password.dto.js';
 import {
@@ -84,6 +122,7 @@ import {
 	ISaasDemoRegisterUser,
 	ISaasGetUserEmailCompanies,
 	ISaasGetUsersInfosByEmail,
+	ISaasOtpLogin,
 	ISaasRegisterUser,
 	ISaasSAMLRegisterUser,
 	ISaasUsualLoginUser,
@@ -163,6 +202,28 @@ export class SaasController {
 		private readonly inviteUserInCompanyUseCase: IInviteUserInCompanyAndConnectionGroup,
 		@Inject(UseCaseType.VERIFY_INVITE_USER_IN_COMPANY_AND_CONNECTION_GROUP)
 		private readonly verifyInviteUserInCompanyUseCase: IVerifyInviteUserInCompanyAndConnectionGroup,
+		@Inject(UseCaseType.FIND_USER)
+		private readonly findUserUseCase: IFindUserUseCase,
+		@Inject(UseCaseType.CHANGE_USUAL_PASSWORD)
+		private readonly changeUsualPasswordUseCase: IUsualPasswordChange,
+		@Inject(UseCaseType.CHANGE_USER_NAME)
+		private readonly changeUserNameUseCase: IChangeUserName,
+		@Inject(UseCaseType.DELETE_USER_ACCOUNT)
+		private readonly deleteUserAccountUseCase: IDeleteUserAccount,
+		@Inject(UseCaseType.SAVE_USER_SESSION_SETTINGS)
+		private readonly saveUserSessionSettingsUseCase: ISaveUserSettings,
+		@Inject(UseCaseType.GET_USER_SESSION_SETTINGS)
+		private readonly getUserSessionSettingsUseCase: IGetUserSettings,
+		@Inject(UseCaseType.TOGGLE_TEST_CONNECTIONS_DISPLAY_MODE)
+		private readonly toggleTestConnectionsDisplayModeUseCase: IToggleTestConnectionsMode,
+		@Inject(UseCaseType.GENERATE_OTP)
+		private readonly generateOtpUseCase: IGenerateOTP,
+		@Inject(UseCaseType.VERIFY_OTP)
+		private readonly verifyOtpUseCase: IVerifyOTP,
+		@Inject(UseCaseType.DISABLE_OTP)
+		private readonly disableOtpUseCase: IDisableOTP,
+		@Inject(UseCaseType.SAAS_OTP_LOGIN)
+		private readonly saasOtpLoginUseCase: ISaasOtpLogin,
 	) {}
 
 	@ApiOperation({ summary: 'Company registered webhook' })
@@ -210,7 +271,7 @@ export class SaasController {
 	@ApiResponse({
 		status: 201,
 		description: 'User has been successfully registered.',
-		type: FoundUserDto,
+		type: SaasRegisteredUserRO,
 	})
 	@Post('user/register')
 	async usualUserRegister(
@@ -221,7 +282,8 @@ export class SaasController {
 		@Body('companyId') companyId: string,
 		@Body('companyName') companyName: string,
 		@Body('emailVerificationLinkBase') emailVerificationLinkBase: string,
-	): Promise<FoundUserDto> {
+		@Body('suppressEmail') suppressEmail: boolean,
+	): Promise<SaasRegisteredUserRO> {
 		if (!companyId) {
 			throw new BadRequestException(Messages.COMPANY_ID_MISSING);
 		}
@@ -233,6 +295,7 @@ export class SaasController {
 			companyId,
 			companyName,
 			emailVerificationLinkBase,
+			suppressEmail: suppressEmail === true,
 		});
 	}
 
@@ -240,11 +303,17 @@ export class SaasController {
 	// segment is not captured as a verification token.
 	@ApiOperation({ summary: 'Re-send the email-confirmation letter on behalf of the SaaS service' })
 	@ApiBody({ type: SaasUserIdWithLinkBaseDto })
-	@ApiResponse({ status: 201, type: OperationResultMessageDs })
+	@ApiResponse({ status: 201, type: OperationResultMessageWithEmailPayloadDs })
 	@Post('user/email/verify/request')
-	async requestSaasUserEmailVerification(@Body() body: SaasUserIdWithLinkBaseDto): Promise<OperationResultMessageDs> {
+	async requestSaasUserEmailVerification(
+		@Body() body: SaasUserIdWithLinkBaseDto,
+	): Promise<OperationResultMessageWithEmailPayloadDs> {
 		return await this.requestEmailVerificationUseCase.execute(
-			{ userId: body.userId, verificationLinkBase: body.verificationLinkBase },
+			{
+				userId: body.userId,
+				verificationLinkBase: body.verificationLinkBase,
+				suppressEmail: body.suppressEmail === true,
+			},
 			InTransactionEnum.ON,
 		);
 	}
@@ -263,11 +332,21 @@ export class SaasController {
 	}
 
 	@ApiOperation({ summary: 'Request a password-reset email on behalf of the SaaS service' })
-	@ApiBody({ type: RequestRestUserPasswordDto })
-	@ApiResponse({ status: 201, type: OperationResultMessageDs })
+	@ApiBody({ type: SaasRequestPasswordResetDto })
+	@ApiResponse({ status: 201, type: OperationResultMessageWithEmailPayloadDs })
 	@Post('user/password/reset/request')
-	async requestSaasUserPasswordReset(@Body() body: RequestRestUserPasswordDto): Promise<OperationResultMessageDs> {
-		return await this.requestResetUserPasswordUseCase.execute(body, InTransactionEnum.ON);
+	async requestSaasUserPasswordReset(
+		@Body() body: SaasRequestPasswordResetDto,
+	): Promise<OperationResultMessageWithEmailPayloadDs> {
+		return await this.requestResetUserPasswordUseCase.execute(
+			{
+				email: body.email,
+				companyId: body.companyId,
+				verificationLinkBase: body.verificationLinkBase,
+				suppressEmail: body.suppressEmail === true,
+			},
+			InTransactionEnum.ON,
+		);
 	}
 
 	@ApiOperation({ summary: 'Consume a password-reset token on behalf of the SaaS service' })
@@ -292,25 +371,31 @@ export class SaasController {
 
 	@ApiOperation({ summary: 'Request an email-change letter on behalf of the SaaS service' })
 	@ApiBody({ type: SaasUserIdWithLinkBaseDto })
-	@ApiResponse({ status: 201, type: OperationResultMessageDs })
+	@ApiResponse({ status: 201, type: OperationResultMessageWithEmailPayloadDs })
 	@Post('user/email/change/request')
-	async requestSaasUserEmailChange(@Body() body: SaasUserIdWithLinkBaseDto): Promise<OperationResultMessageDs> {
+	async requestSaasUserEmailChange(
+		@Body() body: SaasUserIdWithLinkBaseDto,
+	): Promise<OperationResultMessageWithEmailPayloadDs> {
 		return await this.requestChangeUserEmailUseCase.execute(
-			{ userId: body.userId, verificationLinkBase: body.verificationLinkBase },
+			{
+				userId: body.userId,
+				verificationLinkBase: body.verificationLinkBase,
+				suppressEmail: body.suppressEmail === true,
+			},
 			InTransactionEnum.ON,
 		);
 	}
 
 	@ApiOperation({ summary: 'Consume an email-change token on behalf of the SaaS service' })
-	@ApiBody({ type: EmailDto })
-	@ApiResponse({ status: 201, type: OperationResultMessageDs })
+	@ApiBody({ type: SaasVerifyEmailChangeDto })
+	@ApiResponse({ status: 201, type: OperationResultMessageWithEmailPayloadDs })
 	@Post('user/email/change/verify/:verificationString')
 	async verifySaasUserEmailChange(
 		@VerificationString('verificationString') verificationString: string,
-		@Body() emailData: EmailDto,
-	): Promise<OperationResultMessageDs> {
+		@Body() emailData: SaasVerifyEmailChangeDto,
+	): Promise<OperationResultMessageWithEmailPayloadDs> {
 		return await this.verifyChangeUserEmailUseCase.execute(
-			{ verificationString, newEmail: emailData.email },
+			{ verificationString, newEmail: emailData.email, suppressEmail: emailData.suppressEmail === true },
 			InTransactionEnum.OFF,
 		);
 	}
@@ -336,6 +421,7 @@ export class SaasController {
 			invitedUserCompanyRole: body.role,
 			inviteLinkBase: body.inviteLinkBase,
 			emailVerificationLinkBase: body.emailVerificationLinkBase,
+			suppressEmail: body.suppressEmail === true,
 		});
 	}
 
@@ -369,7 +455,10 @@ export class SaasController {
 	@ApiBody({ type: ValidateUserTokenDto })
 	@Post('user/validate-token')
 	async validateUserToken(@Body() body: ValidateUserTokenDto): Promise<ValidatedUserTokenRO> {
-		return await this.validateUserTokenUseCase.execute(body.token, InTransactionEnum.OFF);
+		return await this.validateUserTokenUseCase.execute(
+			{ token: body.token, allowScopes: body.allowScopes },
+			InTransactionEnum.OFF,
+		);
 	}
 
 	@ApiOperation({ summary: 'User logout webhook — blacklist an end-user JWT issued by the SaaS service' })
@@ -406,6 +495,144 @@ export class SaasController {
 			{ email, password, companyId, request_domain, ipAddress, userAgent, gclidValue: null },
 			InTransactionEnum.OFF,
 		);
+	}
+
+	// ---------------------------------------------------------------------------------------------
+	// Account-management bridges (plan 15 Phase 4). `userId` ownership is enforced by the SaaS
+	// caller (cookie auth) — these bridges only trust the microservice JWT, like `saas/user/login`.
+	// ---------------------------------------------------------------------------------------------
+
+	@ApiOperation({ summary: 'Get the full user profile on behalf of the SaaS service (findMe parity)' })
+	@ApiResponse({ status: 200, type: FoundUserDto })
+	@Get('user/:userId/profile')
+	async getSaasUserProfile(@Param('userId') userId: string): Promise<FoundUserDto> {
+		if (!ValidationHelper.isValidUUID(userId)) {
+			throw new BadRequestException(Messages.USER_ID_MISSING);
+		}
+		// findMe passes the GCLID cookie value here; there is no cookie on this internal hop.
+		return await this.findUserUseCase.execute({ id: userId, gclidValue: undefined }, InTransactionEnum.OFF);
+	}
+
+	@ApiOperation({ summary: 'Change a user password on behalf of the SaaS service' })
+	@ApiBody({ type: SaasUserPasswordChangeDto })
+	@ApiResponse({
+		status: 201,
+		description:
+			'Password changed. The response carries a core-signed token (what the reused use case returns) — ' +
+			'the SaaS caller ignores it and re-signs its own cookie, as with the login bridge.',
+	})
+	@Post('user/password/change')
+	async changeSaasUserPassword(@Body() body: SaasUserPasswordChangeDto): Promise<IToken> {
+		const inputData: ChangeUsualUserPasswordDs = {
+			userId: body.userId,
+			email: body.email,
+			oldPassword: body.oldPassword,
+			newPassword: body.newPassword,
+		};
+		return await this.changeUsualPasswordUseCase.execute(inputData, InTransactionEnum.ON);
+	}
+
+	@ApiOperation({ summary: 'Change a user name on behalf of the SaaS service' })
+	@ApiBody({ type: SaasChangeUserNameDto })
+	@ApiResponse({ status: 200, type: FoundUserDto })
+	@Put('user/name')
+	async changeSaasUserName(@Body() body: SaasChangeUserNameDto): Promise<FoundUserDto> {
+		return await this.changeUserNameUseCase.execute({ id: body.userId, name: body.name }, InTransactionEnum.OFF);
+	}
+
+	@ApiOperation({ summary: 'Delete a user account on behalf of the SaaS service' })
+	@ApiBody({ type: SaasDeleteUserAccountDto })
+	@ApiResponse({ status: 200, type: RegisteredUserDs })
+	@Put('user/delete')
+	async deleteSaasUserAccount(@Body() body: SaasDeleteUserAccountDto): Promise<Omit<RegisteredUserDs, 'token'>> {
+		// When the deleted user is the last one in the company, the use case calls back into the SaaS
+		// service (`saasCompanyGatewayService.deleteCompany`) — plain sequential HTTP, no deadlock.
+		const deleteResult = await this.deleteUserAccountUseCase.execute(body.userId, InTransactionEnum.ON);
+		const slackMessage = Messages.USER_DELETED_ACCOUNT(deleteResult.email, body.reason ?? '', body.message ?? '');
+		await slackPostMessage(slackMessage);
+		return deleteResult;
+	}
+
+	@ApiOperation({ summary: 'Save user session settings on behalf of the SaaS service' })
+	@ApiBody({ type: SaasSaveUserSettingsDto })
+	@ApiResponse({ status: 201, type: UserSettingsDataRequestDto })
+	@Post('user/settings')
+	async saveSaasUserSettings(@Body() body: SaasSaveUserSettingsDto): Promise<SaveUserSettingsDs> {
+		return await this.saveUserSessionSettingsUseCase.execute(
+			{ userId: body.userId, userSettings: body.userSettings },
+			InTransactionEnum.OFF,
+		);
+	}
+
+	@ApiOperation({ summary: 'Get user session settings on behalf of the SaaS service' })
+	@ApiResponse({ status: 200, type: UserSettingsDataRequestDto })
+	@Get('user/:userId/settings')
+	async getSaasUserSettings(@Param('userId') userId: string): Promise<SaveUserSettingsDs> {
+		if (!ValidationHelper.isValidUUID(userId)) {
+			throw new BadRequestException(Messages.USER_ID_MISSING);
+		}
+		return await this.getUserSessionSettingsUseCase.execute(userId, InTransactionEnum.OFF);
+	}
+
+	@ApiOperation({ summary: 'Toggle display mode of test connections on behalf of the SaaS service' })
+	@ApiBody({ type: SaasToggleTestConnectionsDto })
+	@ApiResponse({ status: 200, type: SuccessResponse })
+	@Put('user/test-connections')
+	async toggleSaasTestConnectionsDisplayMode(@Body() body: SaasToggleTestConnectionsDto): Promise<SuccessResponse> {
+		return await this.toggleTestConnectionsDisplayModeUseCase.execute(
+			{ userId: body.userId, displayMode: body.displayMode === 'on' },
+			InTransactionEnum.OFF,
+		);
+	}
+
+	// ---------------------------------------------------------------------------------------------
+	// 2FA/OTP bridges (plan 15 Phase 5).
+	// ---------------------------------------------------------------------------------------------
+
+	@ApiOperation({ summary: 'Generate an OTP secret and QR code on behalf of the SaaS service' })
+	@ApiBody({ type: SaasUserIdDto })
+	@ApiResponse({ status: 201, type: OtpSecretDS })
+	@Post('user/otp/generate')
+	async generateSaasUserOtp(@Body() body: SaasUserIdDto): Promise<OtpSecretDS> {
+		return await this.generateOtpUseCase.execute(body.userId, InTransactionEnum.OFF);
+	}
+
+	@ApiOperation({ summary: 'Verify an OTP code (finish 2FA enrolment) on behalf of the SaaS service' })
+	@ApiBody({ type: SaasOtpCodeDto })
+	@ApiResponse({ status: 201, type: OtpValidationResultDS })
+	@Post('user/otp/verify')
+	async verifySaasUserOtp(@Body() body: SaasOtpCodeDto): Promise<OtpValidationResultDS> {
+		return await this.verifyOtpUseCase.execute({ userId: body.userId, otpToken: body.otpCode }, InTransactionEnum.OFF);
+	}
+
+	@ApiOperation({ summary: 'Disable 2FA on behalf of the SaaS service' })
+	@ApiBody({ type: SaasOtpCodeDto })
+	@ApiResponse({ status: 201, type: OtpDisablingResultDS })
+	@Post('user/otp/disable')
+	async disableSaasUserOtp(@Body() body: SaasOtpCodeDto): Promise<OtpDisablingResultDS> {
+		return await this.disableOtpUseCase.execute({ userId: body.userId, otpToken: body.otpCode }, InTransactionEnum.OFF);
+	}
+
+	@ApiOperation({
+		summary:
+			'Complete a 2FA login on behalf of the SaaS service: validates the temporary token ' +
+			'(blacklist + TEMPORARY_JWT_SECRET) and verifies the OTP code.',
+	})
+	@ApiBody({ type: SaasOtpLoginDto })
+	@ApiResponse({
+		status: 201,
+		description: 'OTP accepted; returns the user identity so the SaaS caller can sign its own full-session cookie.',
+		type: FoundUserDto,
+	})
+	@Post('user/otp/login')
+	async saasUserOtpLogin(@Body() body: SaasOtpLoginDto): Promise<FoundUserDto> {
+		const inputData: SaasOtpLoginDs = {
+			temporaryToken: body.temporaryToken,
+			otpCode: body.otpCode,
+			ipAddress: body.ipAddress,
+			userAgent: body.userAgent,
+		};
+		return await this.saasOtpLoginUseCase.execute(inputData, InTransactionEnum.OFF);
 	}
 
 	@ApiOperation({ summary: 'Get companies where a user with this email is registered' })

@@ -11,6 +11,7 @@ import {
 	SetSiteRuntimePolicyDs,
 	ValidateConnectionEditDs,
 	ValidateTableAiRequestDs,
+	ValidateUserTokenDs,
 } from '../data-structures/agents.ds.js';
 import {
 	AiConnectionContextRO,
@@ -25,7 +26,7 @@ import {
 } from '../data-structures/agents-responses.ds.js';
 
 export interface IValidateUserToken {
-	execute(token: string, inTransaction: InTransactionEnum): Promise<ValidatedUserTokenRO>;
+	execute(inputData: ValidateUserTokenDs, inTransaction: InTransactionEnum): Promise<ValidatedUserTokenRO>;
 }
 
 export interface IValidateTableAiRequest {

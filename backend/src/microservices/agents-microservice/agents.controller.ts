@@ -87,7 +87,7 @@ export class AgentsController {
 	@ApiBody({ type: ValidateUserTokenDto })
 	@Post('/auth/validate-user-token')
 	public async validateUserToken(@Body() body: ValidateUserTokenDto): Promise<ValidatedUserTokenRO> {
-		return await this.validateUserTokenUseCase.execute(body.token, InTransactionEnum.OFF);
+		return await this.validateUserTokenUseCase.execute({ token: body.token }, InTransactionEnum.OFF);
 	}
 
 	@ApiOperation({ summary: 'Check Cedar permission for an AI request on a table' })
