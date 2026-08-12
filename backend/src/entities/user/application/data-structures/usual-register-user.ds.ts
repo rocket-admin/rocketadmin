@@ -32,4 +32,12 @@ export class SaasUsualUserRegisterDS extends UsualRegisterUserDs {
 			'When omitted or not allowed, the legacy frontend link is built instead.',
 	})
 	emailVerificationLinkBase?: string;
+
+	@ApiProperty({
+		required: false,
+		description:
+			'Skip sending the confirmation email; the response instead carries `emailPayload` (raw token + context) ' +
+			'so the SaaS caller sends the letter itself (plan 15 Phase 2).',
+	})
+	suppressEmail?: boolean;
 }

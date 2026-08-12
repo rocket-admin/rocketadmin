@@ -331,7 +331,6 @@ export const Messages = {
 	EMAIL_CHANGE_REQUESTED: `Email change request was requested`,
 	EMAIL_CHANGE_FAILED: `Email change request failed. Incorrect link`,
 	EMAIL_CHANGED: 'Email changed',
-	EMAIL_SEND_FAILED: (email: string) => `Email sending to ${email} failed`,
 	EMAIL_VERIFICATION_REQUESTED: 'Email verification requested',
 	FILTERS_MISSING: 'Filters are missing',
 	USER_ADDED_IN_GROUP: (email: string) => `User ${email} was added in group successfully`,

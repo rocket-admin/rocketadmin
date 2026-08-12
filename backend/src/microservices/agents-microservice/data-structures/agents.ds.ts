@@ -1,5 +1,13 @@
 import { Response } from 'express';
 
+export class ValidateUserTokenDs {
+	token: string;
+	// Scopes the caller is willing to accept on the token (plan 15 Phase 5). When it includes
+	// '2fa_enable', validation mirrors the core's NonScopedAuthMiddleware instead of AuthMiddleware.
+	// Absent/empty = current strict behavior (backward compatible).
+	allowScopes?: Array<string>;
+}
+
 export class ValidateTableAiRequestDs {
 	userId: string;
 	connectionId: string;

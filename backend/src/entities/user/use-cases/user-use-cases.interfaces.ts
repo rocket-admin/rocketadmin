@@ -5,7 +5,10 @@ import { ChangeUserNameDS } from '../application/data-structures/change-user-nam
 import { ChangeUsualUserPasswordDto } from '../application/data-structures/change-usual-user-password.ds.js';
 import { CreateUserDs } from '../application/data-structures/create-user.ds.js';
 import { FindUserDs } from '../application/data-structures/find-user.ds.js';
-import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds.js';
+import {
+	OperationResultMessageDs,
+	OperationResultMessageWithEmailPayloadDs,
+} from '../application/data-structures/operation-result-message.ds.js';
 import { OtpSecretDS } from '../application/data-structures/otp-secret.ds.js';
 import {
 	OtpDisablingResultDS,
@@ -16,13 +19,13 @@ import {
 	RequestEmailChangeDs,
 	RequestEmailVerificationDs,
 } from '../application/data-structures/request-email-change.ds.js';
+import { RequestPasswordResetDs } from '../application/data-structures/request-password-reset.ds.js';
 import { ResetUsualUserPasswordDs } from '../application/data-structures/reset-usual-user-password.ds.js';
 import { SaveUserSettingsDs } from '../application/data-structures/save-user-settings.ds.js';
 import { ToggleConnectionDisplayModeDs } from '../application/data-structures/toggle-connection-display-mode.ds.js';
 import { UsualLoginDs } from '../application/data-structures/usual-login.ds.js';
 import { VerifyOtpDS } from '../application/data-structures/verify-otp.ds.js';
 import { FoundUserDto } from '../dto/found-user.dto.js';
-import { RequestRestUserPasswordDto } from '../dto/request-rest-user-password.dto.js';
 import { IToken } from '../utils/generate-gwt-token.js';
 
 export interface IFindUserUseCase {
@@ -54,19 +57,31 @@ export interface IVerifyPasswordReset {
 }
 
 export interface IRequestPasswordReset {
-	execute(emailData: RequestRestUserPasswordDto, inTransaction: InTransactionEnum): Promise<OperationResultMessageDs>;
+	execute(
+		emailData: RequestPasswordResetDs,
+		inTransaction: InTransactionEnum,
+	): Promise<OperationResultMessageWithEmailPayloadDs>;
 }
 
 export interface IRequestEmailChange {
-	execute(inputData: RequestEmailChangeDs, inTransaction: InTransactionEnum): Promise<OperationResultMessageDs>;
+	execute(
+		inputData: RequestEmailChangeDs,
+		inTransaction: InTransactionEnum,
+	): Promise<OperationResultMessageWithEmailPayloadDs>;
 }
 
 export interface IVerifyEmailChange {
-	execute(inputData: ChangeUserEmailDs, inTransaction: InTransactionEnum): Promise<OperationResultMessageDs>;
+	execute(
+		inputData: ChangeUserEmailDs,
+		inTransaction: InTransactionEnum,
+	): Promise<OperationResultMessageWithEmailPayloadDs>;
 }
 
 export interface IRequestEmailVerification {
-	execute(inputData: RequestEmailVerificationDs, inTransaction: InTransactionEnum): Promise<OperationResultMessageDs>;
+	execute(
+		inputData: RequestEmailVerificationDs,
+		inTransaction: InTransactionEnum,
+	): Promise<OperationResultMessageWithEmailPayloadDs>;
 }
 
 export interface IDeleteUserAccount {

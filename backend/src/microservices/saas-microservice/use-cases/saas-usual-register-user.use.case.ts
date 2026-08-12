@@ -8,17 +8,17 @@ import { DemoDataService } from '../../../entities/demo-data/demo-data.service.j
 import { EmailService } from '../../../entities/email/email/email.service.js';
 import { RegisterUserDs } from '../../../entities/user/application/data-structures/register-user-ds.js';
 import { SaasUsualUserRegisterDS } from '../../../entities/user/application/data-structures/usual-register-user.ds.js';
-import { FoundUserDto } from '../../../entities/user/dto/found-user.dto.js';
 import { UserRoleEnum } from '../../../entities/user/enums/user-role.enum.js';
 import { UserEntity } from '../../../entities/user/user.entity.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
 import { SaasCompanyGatewayService } from '../../gateways/saas-gateway.ts/saas-company-gateway.service.js';
+import { SaasRegisteredUserRO } from '../data-structures/saas-email-flows.dtos.js';
 import { ISaasRegisterUser } from './saas-use-cases.interface.js';
 
 @Injectable()
 export class SaasUsualRegisterUseCase
-	extends AbstractUseCase<SaasUsualUserRegisterDS, FoundUserDto>
+	extends AbstractUseCase<SaasUsualUserRegisterDS, SaasRegisteredUserRO>
 	implements ISaasRegisterUser
 {
 	constructor(
@@ -31,8 +31,9 @@ export class SaasUsualRegisterUseCase
 		super();
 	}
 
-	protected async implementation(userData: SaasUsualUserRegisterDS): Promise<FoundUserDto> {
-		const { email, password, gclidValue, name, companyId, companyName, emailVerificationLinkBase } = userData;
+	protected async implementation(userData: SaasUsualUserRegisterDS): Promise<SaasRegisteredUserRO> {
+		const { email, password, gclidValue, name, companyId, companyName, emailVerificationLinkBase, suppressEmail } =
+			userData;
 		const foundUser = await this._dbContext.userRepository.findOneUserByEmailAndCompanyId(email, companyId);
 		const userCompany = await this._dbContext.companyInfoRepository.findCompanyInfoWithUsersById(companyId);
 
@@ -65,15 +66,8 @@ export class SaasUsualRegisterUseCase
 		}
 
 		const { rawToken } = await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(savedUser);
-		const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(companyId);
 
-		// The satellite may route the confirmation link through itself (SiteNova). A disallowed or
-		// malformed base silently falls back to the legacy link — never fail the registration over it.
-		const verificationLinkBase = ValidationHelper.resolveEmailVerificationLinkBase(emailVerificationLinkBase);
-
-		await this.emailService.sendEmailConfirmation(savedUser.email, rawToken, companyCustomDomain, verificationLinkBase);
-
-		return {
+		const registeredUserRO: SaasRegisteredUserRO = {
 			id: savedUser.id,
 			createdAt: savedUser.createdAt,
 			isActive: savedUser.isActive,
@@ -86,6 +80,27 @@ export class SaasUsualRegisterUseCase
 			externalRegistrationProvider: savedUser.externalRegistrationProvider,
 			show_test_connections: savedUser.showTestConnections,
 		};
+
+		// Trigger inversion (plan 15 Phase 2): the SaaS caller builds the link and sends the
+		// confirmation itself — hand back the raw token instead of sending (and never log it).
+		if (suppressEmail) {
+			registeredUserRO.emailPayload = {
+				type: 'email_confirmation',
+				to: savedUser.email,
+				rawToken,
+			};
+			return registeredUserRO;
+		}
+
+		const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(companyId);
+
+		// The satellite may route the confirmation link through itself (SiteNova). A disallowed or
+		// malformed base silently falls back to the legacy link — never fail the registration over it.
+		const verificationLinkBase = ValidationHelper.resolveEmailVerificationLinkBase(emailVerificationLinkBase);
+
+		await this.emailService.sendEmailConfirmation(savedUser.email, rawToken, companyCustomDomain, verificationLinkBase);
+
+		return registeredUserRO;
 	}
 
 	private async registerEmptyCompany(

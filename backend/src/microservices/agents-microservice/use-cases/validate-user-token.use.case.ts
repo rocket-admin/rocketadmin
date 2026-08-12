@@ -8,12 +8,13 @@ import { JwtScopesEnum } from '../../../entities/user/enums/jwt-scopes.enum.js';
 import { TwoFaRequiredException } from '../../../exceptions/custom-exceptions/two-fa-required-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { appConfig } from '../../../shared/config/app-config.js';
+import { ValidateUserTokenDs } from '../data-structures/agents.ds.js';
 import { ValidatedUserTokenRO } from '../data-structures/agents-responses.ds.js';
 import { IValidateUserToken } from './agents-use-cases.interface.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class ValidateUserTokenUseCase
-	extends AbstractUseCase<string, ValidatedUserTokenRO>
+	extends AbstractUseCase<ValidateUserTokenDs, ValidatedUserTokenRO>
 	implements IValidateUserToken
 {
 	constructor(
@@ -23,7 +24,15 @@ export class ValidateUserTokenUseCase
 		super();
 	}
 
-	protected async implementation(token: string): Promise<ValidatedUserTokenRO> {
+	protected async implementation(inputData: ValidateUserTokenDs): Promise<ValidatedUserTokenRO> {
+		const { token, allowScopes } = inputData;
+		// Plan 15 Phase 5: when the caller explicitly accepts the '2fa_enable' scope, validation
+		// deliberately MATCHES the core's NonScopedAuthMiddleware semantics EXACTLY (used by the
+		// core's own OTP-enrolment routes): the 2fa-scope rejection is skipped AND the suspension
+		// check is skipped too — NonScopedAuthMiddleware only verifies signature + logout blacklist,
+		// without loading the user at all. Tighten both together if this ever changes.
+		const allow2faEnableScope = allowScopes?.includes(JwtScopesEnum.TWO_FA_ENABLE) === true;
+
 		if (!token) {
 			throw new UnauthorizedException('Token is missing');
 		}
@@ -50,13 +59,13 @@ export class ValidateUserTokenUseCase
 				throw new UnauthorizedException('JWT verification failed');
 			}
 
-			if (foundUser.suspended) {
+			if (foundUser.suspended && !allow2faEnableScope) {
 				throw new UnauthorizedException(Messages.ACCOUNT_SUSPENDED);
 			}
 
 			const addedScope: Array<JwtScopesEnum> = data.scope;
 			if (addedScope && addedScope.length > 0) {
-				if (addedScope.includes(JwtScopesEnum.TWO_FA_ENABLE)) {
+				if (addedScope.includes(JwtScopesEnum.TWO_FA_ENABLE) && !allow2faEnableScope) {
 					throw new TwoFaRequiredException();
 				}
 			}
