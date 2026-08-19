@@ -17,9 +17,38 @@ import { EmailGenerator } from './email.generator.js';
 import { IMessage } from './email.interface.js';
 
 export interface ICronMessagingResults {
+	email: string;
 	messageId?: string;
 	accepted?: Array<string | Mail.Address>;
 	rejected?: Array<string | Mail.Address>;
+	// Set when the dispatch failed or was suppressed — the Slack cron report
+	// groups failures by this string.
+	failureReason?: string;
+}
+
+// Reminder-cron view of one dispatch: either a transporter result or a named
+// failure reason. Transactional callers keep the info|null contract instead.
+export type EmailDispatchOutcome =
+	| { ok: true; info: SMTPTransport.SentMessageInfo; deliveryError?: string }
+	| { ok: false; reason: string };
+
+export function mapReminderOutcomeToCronResult(email: string, outcome: EmailDispatchOutcome): ICronMessagingResults {
+	if (outcome.ok === false) {
+		return { email, failureReason: outcome.reason };
+	}
+	const { messageId, accepted, rejected } = outcome.info;
+	const base: ICronMessagingResults = {
+		email,
+		messageId: messageId ? messageId : undefined,
+		accepted: accepted ? accepted : undefined,
+		rejected: rejected ? rejected : undefined,
+	};
+	// The saas webhook is best-effort: SMTP failure still comes back as 2xx with
+	// the address in `rejected` — surface it as a failure, not a success row.
+	if (!accepted || accepted.length === 0) {
+		base.failureReason = `rejected by saas transporter${outcome.deliveryError ? `: ${outcome.deliveryError}` : ''}`;
+	}
+	return base;
 }
 
 // Plan 15 Phase 3: the core composes no letters and transports no email in any mode.
@@ -63,27 +92,29 @@ export class EmailService {
 		});
 	}
 
-	public async sendRemindersToUsers(userEmails: Array<string>): Promise<Array<ICronMessagingResults | null>> {
+	public async sendRemindersToUsers(userEmails: Array<string>): Promise<Array<ICronMessagingResults>> {
 		const queue = new PQueue({ concurrency: 3 });
 
-		const mailingResults: Array<SMTPTransport.SentMessageInfo | null | undefined> = [];
+		const mailingResults: Array<ICronMessagingResults> = [];
 
 		for (const email of userEmails) {
 			try {
-				const result = await queue.add(async () => {
-					return await this.dispatchEmail('reminder', email, {});
+				const outcome = await queue.add(async () => {
+					return await this.dispatchEmailWithOutcome('reminder', email, {});
 				});
-				mailingResults.push(result);
+				mailingResults.push(
+					mapReminderOutcomeToCronResult(email, outcome ?? { ok: false, reason: 'dispatch returned no outcome' }),
+				);
 			} catch (error) {
 				this.logger.error(`Failed to send reminder to ${email}: ${getErrorMessage(error)}`);
 				Sentry.captureException(error);
-				mailingResults.push(null);
+				mailingResults.push({ email, failureReason: `dispatch threw: ${getErrorMessage(error)}` });
 			}
 		}
 
 		await queue.onIdle();
 
-		return this.buildMailingResults(mailingResults);
+		return mailingResults;
 	}
 
 	public async send2faEnabledInCompany(
@@ -192,30 +223,45 @@ export class EmailService {
 	// Plan 15 Phase 3 seam — the single gate every outgoing letter passes through:
 	// - test mode  -> no-op (unchanged semantics);
 	// - SaaS mode  -> saas-side composer webhook, mapped onto a SentMessageInfo-compatible
-	//                 object (null on any failure — email never fails the parent operation);
+	//                 object (a failure never fails the parent operation);
 	// - self-hosted -> suppressed entirely (plan 15 rev 5: self-hosted sends NOTHING, ever).
+	// Transactional callers use this null-contract wrapper; the reminder cron uses
+	// dispatchEmailWithOutcome so the failure reason survives into its Slack report.
 	private async dispatchEmail(
 		type: string,
 		to: string,
 		params: Record<string, unknown>,
 	): Promise<SMTPTransport.SentMessageInfo | null> {
+		const outcome = await this.dispatchEmailWithOutcome(type, to, params);
+		return outcome.ok ? outcome.info : null;
+	}
+
+	private async dispatchEmailWithOutcome(
+		type: string,
+		to: string,
+		params: Record<string, unknown>,
+	): Promise<EmailDispatchOutcome> {
 		if (isTest()) {
-			return null;
+			return { ok: false, reason: 'suppressed: test env' };
 		}
-		if (isSaaS()) {
-			const webhookResult = await this.saasEmailGatewayService.sendEmail(type, to, params);
-			if (!webhookResult) {
-				return null;
-			}
-			const sentLike: Pick<SMTPTransport.SentMessageInfo, 'messageId' | 'accepted' | 'rejected'> = {
-				messageId: webhookResult.messageId ?? '',
-				accepted: webhookResult.accepted ?? [],
-				rejected: webhookResult.rejected ?? [],
-			};
-			return sentLike as SMTPTransport.SentMessageInfo;
+		if (!isSaaS()) {
+			this.logger.debug(`email suppressed (self-hosted): ${type}`);
+			return { ok: false, reason: 'suppressed: not SaaS' };
 		}
-		this.logger.debug(`email suppressed (self-hosted): ${type}`);
-		return null;
+		const webhookOutcome = await this.saasEmailGatewayService.sendEmail(type, to, params);
+		if (webhookOutcome.ok === false) {
+			return { ok: false, reason: webhookOutcome.reason };
+		}
+		const sentLike: Pick<SMTPTransport.SentMessageInfo, 'messageId' | 'accepted' | 'rejected'> = {
+			messageId: webhookOutcome.result.messageId ?? '',
+			accepted: webhookOutcome.result.accepted,
+			rejected: webhookOutcome.result.rejected,
+		};
+		return {
+			ok: true,
+			info: sentLike as SMTPTransport.SentMessageInfo,
+			deliveryError: webhookOutcome.result.deliveryError,
+		};
 	}
 
 	// Dead code since plan 15 Phase 3 (kept for Phase 7 deletion).
@@ -232,22 +278,6 @@ export class EmailService {
 				console.error(e);
 				resolve(null);
 			}
-		});
-	}
-
-	private buildMailingResults(
-		results: Array<SMTPTransport.SentMessageInfo | null | undefined>,
-	): Array<ICronMessagingResults | null> {
-		return results.map((result) => {
-			if (!result) {
-				return null;
-			}
-			const { messageId, accepted, rejected } = result;
-			return {
-				messageId: messageId ? messageId : undefined,
-				accepted: accepted ? accepted : undefined,
-				rejected: rejected ? rejected : undefined,
-			};
 		});
 	}
 }
