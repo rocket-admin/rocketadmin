@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import Sentry from '@sentry/minimal';
-import Mail from 'nodemailer/lib/mailer/index.js';
 import { Repository } from 'typeorm';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { Constants } from '../../helpers/constants/constants.js';
@@ -15,6 +14,7 @@ import {
 	ICheckUsersLogsAndUpdateActionsUseCase,
 } from '../user-actions/use-cases/use-cases-interfaces.js';
 import { JobListEntity } from './job-list.entity.js';
+import { buildEmailCronReportMessages } from './utils/email-cron-report.js';
 @Injectable()
 export class CronJobsService {
 	constructor(
@@ -72,7 +72,7 @@ export class CronJobsService {
 				);
 
 				const batchSize = 10;
-				const allMailingResults: Array<ICronMessagingResults | null> = [];
+				const allMailingResults: Array<ICronMessagingResults> = [];
 
 				for (let i = 0; i < emails.length; i += batchSize) {
 					const emailsBatch = emails.slice(i, i + batchSize);
@@ -82,6 +82,8 @@ export class CronJobsService {
 					} catch (error) {
 						console.error(`Error processing batch ${Math.floor(i / batchSize) + 1}: ${getErrorMessage(error)}`);
 						Sentry.captureException(error);
+						const reason = `batch dispatch threw: ${getErrorMessage(error)}`;
+						allMailingResults.push(...emailsBatch.map((email) => ({ email, failureReason: reason })));
 					}
 					await new Promise((resolve) => setTimeout(resolve, 1000));
 				}
@@ -90,7 +92,7 @@ export class CronJobsService {
 					const mailingResultToString = 'Sending emails triggered, but no emails sent (no users found)';
 					await slackPostMessage(mailingResultToString, Constants.EXCEPTIONS_CHANNELS);
 				} else {
-					await this.sendEmailResultsToSlack(allMailingResults, emails);
+					await this.sendEmailResultsToSlack(allMailingResults);
 				}
 				await slackPostMessage(`morning cron finished at ${this.getCurrentTime()}`, Constants.EXCEPTIONS_CHANNELS);
 			} catch (innerError) {
@@ -135,69 +137,11 @@ export class CronJobsService {
 		}
 	}
 
-	private emailCronResultToSlackString(results: Array<ICronMessagingResults>): string | null {
-		try {
-			let output = '```\n';
-			output += 'Idx | Accepted Email                  | Message ID\n';
-			output += '----|---------------------------------|------------------------------------------\n';
-
-			results.forEach((result, idx) => {
-				const accepted = result.accepted && result.accepted.length > 0 ? result.accepted.join(', ') : '-';
-				const messageId = result.messageId ?? '-';
-				const idxStr = String(idx + 1).padEnd(3);
-				const acceptedStr = accepted.padEnd(32);
-				output += `${idxStr} | ${acceptedStr} | ${messageId}\n`;
-			});
-			output += '```';
-			return output;
-		} catch (_error) {
-			return null;
-		}
-	}
-
-	private async sendEmailResultsToSlack(
-		results: Array<ICronMessagingResults | null>,
-		allFoundEmails: Array<string>,
-	): Promise<void> {
-		const filteredResults = results.filter((result): result is ICronMessagingResults => !!result);
-		const nullResultsCount = results.length - filteredResults.length;
-		const chunkSize = 20;
-
-		const foundEmails = new Set<string | Mail.Address>();
-		filteredResults.forEach((result) => {
-			if (result?.accepted) {
-				result.accepted.forEach((email) => foundEmails.add(email));
-			}
-		});
-
-		const emailsNonFoundInResults = allFoundEmails.filter((email) => !foundEmails.has(email));
-
-		for (let i = 0; i < filteredResults.length; i += chunkSize) {
-			const chunk = filteredResults.slice(i, i + chunkSize);
-			const message = this.emailCronResultToSlackString(chunk);
-			if (!message) {
-				continue;
-			}
+	private async sendEmailResultsToSlack(results: Array<ICronMessagingResults>): Promise<void> {
+		const messages = buildEmailCronReportMessages(results);
+		for (const message of messages) {
 			await slackPostMessage(message, Constants.EXCEPTIONS_CHANNELS);
 			await new Promise((resolve) => setTimeout(resolve, 100));
-		}
-
-		if (nullResultsCount > 0) {
-			const timedOutMessage = `The system timed out while sending results to ${nullResultsCount} email addresses`;
-			if (emailsNonFoundInResults.length > 100) {
-				await slackPostMessage(timedOutMessage, Constants.EXCEPTIONS_CHANNELS);
-				for (let i = 0; i < emailsNonFoundInResults.length; i += 100) {
-					const emailsChunk = emailsNonFoundInResults.slice(i, i + 100);
-					await slackPostMessage(
-						`Failed emails (chunk ${i / 100 + 1}): ${emailsChunk.join(', ')}`,
-						Constants.EXCEPTIONS_CHANNELS,
-					);
-				}
-			} else {
-				const timedOutEmailsMessage = `: \n${emailsNonFoundInResults.join(', ')}\n`;
-				const fullTimedOutMessage = `${timedOutMessage}${timedOutEmailsMessage}`;
-				await slackPostMessage(fullTimedOutMessage, Constants.EXCEPTIONS_CHANNELS);
-			}
 		}
 	}
 
