@@ -326,6 +326,7 @@ export const Messages = {
 	EMAIL_SYNTAX_INVALID: 'Email syntax is invalid',
 	EMAIL_NOT_CONFIRMED: 'Email is not confirmed',
 	EMAIL_VERIFICATION_FAILED: 'Email verification failed',
+	EMAIL_VERIFICATION_REQUIRED: `Please confirm your email address to continue. Enter the code we emailed you.`,
 	EMAIL_VERIFIED_SUCCESSFULLY: 'Email verified successfully',
 	EMAIL_CHANGE_REQUESTED_SUCCESSFULLY: `Email change request was requested successfully`,
 	EMAIL_CHANGE_REQUESTED: `Email change request was requested`,

@@ -44,6 +44,8 @@ export enum ExceptionsInternalCodes {
 	MASTER_PASSWORD_INCORRECT = 1201,
 	/** Two-factor authentication is required to continue. */
 	TWO_FA_REQUIRED = 1202,
+	/** The account's email address has not been confirmed yet. */
+	EMAIL_VERIFICATION_REQUIRED = 1203,
 
 	// --- 1300–1399: Not found ---
 	/** Connection entity was not found. */
