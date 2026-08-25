@@ -13,8 +13,8 @@ import jwt from 'jsonwebtoken';
 import { Repository } from 'typeorm';
 import { JwtScopesEnum } from '../entities/user/enums/jwt-scopes.enum.js';
 import { UserEntity } from '../entities/user/user.entity.js';
+import { assertTokenScopeAllowed } from '../entities/user/utils/assert-token-scope-allowed.js';
 import { EncryptionAlgorithmEnum } from '../enums/encryption-algorithm.enum.js';
-import { TwoFaRequiredException } from '../exceptions/custom-exceptions/two-fa-required-exception.js';
 import { Messages } from '../exceptions/text/messages.js';
 import { Constants } from '../helpers/constants/constants.js';
 import { Encryptor } from '../helpers/encryption/encryptor.js';
@@ -86,12 +86,7 @@ export class PublicOrAuthMiddleware implements NestMiddleware {
 			throw new UnauthorizedException(Messages.ACCOUNT_SUSPENDED);
 		}
 
-		const addedScope: Array<JwtScopesEnum> = data.scope;
-		if (addedScope && addedScope.length > 0) {
-			if (addedScope.includes(JwtScopesEnum.TWO_FA_ENABLE)) {
-				throw new TwoFaRequiredException();
-			}
-		}
+		assertTokenScopeAllowed(data.scope as Array<JwtScopesEnum>);
 
 		const payload = {
 			sub: userId,

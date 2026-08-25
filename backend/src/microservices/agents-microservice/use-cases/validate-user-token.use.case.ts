@@ -5,7 +5,7 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { JwtScopesEnum } from '../../../entities/user/enums/jwt-scopes.enum.js';
-import { TwoFaRequiredException } from '../../../exceptions/custom-exceptions/two-fa-required-exception.js';
+import { assertTokenScopeAllowed } from '../../../entities/user/utils/assert-token-scope-allowed.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { appConfig } from '../../../shared/config/app-config.js';
 import { ValidateUserTokenDs } from '../data-structures/agents.ds.js';
@@ -63,12 +63,7 @@ export class ValidateUserTokenUseCase
 				throw new UnauthorizedException(Messages.ACCOUNT_SUSPENDED);
 			}
 
-			const addedScope: Array<JwtScopesEnum> = data.scope;
-			if (addedScope && addedScope.length > 0) {
-				if (addedScope.includes(JwtScopesEnum.TWO_FA_ENABLE) && !allow2faEnableScope) {
-					throw new TwoFaRequiredException();
-				}
-			}
+			assertTokenScopeAllowed(data.scope as Array<JwtScopesEnum>, allowScopes);
 
 			return {
 				sub: userId,
