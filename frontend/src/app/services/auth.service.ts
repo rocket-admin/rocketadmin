@@ -3,9 +3,8 @@ import { Injectable, signal } from '@angular/core';
 import * as Sentry from '@sentry/angular';
 import { BehaviorSubject, EMPTY } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
 import { AlertActionType, AlertType } from '../models/alert';
-import { ExistingAuthUser, NewAuthUser } from '../models/user';
+import { ExistingAuthUser } from '../models/user';
 import { ConfigurationService } from './configuration.service';
 import { NotificationsService } from './notifications.service';
 
@@ -27,69 +26,6 @@ export class AuthService {
 
 	setAuthenticated(value: boolean): void {
 		this._isAuthenticated.set(value);
-	}
-
-	signUpUser(userData: NewAuthUser) {
-		const config = this._configuration.getConfig();
-		return this._http.post<any>(config.saasURL + '/saas/user/register', userData).pipe(
-			map((res) => {
-				if ((environment as any).saas) {
-					// @ts-expect-error
-					window.fbq?.('trackCustom', 'Signup');
-				}
-				this._notifications.showSuccessSnackbar(`Confirmation email has been sent to you.`);
-				this.auth.next(res);
-				return res;
-			}),
-			catchError((err) => {
-				console.log(err);
-				this._notifications.showAlert(
-					AlertType.Error,
-					{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
-					[
-						{
-							type: AlertActionType.Button,
-							caption: 'Dismiss',
-							action: () => this._notifications.dismissAlert(),
-						},
-					],
-				);
-				return EMPTY;
-			}),
-		);
-	}
-
-	signUpWithGoogle(token: string) {
-		const config = this._configuration.getConfig();
-
-		return this._http.post<any>(config.saasURL + '/saas/user/google/register', { token }).pipe(
-			map((res) => {
-				this.auth.next(res);
-				return res;
-			}),
-			catchError((err) => {
-				console.log(err);
-				Sentry.captureException(err);
-				this._notifications.showAlert(
-					AlertType.Error,
-					{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
-					[
-						{
-							type: AlertActionType.Button,
-							caption: 'Dismiss',
-							action: (_id: number) => this._notifications.dismissAlert(),
-						},
-					],
-				);
-				return EMPTY;
-			}),
-		);
-	}
-
-	signUpWithGithub() {
-		const config = this._configuration.getConfig();
-
-		location.assign(config.saasURL + '/saas/user/github/registration/request');
 	}
 
 	loginUser(userData: ExistingAuthUser) {

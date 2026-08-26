@@ -359,18 +359,6 @@ export class AppComponent {
 		this.changeDetector.detectChanges();
 	}
 
-	logoutAndRedirectToRegistration() {
-		this._auth.logOutUser().subscribe(() => {
-			this.setUserLoggedIn(false);
-			this.isDemo = false;
-			this._user.setIsDemo(false);
-			this.currentUser = null;
-			localStorage.removeItem('token_expiration');
-			this._auth.setAuthenticated(false);
-			this.router.navigate(['/registration']);
-		});
-	}
-
 	logOut(isTokenExpired?: boolean) {
 		try {
 			// @ts-expect-error

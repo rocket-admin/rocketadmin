@@ -9,11 +9,6 @@ import { setupGuard } from './guards/setup.guard';
 const routes: Routes = [
 	{ path: '', redirectTo: '/connections-list', pathMatch: 'full' },
 	{
-		path: 'registration',
-		loadChildren: () => import('./routes/registration.routes').then((m) => m.REGISTRATION_ROUTES),
-		canActivate: [noAuthGuard],
-	},
-	{
 		path: 'setup',
 		loadComponent: () => import('./components/setup/setup.component').then((m) => m.SetupComponent),
 		canActivate: [setupGuard],
