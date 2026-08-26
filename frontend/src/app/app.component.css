@@ -226,16 +226,6 @@
 	gap: 20px;
 }
 
-.actions .action {
-	--mat-button-outlined-outline-color: #fff;
-	--mat-toolbar-container-text-color: #fff;
-	width: 96px;
-}
-
-.actions .action {
-	margin-left: 0.5em;
-}
-
 @media screen and (max-width: 600px) {
 	.menu,
 	.actions_auth {

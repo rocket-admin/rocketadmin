@@ -3,7 +3,7 @@ import { CanActivateFn, Router } from '@angular/router';
 import { differenceInMilliseconds } from 'date-fns';
 
 /**
- * Guard that prevents logged-in users from accessing auth pages (login, registration).
+ * Guard that prevents logged-in users from accessing auth pages (login).
  * Redirects authenticated users to /connections-list.
  */
 export const noAuthGuard: CanActivateFn = () => {

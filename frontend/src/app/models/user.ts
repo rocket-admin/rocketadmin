@@ -1,12 +1,6 @@
 import { CompanyMemberRole } from './company';
 import { TablePermissions } from './table';
 
-export interface NewAuthUser {
-	email: string;
-	password: string;
-	turnstileToken?: string;
-}
-
 export interface ExistingAuthUser {
 	email: string;
 	password: string;

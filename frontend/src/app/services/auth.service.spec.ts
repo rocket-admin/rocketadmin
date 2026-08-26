@@ -50,59 +50,6 @@ describe('AuthService', () => {
 		expect(service).toBeTruthy();
 	});
 
-	it('should call signUpUser', () => {
-		let isSignUpUserCalled = false;
-
-		const userData = {
-			email: 'john@smith.com',
-			password: 'mM87654321',
-		};
-
-		const signUpResponse = {
-			expires: '2022-04-11T15:56:51.599Z',
-		};
-
-		// @ts-expect-error
-		global.window.fbq = vi.fn();
-
-		service.signUpUser(userData).subscribe((res) => {
-			expect(res).toEqual(signUpResponse);
-			isSignUpUserCalled = true;
-		});
-
-		const req = httpMock.expectOne('/saas/user/register');
-		expect(req.request.method).toBe('POST');
-		expect(req.request.body).toEqual(userData);
-		req.flush(signUpResponse);
-
-		expect(isSignUpUserCalled).toBe(true);
-	});
-
-	it('should fall for signUpUser and show Error alert', async () => {
-		const userData = {
-			email: 'john@smith.com',
-			password: 'mM87654321',
-		};
-
-		const tokenExpiration = service.signUpUser(userData).toPromise();
-
-		const req = httpMock.expectOne('/saas/user/register');
-		expect(req.request.method).toBe('POST');
-		req.flush(fakeError, { status: 400, statusText: '' });
-		await tokenExpiration;
-
-		expect(fakeNotifications.showAlert).toHaveBeenCalledWith(
-			AlertType.Error,
-			{ abstract: fakeError.message, details: fakeError.originalMessage },
-			[
-				expect.objectContaining({
-					type: AlertActionType.Button,
-					caption: 'Dismiss',
-				}),
-			],
-		);
-	});
-
 	it('should call loginUser', () => {
 		let isSignUpUserCalled = false;
 
