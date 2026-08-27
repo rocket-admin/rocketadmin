@@ -1,6 +1,5 @@
 /** biome-ignore-all lint/complexity/noStaticOnlyClass: <explanation> */
 import { Client } from 'cassandra-driver';
-import { Database } from 'ibm_db';
 import { Knex } from 'knex';
 import { LRUCache } from 'lru-cache';
 import { MongoClientDB } from '../data-access-layer/data-access-objects/data-access-object-mongodb.js';
@@ -12,9 +11,9 @@ import { ForeignKeyDS } from '../data-access-layer/shared/data-structures/foreig
 import { PrimaryKeyDS } from '../data-access-layer/shared/data-structures/primary-key.ds.js';
 import { TableStructureDS } from '../data-access-layer/shared/data-structures/table-structure.ds.js';
 import { CACHING_CONSTANTS } from './caching-constants.js';
+
 const knexCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_CONNECTION_CACHE_OPTIONS);
 const tunnelCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_TUNNEL_CACHE_OPTIONS);
-const imdbDb2Cache = new LRUCache(CACHING_CONSTANTS.DEFAULT_IMDB_DB2_CACHE_OPTIONS);
 const mongoDbCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_MONGO_DB_CACHE_OPTIONS);
 const cassandraClientCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_CASSANDRA_CLIENT_CACHE_OPTIONS);
 const tableStructureCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
@@ -68,19 +67,6 @@ export class LRUStorage {
 
 	public static delMongoDbCache(connection: ConnectionParams): void {
 		mongoDbCache.delete(LRUStorage.getConnectionIdentifier(connection));
-	}
-
-	public static getImdbDb2Cache(connection: ConnectionParams): Database | null {
-		const cachedDb = imdbDb2Cache.get(LRUStorage.getConnectionIdentifier(connection)) as Database;
-		return cachedDb ? cachedDb : null;
-	}
-
-	public static delImdbDb2Cache(connection: ConnectionParams): void {
-		imdbDb2Cache.delete(LRUStorage.getConnectionIdentifier(connection));
-	}
-
-	public static setImdbDb2Cache(connection: ConnectionParams, newDb: Database): void {
-		imdbDb2Cache.set(LRUStorage.getConnectionIdentifier(connection), newDb);
 	}
 
 	public static getCachedKnex(connectionConfig: ConnectionParams): Knex | null {

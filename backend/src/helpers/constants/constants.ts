@@ -20,7 +20,6 @@ export type TestConnectionsFromJSON = {
 	'test-mssql': string;
 	'test-oracle': string;
 	'test-mongo': string;
-	'test-ibmdb2': string;
 };
 
 export const Constants = {
@@ -57,11 +56,11 @@ export const Constants = {
 	MORNING_CRON_KEY: 2,
 	CONNECTION_KEYS_NONE_PERMISSION: ['id', 'title', 'database', 'type', 'connection_properties', 'isTestConnection'],
 	FREE_PLAN_USERS_COUNT: 3,
-	NON_FREE_PLAN_CONNECTION_TYPES: [ConnectionTypesEnum.ibmdb2, ConnectionTypesEnum.mssql, ConnectionTypesEnum.oracledb],
+	NON_FREE_PLAN_CONNECTION_TYPES: [ConnectionTypesEnum.mssql, ConnectionTypesEnum.oracledb],
 	MAX_FILE_SIZE_IN_BYTES: 10485760,
 	MAX_COMPANY_LOGO_SIZE: 5242880,
 	MAX_COMPANY_FAVICON_SIZE: 5242880,
-	PAID_CONNECTIONS_TYPES: [ConnectionTypesEnum.oracledb, ConnectionTypesEnum.ibmdb2, ConnectionTypesEnum.mssql],
+	PAID_CONNECTIONS_TYPES: [ConnectionTypesEnum.oracledb, ConnectionTypesEnum.mssql],
 
 	VERIFICATION_STRING_WHITELIST: () => {
 		const numbers = [...Array(10).keys()].map((num) => num.toString());

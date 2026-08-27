@@ -278,20 +278,6 @@ export class MockFactory {
 		return dto;
 	}
 
-	generateConnectionToTestDbIbmDb2() {
-		const dto = new CreateConnectionDto() as any;
-		dto.title = 'Test connection to cli db ibm db2';
-		dto.type = ConnectionTypesEnum.ibmdb2;
-		dto.host = 'test-ibm-db2-e2e-testing';
-		dto.port = 50000;
-		dto.username = 'db2inst1';
-		dto.password = 'password';
-		dto.database = 'testdb';
-		dto.schema = 'SCHEMA_NAME';
-		dto.ssh = false;
-		return dto;
-	}
-
 	generateConnectionToTestElasticsearchInDocker() {
 		const dto = new CreateConnectionDto() as any;
 		dto.title = 'Test connection to Elasticsearch in Docker';
@@ -384,13 +370,6 @@ export class MockFactory {
 		const dto = new CreateConnectionDto() as any;
 		dto.title = 'Test connection to agent db';
 		dto.type = ConnectionTypesEnum.agent_mssql;
-		return dto;
-	}
-
-	generateConnectionToTestDbIbmDb2Agent() {
-		const dto = new CreateConnectionDto() as any;
-		dto.title = 'Test connection to agent db';
-		dto.type = ConnectionTypesEnum.agent_ibmdb2;
 		return dto;
 	}
 
