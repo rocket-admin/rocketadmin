@@ -8,7 +8,6 @@ export class ConnectionParams {
 		| 'oracledb'
 		| 'mysql2'
 		| 'mssql'
-		| 'ibmdb2'
 		| 'mongodb'
 		| 'dynamodb'
 		| 'elasticsearch'

@@ -102,8 +102,6 @@ const SQL_CONNECTION_TYPES: ConnectionTypesEnum[] = [
 	ConnectionTypesEnum.agent_mssql,
 	ConnectionTypesEnum.oracledb,
 	ConnectionTypesEnum.agent_oracledb,
-	ConnectionTypesEnum.ibmdb2,
-	ConnectionTypesEnum.agent_ibmdb2,
 	ConnectionTypesEnum.clickhouse,
 	ConnectionTypesEnum.agent_clickhouse,
 	ConnectionTypesEnum.cassandra,

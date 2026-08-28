@@ -39,7 +39,6 @@ import { DbConnectionIpAccessDialogComponent } from './db-connection-ip-access-d
 import { BaseCredentialsFormComponent } from './db-credentials-forms/base-credentials-form/base-credentials-form.component';
 import { CassandraCredentialsFormComponent } from './db-credentials-forms/cassandra-credentials-form/cassandra-credentials-form.component';
 import { ClickhouseCredentialsFormComponent } from './db-credentials-forms/clickhouse-credentials-form/clickhouse-credentials-form.component';
-import { Db2CredentialsFormComponent } from './db-credentials-forms/db2-credentials-form/db2-credentials-form.component';
 import { DynamodbCredentialsFormComponent } from './db-credentials-forms/dynamodb-credentials-form/dynamodb-credentials-form.component';
 import { ElasticCredentialsFormComponent } from './db-credentials-forms/elastic-credentials-form/elastic-credentials-form.component';
 import { MongodbCredentialsFormComponent } from './db-credentials-forms/mongodb-credentials-form/mongodb-credentials-form.component';
@@ -106,7 +105,6 @@ export class ConnectDBComponent implements OnInit {
 		[DBtype.Redis]: RedisCredentialsFormComponent,
 		[DBtype.Elasticsearch]: ElasticCredentialsFormComponent,
 		[DBtype.ClickHouse]: ClickhouseCredentialsFormComponent,
-		[DBtype.DB2]: Db2CredentialsFormComponent,
 	};
 
 	public supportedOrderedDatabases = supportedOrderedDatabases;
@@ -122,7 +120,6 @@ export class ConnectDBComponent implements OnInit {
 		[DBtype.Redis]: '6379',
 		[DBtype.Elasticsearch]: '9200',
 		[DBtype.ClickHouse]: '8443',
-		[DBtype.DB2]: '50000',
 	};
 
 	// public isDemo: boolean = false;
@@ -502,7 +499,7 @@ export class ConnectDBComponent implements OnInit {
 				this.db.ssl = true;
 			}
 
-			setTimeout(() => this.connectionString = '', 300);
+			setTimeout(() => (this.connectionString = ''), 300);
 		} catch (_e) {
 			// Validation directive handles error display
 		}

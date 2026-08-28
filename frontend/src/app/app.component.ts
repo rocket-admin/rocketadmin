@@ -128,10 +128,6 @@ export class AppComponent {
 			this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/icons/db-logos/dynamodb_logo.svg'),
 		);
 		this.matIconRegistry.addSvgIcon(
-			'ibmdb2',
-			this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/icons/db-logos/db2_logo.svg'),
-		);
-		this.matIconRegistry.addSvgIcon(
 			'cassandra',
 			this.domSanitizer.bypassSecurityTrustResourceUrl('/assets/icons/db-logos/сassandra_logo.svg'),
 		);

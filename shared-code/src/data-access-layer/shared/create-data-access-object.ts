@@ -1,10 +1,12 @@
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
+import { ConnectionTypesEnum } from '../../shared/enums/connection-types-enum.js';
+import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
+import { IDataAccessObjectAgent } from '../../shared/interfaces/data-access-object-agent.interface.js';
 import { DataAccessObjectAgent } from '../data-access-objects/data-access-object-agent.js';
 import { DataAccessObjectCassandra } from '../data-access-objects/data-access-object-cassandra.js';
 import { DataAccessObjectClickHouse } from '../data-access-objects/data-access-object-clickhouse.js';
 import { DataAccessObjectDynamoDB } from '../data-access-objects/data-access-object-dynamodb.js';
 import { DataAccessObjectElasticsearch } from '../data-access-objects/data-access-object-elasticsearch.js';
-import { DataAccessObjectIbmDb2 } from '../data-access-objects/data-access-object-ibmdb2.js';
 import { DataAccessObjectMongo } from '../data-access-objects/data-access-object-mongodb.js';
 import { DataAccessObjectMssql } from '../data-access-objects/data-access-object-mssql.js';
 import { DataAccessObjectMysql } from '../data-access-objects/data-access-object-mysql.js';
@@ -12,9 +14,6 @@ import { DataAccessObjectOracle } from '../data-access-objects/data-access-objec
 import { DataAccessObjectPostgres } from '../data-access-objects/data-access-object-postgres.js';
 import { DataAccessObjectRedis } from '../data-access-objects/data-access-object-redis.js';
 import { ConnectionAgentParams, ConnectionParams } from './data-structures/connections-params.ds.js';
-import { ConnectionTypesEnum } from '../../shared/enums/connection-types-enum.js';
-import { IDataAccessObjectAgent } from '../../shared/interfaces/data-access-object-agent.interface.js';
-import { IDataAccessObject } from '../../shared/interfaces/data-access-object.interface.js';
 
 interface IUnknownConnectionParams {
 	[key: string]: any;
@@ -27,7 +26,6 @@ export function getDataAccessObject(
 		ConnectionTypesEnum.agent_mysql,
 		ConnectionTypesEnum.agent_oracledb,
 		ConnectionTypesEnum.agent_postgres,
-		ConnectionTypesEnum.agent_ibmdb2,
 		ConnectionTypesEnum.agent_mongodb,
 		ConnectionTypesEnum.agent_cassandra,
 		ConnectionTypesEnum.agent_redis,
@@ -55,10 +53,6 @@ export function getDataAccessObject(
 		case ConnectionTypesEnum.oracledb: {
 			const connectionParamsOracle = buildConnectionParams(connectionParams);
 			return new DataAccessObjectOracle(connectionParamsOracle);
-		}
-		case ConnectionTypesEnum.ibmdb2: {
-			const connectionParamsToIbmDB2 = buildConnectionParams(connectionParams);
-			return new DataAccessObjectIbmDb2(connectionParamsToIbmDB2);
 		}
 		case ConnectionTypesEnum.mongodb: {
 			const connectionParamsMongo = buildConnectionParams(connectionParams);
@@ -121,7 +115,6 @@ function buildConnectionParams(connectionParams: IUnknownConnectionParams): Conn
 		case ConnectionTypesEnum.mysql:
 		case ConnectionTypesEnum.mssql:
 		case ConnectionTypesEnum.oracledb:
-		case ConnectionTypesEnum.ibmdb2:
 		case ConnectionTypesEnum.mongodb:
 		case ConnectionTypesEnum.cassandra:
 		case ConnectionTypesEnum.clickhouse:

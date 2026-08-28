@@ -103,9 +103,6 @@ export function wrapQueryWithLimit(query: string, databaseType: ConnectionTypesE
 		case ConnectionTypesEnum.mssql:
 		case ConnectionTypesEnum.agent_mssql:
 			return `SELECT * FROM (${queryWithoutSemicolon}) AS ai_query LIMIT ${limit}`;
-		case ConnectionTypesEnum.ibmdb2:
-		case ConnectionTypesEnum.agent_ibmdb2:
-			return `SELECT * FROM (${queryWithoutSemicolon}) AS ai_query FETCH FIRST ${limit} ROWS ONLY`;
 		case ConnectionTypesEnum.oracledb:
 		case ConnectionTypesEnum.agent_oracledb:
 			return `SELECT * FROM (${queryWithoutSemicolon}) WHERE ROWNUM <= ${limit}`;

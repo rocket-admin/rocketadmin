@@ -15,7 +15,6 @@ COPY ./rocketadmin-agent/.oracle_test_agent_config.txt /app/rocketadmin-agent/
 COPY ./rocketadmin-agent/.postgres_test_agent_config.txt /app/rocketadmin-agent/
 COPY ./rocketadmin-agent/.mysql_test_agent_config.txt /app/rocketadmin-agent/
 COPY ./rocketadmin-agent/.mssql_test_agent_config.txt /app/rocketadmin-agent/
-COPY ./rocketadmin-agent/.ibmdb2_test_agent_config.txt /app/rocketadmin-agent/
 COPY ./rocketadmin-agent/.mongodb_test_agent_config.txt /app/rocketadmin-agent/
 COPY ./rocketadmin-agent/.cassandra_test_agent_config.txt /app/rocketadmin-agent/
 COPY ./rocketadmin-agent/.redis_test_agent_config.txt /app/rocketadmin-agent/
@@ -24,6 +23,5 @@ COPY shared-code /app/shared-code
 COPY ./rocketadmin-agent/ssl-cert.txt /app/rocketadmin-agent/
 RUN cd shared-code && ../node_modules/.bin/tsc
 RUN cd rocketadmin-agent && pnpm run build
-COPY ./rocketadmin-agent/wait-for-db2.js /app/
 WORKDIR /app/rocketadmin-agent
 CMD [ "node", "dist/main.js"]
