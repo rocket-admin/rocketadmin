@@ -82,7 +82,7 @@
 		"mongodb": "^7.2.0",
 		"nanoid": "5.1.11",
 		"node-sql-parser": "^5.4.0",
-		"nodemailer": "^8.0.7",
+		"nodemailer": "^9.0.1",
 		"nunjucks": "^3.2.4",
 		"otplib": "^13.4.0",
 		"p-queue": "9.3.0",
@@ -95,7 +95,7 @@
 		"secure-json-parse": "4.1.0",
 		"typeorm": "1.0.0",
 		"typeorm-pglite": "^0.3.4",
-		"uuid": "^14.0.0",
+		"uuid": "^14.0.1",
 		"validator": "^13.15.35",
 		"winston": "3.19.0",
 		"zod": "^4.4.3"
