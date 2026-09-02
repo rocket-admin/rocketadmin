@@ -59,9 +59,6 @@ export function convertDbTypeToReadableString(dataType: ConnectionTypesEnum): st
 		case ConnectionTypesEnum.oracledb:
 		case ConnectionTypesEnum.agent_oracledb:
 			return 'Oracle DB';
-		case ConnectionTypesEnum.ibmdb2:
-		case ConnectionTypesEnum.agent_ibmdb2:
-			return 'IBM DB2';
 		case ConnectionTypesEnum.clickhouse:
 		case ConnectionTypesEnum.agent_clickhouse:
 			return 'ClickHouse';

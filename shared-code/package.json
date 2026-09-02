@@ -29,9 +29,6 @@
 		"tedious": "^19.2.1",
 		"tunnel-ssh": "5.2.0"
 	},
-	"optionalDependencies": {
-		"ibm_db": "4.0.1"
-	},
 	"devDependencies": {
 		"@types/oracledb": "^6.10.4",
 		"@types/pg-copy-streams": "^1.2.5",

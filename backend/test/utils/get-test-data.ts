@@ -22,8 +22,6 @@ export function getTestData(mockFactory: MockFactory) {
 	const oracleAgentConnection = mockFactory.generateConnectionToTestDbOracleAgent();
 	const mysqlAgentConnection = mockFactory.generateConnectionToTestDbMysqlAgent();
 	const mssqlAgentConnection = mockFactory.generateConnectionToTestDbMssqlAgent();
-	const connectionToIbmDb2 = mockFactory.generateConnectionToTestDbIbmDb2();
-	const connectionToAgentIbmDB2 = mockFactory.generateConnectionToTestDbIbmDb2Agent();
 	const mongoDbConnection = mockFactory.generateConnectionToTestMongoDBInDocker();
 	const mongoDbAgentConnection = mockFactory.generateConnectionToTestMongoDBAgent();
 	const dynamoDBConnection = mockFactory.generateConnectionToTestDynamoDBInDocker();
@@ -56,8 +54,6 @@ export function getTestData(mockFactory: MockFactory) {
 		oracleAgentConnection,
 		mysqlAgentConnection,
 		mssqlAgentConnection,
-		connectionToIbmDb2,
-		connectionToAgentIbmDB2,
 		mongoDbConnection,
 		mongoDbAgentConnection,
 		dynamoDBConnection,

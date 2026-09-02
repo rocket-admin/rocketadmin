@@ -52,8 +52,6 @@ export const customAgentRepositoryExtension: IAgentRepository = {
 				return 'MYSQL-TEST-AGENT-TOKEN';
 			case ConnectionTypeTestEnum.agent_postgres:
 				return 'POSTGRES-TEST-AGENT-TOKEN';
-			case ConnectionTypeTestEnum.agent_ibmdb2:
-				return 'IBMDB2-TEST-AGENT-TOKEN';
 			case ConnectionTypeTestEnum.agent_mongodb:
 				return 'MONGODB-TEST-AGENT-TOKEN';
 			case ConnectionTypeTestEnum.agent_redis:

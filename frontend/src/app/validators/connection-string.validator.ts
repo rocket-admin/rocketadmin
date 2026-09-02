@@ -30,8 +30,6 @@ const schemeToDbType: Record<string, DBtype> = {
 	rediss: DBtype.Redis,
 	elasticsearch: DBtype.Elasticsearch,
 	clickhouse: DBtype.ClickHouse,
-	ibmdb2: DBtype.DB2,
-	db2: DBtype.DB2,
 };
 
 const defaultPorts: Record<DBtype, string> = {
@@ -45,7 +43,6 @@ const defaultPorts: Record<DBtype, string> = {
 	[DBtype.Redis]: '6379',
 	[DBtype.Elasticsearch]: '9200',
 	[DBtype.ClickHouse]: '8443',
-	[DBtype.DB2]: '50000',
 };
 
 export function parseConnectionString(connectionString: string): ParsedConnectionString {

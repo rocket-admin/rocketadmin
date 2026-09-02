@@ -16,7 +16,6 @@ services:
       - testPg-e2e-testing
       - mssql-e2e-testing
       - test-oracle-e2e-testing
-      - test-ibm-db2-e2e-testing
       - test-mongo-e2e-testing
       - test-dynamodb-e2e-testing
       - test-elasticsearch-e2e-testing
@@ -30,7 +29,6 @@ services:
       - testPg-e2e-testing
       - mssql-e2e-testing
       - test-oracle-e2e-testing
-      - test-ibm-db2-e2e-testing
       - test-mongo-e2e-testing
       - test-dynamodb-e2e-testing
       - test-elasticsearch-e2e-testing
@@ -134,29 +132,6 @@ services:
     command: postgres -c 'max_connections=300'
     tmpfs:
       - /var/lib/postgresql
-
-  test-ibm-db2-e2e-testing:
-    image: icr.io/db2_community/db2
-    restart: always
-    privileged: true
-    environment:
-      - LICENSE=accept
-      - DB2INSTANCE=db2inst1
-      - DB2INST1_PASSWORD=password
-      - DBNAME=testdb
-      - BLU=false
-      - ENABLE_ORACLE_COMPATIBILITY=false
-      - UPDATEAVAIL=NO
-      - TO_CREATE_SAMPLEDB=true
-      - REPODB=false
-      - IS_OSXFS=false
-      - PERSISTENT_HOME=true
-      - HADR_ENABLED=false
-      - ETCD_ENDPOINT=
-      - ETCD_USERNAME=
-      - ETCD_PASSWORD=
-    ports:
-      - 50000:50000
 
   test-mongo-e2e-testing:
     image: mongo
@@ -351,26 +326,6 @@ services:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.mongodb_test_agent_config.txt
     command: ["pnpm", "start:dev"]
-
-  rocketadmin-agent_ibmdb2:
-    build:
-      context: .
-      dockerfile: ./rocketadmin-agent/Dockerfile
-    ports:
-      - 8308:8308
-    volumes:
-      - ./rocketadmin-agent/dist:/app/dist
-      - ./rocketadmin-agent/src:/app/src
-      - ./rocketadmin-agent/wait-for-db2.sh:/app/wait-for-db2.sh
-      - ./rocketadmin-agent/wait-for-db2.js:/app/wait-for-db2.js
-    links:
-      - autoadmin-ws-server
-    depends_on:
-      - autoadmin-ws-server
-    environment:
-      - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
-      - APPLICATION_CONFIG_FILE_NAME=.ibmdb2_test_agent_config.txt
-    command: ["node", "/app/wait-for-db2.js"]
 
   rocketadmin-agent_oracle:
     build:
