@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import Sentry from '@sentry/minimal';
+import * as Sentry from '@sentry/node';
 import PQueue from 'p-queue';
 import { Repository } from 'typeorm';
 import { UserActionEnum } from '../../../enums/user-action.enum.js';

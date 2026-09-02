@@ -2,7 +2,7 @@ import { BaseMessage } from '@langchain/core/messages';
 import { BadRequestException, HttpStatus, Inject, Injectable, Logger, Scope } from '@nestjs/common';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
-import Sentry from '@sentry/minimal';
+import * as Sentry from '@sentry/node';
 import crypto from 'crypto';
 import { AIProviderType } from '../../../ai-core/interfaces/ai-service.interface.js';
 import { AICoreService } from '../../../ai-core/services/ai-core.service.js';

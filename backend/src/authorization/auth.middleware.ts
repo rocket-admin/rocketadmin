@@ -6,7 +6,7 @@ import {
 	UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import Sentry from '@sentry/minimal';
+import * as Sentry from '@sentry/node';
 import { NextFunction, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { Repository } from 'typeorm';
@@ -84,10 +84,13 @@ export class AuthMiddleware implements NestMiddleware {
 			req.decoded = payload;
 			next();
 		} catch (e) {
-			Sentry.captureException(e);
 			if (e instanceof HttpException || e instanceof UnauthorizedException) {
 				throw e;
 			}
+			// Capture only what becomes a 500 (plan 30): expected auth verdicts (401/403 HttpExceptions)
+			// are outcomes, not incidents. These captures were silently dropped for as long as the
+			// dead @sentry/minimal import was in place; now that they are live again, gate the noise.
+			Sentry.captureException(e);
 			throw new InternalServerErrorException(Messages.AUTHORIZATION_REJECTED);
 		}
 	}

@@ -7,7 +7,7 @@ import {
 	UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import Sentry from '@sentry/minimal';
+import * as Sentry from '@sentry/node';
 import { NextFunction, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { Repository } from 'typeorm';
@@ -57,10 +57,10 @@ export class PublicOrAuthMiddleware implements NestMiddleware {
 			}
 			next();
 		} catch (error) {
-			Sentry.captureException(error);
 			if (error instanceof HttpException || error instanceof UnauthorizedException) {
 				throw error;
 			}
+			Sentry.captureException(error);
 			throw new InternalServerErrorException(Messages.AUTHORIZATION_REJECTED);
 		}
 	}

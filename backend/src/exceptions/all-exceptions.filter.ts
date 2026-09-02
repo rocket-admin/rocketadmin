@@ -1,5 +1,5 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
-import Sentry from '@sentry/minimal';
+import * as Sentry from '@sentry/node';
 import { WinstonLogger } from '../entities/logging/winston-logger.js';
 import { getErrorMessage } from '../helpers/get-error-message.js';
 import { ExceptionType } from './custom-exceptions/exception-type.js';
@@ -38,15 +38,28 @@ export class AllExceptionsFilter implements ExceptionFilter {
 		const originalMessage = meta.originalMessage;
 		const internalCode = meta.internalCode;
 		const status = effective instanceof HttpException ? effective.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
-		const sentryContextObject = {
-			extra: {
-				original_exception_message: originalMessage,
-				message_to_user: text ? text : 'Something went wrong',
-				path: request.url,
-				exception_status_code: status,
-			},
-		};
-		Sentry.captureException(exception, sentryContextObject);
+
+		if (status >= 500 || status === 408 || !(effective instanceof HttpException)) {
+			const requestId = request.headers?.['x-request-id'];
+			const generationId = request.headers?.['x-generation-id'];
+			const userEmail = request.decoded?.email;
+			Sentry.withScope((scope) => {
+				if (typeof requestId === 'string' && requestId !== '') {
+					scope.setTag('requestId', requestId);
+				}
+				if (typeof generationId === 'string' && generationId !== '') {
+					scope.setTag('generationId', generationId);
+				}
+				scope.setExtras({
+					original_exception_message: originalMessage,
+					message_to_user: text ? text : 'Something went wrong',
+					path: request.url,
+					exception_status_code: status,
+					user_email: userEmail ?? 'unknown',
+				});
+				Sentry.captureException(exception);
+			});
+		}
 
 		if (status === 500 || status === 408) {
 			this.logger.error(exception);
