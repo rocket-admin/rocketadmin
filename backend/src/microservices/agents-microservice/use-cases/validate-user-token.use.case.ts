@@ -1,5 +1,5 @@
 import { HttpException, Inject, Injectable, Scope, UnauthorizedException } from '@nestjs/common';
-import Sentry from '@sentry/minimal';
+import * as Sentry from '@sentry/node';
 import jwt from 'jsonwebtoken';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';

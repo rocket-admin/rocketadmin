@@ -1,5 +1,5 @@
 import { HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
-import Sentry from '@sentry/minimal';
+import * as Sentry from '@sentry/node';
 import { Response } from 'express';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';

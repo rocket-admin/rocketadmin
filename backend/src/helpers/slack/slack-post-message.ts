@@ -1,4 +1,4 @@
-import Sentry from '@sentry/minimal';
+import * as Sentry from '@sentry/node';
 import axios from 'axios';
 import { appConfig } from '../../shared/config/app-config.js';
 import { Constants } from '../constants/constants.js';
