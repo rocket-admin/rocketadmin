@@ -96,14 +96,6 @@ export interface TestDbConfig {
 		database: string | null;
 		authSource: string | null;
 	};
-	ibmdb2: {
-		host: string | null;
-		port: number | null;
-		username: string | null;
-		password: string | null;
-		database: string | null;
-		schema: string | null;
-	};
 }
 
 const AUTOADMIN_SUPPORT_MAIL = 'support@autoadmin.org';
@@ -219,14 +211,6 @@ export class AppConfig {
 				password: readString('MONGO_CONNECTION_PASSWORD'),
 				database: readString('MONGO_CONNECTION_DATABASE'),
 				authSource: readString('MONGO_CONNECTION_AUTH_SOURCE'),
-			}),
-			ibmdb2: Object.freeze({
-				host: readString('IBM_DB2_CONNECTION_HOST'),
-				port: readInt('IBM_DB2_CONNECTION_PORT'),
-				username: readString('IBM_DB2_CONNECTION_USERNAME'),
-				password: readString('IBM_DB2_CONNECTION_PASSWORD'),
-				database: readString('IBM_DB2_CONNECTION_DATABASE'),
-				schema: readString('IBM_DB2_CONNECTION_SCHEMA'),
 			}),
 		});
 

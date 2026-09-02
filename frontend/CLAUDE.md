@@ -153,7 +153,6 @@ The application supports multiple database types:
 - Cassandra
 - OracleDB
 - MSSQL
-- IBM DB2
 
 Database configurations are defined in `src/app/consts/databases.ts`.
 

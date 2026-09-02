@@ -7,10 +7,6 @@ import { Client } from '@elastic/elasticsearch';
 import { faker } from '@faker-js/faker';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import * as cassandra from 'cassandra-driver';
-import * as ibmdbNs from 'ibm_db';
-
-const ibmdb = ibmdbNs.default as unknown as (options?: import('ibm_db').Options) => import('ibm_db').Database;
-
 import { MongoClient } from 'mongodb';
 import { createClient } from 'redis';
 import { v4 as uuidv4 } from 'uuid';
@@ -24,10 +20,6 @@ export async function createTestTable(
 	withJsonField = false,
 	withWidgetsData = false,
 ): Promise<CreatedTableInfo> {
-	if (connectionParams.type === ConnectionTypesEnum.ibmdb2) {
-		return createTestTableIbmDb2(connectionParams, testEntitiesSeedsCount, testSearchedUserName);
-	}
-
 	if (connectionParams.type === ConnectionTypesEnum.mongodb) {
 		return createTestMongoTable(connectionParams, testEntitiesSeedsCount, testSearchedUserName);
 	}
@@ -209,87 +201,6 @@ async function createTestElasticsearchTable(
 		testTableSecondColumnName: testTableSecondColumnName,
 		testEntitiesSeedsCount: testEntitiesSeedsCount,
 		insertedSearchedIds,
-	};
-}
-
-async function createTestTableIbmDb2(
-	connectionParams: any,
-	testEntitiesSeedsCount = 42,
-	testSearchedUserName = 'Vasia',
-): Promise<CreatedTableInfo> {
-	const testTableName = getRandomTestTableName().toUpperCase();
-	const testTableColumnName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`.replace(/[-@]/g, '').toUpperCase();
-	const testTableSecondColumnName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`
-		.replace(/[-@]/g, '')
-		.toUpperCase();
-	const connStr = `DATABASE=${connectionParams.database};HOSTNAME=${connectionParams.host};UID=${connectionParams.username};PWD=${connectionParams.password};PORT=${connectionParams.port};PROTOCOL=TCPIP`;
-
-	const ibmDatabase = ibmdb();
-	await ibmDatabase.open(connStr);
-	const queryCheckSchemaExists = `SELECT COUNT(*) FROM SYSCAT.SCHEMATA WHERE SCHEMANAME = '${connectionParams.schema}'`;
-	const schemaExists = await ibmDatabase.query(queryCheckSchemaExists);
-
-	if (!schemaExists.length || !schemaExists[0]['1']) {
-		const queryCreateSchema = `CREATE SCHEMA ${connectionParams.schema}`;
-		try {
-			await ibmDatabase.query(queryCreateSchema);
-		} catch (error) {
-			console.error(`Error while creating schema: ${error}`);
-			console.info(`Query: ${queryCreateSchema}`);
-		}
-	}
-
-	const queryCheckTableExists = `SELECT COUNT(*) FROM SYSCAT.TABLES WHERE TABNAME = '${testTableName}' AND TABSCHEMA = '${connectionParams.schema}'`;
-	const tableExists = await ibmDatabase.query(queryCheckTableExists);
-
-	if (tableExists.length && tableExists[0]['1']) {
-		await ibmDatabase.query(`DROP TABLE ${connectionParams.schema}.${testTableName}`);
-	}
-
-	const query = `
-  CREATE TABLE ${connectionParams.schema}.${testTableName} (
-    id INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
-    ${testTableColumnName} VARCHAR(255),
-    ${testTableSecondColumnName} VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT TIMESTAMP,
-    PRIMARY KEY (id)
-)`;
-
-	try {
-		await ibmDatabase.query(query);
-	} catch (error) {
-		console.error(`Error while creating table: ${error}`);
-		console.info(`Query: ${query}`);
-	}
-
-	const valueTuples: Array<string> = [];
-	for (let i = 0; i < testEntitiesSeedsCount; i++) {
-		if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
-			valueTuples.push(
-				`('${testSearchedUserName}', '${faker.internet.email().replace(/["']/g, '')}', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-			);
-		} else {
-			valueTuples.push(
-				`('${faker.person.firstName().replace(/["']/g, '')}', '${faker.internet.email().replace(/["']/g, '')}', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-			);
-		}
-	}
-	if (valueTuples.length > 0) {
-		const batchSize = 100;
-		for (let start = 0; start < valueTuples.length; start += batchSize) {
-			const chunk = valueTuples.slice(start, start + batchSize);
-			await ibmDatabase.query(
-				`INSERT INTO ${connectionParams.schema}.${testTableName} (${testTableColumnName}, ${testTableSecondColumnName}, created_at, updated_at) VALUES ${chunk.join(', ')}`,
-			);
-		}
-	}
-
-	return {
-		testTableName: testTableName,
-		testTableColumnName: testTableColumnName,
-		testTableSecondColumnName: testTableSecondColumnName,
-		testEntitiesSeedsCount: testEntitiesSeedsCount,
 	};
 }
 

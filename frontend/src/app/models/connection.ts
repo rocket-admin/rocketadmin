@@ -11,7 +11,6 @@ export enum DBtype {
 	Redis = 'redis',
 	Elasticsearch = 'elasticsearch',
 	ClickHouse = 'clickhouse',
-	DB2 = 'ibmdb2',
 }
 
 export enum ConnectionType {

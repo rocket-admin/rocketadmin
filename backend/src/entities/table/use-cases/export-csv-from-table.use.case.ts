@@ -140,7 +140,6 @@ export class ExportCSVFromTableUseCase
 			//todo: transfer data as a stream from clint to server
 			if (
 				connection.type === 'oracledb' ||
-				connection.type === 'ibmdb2' ||
 				connection.type === 'mongodb' ||
 				connection.type === 'dynamodb' ||
 				connection.type === 'elasticsearch' ||

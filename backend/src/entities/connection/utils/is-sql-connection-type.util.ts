@@ -6,13 +6,11 @@ const SQL_CONNECTION_TYPES: ReadonlySet<string> = new Set<string>([
 	ConnectionTypesEnum.mysql2,
 	ConnectionTypesEnum.oracledb,
 	ConnectionTypesEnum.mssql,
-	ConnectionTypesEnum.ibmdb2,
 	ConnectionTypesEnum.clickhouse,
 	ConnectionTypesEnum.agent_postgres,
 	ConnectionTypesEnum.agent_mysql,
 	ConnectionTypesEnum.agent_oracledb,
 	ConnectionTypesEnum.agent_mssql,
-	ConnectionTypesEnum.agent_ibmdb2,
 	ConnectionTypesEnum.agent_clickhouse,
 ]);
 

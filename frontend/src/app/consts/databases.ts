@@ -9,7 +9,6 @@ export const supportedOrderedDatabases = [
 	'redis',
 	'elasticsearch',
 	'clickhouse',
-	'ibmdb2',
 ];
 
 export const supportedDatabasesTitles = {
@@ -23,5 +22,4 @@ export const supportedDatabasesTitles = {
 	redis: 'Redis',
 	elasticsearch: 'Elasticsearch (OpenSearch)',
 	clickhouse: 'ClickHouse',
-	ibmdb2: 'IBM DB2',
 };
