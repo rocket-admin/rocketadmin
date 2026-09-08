@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -14,6 +14,8 @@ export class FindCompanyWhiteLabelPropertiesUseCase
 	extends AbstractUseCase<string, FoundCompanyWhiteLabelPropertiesRO>
 	implements IGetCompanyWhiteLabelProperties
 {
+	private readonly logger = new Logger(FindCompanyWhiteLabelPropertiesUseCase.name);
+
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
@@ -25,6 +27,7 @@ export class FindCompanyWhiteLabelPropertiesUseCase
 	protected async implementation(companyId: string): Promise<FoundCompanyWhiteLabelPropertiesRO> {
 		const company = await this._dbContext.companyInfoRepository.findCompanyWithWhiteLabelProperties(companyId);
 		if (!company) {
+			this.logger.warn(`White-label lookup: company ${companyId} does not exist in the core database`);
 			throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
 		}
 
@@ -32,6 +35,11 @@ export class FindCompanyWhiteLabelPropertiesUseCase
 		if (isSaaS()) {
 			const companyInfoFromSaas = await this.saasCompanyGatewayService.getCompanyInfo(companyId);
 			if (!companyInfoFromSaas) {
+				// The company IS in the core (the guard just matched the caller to it) — the saas
+				// side is what came back empty; the gateway logged the HTTP status right before this.
+				this.logger.warn(
+					`White-label lookup: company ${companyId} exists in the core but the SaaS lookup returned no company data; responding 404 COMPANY_NOT_FOUND`,
+				);
 				throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
 			}
 			companySubscriptionLevel = companyInfoFromSaas.subscriptionLevel ?? null;
