@@ -4,7 +4,7 @@ import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-acce
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
 import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object.interface.js';
 import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/shared/interfaces/data-access-object-agent.interface.js';
-import Sentry from '@sentry/minimal';
+import * as Sentry from '@sentry/node';
 import { Response } from 'express';
 import { AIToolCall, AIToolDefinition } from '../../../ai-core/interfaces/ai-provider.interface.js';
 import { AIProviderType } from '../../../ai-core/interfaces/ai-service.interface.js';

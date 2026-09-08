@@ -106,11 +106,6 @@ export class BasicDataAccessObject {
 			'TIMESTAMP',
 			'TIMESTAMP WITH TIME ZONE',
 			'TIMESTAMP WITH LOCAL TIME ZONE',
-
-			// IBM Db2
-			'DATE',
-			'TIME',
-			'TIMESTAMP',
 		];
 		return dateTimeDataTypes.includes(columnTypeName.toUpperCase());
 	}

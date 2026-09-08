@@ -121,7 +121,6 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 			type === DBtype.MySQL ||
 			type === DBtype.Oracle ||
 			type === DBtype.MSSQL ||
-			type === DBtype.DB2 ||
 			type === DBtype.ClickHouse
 		);
 	}

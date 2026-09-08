@@ -7,7 +7,7 @@ import {
 	UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import Sentry from '@sentry/minimal';
+import * as Sentry from '@sentry/node';
 import { NextFunction, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { Repository } from 'typeorm';
@@ -34,7 +34,10 @@ export class AuthWithApiMiddleware implements NestMiddleware {
 			await this.authenticateRequest(req);
 			next();
 		} catch (error) {
-			Sentry.captureException(error);
+			// Capture only what becomes a 500 (plan 30) — see handleAuthenticationError's mapping.
+			if (!(error instanceof HttpException || error instanceof UnauthorizedException)) {
+				Sentry.captureException(error);
+			}
 			this.handleAuthenticationError(error);
 		}
 	}
@@ -60,44 +63,41 @@ export class AuthWithApiMiddleware implements NestMiddleware {
 	}
 
 	private async authenticateWithToken(tokenFromCookie: string, req: IRequestWithCognitoInfo): Promise<void> {
-		try {
-			const jwtSecret = appConfig.auth.jwtSecret;
-			if (!jwtSecret) {
-				throw new UnauthorizedException('JWT verification failed');
-			}
-			const data = jwt.verify(tokenFromCookie, jwtSecret) as jwt.JwtPayload;
-			const userId = data.id;
-
-			if (!userId) {
-				throw new UnauthorizedException('JWT verification failed');
-			}
-
-			const userExists = await this.userRepository.findOne({ where: { id: userId } });
-			if (!userExists) {
-				throw new UnauthorizedException('JWT verification failed');
-			}
-
-			if (userExists.suspended) {
-				throw new UnauthorizedException(Messages.ACCOUNT_SUSPENDED);
-			}
-
-			assertTokenScopeAllowed(data.scope as Array<JwtScopesEnum>);
-
-			const payload = {
-				sub: userId,
-				email: data.email,
-				companyId: data.companyId ?? null,
-				exp: data.exp,
-				iat: data.iat,
-			};
-			if (!payload || isObjectEmpty(payload)) {
-				throw new UnauthorizedException('JWT verification failed');
-			}
-			req.decoded = payload;
-		} catch (error) {
-			Sentry.captureException(error);
-			throw error;
+		// No try/catch here (plan 30): the caller's catch owns both the Sentry capture and the
+		// error mapping — the old inner capture double-reported every failure.
+		const jwtSecret = appConfig.auth.jwtSecret;
+		if (!jwtSecret) {
+			throw new UnauthorizedException('JWT verification failed');
 		}
+		const data = jwt.verify(tokenFromCookie, jwtSecret) as jwt.JwtPayload;
+		const userId = data.id;
+
+		if (!userId) {
+			throw new UnauthorizedException('JWT verification failed');
+		}
+
+		const userExists = await this.userRepository.findOne({ where: { id: userId } });
+		if (!userExists) {
+			throw new UnauthorizedException('JWT verification failed');
+		}
+
+		if (userExists.suspended) {
+			throw new UnauthorizedException(Messages.ACCOUNT_SUSPENDED);
+		}
+
+		assertTokenScopeAllowed(data.scope as Array<JwtScopesEnum>);
+
+		const payload = {
+			sub: userId,
+			email: data.email,
+			companyId: data.companyId ?? null,
+			exp: data.exp,
+			iat: data.iat,
+		};
+		if (!payload || isObjectEmpty(payload)) {
+			throw new UnauthorizedException('JWT verification failed');
+		}
+		req.decoded = payload;
 	}
 
 	private async authenticateWithApiKey(req: IRequestWithCognitoInfo): Promise<void> {

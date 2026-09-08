@@ -46,7 +46,7 @@ just test               # Run all backend tests with Docker Compose
 just test "path/to/test.ts"  # Run specific test file
 ```
 
-This spins up test databases (MySQL, PostgreSQL, MSSQL, Oracle, IBM DB2, MongoDB, DynamoDB) via `docker-compose.tst.yml`.
+This spins up test databases (MySQL, PostgreSQL, MSSQL, Oracle, MongoDB, DynamoDB) via `docker-compose.tst.yml`.
 
 ### Migrations
 
@@ -95,7 +95,7 @@ Key points:
 ### Shared Code
 
 Located in `shared-code/src/`:
-- `data-access-layer/` - Database abstraction supporting MySQL, PostgreSQL, MSSQL, Oracle, MongoDB, DynamoDB, IBM DB2, Cassandra, Elasticsearch
+- `data-access-layer/` - Database abstraction supporting MySQL, PostgreSQL, MSSQL, Oracle, MongoDB, DynamoDB, Cassandra, Elasticsearch
 - `knex-manager/` - Knex connection management
 - `caching/` - LRU cache utilities
 - `helpers/` - Shared utilities
@@ -110,7 +110,7 @@ The rocketadmin-agent connects to databases in private networks:
 
 ## Database Support
 
-The application supports: MySQL, PostgreSQL, MongoDB, DynamoDB, Cassandra, OracleDB, MSSQL, IBM DB2, Elasticsearch, Redis
+The application supports: MySQL, PostgreSQL, MongoDB, DynamoDB, Cassandra, OracleDB, MSSQL, Elasticsearch, Redis
 
 Database-specific DAOs are in `shared-code/src/data-access-layer/`.
 
@@ -121,7 +121,6 @@ Test databases are defined in `docker-compose.tst.yml`:
 - PostgreSQL: `testPg-e2e-testing:5432`
 - MSSQL: `mssql-e2e-testing:1433`
 - Oracle: `test-oracle-e2e-testing:1521`
-- IBM DB2: `test-ibm-db2-e2e-testing:50000`
 - MongoDB: `test-mongo-e2e-testing:27017`
 - DynamoDB: `test-dynamodb-e2e-testing:8000`
 

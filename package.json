@@ -38,18 +38,10 @@
 			"fast-xml-builder@=1.1.5": ">=1.1.6",
 			"brace-expansion@>=5.0.0 <5.0.6": ">=5.0.6"
 		},
-		"packageExtensions": {
-			"ibm_db": {
-				"dependencies": {
-					"node-gyp": "^11.5.0"
-				}
-			}
-		},
 		"onlyBuiltDependencies": [
 			"argon2",
 			"bcrypt",
 			"cpu-features",
-			"ibm_db",
 			"oracledb",
 			"ssh2"
 		]

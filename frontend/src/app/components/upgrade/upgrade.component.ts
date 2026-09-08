@@ -77,12 +77,6 @@ export class UpgradeComponent implements OnInit {
 			enterprise: '∞',
 		},
 		{
-			title: 'IBM DB2',
-			free: 3,
-			team: '∞',
-			enterprise: '∞',
-		},
-		{
 			title: 'Oracle',
 			free: 1,
 			team: 1,

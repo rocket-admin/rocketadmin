@@ -1,36 +1,16 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
-import Sentry from '@sentry/minimal';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
 
+// Passthrough since plan 30. This interceptor used to capture every exception on its controllers
+// itself — through the deprecated @sentry/minimal v6 API, whose hub the @sentry/node v10 client
+// never wires, so those captures were silently dropped for as long as both packages coexisted —
+// and each error was ALSO captured by the global AllExceptionsFilter, which sees every exception
+// on every route. The filter is now the single (working) capture point, with the request context
+// attached inside a per-event scope. The class stays so the existing
+// @UseInterceptors(SentryInterceptor) decorators keep compiling; remove them at leisure.
 @Injectable()
 export class SentryInterceptor implements NestInterceptor {
-	async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
-		try {
-			const contextArgs = context.getArgs();
-			const userEmail = contextArgs[0]?.decoded?.email;
-			const receivedConnectionHost = contextArgs[0]?.body?.host;
-			return next.handle().pipe(
-				tap(null, async (exception) => {
-					Sentry.setContext('user_email', {
-						email: userEmail ? userEmail : 'unknown',
-					});
-					if (receivedConnectionHost) {
-						Sentry.setContext('received_connection_hostname', {
-							hostname: receivedConnectionHost,
-						});
-					}
-					if (exception.originalMessage) {
-						Sentry.setContext('original_exception_message', {
-							originalMessage: exception.originalMessage,
-						});
-					}
-					Sentry.captureException(exception);
-				}),
-			);
-		} catch (e) {
-			console.error(e);
-			return next.handle();
-		}
+	intercept(_context: ExecutionContext, next: CallHandler): Observable<unknown> {
+		return next.handle();
 	}
 }

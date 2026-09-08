@@ -18,6 +18,21 @@ import { appConfig } from './shared/config/app-config.js';
 async function bootstrap() {
 	try {
 		appConfig.validate();
+		// Before the app is built: Sentry's default integrations install the process-level
+		// uncaughtException / unhandledRejection handlers, so initializing after NestFactory.create
+		// left every module-init and DB-connect failure on the floor. A blank/unset DSN keeps every
+		// capture call a no-op.
+		Sentry.init({
+			dsn: appConfig.thirdParty.sentryDsn ?? undefined,
+			// Separates prod/staging/dev events; unset shows as Sentry's default.
+			environment: process.env.SENTRY_ENVIRONMENT,
+			// Was a hard-coded 1.0 — 100% performance tracing in prod is a cost bug, and errors
+			// are captured regardless of this rate. Same env knob + default as agents-core/saas.
+			// NOTE: with the init here (after express/typeorm are loaded), a nonzero rate yields
+			// few real traces — enabling tracing for real needs a `node --import` preload init
+			// (see plan 30's rolled-back addendum).
+			tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE ?? 0) || 0,
+		});
 		const appOptions: NestApplicationOptions = {
 			rawBody: true,
 			logger: new WinstonLogger(),
@@ -26,11 +41,6 @@ async function bootstrap() {
 		const app = await NestFactory.create<NestExpressApplication>(ApplicationModule, appOptions);
 		app.useLogger(app.get(WinstonLogger));
 		app.set('query parser', 'extended');
-
-		Sentry.init({
-			dsn: appConfig.thirdParty.sentryDsn ?? undefined,
-			tracesSampleRate: 1.0,
-		});
 
 		const globalPrefix = appConfig.app.globalPrefix;
 		app.setGlobalPrefix(globalPrefix);
