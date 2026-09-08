@@ -37,9 +37,11 @@ export class BaseSaasGatewayService {
 				},
 			});
 
-			const responseBody = await this.bodyToJSON(res);
+			const { body: responseBody, parseFailure } = await this.readBody(res);
 			if (res.status >= 400) {
-				this.reportFailedRequest(method, patch, res.status, responseBody);
+				this.reportFailedRequest(method, patch, res.status, responseBody, parseFailure);
+			} else if (parseFailure) {
+				this.reportUnexpectedBody(method, patch, res, parseFailure);
 			}
 			return {
 				status: res.status,
@@ -63,8 +65,10 @@ export class BaseSaasGatewayService {
 		patch: string,
 		status: number,
 		body: Record<string, unknown>,
+		parseFailure?: string,
 	): void {
-		const message = `SaaS request ${method} ${patch} failed: HTTP ${status}${describeSaasErrorBody(body)}`;
+		const bodyNote = describeSaasErrorBody(body) || (parseFailure ? ` (${parseFailure})` : '');
+		const message = `SaaS request ${method} ${patch} failed: HTTP ${status}${bodyNote}`;
 		this.logger.warn(message);
 		const route = normalizeSaasPath(patch);
 		Sentry.withScope((scope) => {
@@ -77,14 +81,50 @@ export class BaseSaasGatewayService {
 		});
 	}
 
-	private async bodyToJSON(res: Response): Promise<Record<string, unknown>> {
-		if (!res.body) {
-			return {};
+	// A 2xx whose body is not JSON never came from a saas controller. The usual cause is
+	// SAAS_URL pointing at something else on the same host — e.g. the SPA's nginx, whose
+	// history-mode fallback answers 200 + index.html for any unknown path — or a redirect
+	// that fetch followed. Content type, final URL and a body snippet pin that down.
+	private reportUnexpectedBody(method: SaaSRequestMethod, patch: string, res: Response, parseFailure: string): void {
+		const contentType = res.headers.get('content-type') ?? 'none';
+		const message =
+			`SaaS request ${method} ${patch} returned HTTP ${res.status} but ${parseFailure} ` +
+			`(content-type: ${contentType}; final URL: ${res.url || 'n/a'}; redirected: ${res.redirected}) — ` +
+			`SAAS_URL (${this.baseSaaSUrl}) does not seem to reach the saas API`;
+		this.logger.error(message);
+		const route = normalizeSaasPath(patch);
+		Sentry.withScope((scope) => {
+			scope.setLevel('error');
+			scope.setTag('saas_method', method);
+			scope.setTag('saas_route', route);
+			scope.setTag('saas_status', String(res.status));
+			scope.setTag('saas_content_type', contentType);
+			scope.setFingerprint(['saas-request-non-json-body', method, route]);
+			Sentry.captureMessage(message);
+		});
+	}
+
+	// Parses the body as JSON; on failure returns `{}` (the historical contract every caller
+	// relies on) plus a short description of what was actually there, for the reports above.
+	private async readBody(res: Response): Promise<{ body: Record<string, unknown>; parseFailure?: string }> {
+		let text: string;
+		try {
+			text = await res.text();
+		} catch (error) {
+			return { body: {}, parseFailure: `body could not be read: ${getErrorMessage(error)}` };
+		}
+		if (!text.trim()) {
+			return { body: {}, parseFailure: 'the body is empty' };
 		}
 		try {
-			return await res.json();
+			const parsed: unknown = JSON.parse(text);
+			if (parsed !== null && typeof parsed === 'object') {
+				return { body: parsed as Record<string, unknown> };
+			}
+			return { body: {}, parseFailure: `the body is JSON but not an object (${typeof parsed})` };
 		} catch (_error) {
-			return {};
+			const snippet = text.slice(0, 160).replace(/\s+/g, ' ');
+			return { body: {}, parseFailure: `the body is not JSON: "${snippet}"` };
 		}
 	}
 }

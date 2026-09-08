@@ -89,6 +89,39 @@ test.serial('2xx without the expected fields -> null, logged as an unexpected bo
 	t.true(warnings.some((message) => message.includes('unexpected body') && message.includes('success')));
 });
 
+test.serial(
+	'200 with an HTML page (SAAS_URL hitting an SPA fallback) -> null, content type + snippet logged as error',
+	async (t) => {
+		stubFetch(
+			async () =>
+				new Response('<!doctype html><html><head><title>SiteNova</title></head><body></body></html>', {
+					status: 200,
+					headers: { 'content-type': 'text/html; charset=utf-8' },
+				}),
+		);
+		const gateway = new SaasCompanyGatewayService();
+		t.is(await gateway.getCompanyInfo(COMPANY_ID), null);
+		const errors = captured.filter((entry) => entry.level === 'error').map((entry) => entry.message);
+		t.true(
+			errors.some(
+				(message) =>
+					message.includes('HTTP 200') &&
+					message.includes('text/html') &&
+					message.includes('<!doctype html>') &&
+					message.includes('http://saas.unit.test'),
+			),
+			`expected content type, snippet and SAAS_URL in the error log, got: ${JSON.stringify(errors)}`,
+		);
+	},
+);
+
+test.serial('200 with an empty body -> null, reported as empty', async (t) => {
+	stubFetch(async () => new Response('', { status: 200 }));
+	const gateway = new SaasCompanyGatewayService();
+	t.is(await gateway.getCompanyInfo(COMPANY_ID), null);
+	t.true(captured.some((entry) => entry.level === 'error' && entry.message.includes('the body is empty')));
+});
+
 test.serial('fetch throwing (SAAS_URL unreachable) -> rethrows, and the target base URL is logged', async (t) => {
 	stubFetch(async () => {
 		throw new TypeError('fetch failed');
