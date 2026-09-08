@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -21,6 +21,8 @@ export class SaasUsualRegisterUseCase
 	extends AbstractUseCase<SaasUsualUserRegisterDS, SaasRegisteredUserRO>
 	implements ISaasRegisterUser
 {
+	private readonly logger = new Logger(SaasUsualRegisterUseCase.name);
+
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
@@ -58,11 +60,15 @@ export class SaasUsualRegisterUseCase
 
 		const createdTestConnections = await this.demoDataService.createDemoDataForUser(savedUser.id);
 
+		// The company id is minted by the saas (its row already exists there); the core mirrors it
+		// under the same id. Logged so a later "company not found" can be matched to this moment.
 		if (userCompany) {
 			userCompany.users.push(savedUser);
 			await this._dbContext.companyInfoRepository.save(userCompany);
+			this.logger.log(`SaaS registration: user ${savedUser.id} joined existing core company ${companyId}`);
 		} else {
 			await this.registerEmptyCompany(savedUser, createdTestConnections, companyId, companyName);
+			this.logger.log(`SaaS registration: user ${savedUser.id} registered, core company ${companyId} created`);
 		}
 
 		const { rawToken } = await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(savedUser);

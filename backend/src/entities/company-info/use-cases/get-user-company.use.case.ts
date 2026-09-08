@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -11,6 +11,8 @@ import { IGetUserCompany } from './company-info-use-cases.interface.js';
 
 @Injectable()
 export class GetUserCompanyUseCase extends AbstractUseCase<string, FoundUserCompanyInfoDs> implements IGetUserCompany {
+	private readonly logger = new Logger(GetUserCompanyUseCase.name);
+
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
@@ -36,6 +38,9 @@ export class GetUserCompanyUseCase extends AbstractUseCase<string, FoundUserComp
 		if (isSaaS()) {
 			foundUserCompanySaasInfo = await this.saasCompanyGatewayService.getCompanyInfo(foundUserCoreCompanyInfo.id);
 			if (!foundUserCompanySaasInfo) {
+				this.logger.warn(
+					`Company ${foundUserCoreCompanyInfo.id} (user ${userId}) exists in the core but the SaaS lookup returned no company data; responding 404 COMPANY_NOT_FOUND`,
+				);
 				throw new HttpException(
 					{
 						message: Messages.COMPANY_NOT_FOUND,
