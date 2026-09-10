@@ -2,11 +2,13 @@ import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import {
 	SitenovaExecuteRawQueryDs,
 	SitenovaGetConnectionDs,
+	SitenovaRowEventDs,
 	SitenovaValidatePublicReadDs,
 } from '../data-structures/sitenova.ds.js';
 import {
 	SitenovaConnectionForSiteRuntimeRO,
 	SitenovaPublicReadValidationRO,
+	SitenovaRowEventRO,
 } from '../data-structures/sitenova-internal-responses.ds.js';
 import { SitenovaRawQueryResultRO } from '../data-structures/sitenova-responses.ds.js';
 
@@ -26,4 +28,8 @@ export interface ISitenovaValidatePublicRead {
 		inputData: SitenovaValidatePublicReadDs,
 		inTransaction: InTransactionEnum,
 	): Promise<SitenovaPublicReadValidationRO>;
+}
+
+export interface ISitenovaActivateRowEventActions {
+	execute(inputData: SitenovaRowEventDs, inTransaction: InTransactionEnum): Promise<SitenovaRowEventRO>;
 }

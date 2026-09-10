@@ -28,6 +28,7 @@ import { SitenovaPublicReadGuard } from './guards/sitenova-public-read.guard.js'
 import { SitenovaEndUserAuthService } from './services/sitenova-enduser-auth.service.js';
 import { SitenovaInternalController } from './sitenova-internal.controller.js';
 import { SitenovaSiteController } from './sitenova-site.controller.js';
+import { SitenovaActivateRowEventActionsUseCase } from './use-cases/sitenova-activate-row-event-actions.use.case.js';
 import { SitenovaExecuteRawQueryUseCase } from './use-cases/sitenova-execute-raw-query.use.case.js';
 import { SitenovaGetConnectionUseCase } from './use-cases/sitenova-get-connection.use.case.js';
 import { SitenovaLoginEndUserUseCase } from './use-cases/sitenova-login-enduser.use.case.js';
@@ -73,6 +74,10 @@ import { SitenovaValidatePublicReadUseCase } from './use-cases/sitenova-validate
 		{
 			provide: UseCaseType.SITENOVA_VALIDATE_PUBLIC_READ,
 			useClass: SitenovaValidatePublicReadUseCase,
+		},
+		{
+			provide: UseCaseType.SITENOVA_ACTIVATE_ROW_EVENT_ACTIONS,
+			useClass: SitenovaActivateRowEventActionsUseCase,
 		},
 		{
 			provide: UseCaseType.SITENOVA_REGISTER_ENDUSER,

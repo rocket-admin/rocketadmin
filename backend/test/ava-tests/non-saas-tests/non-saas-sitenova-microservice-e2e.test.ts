@@ -7,9 +7,13 @@ import test from 'ava';
 import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
+import nock from 'nock';
 import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
+import { TableActionEventEnum } from '../../../src/enums/table-action-event-enum.js';
+import { TableActionMethodEnum } from '../../../src/enums/table-action-method-enum.js';
+import { TableActionTypeEnum } from '../../../src/enums/table-action-type.enum.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
@@ -369,4 +373,166 @@ test.serial(`${currentTest} reads are refused (403) until public access is enabl
 	t.is(read.status, 200);
 	t.is(JSON.parse(read.text).row.id, 1);
 	t.is(typeof JSON.parse(read.text).row[testTableColumnName], 'string');
+});
+
+// --- plan 37: universal-backend → core row-event bridge -------------------------------------------
+
+currentTest = 'POST /internal/sitenova/row-event/:connectionId (internal, microservice JWT)';
+
+async function createAddRowRule(
+	connectionId: string,
+	token: string,
+	tableName: string,
+	fakeUrl: string,
+): Promise<void> {
+	const createRuleResponse = await request(app.getHttpServer())
+		.post(`/action/rule/${connectionId}`)
+		.send({
+			title: 'Notify on new rows',
+			table_name: tableName,
+			events: [
+				{
+					type: TableActionTypeEnum.single,
+					event: TableActionEventEnum.ADD_ROW,
+					title: 'New row',
+					icon: null,
+					require_confirmation: false,
+				},
+			],
+			table_actions: [
+				{ url: fakeUrl, method: TableActionMethodEnum.URL, slack_url: undefined, emails: [] },
+				{ url: undefined, method: TableActionMethodEnum.SLACK, slack_url: fakeUrl, emails: undefined },
+			],
+		})
+		.set('Cookie', token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	if (createRuleResponse.status !== 201) {
+		throw new Error(`Failed to create action rule: ${createRuleResponse.status} ${createRuleResponse.text}`);
+	}
+}
+
+test.serial(`${currentTest} answers actionsMatched 0 when the owner configured no table actions`, async (t) => {
+	const { connectionId, testTableName } = await createConnectionAndTable();
+
+	const response = await request(app.getHttpServer())
+		.post(`/internal/sitenova/row-event/${connectionId}`)
+		.send({ tableName: testTableName, event: 'ADD_ROW', primaryKeys: [{ id: 1 }], visitor: { uid: '7' } })
+		.set('Authorization', microserviceAuthHeader())
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(response.status, 200);
+	t.deepEqual(JSON.parse(response.text), { actionsMatched: 0, activationResults: [] });
+});
+
+test.serial(`${currentTest} runs the URL and Slack actions configured for the event, as a site visitor`, async (t) => {
+	const { connectionId, token, testTableName } = await createConnectionAndTable();
+	const fakeUrl = 'http://www.example.com';
+	await createAddRowRule(connectionId, token, testTableName, fakeUrl);
+
+	const receivedBodies: Array<Record<string, any>> = [];
+	const scope = nock(fakeUrl)
+		.post('/')
+		.times(2)
+		.reply(201, (_uri, requestBody) => {
+			receivedBodies.push(requestBody as Record<string, any>);
+			return { status: 201, message: 'Table action was triggered' };
+		});
+
+	const response = await request(app.getHttpServer())
+		.post(`/internal/sitenova/row-event/${connectionId}`)
+		.send({
+			tableName: testTableName,
+			event: 'ADD_ROW',
+			primaryKeys: [{ id: 1, not_a_key: 'ignored' }],
+			visitor: { uid: '7', email: 'visitor@site.io' },
+		})
+		.set('Authorization', microserviceAuthHeader())
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(response.status, 200);
+	const ro = JSON.parse(response.text);
+	t.is(ro.actionsMatched, 2);
+	t.is(ro.activationResults.length, 2);
+	t.true(ro.activationResults.every((result: { result: string }) => result.result === 'successfully'));
+
+	t.is(receivedBodies.length, 2);
+	const urlActionBody = receivedBodies.find((body) => Object.hasOwn(body, '$$_triggeredBy'));
+	t.truthy(urlActionBody);
+	// A visitor is never reported as a RocketAdmin user: the historical field is null, the actor explicit.
+	t.is(urlActionBody.$$_raUserId, null);
+	t.is(urlActionBody.$$_triggeredBy, 'sitenova_visitor');
+	t.is(urlActionBody.$$_visitorId, '7');
+	t.is(urlActionBody.$$_tableName, testTableName);
+	t.deepEqual(urlActionBody.primaryKeys, [{ id: 1 }]);
+	t.truthy(urlActionBody.$$_date);
+	t.truthy(urlActionBody.$$_actionId);
+
+	const slackActionBody = receivedBodies.find((body) => Object.hasOwn(body, 'text'));
+	t.truthy(slackActionBody);
+	t.true(slackActionBody.text.includes('Site visitor (visitor id: 7, email: visitor@site.io) has added a row'));
+	t.true(slackActionBody.text.includes(testTableName));
+	t.true(slackActionBody.text.includes('[{"id":1}]'));
+	scope.done();
+
+	// The rule is attached to ADD_ROW only — an UPDATE_ROW report matches nothing and calls nobody.
+	const updateResponse = await request(app.getHttpServer())
+		.post(`/internal/sitenova/row-event/${connectionId}`)
+		.send({ tableName: testTableName, event: 'UPDATE_ROW', primaryKeys: [{ id: 1 }], visitor: { uid: '7' } })
+		.set('Authorization', microserviceAuthHeader())
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(updateResponse.status, 200);
+	t.deepEqual(JSON.parse(updateResponse.text), { actionsMatched: 0, activationResults: [] });
+});
+
+test.serial(`${currentTest} reports a failing webhook per action instead of failing the request`, async (t) => {
+	const { connectionId, token, testTableName } = await createConnectionAndTable();
+	const fakeUrl = 'http://www.example.com';
+	await createAddRowRule(connectionId, token, testTableName, fakeUrl);
+
+	const scope = nock(fakeUrl).post('/').times(2).reply(500, { message: 'owner endpoint is down' });
+
+	const response = await request(app.getHttpServer())
+		.post(`/internal/sitenova/row-event/${connectionId}`)
+		.send({ tableName: testTableName, event: 'ADD_ROW', primaryKeys: [{ id: 2 }], visitor: { uid: '8' } })
+		.set('Authorization', microserviceAuthHeader())
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+
+	t.is(response.status, 200);
+	const ro = JSON.parse(response.text);
+	t.is(ro.actionsMatched, 2);
+	t.is(ro.activationResults.length, 2);
+	t.true(ro.activationResults.every((result: { result: string }) => result.result === 'unsuccessfully'));
+	scope.done();
+});
+
+test.serial(`${currentTest} rejects a missing microservice JWT (401) and a malformed body (400)`, async (t) => {
+	const { connectionId, testTableName } = await createConnectionAndTable();
+
+	const noToken = await request(app.getHttpServer())
+		.post(`/internal/sitenova/row-event/${connectionId}`)
+		.send({ tableName: testTableName, event: 'ADD_ROW', primaryKeys: [{ id: 1 }] })
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(noToken.status, 401);
+
+	const customEvent = await request(app.getHttpServer())
+		.post(`/internal/sitenova/row-event/${connectionId}`)
+		.send({ tableName: testTableName, event: 'CUSTOM', primaryKeys: [{ id: 1 }] })
+		.set('Authorization', microserviceAuthHeader())
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(customEvent.status, 400);
+
+	const noKeys = await request(app.getHttpServer())
+		.post(`/internal/sitenova/row-event/${connectionId}`)
+		.send({ tableName: testTableName, event: 'ADD_ROW', primaryKeys: [] })
+		.set('Authorization', microserviceAuthHeader())
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(noKeys.status, 400);
 });

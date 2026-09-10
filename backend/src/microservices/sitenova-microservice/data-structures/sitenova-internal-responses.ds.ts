@@ -85,3 +85,23 @@ export class SitenovaPublicReadValidationRO {
 	})
 	readableColumns: Array<string> | null;
 }
+
+export class SitenovaRowEventActivationRO {
+	@ApiProperty({ description: 'Table action id.' })
+	actionId: string;
+
+	@ApiProperty({ description: "Activation outcome: 'successfully' | 'unsuccessfully' | 'unknown'." })
+	result: string;
+}
+
+export class SitenovaRowEventRO {
+	@ApiProperty({
+		description:
+			'How many table actions the connection owner configured for this table + event in RocketAdmin. ' +
+			'0 means nothing ran — the event was received but no rule matched.',
+	})
+	actionsMatched: number;
+
+	@ApiProperty({ type: SitenovaRowEventActivationRO, isArray: true })
+	activationResults: Array<SitenovaRowEventActivationRO>;
+}
