@@ -1,4 +1,7 @@
-import { UserInfoMessageData } from '../../table-actions/table-actions-module/table-action-activation.service.js';
+import {
+	describeTableActionActor,
+	UserInfoMessageData,
+} from '../../table-actions/table-actions-module/utils/describe-table-action-actor.util.js';
 import { escapeHtml } from '../utils/escape-html.util.js';
 
 export const EMAIL_TEXT = {
@@ -71,8 +74,7 @@ export const EMAIL_TEXT = {
 			tableName: string,
 			primaryKeyValuesArray: Array<Record<string, unknown>>,
 		): string => {
-			const { email, userId, userName } = userInfo;
-			const textContent = `${userName ? escapeHtml(userName) : 'User'} (email: ${email}, user id: ${userId}) has ${action} in the table "${escapeHtml(tableName)}".`;
+			const textContent = `${describeTableActionActor(userInfo)} has ${action} in the table "${escapeHtml(tableName)}".`;
 			return `${textContent} Primary Keys: ${JSON.stringify(primaryKeyValuesArray)}`;
 		},
 	},

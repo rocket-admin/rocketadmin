@@ -21,6 +21,9 @@ import { EmailService } from '../../email/email/email.service.js';
 import { escapeHtml } from '../../email/utils/escape-html.util.js';
 import { UserEntity } from '../../user/user.entity.js';
 import { TableActionEntity } from './table-action.entity.js';
+import { describeTableActionActor, UserInfoMessageData } from './utils/describe-table-action-actor.util.js';
+
+export type { TableActionActorKind, UserInfoMessageData } from './utils/describe-table-action-actor.util.js';
 
 export type ActionActivationResult = {
 	location?: string;
@@ -28,10 +31,12 @@ export type ActionActivationResult = {
 	receivedPrimaryKeysObj: Array<Record<string, unknown>>;
 };
 
-export type UserInfoMessageData = {
-	userId: string;
-	email: string;
-	userName: string | null;
+// A generated-site end-user acting through universal-backend (plan 37): the users-row primary key
+// carried by their token (`uid`, null for a pre-uid grace token) and the address they registered
+// with when the site passed it along. Neither is a RocketAdmin identity.
+export type SitenovaVisitorActor = {
+	visitorId: string | null;
+	email: string | null;
 };
 
 @Injectable()
@@ -62,10 +67,59 @@ export class TableActionActivationService {
 			);
 		}
 		const userInfoMessageData: UserInfoMessageData = {
+			actorKind: 'rocketadmin_user',
 			userId,
 			email: foundUser.email,
 			userName: foundUser.name,
+			visitorId: null,
 		};
+		return await this.activateTableActionAs(
+			tableAction,
+			foundConnection,
+			request_body,
+			userInfoMessageData,
+			tableName,
+			triggerOperation,
+		);
+	}
+
+	// Same dispatch as activateTableAction, for an operation performed by a generated-site visitor
+	// rather than a RocketAdmin user (plan 37). There is no account to look up: the actor is
+	// described from what universal-backend forwarded, and the HTTP payload / Slack / email say so
+	// explicitly instead of borrowing the connection owner's identity.
+	public async activateTableActionForVisitor(
+		tableAction: TableActionEntity,
+		foundConnection: ConnectionEntity,
+		request_body: Array<Record<string, unknown>>,
+		visitor: SitenovaVisitorActor,
+		tableName: string,
+		triggerOperation: TableActionEventEnum,
+	): Promise<ActionActivationResult> {
+		const userInfoMessageData: UserInfoMessageData = {
+			actorKind: 'sitenova_visitor',
+			userId: null,
+			email: visitor.email,
+			userName: null,
+			visitorId: visitor.visitorId,
+		};
+		return await this.activateTableActionAs(
+			tableAction,
+			foundConnection,
+			request_body,
+			userInfoMessageData,
+			tableName,
+			triggerOperation,
+		);
+	}
+
+	private async activateTableActionAs(
+		tableAction: TableActionEntity,
+		foundConnection: ConnectionEntity,
+		request_body: Array<Record<string, unknown>>,
+		userInfoMessageData: UserInfoMessageData,
+		tableName: string,
+		triggerOperation: TableActionEventEnum,
+	): Promise<ActionActivationResult> {
 		switch (tableAction.method) {
 			case TableActionMethodEnum.URL:
 				return await this.activateHttpTableAction(
@@ -190,8 +244,14 @@ export class TableActionActivationService {
 		);
 
 		const dateString = new Date().toISOString();
+		// Wire contract of URL actions (consumers verify it with the Rocketadmin-Signature HMAC).
+		// $$_raUserId is the historical field and stays a string for RocketAdmin users; it is null when
+		// a generated-site visitor acted (plan 37) — such events never fired before, so no existing
+		// consumer saw a null there. $$_triggeredBy / $$_visitorId are additive.
 		const actionRequestBody = JSON.stringify({
 			$$_raUserId: userId,
+			$$_triggeredBy: userInfo.actorKind,
+			$$_visitorId: userInfo.visitorId,
 			primaryKeys: primaryKeyValuesArray,
 			$$_date: dateString,
 			$$_actionId: tableAction.id,
@@ -380,7 +440,6 @@ export class TableActionActivationService {
 		tableName: string,
 		primaryKeyValuesArray: Array<Record<string, unknown>>,
 	): string {
-		const { email, userId, userName } = userInfo;
 		const action =
 			triggerOperation === TableActionEventEnum.ADD_ROW
 				? 'added a row'
@@ -390,7 +449,7 @@ export class TableActionActivationService {
 						? 'deleted a row'
 						: 'performed an action';
 		primaryKeyValuesArray = this.escapePrimaryKeyValuesArray(primaryKeyValuesArray);
-		const textContent = `${userName ? escapeHtml(userName) : 'User'} (email: ${email}, user id: ${userId}) has ${action} in the table "${escapeHtml(tableName)}".`;
+		const textContent = `${describeTableActionActor(userInfo)} has ${action} in the table "${escapeHtml(tableName)}".`;
 		return `${textContent} Primary Keys: ${JSON.stringify(primaryKeyValuesArray)}`;
 	}
 }

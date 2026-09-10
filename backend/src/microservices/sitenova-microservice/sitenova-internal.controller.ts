@@ -10,10 +10,12 @@ import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import {
 	SitenovaConnectionForSiteRuntimeRO,
 	SitenovaPublicReadValidationRO,
+	SitenovaRowEventRO,
 } from './data-structures/sitenova-internal-responses.ds.js';
 import { SitenovaRawQueryResultRO } from './data-structures/sitenova-responses.ds.js';
-import { SitenovaExecuteRawQueryDto, SitenovaValidatePublicReadDto } from './dto/sitenova.dtos.js';
+import { SitenovaExecuteRawQueryDto, SitenovaRowEventDto, SitenovaValidatePublicReadDto } from './dto/sitenova.dtos.js';
 import {
+	ISitenovaActivateRowEventActions,
 	ISitenovaExecuteRawQuery,
 	ISitenovaGetConnection,
 	ISitenovaValidatePublicRead,
@@ -37,7 +39,38 @@ export class SitenovaInternalController {
 		private readonly getConnectionUseCase: ISitenovaGetConnection,
 		@Inject(UseCaseType.SITENOVA_VALIDATE_PUBLIC_READ)
 		private readonly validatePublicReadUseCase: ISitenovaValidatePublicRead,
+		@Inject(UseCaseType.SITENOVA_ACTIVATE_ROW_EVENT_ACTIONS)
+		private readonly activateRowEventActionsUseCase: ISitenovaActivateRowEventActions,
 	) {}
+
+	@ApiOperation({
+		summary: 'Report a generated-site visitor row write so the table actions configured for it run.',
+		description:
+			'universal-backend reports EVERY visitor write (create/update/delete, registration, file upload) here; ' +
+			'the core runs only the table actions the connection owner attached to this table + event in ' +
+			'RocketAdmin (URL webhook / Slack / email) and answers how many matched. No rule ⇒ nothing runs. ' +
+			'Per-action failures are reported in the body, never as an error status — the write already happened.',
+	})
+	@ApiResponse({ status: 200, type: SitenovaRowEventRO })
+	@ApiBody({ type: SitenovaRowEventDto })
+	@HttpCode(HttpStatus.OK)
+	@Timeout(!isTest() ? TimeoutDefaults.EXTENDED : TimeoutDefaults.EXTENDED_TEST)
+	@Post('/row-event/:connectionId')
+	public async activateRowEventActions(
+		@SlugUuid('connectionId') connectionId: string,
+		@Body() body: SitenovaRowEventDto,
+	): Promise<SitenovaRowEventRO> {
+		return await this.activateRowEventActionsUseCase.execute(
+			{
+				connectionId,
+				tableName: body.tableName,
+				event: body.event,
+				primaryKeys: body.primaryKeys,
+				visitor: { uid: body.visitor?.uid ?? null, email: body.visitor?.email ?? null },
+			},
+			InTransactionEnum.OFF,
+		);
+	}
 
 	@ApiOperation({
 		summary: 'Return decrypted connection credentials plus the end-user JWT signing key.',
