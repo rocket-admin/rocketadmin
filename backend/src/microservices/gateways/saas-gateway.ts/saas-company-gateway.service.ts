@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import { ExternalServiceException } from '../../../exceptions/custom-exceptions/external-service-exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
 import { SuccessResponse } from '../../saas-microservice/data-structures/common-responce.ds.js';
 import { BaseSaasGatewayService, describeSaasErrorBody } from './base-saas-gateway.service.js';
@@ -51,68 +50,6 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
 		if (result.status > 299) {
 			throw new ExternalServiceException(
 				Messages.SAAS_DELETE_COMPANY_FAILED_UNHANDLED_ERROR,
-				result.status,
-				result?.body?.message ? (result.body.message as string) : undefined,
-			);
-		}
-		if (!isObjectEmpty(result.body)) {
-			return {
-				success: result.body.success as boolean,
-			};
-		}
-		return null;
-	}
-
-	public async getCompanyIdByCustomDomain(customCompanyDomain: string): Promise<string | null> {
-		const result = await this.sendRequestToSaaS(`/webhook/company/domain/${customCompanyDomain}/`, 'GET', null);
-		if (!result) {
-			return null;
-		}
-		if (result.status > 299) {
-			throw new ExternalServiceException(
-				Messages.SAAS_GET_COMPANY_ID_BY_CUSTOM_DOMAIN_FAILED_UNHANDLED_ERROR,
-				result.status,
-				result?.body?.message ? (result.body.message as string) : undefined,
-			);
-		}
-		if (!isObjectEmpty(result.body)) {
-			return result.body.companyId as string;
-		}
-		return null;
-	}
-
-	public async getCompanyCustomDomainById(companyId: string): Promise<string | null> {
-		if (!isSaaS()) {
-			return null;
-		}
-		const result = await this.sendRequestToSaaS(`/webhook/company/${companyId}/domain/`, 'GET', null);
-		if (!result) {
-			return null;
-		}
-		if (result.status > 299) {
-			throw new ExternalServiceException(
-				Messages.SAAS_GET_COMPANY_CUSTOM_DOMAIN_BY_ID_FAILED_UNHANDLED_ERROR,
-				result.status,
-				result?.body?.message ? (result.body.message as string) : undefined,
-			);
-		}
-		if (!isObjectEmpty(result.body)) {
-			return result.body.customCompanyDomain as string;
-		}
-		return null;
-	}
-
-	public async recountUsersInCompanyRequest(companyId: string): Promise<SuccessResponse | null> {
-		if (!isSaaS()) {
-			return null;
-		}
-		const result = await this.sendRequestToSaaS(`/webhook/company/${companyId}/recount/`, 'POST', null);
-		if (!result) {
-			return null;
-		}
-		if (result.status > 299) {
-			throw new ExternalServiceException(
-				Messages.SAAS_RECOUNT_USERS_IN_COMPANY_FAILED_UNHANDLED_ERROR,
 				result.status,
 				result?.body?.message ? (result.body.message as string) : undefined,
 			);

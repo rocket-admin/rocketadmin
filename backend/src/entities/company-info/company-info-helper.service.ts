@@ -1,35 +1,12 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
-import { BaseType } from '../../common/data-injection.tokens.js';
-import { SubscriptionLevelEnum } from '../../enums/subscription-level.enum.js';
-import { isSaaS } from '../../helpers/app/is-saas.js';
-import { isTest } from '../../helpers/app/is-test.js';
-import { Constants } from '../../helpers/constants/constants.js';
-import { SaasCompanyGatewayService } from '../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class CompanyInfoHelperService {
-	constructor(
-		@Inject(BaseType.GLOBAL_DB_CONTEXT)
-		protected _dbContext: IGlobalDatabaseContext,
-		private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
-	) {}
-
-	public async canInviteMoreUsers(companyId: string): Promise<boolean> {
-		if (!isSaaS() || isTest()) {
-			return true;
-		}
-
-		const companyInformationFromSaaS = await this.saasCompanyGatewayService.getCompanyInfo(companyId);
-
-		const [countUsersInCompany, countInvitationsInCompany] = await Promise.all([
-			this._dbContext.userRepository.countUsersInCompany(companyId),
-			this._dbContext.invitationInCompanyRepository.countNonExpiredInvitationsInCompany(companyId),
-		]);
-
-		if (companyInformationFromSaaS?.subscriptionLevel === SubscriptionLevelEnum.FREE_PLAN) {
-			return countUsersInCompany + countInvitationsInCompany < Constants.FREE_PLAN_USERS_COUNT;
-		}
-		return true;
+	// Plan 46 (2026-09-17): RocketAdmin is a free product with unlimited members — the 3-seat cap on
+	// FREE_PLAN companies (users + pending invitations, checked against the saas subscription level)
+	// is gone. The method stays as the single seam the invite flow consults, so a future member cap
+	// has one place to land; it makes no saas round trip and needs no database.
+	public canInviteMoreUsers(_companyId: string): Promise<boolean> {
+		return Promise.resolve(true);
 	}
 }

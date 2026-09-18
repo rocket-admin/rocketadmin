@@ -85,7 +85,8 @@ test.serial(`${currentTest} should return found company info for user`, async (t
 		const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
 		t.is(Object.hasOwn(foundCompanyInfoRO, 'id'), true);
 		t.is(Object.hasOwn(foundCompanyInfoRO, 'name'), true);
-		t.is(Object.keys(foundCompanyInfoRO).length, 8);
+		// plan 46: logo / favicon / tab_title left the payload
+		t.is(Object.keys(foundCompanyInfoRO).length, 5);
 	} catch (error) {
 		console.error(error);
 	}
@@ -125,7 +126,7 @@ test.serial(`${currentTest} should return full found company info for company ad
 		t.is(foundCompanyInfo.status, 200);
 		t.is(Object.hasOwn(foundCompanyInfoRO, 'id'), true);
 		t.is(Object.hasOwn(foundCompanyInfoRO, 'name'), true);
-		t.is(Object.keys(foundCompanyInfoRO).length, 10);
+		t.is(Object.keys(foundCompanyInfoRO).length, 7); // plan 46: no logo / favicon / tab_title
 		t.is(Object.hasOwn(foundCompanyInfoRO, 'connections'), true);
 		t.is(foundCompanyInfoRO.connections.length > 0, true);
 		t.is(Object.hasOwn(foundCompanyInfoRO, 'invitations'), true);
@@ -180,7 +181,7 @@ test.serial(`${currentTest} should return found company info for non-admin user`
 		t.is(foundCompanyInfo.status, 200);
 		t.is(Object.hasOwn(foundCompanyInfoRO, 'id'), true);
 		t.is(Object.hasOwn(foundCompanyInfoRO, 'name'), true);
-		t.is(Object.keys(foundCompanyInfoRO).length, 8);
+		t.is(Object.keys(foundCompanyInfoRO).length, 5); // plan 46: no logo / favicon / tab_title
 	} catch (error) {
 		console.error(error);
 		throw error;

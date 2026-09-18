@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { FoundSimpleConnectionInfoDS } from '../../../connection/application/data-structures/found-connections.ds.js';
-import { FoundCompanyImageInfo } from '../dto/found-company-logo.ro.js';
 import { FoundInvitationInCompanyDs } from './found-invitation-in-company.ds.js';
 
 export class FoundUserCompanyInfoDs {
@@ -34,17 +33,9 @@ export class FoundUserCompanyInfoDs {
 	@ApiProperty()
 	show_test_connections: boolean;
 
-	@ApiProperty({ required: false })
-	custom_domain: string | null;
-
-	@ApiProperty({ required: false, type: FoundCompanyImageInfo, nullable: true })
-	logo: FoundCompanyImageInfo | null;
-
-	@ApiProperty({ required: false, type: FoundCompanyImageInfo, nullable: true })
-	favicon: FoundCompanyImageInfo | null;
-
+	// Custom domains were retired with plan 46 (2026-09); always null, kept for API compatibility.
 	@ApiProperty({ required: false, nullable: true })
-	tab_title: string | null;
+	custom_domain: string | null;
 }
 
 export class FoundUserFullCompanyInfoDs extends FoundUserCompanyInfoDs {

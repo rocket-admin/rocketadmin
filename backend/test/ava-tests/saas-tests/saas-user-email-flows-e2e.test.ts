@@ -29,8 +29,7 @@ import { TestUtils } from '../../utils/test.utils.js';
 //   POST /saas/user/email/verify/request   (re-send confirmation)
 //   POST /saas/company/:companyId/invite   | /saas/company/invite/verify/:token
 // The invite happy-path verification is covered in rocketadmin-saas's own suite (it needs the
-// company row in the SaaS DB for the recount webhook); here we cover everything reachable with
-// the core alone. Raw tokens are minted through the same repository extensions production uses.
+// company row in the SaaS DB); here we cover everything reachable with the core alone. Raw tokens are minted through the same repository extensions production uses.
 
 let app: INestApplication;
 let currentTest: string;

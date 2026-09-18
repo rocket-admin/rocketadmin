@@ -255,22 +255,6 @@ export const customConnectionRepositoryExtension: IConnectionRepository &
 		return connections;
 	},
 
-	async freezeConnections(connectionsIds: Array<string>): Promise<void> {
-		await this.createQueryBuilder()
-			.update(ConnectionEntity)
-			.set({ is_frozen: true })
-			.where('id IN (:...connectionsIds)', { connectionsIds })
-			.execute();
-	},
-
-	async unFreezeConnections(connectionsIds: Array<string>): Promise<void> {
-		await this.createQueryBuilder()
-			.update(ConnectionEntity)
-			.set({ is_frozen: false })
-			.where('id IN (:...connectionsIds)', { connectionsIds })
-			.execute();
-	},
-
 	async foundUserTestConnectionsWithoutCompany(userId: string): Promise<Array<ConnectionEntity>> {
 		const qb = this.createQueryBuilder('connection')
 			.leftJoin('connection.author', 'user')

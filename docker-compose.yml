@@ -6,6 +6,10 @@ services:
     ports:
       - 3000:3000
     env_file: ./backend/.development.env
+    environment:
+      # The saas-mode e2e helper completes email verification through the saas test database
+      # (same service/password as `rocketadmin-private-microservice-test-database` below).
+      SAAS_TEST_DATABASE_URL: postgres://postgres:abc987@rocketadmin-private-microservice-test-database:5432/postgres
     volumes:
       - ./backend/dist:/app/dist
       - ./backend/src:/app/src

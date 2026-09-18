@@ -15,7 +15,6 @@ export class UnfreezeConnectionUseCase
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
-		// private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
 	) {
 		super();
 	}
@@ -28,18 +27,7 @@ export class UnfreezeConnectionUseCase
 			throw new ConnectionNotFoundException(HttpStatus.BAD_REQUEST);
 		}
 
-		// if (isSaaS()) {
-		//   const userCompany = await this._dbContext.companyInfoRepository.findCompanyInfoByUserId(userId);
-		//   const companyInfoFromSaas = await this.saasCompanyGatewayService.getCompanyInfo(userCompany.id);
-		//   if (companyInfoFromSaas.subscriptionLevel === SubscriptionLevelEnum.FREE_PLAN) {
-		//     if (Constants.NON_FREE_PLAN_CONNECTION_TYPES.includes(connection.type as ConnectionTypesEnum)) {
-		//       throw new NonAvailableInFreePlanException(
-		//         Messages.CANNOT_CREATE_CONNECTION_THIS_TYPE_IN_FREE_PLAN(connection.type as ConnectionTypesEnum),
-		//       );
-		//     }
-		//   }
-		// }
-
+		// Plan 46: no plan-gated connection types remain — any frozen connection may be unfrozen.
 		connection.is_frozen = false;
 		await this._dbContext.connectionRepository.save(connection);
 		return { success: true };

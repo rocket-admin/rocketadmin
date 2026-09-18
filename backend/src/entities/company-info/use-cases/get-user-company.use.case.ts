@@ -34,7 +34,6 @@ export class GetUserCompanyUseCase extends AbstractUseCase<string, FoundUserComp
 		}
 
 		let foundUserCompanySaasInfo = null;
-		let customDomain = null;
 		if (isSaaS()) {
 			foundUserCompanySaasInfo = await this.saasCompanyGatewayService.getCompanyInfo(foundUserCoreCompanyInfo.id);
 			if (!foundUserCompanySaasInfo) {
@@ -48,8 +47,7 @@ export class GetUserCompanyUseCase extends AbstractUseCase<string, FoundUserComp
 					HttpStatus.NOT_FOUND,
 				);
 			}
-			customDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(foundUserCoreCompanyInfo.id);
 		}
-		return buildFoundCompanyInfoDs(foundUserCoreCompanyInfo, foundUserCompanySaasInfo, customDomain);
+		return buildFoundCompanyInfoDs(foundUserCoreCompanyInfo, foundUserCompanySaasInfo);
 	}
 }

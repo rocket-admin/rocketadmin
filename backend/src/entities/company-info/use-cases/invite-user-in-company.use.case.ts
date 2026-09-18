@@ -7,7 +7,6 @@ import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { isTest } from '../../../helpers/app/is-test.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
-import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { EmailService } from '../../email/email/email.service.js';
 import { WinstonLogger } from '../../logging/winston-logger.js';
 import { InviteUserInCompanyAndConnectionGroupDs } from '../application/data-structures/invite-user-in-company-and-connection-group.ds.js';
@@ -23,7 +22,6 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
-		private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
 		private readonly emailService: EmailService,
 		private readonly companyInfoHelperService: CompanyInfoHelperService,
 		private readonly logger: WinstonLogger,
@@ -46,6 +44,7 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
 			);
 		}
 
+		// Plan 46: RocketAdmin is free — `canInviteMoreUsers` is always true today; the seam stays.
 		if (isSaaS()) {
 			const canInviteMoreUsers = await this.companyInfoHelperService.canInviteMoreUsers(companyId);
 			if (!canInviteMoreUsers) {
@@ -99,11 +98,11 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
 				await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(foundInvitedUser);
 
 			if (isSaaS()) {
-				const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(companyId);
+				// Custom domains retired (plan 46): links are built on the default domain.
 				await this.emailService.sendEmailConfirmation(
 					foundInvitedUser.email,
 					rawToken,
-					companyCustomDomain,
+					null,
 					ValidationHelper.resolveEmailVerificationLinkBase(inputData.emailVerificationLinkBase),
 				);
 			} else {
@@ -152,13 +151,12 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
 		}
 
 		if (isSaaS()) {
-			const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(companyId);
 			await this.emailService.sendInvitationToCompany(
 				invitedUserEmail,
 				rawToken,
 				companyId,
 				foundCompany.name,
-				companyCustomDomain,
+				null,
 				ValidationHelper.resolveEmailVerificationLinkBase(inputData.inviteLinkBase),
 			);
 		} else {

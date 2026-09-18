@@ -6,10 +6,8 @@ import { Test } from '@nestjs/testing';
 import test from 'ava';
 import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
-import fs from 'fs';
 import { nanoid } from 'nanoid';
-import os from 'os';
-import path, { join } from 'path';
+import path from 'path';
 import request from 'supertest';
 import { fileURLToPath } from 'url';
 import { ApplicationModule } from '../../../src/app.module.js';
@@ -89,7 +87,7 @@ test.serial(`${currentTest} should return found company info for user`, async (t
 
 		t.is(foundCompanyInfo.status, 200);
 		const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
-		t.is(Object.keys(foundCompanyInfoRO).length, 10);
+		t.is(Object.keys(foundCompanyInfoRO).length, 7); // plan 46: no logo / favicon / tab_title
 		t.is(Object.hasOwn(foundCompanyInfoRO, 'id'), true);
 		t.is(Object.hasOwn(foundCompanyInfoRO, 'name'), true);
 		t.is(Object.hasOwn(foundCompanyInfoRO, 'createdAt'), true);
@@ -126,7 +124,7 @@ test.serial(`${currentTest} should return full found company info for company ad
 		t.is(Object.hasOwn(foundCompanyInfoRO, 'name'), true);
 		t.is(Object.hasOwn(foundCompanyInfoRO, 'createdAt'), true);
 		t.is(Object.hasOwn(foundCompanyInfoRO, 'updatedAt'), true);
-		t.is(Object.keys(foundCompanyInfoRO).length, 15);
+		t.is(Object.keys(foundCompanyInfoRO).length, 12); // plan 46: no logo / favicon / tab_title
 		t.is(Object.hasOwn(foundCompanyInfoRO, 'connections'), true);
 		t.is(foundCompanyInfoRO.connections.length > 3, true);
 		t.is(Object.hasOwn(foundCompanyInfoRO, 'invitations'), true);
@@ -179,7 +177,7 @@ test.serial(`${currentTest} should return found company info for non-admin user`
 		const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
 
 		t.is(foundCompanyInfo.status, 200);
-		t.is(Object.keys(foundCompanyInfoRO).length, 10);
+		t.is(Object.keys(foundCompanyInfoRO).length, 7); // plan 46: no logo / favicon / tab_title
 		t.is(Object.hasOwn(foundCompanyInfoRO, 'id'), true);
 		t.is(Object.hasOwn(foundCompanyInfoRO, 'name'), true);
 		t.is(Object.hasOwn(foundCompanyInfoRO, 'createdAt'), true);
@@ -810,110 +808,6 @@ test.serial(`${currentTest} should enable 2fa for company`, async (t) => {
 	t.is(connectionsResultsObject.message, Messages.TWO_FA_REQUIRED);
 });
 
-currentTest = `PUT /subscription/upgrade/:companyId`;
-test.serial(
-	`${currentTest} should call function subscription upgrade for company in sass, and suspend users`,
-	async (t) => {
-		const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
-		const {
-			connections,
-			firstTableInfo,
-			groups,
-			permissions,
-			secondTableInfo,
-			users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail, simpleUserPassword },
-		} = testData;
-
-		const foundCompanyInfo = await request(app.getHttpServer())
-			.get('/company/my/full')
-			.set('Content-Type', 'application/json')
-			.set('Cookie', adminUserToken)
-			.set('Accept', 'application/json');
-
-		t.is(foundCompanyInfo.status, 200);
-		const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
-
-		let firstConnection = foundCompanyInfoRO.connections.find(
-			(connectionRO) => connections.firstId === connectionRO.id,
-		);
-		const createdGroup = firstConnection.groups.find((groupRO) => groupRO.id === groups.createdGroupId);
-
-		const additionalUsers: Array<{
-			email: string;
-			password: string;
-			token: string;
-		}> = [];
-		for (let i = 0; i < 5; i++) {
-			const invitationResult = await inviteUserInCompanyAndGroupAndAcceptInvitation(
-				adminUserToken,
-				'USER',
-				createdGroup.id,
-				app,
-			);
-			additionalUsers.push(invitationResult);
-		}
-		const foundCompanyInfoWithAddedUsers = await request(app.getHttpServer())
-			.get('/company/my/full')
-			.set('Content-Type', 'application/json')
-			.set('Cookie', adminUserToken)
-			.set('Accept', 'application/json');
-
-		t.is(foundCompanyInfo.status, 200);
-		const foundCompanyInfoWithAddedUsersRO = JSON.parse(foundCompanyInfoWithAddedUsers.text);
-		firstConnection = foundCompanyInfoWithAddedUsersRO.connections.find(
-			(connectionRO) => connections.firstId === connectionRO.id,
-		);
-		const { users } = firstConnection.groups.find((groupRO) => groupRO.id === groups.createdGroupId);
-		users.forEach((user: any) => {
-			t.is(user.suspended, false);
-		});
-
-		const _subscriptionUpgradeResult = await fetch(
-			`http://rocketadmin-private-microservice:3001/saas/company/subscription/upgrade/${foundCompanyInfoRO.id}`,
-			{
-				method: 'POST',
-				headers: {
-					Cookie: adminUserToken,
-					'Content-Type': 'application/json',
-					Accept: 'application/json',
-				},
-				body: JSON.stringify({
-					subscriptionLevel: 'FREE_PLAN',
-				}),
-			},
-		);
-
-		const foundCompanyInfoAfterUpgrade = await request(app.getHttpServer())
-			.get('/company/my/full')
-			.set('Content-Type', 'application/json')
-			.set('Cookie', adminUserToken)
-			.set('Accept', 'application/json');
-
-		const foundCompanyInfoAfterUpgradeRO = JSON.parse(foundCompanyInfoAfterUpgrade.text);
-
-		firstConnection = foundCompanyInfoAfterUpgradeRO.connections.find(
-			(connectionRO) => connections.firstId === connectionRO.id,
-		);
-		const { users: usersAfterUpgrade } = firstConnection.groups.find((groupRO) => groupRO.id === groups.createdGroupId);
-		const suspendUsersCount = usersAfterUpgrade.filter((user: any) => user.suspended).length;
-		t.is(suspendUsersCount, 4);
-		const unSuspendedUsersCount = usersAfterUpgrade.filter((user: any) => !user.suspended).length;
-		t.is(unSuspendedUsersCount, 3);
-
-		// suspended users should not be able to access endpoints
-
-		const findAllConnectionsResponse = await request(app.getHttpServer())
-			.get('/connections')
-			.set('Cookie', additionalUsers[additionalUsers.length - 1].token)
-			.set('Content-Type', 'application/json')
-			.set('Accept', 'application/json');
-
-		const findAllConnectionsResponseRO = JSON.parse(findAllConnectionsResponse.text);
-		t.is(findAllConnectionsResponse.status, 401);
-		t.is(findAllConnectionsResponseRO.message, Messages.ACCOUNT_SUSPENDED);
-	},
-);
-
 currentTest = `PUT /company/users/suspend/:companyId`;
 test.serial(`${currentTest} should suspend users in company`, async (t) => {
 	const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
@@ -1175,16 +1069,17 @@ test.serial(
 	},
 );
 
-currentTest = 'POST & GET /company/logo/:companyId';
-test.serial(`${currentTest} should create and return found company logo after creation`, async (t) => {
+// ---------------------------------------------------------------------------------------------
+// Plan 46 (2026-09-17): RocketAdmin is a free product. No member cap on FREE_PLAN companies, no
+// plan-driven suspension, and the white-label routes (logo / favicon / tab title) are gone.
+
+currentTest = 'plan 46 — RocketAdmin is free';
+test.serial(`${currentTest} a company invites a 4th, 5th … 7th member and nobody is suspended`, async (t) => {
 	const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
 	const {
 		connections,
-		firstTableInfo,
 		groups,
-		permissions,
-		secondTableInfo,
-		users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail, simpleUserPassword },
+		users: { adminUserToken },
 	} = testData;
 
 	const foundCompanyInfo = await request(app.getHttpServer())
@@ -1192,110 +1087,62 @@ test.serial(`${currentTest} should create and return found company logo after cr
 		.set('Content-Type', 'application/json')
 		.set('Cookie', adminUserToken)
 		.set('Accept', 'application/json');
-
 	t.is(foundCompanyInfo.status, 200);
-
 	const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+	let firstConnection = foundCompanyInfoRO.connections.find((connectionRO) => connections.firstId === connectionRO.id);
+	const createdGroup = firstConnection.groups.find((groupRO) => groupRO.id === groups.createdGroupId);
 
-	const testLogoPatch = join(process.cwd(), 'test', 'ava-tests', 'test-files', 'test_logo.png');
-	const downloadedLogoPatch = join(os.tmpdir(), `${foundCompanyInfoRO.id}_test_logo.png`);
+	// admin + first simple user already exist: five more invitations take the company to 7 members,
+	// well past the old 3-seat free cap. Every invitation must be accepted (a token comes back).
+	const additionalUsers: Array<{ email: string; password: string; token: string }> = [];
+	for (let i = 0; i < 5; i++) {
+		const invitationResult = await inviteUserInCompanyAndGroupAndAcceptInvitation(
+			adminUserToken,
+			'USER',
+			createdGroup.id,
+			app,
+		);
+		t.truthy(invitationResult.token, `invitation ${i + 1} must be accepted`);
+		additionalUsers.push(invitationResult);
+	}
 
-	const createLogoResponse = await request(app.getHttpServer())
-		.post(`/company/logo/${foundCompanyInfoRO.id}`)
-		.attach('file', testLogoPatch)
-		.set('Content-Type', 'image/png')
-		.set('Cookie', adminUserToken)
-		.set('Accept', 'image/png');
-
-	const _createLogoRO = JSON.parse(createLogoResponse.text);
-	t.is(createLogoResponse.status, 201);
-
-	const foundCompanyLogo = await request(app.getHttpServer())
-		.get(`/company/logo/${foundCompanyInfoRO.id}`)
-		.set('Content-Type', 'application/json')
-		.set('Cookie', adminUserToken)
-		.set('Accept', 'application/json');
-
-	t.is(foundCompanyLogo.status, 200);
-	const foundCompanyLogoRO = JSON.parse(foundCompanyLogo.text);
-	t.is(foundCompanyLogoRO.logo.mimeType, 'image/png');
-	t.is(foundCompanyLogoRO.logo.image.length > 0, true);
-	fs.writeFileSync(downloadedLogoPatch, foundCompanyLogoRO.logo.image);
-	const isFileExists = fs.existsSync(downloadedLogoPatch);
-
-	t.is(isFileExists, true);
-
-	// should return company logo for simple user
-
-	const foundCompanyLogoForSimpleUser = await request(app.getHttpServer())
-		.get(`/company/logo/${foundCompanyInfoRO.id}`)
-		.set('Content-Type', 'application/json')
-		.set('Cookie', simpleUserToken)
-		.set('Accept', 'application/json');
-
-	t.is(foundCompanyLogoForSimpleUser.status, 200);
-	const foundCompanyLogoForSimpleUserRO = JSON.parse(foundCompanyLogoForSimpleUser.text);
-	t.is(foundCompanyLogoForSimpleUserRO.logo.mimeType, 'image/png');
-	t.is(foundCompanyLogoForSimpleUserRO.logo.image.length > 0, true);
-
-	const downloadedLogoPatchForSimpleUser = join(os.tmpdir(), `${foundCompanyInfoRO.id}_simple_user_logo.png`);
-
-	fs.writeFileSync(downloadedLogoPatchForSimpleUser, foundCompanyLogoForSimpleUserRO.logo.image);
-	const isFileExistsForSimpleUser = fs.existsSync(downloadedLogoPatchForSimpleUser);
-	t.is(isFileExistsForSimpleUser, true);
-
-	//should return logo in full company info for admin
-	const foundCompanyInfoWithLogo = await request(app.getHttpServer())
+	const foundCompanyInfoWithAddedUsers = await request(app.getHttpServer())
 		.get('/company/my/full')
 		.set('Content-Type', 'application/json')
 		.set('Cookie', adminUserToken)
 		.set('Accept', 'application/json');
-
-	t.is(foundCompanyInfoWithLogo.status, 200);
-	const foundCompanyInfoWithLogoRO = JSON.parse(foundCompanyInfoWithLogo.text);
-	t.is(Object.hasOwn(foundCompanyInfoWithLogoRO, 'logo'), true);
-	t.is(foundCompanyInfoWithLogoRO.logo.mimeType, 'image/png');
-	t.is(foundCompanyInfoWithLogoRO.logo.image.length > 0, true);
-
-	const downloadedLogoPatchWithLogo = join(os.tmpdir(), `${foundCompanyInfoWithLogoRO.id}_admin_user_logo.png`);
-
-	fs.writeFileSync(downloadedLogoPatchWithLogo, foundCompanyInfoWithLogoRO.logo.image);
-	const isFileExistsWithLogo = fs.existsSync(downloadedLogoPatchWithLogo);
-	t.is(isFileExistsWithLogo, true);
-
-	//should return logo in full company info for simple user
-	const foundCompanyInfoWithLogoForSimpleUser = await request(app.getHttpServer())
-		.get('/company/my/full')
-		.set('Content-Type', 'application/json')
-		.set('Cookie', simpleUserToken)
-		.set('Accept', 'application/json');
-
-	t.is(foundCompanyInfoWithLogoForSimpleUser.status, 200);
-	const foundCompanyInfoWithLogoForSimpleUserRO = JSON.parse(foundCompanyInfoWithLogoForSimpleUser.text);
-	t.is(Object.hasOwn(foundCompanyInfoWithLogoForSimpleUserRO, 'logo'), true);
-	t.is(foundCompanyInfoWithLogoForSimpleUserRO.logo.mimeType, 'image/png');
-	t.is(foundCompanyInfoWithLogoForSimpleUserRO.logo.image.length > 0, true);
-
-	const downloadedLogoPatchForSimpleUserWithLogo = join(
-		os.tmpdir(),
-		`${foundCompanyInfoWithLogoForSimpleUserRO.id}_simple_user_logo.png`,
+	t.is(foundCompanyInfoWithAddedUsers.status, 200);
+	const foundCompanyInfoWithAddedUsersRO = JSON.parse(foundCompanyInfoWithAddedUsers.text);
+	firstConnection = foundCompanyInfoWithAddedUsersRO.connections.find(
+		(connectionRO) => connections.firstId === connectionRO.id,
 	);
+	const { users } = firstConnection.groups.find((groupRO) => groupRO.id === groups.createdGroupId);
+	t.is(users.length, 7);
+	for (const user of users) {
+		t.is(user.suspended, false);
+	}
 
-	fs.writeFileSync(downloadedLogoPatchForSimpleUserWithLogo, foundCompanyInfoWithLogoForSimpleUserRO.logo.image);
-	const isFileExistsForSimpleUserWithLogo = fs.existsSync(downloadedLogoPatchForSimpleUserWithLogo);
-	t.is(isFileExistsForSimpleUserWithLogo, true);
+	// The 7th member can use the API — nothing suspended them.
+	const lastUserConnections = await request(app.getHttpServer())
+		.get('/connections')
+		.set('Cookie', additionalUsers[additionalUsers.length - 1].token)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(lastUserConnections.status, 200);
+
+	// The company payload carries no white-label fields and a null custom domain.
+	t.is(foundCompanyInfoWithAddedUsersRO.custom_domain, null);
+	t.false(Object.hasOwn(foundCompanyInfoWithAddedUsersRO, 'logo'));
+	t.false(Object.hasOwn(foundCompanyInfoWithAddedUsersRO, 'favicon'));
+	t.false(Object.hasOwn(foundCompanyInfoWithAddedUsersRO, 'tab_title'));
 });
 
-currentTest = 'POST & GET /company/favicon/:companyId';
-test.serial(`${currentTest} should create and return found company favicon after creation`, async (t) => {
+test.serial(`${currentTest} unsuspending past 3 members is allowed`, async (t) => {
 	const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
 	const {
 		connections,
-		firstTableInfo,
 		groups,
-		permissions,
-		secondTableInfo,
-		users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail, simpleUserPassword },
+		users: { adminUserToken },
 	} = testData;
 
 	const foundCompanyInfo = await request(app.getHttpServer())
@@ -1303,276 +1150,90 @@ test.serial(`${currentTest} should create and return found company favicon after
 		.set('Content-Type', 'application/json')
 		.set('Cookie', adminUserToken)
 		.set('Accept', 'application/json');
-
-	t.is(foundCompanyInfo.status, 200);
-
 	const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+	const firstConnection = foundCompanyInfoRO.connections.find(
+		(connectionRO) => connections.firstId === connectionRO.id,
+	);
+	const createdGroup = firstConnection.groups.find((groupRO) => groupRO.id === groups.createdGroupId);
 
-	const testFaviconPatch = join(process.cwd(), 'test', 'ava-tests', 'test-files', 'test_logo.png');
-	const downloadedFaviconPatch = join(os.tmpdir(), `${foundCompanyInfoRO.id}_test_favicon.png`);
+	const invitedEmails: Array<string> = [];
+	for (let i = 0; i < 4; i++) {
+		const invitationResult = await inviteUserInCompanyAndGroupAndAcceptInvitation(
+			adminUserToken,
+			'USER',
+			createdGroup.id,
+			app,
+		);
+		invitedEmails.push(invitationResult.email);
+	}
 
-	const createFaviconResponse = await request(app.getHttpServer())
-		.post(`/company/favicon/${foundCompanyInfoRO.id}`)
-		.attach('file', testFaviconPatch)
-		.set('Content-Type', 'image/png')
-		.set('Cookie', adminUserToken)
-		.set('Accept', 'image/png');
-
-	const _createFaviconRO = JSON.parse(createFaviconResponse.text);
-	t.is(createFaviconResponse.status, 201);
-
-	const foundCompanyFavicon = await request(app.getHttpServer())
-		.get(`/company/favicon/${foundCompanyInfoRO.id}`)
+	const suspendUsersResult = await request(app.getHttpServer())
+		.put(`/company/users/suspend/${foundCompanyInfoRO.id}`)
+		.send({ usersEmails: invitedEmails })
 		.set('Content-Type', 'application/json')
 		.set('Cookie', adminUserToken)
 		.set('Accept', 'application/json');
+	t.is(suspendUsersResult.status, 200);
 
-	t.is(foundCompanyFavicon.status, 200);
-	const foundCompanyFaviconRO = JSON.parse(foundCompanyFavicon.text);
-	t.is(foundCompanyFaviconRO.favicon.mimeType, 'image/png');
-	t.is(foundCompanyFaviconRO.favicon.image.length > 0, true);
-	fs.writeFileSync(downloadedFaviconPatch, foundCompanyFaviconRO.favicon.image);
-	const isFileExists = fs.existsSync(downloadedFaviconPatch);
-
-	t.is(isFileExists, true);
-
-	// should return company favicon for simple user
-
-	const foundCompanyFaviconForSimpleUser = await request(app.getHttpServer())
-		.get(`/company/favicon/${foundCompanyInfoRO.id}`)
+	// 2 active + 4 suspended → unsuspend all 4 (would have exceeded the old free cap of 3).
+	const unsuspendUsersResult = await request(app.getHttpServer())
+		.put(`/company/users/unsuspend/${foundCompanyInfoRO.id}`)
+		.send({ usersEmails: invitedEmails })
 		.set('Content-Type', 'application/json')
-		.set('Cookie', simpleUserToken)
+		.set('Cookie', adminUserToken)
 		.set('Accept', 'application/json');
+	t.is(unsuspendUsersResult.status, 200, unsuspendUsersResult.text);
 
-	t.is(foundCompanyFaviconForSimpleUser.status, 200);
-	const foundCompanyFaviconForSimpleUserRO = JSON.parse(foundCompanyFaviconForSimpleUser.text);
-	t.is(foundCompanyFaviconForSimpleUserRO.favicon.mimeType, 'image/png');
-	t.is(foundCompanyFaviconForSimpleUserRO.favicon.image.length > 0, true);
-
-	const downloadedFaviconPatchForSimpleUser = join(os.tmpdir(), `${foundCompanyInfoRO.id}_simple_user_favicon.png`);
-
-	fs.writeFileSync(downloadedFaviconPatchForSimpleUser, foundCompanyFaviconForSimpleUserRO.favicon.image);
-	const isFileExistsForSimpleUser = fs.existsSync(downloadedFaviconPatchForSimpleUser);
-	t.is(isFileExistsForSimpleUser, true);
-
-	//should return favicon in full company info for admin
-	const foundCompanyInfoWithFavicon = await request(app.getHttpServer())
+	const foundCompanyInfoAfter = await request(app.getHttpServer())
 		.get('/company/my/full')
 		.set('Content-Type', 'application/json')
 		.set('Cookie', adminUserToken)
 		.set('Accept', 'application/json');
-
-	t.is(foundCompanyInfoWithFavicon.status, 200);
-	const foundCompanyInfoWithFaviconRO = JSON.parse(foundCompanyInfoWithFavicon.text);
-	t.is(Object.hasOwn(foundCompanyInfoWithFaviconRO, 'favicon'), true);
-	t.is(foundCompanyInfoWithFaviconRO.favicon.mimeType, 'image/png');
-	t.is(foundCompanyInfoWithFaviconRO.favicon.image.length > 0, true);
-
-	const downloadedFaviconPatchWithFavicon = join(
-		os.tmpdir(),
-		`${foundCompanyInfoWithFaviconRO.id}_admin_user_favicon.png`,
+	const foundCompanyInfoAfterRO = JSON.parse(foundCompanyInfoAfter.text);
+	const connectionAfter = foundCompanyInfoAfterRO.connections.find(
+		(connectionRO) => connections.firstId === connectionRO.id,
 	);
-
-	fs.writeFileSync(downloadedFaviconPatchWithFavicon, foundCompanyInfoWithFaviconRO.favicon.image);
-	const isFileExistsWithFavicon = fs.existsSync(downloadedFaviconPatchWithFavicon);
-	t.is(isFileExistsWithFavicon, true);
-
-	//should return favicon in full company info for simple user
-	const foundCompanyInfoWithFaviconForSimpleUser = await request(app.getHttpServer())
-		.get('/company/my/full')
-		.set('Content-Type', 'application/json')
-		.set('Cookie', simpleUserToken)
-		.set('Accept', 'application/json');
-
-	t.is(foundCompanyInfoWithFaviconForSimpleUser.status, 200);
-	const foundCompanyInfoWithFaviconForSimpleUserRO = JSON.parse(foundCompanyInfoWithFaviconForSimpleUser.text);
-	t.is(Object.hasOwn(foundCompanyInfoWithFaviconForSimpleUserRO, 'favicon'), true);
-	t.is(foundCompanyInfoWithFaviconForSimpleUserRO.favicon.mimeType, 'image/png');
-	t.is(foundCompanyInfoWithFaviconForSimpleUserRO.favicon.image.length > 0, true);
-
-	const downloadedFaviconPatchForSimpleUserWithFavicon = join(
-		os.tmpdir(),
-		`${foundCompanyInfoWithFaviconForSimpleUserRO.id}_simple_user_favicon.png`,
-	);
-
-	fs.writeFileSync(
-		downloadedFaviconPatchForSimpleUserWithFavicon,
-		foundCompanyInfoWithFaviconForSimpleUserRO.favicon.image,
-	);
-	const isFileExistsForSimpleUserWithFavicon = fs.existsSync(downloadedFaviconPatchForSimpleUserWithFavicon);
-	t.is(isFileExistsForSimpleUserWithFavicon, true);
+	const { users } = connectionAfter.groups.find((groupRO) => groupRO.id === groups.createdGroupId);
+	t.is(users.filter((user: any) => user.suspended).length, 0);
 });
 
-currentTest = 'POST & GET /company/tab-title/:companyId';
-test.serial(`${currentTest} should create and return found company tab title after creation`, async (t) => {
+test.serial(`${currentTest} white-label routes no longer exist (404); the properties stub answers empty`, async (t) => {
 	const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
 	const {
-		connections,
-		firstTableInfo,
-		groups,
-		permissions,
-		secondTableInfo,
-		users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail, simpleUserPassword },
+		users: { adminUserToken },
 	} = testData;
-
 	const foundCompanyInfo = await request(app.getHttpServer())
-		.get('/company/my/full')
+		.get('/company/my')
 		.set('Content-Type', 'application/json')
 		.set('Cookie', adminUserToken)
 		.set('Accept', 'application/json');
-
 	t.is(foundCompanyInfo.status, 200);
+	const companyId = JSON.parse(foundCompanyInfo.text).id;
 
-	const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+	const retiredRoutes: Array<{ method: 'get' | 'post' | 'delete'; path: string }> = [
+		{ method: 'post', path: `/company/logo/${companyId}` },
+		{ method: 'get', path: `/company/logo/${companyId}` },
+		{ method: 'delete', path: `/company/logo/${companyId}` },
+		{ method: 'post', path: `/company/favicon/${companyId}` },
+		{ method: 'get', path: `/company/favicon/${companyId}` },
+		{ method: 'delete', path: `/company/favicon/${companyId}` },
+		{ method: 'post', path: `/company/tab-title/${companyId}` },
+		{ method: 'get', path: `/company/tab-title/${companyId}` },
+		{ method: 'delete', path: `/company/tab-title/${companyId}` },
+	];
+	for (const route of retiredRoutes) {
+		const result = await request(app.getHttpServer())
+			[route.method](route.path)
+			.set('Cookie', adminUserToken)
+			.set('Accept', 'application/json');
+		t.is(result.status, 404, `${route.method.toUpperCase()} ${route.path}: ${result.text}`);
+	}
 
-	const newTabTitle = `${faker.company.name()}_${faker.word.noun()}`;
-	const addCompanyTabTitleResponse = await request(app.getHttpServer())
-		.post(`/company/tab-title/${foundCompanyInfoRO.id}`)
-		.send({
-			tab_title: newTabTitle,
-		})
-		.set('Content-Type', 'application/json')
+	// TEMPORARY stub for the deployed Angular shell: always empty, never 404.
+	const whiteLabel = await request(app.getHttpServer())
+		.get(`/company/white-label-properties/${companyId}`)
 		.set('Cookie', adminUserToken)
 		.set('Accept', 'application/json');
-
-	t.is(addCompanyTabTitleResponse.status, 201);
-
-	const foundCompanyInfoAfterUpdate = await request(app.getHttpServer())
-		.get('/company/my/full')
-		.set('Content-Type', 'application/json')
-		.set('Cookie', adminUserToken)
-		.set('Accept', 'application/json');
-
-	t.is(foundCompanyInfoAfterUpdate.status, 200);
-	const foundCompanyInfoROAfterUpdate = JSON.parse(foundCompanyInfoAfterUpdate.text);
-	t.is(Object.hasOwn(foundCompanyInfoROAfterUpdate, 'tab_title'), true);
-	t.is(foundCompanyInfoROAfterUpdate.tab_title, newTabTitle);
-
-	const foundCompanyTabTitle = await request(app.getHttpServer())
-		.get(`/company/tab-title/${foundCompanyInfoRO.id}`)
-		.set('Content-Type', 'application/json')
-		.set('Cookie', adminUserToken)
-		.set('Accept', 'application/json');
-
-	t.is(foundCompanyTabTitle.status, 200);
-	const foundCompanyTabTitleRO = JSON.parse(foundCompanyTabTitle.text);
-	t.is(Object.hasOwn(foundCompanyTabTitleRO, 'tab_title'), true);
-	t.is(foundCompanyTabTitleRO.tab_title, newTabTitle);
-
-	//should return tab title in full company info for simple user
-
-	const foundCompanyTabTitleForSimpleUser = await request(app.getHttpServer())
-		.get(`/company/tab-title/${foundCompanyInfoRO.id}`)
-		.set('Content-Type', 'application/json')
-		.set('Cookie', simpleUserToken)
-		.set('Accept', 'application/json');
-
-	t.is(foundCompanyTabTitleForSimpleUser.status, 200);
-	const foundCompanyTabTitleForSimpleUserRO = JSON.parse(foundCompanyTabTitleForSimpleUser.text);
-	t.is(Object.hasOwn(foundCompanyTabTitleForSimpleUserRO, 'tab_title'), true);
-	t.is(foundCompanyTabTitleForSimpleUserRO.tab_title, newTabTitle);
-});
-
-currentTest = 'GET /company/white-label-properties/:companyId';
-test.serial(`${currentTest} should return found company white label properties for company admin user`, async (t) => {
-	const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
-	const {
-		connections,
-		firstTableInfo,
-		groups,
-		permissions,
-		secondTableInfo,
-		users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail, simpleUserPassword },
-	} = testData;
-
-	const foundCompanyInfo = await request(app.getHttpServer())
-		.get('/company/my/full')
-		.set('Content-Type', 'application/json')
-		.set('Cookie', adminUserToken)
-		.set('Accept', 'application/json');
-
-	t.is(foundCompanyInfo.status, 200);
-
-	const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
-
-	// crete company logo
-	const testLogoPatch = join(process.cwd(), 'test', 'ava-tests', 'test-files', 'test_logo.png');
-	const _downloadedLogoPatch = join(os.tmpdir(), `${foundCompanyInfoRO.id}_test_logo.png`);
-
-	const createLogoResponse = await request(app.getHttpServer())
-		.post(`/company/logo/${foundCompanyInfoRO.id}`)
-		.attach('file', testLogoPatch)
-		.set('Content-Type', 'image/png')
-		.set('Cookie', adminUserToken)
-		.set('Accept', 'image/png');
-
-	const _createLogoRO = JSON.parse(createLogoResponse.text);
-	t.is(createLogoResponse.status, 201);
-
-	// crete company favicon
-	const testFaviconPatch = join(process.cwd(), 'test', 'ava-tests', 'test-files', 'test_logo.png');
-	const _downloadedFaviconPatch = join(os.tmpdir(), `${foundCompanyInfoRO.id}_test_favicon.png`);
-
-	const createFaviconResponse = await request(app.getHttpServer())
-		.post(`/company/favicon/${foundCompanyInfoRO.id}`)
-		.attach('file', testFaviconPatch)
-		.set('Content-Type', 'image/png')
-		.set('Cookie', adminUserToken)
-		.set('Accept', 'image/png');
-
-	const _createFaviconRO = JSON.parse(createFaviconResponse.text);
-	t.is(createFaviconResponse.status, 201);
-
-	// crete company tab title
-	const newTabTitle = `${faker.company.name()}_${faker.word.noun()}`;
-	const addCompanyTabTitleResponse = await request(app.getHttpServer())
-		.post(`/company/tab-title/${foundCompanyInfoRO.id}`)
-		.send({
-			tab_title: newTabTitle,
-		})
-		.set('Content-Type', 'application/json')
-		.set('Cookie', adminUserToken)
-		.set('Accept', 'application/json');
-
-	t.is(addCompanyTabTitleResponse.status, 201);
-
-	// should return all white label properties for company
-
-	const foundCompanyWhiteLabelProperties = await request(app.getHttpServer())
-		.get(`/company/white-label-properties/${foundCompanyInfoRO.id}`)
-		.set('Content-Type', 'application/json')
-		.set('Cookie', adminUserToken)
-		.set('Accept', 'application/json');
-
-	t.is(foundCompanyWhiteLabelProperties.status, 200);
-	const foundCompanyWhiteLabelPropertiesRO = JSON.parse(foundCompanyWhiteLabelProperties.text);
-	t.is(Object.hasOwn(foundCompanyWhiteLabelPropertiesRO, 'logo'), true);
-	t.is(Object.hasOwn(foundCompanyWhiteLabelPropertiesRO, 'favicon'), true);
-	t.is(Object.hasOwn(foundCompanyWhiteLabelPropertiesRO, 'tab_title'), true);
-	t.is(foundCompanyWhiteLabelPropertiesRO.logo.mimeType, 'image/png');
-	t.is(foundCompanyWhiteLabelPropertiesRO.logo.image.length > 0, true);
-	t.is(foundCompanyWhiteLabelPropertiesRO.favicon.mimeType, 'image/png');
-	t.is(foundCompanyWhiteLabelPropertiesRO.favicon.image.length > 0, true);
-	t.is(foundCompanyWhiteLabelPropertiesRO.tab_title, newTabTitle);
-
-	//should return all white label properties for simple user
-
-	const foundCompanyWhiteLabelPropertiesForSimpleUser = await request(app.getHttpServer())
-		.get(`/company/white-label-properties/${foundCompanyInfoRO.id}`)
-		.set('Content-Type', 'application/json')
-		.set('Cookie', simpleUserToken)
-		.set('Accept', 'application/json');
-
-	t.is(foundCompanyWhiteLabelPropertiesForSimpleUser.status, 200);
-	const foundCompanyWhiteLabelPropertiesForSimpleUserRO = JSON.parse(
-		foundCompanyWhiteLabelPropertiesForSimpleUser.text,
-	);
-	t.is(Object.hasOwn(foundCompanyWhiteLabelPropertiesForSimpleUserRO, 'logo'), true);
-	t.is(Object.hasOwn(foundCompanyWhiteLabelPropertiesForSimpleUserRO, 'favicon'), true);
-	t.is(Object.hasOwn(foundCompanyWhiteLabelPropertiesForSimpleUserRO, 'tab_title'), true);
-	t.is(foundCompanyWhiteLabelPropertiesForSimpleUserRO.logo.mimeType, 'image/png');
-	t.is(foundCompanyWhiteLabelPropertiesForSimpleUserRO.logo.image.length > 0, true);
-	t.is(foundCompanyWhiteLabelPropertiesForSimpleUserRO.favicon.mimeType, 'image/png');
-	t.is(foundCompanyWhiteLabelPropertiesForSimpleUserRO.favicon.image.length > 0, true);
-	t.is(foundCompanyWhiteLabelPropertiesForSimpleUserRO.tab_title, newTabTitle);
+	t.is(whiteLabel.status, 200, whiteLabel.text);
+	t.deepEqual(JSON.parse(whiteLabel.text), { logo: null, favicon: null, tab_title: null, subscriptionLevel: null });
 });

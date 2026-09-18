@@ -1,4 +1,3 @@
-import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { CompanyInfoEntity } from '../company-info.entity.js';
 
 export interface ICompanyInfoRepository {
@@ -17,16 +16,4 @@ export interface ICompanyInfoRepository {
 	findCompanyInfosByUserEmail(userEmail: string): Promise<CompanyInfoEntity[]>;
 
 	findUserCompanyWithUsers(userId: string): Promise<CompanyInfoEntity>;
-
-	findCompaniesPaidConnections(companyIds: Array<string>): Promise<ConnectionEntity[]>;
-
-	findCompanyFrozenPaidConnections(companyIds: Array<string>): Promise<Array<ConnectionEntity>>;
-
-	findCompanyWithLogo(companyId: string): Promise<CompanyInfoEntity>;
-
-	findCompanyWithFavicon(companyId: string): Promise<CompanyInfoEntity>;
-
-	findCompanyWithTabTitle(companyId: string): Promise<CompanyInfoEntity>;
-
-	findCompanyWithWhiteLabelProperties(companyId: string): Promise<CompanyInfoEntity>;
 }

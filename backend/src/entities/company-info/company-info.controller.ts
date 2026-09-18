@@ -9,18 +9,15 @@ import {
 	Inject,
 	Injectable,
 	Param,
-	ParseFilePipeBuilder,
 	Post,
 	Put,
 	Query,
 	Req,
 	Res,
-	UploadedFile,
 	UseGuards,
 	UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
@@ -31,7 +28,6 @@ import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { CompanyAdminGuard } from '../../guards/company-admin.guard.js';
 import { CompanyUserGuard } from '../../guards/company-user.guard.js';
-import { PaidFeatureGuard } from '../../guards/paid-feature.guard.js';
 import { isTest } from '../../helpers/app/is-test.js';
 import { Constants } from '../../helpers/constants/constants.js';
 import { ValidationHelper } from '../../helpers/validators/validation-helper.js';
@@ -41,19 +37,19 @@ import { TurnstileService } from '../../shared/services/turnstile.service.js';
 import { SimpleFoundUserInCompanyInfoDs } from '../user/dto/found-user.dto.js';
 import { ITokenExp } from '../user/utils/generate-gwt-token.js';
 import { getCookieDomainOptions } from '../user/utils/get-cookie-domain-options.js';
-import { AddCompanyTabTitleDto } from './application/data-structures/add-company-tab-title.dto.js';
 import {
 	FoundUserCompanyInfoDs,
 	FoundUserEmailCompaniesInfoDs,
 	FoundUserFullCompanyInfoDs,
 } from './application/data-structures/found-company-info.ds.js';
 import { FoundCompanyNameDs } from './application/data-structures/found-company-name.ds.js';
-import { FoundCompanyTabTitleRO } from './application/data-structures/found-company-tab-title.ro.js';
 import { InvitedUserInCompanyAndConnectionGroupDs } from './application/data-structures/invited-user-in-company-and-connection-group.ds.js';
 import { ToggleTestConnectionDisplayModeDs } from './application/data-structures/toggle-test-connections-display-mode.ds.js';
 import { UpdateUsers2faStatusInCompanyDs } from './application/data-structures/update-users-2fa-status-in-company.ds.js';
-import { FoundCompanyFaviconRO, FoundCompanyLogoRO } from './application/dto/found-company-logo.ro.js';
-import { FoundCompanyWhiteLabelPropertiesRO } from './application/dto/found-company-white-label-properties.ro.js';
+import {
+	EMPTY_WHITE_LABEL_PROPERTIES,
+	FoundCompanyWhiteLabelPropertiesRO,
+} from './application/dto/found-company-white-label-properties.ro.js';
 import { InviteUserInCompanyAndConnectionGroupDto } from './application/dto/invite-user-in-company-and-connection-group.dto.js';
 import { RevokeInvitationRequestDto } from './application/dto/revoke-invitation-request.dto.js';
 import { SuspendUsersInCompanyDto } from './application/dto/suspend-users-in-company.dto.js';
@@ -63,16 +59,9 @@ import { UpdateUsers2faStatusInCompanyDto } from './application/dto/update-users
 import { UpdateUsersRolesRequestDto } from './application/dto/update-users-roles-resuest.dto.js';
 import { VerifyCompanyInvitationRequestDto } from './application/dto/verify-company-invitation-request-dto.js';
 import {
-	IAddCompanyTabTitle,
 	ICheckVerificationLinkAvailable,
 	IDeleteCompany,
-	IDeleteCompanyTabTitle,
-	IDeleteCompanyWhiteLabelImages,
-	IFindCompanyFavicon,
-	IFindCompanyLogo,
-	IFindCompanyTabTitle,
 	IGetCompanyName,
-	IGetCompanyWhiteLabelProperties,
 	IGetUserCompany,
 	IGetUserEmailCompanies,
 	IGetUserFullCompanyInfo,
@@ -86,7 +75,6 @@ import {
 	IUpdateCompanyName,
 	IUpdateUsers2faStatusInCompany,
 	IUpdateUsersCompanyRoles,
-	IUploadCompanyWhiteLabelImages,
 	IVerifyInviteUserInCompanyAndConnectionGroup,
 } from './use-cases/company-info-use-cases.interface.js';
 
@@ -132,26 +120,6 @@ export class CompanyInfoController {
 		private readonly unSuspendUsersInCompanyUseCase: IUnsuspendUsersInCompany,
 		@Inject(UseCaseType.TOGGLE_TEST_CONNECTIONS_DISPLAY_MODE_IN_COMPANY)
 		private readonly toggleTestConnectionsCompanyDisplayModeUseCase: IToggleCompanyTestConnectionsMode,
-		@Inject(UseCaseType.UPLOAD_COMPANY_LOGO)
-		private readonly uploadCompanyLogoUseCase: IUploadCompanyWhiteLabelImages,
-		@Inject(UseCaseType.FIND_COMPANY_LOGO)
-		private readonly findCompanyLogoUseCase: IFindCompanyLogo,
-		@Inject(UseCaseType.DELETE_COMPANY_LOGO)
-		private readonly deleteCompanyLogoUseCase: IDeleteCompanyWhiteLabelImages,
-		@Inject(UseCaseType.UPLOAD_COMPANY_FAVICON)
-		private readonly uploadCompanyFaviconUseCase: IUploadCompanyWhiteLabelImages,
-		@Inject(UseCaseType.FIND_COMPANY_FAVICON)
-		private readonly findCompanyFaviconUseCase: IFindCompanyFavicon,
-		@Inject(UseCaseType.DELETE_COMPANY_FAVICON)
-		private readonly deleteCompanyFaviconUseCase: IDeleteCompanyWhiteLabelImages,
-		@Inject(UseCaseType.ADD_COMPANY_TAB_TITLE)
-		private readonly addCompanyTabTitleUseCase: IAddCompanyTabTitle,
-		@Inject(UseCaseType.FIND_COMPANY_TAB_TITLE)
-		private readonly findCompanyTabTitleUseCase: IFindCompanyTabTitle,
-		@Inject(UseCaseType.DELETE_COMPANY_TAB_TITLE)
-		private readonly deleteCompanyTabTitleUseCase: IDeleteCompanyTabTitle,
-		@Inject(UseCaseType.GET_COMPANY_WHITE_LABEL_PROPERTIES)
-		private readonly findCompanyWhiteLabelPropertiesUseCase: IGetCompanyWhiteLabelProperties,
 		private readonly turnstileService: TurnstileService,
 	) {}
 
@@ -503,166 +471,18 @@ export class CompanyInfoController {
 		return await this.unSuspendUsersInCompanyUseCase.execute({ companyInfoId, usersEmails }, InTransactionEnum.ON);
 	}
 
-	@ApiOperation({ summary: 'Upload company logo' })
-	@ApiResponse({
-		status: 201,
-		description: 'Company logo was uploaded.',
-		type: SuccessResponse,
-	})
-	@ApiParam({ name: 'companyId', required: true })
-	@UseGuards(CompanyAdminGuard, PaidFeatureGuard)
-	@Post('/logo/:companyId')
-	@UseInterceptors(FileInterceptor('file'))
-	async uploadCompanyLogo(
-		@SlugUuid('companyId') companyId: string,
-		@UploadedFile(
-			new ParseFilePipeBuilder()
-				.addFileTypeValidator({ fileType: /image\/(png|jpeg|jpg|svg\+xml)/, skipMagicNumbersValidation: true })
-				.addMaxSizeValidator({ maxSize: Constants.MAX_COMPANY_LOGO_SIZE })
-				.build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
-		)
-		file: Express.Multer.File,
-	): Promise<SuccessResponse> {
-		if (!file) {
-			throw new BadRequestException(Messages.FILE_MISSING);
-		}
-		return await this.uploadCompanyLogoUseCase.execute({ companyId, file }, InTransactionEnum.OFF);
-	}
-
-	@ApiOperation({ summary: 'Find company logo' })
+	// TEMPORARY (plan 46): white label is retired; the deployed Angular shell still requests this on
+	// every load, so answer with empty properties (default logo / favicon / title) instead of a 404.
+	// Remove once the frontend stops calling it. No use case, no database access.
+	@ApiOperation({ summary: '[temporary] Company white label properties — always empty (white label retired)' })
 	@ApiResponse({
 		status: 200,
-		description: 'Company logo found.',
-		type: FoundCompanyLogoRO,
-	})
-	@ApiParam({ name: 'companyId', required: true })
-	@UseGuards(CompanyUserGuard)
-	@Get('/logo/:companyId')
-	async findCompanyLogo(@SlugUuid('companyId') companyId: string): Promise<FoundCompanyLogoRO> {
-		return await this.findCompanyLogoUseCase.execute(companyId, InTransactionEnum.OFF);
-	}
-
-	@ApiOperation({ summary: 'Delete company logo' })
-	@ApiResponse({
-		status: 200,
-		description: 'Company logo deleted.',
-		type: SuccessResponse,
-	})
-	@ApiParam({ name: 'companyId', required: true })
-	@UseGuards(CompanyAdminGuard)
-	@Delete('/logo/:companyId')
-	async deleteCompanyLogo(@SlugUuid('companyId') companyId: string): Promise<SuccessResponse> {
-		return await this.deleteCompanyLogoUseCase.execute(companyId, InTransactionEnum.OFF);
-	}
-
-	@ApiOperation({ summary: 'Upload company favicon' })
-	@ApiResponse({
-		status: 201,
-		description: 'Company favicon was uploaded.',
-		type: SuccessResponse,
-	})
-	@ApiParam({ name: 'companyId', required: true })
-	@UseGuards(CompanyAdminGuard, PaidFeatureGuard)
-	@Post('/favicon/:companyId')
-	@UseInterceptors(FileInterceptor('file'))
-	async uploadCompanyFavicon(
-		@SlugUuid('companyId') companyId: string,
-		@UploadedFile(
-			new ParseFilePipeBuilder()
-				.addFileTypeValidator({ fileType: /image\/(png|jpeg|jpg|svg\+xml)/, skipMagicNumbersValidation: true })
-				.addMaxSizeValidator({ maxSize: Constants.MAX_COMPANY_FAVICON_SIZE })
-				.build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
-		)
-		file: Express.Multer.File,
-	): Promise<SuccessResponse> {
-		if (!file) {
-			throw new BadRequestException(Messages.FILE_MISSING);
-		}
-		return await this.uploadCompanyFaviconUseCase.execute({ companyId, file }, InTransactionEnum.OFF);
-	}
-
-	@ApiOperation({ summary: 'Find company favicon' })
-	@ApiResponse({
-		status: 200,
-		description: 'Company favicon found.',
-		type: FoundCompanyFaviconRO,
-	})
-	@ApiParam({ name: 'companyId', required: true })
-	@UseGuards(CompanyUserGuard)
-	@Get('/favicon/:companyId')
-	async findCompanyFavicon(@SlugUuid('companyId') companyId: string): Promise<FoundCompanyFaviconRO> {
-		return await this.findCompanyFaviconUseCase.execute(companyId, InTransactionEnum.OFF);
-	}
-
-	@ApiOperation({ summary: 'Delete company favicon' })
-	@ApiResponse({
-		status: 200,
-		description: 'Company favicon deleted.',
-		type: SuccessResponse,
-	})
-	@ApiParam({ name: 'companyId', required: true })
-	@UseGuards(CompanyAdminGuard)
-	@Delete('/favicon/:companyId')
-	async deleteCompanyFavicon(@SlugUuid('companyId') companyId: string): Promise<SuccessResponse> {
-		return await this.deleteCompanyFaviconUseCase.execute(companyId, InTransactionEnum.OFF);
-	}
-
-	@ApiOperation({ summary: 'Add company tab title' })
-	@ApiResponse({
-		status: 200,
-		description: 'Company tab title added.',
-		type: SuccessResponse,
-	})
-	@ApiBody({ type: AddCompanyTabTitleDto })
-	@ApiParam({ name: 'companyId', required: true })
-	@UseGuards(CompanyAdminGuard, PaidFeatureGuard)
-	@Post('/tab-title/:companyId')
-	async addCompanyTabTitle(
-		@SlugUuid('companyId') companyId: string,
-		@Body() addCompanyTabTitleDto: AddCompanyTabTitleDto,
-	): Promise<SuccessResponse> {
-		const { tab_title } = addCompanyTabTitleDto;
-		return await this.addCompanyTabTitleUseCase.execute({ companyId, tab_title }, InTransactionEnum.OFF);
-	}
-
-	@ApiOperation({ summary: 'Find company tab title' })
-	@ApiResponse({
-		status: 200,
-		description: 'Company tab title found.',
-		type: FoundCompanyTabTitleRO,
-	})
-	@ApiParam({ name: 'companyId', required: true })
-	@UseGuards(CompanyUserGuard)
-	@Get('/tab-title/:companyId')
-	async findCompanyTabTitle(@SlugUuid('companyId') companyId: string): Promise<FoundCompanyTabTitleRO> {
-		return await this.findCompanyTabTitleUseCase.execute(companyId, InTransactionEnum.OFF);
-	}
-
-	@ApiOperation({ summary: 'Delete company tab title' })
-	@ApiResponse({
-		status: 200,
-		description: 'Company tab title deleted.',
-		type: SuccessResponse,
-	})
-	@ApiParam({ name: 'companyId', required: true })
-	@UseGuards(CompanyAdminGuard)
-	@Delete('/tab-title/:companyId')
-	async deleteCompanyTabTitle(@SlugUuid('companyId') companyId: string): Promise<SuccessResponse> {
-		return await this.deleteCompanyTabTitleUseCase.execute(companyId, InTransactionEnum.OFF);
-	}
-
-	@ApiOperation({ summary: 'Get company white label properties' })
-	@ApiResponse({
-		status: 200,
-		description: 'Company white label properties found.',
+		description: 'Empty white label properties.',
 		type: FoundCompanyWhiteLabelPropertiesRO,
 	})
-	@ApiParam({ name: 'companyId', required: true })
 	@UseGuards(CompanyUserGuard)
 	@Get('/white-label-properties/:companyId')
-	async getCompanyWhiteLabelProperties(
-		@SlugUuid('companyId') companyId: string,
-	): Promise<FoundCompanyWhiteLabelPropertiesRO> {
-		return await this.findCompanyWhiteLabelPropertiesUseCase.execute(companyId, InTransactionEnum.OFF);
+	getCompanyWhiteLabelProperties(@SlugUuid('companyId') _companyId: string): FoundCompanyWhiteLabelPropertiesRO {
+		return { ...EMPTY_WHITE_LABEL_PROPERTIES };
 	}
 }

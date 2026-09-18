@@ -23,7 +23,6 @@ import {
 	registerUserAndReturnUserInfo,
 	registerUserOnSaasAndReturnUserInfo,
 } from '../../utils/register-user-and-return-user-info.js';
-import { sendRequestToSaasPart } from '../../utils/send-request-to-saas-part.util.js';
 import { TestUtils } from '../../utils/test.utils.js';
 
 let app: INestApplication;
@@ -75,7 +74,7 @@ test.serial(`${currentTest} should user info for this user`, async (t) => {
 		.set('Accept', 'application/json');
 	const getUserRO: IUserInfo = JSON.parse(getUserResult.text);
 
-	t.is(getUserRO.isActive, false);
+	t.is(getUserRO.isActive, true); // the saas test helper completes email verification
 	t.is(getUserRO.email, adminUserRegisterInfo.email.toLowerCase());
 	t.is(Object.hasOwn(getUserRO, 'createdAt'), true);
 	t.pass();
@@ -343,7 +342,7 @@ test.serial(`${currentTest} should toggle test connections display mode`, async 
 });
 
 test.serial(
-	`${currentTest} should throw exception when user login with company id from custom domain (domain not added)`,
+	`${currentTest} should throw exception when user logs in from an unknown request domain (custom domains retired, plan 46)`,
 	async (t) => {
 		const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
 		const { email, password } = adminUserRegisterInfo;
@@ -374,56 +373,6 @@ test.serial(
 		t.pass();
 	},
 );
-
-test.skip(`${currentTest} should login user successfully with company id from custom domain (is added)`, async (t) => {
-	const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
-	const { email, password, token } = adminUserRegisterInfo;
-
-	const foundCompanyInfos = await request(app.getHttpServer())
-		.get(`/company/my/email/${email}`)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-
-	const foundCompanyInfosRO = JSON.parse(foundCompanyInfos.text);
-	const companyId = foundCompanyInfosRO[0].id;
-
-	const loginBodyRequest = {
-		email,
-		password,
-		companyId,
-	};
-
-	const customDomain = faker.internet.domainName();
-	const requestDomainData = {
-		hostname: customDomain,
-	};
-
-	const registerDomainResponse = await sendRequestToSaasPart(
-		`custom-domain/register/${companyId}`,
-		'POST',
-		requestDomainData,
-		token,
-	);
-	t.is(registerDomainResponse.status, 201);
-	const registerDomainResponseRO = await registerDomainResponse.json();
-
-	t.is(registerDomainResponseRO.hostname, customDomain);
-	t.is(registerDomainResponseRO.companyId, companyId);
-	t.is(Object.hasOwn(registerDomainResponseRO, 'id'), true);
-	t.is(Object.hasOwn(registerDomainResponseRO, 'createdAt'), true);
-	t.is(Object.keys(registerDomainResponseRO).length, 5);
-
-	delete loginBodyRequest.companyId;
-	const loginUserResult = await request(app.getHttpServer())
-		.post('/user/login/')
-		.send(loginBodyRequest)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json')
-		.set('Host', customDomain);
-
-	t.is(loginUserResult.status, 201);
-	t.pass();
-});
 
 currentTest = 'POST /user/demo/register';
 test.serial(`${currentTest} should register demo user`, async (t) => {

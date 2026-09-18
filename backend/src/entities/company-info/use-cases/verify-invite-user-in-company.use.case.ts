@@ -4,7 +4,6 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
-import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { generateGwtToken } from '../../user/utils/generate-gwt-token.js';
 import { get2FaScope } from '../../user/utils/is-jwt-scope-need.util.js';
 import {
@@ -21,7 +20,6 @@ export class VerifyInviteUserInCompanyAndConnectionGroupUseCase
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
-		private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
 	) {
 		super();
 	}
@@ -110,7 +108,6 @@ export class VerifyInviteUserInCompanyAndConnectionGroupUseCase
 			}
 		}
 		await this._dbContext.invitationInCompanyRepository.remove(foundInvitation);
-		await this.saasCompanyGatewayService.recountUsersInCompanyRequest(companyId);
 		const tokenInfo = generateGwtToken(
 			newUser,
 			get2FaScope(newUser, foundInvitation.company),
