@@ -3,7 +3,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthMiddleware } from '../../authorization/auth.middleware.js';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
-import { CompanyLogoEntity } from '../company-logo/company-logo.entity.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
 import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity.js';
 import { CustomFieldsEntity } from '../custom-field/custom-fields.entity.js';
@@ -15,16 +14,8 @@ import { UserEntity } from '../user/user.entity.js';
 import { TableWidgetEntity } from '../widget/table-widget.entity.js';
 import { CompanyInfoController } from './company-info.controller.js';
 import { CompanyInfoHelperService } from './company-info-helper.service.js';
-import { AddCompanyTabTitleUseCase } from './use-cases/add-company-tab-title.use.case.js';
 import { CheckIsVerificationLinkAvailable } from './use-cases/check-verification-link.available.use.case.js';
-import { DeleteCompanyFaviconUseCase } from './use-cases/delete-company-favicon.use.case.js';
-import { DeleteCompanyLogoUseCase } from './use-cases/delete-company-logo.use.case.js';
-import { DeleteCompanyTabTitleUseCase } from './use-cases/delete-company-tab-title.use.case.js';
 import { DeleteCompanyUseCase } from './use-cases/delete-company-use-case.js';
-import { FindCompanyFaviconUseCase } from './use-cases/find-company-favicon.use.case.js';
-import { FindCompanyLogoUseCase } from './use-cases/find-company-logo.use.case.js';
-import { FindCompanyTabTitleUseCase } from './use-cases/find-company-tab-title.use.case.js';
-import { FindCompanyWhiteLabelPropertiesUseCase } from './use-cases/find-company-white-label-properties.use.case.js';
 import { GetAllUsersInCompanyUseCase } from './use-cases/get-all-users-in-company.use.case.js';
 import { GetCompanyNameUseCase } from './use-cases/get-company-name.use.case.js';
 import { GetUserCompanyFullInfoUseCase } from './use-cases/get-full-user-company-info.use.case.js';
@@ -39,8 +30,6 @@ import { UnsuspendUsersInCompanyUseCase } from './use-cases/unsuspend-users-in-c
 import { UpdateCompanyNameUseCase } from './use-cases/update-company-name.use.case.js';
 import { UpdateUsersCompanyRolesUseCase } from './use-cases/update-users-company-roles.use.case.js';
 import { UpdateUses2faStatusInCompanyUseCase } from './use-cases/update-uses-2fa-status-in-company.use.case.js';
-import { UploadCompanyFaviconUseCase } from './use-cases/upload-company-favicon.use.case.js';
-import { UploadCompanyLogoUseCase } from './use-cases/upload-company-logo-use-case.js';
 import { VerifyInviteUserInCompanyAndConnectionGroupUseCase } from './use-cases/verify-invite-user-in-company.use.case.js';
 
 @Module({
@@ -54,7 +43,6 @@ import { VerifyInviteUserInCompanyAndConnectionGroupUseCase } from './use-cases/
 			CustomFieldsEntity,
 			TableWidgetEntity,
 			ConnectionPropertiesEntity,
-			CompanyLogoEntity,
 			LogOutEntity,
 		]),
 	],
@@ -131,78 +119,28 @@ import { VerifyInviteUserInCompanyAndConnectionGroupUseCase } from './use-cases/
 			provide: UseCaseType.TOGGLE_TEST_CONNECTIONS_DISPLAY_MODE_IN_COMPANY,
 			useClass: ToggleCompanyTestConnectionsDisplayModeUseCase,
 		},
-		{
-			provide: UseCaseType.UPLOAD_COMPANY_LOGO,
-			useClass: UploadCompanyLogoUseCase,
-		},
-		{
-			provide: UseCaseType.FIND_COMPANY_LOGO,
-			useClass: FindCompanyLogoUseCase,
-		},
-		{
-			provide: UseCaseType.DELETE_COMPANY_LOGO,
-			useClass: DeleteCompanyLogoUseCase,
-		},
-		{
-			provide: UseCaseType.DELETE_COMPANY_FAVICON,
-			useClass: DeleteCompanyFaviconUseCase,
-		},
-		{
-			provide: UseCaseType.FIND_COMPANY_FAVICON,
-			useClass: FindCompanyFaviconUseCase,
-		},
-		{
-			provide: UseCaseType.UPLOAD_COMPANY_FAVICON,
-			useClass: UploadCompanyFaviconUseCase,
-		},
-		{
-			provide: UseCaseType.ADD_COMPANY_TAB_TITLE,
-			useClass: AddCompanyTabTitleUseCase,
-		},
-		{
-			provide: UseCaseType.FIND_COMPANY_TAB_TITLE,
-			useClass: FindCompanyTabTitleUseCase,
-		},
-		{
-			provide: UseCaseType.DELETE_COMPANY_TAB_TITLE,
-			useClass: DeleteCompanyTabTitleUseCase,
-		},
-		{
-			provide: UseCaseType.GET_COMPANY_WHITE_LABEL_PROPERTIES,
-			useClass: FindCompanyWhiteLabelPropertiesUseCase,
-		},
 		CompanyInfoHelperService,
 	],
 	controllers: [CompanyInfoController],
 })
 export class CompanyInfoModule implements NestModule {
 	public configure(consumer: MiddlewareConsumer): void {
-		consumer
-			.apply(AuthMiddleware)
-			.forRoutes(
-				{ path: '/company/user/:companyId', method: RequestMethod.PUT },
-				{ path: '/company/my', method: RequestMethod.GET },
-				{ path: '/company/my', method: RequestMethod.DELETE },
-				{ path: '/company/my/full', method: RequestMethod.GET },
-				{ path: '/company/users/:companyId', method: RequestMethod.GET },
-				{ path: '/company/:companyId/user/:userId', method: RequestMethod.DELETE },
-				{ path: '/company/invitation/revoke/:companyId', method: RequestMethod.PUT },
-				{ path: '/company/name/:companyId', method: RequestMethod.PUT },
-				{ path: '/company/users/roles/:companyId', method: RequestMethod.PUT },
-				{ path: '/company/2fa/:companyId', method: RequestMethod.PUT },
-				{ path: '/company/users/suspend/:companyId', method: RequestMethod.PUT },
-				{ path: '/company/users/unsuspend/:companyId', method: RequestMethod.PUT },
-				{ path: '/company/connections/display/', method: RequestMethod.PUT },
-				{ path: '/company/logo/:companyId', method: RequestMethod.POST },
-				{ path: '/company/logo/:companyId', method: RequestMethod.GET },
-				{ path: '/company/logo/:companyId', method: RequestMethod.DELETE },
-				{ path: '/company/favicon/:companyId', method: RequestMethod.POST },
-				{ path: '/company/favicon/:companyId', method: RequestMethod.GET },
-				{ path: '/company/favicon/:companyId', method: RequestMethod.DELETE },
-				{ path: '/company/tab-title/:companyId', method: RequestMethod.POST },
-				{ path: '/company/tab-title/:companyId', method: RequestMethod.GET },
-				{ path: '/company/tab-title/:companyId', method: RequestMethod.DELETE },
-				{ path: '/company/white-label-properties/:companyId', method: RequestMethod.GET },
-			);
+		consumer.apply(AuthMiddleware).forRoutes(
+			{ path: '/company/user/:companyId', method: RequestMethod.PUT },
+			{ path: '/company/my', method: RequestMethod.GET },
+			{ path: '/company/my', method: RequestMethod.DELETE },
+			{ path: '/company/my/full', method: RequestMethod.GET },
+			{ path: '/company/users/:companyId', method: RequestMethod.GET },
+			{ path: '/company/:companyId/user/:userId', method: RequestMethod.DELETE },
+			{ path: '/company/invitation/revoke/:companyId', method: RequestMethod.PUT },
+			{ path: '/company/name/:companyId', method: RequestMethod.PUT },
+			{ path: '/company/users/roles/:companyId', method: RequestMethod.PUT },
+			{ path: '/company/2fa/:companyId', method: RequestMethod.PUT },
+			{ path: '/company/users/suspend/:companyId', method: RequestMethod.PUT },
+			{ path: '/company/users/unsuspend/:companyId', method: RequestMethod.PUT },
+			{ path: '/company/connections/display/', method: RequestMethod.PUT },
+			// TEMPORARY (plan 46) — empty white-label answer for the not-yet-updated Angular shell.
+			{ path: '/company/white-label-properties/:companyId', method: RequestMethod.GET },
+		);
 	}
 }

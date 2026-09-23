@@ -8,7 +8,6 @@ import { isTest } from '../../../helpers/app/is-test.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
-import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { SignInMethodEnum } from '../../user-sign-in-audit/enums/sign-in-method.enum.js';
 import { SignInStatusEnum } from '../../user-sign-in-audit/enums/sign-in-status.enum.js';
 import { SignInAuditService } from '../../user-sign-in-audit/sign-in-audit.service.js';
@@ -23,7 +22,6 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
-		private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
 		private readonly signInAuditService: SignInAuditService,
 	) {
 		super();
@@ -48,26 +46,6 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
 				);
 				throw new NotFoundException(Messages.USER_NOT_FOUND);
 			}
-		} else if (!Constants.APP_REQUEST_DOMAINS().includes(request_domain) && isSaaS()) {
-			const foundUserCompanyIdByDomain =
-				await this.saasCompanyGatewayService.getCompanyIdByCustomDomain(request_domain);
-			const foundUser = await this._dbContext.userRepository.findOneUserByEmailAndCompanyId(
-				email,
-				foundUserCompanyIdByDomain,
-			);
-			if (!foundUser) {
-				await this.recordSignInAudit(
-					email,
-					null,
-					SignInStatusEnum.FAILED,
-					ipAddress,
-					userAgent,
-					Messages.USER_NOT_FOUND_FOR_THIS_DOMAIN,
-				);
-				throw new BadRequestException(Messages.USER_NOT_FOUND_FOR_THIS_DOMAIN);
-			}
-			user = foundUser;
-			companyId = foundUser.company.id;
 		} else {
 			const foundUsers = await this._dbContext.userRepository.findAllUsersWithEmail(email);
 			if (foundUsers.length > 1) {
@@ -101,7 +79,7 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
 			throw new BadRequestException(Messages.PASSWORD_MISSING);
 		}
 
-		await this.validateRequestDomain(request_domain, companyId);
+		this.validateRequestDomain(request_domain);
 
 		const passwordValidationResult = await Encryptor.verifyUserPassword(userData.password, user.password);
 		if (!passwordValidationResult) {
@@ -148,7 +126,7 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
 		}
 	}
 
-	private async validateRequestDomain(requestDomain: string, companyId: string): Promise<void> {
+	private validateRequestDomain(requestDomain: string): void {
 		if (!isSaaS()) {
 			return;
 		}
@@ -170,12 +148,7 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
 			throw new BadRequestException(Messages.INVALID_REQUEST_DOMAIN_FORMAT);
 		}
 
-		const companyIdByDomain: string | null =
-			await this.saasCompanyGatewayService.getCompanyIdByCustomDomain(requestDomain);
-
-		if (companyIdByDomain && companyIdByDomain === companyId) {
-			return;
-		}
+		// Plan 46: custom domains are retired — only the product hostnames are accepted.
 		throw new BadRequestException(Messages.INVALID_REQUEST_DOMAIN);
 	}
 }

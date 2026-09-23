@@ -94,7 +94,6 @@ import {
 } from './data-structures/saas-email-flows.dtos.js';
 import { SaasOtpLoginDs } from './data-structures/saas-otp-login.ds.js';
 import { SaasRegisterUserWithGithub } from './data-structures/saas-register-user-with-github.js';
-import { SaasSAMLUserRegisterDS } from './data-structures/saas-saml-user-register.ds.js';
 import {
 	SaasChangeUserNameDto,
 	SaasDeleteUserAccountDto,
@@ -111,23 +110,18 @@ import {
 	ICompanyRegistration,
 	ICreateConnectionForHostedDb,
 	IDeleteConnectionForHostedDb,
-	IFreezeConnectionsInCompany,
 	IGetConnectionsInfoByIds,
 	IGetHostedConnectionCredentials,
 	IGetUserInfo,
 	ILoginUserWithGitHub,
 	ILoginUserWithGoogle,
 	ISaaSGetCompanyInfoByUserId,
-	ISaaSGetUsersCountInCompany,
 	ISaasDemoRegisterUser,
 	ISaasGetUserEmailCompanies,
 	ISaasGetUsersInfosByEmail,
 	ISaasOtpLogin,
 	ISaasRegisterUser,
-	ISaasSAMLRegisterUser,
 	ISaasUsualLoginUser,
-	ISuspendUsers,
-	ISuspendUsersOverLimit,
 	IUpdateHostedConnectionPassword,
 } from './use-cases/saas-use-cases.interface.js';
 
@@ -162,20 +156,8 @@ export class SaasController {
 		private readonly loginUserWithGoogleUseCase: ILoginUserWithGoogle,
 		@Inject(UseCaseType.SAAS_LOGIN_USER_WITH_GITHUB)
 		private readonly loginUserWithGithubUseCase: ILoginUserWithGitHub,
-		@Inject(UseCaseType.SAAS_REGISTER_USER_WITH_SAML)
-		private readonly registerUserWithSamlUseCase: ISaasSAMLRegisterUser,
-		@Inject(UseCaseType.SAAS_SUSPEND_USERS)
-		private readonly suspendUsersUseCase: ISuspendUsers,
-		@Inject(UseCaseType.SAAS_SUSPEND_USERS_OVER_LIMIT)
-		private readonly suspendUsersOverLimitUseCase: ISuspendUsersOverLimit,
 		@Inject(UseCaseType.SAAS_GET_COMPANY_INFO_BY_USER_ID)
 		private readonly getCompanyInfoByUserIdUseCase: ISaaSGetCompanyInfoByUserId,
-		@Inject(UseCaseType.SAAS_GET_USERS_COUNT_IN_COMPANY)
-		private readonly getUsersCountInCompanyByIdUseCase: ISaaSGetUsersCountInCompany,
-		@Inject(UseCaseType.FREEZE_CONNECTIONS_IN_COMPANY)
-		private readonly freezeConnectionsInCompanyUseCase: IFreezeConnectionsInCompany,
-		@Inject(UseCaseType.UNFREEZE_CONNECTIONS_IN_COMPANY)
-		private readonly unfreezeConnectionsInCompanyUseCase: IFreezeConnectionsInCompany,
 		@Inject(UseCaseType.SAAS_CREATE_CONNECTION_FOR_HOSTED_DB)
 		private readonly createConnectionForHostedDbUseCase: ICreateConnectionForHostedDb,
 		@Inject(UseCaseType.SAAS_DELETE_CONNECTION_FOR_HOSTED_DB)
@@ -708,23 +690,6 @@ export class SaasController {
 		});
 	}
 
-	@ApiOperation({ summary: 'Suspending users' })
-	@Put('/company/:companyId/users/suspend')
-	async suspendUsers(
-		@Body('emailsToSuspend') emailsToSuspend: Array<string>,
-		@Body('companyId') companyId: string,
-	): Promise<SuccessResponse> {
-		await this.suspendUsersUseCase.execute({ emailsToSuspend, companyId });
-		return { success: true };
-	}
-
-	@ApiOperation({ summary: 'Suspending users' })
-	@Put('/company/:companyId/users/suspend-above-limit')
-	async suspendUsersOverLimit(@Body('companyId') companyId: string): Promise<SuccessResponse> {
-		await this.suspendUsersOverLimitUseCase.execute(companyId);
-		return { success: true };
-	}
-
 	@ApiOperation({ summary: 'Get company info by user id' })
 	@ApiResponse({
 		status: 200,
@@ -732,49 +697,6 @@ export class SaasController {
 	@Get('/user/:userId/company')
 	async getCompanyInfoByUserId(@Param('userId') userId: string): Promise<CompanyInfoEntity> {
 		return await this.getCompanyInfoByUserIdUseCase.execute(userId);
-	}
-
-	@ApiOperation({ summary: 'Users count in company by company id' })
-	@Get('/company/:companyId/users/count')
-	async getUsersCountInCompany(@Param('companyId') companyId: string): Promise<{ count: number }> {
-		const usersCount = await this.getUsersCountInCompanyByIdUseCase.execute(companyId);
-		return { count: usersCount };
-	}
-
-	@ApiOperation({ summary: 'Freeze paid connections in companies webhook' })
-	@Put('/company/freeze-connections')
-	async freezeConnectionsInCompany(@Body('companyIds') companyIds: Array<string>) {
-		return await this.freezeConnectionsInCompanyUseCase.execute({ companyIds });
-	}
-
-	@ApiOperation({ summary: 'Unfreeze paid connections in companies webhook' })
-	@Put('/company/unfreeze-connections')
-	async unfreezeConnectionsInCompany(@Body('companyIds') companyIds: Array<string>) {
-		return await this.unfreezeConnectionsInCompanyUseCase.execute({ companyIds });
-	}
-
-	@ApiOperation({ summary: 'Register user with SAML' })
-	@ApiBody({ type: SaasSAMLUserRegisterDS })
-	@ApiResponse({
-		status: 201,
-	})
-	@Post('user/saml/login')
-	async registerUserWithSaml(
-		@Body('email') email: string,
-		@Body('name') name: string,
-		@Body('companyId') companyId: string,
-		@Body('samlConfigId') samlConfigId: string,
-		@Body('samlNameId') samlNameId: string,
-		@Body('samlAttributes') samlAttributes: Record<string, any>,
-	): Promise<UserEntity> {
-		return await this.registerUserWithSamlUseCase.execute({
-			email,
-			name,
-			companyId,
-			samlConfigId,
-			samlNameId,
-			samlAttributes,
-		});
 	}
 
 	@ApiOperation({ summary: 'Created connection of hosted database' })

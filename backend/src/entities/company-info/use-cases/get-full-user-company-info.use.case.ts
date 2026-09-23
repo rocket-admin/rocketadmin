@@ -75,7 +75,6 @@ export class GetUserCompanyFullInfoUseCase
 
 		let foundUserCompanySaasInfo = null;
 
-		let customDomain = null;
 		if (isSaaS()) {
 			foundUserCompanySaasInfo = await this.saasCompanyGatewayService.getCompanyInfo(foundFullUserCoreCompanyInfo.id);
 			if (!foundUserCompanySaasInfo) {
@@ -89,18 +88,12 @@ export class GetUserCompanyFullInfoUseCase
 					HttpStatus.NOT_FOUND,
 				);
 			}
-			customDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(foundCompanyInfoByUserId.id);
 		}
 
 		if (foundUser.role === UserRoleEnum.ADMIN) {
-			return buildFoundCompanyFullInfoDs(
-				foundFullUserCoreCompanyInfo,
-				foundUserCompanySaasInfo,
-				foundUser.role,
-				customDomain,
-			);
+			return buildFoundCompanyFullInfoDs(foundFullUserCoreCompanyInfo, foundUserCompanySaasInfo, foundUser.role);
 		}
 
-		return buildFoundCompanyInfoDs(foundFullUserCoreCompanyInfo, foundUserCompanySaasInfo, customDomain);
+		return buildFoundCompanyInfoDs(foundFullUserCoreCompanyInfo, foundUserCompanySaasInfo);
 	}
 }

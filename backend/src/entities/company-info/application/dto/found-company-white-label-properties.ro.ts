@@ -1,17 +1,26 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { SubscriptionLevelEnum } from '../../../../enums/subscription-level.enum.js';
-import { FoundCompanyImageInfo } from './found-company-logo.ro.js';
 
+// TEMPORARY (plan 46, 2026-09-17): white label is retired, but the deployed Angular shell still calls
+// GET /company/white-label-properties/:companyId on every load. This RO is the empty answer that keeps
+// it on the default logo/favicon/title. Delete together with the route once the frontend no longer
+// asks (rocketadmin/frontend `app.component.ts` → `CompanyService.getWhiteLabelProperties`).
 export class FoundCompanyWhiteLabelPropertiesRO {
-	@ApiProperty({ type: FoundCompanyImageInfo, required: false, nullable: true })
-	logo: FoundCompanyImageInfo | null;
+	@ApiProperty({ type: 'object', nullable: true, properties: {} })
+	logo: null;
 
-	@ApiProperty({ type: FoundCompanyImageInfo, required: false, nullable: true })
-	favicon: FoundCompanyImageInfo | null;
+	@ApiProperty({ type: 'object', nullable: true, properties: {} })
+	favicon: null;
 
-	@ApiProperty({ type: String, required: false, nullable: true })
-	tab_title: string | null;
+	@ApiProperty({ type: String, nullable: true })
+	tab_title: null;
 
-	@ApiProperty({ enum: SubscriptionLevelEnum, nullable: true })
-	subscriptionLevel: SubscriptionLevelEnum | null;
+	@ApiProperty({ type: String, nullable: true })
+	subscriptionLevel: null;
 }
+
+export const EMPTY_WHITE_LABEL_PROPERTIES: FoundCompanyWhiteLabelPropertiesRO = {
+	logo: null,
+	favicon: null,
+	tab_title: null,
+	subscriptionLevel: null,
+};

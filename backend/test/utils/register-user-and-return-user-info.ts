@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
+import knex, { Knex } from 'knex';
 import request from 'supertest';
 import { DataSource } from 'typeorm';
 import { BaseType } from '../../src/common/data-injection.tokens.js';
@@ -112,7 +113,7 @@ export async function registerUserOnSaasAndReturnUserInfo(
 		companyName: `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.company.name()}`,
 	};
 
-	const result = await fetch('http://rocketadmin-private-microservice:3001/saas/user/register', {
+	const result = await fetch(`${SAAS_TEST_URL}/saas/user/register`, {
 		method: 'POST',
 		body: JSON.stringify(userRegisterInfo),
 		headers: {
@@ -120,11 +121,91 @@ export async function registerUserOnSaasAndReturnUserInfo(
 			Accept: 'application/json',
 		},
 	});
+	const registerBody = (await result.json().catch(() => ({}))) as { emailVerificationRequired?: boolean };
 	if (result.status > 201) {
-		console.info('result.body -> ', await result.json());
+		console.info('result.body -> ', registerBody);
 	}
-	const token = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse2(result)}`;
+	let jwt = TestUtils.getJwtTokenFromResponse2(result);
+	if (result.status === 201 && registerBody.emailVerificationRequired) {
+		jwt = await completeSaasEmailVerification(jwt);
+	}
+	const token = `${Constants.JWT_COOKIE_KEY_NAME}=${jwt}`;
 	return { token: token, ...userRegisterInfo };
+}
+
+const SAAS_TEST_URL = 'http://rocketadmin-private-microservice:3001';
+
+let saasTestDb: Knex | null = null;
+
+// The saas' own test database (the `rocketadmin-private-microservice-test-database` service of the
+// compose stacks). The test stacks export it to the backend container as SAAS_TEST_DATABASE_URL.
+function getSaasTestDb(): Knex {
+	if (saasTestDb) {
+		return saasTestDb;
+	}
+	const url = process.env.SAAS_TEST_DATABASE_URL;
+	if (!url) {
+		throw new Error(
+			'SAAS_TEST_DATABASE_URL is not set: the saas registration returned an email-verification-scoped ' +
+				'session and the test helper needs the saas test database to complete the verification ' +
+				'(see TESTING.md "saas-mode registration in tests").',
+		);
+	}
+	saasTestDb = knex({ client: 'pg', connection: url, pool: { min: 0, max: 2 } });
+	return saasTestDb;
+}
+
+function cookieValueFromResponse(response: Response, cookieName: string): string {
+	const setCookies = response.headers.getSetCookie?.() ?? [];
+	for (const cookie of setCookies) {
+		const [pair] = cookie.split(';');
+		const [name, ...rest] = pair.split('=');
+		if (name.trim() === cookieName) {
+			return rest.join('=');
+		}
+	}
+	throw new Error(`Cookie ${cookieName} missing in response (status ${response.status})`);
+}
+
+// Since 2026-08-25 a saas registration ends on a 6-digit email code: the cookie it returns is scoped
+// `email_verify`, which the core refuses on every route. The tests have no mailbox, so they finish
+// the verification the same way a user clicking the emailed LINK would: the saas keeps the raw core
+// verification token next to the hashed code (`email_verification_code.coreVerificationToken`); the
+// helper reads it from the saas test database, opens the saas verify link, then asks the saas to
+// swap the scoped cookie for a full session (`POST /saas/user/session/refresh`) — exactly what the
+// SPA polls for. Nothing in the services is bypassed.
+async function completeSaasEmailVerification(scopedJwt: string): Promise<string> {
+	const payload = JSON.parse(Buffer.from(scopedJwt.split('.')[1], 'base64url').toString('utf8')) as { id: string };
+	const row = await getSaasTestDb()('email_verification_code')
+		.select('coreVerificationToken')
+		.where({ userId: payload.id })
+		.first<{ coreVerificationToken: string } | undefined>();
+	if (!row?.coreVerificationToken) {
+		throw new Error(`No pending email verification found in the saas database for user ${payload.id}`);
+	}
+	const verifyResponse = await fetch(
+		`${SAAS_TEST_URL}/saas/user/email/verify/${encodeURIComponent(row.coreVerificationToken)}`,
+		{ redirect: 'manual' },
+	);
+	const location = verifyResponse.headers.get('location') ?? '';
+	if (!location.includes('emailVerified=true')) {
+		throw new Error(
+			`saas email verification link did not confirm the address (status ${verifyResponse.status}, location ${location})`,
+		);
+	}
+	const refreshResponse = await fetch(`${SAAS_TEST_URL}/saas/user/session/refresh`, {
+		method: 'POST',
+		headers: {
+			Cookie: `${Constants.JWT_COOKIE_KEY_NAME}=${scopedJwt}`,
+			Accept: 'application/json',
+		},
+	});
+	if (refreshResponse.status !== 201) {
+		throw new Error(
+			`saas session refresh after verification failed: ${refreshResponse.status} ${await refreshResponse.text()}`,
+		);
+	}
+	return cookieValueFromResponse(refreshResponse, Constants.JWT_COOKIE_KEY_NAME);
 }
 
 type RegisterUserData = {

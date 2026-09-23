@@ -163,7 +163,7 @@ test.serial(`${currentTest} should return all connection users`, async (t) => {
 	const foundUsersRO = JSON.parse(findAllUsersResponse.text);
 	t.is(foundUsersRO.length, 1);
 
-	t.is(foundUsersRO[0].isActive, false);
+	t.is(foundUsersRO[0].isActive, true); // the saas test helper completes email verification
 	t.is(Object.hasOwn(foundUsersRO[0], 'createdAt'), true);
 	t.pass();
 });
@@ -1009,7 +1009,7 @@ test.serial(`${currentTest} should return a created group`, async (t) => {
 	t.is(typeof result.users, 'object');
 	t.is(result.users.length, 1);
 	t.is(result.users[0].email, email.toLowerCase());
-	t.is(result.users[0].isActive, false);
+	t.is(result.users[0].isActive, true); // the saas test helper completes email verification
 
 	t.pass();
 });

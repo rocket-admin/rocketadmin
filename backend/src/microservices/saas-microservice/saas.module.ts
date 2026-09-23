@@ -32,25 +32,19 @@ import { ValidateUserTokenUseCase } from '../agents-microservice/use-cases/valid
 import { SaasController } from './saas.controller.js';
 import { CreateConnectionForHostedDbUseCase } from './use-cases/create-connection-for-hosted-db.use.case.js';
 import { DeleteConnectionForHostedDbUseCase } from './use-cases/delete-connection-for-hosted-db.use.case.js';
-import { FreezeConnectionsInCompanyUseCase } from './use-cases/freeze-connections-in-company.use.case.js';
 import { GetConnectionsInfoByIdsUseCase } from './use-cases/get-connections-info-by-ids.use.case.js';
 import { GetFullCompanyInfoByUserIdUseCase } from './use-cases/get-full-company-info-by-user-id.use.case.js';
 import { GetHostedConnectionCredentialsUseCase } from './use-cases/get-hosted-connection-credentials.use.case.js';
 import { GetUserInfoUseCase } from './use-cases/get-user-info.use.case.js';
-import { GetUsersCountInCompanyByIdUseCase } from './use-cases/get-users-count-in-company.use.case.js';
 import { GetUsersInfosByEmailUseCase } from './use-cases/get-users-infos-by-email.use.case.js';
 import { LoginUserWithGithubUseCase } from './use-cases/login-with-github.use.case.js';
 import { LoginWithGoogleUseCase } from './use-cases/login-with-google.use.case.js';
 import { RegisteredCompanyWebhookUseCase } from './use-cases/register-company-webhook.use.case.js';
 import { SaasRegisterDemoUserAccountUseCase } from './use-cases/register-demo-user-account.use.case.js';
-import { SaaSRegisterUserWIthSamlUseCase } from './use-cases/register-user-with-saml-use.case.js';
 import { SaasGetUserEmailCompaniesUseCase } from './use-cases/saas-get-user-email-companies.use.case.js';
 import { SaasOtpLoginUseCase } from './use-cases/saas-otp-login.use.case.js';
 import { SaasUsualLoginUseCase } from './use-cases/saas-usual-login.use.case.js';
 import { SaasUsualRegisterUseCase } from './use-cases/saas-usual-register-user.use.case.js';
-import { SuspendUsersUseCase } from './use-cases/suspend-users.use.case.js';
-import { SuspendUsersOverLimitUseCase } from './use-cases/suspend-users-over-limit.use.case.js';
-import { UnFreezeConnectionsInCompanyUseCase } from './use-cases/unfreeze-connections-in-company-use.case.js';
 import { UpdateHostedConnectionPasswordUseCase } from './use-cases/update-hosted-connection-password.use.case.js';
 
 @Module({
@@ -101,36 +95,12 @@ import { UpdateHostedConnectionPasswordUseCase } from './use-cases/update-hosted
 			useClass: GetUsersInfosByEmailUseCase,
 		},
 		{
-			provide: UseCaseType.SAAS_SUSPEND_USERS,
-			useClass: SuspendUsersUseCase,
-		},
-		{
 			provide: UseCaseType.SAAS_GET_COMPANY_INFO_BY_USER_ID,
 			useClass: GetFullCompanyInfoByUserIdUseCase,
 		},
 		{
-			provide: UseCaseType.SAAS_GET_USERS_COUNT_IN_COMPANY,
-			useClass: GetUsersCountInCompanyByIdUseCase,
-		},
-		{
-			provide: UseCaseType.FREEZE_CONNECTIONS_IN_COMPANY,
-			useClass: FreezeConnectionsInCompanyUseCase,
-		},
-		{
-			provide: UseCaseType.UNFREEZE_CONNECTIONS_IN_COMPANY,
-			useClass: UnFreezeConnectionsInCompanyUseCase,
-		},
-		{
 			provide: UseCaseType.SAAS_DEMO_USER_REGISTRATION,
 			useClass: SaasRegisterDemoUserAccountUseCase,
-		},
-		{
-			provide: UseCaseType.SAAS_REGISTER_USER_WITH_SAML,
-			useClass: SaaSRegisterUserWIthSamlUseCase,
-		},
-		{
-			provide: UseCaseType.SAAS_SUSPEND_USERS_OVER_LIMIT,
-			useClass: SuspendUsersOverLimitUseCase,
 		},
 		{
 			provide: UseCaseType.SAAS_CREATE_CONNECTION_FOR_HOSTED_DB,
@@ -265,13 +235,7 @@ export class SaasModule {
 				{ path: 'saas/user/demo/register', method: RequestMethod.POST },
 				{ path: 'saas/user/google/login', method: RequestMethod.POST },
 				{ path: 'saas/user/github/login', method: RequestMethod.POST },
-				{ path: 'saas/company/:companyId/users/suspend', method: RequestMethod.PUT },
-				{ path: 'saas/company/:companyId/users/suspend-above-limit', method: RequestMethod.PUT },
 				{ path: 'saas/user/:userId/company', method: RequestMethod.GET },
-				{ path: 'saas/company/:companyId/users/count', method: RequestMethod.GET },
-				{ path: 'saas/company/freeze-connections', method: RequestMethod.PUT },
-				{ path: 'saas/company/unfreeze-connections', method: RequestMethod.PUT },
-				{ path: 'saas/user/saml/login', method: RequestMethod.POST },
 				{ path: 'saas/connection/hosted', method: RequestMethod.POST },
 				{ path: 'saas/connection/hosted/delete', method: RequestMethod.POST },
 				{ path: 'saas/connection/hosted/password', method: RequestMethod.POST },

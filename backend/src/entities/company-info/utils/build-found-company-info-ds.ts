@@ -12,19 +12,13 @@ export function buildFoundCompanyFullInfoDs(
 	companyInfoFromCore: CompanyInfoEntity,
 	companyInfoFromSaas: FoundSassCompanyInfoDS | null,
 	userRole: UserRoleEnum,
-	companyCustomDomain: string | null,
 ): FoundUserFullCompanyInfoDs {
 	if (!companyInfoFromCore.show_test_connections) {
 		companyInfoFromCore.connections = companyInfoFromCore.connections.filter(
 			(connection) => !connection.isTestConnection,
 		);
 	}
-	const responseObject = buildFoundCompanyInfoDs(
-		companyInfoFromCore,
-		companyInfoFromSaas,
-		companyCustomDomain,
-		userRole,
-	) as any;
+	const responseObject = buildFoundCompanyInfoDs(companyInfoFromCore, companyInfoFromSaas, userRole) as any;
 	const connectionsRO = companyInfoFromCore.connections.map((connection) => {
 		return {
 			id: connection.id,
@@ -60,10 +54,11 @@ export function buildFoundCompanyFullInfoDs(
 	return responseObject;
 }
 
+// Plan 46 (2026-09): white label (logo / favicon / tab title) and custom domains are retired — the
+// response carries `custom_domain: null` for API compatibility and no white-label fields at all.
 export function buildFoundCompanyInfoDs(
 	companyInfoFromCore: CompanyInfoEntity,
 	companyInfoFromSaas: FoundSassCompanyInfoDS | null,
-	companyCustomDomain: string | null,
 	userRole?: UserRoleEnum,
 ): FoundUserCompanyInfoDs {
 	if (!companyInfoFromSaas) {
@@ -72,20 +67,7 @@ export function buildFoundCompanyInfoDs(
 			name: companyInfoFromCore.name,
 			is2faEnabled: companyInfoFromCore.is2faEnabled,
 			show_test_connections: companyInfoFromCore.show_test_connections,
-			custom_domain: companyCustomDomain ? companyCustomDomain : null,
-			logo: companyInfoFromCore.logo
-				? {
-						image: companyInfoFromCore.logo.image.toString('base64'),
-						mimeType: companyInfoFromCore.logo.mimeType,
-					}
-				: null,
-			favicon: companyInfoFromCore.favicon
-				? {
-						image: companyInfoFromCore.favicon.image.toString('base64'),
-						mimeType: companyInfoFromCore.favicon.mimeType,
-					}
-				: null,
-			tab_title: companyInfoFromCore.tab_title?.text ?? null,
+			custom_domain: null,
 		};
 	}
 	const isUserAdmin = userRole === UserRoleEnum.ADMIN;
@@ -97,14 +79,7 @@ export function buildFoundCompanyInfoDs(
 		is_payment_method_added: isUserAdmin ? companyInfoFromSaas.is_payment_method_added : undefined,
 		is2faEnabled: isUserAdmin ? companyInfoFromCore.is2faEnabled : undefined,
 		show_test_connections: companyInfoFromCore.show_test_connections,
-		custom_domain: companyCustomDomain ? companyCustomDomain : null,
-		logo: companyInfoFromCore.logo
-			? { image: companyInfoFromCore.logo.image.toString('base64'), mimeType: companyInfoFromCore.logo.mimeType }
-			: null,
-		favicon: companyInfoFromCore.favicon
-			? { image: companyInfoFromCore.favicon.image.toString('base64'), mimeType: companyInfoFromCore.favicon.mimeType }
-			: null,
-		tab_title: companyInfoFromCore.tab_title?.text ?? null,
+		custom_domain: null,
 		createdAt: companyInfoFromSaas.createdAt,
 		updatedAt: companyInfoFromSaas.updatedAt,
 	};

@@ -12,7 +12,6 @@ import { UserRoleEnum } from '../../../entities/user/enums/user-role.enum.js';
 import { UserEntity } from '../../../entities/user/user.entity.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
-import { SaasCompanyGatewayService } from '../../gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { SaasRegisteredUserRO } from '../data-structures/saas-email-flows.dtos.js';
 import { ISaasRegisterUser } from './saas-use-cases.interface.js';
 
@@ -26,7 +25,6 @@ export class SaasUsualRegisterUseCase
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
-		private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
 		private readonly emailService: EmailService,
 		private readonly demoDataService: DemoDataService,
 	) {
@@ -98,13 +96,12 @@ export class SaasUsualRegisterUseCase
 			return registeredUserRO;
 		}
 
-		const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(companyId);
-
 		// The satellite may route the confirmation link through itself (SiteNova). A disallowed or
 		// malformed base silently falls back to the legacy link — never fail the registration over it.
+		// Custom domains retired (plan 46): the legacy link is built on the default domain.
 		const verificationLinkBase = ValidationHelper.resolveEmailVerificationLinkBase(emailVerificationLinkBase);
 
-		await this.emailService.sendEmailConfirmation(savedUser.email, rawToken, companyCustomDomain, verificationLinkBase);
+		await this.emailService.sendEmailConfirmation(savedUser.email, rawToken, null, verificationLinkBase);
 
 		return registeredUserRO;
 	}

@@ -4,7 +4,6 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
-import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { EmailService } from '../../email/email/email.service.js';
 import { OperationResultMessageWithEmailPayloadDs } from '../application/data-structures/operation-result-message.ds.js';
 import { RequestEmailVerificationDs } from '../application/data-structures/request-email-change.ds.js';
@@ -18,7 +17,6 @@ export class RequestEmailVerificationUseCase
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
-		private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
 		private readonly emailService: EmailService,
 	) {
 		super();
@@ -62,13 +60,12 @@ export class RequestEmailVerificationUseCase
 			};
 		}
 
-		const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(foundUserCompany.id);
-
 		const { rawToken } = await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(foundUser);
+		// Custom domains retired (plan 46): the link is built on the default domain.
 		await this.emailService.sendEmailConfirmation(
 			foundUser.email,
 			rawToken,
-			companyCustomDomain,
+			null,
 			ValidationHelper.resolveEmailVerificationLinkBase(inputData.verificationLinkBase),
 		);
 		return { message: Messages.EMAIL_VERIFICATION_REQUESTED };

@@ -12,7 +12,6 @@ import { CreateConnectionForHostedDbDto } from '../data-structures/create-connec
 import { DeleteConnectionForHostedDbDto } from '../data-structures/delete-connection-for-hosted-db.dto.js';
 import { FoundConnectionInfoRO } from '../data-structures/found-connection-info.ro.js';
 import { FoundUserInfoRO, FoundUserInfoWithoutCompanyRO } from '../data-structures/found-user-info.ro.js';
-import { FreezeConnectionsInCompanyDS } from '../data-structures/freeze-connections-in-company.ds.js';
 import { GetConnectionsInfoByIdsDS } from '../data-structures/get-connections-info-by-ids.ds.js';
 import { GetHostedConnectionCredentialsDto } from '../data-structures/get-hosted-connection-credentials.dto.js';
 import { GetUserInfoByIdDS } from '../data-structures/get-user-info.ds.js';
@@ -23,9 +22,7 @@ import { RegisteredCompanyDS } from '../data-structures/registered-company.ds.js
 import { SaasRegisteredUserRO } from '../data-structures/saas-email-flows.dtos.js';
 import { SaasOtpLoginDs } from '../data-structures/saas-otp-login.ds.js';
 import { SaasRegisterUserWithGithub } from '../data-structures/saas-register-user-with-github.js';
-import { SaasSAMLUserRegisterDS } from '../data-structures/saas-saml-user-register.ds.js';
 import { SaasRegisterUserWithGoogleDS } from '../data-structures/sass-register-user-with-google.js';
-import { SuspendUsersDS } from '../data-structures/suspend-users.ds.js';
 import { UpdateHostedConnectionPasswordDto } from '../data-structures/update-hosted-connection-password.dto.js';
 
 export interface ICompanyRegistration {
@@ -64,28 +61,8 @@ export interface ILoginUserWithGitHub {
 	execute(userData: SaasRegisterUserWithGithub): Promise<UserEntity>;
 }
 
-export interface ISuspendUsers {
-	execute(usersData: SuspendUsersDS): Promise<void>;
-}
-
-export interface ISuspendUsersOverLimit {
-	execute(companyId: string): Promise<void>;
-}
-
 export interface ISaaSGetCompanyInfoByUserId {
 	execute(userId: string): Promise<CompanyInfoEntity>;
-}
-
-export interface ISaaSGetUsersCountInCompany {
-	execute(companyId: string): Promise<number>;
-}
-
-export interface IFreezeConnectionsInCompany {
-	execute(inputData: FreezeConnectionsInCompanyDS): Promise<SuccessResponse>;
-}
-
-export interface ISaasSAMLRegisterUser {
-	execute(userData: SaasSAMLUserRegisterDS): Promise<UserEntity>;
 }
 
 export interface ICreateConnectionForHostedDb {

@@ -4,7 +4,6 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
-import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { EmailService } from '../../email/email/email.service.js';
 import { OperationResultMessageWithEmailPayloadDs } from '../application/data-structures/operation-result-message.ds.js';
 import { RequestPasswordResetDs } from '../application/data-structures/request-password-reset.ds.js';
@@ -17,7 +16,6 @@ export class RequestResetUserPasswordUseCase
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
-		private readonly saasCompanyGatewayService: SaasCompanyGatewayService,
 		private readonly emailService: EmailService,
 	) {
 		super();
@@ -55,14 +53,13 @@ export class RequestResetUserPasswordUseCase
 			};
 		}
 
-		const companyCustomDomain = await this.saasCompanyGatewayService.getCompanyCustomDomainById(companyId);
-
 		const { rawToken } = await this._dbContext.passwordResetRepository.createOrUpdatePasswordResetEntity(foundUser);
 
+		// Custom domains retired (plan 46): the link is built on the default domain.
 		const mailingResult = await this.emailService.sendPasswordResetRequest(
 			foundUser.email,
 			rawToken,
-			companyCustomDomain,
+			null,
 			ValidationHelper.resolveEmailVerificationLinkBase(emailData.verificationLinkBase),
 		);
 		const resultMessage = mailingResult?.messageId
