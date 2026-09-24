@@ -336,32 +336,4 @@ export class UserService {
 			}),
 		);
 	}
-
-	updateShowTestConnections(displayMode: 'on' | 'off') {
-		return this._http.put<any>(`/user/test/connections/display`, undefined, { params: { displayMode } }).pipe(
-			map((res) => {
-				if (displayMode === 'on') {
-					this._notifications.showSuccessSnackbar('Test connections now are displayed to you.');
-				} else {
-					this._notifications.showSuccessSnackbar('Test connections now are hidden from you.');
-				}
-				return res;
-			}),
-			catchError((err) => {
-				console.log(err);
-				this._notifications.showAlert(
-					AlertType.Error,
-					{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
-					[
-						{
-							type: AlertActionType.Button,
-							caption: 'Dismiss',
-							action: (_id: number) => this._notifications.dismissAlert(),
-						},
-					],
-				);
-				return EMPTY;
-			}),
-		);
-	}
 }

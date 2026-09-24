@@ -29,7 +29,6 @@ export interface Company {
 	subscriptionLevel: SubscriptionPlans;
 	connections: CompanyConnection[];
 	invitations: CompanyMemberInvitation[];
-	show_test_connections: boolean;
 }
 
 export interface CompanyMembershipGroup {

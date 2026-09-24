@@ -93,15 +93,6 @@
                     </form>
                 </div>
 
-                <mat-slide-toggle style="margin-top: 20px;"
-                    name="showTestConnections"
-                    data-testid="user-settings-test-connections-switch"
-                    [disabled]="submittingChangedShowTestConnections || isDemo"
-                    [(ngModel)]="showTestConnections"
-                    (change)="changeShowTestConnections($event.checked)">
-                    Show Demo admin panels
-                </mat-slide-toggle>
-
             </div>
 
             <button mat-button class="delete-button"

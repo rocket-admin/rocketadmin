@@ -17,7 +17,7 @@
         </div>
     </ng-template>
 
-    <div *ngIf="ownConnections !== null && testConnections !== null; else loader"
+    <div *ngIf="ownConnections !== null; else loader"
         [ngClass]="{'home': !isDemo, 'demoHome': isDemo}">
         <app-own-connections
             [currentUser]="currentUser"
@@ -25,16 +25,6 @@
             [isDemo]="isDemo"
             [companyId]="currentUser?.company?.id">
         </app-own-connections>
-
-        <mat-divider *ngIf="testConnections && testConnections.length"
-            class="connections-divider"
-            [ngClass]="{'connections-divider_or': isDemo}">
-        </mat-divider>
-
-        <app-demo-connections *ngIf="testConnections && testConnections.length"
-            [testConnections]="testConnections"
-            [isDemo]="isDemo">
-        </app-demo-connections>
     </div>
     <ng-template #loader>
         <app-placeholder-connections class="placeholder"></app-placeholder-connections>

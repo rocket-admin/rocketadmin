@@ -70,7 +70,6 @@ export class ConnectionsService {
 	public isCustomAccentedColor: boolean;
 	public defaultDisplayTable: string;
 	public ownConnections: Connection[] = null;
-	public testConnections: Connection[] = null;
 
 	private connectionNameSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Rocketadmin');
 	private connectionSigningKeySubject: BehaviorSubject<string> = new BehaviorSubject<string>(null);
@@ -155,10 +154,6 @@ export class ConnectionsService {
 
 	get ownConnectionsList() {
 		return this.ownConnections;
-	}
-
-	get testConnectionsList() {
-		return this.testConnections;
 	}
 
 	getCurrentConnectionTitle() {
@@ -297,7 +292,6 @@ export class ConnectionsService {
 					return { ...connectionItem, connection, displayTitle };
 				});
 				this.ownConnections = connections.filter((connectionItem) => !connectionItem.connection.isTestConnection);
-				this.testConnections = connections.filter((connectionItem) => connectionItem.connection.isTestConnection);
 				return connections;
 			}),
 			catchError((err) => {

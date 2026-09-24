@@ -98,10 +98,6 @@ export class CompanyComponent {
 		GITHUB: 'github',
 	};
 
-	get isDemo() {
-		return this._user.isDemo;
-	}
-
 	constructor(
 		public _company: CompanyService,
 		public _user: UserService,
@@ -263,18 +259,6 @@ export class CompanyComponent {
 				posthog.capture('Company: member is restored');
 			});
 		}
-	}
-
-	changeShowTestConnections(checked: boolean) {
-		const displayMode = checked ? 'on' : 'off';
-		this.submitting = true;
-		this._company.updateShowTestConnections(displayMode).subscribe(() => {
-			this.submitting = false;
-			this.angulartics2.eventTrack.next({
-				action: 'Company: show test connections is updated successfully',
-			});
-			posthog.capture('Company: show test connections is updated successfully');
-		});
 	}
 
 	handleChangeCompanyDomain() {

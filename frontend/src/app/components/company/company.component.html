@@ -260,15 +260,6 @@
         <tr mat-header-row *matHeaderRowDef="membersTableDisplayedColumns" class="company-members-table-heading"></tr>
         <tr mat-row *matRowDef="let row; columns: membersTableDisplayedColumns;" class="company-member-row"></tr>
     </table>
-
-    <mat-slide-toggle class="test-connections-toggle" *ngIf="currentUser && currentUser.role === 'ADMIN'"
-        name="showTestConnections"
-        data-testid="company-test-connections-switch"
-        [disabled]="isDemo"
-        [(ngModel)]="company.show_test_connections"
-        (change)="changeShowTestConnections($event.checked)">
-        Show Demo panels for all members
-    </mat-slide-toggle>
         </div>
     </div>
 </div>

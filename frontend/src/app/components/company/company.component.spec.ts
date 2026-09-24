@@ -86,7 +86,6 @@ describe('CompanyComponent', () => {
 				role: CompanyMemberRole.CAO,
 			},
 		],
-		show_test_connections: false,
 	};
 
 	const mockMembers = [
