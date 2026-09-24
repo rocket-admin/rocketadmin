@@ -5095,13 +5095,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stripe/stripe-js@npm:^5.3.0":
-  version: 5.10.0
-  resolution: "@stripe/stripe-js@npm:5.10.0"
-  checksum: e3e0025dae8b406eec981fb41100dcf2d30bfaec63411001e1af78b0495497ca18f3a95869e6ae0346264072fe763a752f5d7424af9378ff441ea85eb572fcd3
-  languageName: node
-  linkType: hard
-
 "@testing-library/dom@npm:^10.4.0":
   version: 10.4.1
   resolution: "@testing-library/dom@npm:10.4.1"
@@ -11365,19 +11358,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ngx-stripe@npm:^19.0.0":
-  version: 19.8.0
-  resolution: "ngx-stripe@npm:19.8.0"
-  dependencies:
-    tslib: ^2.3.0
-  peerDependencies:
-    "@angular/common": ">=19.0.0 <20.0.0"
-    "@angular/core": ">=19.0.0 <20.0.0"
-    "@stripe/stripe-js": ">=8.0.0 <9.0.0"
-  checksum: 416f242f3417bbc22a84e5b21682918037616ede1dcc349db48f93a79a417b284eaf9dd6b3e9256617d48606d1d391a9329b9f9d716dfcf573d9b1b943c82ecb
-  languageName: node
-  linkType: hard
-
 "no-case@npm:^3.0.4":
   version: 3.0.4
   resolution: "no-case@npm:3.0.4"
@@ -12797,7 +12777,6 @@ __metadata:
     "@sentry-internal/rrweb": ^2.16.0
     "@sentry/angular": ^10.33.0
     "@storybook/angular": ^10.2.14
-    "@stripe/stripe-js": ^5.3.0
     "@types/google-one-tap": ^1.2.6
     "@types/lodash": ^4.17.13
     "@types/node": ^22.10.2
@@ -12827,7 +12806,6 @@ __metadata:
     ng2-charts: ^8.0.0
     ngx-cookie-service: ^19.0.0
     ngx-markdown: ^19.1.1
-    ngx-stripe: ^19.0.0
     node-sql-parser: ^5.4.0
     playwright: ^1.57.0
     pluralize: ^8.0.0

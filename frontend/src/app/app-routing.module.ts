@@ -124,25 +124,9 @@ const routes: Routes = [
 		canActivate: [AuthGuard],
 		title: 'Hosted Databases | Rocketadmin',
 	},
-	{
-		path: 'upgrade',
-		loadComponent: () => import('./components/upgrade/upgrade.component').then((m) => m.UpgradeComponent),
-		canActivate: [AuthGuard],
-		title: 'Upgrade | Rocketadmin',
-	},
-	{
-		path: 'upgrade/payment',
-		loadComponent: () => import('./components/payment-form/payment-form.component').then((m) => m.PaymentFormComponent),
-		canActivate: [AuthGuard],
-		title: 'Payment | Rocketadmin',
-	},
-	{
-		path: 'subscription/success',
-		loadComponent: () =>
-			import('./components/upgrade-success/upgrade-success.component').then((m) => m.UpgradeSuccessComponent),
-		canActivate: [AuthGuard],
-		title: 'Upgraded successfully | Rocketadmin',
-	},
+	{ path: 'upgrade', redirectTo: '/connections-list', pathMatch: 'full' },
+	{ path: 'upgrade/payment', redirectTo: '/connections-list', pathMatch: 'full' },
+	{ path: 'subscription/success', redirectTo: '/connections-list', pathMatch: 'full' },
 	{
 		path: 'auto-configure/:connection-id',
 		loadComponent: () =>
