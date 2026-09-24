@@ -40,9 +40,7 @@ describe('CompanyComponent', () => {
 		id: 'company-12345678',
 		name: 'My company',
 		additional_info: null,
-		portal_link: 'https://payments.rocketadmin.com/p/session/123455',
 		subscriptionLevel: SubscriptionPlans.free,
-		is_payment_method_added: true,
 		address: {},
 		connections: [
 			{
@@ -158,15 +156,13 @@ describe('CompanyComponent', () => {
 		expect(component).toBeTruthy();
 	});
 
-	it('should set initial values and call functions to define plan and receive company members', () => {
-		const fakeSetCompanyPlan = vi.spyOn(component, 'setCompanyPlan');
+	it('should set initial values and receive company members', () => {
 		vi.spyOn(fakeCompanyService.cast, 'subscribe');
 
 		component.ngOnInit();
 		fixture.detectChanges();
 
 		expect(component.company).toEqual(mockCompany);
-		expect(fakeSetCompanyPlan).toHaveBeenCalledWith(mockCompany.subscriptionLevel);
 		expect(fakeCompanyService.fetchCompanyMembers).toHaveBeenCalledWith(mockCompany.id);
 		expect(fakeCompanyService.cast.subscribe).toHaveBeenCalled();
 	});
@@ -226,19 +222,6 @@ describe('CompanyComponent', () => {
 			},
 		]);
 		expect(component.adminsCount).toBe(1);
-		expect(component.usersCount).toBe(3);
-	});
-
-	it('should set company plan to team if TEAM_PLAN', () => {
-		component.setCompanyPlan(SubscriptionPlans.team);
-
-		expect(component.currentPlan).toBe('team');
-	});
-
-	it('should set company plan to free if nothing is in subscriptionLevel', () => {
-		component.setCompanyPlan(null);
-
-		expect(component.currentPlan).toBe('free');
 	});
 
 	it('should open Add member dialog and pass company id and name', () => {

@@ -17,7 +17,6 @@ export class UserService {
 		isActive: false,
 		email: '',
 		createdAt: '',
-		portal_link: '',
 		subscriptionLevel: SubscriptionPlans.free,
 		is_2fa_enabled: false,
 		role: CompanyMemberRole.Member,

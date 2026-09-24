@@ -19,7 +19,6 @@ import { orderBy } from 'lodash-es';
 import posthog from 'posthog-js';
 import { Subscription } from 'rxjs';
 import { Company, CompanyMember, CompanyMemberRole } from 'src/app/models/company';
-import { SubscriptionPlans } from 'src/app/models/user';
 import { CompanyService } from 'src/app/services/company.service';
 import { UserService } from 'src/app/services/user.service';
 import { environment } from 'src/environments/environment';
@@ -65,9 +64,7 @@ export class CompanyComponent {
 	public isSaas = (environment as any).saas;
 	public company: Company = null;
 	public members: any = null;
-	public currentPlan: string;
 	public submitting: boolean;
-	public usersCount: number;
 	public adminsCount: number;
 	public unsuspendedAdminsCount: number;
 	public membersTableDisplayedColumns: string[];
@@ -136,7 +133,6 @@ export class CompanyComponent {
 
 		this._company.fetchCompany().subscribe((res) => {
 			this.company = res;
-			this.setCompanyPlan(res.subscriptionLevel);
 			this.getCompanyMembers(res.id);
 			if (this.isCustomDomain) {
 				this.companyCustomDomainHostname = res.custom_domain;
@@ -204,7 +200,6 @@ export class CompanyComponent {
 			});
 			this.adminsCount = res.filter((user) => user.role === 'ADMIN').length;
 			this.unsuspendedAdminsCount = res.filter((user) => user.role === 'ADMIN' && !user.suspended).length;
-			this.usersCount = this.company.invitations.length + res.length;
 			this.submittingUsersChange = false;
 		});
 	}
@@ -226,15 +221,6 @@ export class CompanyComponent {
 				this.companyCustomDomainThirdLevel = this.companyCustomDomainPlaceholder.split('.')[0];
 			}
 		});
-	}
-
-	setCompanyPlan(subscriptionLevel: SubscriptionPlans) {
-		if (subscriptionLevel) {
-			this.currentPlan = subscriptionLevel;
-			this.currentPlan = this.currentPlan.slice(0, -5).toLowerCase();
-		} else {
-			this.currentPlan = 'free';
-		}
 	}
 
 	handleAddMemberDialogOpen() {

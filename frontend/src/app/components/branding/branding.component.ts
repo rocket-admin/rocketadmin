@@ -19,7 +19,6 @@ import { DeleteDomainDialogComponent } from '../company/delete-domain-dialog/del
 import { ProfileSidebarComponent } from '../profile/profile-sidebar/profile-sidebar.component';
 import { PlaceholderBrandingComponent } from '../skeletons/placeholder-branding/placeholder-branding.component';
 import { AlertComponent } from '../ui-components/alert/alert.component';
-import { RouterModule } from '@angular/router';
 
 @Component({
 	selector: 'app-branding',
@@ -33,7 +32,6 @@ import { RouterModule } from '@angular/router';
 		MatButtonModule,
 		MatIconModule,
 		MatTooltipModule,
-		RouterModule,
 		Angulartics2OnModule,
 		AlertComponent,
 		ProfileSidebarComponent,
@@ -45,7 +43,6 @@ export class BrandingComponent implements OnInit, OnDestroy {
 	protected posthog = posthog;
 	public isSaas = (environment as any).saas;
 	public company: Company = null;
-	public currentPlan: string;
 	public currentUser: any;
 
 	public companyCustomDomain: {
@@ -104,7 +101,6 @@ export class BrandingComponent implements OnInit, OnDestroy {
 
 		this._company.fetchCompany().subscribe((res) => {
 			this.company = res;
-			this.setCompanyPlan(res.subscriptionLevel);
 			if (this.isCustomDomain) {
 				this.companyCustomDomainHostname = res.custom_domain;
 			} else {
@@ -143,14 +139,6 @@ export class BrandingComponent implements OnInit, OnDestroy {
 				this.companyCustomDomainThirdLevel = this.companyCustomDomainPlaceholder.split('.')[0];
 			}
 		});
-	}
-
-	setCompanyPlan(subscriptionLevel: string) {
-		if (subscriptionLevel) {
-			this.currentPlan = subscriptionLevel.slice(0, -5).toLowerCase();
-		} else {
-			this.currentPlan = 'free';
-		}
 	}
 
 	handleChangeCompanyDomain() {

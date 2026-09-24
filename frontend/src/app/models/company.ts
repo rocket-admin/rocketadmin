@@ -26,11 +26,9 @@ export interface Company {
 	additional_info?: string;
 	name: string;
 	address: Address | {};
-	portal_link: string;
 	subscriptionLevel: SubscriptionPlans;
 	connections: CompanyConnection[];
 	invitations: CompanyMemberInvitation[];
-	is_payment_method_added: boolean;
 	show_test_connections: boolean;
 }
 

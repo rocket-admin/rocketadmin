@@ -4,13 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Title } from '@angular/platform-browser';
-import { RouterModule } from '@angular/router';
 import { Company, SamlConfig } from 'src/app/models/company';
-import { SubscriptionPlans } from 'src/app/models/user';
 import { CompanyService } from 'src/app/services/company.service';
 import { ProfileSidebarComponent } from '../profile/profile-sidebar/profile-sidebar.component';
 import { PlaceholderSsoComponent } from '../skeletons/placeholder-sso/placeholder-sso.component';
@@ -22,11 +19,9 @@ import { AlertComponent } from '../ui-components/alert/alert.component';
 		CommonModule,
 		MatInputModule,
 		MatCheckboxModule,
-		MatIconModule,
 		MatButtonModule,
 		MatTooltipModule,
 		FormsModule,
-		RouterModule,
 		MatFormFieldModule,
 		AlertComponent,
 		ProfileSidebarComponent,
@@ -37,7 +32,6 @@ import { AlertComponent } from '../ui-components/alert/alert.component';
 })
 export class SsoComponent implements OnInit {
 	public company: Company = null;
-	public hasEnterprisePlan: boolean = false;
 
 	public samlConfigInitial: SamlConfig = {
 		name: '',
@@ -73,15 +67,9 @@ export class SsoComponent implements OnInit {
 
 		this._company.fetchCompany().subscribe((res) => {
 			this.company = res;
-			this.hasEnterprisePlan =
-				res.subscriptionLevel === SubscriptionPlans.enterprise ||
-				res.subscriptionLevel === SubscriptionPlans.enterpriseAnnual;
-
-			if (this.hasEnterprisePlan) {
-				this._company.fetchSamlConfiguration(res.id).subscribe((config) => {
-					if (config.length) this.samlConfig = config[0];
-				});
-			}
+			this._company.fetchSamlConfiguration(res.id).subscribe((config) => {
+				if (config.length) this.samlConfig = config[0];
+			});
 		});
 	}
 

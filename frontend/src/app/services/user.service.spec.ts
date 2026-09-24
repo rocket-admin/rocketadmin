@@ -62,8 +62,6 @@ describe('UserService', () => {
 			isActive: true,
 			email: 'lyubov+9999@voloshko.com',
 			createdAt: '2021-01-20T11:17:44.138Z',
-			portal_link:
-				'https://billing.stripe.com/session/live_YWNjdF8xSk04RkJGdEhkZGExVHNCLF9LdHlWbVdQYWFZTWRHSWFST2xUUmZVZ1E0UVFoMjBX0100erRIau3Y',
 			subscriptionLevel: 'ANNUAL_ENTERPRISE_PLAN',
 		};
 		let isSubscribeCalled = false;
