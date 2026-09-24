@@ -86,13 +86,6 @@
 	display: contents;
 }
 
-.demoHome {
-	display: flex;
-	flex-direction: column-reverse;
-	align-items: center;
-	width: 100%;
-}
-
 .placeholder {
 	width: 100%;
 }

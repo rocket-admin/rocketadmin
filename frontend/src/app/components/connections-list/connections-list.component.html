@@ -17,12 +17,10 @@
         </div>
     </ng-template>
 
-    <div *ngIf="ownConnections !== null; else loader"
-        [ngClass]="{'home': !isDemo, 'demoHome': isDemo}">
+    <div *ngIf="ownConnections !== null; else loader" class="home">
         <app-own-connections
             [currentUser]="currentUser"
             [connections]="ownConnections"
-            [isDemo]="isDemo"
             [companyId]="currentUser?.company?.id">
         </app-own-connections>
     </div>

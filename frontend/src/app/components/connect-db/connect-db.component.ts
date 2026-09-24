@@ -121,15 +121,6 @@ export class ConnectDBComponent implements OnInit {
 		[DBtype.ClickHouse]: '8443',
 	};
 
-	// public isDemo: boolean = false;
-
-	public isDemoConnectionWarning: Alert = {
-		id: 10000000,
-		type: AlertType.Warning,
-		message:
-			"This is a DEMO SESSION! It will disappear after you log out. Don't use databases you're actively using or that contain information you wish to retain.",
-	};
-
 	public credentialsFormComponent: Type<BaseCredentialsFormComponent> | null = null;
 	public credentialsFormInputs: Record<string, any> = {};
 	public credentialsFormOutputs: Record<string, any> = {
@@ -149,10 +140,6 @@ export class ConnectDBComponent implements OnInit {
 		private angulartics2: Angulartics2,
 		private title: Title,
 	) {}
-
-	get isDemo() {
-		return this._user.isDemo;
-	}
 
 	ngOnInit() {
 		this.connectionID = this._connections.currentConnectionID;

@@ -175,14 +175,6 @@
 	}
 }
 
-.logo__demo-mark {
-	background: var(--color-accentedPalette-700);
-	font-size: 12px;
-	line-height: 20px;
-	margin-bottom: -2px;
-	padding: 0 8px;
-}
-
 .connection_active {
 	background: var(--color-accentedPalette-100);
 }

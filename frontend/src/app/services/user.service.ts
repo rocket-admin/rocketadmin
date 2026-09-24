@@ -26,8 +26,6 @@ export class UserService {
 		},
 	};
 
-	public isDemoEmail: boolean = false;
-
 	private user = new BehaviorSubject<any>(this.initialUserState);
 	public cast = this.user.asObservable();
 
@@ -39,14 +37,6 @@ export class UserService {
 
 	get user$() {
 		return this.user.asObservable();
-	}
-
-	setIsDemo(isDemo: boolean) {
-		this.isDemoEmail = isDemo;
-	}
-
-	get isDemo() {
-		return this.isDemoEmail;
 	}
 
 	fetchUser() {

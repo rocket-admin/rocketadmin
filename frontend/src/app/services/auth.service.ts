@@ -247,31 +247,6 @@ export class AuthService {
 		);
 	}
 
-	loginToDemoAccount() {
-		const config = this._configuration.getConfig();
-		return this._http.post<any>(config.saasURL + '/saas/user/demo/register', undefined).pipe(
-			map((res) => {
-				this.auth.next(res);
-				return res;
-			}),
-			catchError((err) => {
-				console.log(err);
-				this._notifications.showAlert(
-					AlertType.Error,
-					{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
-					[
-						{
-							type: AlertActionType.Button,
-							caption: 'Dismiss',
-							action: () => this._notifications.dismissAlert(),
-						},
-					],
-				);
-				return EMPTY;
-			}),
-		);
-	}
-
 	private static _hasValidSessionToken(): boolean {
 		const exp = localStorage.getItem('token_expiration');
 		if (!exp) return false;

@@ -22,7 +22,6 @@ export class OwnConnectionsComponent implements OnInit, OnChanges {
 	protected posthog = posthog;
 	@Input() currentUser: User;
 	@Input() connections: ConnectionItem[] = null;
-	@Input() isDemo: boolean = false;
 	@Input() companyId: string;
 
 	public displayedCardCount: number = 3;

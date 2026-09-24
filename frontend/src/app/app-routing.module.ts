@@ -22,11 +22,6 @@ const routes: Routes = [
 		title: 'Login | Rocketadmin',
 	},
 	{
-		path: 'demo',
-		loadComponent: () => import('./components/demo-login/demo-login.component').then((m) => m.DemoLoginComponent),
-		title: 'Demo | Rocketadmin',
-	},
-	{
 		path: 'forget-password',
 		loadComponent: () =>
 			import('./components/password-request/password-request.component').then((m) => m.PasswordRequestComponent),
@@ -104,6 +99,7 @@ const routes: Routes = [
 	},
 	{ path: 'hosted-databases', redirectTo: '/connections-list', pathMatch: 'full' },
 	{ path: 'saml', redirectTo: '/connections-list', pathMatch: 'full' },
+	{ path: 'demo', redirectTo: '/connections-list', pathMatch: 'full' },
 	{ path: 'upgrade', redirectTo: '/connections-list', pathMatch: 'full' },
 	{ path: 'upgrade/payment', redirectTo: '/connections-list', pathMatch: 'full' },
 	{ path: 'subscription/success', redirectTo: '/connections-list', pathMatch: 'full' },

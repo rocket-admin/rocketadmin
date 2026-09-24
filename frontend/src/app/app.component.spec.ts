@@ -53,7 +53,6 @@ describe('AppComponent', () => {
 	const mockUserService = {
 		cast: userCast,
 		fetchUser: vi.fn().mockReturnValue(of(fakeUser)),
-		setIsDemo: vi.fn(),
 	};
 
 	const mockUiSettingsService = {

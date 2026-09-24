@@ -65,7 +65,6 @@ export class AppComponent {
 	isFeatureNotificationShown: boolean = false;
 
 	userLoggedIn = null;
-	isDemo = false;
 	redirect_uri = `${location.origin}/loader`;
 	token = null;
 	routePathParam;
@@ -276,8 +275,6 @@ export class AppComponent {
 	initializeUserSession() {
 		this._user.fetchUser().subscribe((res: User) => {
 			this.currentUser = res;
-			this.isDemo = this.currentUser.email.startsWith('demo_') && this.currentUser.email.endsWith('@rocketadmin.com');
-			this._user.setIsDemo(this.isDemo);
 			this.setUserLoggedIn(true);
 			if (typeof window.Intercom !== 'undefined')
 				window.Intercom('boot', {
@@ -286,11 +283,6 @@ export class AppComponent {
 					user_id: res.id,
 					email: res.email,
 					hide_default_launcher: window.innerWidth <= 600,
-				});
-
-			if (this.isDemo)
-				window.hj?.('identify', this.currentUser.id, {
-					mode: 'demo',
 				});
 
 			// this._connections.fetchConnections()

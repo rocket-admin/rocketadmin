@@ -1,8 +1,6 @@
 <!-- Page header -->
 @if (!connections?.length && connections !== null) {
-    @if (isDemo) {
-        <h1 class="mat-display-1">Create your own test connection</h1>
-    } @else if (currentUser?.role === 'ADMIN' || currentUser?.role === 'DB_ADMIN') {
+    @if (currentUser?.role === 'ADMIN' || currentUser?.role === 'DB_ADMIN') {
         <h1 class="mat-display-1">Add your first connection</h1>
     }
 }
@@ -116,7 +114,7 @@
     </div>
 }
 
-@if (!connections?.length && connections !== null && !isDemo && hasMultipleMembers) {
+@if (!connections?.length && connections !== null && hasMultipleMembers) {
     <div class="empty-state_bottom">
         <p class="mat-body-1 empty-state__text">
             Invited to a company but don't see your admin panel?

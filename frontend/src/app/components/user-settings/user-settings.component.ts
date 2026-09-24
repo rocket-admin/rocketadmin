@@ -69,12 +69,6 @@ export class UserSettingsComponent implements OnInit {
 	public is2FAswitchingOffSettingsShown: boolean = false;
 	public is2FAEnabledToggle: boolean;
 
-	public isDemoAccountWarning: Alert = {
-		id: 10000000,
-		type: AlertType.Warning,
-		message: 'This is a DEMO SESSION! Once you log out, all changes made will be lost.',
-	};
-
 	constructor(
 		private _userService: UserService,
 		private _authService: AuthService,
@@ -82,10 +76,6 @@ export class UserSettingsComponent implements OnInit {
 		private title: Title,
 		private angulartics2: Angulartics2,
 	) {}
-
-	get isDemo() {
-		return this._userService.isDemo;
-	}
 
 	ngOnInit(): void {
 		this.title.setTitle(`Account settings | Rocketadmin`);

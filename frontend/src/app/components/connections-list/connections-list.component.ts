@@ -46,10 +46,6 @@ export class ConnectionsListComponent implements OnInit {
 		private title: Title,
 	) {}
 
-	get isDemo() {
-		return this._userService.isDemo;
-	}
-
 	get ownConnections() {
 		return this._connectionsServise.ownConnectionsList;
 	}
