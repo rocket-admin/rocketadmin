@@ -15,9 +15,7 @@ import { UiSettingsService } from '../../../services/ui-settings.service';
 	imports: [CommonModule, RouterModule, MatListModule, MatIconModule, MatButtonModule, MatTooltipModule],
 })
 export class ProfileSidebarComponent implements OnInit, AfterViewInit {
-	activeTab = input<
-		'account' | 'company' | 'saml' | 'api' | 'secrets' | 'zapier'
-	>('account');
+	activeTab = input<'account' | 'company' | 'api' | 'secrets' | 'zapier'>('account');
 
 	collapsed = signal(false);
 	initialized = signal(false);

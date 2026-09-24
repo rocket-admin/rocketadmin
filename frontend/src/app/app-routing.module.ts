@@ -99,17 +99,11 @@ const routes: Routes = [
 		title: 'Secrets | Rocketadmin',
 	},
 	{
-		path: 'saml',
-		pathMatch: 'full',
-		loadComponent: () => import('./components/sso/sso.component').then((m) => m.SsoComponent),
-		canActivate: [AuthGuard],
-		title: 'SAML SSO | Rocketadmin',
-	},
-	{
 		path: 'change-password',
 		loadChildren: () => import('./routes/password-change.routes').then((m) => m.PASSWORD_CHANGE_ROUTES),
 	},
 	{ path: 'hosted-databases', redirectTo: '/connections-list', pathMatch: 'full' },
+	{ path: 'saml', redirectTo: '/connections-list', pathMatch: 'full' },
 	{ path: 'upgrade', redirectTo: '/connections-list', pathMatch: 'full' },
 	{ path: 'upgrade/payment', redirectTo: '/connections-list', pathMatch: 'full' },
 	{ path: 'subscription/success', redirectTo: '/connections-list', pathMatch: 'full' },

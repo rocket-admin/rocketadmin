@@ -43,17 +43,6 @@
         <div class="sidebar-divider" [class.sidebar-divider_collapsed]="collapsed()"></div>
         <span *ngIf="!collapsed()" class="sidebar-group-label">Security</span>
         <a mat-list-item
-            *ngIf="isSaas"
-            routerLink="/saml"
-            [class.active-link]="activeTab() === 'saml'"
-            class="sidebar-nav-item"
-            [class.sidebar-nav-item_collapsed]="collapsed()"
-            [matTooltip]="collapsed() ? 'SAML SSO' : ''"
-            matTooltipPosition="right">
-            <mat-icon matListItemIcon>security</mat-icon>
-            <span *ngIf="!collapsed()" matListItemTitle>SAML SSO</span>
-        </a>
-        <a mat-list-item
             routerLink="/secrets"
             [class.active-link]="activeTab() === 'secrets'"
             class="sidebar-nav-item"

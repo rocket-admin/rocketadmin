@@ -69,22 +69,3 @@ export interface CompanyMemberInvitation {
 	invitedUserEmail: string;
 	role: CompanyMemberRole;
 }
-
-export interface SamlConfig {
-	id?: string;
-	name: string;
-	entryPoint: string;
-	issuer: string;
-	callbackUrl: string;
-	cert: string;
-	signatureAlgorithm: string;
-	digestAlgorithm: 'sha256';
-	active: true;
-	authnResponseSignedValidation: boolean;
-	assertionsSignedValidation: boolean;
-	allowedDomains: string[];
-	displayName: string;
-	logoUrl: string;
-	expectedIssuer: string;
-	slug: string;
-}
