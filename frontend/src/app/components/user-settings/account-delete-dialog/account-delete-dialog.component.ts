@@ -53,12 +53,6 @@ export class AccountDeleteDialogComponent implements OnInit {
 				'If you have any doubts about the security of your data, please contact our <strong>Support team</strong>.',
 		},
 		{
-			id: 'money-value',
-			caption: 'I`m not getting value from my membership.',
-			message:
-				'If you have other membership needs, you can always choose another <a href="https://app.rocketadmin.com/upgrade">trial plan</a>.',
-		},
-		{
 			id: 'other',
 			caption: 'Other',
 		},

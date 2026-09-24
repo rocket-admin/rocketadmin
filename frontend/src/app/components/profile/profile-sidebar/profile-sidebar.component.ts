@@ -16,7 +16,7 @@ import { UiSettingsService } from '../../../services/ui-settings.service';
 })
 export class ProfileSidebarComponent implements OnInit, AfterViewInit {
 	activeTab = input<
-		'account' | 'company' | 'subscription' | 'hosted-databases' | 'branding' | 'saml' | 'api' | 'secrets' | 'zapier'
+		'account' | 'company' | 'hosted-databases' | 'branding' | 'saml' | 'api' | 'secrets' | 'zapier'
 	>('account');
 
 	collapsed = signal(false);
