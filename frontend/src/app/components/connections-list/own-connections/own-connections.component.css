@@ -37,150 +37,6 @@
 	text-transform: uppercase;
 }
 
-/* ── Hosted banner ── */
-
-.hosted-banner {
-	appearance: none;
-	cursor: pointer;
-	width: 100%;
-	display: flex;
-	align-items: center;
-	gap: 16px;
-	padding: 18px 24px;
-	border-radius: 12px;
-	border: 1px solid var(--color-accentedPalette-200);
-	background-clip: padding-box;
-	background-color: var(--color-accentedPalette-50);
-	color: var(--color-accentedPalette-900);
-	text-align: left;
-	transition: border-color 200ms, box-shadow 200ms;
-}
-
-.hosted-banner:hover {
-	border-color: var(--color-accentedPalette-300);
-	box-shadow:
-		0px 8px 24px var(--color-accentedPalette-100),
-		0px 1px 5px var(--color-accentedPalette-50);
-}
-
-@media (prefers-color-scheme: dark) {
-	.hosted-banner {
-		border-color: var(--color-accentedPalette-700);
-		background-color: var(--color-accentedPalette-900);
-		color: var(--color-accentedPalette-100);
-	}
-
-	.hosted-banner:hover {
-		border-color: var(--color-accentedPalette-500);
-		box-shadow:
-			0px 8px 24px var(--color-accentedPalette-800),
-			0px 1px 5px var(--color-accentedPalette-600);
-	}
-}
-
-.hosted-banner:disabled {
-	opacity: 0.7;
-	cursor: wait;
-}
-
-.hosted-banner__iconBox {
-	flex-shrink: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 44px;
-	height: 44px;
-	border-radius: 999px;
-	background: rgba(255, 255, 255, 0.1);
-}
-
-.hosted-banner__icon {
-	width: 28px;
-	height: 28px;
-}
-
-@media (prefers-color-scheme: dark) {
-	.hosted-banner__icon {
-		filter: brightness(0) invert(1);
-	}
-}
-
-.hosted-banner__text {
-	display: flex;
-	flex-direction: column;
-	gap: 2px;
-	flex: 1;
-	min-width: 0;
-}
-
-.hosted-banner__title {
-	font-size: 15px;
-	font-weight: 600;
-}
-
-.hosted-banner__subtitle {
-	font-size: 13px;
-	opacity: 0.72;
-}
-
-.hosted-banner__badge {
-	flex-shrink: 0;
-	font-size: 12px;
-	font-weight: 600;
-	padding: 6px 12px;
-	border-radius: 999px;
-	background: var(--color-accentedPalette-700);
-	color: var(--color-accentedPalette-50);
-	white-space: nowrap;
-}
-
-.hosted-banner__chevron {
-	display: none;
-	flex-shrink: 0;
-	color: var(--color-accentedPalette-700);
-}
-
-@media (width <= 600px) {
-	.hosted-banner {
-		align-items: center;
-		padding: 10px 14px;
-		gap: 10px;
-	}
-
-	.hosted-banner__iconBox {
-		width: 30px;
-		height: 30px;
-	}
-
-	.hosted-banner__icon {
-		width: 18px !important;
-		height: 18px !important;
-		font-size: 18px !important;
-		line-height: 18px !important;
-	}
-
-	.hosted-banner__title {
-		font-size: 13px;
-		line-height: 1.2;
-	}
-
-	.hosted-banner__subtitle {
-		font-size: 11.5px;
-		line-height: 1.25;
-	}
-
-	.hosted-banner__badge {
-		display: none;
-	}
-
-	.hosted-banner__chevron {
-		display: block;
-		font-size: 20px;
-		width: 20px;
-		height: 20px;
-	}
-}
-
 /* ── DB grid (5 columns) ── */
 
 .dbGrid {
@@ -503,7 +359,7 @@
 	margin-top: 52px;
 }
 
-/* Show separate buttons on desktop, dropdown menu on mobile */
+/* Desktop and mobile button variants */
 .fabActions--mobile {
 	display: none;
 }
@@ -533,14 +389,6 @@
 	margin-left: 4px;
 }
 
-.fabHostedButton {
-	background: var(--color-accentedPalette-50);
-	border: 1px solid var(--color-accentedPalette-100);
-	border-radius: 24px;
-	color: var(--color-accentedPalette-900);
-	height: 48px !important;
-}
-
 @media (width <= 600px) {
 	.fabActions {
 		position: fixed;
@@ -551,132 +399,9 @@
 		z-index: 1;
 	}
 
-	.fabAddButton,
-	.fabHostedButton {
+	.fabAddButton {
 		width: auto;
 		min-width: 178px;
-	}
-}
-
-/* ── Add-connection menu styling (panelClass="addConnectionMenu") ── */
-
-::ng-deep .addConnectionMenu.mat-mdc-menu-panel {
-	min-width: 320px !important;
-	max-width: 360px !important;
-	border-radius: 14px !important;
-	box-shadow:
-		0 12px 28px rgba(0, 0, 0, 0.16),
-		0 4px 8px rgba(0, 0, 0, 0.08);
-	padding: 6px !important;
-	margin-bottom: 20px !important;
-}
-
-::ng-deep .addConnectionMenu .mat-mdc-menu-content {
-	padding: 0 !important;
-}
-
-::ng-deep .addConnectionMenu .mat-mdc-menu-item {
-	padding: 0 !important;
-	min-height: auto !important;
-	border-radius: 10px;
-	margin: 2px 0;
-}
-
-::ng-deep .addConnectionMenu .mat-mdc-menu-item:hover {
-	background-color: rgba(0, 0, 0, 0.04);
-}
-
-::ng-deep .addConnectionMenu .mat-mdc-menu-item .mat-mdc-menu-item-text {
-	width: 100%;
-}
-
-.addConnectionItem {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	width: 100%;
-	padding: 10px 12px 10px 0;
-	line-height: 1;
-}
-
-.addConnectionItem mat-icon {
-	margin: 0 !important;
-}
-
-.addConnectionItem__iconBox {
-	flex-shrink: 0;
-	width: 32px;
-	height: 32px;
-	border-radius: 8px;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	line-height: 1;
-}
-
-.addConnectionItem__iconBox mat-icon {
-	font-size: 18px !important;
-	width: 18px !important;
-	height: 18px !important;
-	line-height: 18px !important;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.addConnectionItem__iconBox--primary {
-	background-color: color-mix(in srgb, var(--color-accentedPalette-500) 14%, transparent);
-	color: var(--color-accentedPalette-500);
-}
-
-.addConnectionItem__iconBox--accent {
-	background-color: color-mix(in srgb, var(--color-alternativePalette-500) 14%, transparent);
-	color: var(--color-alternativePalette-500);
-}
-
-.addConnectionItem__iconBox--warn {
-	background-color: color-mix(in srgb, var(--color-warningPalette-500) 16%, transparent);
-	color: var(--color-warningPalette-500);
-}
-
-.addConnectionItem__text {
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	gap: 2px;
-	min-width: 0;
-}
-
-.addConnectionItem__title {
-	font-size: 14px;
-	font-weight: 600;
-	color: rgba(0, 0, 0, 0.88);
-	line-height: 1.2;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-.addConnectionItem__subtitle {
-	font-size: 12px;
-	color: rgba(0, 0, 0, 0.55);
-	line-height: 1.3;
-	white-space: normal;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-@media (prefers-color-scheme: dark) {
-	::ng-deep .addConnectionMenu .mat-mdc-menu-item:hover {
-		background-color: rgba(255, 255, 255, 0.06);
-	}
-
-	.addConnectionItem__title {
-		color: rgba(255, 255, 255, 0.92);
-	}
-
-	.addConnectionItem__subtitle {
-		color: rgba(255, 255, 255, 0.6);
 	}
 }
 

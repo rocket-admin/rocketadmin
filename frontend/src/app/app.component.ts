@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
@@ -51,7 +50,6 @@ amplitude.getInstance().init('9afd282be91f94da735c11418d5ff4f5');
 		MatButtonModule,
 		MatBadgeModule,
 		MatMenuModule,
-		MatDividerModule,
 		MatTooltipModule,
 		Angulartics2OnModule,
 		FeatureNotificationComponent,
@@ -272,10 +270,6 @@ export class AppComponent {
 
 	get isTestConnection() {
 		return this._connections.currentConnection?.isTestConnection || false;
-	}
-
-	get isHostedConnection() {
-		return this._connections.isHostedConnection;
 	}
 
 	get visibleTabs() {

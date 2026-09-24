@@ -36,14 +36,6 @@
                 </mat-icon>
                 <div matListItemTitle>Company</div>
             </a>
-            <a mat-list-item routerLink="/hosted-databases"
-                routerLinkActive="nav-bar__button_active"
-                aria-label="Hosted databases">
-                <mat-icon matListItemIcon fontSet="material-symbols-outlined" class="connection-navigation__icon">
-                    database
-                </mat-icon>
-                <div matListItemTitle>Hosted databases</div>
-            </a>
             <a mat-list-item routerLink="/secrets" class="account-section-item" data-testid="secrets-link-account-menu">
                 <mat-icon matListItemIcon class="connection-navigation__icon">
                     key
@@ -134,11 +126,6 @@
                             [ngClass]="{'connection_active': connectionID === connection.connection.id}">
                             {{connection.displayTitle}}
                         </a>
-                        <mat-divider></mat-divider>
-                        <a mat-menu-item routerLink="/hosted-databases">
-                            <mat-icon class="nav-menu__list-link-icon" fontSet="material-symbols-outlined">database</mat-icon>
-                            <span>Hosted databases</span>
-                        </a>
                     </ng-template>
                 </mat-menu>
                 <span *ngIf="isDemo" class="logo__demo-mark">demo</span>
@@ -146,7 +133,7 @@
 
             <div *ngIf="connectionID" class="menu">
                 <a mat-button *ngFor="let tab of visibleTabs" attr.data-testid="{{tab}}-header-link"
-                    routerLink="{{tab === 'edit-db' && isHostedConnection ? '/hosted-databases' : tab + '/' + connectionID}}"
+                    routerLink="{{tab + '/' + connectionID}}"
                     routerLinkActive="nav-bar__button_active"
                     class="nav-bar__button">
                     <span *ngIf="tab !== 'edit-db' ">{{navigationTabs[tab].caption}}</span>

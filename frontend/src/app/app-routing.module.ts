@@ -116,14 +116,7 @@ const routes: Routes = [
 		path: 'change-password',
 		loadChildren: () => import('./routes/password-change.routes').then((m) => m.PASSWORD_CHANGE_ROUTES),
 	},
-	{
-		path: 'hosted-databases',
-		pathMatch: 'full',
-		loadComponent: () =>
-			import('./components/hosted-databases/hosted-databases.component').then((m) => m.HostedDatabasesComponent),
-		canActivate: [AuthGuard],
-		title: 'Hosted Databases | Rocketadmin',
-	},
+	{ path: 'hosted-databases', redirectTo: '/connections-list', pathMatch: 'full' },
 	{ path: 'upgrade', redirectTo: '/connections-list', pathMatch: 'full' },
 	{ path: 'upgrade/payment', redirectTo: '/connections-list', pathMatch: 'full' },
 	{ path: 'subscription/success', redirectTo: '/connections-list', pathMatch: 'full' },

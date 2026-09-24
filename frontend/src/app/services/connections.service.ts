@@ -4,7 +4,6 @@ import { NavigationEnd, Router } from '@angular/router';
 import { IColorConfig, NgxThemeService } from '@brumeilde/ngx-theme';
 import { BehaviorSubject, EMPTY, throwError } from 'rxjs';
 import { catchError, filter, map } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
 import { AlertActionType, AlertType } from '../models/alert';
 import { Connection, ConnectionSettings, ConnectionType, DBtype } from '../models/connection';
 import { AccessLevel } from '../models/user';
@@ -138,11 +137,6 @@ export class ConnectionsService {
 
 	get currentTab() {
 		return this.currentPage;
-	}
-
-	get isHostedConnection(): boolean {
-		const host = this.connection?.host;
-		return !!environment.saas && !!host && host.endsWith('.db.rocketadmin.com');
 	}
 
 	canEditConnection() {
