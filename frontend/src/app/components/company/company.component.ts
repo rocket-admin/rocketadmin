@@ -17,7 +17,6 @@ import { RouterModule } from '@angular/router';
 import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import { orderBy } from 'lodash-es';
 import posthog from 'posthog-js';
-import { Subscription } from 'rxjs';
 import { Company, CompanyMember, CompanyMemberRole } from 'src/app/models/company';
 import { CompanyService } from 'src/app/services/company.service';
 import { UserService } from 'src/app/services/user.service';
@@ -88,12 +87,6 @@ export class CompanyComponent {
 	public submittingCustomDomain: boolean = false;
 	public isCustomDomain: boolean = false;
 
-	public submittingLogo: boolean = false;
-	public submittingFavicon: boolean = false;
-
-	public companyTabTitle: string;
-	public submittingTabTitle: boolean = false;
-
 	public companyRolesName = {
 		ADMIN: 'Account Owner',
 		DB_ADMIN: 'System Admin',
@@ -105,15 +98,9 @@ export class CompanyComponent {
 		GITHUB: 'github',
 	};
 
-	get whiteLabelSettings(): { logo: string; favicon: string; tabTitle: string } {
-		return this._company.whiteLabelSettings || { logo: '', favicon: '', tabTitle: '' };
-	}
-
 	get isDemo() {
 		return this._user.isDemo;
 	}
-
-	private getTitleSubscription: Subscription;
 
 	constructor(
 		public _company: CompanyService,
@@ -126,10 +113,7 @@ export class CompanyComponent {
 	ngOnInit() {
 		this.isCustomDomain = this._company.isCustomDomain() && this.isSaas;
 
-		this.getTitleSubscription = this._company.getCurrentTabTitle().subscribe((title) => {
-			this.companyTabTitle = title;
-			this.title.setTitle(`Company settings | ${title || 'Rocketadmin'}`);
-		});
+		this.title.setTitle('Company settings | Rocketadmin');
 
 		this._company.fetchCompany().subscribe((res) => {
 			this.company = res;
@@ -154,17 +138,8 @@ export class CompanyComponent {
 				this.getCompanyMembers(this.company.id);
 			} else if (arg === 'domain') {
 				this.getCompanyCustomDomain(this.company.id);
-			} else if (arg === 'updated-white-label-settings') {
-				// this.submittingLogo = true;
-				this._company.getWhiteLabelProperties(this.company.id).subscribe();
 			}
 		});
-	}
-
-	ngOnDestroy() {
-		if (this.getTitleSubscription) {
-			this.getTitleSubscription.unsubscribe();
-		}
 	}
 
 	getCompanyMembers(companyId: string) {
@@ -327,120 +302,6 @@ export class CompanyComponent {
 		this.dialog.open(DeleteDomainDialogComponent, {
 			width: '25em',
 			data: { companyId: this.company.id, domain: this.companyCustomDomainHostname },
-		});
-	}
-
-	onCompanyLogoSelected(event: any) {
-		this.submittingLogo = true;
-
-		const input = event.target as HTMLInputElement;
-		const file = input.files?.[0];
-		let companyLogoFile: File | null = null;
-
-		if (file) {
-			companyLogoFile = file;
-		} else {
-			companyLogoFile = null;
-		}
-
-		this._company.uploadLogo(this.company.id, companyLogoFile).subscribe(
-			(_res) => {
-				this.submittingLogo = false;
-				this.angulartics2.eventTrack.next({
-					action: 'Company: logo is uploaded successfully',
-				});
-				posthog.capture('Company: logo is uploaded successfully');
-			},
-			(_err) => {
-				this.submittingLogo = false;
-			},
-		);
-	}
-
-	removeLogo() {
-		this.submittingLogo = true;
-		this._company.removeLogo(this.company.id).subscribe(
-			(_res) => {
-				this.submittingLogo = false;
-				this.angulartics2.eventTrack.next({
-					action: 'Company: logo is removed successfully',
-				});
-				posthog.capture('Company: logo is removed successfully');
-			},
-			(_err) => {
-				this.submittingLogo = false;
-			},
-		);
-	}
-
-	onFaviconSelected(event: any) {
-		console.log('favicon selected');
-		this.submittingFavicon = true;
-
-		const input = event.target as HTMLInputElement;
-		const file = input.files?.[0];
-		let faviconFile: File | null = null;
-
-		if (file) {
-			faviconFile = file;
-		} else {
-			faviconFile = null;
-		}
-
-		this._company.uploadFavicon(this.company.id, faviconFile).subscribe(
-			(_res) => {
-				this.submittingFavicon = false;
-				this.angulartics2.eventTrack.next({
-					action: 'Company: favicon is uploaded successfully',
-				});
-				posthog.capture('Company: favicon is uploaded successfully');
-			},
-			(_err) => {
-				this.submittingFavicon = false;
-			},
-		);
-	}
-
-	removeFavicon() {
-		this.submittingFavicon = true;
-		this._company.removeFavicon(this.company.id).subscribe(
-			(_res) => {
-				this.submittingFavicon = false;
-				this.angulartics2.eventTrack.next({
-					action: 'Company: favicon is removed successfully',
-				});
-				posthog.capture('Company: favicon is removed successfully');
-			},
-			(_err) => {
-				this.submittingFavicon = false;
-			},
-		);
-	}
-
-	updateTabTitle() {
-		this.submittingTabTitle = true;
-		this._company.updateTabTitle(this.company.id, this.companyTabTitle).subscribe(
-			() => {
-				this.submittingTabTitle = false;
-				this.angulartics2.eventTrack.next({
-					action: 'Company: tab title is updated successfully',
-				});
-				posthog.capture('Company: tab title is updated successfully');
-			},
-			(_err) => {
-				this.submittingTabTitle = false;
-			},
-		);
-	}
-
-	deleteTabTitle() {
-		this.submittingTabTitle = true;
-		this._company.removeTabTitle(this.company.id).subscribe(() => {
-			this.submittingTabTitle = false;
-			this.angulartics2.eventTrack.next({
-				action: 'Company: tab title is deleted successfully',
-			});
-			posthog.capture('Company: tab title is deleted successfully');
 		});
 	}
 }

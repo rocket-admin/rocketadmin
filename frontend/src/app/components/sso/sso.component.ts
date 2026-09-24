@@ -61,9 +61,7 @@ export class SsoComponent implements OnInit {
 	) {}
 
 	ngOnInit() {
-		this._company.getCurrentTabTitle().subscribe((tabTitle) => {
-			this.title.setTitle(`SAML SSO | ${tabTitle || 'Rocketadmin'}`);
-		});
+		this.title.setTitle('SAML SSO | Rocketadmin');
 
 		this._company.fetchCompany().subscribe((res) => {
 			this.company = res;

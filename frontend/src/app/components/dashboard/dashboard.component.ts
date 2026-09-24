@@ -17,7 +17,6 @@ import { ServerError } from 'src/app/models/alert';
 import { CustomEvent, TableProperties } from 'src/app/models/table';
 import { ConnectionSettingsUI, UiSettings } from 'src/app/models/ui-settings';
 import { User } from 'src/app/models/user';
-import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TableStateService } from 'src/app/services/table-state.service';
@@ -110,7 +109,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 		private _tableRow: TableRowService,
 		private _uiSettings: UiSettingsService,
 		private _tableState: TableStateService,
-		private _company: CompanyService,
 		private _configState: ConfigurationStateService,
 		public router: Router,
 		private route: ActivatedRoute,
@@ -179,7 +177,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 				if (tables && tables.length === 0) {
 					this.noTablesError = true;
 					this.loading = false;
-					this.title.setTitle(`No tables | ${this._company.companyTabTitle || 'Rocketadmin'}`);
+					this.title.setTitle(`No tables | Rocketadmin`);
 				} else if (tables) {
 					this.formatTableNames();
 					this.route.paramMap
@@ -191,7 +189,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 									this.setTable(tableName);
 									console.log('setTable from getData paramMap');
 									this.title.setTitle(
-										`${this.selectedTableDisplayName} table | ${this._company.companyTabTitle || 'Rocketadmin'}`,
+										`${this.selectedTableDisplayName} table | Rocketadmin`,
 									);
 									this.selection.clear();
 								} else {
@@ -229,7 +227,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 				this.isServerError = true;
 				this.serverError = { abstract: err.error?.message || err.message, details: err.error?.originalMessage };
 				this.loading = false;
-				this.title.setTitle(`Error | ${this._company.companyTabTitle || 'Rocketadmin'}`);
+				this.title.setTitle(`Error | Rocketadmin`);
 			},
 		);
 	}

@@ -70,30 +70,14 @@
         <mat-toolbar color="primary" class="nav-bar"
             [ngClass]="{'nav-bar_home': !connectionID, 'nav-bar_connection': connectionID,
                 'nav-bar_exterior': userLoggedIn === false, 'nav-bar_interior': userLoggedIn === true}">
-            <!--<a routerLink="/connections-list" *ngIf="userLoggedIn && whiteLabelSettings.logo" class="logo">
-                <img [src]="whiteLabelSettings.logo" alt="Logo" class="logo__image">
-            </a>
-
-            <a routerLink="/connections-list" *ngIf="userLoggedIn && !whiteLabelSettings.logo" class="logo">
-                <img src="../assets/rocketadmin_logo_white.svg" *ngIf="whiteLabelSettings.logo !== '' && !whiteLabelSettings.logo" class="logo__image">
-            </a>-->
-
             <div class="logo-box">
                 <a routerLink="/connections-list"
                     *ngIf="userLoggedIn"
                     class="logo">
-                    <ng-container *ngIf="whiteLabelSettingsLoaded">
-                        <img *ngIf="whiteLabelSettings.logo; else defaultRocketLogo"
-                            [src]="whiteLabelSettings.logo"
-                            alt="Logo"
-                            class="logo__image">
-                        <ng-template #defaultRocketLogo>
-                            <picture>
-                                <source *ngIf="connectionID" media="(max-width: 600px)" srcset="../assets/rocketadmin_logo_white-short.svg">
-                                <img src="../assets/rocketadmin_logo_white.svg" alt="Rocketadmin logo" class="logo__image">
-                            </picture>
-                        </ng-template>
-                    </ng-container>
+                    <picture>
+                        <source *ngIf="connectionID" media="(max-width: 600px)" srcset="../assets/rocketadmin_logo_white-short.svg">
+                        <img src="../assets/rocketadmin_logo_white.svg" alt="Rocketadmin logo" class="logo__image">
+                    </picture>
                 </a>
 
                 <a *ngIf="userLoggedIn === false" href="https://rocketadmin.com/" class="logo">

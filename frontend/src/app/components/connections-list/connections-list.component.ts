@@ -7,7 +7,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { Title } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { Angulartics2Module } from 'angulartics2';
-import { take } from 'rxjs/operators';
 import { Connection } from 'src/app/models/connection';
 import { User } from 'src/app/models/user';
 import { CompanyService } from 'src/app/services/company.service';
@@ -71,12 +70,7 @@ export class ConnectionsListComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-		this._companyService
-			.getCurrentTabTitle()
-			.pipe(take(1))
-			.subscribe((tabTitle) => {
-				this.title.setTitle(`Connections | ${tabTitle || 'Rocketadmin'}`);
-			});
+		this.title.setTitle('Connections | Rocketadmin');
 
 		this._userService.cast.subscribe((user) => {
 			this.currentUser = user;

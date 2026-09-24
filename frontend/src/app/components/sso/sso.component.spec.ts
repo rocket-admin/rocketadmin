@@ -45,7 +45,6 @@ describe('SsoComponent', () => {
 			fetchSamlConfiguration: vi.fn().mockReturnValue(of([])),
 			createSamlConfiguration: vi.fn().mockReturnValue(of({})),
 			updateSamlConfiguration: vi.fn().mockReturnValue(of({})),
-			getCurrentTabTitle: vi.fn().mockReturnValue(of('Rocketadmin')),
 		};
 
 		await TestBed.configureTestingModule({

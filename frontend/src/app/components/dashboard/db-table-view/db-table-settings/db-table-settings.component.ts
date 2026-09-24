@@ -16,7 +16,6 @@ import { Angulartics2 } from 'angulartics2';
 import posthog from 'posthog-js';
 import { normalizeTableName } from 'src/app/lib/normalize';
 import { TableField, TableOrdering, TableSettings } from 'src/app/models/table';
-import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { PlaceholderTableSettingsComponent } from '../../../skeletons/placeholder-table-settings/placeholder-table-settings.component';
@@ -97,7 +96,6 @@ export class DbTableSettingsComponent implements OnInit {
 		private _tables: TablesService,
 		private _connections: ConnectionsService,
 		private _location: Location,
-		private _company: CompanyService,
 		public router: Router,
 		private title: Title,
 		private angulartics2: Angulartics2,
@@ -154,9 +152,7 @@ export class DbTableSettingsComponent implements OnInit {
 			if (Object.keys(res).length === 0 || (res && res.list_fields && !res.list_fields.length)) {
 				this.listFieldsOrder = [...this.fields];
 			}
-			this.title.setTitle(
-				`${res.display_name || this.displayTableName} - Table settings | ${this._company.companyTabTitle || 'Rocketadmin'}`,
-			);
+			this.title.setTitle(`${res.display_name || this.displayTableName} - Table settings | Rocketadmin`);
 		});
 	}
 

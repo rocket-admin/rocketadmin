@@ -113,9 +113,7 @@ export class UsersComponent implements OnInit {
 			.getCurrentConnectionTitle()
 			.pipe(take(1))
 			.subscribe((connectionTitle) => {
-				this._title.setTitle(
-					`User permissions - ${connectionTitle} | ${this._company.companyTabTitle || 'Rocketadmin'}`,
-				);
+				this._title.setTitle(`User permissions - ${connectionTitle} | Rocketadmin`);
 			});
 
 		this._userService.cast.pipe(takeUntilDestroyed(this._destroyRef)).subscribe((user) => {

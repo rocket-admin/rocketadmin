@@ -29,7 +29,6 @@ describe('CompanyComponent', () => {
 		getCustomDomain: vi.fn(),
 		updateCompanyName: vi.fn(),
 		updateCompanyMemberRole: vi.fn(),
-		getCurrentTabTitle: vi.fn(),
 		cast: of(''),
 	};
 	const fakeUserService = {
@@ -123,7 +122,6 @@ describe('CompanyComponent', () => {
 		fakeCompanyService.getCustomDomain.mockReturnValue(of(mockCompanyDomain));
 		fakeCompanyService.updateCompanyName.mockReturnValue(of({}));
 		fakeCompanyService.updateCompanyMemberRole.mockReturnValue(of({}));
-		fakeCompanyService.getCurrentTabTitle.mockReturnValue(of('Rocketadmin'));
 		fakeUserService.cast = of(mockMembers[1]);
 	});
 

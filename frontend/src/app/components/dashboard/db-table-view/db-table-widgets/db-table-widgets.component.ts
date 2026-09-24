@@ -14,7 +14,6 @@ import posthog from 'posthog-js';
 import { UIwidgets } from 'src/app/consts/record-edit-types';
 import { normalizeTableName } from 'src/app/lib/normalize';
 import { TableField, Widget } from 'src/app/models/table';
-import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
@@ -304,7 +303,6 @@ export class DbTableWidgetsComponent implements OnInit {
 		private _tables: TablesService,
 		private _location: Location,
 		private _uiSettings: UiSettingsService,
-		private _company: CompanyService,
 		public dialog: MatDialog,
 		public router: Router,
 		private title: Title,
@@ -322,9 +320,7 @@ export class DbTableWidgetsComponent implements OnInit {
 			this.fieldsCount = res.structure.length;
 			this.fields = res.structure.map((field: TableField) => field.column_name);
 			this.dispalyTableName = res.display_name || normalizeTableName(this.tableName);
-			this.title.setTitle(
-				`${this.dispalyTableName} - Field display | ${this._company.companyTabTitle || 'Rocketadmin'}`,
-			);
+			this.title.setTitle(`${this.dispalyTableName} - Field display | Rocketadmin`);
 			this.getWidgets();
 		});
 		this.codeEditorTheme = this._uiSettings.isDarkMode ? 'vs-dark' : 'vs';

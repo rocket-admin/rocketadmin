@@ -15,7 +15,6 @@ import posthog from 'posthog-js';
 import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
 import { User } from 'src/app/models/user';
 import { AuthService } from 'src/app/services/auth.service';
-import { CompanyService } from 'src/app/services/company.service';
 import { UserService } from 'src/app/services/user.service';
 import { ProfileSidebarComponent } from '../profile/profile-sidebar/profile-sidebar.component';
 import { AlertComponent } from '../ui-components/alert/alert.component';
@@ -81,7 +80,6 @@ export class UserSettingsComponent implements OnInit {
 	constructor(
 		private _userService: UserService,
 		private _authService: AuthService,
-		private _company: CompanyService,
 		public dialog: MatDialog,
 		private title: Title,
 		private angulartics2: Angulartics2,
@@ -92,7 +90,7 @@ export class UserSettingsComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-		this.title.setTitle(`Account settings | ${this._company.companyTabTitle || 'Rocketadmin'}`);
+		this.title.setTitle(`Account settings | Rocketadmin`);
 		this.currentUser = null;
 		this._userService.cast.subscribe((user) => {
 			this.currentUser = user;

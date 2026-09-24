@@ -23,7 +23,6 @@ import googlIPsList from 'src/app/consts/google-IP-addresses';
 import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
 import { Connection, ConnectionType, DBtype, TestConnection } from 'src/app/models/connection';
 import { AccessLevel } from 'src/app/models/user';
-import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { UserService } from 'src/app/services/user.service';
@@ -144,7 +143,6 @@ export class ConnectDBComponent implements OnInit {
 		private _connections: ConnectionsService,
 		private _notifications: NotificationsService,
 		public _user: UserService,
-		private _company: CompanyService,
 		private ngZone: NgZone,
 		public router: Router,
 		public dialog: MatDialog,
@@ -173,9 +171,9 @@ export class ConnectDBComponent implements OnInit {
 			.pipe(take(1))
 			.subscribe((connectionTitle) => {
 				if (this.connectionID) {
-					this.title.setTitle(`Credentials — ${connectionTitle} | ${this._company.companyTabTitle || 'Rocketadmin'}`);
+					this.title.setTitle(`Credentials — ${connectionTitle} | Rocketadmin`);
 				} else {
-					this.title.setTitle(`Add new database | ${this._company.companyTabTitle || 'Rocketadmin'}`);
+					this.title.setTitle(`Add new database | Rocketadmin`);
 				}
 			});
 

@@ -13,7 +13,6 @@ import { Title } from '@angular/platform-browser';
 import { Angulartics2, Angulartics2OnModule } from 'angulartics2';
 import posthog from 'posthog-js';
 import { ApiKey } from 'src/app/models/user';
-import { CompanyService } from 'src/app/services/company.service';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { UserService } from 'src/app/services/user.service';
 import { ProfileSidebarComponent } from '../profile/profile-sidebar/profile-sidebar.component';
@@ -50,7 +49,6 @@ export class ApiKeysComponent implements OnInit {
 
 	constructor(
 		private _userService: UserService,
-		private _company: CompanyService,
 		private _notifications: NotificationsService,
 		private dialog: MatDialog,
 		private title: Title,
@@ -58,9 +56,7 @@ export class ApiKeysComponent implements OnInit {
 	) {}
 
 	ngOnInit(): void {
-		this._company.getCurrentTabTitle().subscribe((tabTitle) => {
-			this.title.setTitle(`API Keys | ${tabTitle || 'Rocketadmin'}`);
-		});
+		this.title.setTitle('API Keys | Rocketadmin');
 		this.getAPIkeys();
 	}
 

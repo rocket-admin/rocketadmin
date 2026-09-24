@@ -18,7 +18,6 @@ import posthog from 'posthog-js';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Secret, SecretPagination } from 'src/app/models/secret';
-import { CompanyService } from 'src/app/services/company.service';
 import { SecretsService } from 'src/app/services/secrets.service';
 import { ProfileSidebarComponent } from '../profile/profile-sidebar/profile-sidebar.component';
 import { PlaceholderTableDataComponent } from '../skeletons/placeholder-table-data/placeholder-table-data.component';
@@ -67,16 +66,13 @@ export class SecretsComponent implements OnInit, OnDestroy {
 
 	constructor(
 		private _secrets: SecretsService,
-		private _company: CompanyService,
 		private dialog: MatDialog,
 		private angulartics2: Angulartics2,
 		private title: Title,
 	) {}
 
 	ngOnInit(): void {
-		this._company.getCurrentTabTitle().subscribe((tabTitle) => {
-			this.title.setTitle(`Secrets | ${tabTitle || 'Rocketadmin'}`);
-		});
+		this.title.setTitle('Secrets | Rocketadmin');
 
 		this.loadSecrets();
 

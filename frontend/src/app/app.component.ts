@@ -23,7 +23,6 @@ import { FeatureNotificationComponent } from './components/feature-notification/
 import { ViewAsBannerComponent } from './components/view-as-banner/view-as-banner.component';
 import { Connection } from './models/connection';
 import { AuthService } from './services/auth.service';
-import { CompanyService } from './services/company.service';
 import { ConnectionsService } from './services/connections.service';
 import { PosthogService } from './services/posthog.service';
 import { TablesService } from './services/tables.service';
@@ -75,14 +74,6 @@ export class AppComponent {
 	navigationTabs: object;
 	currentUser: User;
 	page: string;
-	whiteLabelSettingsLoaded = false;
-	whiteLabelSettings: {
-		logo: string;
-		favicon: string;
-	} = {
-		logo: '',
-		favicon: '',
-	};
 	public connections: Connection[] = [];
 
 	constructor(
@@ -91,7 +82,6 @@ export class AppComponent {
 		public route: ActivatedRoute,
 		public router: Router,
 		public _connections: ConnectionsService,
-		public _company: CompanyService,
 		public _user: UserService,
 		public _auth: AuthService,
 		_tables: TablesService,
@@ -178,7 +168,6 @@ export class AppComponent {
 
 		if (!expirationToken) {
 			this.setUserLoggedIn(false);
-			this.setDefaultFavicon();
 		}
 
 		this.navigationTabs = {
@@ -313,19 +302,6 @@ export class AppComponent {
 				this._connections.fetchConnections().subscribe();
 			});
 
-			this._company.getWhiteLabelProperties(res.company.id).subscribe((whiteLabelSettings) => {
-				this.whiteLabelSettings.logo = whiteLabelSettings.logo;
-				this.whiteLabelSettingsLoaded = true;
-
-				if (whiteLabelSettings.favicon) {
-					const newLink = document.createElement('link');
-					newLink.rel = 'icon';
-					newLink.href = whiteLabelSettings.favicon;
-					document.head.appendChild(newLink);
-				} else {
-					this.setDefaultFavicon();
-				}
-			});
 			this._uiSettings.getUiSettings().subscribe((settings) => {
 				this.isFeatureNotificationShown =
 					settings?.globalSettings?.lastFeatureNotificationId !== this.currentFeatureNotificationId;
@@ -373,28 +349,5 @@ export class AppComponent {
 				this.router.navigate(['/login']);
 			}
 		});
-	}
-
-	private setDefaultFavicon() {
-		const faviconIco = document.createElement('link');
-		faviconIco.rel = 'icon';
-		faviconIco.type = 'image/x-icon';
-		faviconIco.href = 'assets/favicon.ico';
-
-		const favicon16 = document.createElement('link');
-		favicon16.rel = 'icon';
-		favicon16.type = 'image/png';
-		favicon16.setAttribute('sizes', '16x16');
-		favicon16.href = 'assets/favicon-16x16.png';
-
-		const favicon32 = document.createElement('link');
-		favicon32.rel = 'icon';
-		favicon32.type = 'image/png';
-		favicon32.setAttribute('sizes', '32x32');
-		favicon32.href = 'assets/favicon-32x32.png';
-
-		document.head.appendChild(faviconIco);
-		document.head.appendChild(favicon16);
-		document.head.appendChild(favicon32);
 	}
 }
