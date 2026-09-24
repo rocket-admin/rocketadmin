@@ -85,13 +85,6 @@ const routes: Routes = [
 		canActivate: [AuthGuard],
 	},
 	{
-		path: 'branding',
-		pathMatch: 'full',
-		loadComponent: () => import('./components/branding/branding.component').then((m) => m.BrandingComponent),
-		canActivate: [AuthGuard],
-		title: 'Branding | Rocketadmin',
-	},
-	{
 		path: 'api-keys',
 		pathMatch: 'full',
 		loadComponent: () => import('./components/api-keys/api-keys.component').then((m) => m.ApiKeysComponent),

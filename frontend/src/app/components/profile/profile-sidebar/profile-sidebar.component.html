@@ -41,19 +41,6 @@
         </a>
 
         <div class="sidebar-divider" [class.sidebar-divider_collapsed]="collapsed()"></div>
-        <span *ngIf="!collapsed()" class="sidebar-group-label">Customization</span>
-        <a mat-list-item
-            routerLink="/branding"
-            [class.active-link]="activeTab() === 'branding'"
-            class="sidebar-nav-item"
-            [class.sidebar-nav-item_collapsed]="collapsed()"
-            [matTooltip]="collapsed() ? 'Branding' : ''"
-            matTooltipPosition="right">
-            <mat-icon matListItemIcon>palette</mat-icon>
-            <span *ngIf="!collapsed()" matListItemTitle>Branding</span>
-        </a>
-
-        <div class="sidebar-divider" [class.sidebar-divider_collapsed]="collapsed()"></div>
         <span *ngIf="!collapsed()" class="sidebar-group-label">Security</span>
         <a mat-list-item
             *ngIf="isSaas"
