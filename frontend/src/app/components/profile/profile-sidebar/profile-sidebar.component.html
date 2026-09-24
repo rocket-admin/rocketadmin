@@ -39,55 +39,9 @@
             <mat-icon matListItemIcon>apartment</mat-icon>
             <span *ngIf="!collapsed()" matListItemTitle>Company</span>
         </a>
-        <a mat-list-item
-            *ngIf="isSaas"
-            routerLink="/upgrade"
-            [class.active-link]="activeTab() === 'subscription'"
-            class="sidebar-nav-item"
-            [class.sidebar-nav-item_collapsed]="collapsed()"
-            [matTooltip]="collapsed() ? 'Subscription' : ''"
-            matTooltipPosition="right">
-            <mat-icon matListItemIcon>payments</mat-icon>
-            <span *ngIf="!collapsed()" matListItemTitle>Subscription</span>
-        </a>
-        <a mat-list-item
-            *ngIf="isSaas"
-            routerLink="/hosted-databases"
-            [class.active-link]="activeTab() === 'hosted-databases'"
-            class="sidebar-nav-item"
-            [class.sidebar-nav-item_collapsed]="collapsed()"
-            [matTooltip]="collapsed() ? 'Hosted Databases' : ''"
-            matTooltipPosition="right">
-            <mat-icon matListItemIcon>dns</mat-icon>
-            <span *ngIf="!collapsed()" matListItemTitle>Hosted Databases</span>
-        </a>
-
-        <div class="sidebar-divider" [class.sidebar-divider_collapsed]="collapsed()"></div>
-        <span *ngIf="!collapsed()" class="sidebar-group-label">Customization</span>
-        <a mat-list-item
-            routerLink="/branding"
-            [class.active-link]="activeTab() === 'branding'"
-            class="sidebar-nav-item"
-            [class.sidebar-nav-item_collapsed]="collapsed()"
-            [matTooltip]="collapsed() ? 'Branding' : ''"
-            matTooltipPosition="right">
-            <mat-icon matListItemIcon>palette</mat-icon>
-            <span *ngIf="!collapsed()" matListItemTitle>Branding</span>
-        </a>
 
         <div class="sidebar-divider" [class.sidebar-divider_collapsed]="collapsed()"></div>
         <span *ngIf="!collapsed()" class="sidebar-group-label">Security</span>
-        <a mat-list-item
-            *ngIf="isSaas"
-            routerLink="/saml"
-            [class.active-link]="activeTab() === 'saml'"
-            class="sidebar-nav-item"
-            [class.sidebar-nav-item_collapsed]="collapsed()"
-            [matTooltip]="collapsed() ? 'SAML SSO' : ''"
-            matTooltipPosition="right">
-            <mat-icon matListItemIcon>security</mat-icon>
-            <span *ngIf="!collapsed()" matListItemTitle>SAML SSO</span>
-        </a>
         <a mat-list-item
             routerLink="/secrets"
             [class.active-link]="activeTab() === 'secrets'"

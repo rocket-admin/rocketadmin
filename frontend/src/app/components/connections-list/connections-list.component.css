@@ -86,29 +86,6 @@
 	display: contents;
 }
 
-.demoHome {
-	display: flex;
-	flex-direction: column-reverse;
-	align-items: center;
-	width: 100%;
-}
-
-.connections-divider {
-	position: relative;
-	margin: 24px auto 32px;
-	width: calc(100% - 16px);
-}
-
-.connections-divider_or::after {
-	content: "OR";
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	background-color: var(--mat-sidenav-content-background-color);
-	padding: 0 8px;
-}
-
 .placeholder {
 	width: 100%;
 }

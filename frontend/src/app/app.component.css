@@ -140,14 +140,6 @@
 	}
 }
 
-.nav-bar__upgrade-button {
-	/* --mat-button-filled-label-text-color: #424242; */
-	/* --mat-button-filled-label-text-color: #fff !important; */
-	--mat-button-filled-container-height: 28px;
-
-	margin-right: -8px;
-}
-
 .nav-bar__account-button {
 	color: #fff;
 }
@@ -181,14 +173,6 @@
 		height: 28px;
 		margin-right: 8px;
 	}
-}
-
-.logo__demo-mark {
-	background: var(--color-accentedPalette-700);
-	font-size: 12px;
-	line-height: 20px;
-	margin-bottom: -2px;
-	padding: 0 8px;
 }
 
 .connection_active {
@@ -256,12 +240,6 @@
 
 	.connection-navigation__icon_account {
 		margin-top: 24px !important;
-	}
-
-	.connection-navigation__upgrade-button {
-		margin-top: -12px;
-		margin-left: 8px;
-		width: calc(100% - 16px);
 	}
 }
 

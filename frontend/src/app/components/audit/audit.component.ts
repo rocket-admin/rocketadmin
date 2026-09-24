@@ -14,12 +14,11 @@ import { User } from '@sentry/angular';
 import { Angulartics2OnModule } from 'angulartics2';
 import posthog from 'posthog-js';
 import { merge } from 'rxjs';
-import { take, tap } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 import { normalizeTableName } from 'src/app/lib/normalize';
 import { ServerError } from 'src/app/models/alert';
 import { Log } from 'src/app/models/logs';
 import { TableProperties } from 'src/app/models/table';
-import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { UsersService } from 'src/app/services/users.service';
@@ -81,7 +80,6 @@ export class AuditComponent implements OnInit {
 		private _connections: ConnectionsService,
 		private _tables: TablesService,
 		private _users: UsersService,
-		private _companyService: CompanyService,
 		public dialog: MatDialog,
 		private title: Title,
 		private paginatorIntl: MatPaginatorIntl,
@@ -99,12 +97,7 @@ export class AuditComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-		this._companyService
-			.getCurrentTabTitle()
-			.pipe(take(1))
-			.subscribe((tabTitle) => {
-				this.title.setTitle(`Connections | ${tabTitle || 'Rocketadmin'}`);
-			});
+		this.title.setTitle('Connections | Rocketadmin');
 		this.connectionID = this._connections.currentConnectionID;
 		this.accesLevel = this._connections.currentConnectionAccessLevel;
 		this.columns = ['User', 'Table', 'Action', 'Status', 'Date', 'Changes'];

@@ -26,7 +26,6 @@ import { Alert, AlertType, ServerError } from 'src/app/models/alert';
 import { DBtype } from 'src/app/models/connection';
 import { CustomAction, CustomEvent, TableField, TableForeignKey, Widget } from 'src/app/models/table';
 import { CedarPermissionService } from 'src/app/services/cedar-permission.service';
-import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { TableRowService } from 'src/app/services/table-row.service';
@@ -136,7 +135,6 @@ export class DbTableRowEditComponent implements OnInit {
 		private _tableRow: TableRowService,
 		private _notifications: NotificationsService,
 		private _tableState: TableStateService,
-		private _company: CompanyService,
 		private route: ActivatedRoute,
 		private ngZone: NgZone,
 		public router: Router,
@@ -172,9 +170,7 @@ export class DbTableRowEditComponent implements OnInit {
 			if (Object.keys(params).length === 0) {
 				this._tables.fetchTableStructure(this.connectionID, this.tableName).subscribe((res) => {
 					this.dispalyTableName = res.display_name || normalizeTableName(this.tableName);
-					this.title.setTitle(
-						`${this.dispalyTableName} - Add new record | ${this._company.companyTabTitle || 'Rocketadmin'}`,
-					);
+					this.title.setTitle(`${this.dispalyTableName} - Add new record | Rocketadmin`);
 
 					this.keyAttributesListFromStructure = res.primaryColumns.map((field: TableField) => field.column_name);
 					this.readonlyFields = res.readonly_fields;

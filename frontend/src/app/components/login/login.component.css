@@ -213,44 +213,6 @@
 	}
 }
 
-.login-form__sso-button-box {
-	grid-column: 3;
-	grid-row: 4;
-	width: 100%;
-}
-
-@media (width <= 600px) {
-	.login-form__sso-button-box {
-		order: 8;
-		margin: 4px 0;
-	}
-}
-
-.login-form__sso-button {
-	height: 40px;
-	width: 100%;
-}
-
-.login-form__sso-button ::ng-deep .mdc-button__label {
-	display: flex;
-	justify-content: space-between;
-	width: 100%;
-}
-
-.login-form__sso-caption {
-	flex: 1 0 auto;
-	text-align: center;
-}
-
-.login-form__sso-icon {
-	height: 18px;
-	width: 18px;
-}
-
-.login-form__sso-button:disabled .login-form__sso-icon {
-	filter: invert(0.85);
-}
-
 .login-form__link {
 	grid-column: 1 / span 3;
 	grid-row: 6;

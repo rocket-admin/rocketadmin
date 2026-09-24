@@ -13,7 +13,6 @@ import { of, Subject } from 'rxjs';
 import { type Mock, vi } from 'vitest';
 import { AppComponent } from './app.component';
 import { AuthService } from './services/auth.service';
-import { CompanyService } from './services/company.service';
 import { ConnectionsService } from './services/connections.service';
 import { TablesService } from './services/tables.service';
 import { UiSettingsService } from './services/ui-settings.service';
@@ -23,7 +22,6 @@ describe('AppComponent', () => {
 	let app: AppComponent;
 	let fixture: ComponentFixture<AppComponent>;
 	// let connectionsService: ConnectionsService;
-	// let companyService: CompanyService;
 
 	const fakeUser = {
 		id: 'user-12345678',
@@ -55,11 +53,6 @@ describe('AppComponent', () => {
 	const mockUserService = {
 		cast: userCast,
 		fetchUser: vi.fn().mockReturnValue(of(fakeUser)),
-		setIsDemo: vi.fn(),
-	};
-
-	const mockCompanyService = {
-		getWhiteLabelProperties: vi.fn(),
 	};
 
 	const mockUiSettingsService = {
@@ -100,7 +93,6 @@ describe('AppComponent', () => {
 				provideHttpClient(),
 				{ provide: AuthService, useValue: mockAuthService },
 				{ provide: UserService, useValue: mockUserService },
-				{ provide: CompanyService, useValue: mockCompanyService },
 				{ provide: UiSettingsService, useValue: mockUiSettingsService },
 				{ provide: TablesService, useValue: mockTablesService },
 				{ provide: ConnectionsService, useValue: mockConnectionsService },
@@ -138,7 +130,6 @@ describe('AppComponent', () => {
 		vi.mocked(app.logOut).mockClear();
 		vi.mocked(app.router.navigate).mockClear();
 		mockUiSettingsService.getUiSettings.mockClear();
-		mockCompanyService.getWhiteLabelProperties.mockClear();
 		mockUserService.fetchUser.mockClear();
 	});
 
@@ -146,8 +137,7 @@ describe('AppComponent', () => {
 		expect(app).toBeTruthy();
 	});
 
-	it('should set userLoggedIn and logo on user session initialization', async () => {
-		mockCompanyService.getWhiteLabelProperties.mockReturnValue(of({ logo: 'data:png;base64,some-base64-data' }));
+	it('should set userLoggedIn on user session initialization', async () => {
 		mockUiSettingsService.getUiSettings.mockReturnValue(
 			of({ globalSettings: { lastFeatureNotificationId: 'old-id' } }),
 		);
@@ -155,29 +145,11 @@ describe('AppComponent', () => {
 		await fixture.whenStable();
 
 		expect(app.currentUser.email).toBe('test@email.com');
-		expect(app.whiteLabelSettings.logo).toBe('data:png;base64,some-base64-data');
 		expect(app.userLoggedIn).toBe(true);
 		expect(mockUiSettingsService.getUiSettings).toHaveBeenCalled();
 	});
 
-	it('should render custom logo in navbar if it is set', async () => {
-		mockCompanyService.getWhiteLabelProperties.mockReturnValue(of({ logo: 'data:png;base64,some-base64-data' }));
-		mockUiSettingsService.getUiSettings.mockReturnValue(
-			of({ globalSettings: { lastFeatureNotificationId: 'old-id' } }),
-		);
-		app.initializeUserSession();
-		await fixture.whenStable();
-
-		fixture.detectChanges();
-		const logoElement = fixture.debugElement.query(By.css('.logo')).nativeElement;
-		const logoImageElement = fixture.debugElement.query(By.css('.logo__image')).nativeElement;
-
-		expect(logoElement.href).toContain('/connections-list');
-		expect(logoImageElement.src).toEqual('data:png;base64,some-base64-data');
-	});
-
-	it('should render the link to Connetions list that contains the custom logo in the navbar', async () => {
-		mockCompanyService.getWhiteLabelProperties.mockReturnValue(of({ logo: null }));
+	it('should render the link to Connections list that contains Rocketadmin logo in the navbar', async () => {
 		mockUiSettingsService.getUiSettings.mockReturnValue(
 			of({ globalSettings: { lastFeatureNotificationId: 'old-id' } }),
 		);
@@ -207,7 +179,6 @@ describe('AppComponent', () => {
 
 	it('should render feature popup if isFeatureNotificationShown different on server and client', async () => {
 		app.currentFeatureNotificationId = 'new-id';
-		mockCompanyService.getWhiteLabelProperties.mockReturnValue(of({ logo: null }));
 		mockUiSettingsService.getUiSettings.mockReturnValue(
 			of({ globalSettings: { lastFeatureNotificationId: 'old-id' } }),
 		);
@@ -222,7 +193,6 @@ describe('AppComponent', () => {
 
 	it('should not render feature popup if isFeatureNotificationShown the same on server and client', async () => {
 		app.currentFeatureNotificationId = 'old-id';
-		mockCompanyService.getWhiteLabelProperties.mockReturnValue(of({ logo: null }));
 		mockUiSettingsService.getUiSettings.mockReturnValue(
 			of({ globalSettings: { lastFeatureNotificationId: 'old-id' } }),
 		);
@@ -272,7 +242,6 @@ describe('AppComponent', () => {
 			.spyOn(window, 'setTimeout')
 			.mockImplementation(() => 1 as unknown as ReturnType<typeof setTimeout>);
 
-		mockCompanyService.getWhiteLabelProperties.mockReturnValue(of({ logo: '', favicon: '' }));
 		mockUiSettingsService.getUiSettings.mockReturnValue(
 			of({ globalSettings: { lastFeatureNotificationId: 'old-id' } }),
 		);
@@ -293,7 +262,6 @@ describe('AppComponent', () => {
 		expect(app.userLoggedIn).toBe(true);
 		expect(app.currentUser.email).toBe('test@email.com');
 		expect(mockUserService.fetchUser).toHaveBeenCalled();
-		expect(mockCompanyService.getWhiteLabelProperties).toHaveBeenCalledWith('company-12345678');
 		expect(mockUiSettingsService.getUiSettings).toHaveBeenCalled();
 		expect(app.isFeatureNotificationShown).toBe(true);
 

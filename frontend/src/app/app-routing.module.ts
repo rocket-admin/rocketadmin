@@ -22,11 +22,6 @@ const routes: Routes = [
 		title: 'Login | Rocketadmin',
 	},
 	{
-		path: 'demo',
-		loadComponent: () => import('./components/demo-login/demo-login.component').then((m) => m.DemoLoginComponent),
-		title: 'Demo | Rocketadmin',
-	},
-	{
 		path: 'forget-password',
 		loadComponent: () =>
 			import('./components/password-request/password-request.component').then((m) => m.PasswordRequestComponent),
@@ -85,13 +80,6 @@ const routes: Routes = [
 		canActivate: [AuthGuard],
 	},
 	{
-		path: 'branding',
-		pathMatch: 'full',
-		loadComponent: () => import('./components/branding/branding.component').then((m) => m.BrandingComponent),
-		canActivate: [AuthGuard],
-		title: 'Branding | Rocketadmin',
-	},
-	{
 		path: 'api-keys',
 		pathMatch: 'full',
 		loadComponent: () => import('./components/api-keys/api-keys.component').then((m) => m.ApiKeysComponent),
@@ -106,43 +94,15 @@ const routes: Routes = [
 		title: 'Secrets | Rocketadmin',
 	},
 	{
-		path: 'saml',
-		pathMatch: 'full',
-		loadComponent: () => import('./components/sso/sso.component').then((m) => m.SsoComponent),
-		canActivate: [AuthGuard],
-		title: 'SAML SSO | Rocketadmin',
-	},
-	{
 		path: 'change-password',
 		loadChildren: () => import('./routes/password-change.routes').then((m) => m.PASSWORD_CHANGE_ROUTES),
 	},
-	{
-		path: 'hosted-databases',
-		pathMatch: 'full',
-		loadComponent: () =>
-			import('./components/hosted-databases/hosted-databases.component').then((m) => m.HostedDatabasesComponent),
-		canActivate: [AuthGuard],
-		title: 'Hosted Databases | Rocketadmin',
-	},
-	{
-		path: 'upgrade',
-		loadComponent: () => import('./components/upgrade/upgrade.component').then((m) => m.UpgradeComponent),
-		canActivate: [AuthGuard],
-		title: 'Upgrade | Rocketadmin',
-	},
-	{
-		path: 'upgrade/payment',
-		loadComponent: () => import('./components/payment-form/payment-form.component').then((m) => m.PaymentFormComponent),
-		canActivate: [AuthGuard],
-		title: 'Payment | Rocketadmin',
-	},
-	{
-		path: 'subscription/success',
-		loadComponent: () =>
-			import('./components/upgrade-success/upgrade-success.component').then((m) => m.UpgradeSuccessComponent),
-		canActivate: [AuthGuard],
-		title: 'Upgraded successfully | Rocketadmin',
-	},
+	{ path: 'hosted-databases', redirectTo: '/connections-list', pathMatch: 'full' },
+	{ path: 'saml', redirectTo: '/connections-list', pathMatch: 'full' },
+	{ path: 'demo', redirectTo: '/connections-list', pathMatch: 'full' },
+	{ path: 'upgrade', redirectTo: '/connections-list', pathMatch: 'full' },
+	{ path: 'upgrade/payment', redirectTo: '/connections-list', pathMatch: 'full' },
+	{ path: 'subscription/success', redirectTo: '/connections-list', pathMatch: 'full' },
 	{
 		path: 'auto-configure/:connection-id',
 		loadComponent: () =>

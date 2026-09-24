@@ -15,7 +15,6 @@ import { take } from 'rxjs';
 import { ServerError } from 'src/app/models/alert';
 import { ConnectionSettings } from 'src/app/models/connection';
 import { TableProperties } from 'src/app/models/table';
-import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { environment } from 'src/environments/environment';
@@ -70,7 +69,6 @@ export class ConnectionSettingsComponent implements OnInit {
 	constructor(
 		private _connections: ConnectionsService,
 		private _tables: TablesService,
-		private _company: CompanyService,
 		private title: Title,
 		@Inject(Angulartics2) private angulartics2: Angulartics2,
 	) {}
@@ -80,7 +78,7 @@ export class ConnectionSettingsComponent implements OnInit {
 			.getCurrentConnectionTitle()
 			.pipe(take(1))
 			.subscribe((connectionTitle) => {
-				this.title.setTitle(`Settings - ${connectionTitle} | ${this._company.companyTabTitle || 'Rocketadmin'}`);
+				this.title.setTitle(`Settings - ${connectionTitle} | Rocketadmin`);
 			});
 
 		this.connectionID = this._connections.currentConnectionID;

@@ -134,7 +134,6 @@ describe('UsersComponent', () => {
 			createdAt: '2021-10-01T13:43:02.034Z',
 			gclid: null,
 			isActive: true,
-			stripeId: 'cus_123456789',
 			email: 'user@test.com',
 		};
 

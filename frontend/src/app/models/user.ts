@@ -33,7 +33,6 @@ export interface GroupUser {
 	createdAt: string;
 	gclid: string | null;
 	isActive: boolean;
-	stripeId: string;
 	email: string;
 	name?: string;
 }
@@ -57,7 +56,6 @@ export interface User {
 	email: string;
 	name?: string;
 	createdAt?: string;
-	portal_link: string;
 	subscriptionLevel: SubscriptionPlans;
 	is_2fa_enabled: boolean;
 	role: CompanyMemberRole;

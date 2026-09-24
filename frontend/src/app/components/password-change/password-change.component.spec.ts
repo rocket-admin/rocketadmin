@@ -62,7 +62,6 @@ describe('PasswordChangeComponent', () => {
 			id: '9127389214',
 			email: 'my@email.com',
 			isActive: true,
-			portal_link: 'http://lsdkjfl.dhj',
 			subscriptionLevel: SubscriptionPlans.free,
 			is_2fa_enabled: false,
 			role: CompanyMemberRole.Member,

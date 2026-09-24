@@ -4,7 +4,6 @@ import { NavigationEnd, Router } from '@angular/router';
 import { IColorConfig, NgxThemeService } from '@brumeilde/ngx-theme';
 import { BehaviorSubject, EMPTY, throwError } from 'rxjs';
 import { catchError, filter, map } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
 import { AlertActionType, AlertType } from '../models/alert';
 import { Connection, ConnectionSettings, ConnectionType, DBtype } from '../models/connection';
 import { AccessLevel } from '../models/user';
@@ -71,7 +70,6 @@ export class ConnectionsService {
 	public isCustomAccentedColor: boolean;
 	public defaultDisplayTable: string;
 	public ownConnections: Connection[] = null;
-	public testConnections: Connection[] = null;
 
 	private connectionNameSubject: BehaviorSubject<string> = new BehaviorSubject<string>('Rocketadmin');
 	private connectionSigningKeySubject: BehaviorSubject<string> = new BehaviorSubject<string>(null);
@@ -140,11 +138,6 @@ export class ConnectionsService {
 		return this.currentPage;
 	}
 
-	get isHostedConnection(): boolean {
-		const host = this.connection?.host;
-		return !!environment.saas && !!host && host.endsWith('.db.rocketadmin.com');
-	}
-
 	canEditConnection() {
 		return this._permissions.canI('connection:edit', 'Connection', this.connectionID)();
 	}
@@ -161,10 +154,6 @@ export class ConnectionsService {
 
 	get ownConnectionsList() {
 		return this.ownConnections;
-	}
-
-	get testConnectionsList() {
-		return this.testConnections;
 	}
 
 	getCurrentConnectionTitle() {
@@ -303,7 +292,6 @@ export class ConnectionsService {
 					return { ...connectionItem, connection, displayTitle };
 				});
 				this.ownConnections = connections.filter((connectionItem) => !connectionItem.connection.isTestConnection);
-				this.testConnections = connections.filter((connectionItem) => connectionItem.connection.isTestConnection);
 				return connections;
 			}),
 			catchError((err) => {

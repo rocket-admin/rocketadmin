@@ -16,7 +16,6 @@ import { SignalComponentIoModule } from 'ng-dynamic-component/signal-component-i
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { CookieService } from 'ngx-cookie-service';
 import { MarkdownModule, MERMAID_OPTIONS, provideMarkdown } from 'ngx-markdown';
-import { NgxStripeModule } from 'ngx-stripe';
 import { AppComponent } from './app/app.component';
 import { AppRoutingModule } from './app/app-routing.module';
 import { ConfigModule } from './app/modules/config.module';
@@ -73,11 +72,6 @@ type Palettes = {
 };
 type Colors = { myColorName: string };
 
-const stripeKey =
-	location.host === environment.stagingHost
-		? 'pk_test_51JM8FBFtHdda1TsBTjVNBFMIAA8cXLNWTmZCF22FCS5swdJIFqMk82ZEeZpvTys7oxlDekdcYIGaQ5MEFz6lWa2s000r6RziCg'
-		: 'pk_live_51JM8FBFtHdda1TsBR7nieMFVFigZAUXbPhQTNvaSyLynIW1lbfzO6rfqqIUn0JAGJRq9mrwKwrVCsDDFOs84M7pE006xDqNgHk';
-
 if (environment.production) {
 	enableProdMode();
 }
@@ -114,7 +108,6 @@ bootstrapApplication(AppComponent, {
 			NgxThemeModule.forRoot(colorConfig, {
 				frameworks: ['material'], // optional, default : ['tailwind', 'material']
 			}),
-			NgxStripeModule.forRoot(stripeKey),
 			ConfigModule.buildForConfigUrl('/config.json'),
 		),
 		provideCodeEditor({

@@ -34,23 +34,16 @@
     </form>
 
     <div class="tableHeader">
-        <h2 class="heading-2 tableHeader__heading">Members <span *ngIf="currentPlan === 'free' && isSaas" data-testid="company-members-max-string">(max 3)</span></h2>
+        <h2 class="heading-2 tableHeader__heading">Members</h2>
         <div class="tableHeader__actions">
-            <div data-testid="company-invitation-button-wrapper"
-                [matTooltip]="currentPlan === 'free' && usersCount >= 3 && isSaas ? 'To add more members please upgrade your plan.' : null">
-                <button *ngIf="currentUser && currentUser.role === 'ADMIN'"
-                    mat-flat-button type="button" color="primary"
-                    data-testid="company-invitation-button"
-                    angulartics2On="click"
-                    angularticsAction="Company: invite member is clicked"
-                    (click)="handleAddMemberDialogOpen(); posthog.capture('Company: invite member is clicked')"
-                    [disabled]="currentPlan === 'free' && usersCount >= 3 && isSaas">
-                    Invite member
-                    <mat-icon *ngIf="currentPlan === 'free' && usersCount >= 3 && isSaas">
-                        info
-                    </mat-icon>
-                </button>
-            </div>
+            <button *ngIf="currentUser && currentUser.role === 'ADMIN'"
+                mat-flat-button type="button" color="primary"
+                data-testid="company-invitation-button"
+                angulartics2On="click"
+                angularticsAction="Company: invite member is clicked"
+                (click)="handleAddMemberDialogOpen(); posthog.capture('Company: invite member is clicked')">
+                Invite member
+            </button>
         </div>
     </div>
 
@@ -267,15 +260,6 @@
         <tr mat-header-row *matHeaderRowDef="membersTableDisplayedColumns" class="company-members-table-heading"></tr>
         <tr mat-row *matRowDef="let row; columns: membersTableDisplayedColumns;" class="company-member-row"></tr>
     </table>
-
-    <mat-slide-toggle class="test-connections-toggle" *ngIf="currentUser && currentUser.role === 'ADMIN'"
-        name="showTestConnections"
-        data-testid="company-test-connections-switch"
-        [disabled]="isDemo"
-        [(ngModel)]="company.show_test_connections"
-        (change)="changeShowTestConnections($event.checked)">
-        Show Demo panels for all members
-    </mat-slide-toggle>
         </div>
     </div>
 </div>

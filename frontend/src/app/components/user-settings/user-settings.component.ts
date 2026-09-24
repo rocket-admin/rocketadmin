@@ -15,7 +15,6 @@ import posthog from 'posthog-js';
 import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
 import { User } from 'src/app/models/user';
 import { AuthService } from 'src/app/services/auth.service';
-import { CompanyService } from 'src/app/services/company.service';
 import { UserService } from 'src/app/services/user.service';
 import { ProfileSidebarComponent } from '../profile/profile-sidebar/profile-sidebar.component';
 import { AlertComponent } from '../ui-components/alert/alert.component';
@@ -48,8 +47,6 @@ export class UserSettingsComponent implements OnInit {
 	public currentUser: User = null;
 	public submittingChangedName: boolean;
 	public userName: string;
-	public submittingChangedShowTestConnections: boolean;
-	public showTestConnections: 'on' | 'off';
 	public emailVerificationWarning: Alert = {
 		id: 10000001,
 		type: AlertType.Warning,
@@ -72,33 +69,21 @@ export class UserSettingsComponent implements OnInit {
 	public is2FAswitchingOffSettingsShown: boolean = false;
 	public is2FAEnabledToggle: boolean;
 
-	public isDemoAccountWarning: Alert = {
-		id: 10000000,
-		type: AlertType.Warning,
-		message: 'This is a DEMO SESSION! Once you log out, all changes made will be lost.',
-	};
-
 	constructor(
 		private _userService: UserService,
 		private _authService: AuthService,
-		private _company: CompanyService,
 		public dialog: MatDialog,
 		private title: Title,
 		private angulartics2: Angulartics2,
 	) {}
 
-	get isDemo() {
-		return this._userService.isDemo;
-	}
-
 	ngOnInit(): void {
-		this.title.setTitle(`Account settings | ${this._company.companyTabTitle || 'Rocketadmin'}`);
+		this.title.setTitle(`Account settings | Rocketadmin`);
 		this.currentUser = null;
 		this._userService.cast.subscribe((user) => {
 			this.currentUser = user;
 			this.userName = user.name;
 			this.is2FAEnabledToggle = user.is_2fa_enabled;
-			this.showTestConnections = user.show_test_connections;
 		});
 	}
 
@@ -181,18 +166,6 @@ export class UserSettingsComponent implements OnInit {
 				});
 				posthog.capture('User settings: 2fa disabled successfully');
 			}
-		});
-	}
-
-	changeShowTestConnections(checked: boolean) {
-		const displayMode = checked ? 'on' : 'off';
-		this.submittingChangedShowTestConnections = true;
-		this._userService.updateShowTestConnections(displayMode).subscribe(() => {
-			this.submittingChangedShowTestConnections = false;
-			this.angulartics2.eventTrack.next({
-				action: 'Company: show test connections is updated successfully',
-			});
-			posthog.capture('Company: show test connections is updated successfully');
 		});
 	}
 }

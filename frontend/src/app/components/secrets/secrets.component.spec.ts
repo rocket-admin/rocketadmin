@@ -5,12 +5,12 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { Title } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { Angulartics2Module } from 'angulartics2';
 import { BehaviorSubject, of } from 'rxjs';
 import { Secret } from 'src/app/models/secret';
-import { CompanyService } from 'src/app/services/company.service';
 import { SecretsService } from 'src/app/services/secrets.service';
 import { ProfileSidebarComponent } from '../profile/profile-sidebar/profile-sidebar.component';
 import { AuditLogDialogComponent } from './audit-log-dialog/audit-log-dialog.component';
@@ -23,7 +23,6 @@ describe('SecretsComponent', () => {
 	let component: SecretsComponent;
 	let fixture: ComponentFixture<SecretsComponent>;
 	let mockSecretsService: any;
-	let mockCompanyService: any;
 	let mockDialog: any;
 	let secretsUpdatedSubject: BehaviorSubject<string>;
 
@@ -49,10 +48,6 @@ describe('SecretsComponent', () => {
 			cast: secretsUpdatedSubject.asObservable(),
 		} as any;
 
-		mockCompanyService = {
-			getCurrentTabTitle: vi.fn().mockReturnValue(of('Test Company')),
-		} as any;
-
 		mockDialog = {
 			open: vi.fn(),
 		} as any;
@@ -69,7 +64,6 @@ describe('SecretsComponent', () => {
 				provideHttpClient(),
 				provideHttpClientTesting(),
 				{ provide: SecretsService, useValue: mockSecretsService },
-				{ provide: CompanyService, useValue: mockCompanyService },
 				{ provide: MatDialog, useValue: mockDialog },
 			],
 		})
@@ -93,7 +87,7 @@ describe('SecretsComponent', () => {
 	});
 
 	it('should set page title on init', () => {
-		expect(mockCompanyService.getCurrentTabTitle).toHaveBeenCalled();
+		expect(TestBed.inject(Title).getTitle()).toBe('Secrets | Rocketadmin');
 	});
 
 	it('should initialize with pagination from response', () => {

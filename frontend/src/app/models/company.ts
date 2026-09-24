@@ -26,12 +26,9 @@ export interface Company {
 	additional_info?: string;
 	name: string;
 	address: Address | {};
-	portal_link: string;
 	subscriptionLevel: SubscriptionPlans;
 	connections: CompanyConnection[];
 	invitations: CompanyMemberInvitation[];
-	is_payment_method_added: boolean;
-	show_test_connections: boolean;
 }
 
 export interface CompanyMembershipGroup {
@@ -70,23 +67,4 @@ export interface CompanyMemberInvitation {
 	inviterId: string;
 	invitedUserEmail: string;
 	role: CompanyMemberRole;
-}
-
-export interface SamlConfig {
-	id?: string;
-	name: string;
-	entryPoint: string;
-	issuer: string;
-	callbackUrl: string;
-	cert: string;
-	signatureAlgorithm: string;
-	digestAlgorithm: 'sha256';
-	active: true;
-	authnResponseSignedValidation: boolean;
-	assertionsSignedValidation: boolean;
-	allowedDomains: string[];
-	displayName: string;
-	logoUrl: string;
-	expectedIssuer: string;
-	slug: string;
 }

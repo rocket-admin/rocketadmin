@@ -229,7 +229,7 @@ describe('UsersService', () => {
 	});
 
 	it('should fetch group users and update signal', async () => {
-		const mockUsers = [{ id: 'user-1', createdAt: '', gclid: null, isActive: true, stripeId: '', email: 'a@b.com' }];
+		const mockUsers = [{ id: 'user-1', createdAt: '', gclid: null, isActive: true, email: 'a@b.com' }];
 		mockApi.get.mockResolvedValue(mockUsers);
 
 		const result = await service.fetchGroupUsers('group-123');

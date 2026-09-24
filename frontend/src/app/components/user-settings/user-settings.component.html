@@ -3,8 +3,7 @@
 
     <div class="profile-main">
         <app-alert></app-alert>
-        <app-alert *ngIf="currentUser.id && !currentUser.isActive && !isDemo" [alert]="emailVerificationWarning"></app-alert>
-        <app-alert *ngIf="currentUser.id && isDemo" [alert]="isDemoAccountWarning"></app-alert>
+        <app-alert *ngIf="currentUser.id && !currentUser.isActive" [alert]="emailVerificationWarning"></app-alert>
 
         <div class="page">
             <h1 class="mat-h1">
@@ -92,15 +91,6 @@
                         </button>
                     </form>
                 </div>
-
-                <mat-slide-toggle style="margin-top: 20px;"
-                    name="showTestConnections"
-                    data-testid="user-settings-test-connections-switch"
-                    [disabled]="submittingChangedShowTestConnections || isDemo"
-                    [(ngModel)]="showTestConnections"
-                    (change)="changeShowTestConnections($event.checked)">
-                    Show Demo admin panels
-                </mat-slide-toggle>
 
             </div>
 

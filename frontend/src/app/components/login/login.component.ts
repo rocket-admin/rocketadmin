@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, NgZone, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -19,7 +18,6 @@ import { CompanyService } from 'src/app/services/company.service';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { environment } from 'src/environments/environment';
 import { AlertComponent } from '../ui-components/alert/alert.component';
-import { SsoDialogComponent } from './sso-dialog/sso-dialog.component';
 
 declare var google: any;
 
@@ -69,7 +67,6 @@ export class LoginComponent implements OnInit, AfterViewInit {
 		private ngZone: NgZone,
 		private _notifications: NotificationsService,
 		public _company: CompanyService,
-		public dialog: MatDialog,
 	) {}
 
 	ngOnInit(): void {
@@ -164,12 +161,6 @@ export class LoginComponent implements OnInit, AfterViewInit {
 			action: 'Login: github login redirect',
 		});
 		posthog.capture('Login: github login redirect');
-	}
-
-	openLoginWithSSOdialog() {
-		this.dialog.open(SsoDialogComponent, {
-			width: '32em',
-		});
 	}
 
 	loginWith2FA() {

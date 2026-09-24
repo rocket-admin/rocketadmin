@@ -17,7 +17,6 @@ export class UserService {
 		isActive: false,
 		email: '',
 		createdAt: '',
-		portal_link: '',
 		subscriptionLevel: SubscriptionPlans.free,
 		is_2fa_enabled: false,
 		role: CompanyMemberRole.Member,
@@ -26,8 +25,6 @@ export class UserService {
 			id: '',
 		},
 	};
-
-	public isDemoEmail: boolean = false;
 
 	private user = new BehaviorSubject<any>(this.initialUserState);
 	public cast = this.user.asObservable();
@@ -40,14 +37,6 @@ export class UserService {
 
 	get user$() {
 		return this.user.asObservable();
-	}
-
-	setIsDemo(isDemo: boolean) {
-		this.isDemoEmail = isDemo;
-	}
-
-	get isDemo() {
-		return this.isDemoEmail;
 	}
 
 	fetchUser() {
@@ -319,34 +308,6 @@ export class UserService {
 			map(() => {
 				this.user.next('delete');
 				this.router.navigate(['/deleted']);
-			}),
-			catchError((err) => {
-				console.log(err);
-				this._notifications.showAlert(
-					AlertType.Error,
-					{ abstract: err.error?.message || err.message, details: err.error?.originalMessage },
-					[
-						{
-							type: AlertActionType.Button,
-							caption: 'Dismiss',
-							action: (_id: number) => this._notifications.dismissAlert(),
-						},
-					],
-				);
-				return EMPTY;
-			}),
-		);
-	}
-
-	updateShowTestConnections(displayMode: 'on' | 'off') {
-		return this._http.put<any>(`/user/test/connections/display`, undefined, { params: { displayMode } }).pipe(
-			map((res) => {
-				if (displayMode === 'on') {
-					this._notifications.showSuccessSnackbar('Test connections now are displayed to you.');
-				} else {
-					this._notifications.showSuccessSnackbar('Test connections now are hidden from you.');
-				}
-				return res;
 			}),
 			catchError((err) => {
 				console.log(err);
