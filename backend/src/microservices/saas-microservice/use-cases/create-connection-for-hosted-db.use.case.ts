@@ -35,7 +35,10 @@ export class CreateConnectionForHostedDbUseCase
 			throw new InternalServerErrorException(Messages.USER_NOT_FOUND);
 		}
 
-		await slackPostMessage(Messages.USER_TRY_CREATE_CONNECTION(connectionAuthor.email, ConnectionTypesEnum.postgres));
+		// Fire-and-forget (slackPostMessage never rejects — same pattern as table-action-activation):
+		// this use case sits inside the website generation start path — agents-core → saas → here —
+		// under the caller's deadline, and the announcement must not add Slack's latency (2026-09-25).
+		slackPostMessage(Messages.USER_TRY_CREATE_CONNECTION(connectionAuthor.email, ConnectionTypesEnum.postgres));
 
 		const cert = await readSslCertificate();
 
@@ -107,7 +110,7 @@ export class CreateConnectionForHostedDbUseCase
 			}
 		}
 
-		await slackPostMessage(Messages.USER_CREATED_CONNECTION(connectionAuthor.email, ConnectionTypesEnum.postgres));
+		slackPostMessage(Messages.USER_CREATED_CONNECTION(connectionAuthor.email, ConnectionTypesEnum.postgres));
 
 		return { connectionId: savedConnection.id };
 	}
