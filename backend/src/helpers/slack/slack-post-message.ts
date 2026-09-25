@@ -3,6 +3,12 @@ import axios from 'axios';
 import { appConfig } from '../../shared/config/app-config.js';
 import { Constants } from '../constants/constants.js';
 
+// Slack is an external dependency that several request paths await inline (connection creation,
+// hosted-database registration…). axios has no default timeout, so a slow or unreachable Slack API
+// used to lengthen — or hang — the operation that merely wanted to announce itself. Five seconds is
+// generous for chat.postMessage and small next to the callers' own budgets (2026-09-25).
+const SLACK_REQUEST_TIMEOUT_MS = 5000;
+
 export async function slackPostMessage(message: string, channel = Constants.DEFAULT_SLACK_CHANNEL): Promise<unknown> {
 	try {
 		const slackBotToken = appConfig.thirdParty.slackBotAccessToken;
@@ -16,7 +22,7 @@ export async function slackPostMessage(message: string, channel = Constants.DEFA
 				channel: channel,
 				text: message,
 			},
-			{ headers: { authorization: `Bearer ${slackBotToken}` } },
+			{ headers: { authorization: `Bearer ${slackBotToken}` }, timeout: SLACK_REQUEST_TIMEOUT_MS },
 		);
 		const data = res.data as { ok?: boolean; error?: string };
 		if (data && data.ok === false) {
