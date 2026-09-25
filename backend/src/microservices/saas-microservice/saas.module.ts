@@ -40,7 +40,6 @@ import { GetUsersInfosByEmailUseCase } from './use-cases/get-users-infos-by-emai
 import { LoginUserWithGithubUseCase } from './use-cases/login-with-github.use.case.js';
 import { LoginWithGoogleUseCase } from './use-cases/login-with-google.use.case.js';
 import { RegisteredCompanyWebhookUseCase } from './use-cases/register-company-webhook.use.case.js';
-import { SaasRegisterDemoUserAccountUseCase } from './use-cases/register-demo-user-account.use.case.js';
 import { SaasGetUserEmailCompaniesUseCase } from './use-cases/saas-get-user-email-companies.use.case.js';
 import { SaasOtpLoginUseCase } from './use-cases/saas-otp-login.use.case.js';
 import { SaasUsualLoginUseCase } from './use-cases/saas-usual-login.use.case.js';
@@ -97,10 +96,6 @@ import { UpdateHostedConnectionPasswordUseCase } from './use-cases/update-hosted
 		{
 			provide: UseCaseType.SAAS_GET_COMPANY_INFO_BY_USER_ID,
 			useClass: GetFullCompanyInfoByUserIdUseCase,
-		},
-		{
-			provide: UseCaseType.SAAS_DEMO_USER_REGISTRATION,
-			useClass: SaasRegisterDemoUserAccountUseCase,
 		},
 		{
 			provide: UseCaseType.SAAS_CREATE_CONNECTION_FOR_HOSTED_DB,
@@ -232,7 +227,6 @@ export class SaasModule {
 				{ path: 'saas/user/logout', method: RequestMethod.POST },
 				{ path: 'saas/user/validate-token', method: RequestMethod.POST },
 				{ path: 'saas/company/my/email/:email', method: RequestMethod.GET },
-				{ path: 'saas/user/demo/register', method: RequestMethod.POST },
 				{ path: 'saas/user/google/login', method: RequestMethod.POST },
 				{ path: 'saas/user/github/login', method: RequestMethod.POST },
 				{ path: 'saas/user/:userId/company', method: RequestMethod.GET },

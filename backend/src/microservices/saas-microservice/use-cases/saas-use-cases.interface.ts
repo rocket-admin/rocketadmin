@@ -1,7 +1,6 @@
 import { FoundUserEmailCompaniesInfoDs } from '../../../entities/company-info/application/data-structures/found-company-info.ds.js';
 import { CompanyInfoEntity } from '../../../entities/company-info/company-info.entity.js';
 import { CreatedConnectionDTO } from '../../../entities/connection/application/dto/created-connection.dto.js';
-import { SaaSRegisterDemoUserAccountDS } from '../../../entities/user/application/data-structures/demo-user-account-register.ds.js';
 import { UsualLoginDs } from '../../../entities/user/application/data-structures/usual-login.ds.js';
 import { SaasUsualUserRegisterDS } from '../../../entities/user/application/data-structures/usual-register-user.ds.js';
 import { FoundUserDto } from '../../../entities/user/dto/found-user.dto.js';
@@ -47,10 +46,6 @@ export interface ISaasUsualLoginUser {
 
 export interface ISaasGetUserEmailCompanies {
 	execute(userEmail: string): Promise<Array<FoundUserEmailCompaniesInfoDs>>;
-}
-
-export interface ISaasDemoRegisterUser {
-	execute(userData: SaaSRegisterDemoUserAccountDS): Promise<FoundUserDto>;
 }
 
 export interface ILoginUserWithGoogle {

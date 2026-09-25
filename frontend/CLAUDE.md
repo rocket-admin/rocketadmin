@@ -160,7 +160,6 @@ Database configurations are defined in `src/app/consts/databases.ts`.
 
 - JWT token-based authentication with expiration handling
 - Google OAuth integration
-- Demo account functionality
 - Session restoration on app initialization
 - Automatic logout on token expiration
 
@@ -347,7 +346,6 @@ Custom launcher `ChromeHeadlessCustom` is configured for CI with flags `--no-san
 ### Analytics & Monitoring
 - **Angulartics2** with Amplitude integration
 - **@sentry/angular** for error monitoring
-- **Hotjar** for user behavior tracking (demo accounts)
 - **Intercom** for customer support
 
 ### Payment Processing

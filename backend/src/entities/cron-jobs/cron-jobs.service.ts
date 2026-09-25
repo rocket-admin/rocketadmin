@@ -67,7 +67,7 @@ export class CronJobsService {
 				const filteredOutEmailsCount = emailsBefore - emails.length;
 
 				await slackPostMessage(
-					`Found ${emails.length} valid emails${filteredOutEmailsCount ? `. Filtered out ${filteredOutEmailsCount} invalid or demo emails` : ``}. Starting messaging`,
+					`Found ${emails.length} valid emails${filteredOutEmailsCount ? `. Filtered out ${filteredOutEmailsCount} invalid emails` : ``}. Starting messaging`,
 					Constants.EXCEPTIONS_CHANNELS,
 				);
 
