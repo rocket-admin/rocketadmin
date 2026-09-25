@@ -13,12 +13,8 @@ import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filt
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { Messages } from '../../../src/exceptions/text/messages.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
-import { Constants } from '../../../src/helpers/constants/constants.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
-import { MockFactory } from '../../mock.factory.js';
-import { createTestTable } from '../../utils/create-test-table.js';
-import { getTestData } from '../../utils/get-test-data.js';
 import {
 	registerUserAndReturnUserInfo,
 	registerUserOnSaasAndReturnUserInfo,
@@ -28,8 +24,6 @@ import { TestUtils } from '../../utils/test.utils.js';
 let app: INestApplication;
 let currentTest: string;
 let _testUtils: TestUtils;
-
-const mockFactory = new MockFactory();
 
 test.before(async () => {
 	const moduleFixture = await Test.createTestingModule({
@@ -373,112 +367,3 @@ test.serial(
 		t.pass();
 	},
 );
-
-currentTest = 'POST /user/demo/register';
-test.serial(`${currentTest} should register demo user`, async (t) => {
-	const result = await fetch('http://rocketadmin-private-microservice:3001/saas/user/demo/register', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			Accept: 'application/json',
-		},
-	});
-	if (result.status > 201) {
-		console.info('result.body -> ', await result.json());
-	}
-	const token = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse2(result)}`;
-
-	//check test connections was created
-	const getUserConnectionsResult = await request(app.getHttpServer())
-		.get('/connections')
-		.set('Cookie', token)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const getUserConnectionsRO = JSON.parse(getUserConnectionsResult.text);
-	t.is(getUserConnectionsResult.status, 200);
-	t.is(Object.hasOwn(getUserConnectionsRO, 'connections'), true);
-	t.is(getUserConnectionsRO.connections.length, 2);
-
-	//check user can add connection and use it
-
-	const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
-
-	const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-		await createTestTable(connectionToTestDB);
-
-	const createConnectionResponse = await request(app.getHttpServer())
-		.post('/connection')
-		.send(connectionToTestDB)
-		.set('Cookie', token)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const createConnectionRO = JSON.parse(createConnectionResponse.text);
-	t.is(createConnectionResponse.status, 201);
-
-	const getTableRowsResponse = await request(app.getHttpServer())
-		.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
-		.set('Cookie', token)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-
-	const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-	t.is(getTableRowsResponse.status, 200);
-
-	t.is(typeof getTableRowsRO, 'object');
-	t.is(Object.hasOwn(getTableRowsRO, 'rows'), true);
-	t.is(Object.hasOwn(getTableRowsRO, 'primaryColumns'), true);
-	t.is(Object.hasOwn(getTableRowsRO, 'pagination'), true);
-	t.is(getTableRowsRO.rows.length, 42);
-	t.is(typeof getTableRowsRO.primaryColumns, 'object');
-	t.is(Object.hasOwn(getTableRowsRO.primaryColumns[0], 'column_name'), true);
-	t.is(Object.hasOwn(getTableRowsRO.primaryColumns[0], 'data_type'), true);
-	t.is(getTableRowsRO.primaryColumns[0].column_name, 'id');
-	t.is(getTableRowsRO.primaryColumns[0].data_type, 'integer');
-
-	//check that user has a company
-
-	const getUserCompanyResult = await request(app.getHttpServer())
-		.get('/company/my/full')
-		.set('Cookie', token)
-		.set('Content-Type', 'application/json')
-		.set('Accept', 'application/json');
-	const getUserCompanyRO = JSON.parse(getUserCompanyResult.text);
-	t.is(getUserCompanyResult.status, 200);
-
-	t.truthy(getUserCompanyRO);
-	t.is(typeof getUserCompanyRO, 'object');
-	t.is(Object.hasOwn(getUserCompanyRO, 'id'), true);
-	t.is(typeof getUserCompanyRO.id, 'string');
-	t.is(Object.hasOwn(getUserCompanyRO, 'name'), true);
-	t.is(typeof getUserCompanyRO.name, 'string');
-	t.is(Object.hasOwn(getUserCompanyRO, 'subscriptionLevel'), true);
-	t.is(getUserCompanyRO.subscriptionLevel, 'TEAM_PLAN');
-	t.is(Object.hasOwn(getUserCompanyRO, 'is_payment_method_added'), true);
-	t.is(getUserCompanyRO.is_payment_method_added, false);
-	t.is(Object.hasOwn(getUserCompanyRO, 'is2faEnabled'), true);
-	t.is(getUserCompanyRO.is2faEnabled, false);
-	t.is(Object.hasOwn(getUserCompanyRO, 'show_test_connections'), true);
-	t.is(getUserCompanyRO.show_test_connections, true);
-	t.is(Object.hasOwn(getUserCompanyRO, 'connections'), true);
-	t.true(Array.isArray(getUserCompanyRO.connections));
-	t.is(getUserCompanyRO.connections.length, 3);
-
-	for (const connection of getUserCompanyRO.connections) {
-		t.is(typeof connection.id, 'string');
-		t.is(typeof connection.title, 'string');
-		t.is(typeof connection.author, 'object');
-		t.is(connection.author.role, 'ADMIN');
-		t.true(Array.isArray(connection.groups));
-		for (const group of connection.groups) {
-			t.is(typeof group.id, 'string');
-			t.is(group.isMain, true);
-			t.is(typeof group.title, 'string');
-			t.true(Array.isArray(group.users));
-			for (const user of group.users) {
-				t.is(typeof user.id, 'string');
-				t.is(user.role, 'ADMIN');
-				t.is(typeof user.email, 'string');
-			}
-		}
-	}
-});

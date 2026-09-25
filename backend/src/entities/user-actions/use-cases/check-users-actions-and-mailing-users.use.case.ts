@@ -88,8 +88,7 @@ export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActio
 				.select('DISTINCT user.id as id')
 				.addSelect('user.email as email')
 				.innerJoin('user_action.user', 'user')
-				.where('user.isDemoAccount = :isDemoAccount', { isDemoAccount: false })
-				.andWhere('user_action.createdAt <= :date_to', { date_to: Constants.ONE_WEEK_AGO() })
+				.where('user_action.createdAt <= :date_to', { date_to: Constants.ONE_WEEK_AGO() })
 				.andWhere('user_action.mail_sent = :mail_sent', { mail_sent: false })
 				.andWhere('user_action.message = :message', { message: UserActionEnum.CONNECTION_CREATION_NOT_FINISHED });
 
@@ -111,8 +110,7 @@ export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActio
 				.leftJoin('group.connection', 'connection')
 				.leftJoin('connection.logs', 'tableLogs')
 				.leftJoin('user.user_action', 'user_action')
-				.where('user.isDemoAccount = :isDemoAccount', { isDemoAccount: false })
-				.andWhere('(user_action.mail_sent = :mail_sent OR user_action.id is null)', { mail_sent: false })
+				.where('(user_action.mail_sent = :mail_sent OR user_action.id is null)', { mail_sent: false })
 				.andWhere('tableLogs.id is null')
 				.limit(500);
 
