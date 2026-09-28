@@ -32,10 +32,7 @@ export async function withRegistrationEmailLock<T>(
 ): Promise<T> {
 	const key = registrationEmailLockKey(email);
 	const previous = inProcessLocks.get(key) ?? Promise.resolve();
-	let release: () => void;
-	const current = new Promise<void>((resolve) => {
-		release = resolve;
-	});
+	const { current, release } = createTurn();
 	// Chain behind whoever holds the key; a rejected predecessor must not poison the queue.
 	const turn = previous.then(
 		() => undefined,
@@ -51,6 +48,15 @@ export async function withRegistrationEmailLock<T>(
 		}
 		release();
 	}
+}
+
+// A promise the holder settles when it is done, handed to whoever queues up behind it.
+function createTurn(): { current: Promise<void>; release: () => void } {
+	let release: () => void = () => undefined;
+	const current = new Promise<void>((resolve) => {
+		release = resolve;
+	});
+	return { current, release };
 }
 
 async function withDatabaseLock<T>(dataSource: DataSource, key: string, fn: () => Promise<T>): Promise<T> {
