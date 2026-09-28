@@ -5,6 +5,7 @@ import { RegisterUserDs } from '../application/data-structures/register-user-ds.
 import { ExternalRegistrationProviderEnum } from '../enums/external-registration-provider.enum.js';
 import { UserRoleEnum } from '../enums/user-role.enum.js';
 import { UserEntity } from '../user.entity.js';
+import { withRegistrationEmailLock } from '../utils/email-registration-lock.js';
 import { IUserRepository } from './user.repository.interface.js';
 
 export const userCustomRepositoryExtension: IUserRepository = {
@@ -223,6 +224,18 @@ export const userCustomRepositoryExtension: IUserRepository = {
 		}
 
 		return await usersQb.getMany();
+	},
+
+	async findAnyUserWithEmail(email: string): Promise<UserEntity | null> {
+		const userQb = this.createQueryBuilder('user')
+			.leftJoinAndSelect('user.company', 'company')
+			.where('user.email = :userEmail', { userEmail: email?.toLowerCase() })
+			.orderBy('user.createdAt', 'ASC');
+		return await userQb.getOne();
+	},
+
+	async withRegistrationEmailLock<T>(email: string, fn: () => Promise<T>): Promise<T> {
+		return await withRegistrationEmailLock(this.manager.connection, email, fn);
 	},
 
 	async findUsersByEmailsAndCompanyId(usersEmails: Array<string>, companyId: string): Promise<Array<UserEntity>> {

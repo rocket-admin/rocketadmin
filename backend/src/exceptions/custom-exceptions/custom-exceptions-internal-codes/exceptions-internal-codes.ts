@@ -36,6 +36,8 @@ export enum ExceptionsInternalCodes {
 	VALIDATOR_EXCEPTION = 1007,
 	/** Required primary key was missing from the request. */
 	PRIMARY_KEY_MISSING = 1101,
+	/** Self-service registration for an email address that already has an account (any company, any provider). */
+	EMAIL_ALREADY_REGISTERED = 1102,
 
 	// --- 1200–1299: Authentication / access ---
 	/** Connection master password is required but was not provided. */
