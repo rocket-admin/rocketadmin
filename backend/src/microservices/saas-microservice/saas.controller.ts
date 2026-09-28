@@ -15,7 +15,7 @@ import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nes
 import { SkipThrottle } from '@nestjs/throttler';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { VerificationString } from '../../decorators/slug-verification.decorator.js';
-import { Timeout } from '../../decorators/timeout.decorator.js';
+import { Timeout, TimeoutDefaults } from '../../decorators/timeout.decorator.js';
 import {
 	AcceptedCompanyInvitationDs,
 	AcceptUserValidationInCompany,
@@ -685,6 +685,13 @@ export class SaasController {
 		status: 201,
 		type: CreatedConnectionResponse,
 	})
+	// Hosted-connection registration is the tail of saas's hosted-database provisioning chain
+	// (Aurora DDL → this → saas row): it test-connects to the brand-new database over TLS and
+	// writes ~8 rows. The controller default (15 s) can cut a cold-Aurora test-connect with a 408,
+	// which saas treats as a failed registration and answers by DROPPING the database it just
+	// created; saas itself waits 60 s for this call (CORE_REQUEST_TIMEOUT_MS), so the route budget
+	// matches it (2026-09-28, sitenova plan 54).
+	@Timeout(TimeoutDefaults.EXTENDED)
 	@Post('/connection/hosted')
 	async createConnectionForHostedDb(
 		@Body() connectionData: CreateConnectionForHostedDbDto,
