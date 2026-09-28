@@ -6,8 +6,13 @@ import test from 'ava';
 import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
+import { DataSource } from 'typeorm';
 import { ApplicationModule } from '../../../src/app.module.js';
+import { BaseType } from '../../../src/common/data-injection.tokens.js';
+import { CompanyInfoEntity } from '../../../src/entities/company-info/company-info.entity.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
+import { UserRoleEnum } from '../../../src/entities/user/enums/user-role.enum.js';
+import { UserEntity } from '../../../src/entities/user/user.entity.js';
 import { IUserInfo } from '../../../src/entities/user/user.interface.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
@@ -24,6 +29,28 @@ import { TestUtils } from '../../utils/test.utils.js';
 let app: INestApplication;
 let currentTest: string;
 let _testUtils: TestUtils;
+
+// Plan 53: self-service registration of an address that already has an account is rejected, so
+// the multi-company cases below can no longer register the same email twice through the saas.
+// The second membership is inserted the way it exists in production — an invitation-era /
+// legacy duplicate row in another company — which is exactly what the rule leaves untouched.
+async function addExistingMembershipInAnotherCompany(email: string, password: string): Promise<void> {
+	const dataSource = app.get<DataSource>(BaseType.DATA_SOURCE);
+	const companyRepository = dataSource.getRepository(CompanyInfoEntity);
+	const userRepository = dataSource.getRepository(UserEntity);
+	const company = await companyRepository.save(
+		companyRepository.create({ id: faker.string.uuid(), name: faker.company.name() }),
+	);
+	await userRepository.save(
+		userRepository.create({
+			email: email.toLowerCase(),
+			password,
+			isActive: true,
+			company,
+			role: UserRoleEnum.ADMIN,
+		}),
+	);
+}
 
 test.before(async () => {
 	const moduleFixture = await Test.createTestingModule({
@@ -146,9 +173,9 @@ test.serial(`${currentTest} should return expiration token when user login with 
 test.serial(
 	`${currentTest} should return expiration token when user login with company id and have more than one company`,
 	async (t) => {
-		const testEmail = 'test@mail.com';
+		const testEmail = `${faker.lorem.word()}_${faker.string.alphanumeric(8)}@mail.com`;
 		const testData_1 = await registerUserOnSaasAndReturnUserInfo(testEmail);
-		const _testData_2 = await registerUserOnSaasAndReturnUserInfo(testEmail);
+		await addExistingMembershipInAnotherCompany(testEmail, testData_1.password);
 
 		const foundCompanyInfos = await request(app.getHttpServer())
 			.get(`/company/my/email/${testEmail}`)
@@ -178,9 +205,9 @@ test.serial(
 test.serial(
 	`${currentTest} should throw an error when user login without company id with more than one company`,
 	async (t) => {
-		const testEmail = 'test@mail.com';
+		const testEmail = `${faker.lorem.word()}_${faker.string.alphanumeric(8)}@mail.com`;
 		const testData_1 = await registerUserOnSaasAndReturnUserInfo(testEmail);
-		const _testData_2 = await registerUserOnSaasAndReturnUserInfo(testEmail);
+		await addExistingMembershipInAnotherCompany(testEmail, testData_1.password);
 
 		const _foundCompanyInfos = await request(app.getHttpServer())
 			.get(`/company/my/email/${testEmail}`)

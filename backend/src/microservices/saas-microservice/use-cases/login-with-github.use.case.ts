@@ -1,4 +1,4 @@
-import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -11,6 +11,7 @@ import { buildUserGitHubIdentifierEntity } from '../../../entities/user/utils/bu
 import { SignInMethodEnum } from '../../../entities/user-sign-in-audit/enums/sign-in-method.enum.js';
 import { SignInStatusEnum } from '../../../entities/user-sign-in-audit/enums/sign-in-status.enum.js';
 import { SignInAuditService } from '../../../entities/user-sign-in-audit/sign-in-audit.service.js';
+import { EmailAlreadyRegisteredException } from '../../../exceptions/custom-exceptions/email-already-registered.exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { SaasRegisterUserWithGithub } from '../data-structures/saas-register-user-with-github.js';
 import { ILoginUserWithGitHub } from './saas-use-cases.interface.js';
@@ -20,6 +21,8 @@ export class LoginUserWithGithubUseCase
 	extends AbstractUseCase<SaasRegisterUserWithGithub, UserEntity>
 	implements ILoginUserWithGitHub
 {
+	private readonly logger = new Logger(LoginUserWithGithubUseCase.name);
+
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
@@ -37,7 +40,17 @@ export class LoginUserWithGithubUseCase
 				foundUser.name = name;
 			}
 			if (foundUser.email !== email) {
-				foundUser.email = email;
+				// GitHub reports a new primary address. Following it used to be unconditional, which
+				// could hand this row an address another account already owns (plan 53): keep the old
+				// one in that case — the login itself is unaffected.
+				const addressOwner = await this._dbContext.userRepository.findAnyUserWithEmail(email);
+				if (addressOwner) {
+					this.logger.warn(
+						`GitHub login: user ${foundUser.id} now reports an address owned by user ${addressOwner.id}; keeping the stored address`,
+					);
+				} else {
+					foundUser.email = email;
+				}
 			}
 			await this._dbContext.userRepository.saveUserEntity(foundUser);
 			await this.recordSignInAudit(email, foundUser.id, SignInStatusEnum.SUCCESS, ipAddress, userAgent);
@@ -53,10 +66,18 @@ export class LoginUserWithGithubUseCase
 		};
 
 		try {
-			const savedUser = await this._dbContext.userRepository.saveRegisteringUser(
-				userData,
-				ExternalRegistrationProviderEnum.GITHUB,
-			);
+			// A new GitHub identity: the address must be free across ALL companies and providers
+			// (plan 53) — a password or Google account with this address is rejected, not doubled.
+			const savedUser = await this._dbContext.userRepository.withRegistrationEmailLock(email, async () => {
+				const conflictingUser = await this._dbContext.userRepository.findAnyUserWithEmail(email);
+				if (conflictingUser) {
+					throw new EmailAlreadyRegisteredException(conflictingUser.externalRegistrationProvider);
+				}
+				return await this._dbContext.userRepository.saveRegisteringUser(
+					userData,
+					ExternalRegistrationProviderEnum.GITHUB,
+				);
+			});
 
 			const newUserGitHubIdentifier = buildUserGitHubIdentifierEntity(savedUser, Number(githubId));
 			await this._dbContext.userGitHubIdentifierRepository.saveGitHubIdentifierEntity(newUserGitHubIdentifier);
@@ -66,7 +87,11 @@ export class LoginUserWithGithubUseCase
 			await this.recordSignInAudit(email, savedUser.id, SignInStatusEnum.SUCCESS, ipAddress, userAgent);
 
 			return savedUser;
-		} catch (_e) {
+		} catch (error) {
+			if (error instanceof EmailAlreadyRegisteredException) {
+				await this.recordSignInAudit(email, null, SignInStatusEnum.FAILED, ipAddress, userAgent, error.message);
+				throw error;
+			}
 			await this.recordSignInAudit(
 				email,
 				null,
