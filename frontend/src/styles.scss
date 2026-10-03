@@ -243,4 +243,27 @@ body:has(.ai-panel-sidebar-content_open) .add-row-fab {
     app-db-table-view .field-copy-button {
         display: none !important;
     }
+
+    /* Last-page button always hidden on mobile — would push the paginator wider
+       than the viewport (causing page-wide horizontal scroll) once the range
+       label gets long (e.g. "1 – 30 of 5000"). Prev/Next is enough on mobile. */
+    .mat-mdc-paginator-navigation-last {
+        display: none !important;
+    }
+
+    /* First-page button only visible when there is a previous page (i.e., not on
+       page 1). Material marks it disabled on page 1, which we use as a hook
+       via multiple attribute/class names depending on Material version. */
+    .mat-mdc-paginator-navigation-first[disabled],
+    .mat-mdc-paginator-navigation-first[aria-disabled="true"],
+    .mat-mdc-paginator-navigation-first.mat-mdc-button-disabled,
+    .mat-mdc-paginator-navigation-first.mdc-icon-button--disabled {
+        display: none !important;
+    }
+
+    /* Wrap the long range label so the paginator stays within the viewport. */
+    .mat-mdc-paginator .mat-mdc-paginator-range-label {
+        white-space: nowrap;
+        font-size: 12px;
+    }
 }
