@@ -2,6 +2,7 @@ import {
 	BadRequestException,
 	Body,
 	Controller,
+	Delete,
 	Get,
 	Inject,
 	Injectable,
@@ -26,6 +27,10 @@ import { VerifyCompanyInvitationRequestDto } from '../../entities/company-info/a
 import { CompanyInfoEntity } from '../../entities/company-info/company-info.entity.js';
 import {
 	IInviteUserInCompanyAndConnectionGroup,
+	IRemoveUserFromCompany,
+	IRevokeUserInvitationInCompany,
+	ISaasGetCompanyMembers,
+	IUpdateUsersCompanyRoles,
 	IVerifyInviteUserInCompanyAndConnectionGroup,
 } from '../../entities/company-info/use-cases/company-info-use-cases.interface.js';
 import { CreatedConnectionDTO } from '../../entities/connection/application/dto/created-connection.dto.js';
@@ -85,6 +90,11 @@ import { GetHostedConnectionCredentialsDto } from './data-structures/get-hosted-
 import { HostedConnectionCredentialsRO } from './data-structures/hosted-connection-credentials.ro.js';
 import { RegisterCompanyWebhookDS } from './data-structures/register-company.ds.js';
 import { RegisteredCompanyDS } from './data-structures/registered-company.ds.js';
+import {
+	SaasCompanyMembersRO,
+	SaasRevokeInvitationDto,
+	SaasUpdateUsersRolesDto,
+} from './data-structures/saas-company-members.dtos.js';
 import {
 	SaasInviteUserInCompanyDto,
 	SaasRegisteredUserRO,
@@ -181,6 +191,14 @@ export class SaasController {
 		private readonly inviteUserInCompanyUseCase: IInviteUserInCompanyAndConnectionGroup,
 		@Inject(UseCaseType.VERIFY_INVITE_USER_IN_COMPANY_AND_CONNECTION_GROUP)
 		private readonly verifyInviteUserInCompanyUseCase: IVerifyInviteUserInCompanyAndConnectionGroup,
+		@Inject(UseCaseType.SAAS_GET_COMPANY_MEMBERS)
+		private readonly saasGetCompanyMembersUseCase: ISaasGetCompanyMembers,
+		@Inject(UseCaseType.REMOVE_USER_FROM_COMPANY)
+		private readonly removeUserFromCompanyUseCase: IRemoveUserFromCompany,
+		@Inject(UseCaseType.REVOKE_INVITATION_IN_COMPANY)
+		private readonly revokeInvitationInCompanyUseCase: IRevokeUserInvitationInCompany,
+		@Inject(UseCaseType.UPDATE_USERS_COMPANY_ROLES)
+		private readonly updateUsersCompanyRolesUseCase: IUpdateUsersCompanyRoles,
 		@Inject(UseCaseType.FIND_USER)
 		private readonly findUserUseCase: IFindUserUseCase,
 		@Inject(UseCaseType.CHANGE_USUAL_PASSWORD)
@@ -423,6 +441,70 @@ export class SaasController {
 			userName: verificationData.userName,
 		};
 		return await this.verifyInviteUserInCompanyUseCase.execute(inputData, InTransactionEnum.OFF);
+	}
+
+	// --- Company membership administration ------------------------------------------------------
+	// Bridges for the SiteNova members screen. The equivalent public routes live on
+	// `CompanyController` behind CompanyUserGuard/CompanyAdminGuard, which read an end-user JWT the
+	// SaaS service does not have — so, exactly like the invite bridge above, these trust the
+	// microservice JWT and rely on the SaaS caller having enforced company-admin itself.
+
+	@ApiOperation({ summary: 'List company members and outstanding invitations for the SaaS service' })
+	@ApiResponse({
+		status: 200,
+		description: 'Active users plus pending invitations (no raw invitation tokens).',
+		type: SaasCompanyMembersRO,
+	})
+	@Get('company/:companyId/users')
+	async getSaasCompanyMembers(@Param('companyId') companyId: string): Promise<SaasCompanyMembersRO> {
+		if (!ValidationHelper.isValidUUID(companyId)) {
+			throw new BadRequestException(Messages.COMPANY_ID_MISSING);
+		}
+		return await this.saasGetCompanyMembersUseCase.execute(companyId);
+	}
+
+	@ApiOperation({ summary: 'Remove a user from a company on behalf of the SaaS service' })
+	@ApiResponse({ status: 200, description: 'The user was removed.', type: SuccessResponse })
+	@Delete('company/:companyId/user/:userId')
+	async removeSaasUserFromCompany(
+		@Param('companyId') companyId: string,
+		@Param('userId') userId: string,
+	): Promise<SuccessResponse> {
+		if (!ValidationHelper.isValidUUID(companyId) || !ValidationHelper.isValidUUID(userId)) {
+			throw new BadRequestException(Messages.UUID_INVALID);
+		}
+		return await this.removeUserFromCompanyUseCase.execute({ userId, companyId }, InTransactionEnum.ON);
+	}
+
+	@ApiOperation({ summary: 'Revoke a pending company invitation on behalf of the SaaS service' })
+	@ApiBody({ type: SaasRevokeInvitationDto })
+	@ApiResponse({ status: 200, description: 'The invitation was revoked.', type: SuccessResponse })
+	@Put('company/:companyId/invitation/revoke')
+	async revokeSaasInvitationInCompany(
+		@Param('companyId') companyId: string,
+		@Body() body: SaasRevokeInvitationDto,
+	): Promise<SuccessResponse> {
+		if (!ValidationHelper.isValidUUID(companyId)) {
+			throw new BadRequestException(Messages.COMPANY_ID_MISSING);
+		}
+		return await this.revokeInvitationInCompanyUseCase.execute(
+			{ email: body.email, companyId },
+			InTransactionEnum.ON,
+		);
+	}
+
+	@ApiOperation({ summary: 'Update company user roles on behalf of the SaaS service' })
+	@ApiBody({ type: SaasUpdateUsersRolesDto })
+	@ApiResponse({ status: 200, description: 'The roles were updated.', type: SuccessResponse })
+	@Put('company/:companyId/users/roles')
+	async updateSaasUsersRolesInCompany(
+		@Param('companyId') companyId: string,
+		@Body() body: SaasUpdateUsersRolesDto,
+	): Promise<SuccessResponse> {
+		if (!ValidationHelper.isValidUUID(companyId)) {
+			throw new BadRequestException(Messages.COMPANY_ID_MISSING);
+		}
+		return await this.updateUsersCompanyRolesUseCase.execute({ users: body.users, companyId }, InTransactionEnum.ON);
 	}
 
 	@ApiOperation({ summary: 'Validate an end-user JWT on behalf of the SaaS service' })

@@ -1,4 +1,5 @@
 import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
+import { SaasCompanyMembersRO } from '../../../microservices/saas-microservice/data-structures/saas-company-members.dtos.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { SimpleFoundUserInCompanyInfoDs } from '../../user/dto/found-user.dto.js';
 import {
@@ -46,6 +47,12 @@ export interface IGetUserFullCompanyInfo {
 
 export interface IGetUsersInCompany {
 	execute(companyId: string): Promise<Array<SimpleFoundUserInCompanyInfoDs>>;
+}
+
+// Members screen of the SaaS control plane: active users + outstanding invitations in one response,
+// with each invitation's raw `verification_string` omitted.
+export interface ISaasGetCompanyMembers {
+	execute(companyId: string): Promise<SaasCompanyMembersRO>;
 }
 
 export interface IGetUserEmailCompanies {
