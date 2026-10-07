@@ -1,4 +1,5 @@
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/shared/enums/connection-types-enum.js';
+import { ExternalRegistrationProviderEnum } from '../../entities/user/enums/external-registration-provider.enum.js';
 import { UserRoleEnum } from '../../entities/user/enums/user-role.enum.js';
 import { EncryptionAlgorithmEnum } from '../../enums/encryption-algorithm.enum.js';
 import { LogOperationTypeEnum } from '../../enums/log-operation-type.enum.js';
@@ -327,7 +328,18 @@ export const Messages = {
 	EMAIL_VERIFICATION_REQUESTED: 'Email verification requested',
 	FILTERS_MISSING: 'Filters are missing',
 	USER_ADDED_IN_GROUP: (email: string) => `User ${email} was added in group successfully`,
-	USER_ALREADY_REGISTERED: (email: string) => `User with email ${email} is already registered`,
+	// Self-service registration of an address that already has an account (plan 53). Tells the
+	// user which door to use; rocketadmin-saas carries a verbatim copy of this wording.
+	EMAIL_ALREADY_REGISTERED: (provider: ExternalRegistrationProviderEnum | null): string => {
+		switch (provider) {
+			case ExternalRegistrationProviderEnum.GOOGLE:
+				return `This email is already registered with Google sign-in. Use 'Continue with Google' to sign in.`;
+			case ExternalRegistrationProviderEnum.GITHUB:
+				return `This email is already registered with GitHub sign-in. Use 'Continue with GitHub' to sign in.`;
+			default:
+				return `An account with this email already exists. Sign in instead, or reset your password if you forgot it.`;
+		}
+	},
 	USER_NOT_FOUND: 'User with specified parameters not found',
 	USER_NOT_INVITED_IN_COMPANY: (email: string) =>
 		`User ${email} is not invited in company. Invite user in company first`,

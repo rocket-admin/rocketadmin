@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -10,7 +10,7 @@ import { RegisterUserDs } from '../../../entities/user/application/data-structur
 import { SaasUsualUserRegisterDS } from '../../../entities/user/application/data-structures/usual-register-user.ds.js';
 import { UserRoleEnum } from '../../../entities/user/enums/user-role.enum.js';
 import { UserEntity } from '../../../entities/user/user.entity.js';
-import { Messages } from '../../../exceptions/text/messages.js';
+import { EmailAlreadyRegisteredException } from '../../../exceptions/custom-exceptions/email-already-registered.exception.js';
 import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
 import { SaasRegisteredUserRO } from '../data-structures/saas-email-flows.dtos.js';
 import { ISaasRegisterUser } from './saas-use-cases.interface.js';
@@ -34,17 +34,7 @@ export class SaasUsualRegisterUseCase
 	protected async implementation(userData: SaasUsualUserRegisterDS): Promise<SaasRegisteredUserRO> {
 		const { email, password, gclidValue, name, companyId, companyName, emailVerificationLinkBase, suppressEmail } =
 			userData;
-		const foundUser = await this._dbContext.userRepository.findOneUserByEmailAndCompanyId(email, companyId);
 		const userCompany = await this._dbContext.companyInfoRepository.findCompanyInfoWithUsersById(companyId);
-
-		if (foundUser) {
-			throw new HttpException(
-				{
-					message: Messages.USER_ALREADY_REGISTERED(email),
-				},
-				HttpStatus.BAD_REQUEST,
-			);
-		}
 
 		const registerUserData: RegisterUserDs = {
 			email: email,
@@ -54,7 +44,22 @@ export class SaasUsualRegisterUseCase
 			name: name,
 		};
 
-		const savedUser = await this._dbContext.userRepository.saveRegisteringUser(registerUserData);
+		// One account per address (plan 53): the saas mints a fresh company for every registration,
+		// so a per-company lookup could never find anything — the check is across ALL companies and
+		// providers, and it shares the lock with the insert so two concurrent sign-ups of one
+		// address cannot both pass. Existing duplicates (invitations, legacy rows) are untouched.
+		const savedUser = await this._dbContext.userRepository.withRegistrationEmailLock(email, async () => {
+			const existingUser = await this._dbContext.userRepository.findAnyUserWithEmail(email);
+			if (existingUser) {
+				this.logger.log(
+					`SaaS registration rejected: address already belongs to user ${existingUser.id} in company ${
+						existingUser.company?.id ?? 'none'
+					} (provider ${existingUser.externalRegistrationProvider ?? 'password'}); requested company ${companyId}`,
+				);
+				throw new EmailAlreadyRegisteredException(existingUser.externalRegistrationProvider);
+			}
+			return await this._dbContext.userRepository.saveRegisteringUser(registerUserData);
+		});
 
 		const createdTestConnections = await this.demoDataService.createDemoDataForUser(savedUser.id);
 

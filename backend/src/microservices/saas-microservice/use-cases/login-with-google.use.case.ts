@@ -9,6 +9,7 @@ import { UserEntity } from '../../../entities/user/user.entity.js';
 import { SignInMethodEnum } from '../../../entities/user-sign-in-audit/enums/sign-in-method.enum.js';
 import { SignInStatusEnum } from '../../../entities/user-sign-in-audit/enums/sign-in-status.enum.js';
 import { SignInAuditService } from '../../../entities/user-sign-in-audit/sign-in-audit.service.js';
+import { EmailAlreadyRegisteredException } from '../../../exceptions/custom-exceptions/email-already-registered.exception.js';
 import { SaasRegisterUserWithGoogleDS } from '../data-structures/sass-register-user-with-google.js';
 import { ILoginUserWithGoogle } from './saas-use-cases.interface.js';
 
@@ -29,18 +30,6 @@ export class LoginWithGoogleUseCase
 	protected async implementation(inputData: SaasRegisterUserWithGoogleDS): Promise<UserEntity> {
 		const { email, name, glidCookieValue, ipAddress, userAgent } = inputData;
 
-		const foundUser: UserEntity | null = await this._dbContext.userRepository.findOneUserByEmail(
-			email,
-			ExternalRegistrationProviderEnum.GOOGLE,
-		);
-		if (foundUser) {
-			if (foundUser.name !== name && name) {
-				foundUser.name = name;
-				await this._dbContext.userRepository.saveUserEntity(foundUser);
-			}
-			await this.recordSignInAudit(email, foundUser.id, SignInStatusEnum.SUCCESS, ipAddress, userAgent);
-			return foundUser;
-		}
 		const userData: RegisterUserDs = {
 			email: email,
 			gclidValue: glidCookieValue,
@@ -48,13 +37,49 @@ export class LoginWithGoogleUseCase
 			isActive: true,
 			name: name ? name : null,
 		};
-		const savedUser = await this._dbContext.userRepository.saveRegisteringUser(
-			userData,
-			ExternalRegistrationProviderEnum.GOOGLE,
-		);
-		await this.demoDataService.createDemoDataForUser(savedUser.id);
-		await this.recordSignInAudit(email, savedUser.id, SignInStatusEnum.SUCCESS, ipAddress, userAgent);
-		return savedUser;
+
+		// "Login or create": an existing Google account logs in; otherwise the address must be free
+		// across ALL companies and providers (plan 53) — a password or GitHub account with this
+		// address is rejected, not silently logged into. Lookup + insert share the registration lock.
+		let foundUser: UserEntity;
+		let created = false;
+		try {
+			foundUser = await this._dbContext.userRepository.withRegistrationEmailLock(email, async () => {
+				const googleUser = await this._dbContext.userRepository.findOneUserByEmail(
+					email,
+					ExternalRegistrationProviderEnum.GOOGLE,
+				);
+				if (googleUser) {
+					return googleUser;
+				}
+				const conflictingUser = await this._dbContext.userRepository.findAnyUserWithEmail(email);
+				if (conflictingUser) {
+					throw new EmailAlreadyRegisteredException(conflictingUser.externalRegistrationProvider);
+				}
+				created = true;
+				return await this._dbContext.userRepository.saveRegisteringUser(
+					userData,
+					ExternalRegistrationProviderEnum.GOOGLE,
+				);
+			});
+		} catch (error) {
+			if (error instanceof EmailAlreadyRegisteredException) {
+				await this.recordSignInAudit(email, null, SignInStatusEnum.FAILED, ipAddress, userAgent, error.message);
+			}
+			throw error;
+		}
+
+		if (!created) {
+			if (foundUser.name !== name && name) {
+				foundUser.name = name;
+				await this._dbContext.userRepository.saveUserEntity(foundUser);
+			}
+			await this.recordSignInAudit(email, foundUser.id, SignInStatusEnum.SUCCESS, ipAddress, userAgent);
+			return foundUser;
+		}
+		await this.demoDataService.createDemoDataForUser(foundUser.id);
+		await this.recordSignInAudit(email, foundUser.id, SignInStatusEnum.SUCCESS, ipAddress, userAgent);
+		return foundUser;
 	}
 
 	private async recordSignInAudit(

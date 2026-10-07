@@ -51,6 +51,12 @@ export interface IUserRepository {
 
 	findAllUsersWithEmail(email: string, externalProvider?: ExternalRegistrationProviderEnum): Promise<Array<UserEntity>>;
 
+	/** Any account with this address — any company, any provider, confirmed or not (plan 53). */
+	findAnyUserWithEmail(email: string): Promise<UserEntity | null>;
+
+	/** Runs `fn` while no other self-service registration of `email` can run (plan 53). */
+	withRegistrationEmailLock<T>(email: string, fn: () => Promise<T>): Promise<T>;
+
 	findUsersByEmailsAndCompanyId(emails: Array<string>, companyId: string): Promise<Array<UserEntity>>;
 
 	suspendUsers(userIds: Array<string>): Promise<Array<UserEntity>>;
