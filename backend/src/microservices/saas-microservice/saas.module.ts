@@ -5,6 +5,10 @@ import { GlobalDatabaseContext } from '../../common/application/global-database-
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
 import { CompanyInfoHelperService } from '../../entities/company-info/company-info-helper.service.js';
 import { InviteUserInCompanyAndConnectionGroupUseCase } from '../../entities/company-info/use-cases/invite-user-in-company.use.case.js';
+import { RemoveUserFromCompanyUseCase } from '../../entities/company-info/use-cases/remove-user-from-company.use.case.js';
+import { RevokeUserInvitationInCompanyUseCase } from '../../entities/company-info/use-cases/revoke-invitation-in-company.use.case.js';
+import { SaasGetCompanyMembersUseCase } from '../../entities/company-info/use-cases/saas-get-company-members.use.case.js';
+import { UpdateUsersCompanyRolesUseCase } from '../../entities/company-info/use-cases/update-users-company-roles.use.case.js';
 import { VerifyInviteUserInCompanyAndConnectionGroupUseCase } from '../../entities/company-info/use-cases/verify-invite-user-in-company.use.case.js';
 import { ChangeUserNameUseCase } from '../../entities/user/use-cases/change-user-name-use.case.js';
 import { ChangeUsualPasswordUseCase } from '../../entities/user/use-cases/change-usual-password-use.case.js';
@@ -146,6 +150,22 @@ import { UpdateHostedConnectionPasswordUseCase } from './use-cases/update-hosted
 			useClass: InviteUserInCompanyAndConnectionGroupUseCase,
 		},
 		{
+			provide: UseCaseType.SAAS_GET_COMPANY_MEMBERS,
+			useClass: SaasGetCompanyMembersUseCase,
+		},
+		{
+			provide: UseCaseType.REMOVE_USER_FROM_COMPANY,
+			useClass: RemoveUserFromCompanyUseCase,
+		},
+		{
+			provide: UseCaseType.REVOKE_INVITATION_IN_COMPANY,
+			useClass: RevokeUserInvitationInCompanyUseCase,
+		},
+		{
+			provide: UseCaseType.UPDATE_USERS_COMPANY_ROLES,
+			useClass: UpdateUsersCompanyRolesUseCase,
+		},
+		{
 			provide: UseCaseType.VERIFY_INVITE_USER_IN_COMPANY_AND_CONNECTION_GROUP,
 			useClass: VerifyInviteUserInCompanyAndConnectionGroupUseCase,
 		},
@@ -223,6 +243,10 @@ export class SaasModule {
 				{ path: 'saas/user/email/change/verify/:verificationString', method: RequestMethod.POST },
 				{ path: 'saas/company/:companyId/invite', method: RequestMethod.POST },
 				{ path: 'saas/company/invite/verify/:verificationString', method: RequestMethod.POST },
+				{ path: 'saas/company/:companyId/users', method: RequestMethod.GET },
+				{ path: 'saas/company/:companyId/user/:userId', method: RequestMethod.DELETE },
+				{ path: 'saas/company/:companyId/invitation/revoke', method: RequestMethod.PUT },
+				{ path: 'saas/company/:companyId/users/roles', method: RequestMethod.PUT },
 				{ path: 'saas/user/login', method: RequestMethod.POST },
 				{ path: 'saas/user/logout', method: RequestMethod.POST },
 				{ path: 'saas/user/validate-token', method: RequestMethod.POST },
