@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
+import { AccessLevelEnum } from '../../../enums/access-level.enum.js';
 import { CedarPermissionsService } from '../../cedar-authorization/cedar-permissions.service.js';
 import { GroupEntity } from '../../group/group.entity.js';
 import { GetGroupsInConnectionDs } from '../application/data-structures/get-groups-in-connection.ds.js';
@@ -27,14 +28,9 @@ export class GetUserGroupsInConnectionUseCase
 			inputData.connectionId,
 			inputData.cognitoUserName,
 		);
-		return await Promise.all(
-			userGroups.map(async (group: GroupEntity) => {
-				const userAccessLevel = await this.cedarPermissions.getGroupAccessLevel(
-					inputData.cognitoUserName,
-					group.id,
-				);
-				return buildFoundUserGroupInConnectionDto(group, userAccessLevel);
-			}),
+		const accessLevels = await this.cedarPermissions.getGroupAccessLevels(inputData.cognitoUserName, userGroups);
+		return userGroups.map((group: GroupEntity) =>
+			buildFoundUserGroupInConnectionDto(group, accessLevels.get(group.id) ?? AccessLevelEnum.none),
 		);
 	}
 }

@@ -44,8 +44,8 @@ export class ExecuteAiRawQueryUseCase
 			query,
 			connectionType: foundConnection.type as ConnectionTypesEnum,
 			connectionId: foundConnection.id,
-			validateTableRead: (referencedTableName) =>
-				this.cedarPermissions.improvedCheckTableRead(userId, foundConnection.id, referencedTableName),
+			getReadableTables: (tableNames) =>
+				this.cedarPermissions.getReadableTables(userId, foundConnection.id, tableNames),
 			listAllTableNames: async () => (await dataAccessObject.getTablesFromDB()).map((table) => table.tableName),
 		});
 

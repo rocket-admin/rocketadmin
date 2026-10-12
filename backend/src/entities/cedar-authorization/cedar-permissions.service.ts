@@ -37,33 +37,7 @@ export class CedarPermissionsService implements IUserAccessRepository {
 	async getUserConnectionAccessLevel(cognitoUserName: string, connectionId: string): Promise<AccessLevelEnum> {
 		const ctx = await this.loadContext(connectionId, cognitoUserName);
 		if (!ctx) return AccessLevelEnum.none;
-
-		const entities = buildCedarEntities(cognitoUserName, ctx.userGroups, connectionId);
-		if (
-			this.evaluatePolicies(
-				cognitoUserName,
-				CedarAction.ConnectionEdit,
-				CedarResourceType.Connection,
-				connectionId,
-				ctx.policies,
-				entities,
-			)
-		) {
-			return AccessLevelEnum.edit;
-		}
-		if (
-			this.evaluatePolicies(
-				cognitoUserName,
-				CedarAction.ConnectionRead,
-				CedarResourceType.Connection,
-				connectionId,
-				ctx.policies,
-				entities,
-			)
-		) {
-			return AccessLevelEnum.readonly;
-		}
-		return AccessLevelEnum.none;
+		return this.evaluateConnectionAccessLevel(cognitoUserName, connectionId, ctx);
 	}
 
 	async getUserConnectionAccessLevelsForMultipleConnections(
@@ -73,61 +47,14 @@ export class CedarPermissionsService implements IUserAccessRepository {
 		const result = new Map<string, AccessLevelEnum>();
 		if (connectionIds.length === 0) return result;
 
-		const allGroups = await this.globalDbContext.groupRepository.findAllUserGroupsInConnections(connectionIds, userId);
-
-		const groupsByConnection = new Map<string, Array<GroupEntity>>();
-		for (const group of allGroups) {
-			const connId = group.connection?.id;
-			if (!connId) continue;
-			let connectionGroups = groupsByConnection.get(connId);
-			if (!connectionGroups) {
-				connectionGroups = [];
-				groupsByConnection.set(connId, connectionGroups);
-			}
-			connectionGroups.push(group);
-		}
-
+		const contexts = await this.loadContexts(connectionIds, userId);
 		for (const connectionId of connectionIds) {
-			const userGroups = groupsByConnection.get(connectionId);
-			if (!userGroups || userGroups.length === 0) {
-				result.set(connectionId, AccessLevelEnum.none);
-				continue;
-			}
-
-			const policies = userGroups.map((g) => g.cedarPolicy).filter((policy): policy is string => Boolean(policy));
-			if (policies.length === 0) {
-				result.set(connectionId, AccessLevelEnum.none);
-				continue;
-			}
-
-			const entities = buildCedarEntities(userId, userGroups, connectionId);
-			if (
-				this.evaluatePolicies(
-					userId,
-					CedarAction.ConnectionEdit,
-					CedarResourceType.Connection,
-					connectionId,
-					policies,
-					entities,
-				)
-			) {
-				result.set(connectionId, AccessLevelEnum.edit);
-			} else if (
-				this.evaluatePolicies(
-					userId,
-					CedarAction.ConnectionRead,
-					CedarResourceType.Connection,
-					connectionId,
-					policies,
-					entities,
-				)
-			) {
-				result.set(connectionId, AccessLevelEnum.readonly);
-			} else {
-				result.set(connectionId, AccessLevelEnum.none);
-			}
+			const ctx = contexts.get(connectionId);
+			result.set(
+				connectionId,
+				ctx ? this.evaluateConnectionAccessLevel(userId, connectionId, ctx) : AccessLevelEnum.none,
+			);
 		}
-
 		return result;
 	}
 
@@ -175,34 +102,36 @@ export class CedarPermissionsService implements IUserAccessRepository {
 		const connectionId = await this.getConnectionId(groupId);
 		const ctx = await this.loadContext(connectionId, cognitoUserName);
 		if (!ctx) return AccessLevelEnum.none;
+		return this.evaluateGroupAccessLevel(cognitoUserName, connectionId, groupId, ctx);
+	}
 
-		const entities = buildCedarEntities(cognitoUserName, ctx.userGroups, connectionId);
-		const resourceId = groupId;
-		if (
-			this.evaluatePolicies(
-				cognitoUserName,
-				CedarAction.GroupEdit,
-				CedarResourceType.Group,
-				resourceId,
-				ctx.policies,
-				entities,
-			)
-		) {
-			return AccessLevelEnum.edit;
+	// Batched counterpart of getGroupAccessLevel: one group lookup for every connection the given
+	// groups belong to, instead of two queries per group. Each group must carry its `connection`
+	// relation (the repository finders that return groups for a user or a connection all join it).
+	async getGroupAccessLevels(userId: string, groups: Array<GroupEntity>): Promise<Map<string, AccessLevelEnum>> {
+		const result = new Map<string, AccessLevelEnum>();
+		if (groups.length === 0) return result;
+
+		const groupConnections = groups.map((group) => {
+			const connectionId = group.connection?.id;
+			if (!connectionId) {
+				throw new Error(`getGroupAccessLevels: group ${group.id} was loaded without its connection`);
+			}
+			return { groupId: group.id, connectionId };
+		});
+
+		const contexts = await this.loadContexts(
+			Array.from(new Set(groupConnections.map(({ connectionId }) => connectionId))),
+			userId,
+		);
+		for (const { groupId, connectionId } of groupConnections) {
+			const ctx = contexts.get(connectionId);
+			result.set(
+				groupId,
+				ctx ? this.evaluateGroupAccessLevel(userId, connectionId, groupId, ctx) : AccessLevelEnum.none,
+			);
 		}
-		if (
-			this.evaluatePolicies(
-				cognitoUserName,
-				CedarAction.GroupRead,
-				CedarResourceType.Group,
-				resourceId,
-				ctx.policies,
-				entities,
-			)
-		) {
-			return AccessLevelEnum.readonly;
-		}
-		return AccessLevelEnum.none;
+		return result;
 	}
 
 	async checkUserGroupRead(cognitoUserName: string, groupId: string): Promise<boolean> {
@@ -450,6 +379,31 @@ export class CedarPermissionsService implements IUserAccessRepository {
 		return canRead;
 	}
 
+	// Batched counterpart of improvedCheckTableRead: the user's groups are loaded once for the whole
+	// list instead of once per table. Cached verdicts are honoured and fresh ones are cached the same
+	// way, so the two stay interchangeable. Returns the subset of `tableNames` the user may query.
+	async getReadableTables(userId: string, connectionId: string, tableNames: Array<string>): Promise<Set<string>> {
+		const readable = new Set<string>();
+		const uncached: Array<string> = [];
+		for (const tableName of new Set(tableNames)) {
+			const cached = Cacher.getUserTableReadPermissionCache(userId, connectionId, tableName);
+			if (cached === null) {
+				uncached.push(tableName);
+			} else if (cached) {
+				readable.add(tableName);
+			}
+		}
+		if (uncached.length === 0) return readable;
+
+		const ctx = await this.loadContext(connectionId, userId);
+		for (const tableName of uncached) {
+			const canRead = ctx ? this.evaluateTableQuery(userId, connectionId, tableName, ctx) : false;
+			Cacher.setUserTableReadPermissionCache(userId, connectionId, tableName, canRead);
+			if (canRead) readable.add(tableName);
+		}
+		return readable;
+	}
+
 	private evaluateTablePermissions(
 		userId: string,
 		connectionId: string,
@@ -614,14 +568,91 @@ export class CedarPermissionsService implements IUserAccessRepository {
 		return false;
 	}
 
-	private async loadContext(connectionId: string, userId: string): Promise<EvalContext | null> {
-		const userGroups = await this.globalDbContext.groupRepository.findAllUserGroupsInConnection(connectionId, userId);
-		if (userGroups.length === 0) return null;
+	private evaluateConnectionAccessLevel(userId: string, connectionId: string, ctx: EvalContext): AccessLevelEnum {
+		const entities = buildCedarEntities(userId, ctx.userGroups, connectionId);
+		if (
+			this.evaluatePolicies(
+				userId,
+				CedarAction.ConnectionEdit,
+				CedarResourceType.Connection,
+				connectionId,
+				ctx.policies,
+				entities,
+			)
+		) {
+			return AccessLevelEnum.edit;
+		}
+		if (
+			this.evaluatePolicies(
+				userId,
+				CedarAction.ConnectionRead,
+				CedarResourceType.Connection,
+				connectionId,
+				ctx.policies,
+				entities,
+			)
+		) {
+			return AccessLevelEnum.readonly;
+		}
+		return AccessLevelEnum.none;
+	}
 
+	private evaluateGroupAccessLevel(
+		userId: string,
+		connectionId: string,
+		groupId: string,
+		ctx: EvalContext,
+	): AccessLevelEnum {
+		const entities = buildCedarEntities(userId, ctx.userGroups, connectionId);
+		if (
+			this.evaluatePolicies(userId, CedarAction.GroupEdit, CedarResourceType.Group, groupId, ctx.policies, entities)
+		) {
+			return AccessLevelEnum.edit;
+		}
+		if (
+			this.evaluatePolicies(userId, CedarAction.GroupRead, CedarResourceType.Group, groupId, ctx.policies, entities)
+		) {
+			return AccessLevelEnum.readonly;
+		}
+		return AccessLevelEnum.none;
+	}
+
+	private buildContext(userGroups: Array<GroupEntity>): EvalContext | null {
+		if (userGroups.length === 0) return null;
 		const policies = userGroups.map((g) => g.cedarPolicy).filter((policy): policy is string => Boolean(policy));
 		if (policies.length === 0) return null;
-
 		return { userGroups, policies };
+	}
+
+	private async loadContext(connectionId: string, userId: string): Promise<EvalContext | null> {
+		const userGroups = await this.globalDbContext.groupRepository.findAllUserGroupsInConnection(connectionId, userId);
+		return this.buildContext(userGroups);
+	}
+
+	// One query for several connections; connections where the user has no group (or no policy)
+	// are simply absent from the result.
+	private async loadContexts(connectionIds: Array<string>, userId: string): Promise<Map<string, EvalContext>> {
+		const contexts = new Map<string, EvalContext>();
+		if (connectionIds.length === 0) return contexts;
+
+		const allGroups = await this.globalDbContext.groupRepository.findAllUserGroupsInConnections(connectionIds, userId);
+		const groupsByConnection = new Map<string, Array<GroupEntity>>();
+		for (const group of allGroups) {
+			const connId = group.connection?.id;
+			if (!connId) continue;
+			let connectionGroups = groupsByConnection.get(connId);
+			if (!connectionGroups) {
+				connectionGroups = [];
+				groupsByConnection.set(connId, connectionGroups);
+			}
+			connectionGroups.push(group);
+		}
+
+		for (const [connectionId, userGroups] of groupsByConnection) {
+			const ctx = this.buildContext(userGroups);
+			if (ctx) contexts.set(connectionId, ctx);
+		}
+		return contexts;
 	}
 
 	// Public-access context: no groups, a single policy taken from the connection's

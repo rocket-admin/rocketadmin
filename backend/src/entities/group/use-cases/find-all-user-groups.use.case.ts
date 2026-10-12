@@ -20,18 +20,14 @@ export class FindAllUserGroupsUseCase extends AbstractUseCase<string, FoundUserG
 
 	protected async implementation(userId: string): Promise<FoundUserGroupsDs> {
 		const foundUserGroups: Array<GroupEntity> = await this._dbContext.groupRepository.findAllUserGroups(userId);
+		const accessLevels = await this.cedarPermissions.getGroupAccessLevels(userId, foundUserGroups);
 		const groupsWithAccessLevels: Array<{
 			group: GroupEntity;
 			accessLevel: AccessLevelEnum;
-		}> = await Promise.all(
-			foundUserGroups.map(async (group: GroupEntity) => {
-				const accessLevel = await this.cedarPermissions.getGroupAccessLevel(userId, group.id);
-				return {
-					group: group,
-					accessLevel: accessLevel,
-				};
-			}),
-		);
+		}> = foundUserGroups.map((group: GroupEntity) => ({
+			group: group,
+			accessLevel: accessLevels.get(group.id) ?? AccessLevelEnum.none,
+		}));
 
 		return {
 			groups: groupsWithAccessLevels.map((g) => {

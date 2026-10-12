@@ -8,8 +8,8 @@ interface AssertQueryTablesReadableParams {
 	query: string;
 	connectionType: ConnectionTypesEnum;
 	connectionId: string;
-	/** Resolves to `true` when the user is allowed to read the given table (table:read). */
-	validateTableRead: (tableName: string) => Promise<boolean>;
+	/** Resolves to the subset of the given tables the user is allowed to read (table:read). */
+	getReadableTables: (tableNames: Array<string>) => Promise<Set<string>>;
 	/** Lists every table in the connection; used for the all-tables fallback check. */
 	listAllTableNames: () => Promise<Array<string>>;
 }
@@ -25,7 +25,7 @@ interface AssertQueryTablesReadableParams {
  * full read access run such queries.
  */
 export async function assertUserCanReadQueryTables(params: AssertQueryTablesReadableParams): Promise<void> {
-	const { query, connectionType, connectionId, validateTableRead, listAllTableNames } = params;
+	const { query, connectionType, connectionId, getReadableTables, listAllTableNames } = params;
 
 	const collected = collectQueryTables(query, connectionType);
 
@@ -40,10 +40,14 @@ export async function assertUserCanReadQueryTables(params: AssertQueryTablesRead
 		tablesToCheck = await listAllTableNames();
 	}
 
-	for (const tableName of tablesToCheck) {
-		const allowed = await validateTableRead(tableName);
-		if (!allowed) {
-			throw new ForbiddenException(Messages.NO_READ_PERMISSION_FOR_TABLE(tableName));
-		}
+	// One batched permission check: the all-tables fallback can cover dozens of tables, and a
+	// per-table check would load the user's groups once for each of them.
+	const uniqueTables = Array.from(new Set(tablesToCheck));
+	if (uniqueTables.length === 0) return;
+
+	const readableTables = await getReadableTables(uniqueTables);
+	const blockedTable = uniqueTables.find((tableName) => !readableTables.has(tableName));
+	if (blockedTable !== undefined) {
+		throw new ForbiddenException(Messages.NO_READ_PERMISSION_FOR_TABLE(blockedTable));
 	}
 }

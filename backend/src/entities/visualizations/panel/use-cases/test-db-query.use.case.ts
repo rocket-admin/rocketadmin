@@ -6,8 +6,7 @@ import { IGlobalDatabaseContext } from '../../../../common/application/global-da
 import { BaseType } from '../../../../common/data-injection.tokens.js';
 import { ConnectionNotFoundException } from '../../../../exceptions/custom-exceptions/connection-not-found-exception.js';
 import { isConnectionTypeAgent } from '../../../../helpers/is-connection-entity-agent.js';
-import { CedarAction } from '../../../cedar-authorization/cedar-action-map.js';
-import { CedarAuthorizationService } from '../../../cedar-authorization/cedar-authorization.service.js';
+import { CedarPermissionsService } from '../../../cedar-authorization/cedar-permissions.service.js';
 import { TestDbQueryDs } from '../data-structures/test-db-query.ds.js';
 import { TestDbQueryResultDto } from '../dto/test-db-query-result.dto.js';
 import { assertUserCanReadQueryTables } from '../utils/assert-query-tables-readable.util.js';
@@ -19,7 +18,7 @@ export class TestDbQueryUseCase extends AbstractUseCase<TestDbQueryDs, TestDbQue
 	constructor(
 		@Inject(BaseType.GLOBAL_DB_CONTEXT)
 		protected _dbContext: IGlobalDatabaseContext,
-		private readonly cedarAuthService: CedarAuthorizationService,
+		private readonly cedarPermissions: CedarPermissionsService,
 	) {
 		super();
 	}
@@ -44,13 +43,7 @@ export class TestDbQueryUseCase extends AbstractUseCase<TestDbQueryDs, TestDbQue
 			query: query_text,
 			connectionType: foundConnection.type as ConnectionTypesEnum,
 			connectionId,
-			validateTableRead: (referencedTableName) =>
-				this.cedarAuthService.validate({
-					userId,
-					action: CedarAction.TableQuery,
-					connectionId,
-					tableName: referencedTableName,
-				}),
+			getReadableTables: (tableNames) => this.cedarPermissions.getReadableTables(userId, connectionId, tableNames),
 			listAllTableNames: async () => (await dao.getTablesFromDB()).map((table) => table.tableName),
 		});
 

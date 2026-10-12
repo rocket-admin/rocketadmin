@@ -112,9 +112,9 @@ export class FindOneConnectionUseCase
 			return true;
 		}
 		const groupsInConnection = await this._dbContext.groupRepository.findAllGroupsInConnection(connectionId);
-		for (const group of groupsInConnection) {
-			const groupRead = await this.cedarPermissions.checkUserGroupRead(cognitoUserName, group.id);
-			if (groupRead) {
+		const accessLevels = await this.cedarPermissions.getGroupAccessLevels(cognitoUserName, groupsInConnection);
+		for (const level of accessLevels.values()) {
+			if (level === AccessLevelEnum.edit || level === AccessLevelEnum.readonly) {
 				return true;
 			}
 		}
