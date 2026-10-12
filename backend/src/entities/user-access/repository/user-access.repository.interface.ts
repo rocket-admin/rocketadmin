@@ -1,4 +1,5 @@
 import { AccessLevelEnum } from '../../../enums/access-level.enum.js';
+import { GroupEntity } from '../../group/group.entity.js';
 import { ITablePermissionData } from '../../permission/permission.interface.js';
 
 export interface IUserAccessRepository {
@@ -9,6 +10,8 @@ export interface IUserAccessRepository {
 	checkUserConnectionEdit(cognitoUserName: string, connectionId: string): Promise<boolean>;
 
 	getGroupAccessLevel(cognitoUserName: string, groupId: string): Promise<AccessLevelEnum>;
+
+	getGroupAccessLevels(userId: string, groups: Array<GroupEntity>): Promise<Map<string, AccessLevelEnum>>;
 
 	checkUserGroupRead(cognitoUserName: string, groupId: string): Promise<boolean>;
 
@@ -43,4 +46,6 @@ export interface IUserAccessRepository {
 	getConnectionId(groupId: string): Promise<string>;
 
 	improvedCheckTableRead(userId: string, connectionId: string, tableName: string, masterPwd?: string): Promise<boolean>;
+
+	getReadableTables(userId: string, connectionId: string, tableNames: Array<string>): Promise<Set<string>>;
 }

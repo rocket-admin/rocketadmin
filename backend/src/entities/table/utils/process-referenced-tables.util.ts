@@ -6,26 +6,17 @@ export async function filterReferencedTablesByPermission(
 	referencedTables: Array<ReferencedTableNamesAndColumnsDS>,
 	userId: string,
 	connectionId: string,
-	masterPwd: string,
+	_masterPwd: string,
 	cedarPermissions: CedarPermissionsService,
 ): Promise<void> {
-	await Promise.all(
-		referencedTables.map(async (referencedTable) => {
-			referencedTable.referenced_by = (
-				await Promise.all(
-					referencedTable.referenced_by.map(async (ref) => {
-						const canRead = await cedarPermissions.improvedCheckTableRead(
-							userId,
-							connectionId,
-							ref.table_name,
-							masterPwd,
-						);
-						return canRead ? ref : null;
-					}),
-				)
-			).filter((ref): ref is { table_name: string; column_name: string } => ref !== null);
-		}),
+	const readableTables = await cedarPermissions.getReadableTables(
+		userId,
+		connectionId,
+		referencedTables.flatMap((referencedTable) => referencedTable.referenced_by.map((ref) => ref.table_name)),
 	);
+	for (const referencedTable of referencedTables) {
+		referencedTable.referenced_by = referencedTable.referenced_by.filter((ref) => readableTables.has(ref.table_name));
+	}
 }
 
 export async function enrichReferencedTablesWithDisplayNames(

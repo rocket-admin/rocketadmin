@@ -34,12 +34,8 @@ export class GetAiConnectionTablesUseCase
 		const tables = await dataAccessObject.getTablesFromDB();
 		const tableNames = tables.map((table) => table.tableName?.trim()).filter((name): name is string => Boolean(name));
 
-		const readableFlags = await Promise.all(
-			tableNames.map((tableName) =>
-				this.cedarPermissions.improvedCheckTableRead(userId, foundConnection.id, tableName),
-			),
-		);
-		const readableTableNames = tableNames.filter((_name, index) => readableFlags[index]);
+		const readableTables = await this.cedarPermissions.getReadableTables(userId, foundConnection.id, tableNames);
+		const readableTableNames = tableNames.filter((tableName) => readableTables.has(tableName));
 
 		return { tables: readableTableNames };
 	}

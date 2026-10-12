@@ -276,8 +276,8 @@ export class RequestInfoFromTableWithAIUseCaseV7
 							query,
 							connectionType: foundConnection.type as ConnectionTypesEnum,
 							connectionId: foundConnection.id,
-							validateTableRead: (referencedTableName) =>
-								this.cedarPermissions.improvedCheckTableRead(userId, foundConnection.id, referencedTableName),
+							getReadableTables: (tableNames) =>
+								this.cedarPermissions.getReadableTables(userId, foundConnection.id, tableNames),
 							listAllTableNames: async () => (await dataAccessObject.getTablesFromDB()).map((table) => table.tableName),
 						});
 						const wrappedQuery = wrapQueryWithLimit(query, foundConnection.type as ConnectionTypesEnum);
@@ -354,39 +354,26 @@ export class RequestInfoFromTableWithAIUseCaseV7
 
 		// Only expose the structure of related tables the user is permitted to
 		// read — otherwise foreign-key traversal would leak the schema of tables
-		// the user has no access to.
-		const referencedTablesStructures = [];
-		const structurePromises = referencedTableNamesAndColumns.flatMap((referencedTable) =>
-			referencedTable.referenced_by.map(async (table) => {
-				const canRead = await this.cedarPermissions.improvedCheckTableRead(
-					userId,
-					foundConnection.id,
-					table.table_name,
-				);
-				if (!canRead) {
-					return null;
-				}
-				const structure = await dao.getTableStructure(table.table_name, userEmail);
-				return { tableName: table.table_name, structure };
-			}),
+		// the user has no access to. One batched permission check covers both
+		// directions of the relation.
+		const referencedByTableNames = referencedTableNamesAndColumns.flatMap((referencedTable) =>
+			referencedTable.referenced_by.map((table) => table.table_name),
 		);
-		referencedTablesStructures.push(...(await Promise.all(structurePromises)).filter((item) => item !== null));
+		const foreignTableNames = tableForeignKeys.map((foreignKey) => foreignKey.referenced_table_name);
+		const readableTables = await this.cedarPermissions.getReadableTables(userId, foundConnection.id, [
+			...referencedByTableNames,
+			...foreignTableNames,
+		]);
 
-		const foreignTablesStructures = [];
-		const foreignTablesStructurePromises = tableForeignKeys.map(async (foreignKey) => {
-			const canRead = await this.cedarPermissions.improvedCheckTableRead(
-				userId,
-				foundConnection.id,
-				foreignKey.referenced_table_name,
-			);
-			if (!canRead) {
-				return null;
-			}
-			const structure = await dao.getTableStructure(foreignKey.referenced_table_name, userEmail);
-			return { tableName: foreignKey.referenced_table_name, structure };
-		});
-		foreignTablesStructures.push(
-			...(await Promise.all(foreignTablesStructurePromises)).filter((item) => item !== null),
+		const referencedTablesStructures = await Promise.all(
+			referencedByTableNames
+				.filter((name) => readableTables.has(name))
+				.map(async (name) => ({ tableName: name, structure: await dao.getTableStructure(name, userEmail) })),
+		);
+		const foreignTablesStructures = await Promise.all(
+			foreignTableNames
+				.filter((name) => readableTables.has(name))
+				.map(async (name) => ({ tableName: name, structure: await dao.getTableStructure(name, userEmail) })),
 		);
 
 		return {
@@ -416,15 +403,16 @@ export class RequestInfoFromTableWithAIUseCaseV7
 			new Set(tableNames.map((name) => name?.trim()).filter((name): name is string => Boolean(name))),
 		);
 
-		for (const tableName of uniqueTableNames) {
-			const canRead = await this.cedarPermissions.improvedCheckTableRead(userId, connectionId, tableName);
-			if (!canRead) {
-				this.logger.warn(
-					`AI request blocked for user ${userId} on connection ${connectionId}: ` +
-						`no read permission for table "${tableName}"`,
-				);
-				throw new ForbiddenException(Messages.NO_READ_PERMISSION_FOR_TABLE(tableName));
-			}
+		if (uniqueTableNames.length === 0) return;
+
+		const readableTables = await this.cedarPermissions.getReadableTables(userId, connectionId, uniqueTableNames);
+		const blockedTable = uniqueTableNames.find((tableName) => !readableTables.has(tableName));
+		if (blockedTable !== undefined) {
+			this.logger.warn(
+				`AI request blocked for user ${userId} on connection ${connectionId}: ` +
+					`no read permission for table "${blockedTable}"`,
+			);
+			throw new ForbiddenException(Messages.NO_READ_PERMISSION_FOR_TABLE(blockedTable));
 		}
 	}
 

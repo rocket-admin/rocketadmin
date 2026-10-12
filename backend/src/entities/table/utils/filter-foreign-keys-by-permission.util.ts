@@ -5,15 +5,13 @@ export async function filterForeignKeysByReadPermission(
 	foreignKeys: Array<ForeignKeyDS>,
 	userId: string,
 	connectionId: string,
-	masterPwd: string,
+	_masterPwd: string,
 	cedarPermissions: CedarPermissionsService,
 ): Promise<Array<ForeignKeyDS>> {
-	const canReadResults = await Promise.all(
-		foreignKeys.map(async (fk) => ({
-			tableName: fk.referenced_table_name,
-			canRead: await cedarPermissions.improvedCheckTableRead(userId, connectionId, fk.referenced_table_name, masterPwd),
-		})),
+	const readableSet = await cedarPermissions.getReadableTables(
+		userId,
+		connectionId,
+		foreignKeys.map((fk) => fk.referenced_table_name),
 	);
-	const readableSet = new Set(canReadResults.filter((r) => r.canRead).map((r) => r.tableName));
 	return foreignKeys.filter((fk) => readableSet.has(fk.referenced_table_name));
 }

@@ -55,6 +55,7 @@ export const groupCustomRepositoryExtension: IGroupRepository = {
 
 	async findAllUserGroups(userId: string): Promise<Array<GroupEntity>> {
 		const qb = this.createQueryBuilder('group')
+			.leftJoinAndSelect('group.connection', 'connection')
 			.leftJoinAndSelect('group.users', 'user')
 			.andWhere('user.id = :userId', { userId: userId });
 		return await qb.getMany();
