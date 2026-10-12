@@ -1,15 +1,6 @@
 import { UserActionEnum } from '../../../enums/user-action.enum.js';
 import { UserEntity } from '../../user/user.entity.js';
-import { CreateUserActionDs } from '../application/data-sctructures/create-user-action.ds.js';
 import { UserActionEntity } from '../user-action.entity.js';
-
-export function buildNewUserActionEntity(actionData: CreateUserActionDs, user: UserEntity): UserActionEntity {
-	const { message } = actionData;
-	const newUserAction = new UserActionEntity();
-	newUserAction.user = user;
-	newUserAction.message = message;
-	return newUserAction;
-}
 
 export function buildNewConnectionNotFinishedEmailSentAction(user: UserEntity): UserActionEntity {
 	const newUserAction = new UserActionEntity();
