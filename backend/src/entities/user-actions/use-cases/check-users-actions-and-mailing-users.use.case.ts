@@ -30,8 +30,8 @@ export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActio
 				for (const user of batch) {
 					try {
 						await queue.add(async () => {
-							await this.updateOrCreateActionForUser(user);
-							if (user.email) {
+							const shouldSendEmail = await this.updateOrCreateActionForUser(user);
+							if (shouldSendEmail && user.email) {
 								emails.push(user.email.toLowerCase());
 							}
 						});
@@ -54,30 +54,38 @@ export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActio
 		}
 	}
 
-	private async updateOrCreateActionForUser(u: { id: string; email: string }): Promise<void> {
-		const userActionForUser = await this.findUserActionWithoutSentMail(u.id);
+	/**
+	 * Marks the user's action as mailed, creating the action row when the user has none.
+	 * Returns `true` when a reminder email should be sent to this user.
+	 *
+	 * `user_action.userId` is UNIQUE (one-to-one with `user`), so the lookup must ignore `mail_sent`:
+	 * if a row exists it is updated in place — never inserted alongside — otherwise the insert fails with
+	 * `duplicate key value violates unique constraint "REL_c025478b45e60017ed10c77f99"`.
+	 */
+	private async updateOrCreateActionForUser(u: { id: string; email: string }): Promise<boolean> {
+		const userActionForUser = await this.findUserAction(u.id);
 		if (userActionForUser) {
-			if (!userActionForUser.mail_sent) {
-				userActionForUser.mail_sent = true;
-				await this.userActionRepository.save(userActionForUser);
-			} else {
-				return;
+			if (userActionForUser.mail_sent) {
+				return false;
 			}
+			userActionForUser.mail_sent = true;
+			await this.userActionRepository.save(userActionForUser);
+			return true;
 		}
 		const foundUser = await this.userRepository.findOne({ where: { id: u.id } });
 		if (!foundUser) {
-			return;
+			return false;
 		}
 		const newUserActionEntity = buildNewConnectionNotFinishedEmailSentAction(foundUser);
 		await this.userActionRepository.save(newUserActionEntity);
+		return true;
 	}
 
-	private async findUserActionWithoutSentMail(userId: string): Promise<UserActionEntity | null> {
+	private async findUserAction(userId: string): Promise<UserActionEntity | null> {
 		const actionQb = this.userActionRepository
 			.createQueryBuilder('user_action')
 			.leftJoinAndSelect('user_action.user', 'user')
-			.andWhere('user.id = :user_id', { user_id: userId })
-			.andWhere('user_action.mail_sent = :mail_sent', { mail_sent: false });
+			.andWhere('user.id = :user_id', { user_id: userId });
 		return await actionQb.getOne();
 	}
 

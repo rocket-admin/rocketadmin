@@ -6,7 +6,6 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { CreateUserActionDs } from '../application/data-sctructures/create-user-action.ds.js';
 import { CreatedUserActionDs } from '../application/data-sctructures/created-user-action.ds.js';
 import { buildCreatedUserActionDs } from '../utils/build-created-user-action-ds.js';
-import { buildNewUserActionEntity } from '../utils/build-new-user-action-entity.js';
 import { ICreateUserAction } from './use-cases-interfaces.js';
 
 @Injectable()
@@ -23,7 +22,7 @@ export class CreateUserActionUseCase
 
 	protected async implementation(actionData: CreateUserActionDs): Promise<CreatedUserActionDs> {
 		const { message, userId } = actionData;
-		const foundUser = await this._dbContext.userRepository.findOneUserWithUserAction(userId);
+		const foundUser = await this._dbContext.userRepository.findOneUserById(userId);
 		if (!foundUser) {
 			throw new HttpException(
 				{
@@ -32,14 +31,9 @@ export class CreateUserActionUseCase
 				HttpStatus.BAD_REQUEST,
 			);
 		}
-		const userAction = foundUser.user_action;
-		if (userAction) {
-			userAction.message = message;
-			const updatedAction = await this._dbContext.userActionRepository.saveNewOrUpdatedUserAction(userAction);
-			return buildCreatedUserActionDs(updatedAction);
-		}
-		const newUserAction = buildNewUserActionEntity(actionData, foundUser);
-		const savedUserAction = await this._dbContext.userActionRepository.saveNewOrUpdatedUserAction(newUserAction);
+		// A user has at most one action row (UNIQUE userId). Upsert instead of read-then-insert so that
+		// concurrent requests for the same user cannot both take the insert branch.
+		const savedUserAction = await this._dbContext.userActionRepository.upsertUserAction(userId, message);
 		return buildCreatedUserActionDs(savedUserAction);
 	}
 }
