@@ -3,16 +3,16 @@
 	"private": true,
 	"packageManager": "pnpm@10.33.0",
 	"dependencies": {
-		"monaco-editor": "^0.53.0"
+		"monaco-editor": "^0.57.0"
 	},
 	"scripts": {
 		"lint": "biome lint",
 		"prepare": "husky"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.4.0",
+		"@biomejs/biome": "2.5.15",
 		"husky": "^9.1.7",
-		"lint-staged": "^16.2.7"
+		"lint-staged": "^17.6.0"
 	},
 	"lint-staged": {
 		"*.{js,ts,jsx,tsx,json,html,css}": [

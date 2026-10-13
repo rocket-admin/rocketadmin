@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import nodemailer from 'nodemailer';
+import nodemailer, { type Transporter } from 'nodemailer';
 import SMTPTransport from 'nodemailer/lib/smtp-transport/index.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { IMessage } from '../email/email.interface.js';
@@ -7,7 +7,7 @@ import { EmailConfigService } from '../email-config/email-config.service.js';
 import { IEmailTransporterInterface } from './email-transporter.interface.js';
 @Injectable()
 export class EmailTransporterService implements IEmailTransporterInterface {
-	private transporter: nodemailer.Transporter;
+	private transporter: Transporter<SMTPTransport.SentMessageInfo>;
 	constructor(private readonly emailConfigService: EmailConfigService) {
 		this.transporter = this.createTransporter();
 	}
@@ -23,7 +23,7 @@ export class EmailTransporterService implements IEmailTransporterInterface {
 		});
 	}
 
-	private createTransporter(): nodemailer.Transporter<SMTPTransport.SentMessageInfo> {
+	private createTransporter(): Transporter<SMTPTransport.SentMessageInfo> {
 		const transportConfig = this.emailConfigService.getEmailServiceConfig();
 		return nodemailer.createTransport(transportConfig);
 	}

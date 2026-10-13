@@ -438,7 +438,8 @@ test.serial(`${currentTest} runs the URL and Slack actions configured for the ev
 	const scope = nock(fakeUrl)
 		.post('/')
 		.times(2)
-		.reply(201, (_uri, requestBody) => {
+		.reply(201, async (request) => {
+			const requestBody = await request.json();
 			receivedBodies.push(requestBody as Record<string, any>);
 			return { status: 201, message: 'Table action was triggered' };
 		});
