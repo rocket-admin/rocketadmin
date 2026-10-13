@@ -118,16 +118,18 @@ export class SitenovaEndUserAuthService {
 		if (existing) {
 			return Encryptor.decryptData(existing.encryptedValue);
 		}
-		const key = crypto.randomBytes(32).toString('hex');
-		const secret = this._dbContext.userSecretRepository.create({
+		// First use of this connection's key. Concurrent first uses (the universal-backend replicas
+		// all fetching a fresh site's credentials on its first page load) all miss the read above, so
+		// the insert is conflict-tolerant and the key handed back is whichever row won — never a
+		// locally generated key that the database did not keep.
+		const secret = await this._dbContext.userSecretRepository.createSecretUnlessExists({
 			slug,
-			encryptedValue: Encryptor.encryptData(key),
+			encryptedValue: Encryptor.encryptData(crypto.randomBytes(32).toString('hex')),
 			companyId,
 			expiresAt: null,
 			masterEncryption: false,
 			masterHash: null,
 		});
-		await this._dbContext.userSecretRepository.save(secret);
-		return key;
+		return Encryptor.decryptData(secret.encryptedValue);
 	}
 }

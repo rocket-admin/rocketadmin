@@ -9,8 +9,11 @@ import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
 import nock from 'nock';
 import request from 'supertest';
+import { DataSource } from 'typeorm';
 import { ApplicationModule } from '../../../src/app.module.js';
+import { BaseType } from '../../../src/common/data-injection.tokens.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
+import { UserSecretEntity } from '../../../src/entities/user-secret/user-secret.entity.js';
 import { TableActionEventEnum } from '../../../src/enums/table-action-event-enum.js';
 import { TableActionMethodEnum } from '../../../src/enums/table-action-method-enum.js';
 import { TableActionTypeEnum } from '../../../src/enums/table-action-type.enum.js';
@@ -535,4 +538,65 @@ test.serial(`${currentTest} rejects a missing microservice JWT (401) and a malfo
 		.set('Content-Type', 'application/json')
 		.set('Accept', 'application/json');
 	t.is(noKeys.status, 400);
+});
+
+currentTest = 'GET /internal/sitenova/connection/:connectionId (internal, microservice JWT)';
+
+// The universal-backend asks for a site's credentials + end-user signing key on every cold cache,
+// and a generated site's first page load fires several such requests at once (one per replica,
+// one per parallel API call). The key is provisioned lazily on the first request, so the first
+// burst must be race-safe: every caller gets 200 and the SAME key, and exactly one
+// `sitenova:enduser-jwt:<connectionId>` secret exists afterwards — not the
+// `duplicate key value violates unique constraint "IDX_f39a47aac503fe096b0c77f2b3"` 500 the
+// read-then-insert used to produce for every loser of the race.
+test.serial(`${currentTest} concurrent first requests provision one signing key`, async (t) => {
+	const { connectionId, userId } = await createConnectionAndTable();
+
+	const responses = await Promise.all(
+		Array.from({ length: 8 }, () =>
+			request(app.getHttpServer())
+				.get(`/internal/sitenova/connection/${connectionId}`)
+				.set('Authorization', microserviceAuthHeader())
+				.set('Accept', 'application/json'),
+		),
+	);
+
+	for (const res of responses) {
+		t.is(res.status, 200, res.text);
+		t.is(res.body.connection.id, connectionId);
+		t.is(typeof res.body.endUserJwtKey, 'string');
+	}
+	const keys = new Set(responses.map((res) => res.body.endUserJwtKey as string));
+	t.is(keys.size, 1, 'every concurrent request resolved to the single stored signing key');
+	const [key] = keys;
+
+	const dataSource = app.get<DataSource>(BaseType.DATA_SOURCE);
+	const storedSecrets = await dataSource
+		.getRepository(UserSecretEntity)
+		.count({ where: { slug: `sitenova:enduser-jwt:${connectionId}` } });
+	t.is(storedSecrets, 1, 'the signing key is stored once');
+
+	// The key handed out is the one the core itself signs with: a visitor token minted by the
+	// core's register route verifies with it, so tokens issued by either service stay interchangeable.
+	const usersTable = await createUsersTable(connectionId, userId);
+	const visitorToken = await registerAndGetToken(connectionId, usersTable);
+	const decoded = jwt.verify(visitorToken, key, { algorithms: ['HS256'], audience: 'sitenova:enduser' }) as {
+		cid: string;
+	};
+	t.is(decoded.cid, connectionId);
+
+	const again = await request(app.getHttpServer())
+		.get(`/internal/sitenova/connection/${connectionId}`)
+		.set('Authorization', microserviceAuthHeader())
+		.set('Accept', 'application/json');
+	t.is(again.status, 200);
+	t.is(again.body.endUserJwtKey, key, 'a later request returns the stored key, not a fresh one');
+});
+
+test.serial(`${currentTest} is rejected (401) without a microservice JWT`, async (t) => {
+	const { connectionId } = await createConnectionAndTable();
+	const res = await request(app.getHttpServer())
+		.get(`/internal/sitenova/connection/${connectionId}`)
+		.set('Accept', 'application/json');
+	t.is(res.status, 401);
 });
