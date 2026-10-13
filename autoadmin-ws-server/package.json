@@ -12,21 +12,21 @@
 		"lint:fix": "biome check --write src/"
 	},
 	"dependencies": {
-		"@hono/node-server": "^2.0.3",
-		"hono": "^4.12.21",
+		"@hono/node-server": "^2.1.5",
+		"hono": "^4.13.13",
 		"jsonwebtoken": "^9.0.3",
-		"lru-cache": "^11.5.0",
-		"nanoid": "^5.1.11",
-		"pino": "^10.3.1",
-		"ws": "^8.20.1",
-		"zod": "^4.4.3"
+		"lru-cache": "^11.5.3",
+		"nanoid": "^6.0.2",
+		"pino": "^10.4.0",
+		"ws": "^8.22.0",
+		"zod": "^4.6.7"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.4.15",
+		"@biomejs/biome": "2.5.15",
 		"@types/jsonwebtoken": "^9.0.10",
-		"@types/node": "^22.10.2",
-		"@types/ws": "^8.18.1",
-		"tsx": "^4.22.3",
+		"@types/node": "^24.19.2",
+		"@types/ws": "^8.18.2",
+		"tsx": "^4.23.15",
 		"typescript": "^6.0.3"
 	},
 	"pnpm": {

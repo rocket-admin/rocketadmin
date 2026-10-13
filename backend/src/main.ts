@@ -32,6 +32,24 @@ async function bootstrap() {
 			// few real traces — enabling tracing for real needs a `node --import` preload init
 			// (see plan 30's rolled-back addendum).
 			tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE ?? 0) || 0,
+			// @sentry/node v11 replaced `sendDefaultPii` with `dataCollection` and made the unset
+			// default permissive (request/response bodies, cookies, DB query data, GenAI prompts).
+			// This is the v10 baseline from the SDK migration guide: never ship customer DB rows,
+			// credentials or AI prompts to Sentry.
+			dataCollection: {
+				userInfo: false,
+				cookies: false,
+				httpHeaders: {
+					request: { deny: ['forwarded', '-ip', 'remote-', 'via', '-user'] },
+					response: { deny: ['forwarded', '-ip', 'remote-', 'via', '-user'] },
+				},
+				httpBodies: [],
+				urlQueryParams: { deny: ['forwarded', '-ip', 'remote-', 'via', '-user'] },
+				genAI: { inputs: false, outputs: false },
+				databaseQueryData: false,
+				queues: false,
+				graphQL: { document: false, variables: false },
+			},
 		});
 		const appOptions: NestApplicationOptions = {
 			rawBody: true,

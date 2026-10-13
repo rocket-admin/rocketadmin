@@ -1400,7 +1400,7 @@ export class DataAccessObjectRedis extends BasicDataAccessObject implements IDat
 				if (newMember !== undefined && newMember !== member) {
 					const oldScore = await redisClient.zScore(metadata.redisKey, String(member));
 					await redisClient.zRem(metadata.redisKey, String(member));
-					const scoreToUse = newScore !== undefined ? Number(newScore) : oldScore || 0;
+					const scoreToUse = newScore !== undefined ? Number(newScore) : Number(oldScore ?? 0);
 					await redisClient.zAdd(metadata.redisKey, { score: scoreToUse, value: String(newMember) });
 					return { member: newMember, score: scoreToUse };
 				} else if (newScore !== undefined) {

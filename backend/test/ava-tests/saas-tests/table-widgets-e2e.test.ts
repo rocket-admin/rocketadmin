@@ -1412,11 +1412,11 @@ test.serial(
 
 		for (let index = 0; index < 42; index++) {
 			const item = {
-				id: { N: index + 1 },
+				id: { N: String(index + 1) },
 				[testTableColumnName]: { S: faker.person.firstName() },
 				email: { S: faker.internet.email() },
 				age: {
-					N: faker.number.int({ min: 16, max: 80 }),
+					N: String(faker.number.int({ min: 16, max: 80 })),
 				},
 				created_at: { S: new Date().toISOString() },
 				updated_at: { S: new Date().toISOString() },
@@ -1431,9 +1431,9 @@ test.serial(
 
 		for (let index = 0; index < 42; index++) {
 			const item = {
-				id: { N: index + 1 },
+				id: { N: String(index + 1) },
 				[testReferencedColumnsName]: { S: faker.lorem.lines() },
-				[referencedByColumnName]: { N: faker.number.int({ min: 1, max: 42 }) },
+				[referencedByColumnName]: { N: String(faker.number.int({ min: 1, max: 42 })) },
 				created_at: { S: new Date().toISOString() },
 				updated_at: { S: new Date().toISOString() },
 			};
