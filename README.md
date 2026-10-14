@@ -1,6 +1,7 @@
 ## Rocket Admin
 
-[![backend test coverage](https://github.com/rocket-admin/rocketadmin/raw/badges/backend-coverage.svg)](https://github.com/rocket-admin/rocketadmin/actions/workflows/backend.yml)
+**Backend test coverage:** [latest report](https://github.com/rocket-admin/rocketadmin/blob/badges/README.md)
+(rewritten on every `main` build by the [backend workflow](https://github.com/rocket-admin/rocketadmin/actions/workflows/backend.yml))
 
 ![720](https://github.com/rocket-admin/rocketadmin/assets/75169/31f1ac1b-ded0-40b6-984a-e50a3ddc4ee2)
 

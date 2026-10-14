@@ -62,9 +62,10 @@ runs as `appuser`, which is why the `Dockerfile` pre-creates `/app/backend/cover
 
 CI (`.github/workflows/backend.yml`): the `test` job runs `just test-coverage`, writes a lines / statements /
 functions / branches table to the job summary (`scripts/coverage-report.mjs markdown`) and uploads
-`coverage-backend` as an artifact; on push to `main` the `coverage-badge` job renders the SVG badge at the top of
-`README.md` (`scripts/coverage-report.mjs badge`) and force-pushes it to the orphan `badges` branch using the
-workflow's own `GITHUB_TOKEN` — no external service or secret. No minimum coverage is enforced; a gate is
+`coverage-backend` as an artifact; on push to `main` the `coverage-badge` job writes the metrics table that the
+top of `README.md` links to (plus an SVG badge, `scripts/coverage-report.mjs`) and force-pushes it to the orphan
+`badges` branch using the workflow's own `GITHUB_TOKEN` — no external service or secret. A link rather than an
+embedded image: the image is broken until that branch exists. No minimum coverage is enforced; a gate is
 `"check-coverage": true` plus `"lines": <percent>` in `backend/.c8rc.json`.
 
 ### Migrations
