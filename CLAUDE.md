@@ -44,9 +44,28 @@ The project uses `just` for test orchestration:
 ```bash
 just test               # Run all backend tests with Docker Compose
 just test "path/to/test.ts"  # Run specific test file
+just test-coverage      # Same suite under c8; report copied out to backend/coverage/ (what CI runs)
 ```
 
 This spins up test databases (MySQL, PostgreSQL, MSSQL, Oracle, MongoDB, DynamoDB) via `docker-compose.tst.yml`.
+
+### Backend test coverage
+
+`just test-coverage` runs the same compose stack with `TEST_SCRIPT=test-all-parallel:coverage`, i.e. the
+AVA suite under [c8](https://github.com/bcoe/c8) (V8 native coverage, no instrumented build). `backend/.c8rc.json`
+counts every file under `backend/src/` whether loaded or not (`all: true`) except `main.ts`, `migrations/` and
+`*.spec.ts`; the suite executes `dist/src/**/*.js`, so `exclude-after-remap` is set for the patterns to match the
+source paths the `.js.map` files point back to (`shared-code` is outside `src/` and is not counted). The container
+runs as `appuser`, which is why the `Dockerfile` pre-creates `/app/backend/coverage`. The recipe copies
+`coverage-summary.json`, `lcov.info` and `lcov-report/` (per-file HTML) out of the stopped container to
+`backend/coverage/` (git-ignored) — only those, because `coverage/tmp` holds ~1 GB of raw V8 dumps.
+
+CI (`.github/workflows/backend.yml`): the `test` job runs `just test-coverage`, writes a lines / statements /
+functions / branches table to the job summary (`scripts/coverage-report.mjs markdown`) and uploads
+`coverage-backend` as an artifact; on push to `main` the `coverage-badge` job renders the SVG badge at the top of
+`README.md` (`scripts/coverage-report.mjs badge`) and force-pushes it to the orphan `badges` branch using the
+workflow's own `GITHUB_TOKEN` — no external service or secret. No minimum coverage is enforced; a gate is
+`"check-coverage": true` plus `"lines": <percent>` in `backend/.c8rc.json`.
 
 ### Migrations
 
