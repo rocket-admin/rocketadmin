@@ -46,6 +46,8 @@ RUN cd backend && ../node_modules/.bin/tsc && pnpm exec nest build
 COPY --from=front_builder /app/frontend/dist/rocketadmin/browser /var/www/html
 COPY frontend/nginx/default.conf /etc/nginx/sites-enabled/default
 RUN mkdir -p /app/backend/node_modules/.cache && chown -R appuser:appuser /app/backend/node_modules/.cache
+# c8 report dir for `just test-coverage` (the test compose runs this image as appuser)
+RUN mkdir -p /app/backend/coverage && chown appuser:appuser /app/backend/coverage
 RUN chown -R appuser:appuser  /var/lib/nginx
 RUN chown -R appuser:appuser  /var/log/nginx
 RUN chown -R appuser:appuser  /run
