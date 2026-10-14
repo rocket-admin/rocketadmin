@@ -6,6 +6,12 @@ import * as csv from 'csv';
 import { Knex } from 'knex';
 import { nanoid } from 'nanoid';
 import { LRUStorage } from '../../caching/lru-storage.js';
+import {
+	applyPrimaryKeysFilter,
+	BULK_PRIMARY_KEYS_LIMITS,
+	chunkPrimaryKeyRows,
+	normalisePrimaryKeys,
+} from '../../helpers/bulk-primary-keys.js';
 import { checkFieldAutoincrement } from '../../helpers/check-field-autoincrement.js';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
@@ -143,6 +149,9 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
 		primaryKeys: Array<Record<string, unknown>>,
 		settings: TableSettingsDS,
 	): Promise<Array<Record<string, unknown>>> {
+		if (primaryKeys.length === 0) {
+			return [];
+		}
 		const knex = await this.configureKnex();
 		let availableFields: string[] = [];
 
@@ -153,16 +162,13 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
 
 		const query = knex(tableName).select(availableFields.length ? availableFields : '*');
 
-		primaryKeys.forEach((primaryKey) => {
-			query.orWhere((builder) => {
-				Object.entries(primaryKey).forEach(([column, value]) => {
-					builder.andWhere(column, value);
-				});
-			});
-		});
-
-		const results = await query;
-		return results as Array<Record<string, unknown>>;
+		const normalisedKeys = normalisePrimaryKeys(primaryKeys);
+		const results: Array<Record<string, unknown>> = [];
+		for (const rows of chunkPrimaryKeyRows(normalisedKeys, BULK_PRIMARY_KEYS_LIMITS.mysql)) {
+			const chunkRows = await applyPrimaryKeysFilter(query.clone(), normalisedKeys.columns, rows, true);
+			results.push(...(chunkRows as Array<Record<string, unknown>>));
+		}
+		return results;
 	}
 
 	public async getRowsFromTable(
@@ -520,27 +526,20 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
 	}
 
 	public async bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number> {
-		const knex = await this.configureKnex();
-
 		if (primaryKeys.length === 0) {
 			return 0;
 		}
+		const knex = await this.configureKnex();
+		const normalisedKeys = normalisePrimaryKeys(primaryKeys);
+		const chunks = chunkPrimaryKeyRows(normalisedKeys, BULK_PRIMARY_KEYS_LIMITS.mysql);
 
-		await knex.transaction(async (trx) => {
-			await trx(tableName)
-				.delete()
-				.modify((queryBuilder) => {
-					primaryKeys.forEach((key) => {
-						queryBuilder.orWhere((builder) => {
-							Object.entries(key).forEach(([column, value]) => {
-								builder.andWhere(column, value);
-							});
-						});
-					});
-				});
+		return await knex.transaction(async (trx) => {
+			let deletedRowsCount = 0;
+			for (const rows of chunks) {
+				deletedRowsCount += await applyPrimaryKeysFilter(trx(tableName).delete(), normalisedKeys.columns, rows, true);
+			}
+			return deletedRowsCount;
 		});
-
-		return primaryKeys.length;
 	}
 
 	public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {

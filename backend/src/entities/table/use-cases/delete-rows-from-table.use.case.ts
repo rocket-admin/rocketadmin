@@ -17,7 +17,6 @@ import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { DeleteRowsFromTableDs } from '../application/data-structures/delete-row-from-table.ds.js';
 import { buildCommonTableSettingsInput } from '../utils/build-common-table-settings-input.util.js';
 import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util.js';
-import { findObjectsWithProperties } from '../utils/find-objects-with-properties.js';
 import { getUserEmailForAgent, validateConnection } from '../utils/validate-connection.util.js';
 import { IDeleteRowsFromTable } from './table-use-cases.interface.js';
 
@@ -87,7 +86,7 @@ export class DeleteRowsFromTableUseCase
 		primaryKeys.forEach((primaryKey) => {
 			Object.keys(primaryKey).forEach((key) => {
 				// eslint-disable-next-line security/detect-object-injection
-				if (!primaryKey[key] && primaryKey[key] !== '') {
+				if (primaryKey[key] === undefined) {
 					// eslint-disable-next-line security/detect-object-injection
 					delete primaryKey[key];
 				}
@@ -124,6 +123,7 @@ export class DeleteRowsFromTableUseCase
 			);
 		}
 
+		const oldRowsByPrimaryKey = indexRowsByPrimaryKey(oldRowsData, availablePrimaryColumns);
 		const deleteOperationsResults: Array<DeleteRowsFromTableResult> = [];
 
 		try {
@@ -132,7 +132,7 @@ export class DeleteRowsFromTableUseCase
 				deleteOperationsResults.push({
 					operationStatusResult: OperationResultStatusEnum.successfully,
 					row: primaryKey,
-					old_data: findObjectsWithProperties(oldRowsData, primaryKey).at(0) ?? {},
+					old_data: oldRowsByPrimaryKey.get(primaryKeyIndexKey(primaryKey, availablePrimaryColumns)) ?? {},
 					error: null,
 					affected_primary_key: primaryKey as unknown as string,
 				});
@@ -143,7 +143,7 @@ export class DeleteRowsFromTableUseCase
 				deleteOperationsResults.push({
 					operationStatusResult: OperationResultStatusEnum.unsuccessfully,
 					row: primaryKey,
-					old_data: findObjectsWithProperties(oldRowsData, primaryKey).at(0) ?? {},
+					old_data: oldRowsByPrimaryKey.get(primaryKeyIndexKey(primaryKey, availablePrimaryColumns)) ?? {},
 					error: getErrorMessage(error),
 					affected_primary_key: primaryKey as unknown as string,
 				});
@@ -165,4 +165,20 @@ export class DeleteRowsFromTableUseCase
 			);
 		}
 	}
+}
+
+function primaryKeyIndexKey(row: Record<string, unknown>, primaryColumns: Array<string>): string {
+	// eslint-disable-next-line security/detect-object-injection
+	return primaryColumns.map((column) => String(row[column])).join('\u0000');
+}
+
+function indexRowsByPrimaryKey(
+	rows: Array<Record<string, unknown>>,
+	primaryColumns: Array<string>,
+): Map<string, Record<string, unknown>> {
+	const index = new Map<string, Record<string, unknown>>();
+	for (const row of rows) {
+		index.set(primaryKeyIndexKey(row, primaryColumns), row);
+	}
+	return index;
 }

@@ -11,4 +11,6 @@ export const ERROR_MESSAGES = {
 	NO_DATA_RETURNED_FROM_AGENT: `No data returned from agent`,
 	INVALID_OBJECT_ID_FORMAT: `Invalid object id format`,
 	CLIENT_NOT_CONNECTED: `Client is not connected`,
+	PRIMARY_KEY_EMPTY: `Primary key must contain at least one column`,
+	PRIMARY_KEYS_COLUMNS_MISMATCH: `All primary keys in a bulk operation must contain the same columns`,
 };

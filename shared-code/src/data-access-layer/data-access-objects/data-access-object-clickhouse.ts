@@ -5,6 +5,7 @@ import * as csv from 'csv';
 import getPort from 'get-port';
 import { Readable, Stream } from 'stream';
 import { LRUStorage } from '../../caching/lru-storage.js';
+import { normalisePrimaryKeys } from '../../helpers/bulk-primary-keys.js';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 import { getTunnel } from '../../helpers/get-ssh-tunnel.js';
@@ -136,7 +137,7 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
 			const selectFields =
 				availableFields.length > 0 ? availableFields.map((f) => this.escapeIdentifier(f)).join(', ') : '*';
 
-			const whereConditions = primaryKeys.map((pk) => `(${this.buildWhereClause(pk)})`).join(' OR ');
+			const whereConditions = this.buildPrimaryKeysInClause(primaryKeys);
 
 			const query = `SELECT ${selectFields} FROM ${this.escapeIdentifier(tableName)} WHERE ${whereConditions}`;
 
@@ -537,7 +538,7 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
 
 		const client = await this.getClickHouseClient();
 		try {
-			const whereConditions = primaryKeys.map((pk) => `(${this.buildWhereClause(pk)})`).join(' OR ');
+			const whereConditions = this.buildPrimaryKeysInClause(primaryKeys);
 
 			const query = `ALTER TABLE ${this.escapeIdentifier(tableName)} DELETE WHERE ${whereConditions}`;
 			await client.command({ query });
@@ -779,6 +780,36 @@ export class DataAccessObjectClickHouse extends BasicDataAccessObject implements
 			return `'${this.escapeValue(JSON.stringify(value))}'`;
 		}
 		throw new Error(`Unsupported value type: ${typeof value}`);
+	}
+
+	/**
+	 * `col IN (…)` for one key column, `(a, b) IN ((…), (…))` for composite keys; a key with a null
+	 * component cannot match through IN and is OR-ed in as `(a = … AND b IS NULL)`.
+	 */
+	private buildPrimaryKeysInClause(primaryKeys: Array<Record<string, unknown>>): string {
+		const { columns, rows } = normalisePrimaryKeys(primaryKeys);
+		const escapedColumns = columns.map((column) => this.escapeIdentifier(column));
+		const listRows = rows.filter((row) => !row.some((value) => value === null || value === undefined));
+		const nullRows = rows.filter((row) => row.some((value) => value === null || value === undefined));
+		const predicates: Array<string> = [];
+		if (listRows.length > 0) {
+			predicates.push(
+				columns.length === 1
+					? `${escapedColumns[0]} IN (${listRows.map((row) => this.sanitizeValue(row[0])).join(', ')})`
+					: `(${escapedColumns.join(', ')}) IN (${listRows
+							.map((row) => `(${row.map((value) => this.sanitizeValue(value)).join(', ')})`)
+							.join(', ')})`,
+			);
+		}
+		for (const row of nullRows) {
+			const conditions = row.map((value, index) =>
+				value === null || value === undefined
+					? `${escapedColumns[index]} IS NULL`
+					: `${escapedColumns[index]} = ${this.sanitizeValue(value)}`,
+			);
+			predicates.push(`(${conditions.join(' AND ')})`);
+		}
+		return predicates.length === 1 ? predicates[0] : `(${predicates.join(' OR ')})`;
 	}
 
 	private buildWhereClause(conditions: Record<string, unknown>): string {

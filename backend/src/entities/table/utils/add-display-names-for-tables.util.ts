@@ -1,5 +1,5 @@
-import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';
 import { ITableAndViewPermissionData } from '../../permission/permission.interface.js';
+import { TableSettingsEntity } from '../../table-settings/common-table-settings/table-settings.entity.js';
 import { FoundTableDs } from '../application/data-structures/found-table.ds.js';
 
 export function addDisplayNamesForTables(

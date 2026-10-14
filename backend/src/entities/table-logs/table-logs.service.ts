@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { findSensitiveValues, scrub } from '@zapier/secret-scrubber';
-import PQueue from 'p-queue';
 import { Repository } from 'typeorm';
 import { LogOperationTypeEnum } from '../../enums/log-operation-type.enum.js';
 import { OperationResultStatusEnum } from '../../enums/operation-result-status.enum.js';
@@ -16,6 +15,9 @@ import { CreatedLogRecordDs } from './application/data-structures/created-log-re
 import { TableLogsEntity } from './table-logs.entity.js';
 import { buildCreatedLogRecord } from './utils/build-created-log-record.js';
 import { buildTableLogsEntity } from './utils/build-table-logs-entity.js';
+
+/** Rows per INSERT when a bulk operation writes its audit log; keeps one statement well under Postgres' bind limit. */
+const TABLE_LOGS_INSERT_CHUNK_SIZE = 500;
 
 @Injectable()
 export class TableLogsService {
@@ -220,16 +222,13 @@ export class TableLogsService {
 			const newLogRecord = buildTableLogsEntity(loggedData, email);
 			tableLogsEntities.push(newLogRecord);
 		}
-		const queue = new PQueue({ concurrency: 2 });
-		const createdLogs: Array<CreatedLogRecordDs | undefined> = await Promise.all(
-			tableLogsEntities.map(async (newLogRecord) => {
-				return await queue.add(async () => {
-					const savedLogRecord = await this.tableLogsRepository.save(newLogRecord);
-					return buildCreatedLogRecord(savedLogRecord);
-				});
-			}),
-		);
-		return createdLogs.filter((log) => log) as Array<CreatedLogRecordDs>;
+		if (tableLogsEntities.length === 0) {
+			return [];
+		}
+		const savedLogRecords = await this.tableLogsRepository.save(tableLogsEntities, {
+			chunk: TABLE_LOGS_INSERT_CHUNK_SIZE,
+		});
+		return savedLogRecords.map((savedLogRecord) => buildCreatedLogRecord(savedLogRecord));
 	}
 
 	private async isTableAuditEnabledInConnectionProperties(connectionId: string): Promise<boolean> {
