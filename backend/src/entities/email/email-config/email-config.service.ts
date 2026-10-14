@@ -4,6 +4,11 @@ import { IEmailConfig, IEmailConfigService } from './email-config.interface.js';
 
 @Injectable()
 export class EmailConfigService implements IEmailConfigService {
+	public isConfigured(): boolean {
+		const { configString, host } = appConfig.email;
+		return Boolean(configString || host);
+	}
+
 	public getEmailServiceConfig(): IEmailConfig | string {
 		const { configString, host, port, username, password, nonSecure } = appConfig.email;
 		if (configString) {

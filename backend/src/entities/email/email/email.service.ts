@@ -1,20 +1,28 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import Mail from 'nodemailer/lib/mailer/index.js';
 import SMTPTransport from 'nodemailer/lib/smtp-transport/index.js';
+import * as nunjucks from 'nunjucks';
 import PQueue from 'p-queue';
+import { BaseType } from '../../../common/data-injection.tokens.js';
 import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { isTest } from '../../../helpers/app/is-test.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { getErrorMessage } from '../../../helpers/get-error-message.js';
 import { SaasEmailGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-email-gateway.service.js';
+import { appConfig } from '../../../shared/config/app-config.js';
 import { WinstonLogger } from '../../logging/winston-logger.js';
 import { UserInfoMessageData } from '../../table-actions/table-actions-module/table-action-activation.service.js';
+import { EmailConfigService } from '../email-config/email-config.service.js';
 import { EmailLetter } from '../email-messages/email-message.js';
+import { EMAIL_TEXT } from '../email-text/email-text.js';
 import { EmailTransporterService } from '../transporter/email-transporter-service.js';
+import { escapeHtml } from '../utils/escape-html.util.js';
 import { EmailGenerator } from './email.generator.js';
 import { IMessage } from './email.interface.js';
+
+const SMTP_SEND_TIMEOUT_MS = 4000;
 
 export interface ICronMessagingResults {
 	email: string;
@@ -51,31 +59,22 @@ export function mapReminderOutcomeToCronResult(email: string, outcome: EmailDisp
 	return base;
 }
 
-// Plan 15 Phase 3: the core composes no letters and transports no email in any mode.
 // Every public send* method builds the letter parameters (including the legacy link
 // computation with linkBase/customCompanyDomain handling) and hands them to the
-// `dispatchEmail` seam, which fires the saas-side composer webhook in SaaS mode and
-// suppresses the send entirely self-hosted (rev-5 decision: self-hosted sends NOTHING).
-// The transporter/nunjucks path below the seam (`sendEmailToUser`/`sendMail`) is dead
-// code kept only until the Phase 7 deletion.
+// `dispatchEmail` seam. In SaaS mode the seam fires the saas-side composer webhook;
+// self-hosted it composes the letter locally (EMAIL_TEXT + nunjucks templates) and sends
+// it through the instance's own SMTP server (EMAIL_CONFIG_STRING / EMAIL_SERVICE_*), or
+// suppresses it when no SMTP server is configured.
 @Injectable()
 export class EmailService {
 	constructor(
 		private readonly emailTransporterService: EmailTransporterService,
 		private readonly saasEmailGatewayService: SaasEmailGatewayService,
 		private readonly logger: WinstonLogger,
+		private readonly emailConfigService: EmailConfigService,
+		@Inject(BaseType.NUNJUCKS)
+		private readonly nunjucksEnv: nunjucks.Environment,
 	) {}
-
-	// Dead code since plan 15 Phase 3 (kept for Phase 7 deletion): nothing routes letters
-	// through the local transporter anymore.
-	public async sendEmailToUser(letterContent: IMessage): Promise<SMTPTransport.SentMessageInfo | null> {
-		if (isTest()) return null;
-		const mailResult = await this.sendEmailWithTimeout(letterContent);
-		if (mailResult) {
-			return mailResult;
-		}
-		return null;
-	}
 
 	public async sendEmailActionToUser(
 		userEmail: string,
@@ -205,8 +204,6 @@ export class EmailService {
 		return await this.dispatchEmail('password_reset_request', email, { link });
 	}
 
-	// Dead code since plan 15 Phase 3 (kept for Phase 7 deletion), together with the
-	// transporter/template-engine machinery it drives.
 	public async sendMail(letterContent: IMessage): Promise<SMTPTransport.SentMessageInfo> {
 		const testEmail = new EmailLetter({
 			from: letterContent.from,
@@ -220,11 +217,13 @@ export class EmailService {
 		return await this.emailTransporterService.transportEmail(emailMessage);
 	}
 
-	// Plan 15 Phase 3 seam — the single gate every outgoing letter passes through:
-	// - test mode  -> no-op (unchanged semantics);
-	// - SaaS mode  -> saas-side composer webhook, mapped onto a SentMessageInfo-compatible
-	//                 object (a failure never fails the parent operation);
-	// - self-hosted -> suppressed entirely (plan 15 rev 5: self-hosted sends NOTHING, ever).
+	// The single gate every outgoing letter passes through:
+	// - test mode   -> no-op (unchanged semantics);
+	// - SaaS mode   -> saas-side composer webhook, mapped onto a SentMessageInfo-compatible
+	//                  object (a failure never fails the parent operation);
+	// - self-hosted -> composed locally and sent through the configured SMTP server; suppressed
+	//                  when none is configured. The reminder is SaaS onboarding copy and never
+	//                  leaves a self-hosted instance.
 	// Transactional callers use this null-contract wrapper; the reminder cron uses
 	// dispatchEmailWithOutcome so the failure reason survives into its Slack report.
 	private async dispatchEmail(
@@ -245,8 +244,7 @@ export class EmailService {
 			return { ok: false, reason: 'suppressed: test env' };
 		}
 		if (!isSaaS()) {
-			this.logger.debug(`email suppressed (self-hosted): ${type}`);
-			return { ok: false, reason: 'suppressed: not SaaS' };
+			return await this.dispatchSelfHostedEmail(type, to, params);
 		}
 		const webhookOutcome = await this.saasEmailGatewayService.sendEmail(type, to, params);
 		if (webhookOutcome.ok === false) {
@@ -264,20 +262,175 @@ export class EmailService {
 		};
 	}
 
-	// Dead code since plan 15 Phase 3 (kept for Phase 7 deletion).
-	private async sendEmailWithTimeout(letterContent: IMessage): Promise<SMTPTransport.SentMessageInfo | null> {
-		return new Promise<SMTPTransport.SentMessageInfo | null>(async (resolve) => {
-			setTimeout(() => {
-				resolve(null);
-			}, 4000);
-			try {
-				const mailResult = await this.sendMail(letterContent);
-				resolve(mailResult);
-			} catch (e) {
-				Sentry.captureException(e);
-				console.error(e);
-				resolve(null);
+	private async dispatchSelfHostedEmail(
+		type: string,
+		to: string,
+		params: Record<string, unknown>,
+	): Promise<EmailDispatchOutcome> {
+		if (type === 'reminder') {
+			return { ok: false, reason: 'suppressed: reminder is SaaS-only' };
+		}
+		if (!this.emailConfigService.isConfigured()) {
+			this.logger.warn(
+				`Email "${type}" to ${to} not sent: no SMTP server configured (set EMAIL_CONFIG_STRING or EMAIL_SERVICE_HOST)`,
+			);
+			return { ok: false, reason: 'suppressed: SMTP not configured' };
+		}
+		let letter: IMessage;
+		try {
+			letter = this.composeLocalLetter(type, to, params);
+		} catch (error) {
+			this.logger.error(`Failed to compose email "${type}" to ${to}: ${getErrorMessage(error)}`);
+			Sentry.captureException(error);
+			return { ok: false, reason: `compose failed: ${getErrorMessage(error)}` };
+		}
+		const outcome = await this.sendEmailWithTimeout(letter);
+		if (outcome.ok === false) {
+			this.logger.error(`Failed to send email "${type}" to ${to} via SMTP: ${outcome.reason}`);
+		}
+		return outcome;
+	}
+
+	// Self-hosted counterpart of the saas-side composer: same letter types and params as the
+	// webhook payload (see the public send* methods above).
+	private composeLocalLetter(type: string, to: string, params: Record<string, unknown>): IMessage {
+		const from = appConfig.email.from;
+		const currentYear = new Date().getFullYear();
+		switch (type) {
+			case 'table_action': {
+				const userInfo = params.userInfo as UserInfoMessageData;
+				const tableName = params.tableName as string;
+				const primaryKeyValuesArray = params.primaryKeyValuesArray as Array<Record<string, unknown>>;
+				const action = this.describeTableAction(params.triggerOperation as TableActionEventEnum);
+				const textContent = EMAIL_TEXT.ACTION_EMAIL.EMAIL_TEXT(userInfo, action, tableName, primaryKeyValuesArray);
+				return {
+					from,
+					to,
+					subject: EMAIL_TEXT.ACTION_EMAIL.EMAIL_SUBJECT,
+					text: textContent,
+					html: this.nunjucksEnv.render('action-email-activation.njk', {
+						userInfo,
+						triggerOperation: params.triggerOperation,
+						tableName,
+						action,
+						primaryKeysValuesStr: JSON.stringify(primaryKeyValuesArray),
+						currentYear,
+						textContent,
+						primaryKeyValuesArray,
+					}),
+				};
 			}
+			case 'company_2fa_enabled': {
+				const companyName = params.companyName as string;
+				return {
+					from,
+					to,
+					subject: EMAIL_TEXT.COMPANY_2FA_ENABLED.EMAIL_SUBJECT,
+					text: EMAIL_TEXT.COMPANY_2FA_ENABLED.EMAIL_TEXT(companyName),
+					html: this.nunjucksEnv.render('company-2fa-enabled-notification.njk', { companyName }),
+				};
+			}
+			case 'group_invite': {
+				const groupTitle = params.groupTitle as string;
+				return {
+					from,
+					to,
+					subject: EMAIL_TEXT.INVITE_IN_GROUP.EMAIL_SUBJECT,
+					text: EMAIL_TEXT.INVITE_IN_GROUP.EMAIL_TEXT(groupTitle),
+					html: this.nunjucksEnv.render('invite-in-group-notification.njk', { groupTitle, currentYear }),
+				};
+			}
+			case 'company_invite': {
+				const link = params.link as string;
+				const rawCompanyName = params.companyName as string | null;
+				const companyName = rawCompanyName ? ` "${rawCompanyName}" ` : ' ';
+				return {
+					from,
+					to,
+					subject: EMAIL_TEXT.INVITE_IN_COMPANY.EMAIL_SUBJECT,
+					text: EMAIL_TEXT.INVITE_IN_COMPANY.EMAIL_TEXT(link, escapeHtml(companyName)),
+					html: this.nunjucksEnv.render('invite-in-company-notification.njk', {
+						linkToAccept: link,
+						companyName,
+						currentYear,
+					}),
+				};
+			}
+			case 'email_confirmation': {
+				const link = params.link as string;
+				return {
+					from,
+					to,
+					subject: EMAIL_TEXT.CONFIRM_EMAIL.EMAIL_SUBJECT,
+					text: EMAIL_TEXT.CONFIRM_EMAIL.EMAIL_TEXT(link),
+					html: this.nunjucksEnv.render('confirm-email-notification.njk', { linkToConfirm: link, currentYear }),
+				};
+			}
+			case 'email_changed':
+				return {
+					from,
+					to,
+					subject: EMAIL_TEXT.CHANGED_EMAIL.EMAIL_SUBJECT,
+					text: EMAIL_TEXT.CHANGED_EMAIL.EMAIL_TEXT,
+					html: this.nunjucksEnv.render('changed-email-notification.njk', { currentYear }),
+				};
+			case 'email_change_request': {
+				const linkToConfirm = params.link as string;
+				return {
+					from,
+					to,
+					subject: EMAIL_TEXT.CHANGE_EMAIL_REQUEST.EMAIL_SUBJECT,
+					text: EMAIL_TEXT.CHANGE_EMAIL_REQUEST.EMAIL_TEXT(linkToConfirm),
+					html: this.nunjucksEnv.render('change-email-request-notification.njk', { linkToConfirm, currentYear }),
+				};
+			}
+			case 'password_reset_request': {
+				const linkToConfirm = params.link as string;
+				return {
+					from,
+					to,
+					subject: EMAIL_TEXT.RESET_PASSWORD_REQUEST.EMAIL_SUBJECT,
+					text: EMAIL_TEXT.RESET_PASSWORD_REQUEST.EMAIL_TEXT(linkToConfirm),
+					html: this.nunjucksEnv.render('reset-password-request-notification.njk', { linkToConfirm, currentYear }),
+				};
+			}
+			default:
+				throw new Error(`unknown email type "${type}"`);
+		}
+	}
+
+	private describeTableAction(triggerOperation: TableActionEventEnum): string {
+		switch (triggerOperation) {
+			case TableActionEventEnum.ADD_ROW:
+				return 'added a row';
+			case TableActionEventEnum.UPDATE_ROW:
+				return 'updated a row';
+			case TableActionEventEnum.DELETE_ROW:
+				return 'deleted a row';
+			default:
+				return 'performed an action';
+		}
+	}
+
+	private async sendEmailWithTimeout(letterContent: IMessage): Promise<EmailDispatchOutcome> {
+		let timer: NodeJS.Timeout | undefined;
+		const timeout = new Promise<EmailDispatchOutcome>((resolve) => {
+			timer = setTimeout(
+				() => resolve({ ok: false, reason: `timed out after ${SMTP_SEND_TIMEOUT_MS}ms` }),
+				SMTP_SEND_TIMEOUT_MS,
+			);
 		});
+		const send = this.sendMail(letterContent).then(
+			(info): EmailDispatchOutcome => ({ ok: true, info }),
+			(error: unknown): EmailDispatchOutcome => {
+				Sentry.captureException(error);
+				return { ok: false, reason: getErrorMessage(error) };
+			},
+		);
+		try {
+			return await Promise.race([send, timeout]);
+		} finally {
+			clearTimeout(timer);
+		}
 	}
 }
