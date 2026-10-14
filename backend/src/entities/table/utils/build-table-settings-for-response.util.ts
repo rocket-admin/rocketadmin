@@ -3,7 +3,13 @@ import { TableSettingsInRowsDS } from '../application/data-structures/found-tabl
 
 export function buildTableSettingsForResponse(
 	builtDAOsTableSettings: TableSettingsDS,
-	tableSettings?: { allow_csv_export?: boolean; allow_csv_import?: boolean; can_delete?: boolean; can_update?: boolean; can_add?: boolean } | null,
+	tableSettings?: {
+		allow_csv_export?: boolean;
+		allow_csv_import?: boolean;
+		can_delete?: boolean;
+		can_update?: boolean;
+		can_add?: boolean;
+	} | null,
 ): TableSettingsInRowsDS {
 	return {
 		sortable_by: builtDAOsTableSettings?.sortable_by?.length > 0 ? builtDAOsTableSettings.sortable_by : [],

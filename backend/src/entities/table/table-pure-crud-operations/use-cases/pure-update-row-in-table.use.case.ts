@@ -67,7 +67,7 @@ export class PureUpdateRowInTableUseCase
 		const availablePrimaryColumns = tablePrimaryKeys.map((key) => key.column_name);
 		for (const key in primaryKey) {
 			// eslint-disable-next-line security/detect-object-injection
-			if (!primaryKey[key] && primaryKey[key] !== '') delete primaryKey[key];
+			if (primaryKey[key] === undefined) delete primaryKey[key];
 		}
 		const receivedPrimaryColumns = Object.keys(primaryKey);
 		if (!compareArrayElements(availablePrimaryColumns, receivedPrimaryColumns)) {
