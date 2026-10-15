@@ -6,9 +6,12 @@
 /out-tsc
 # Only exists if Bazel was run
 /bazel-out
+/frontend-vue/dist
+/frontend-vue/coverage
 
 # dependencies
 /node_modules
+/frontend-vue/node_modules
 .yarn/
 
 # yarn berry cache (not tracked at repo root)

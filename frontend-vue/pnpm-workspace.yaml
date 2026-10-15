@@ -1,0 +1,7 @@
+# frontend-vue is installed on its own (like frontend/), not as a member of the root workspace.
+packages:
+  - .
+
+# vue-demi's postinstall only switches between Vue 2/3 builds; the default Vue 3 build is what we need.
+ignoredBuiltDependencies:
+  - vue-demi

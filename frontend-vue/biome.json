@@ -1,0 +1,21 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.4.0/schema.json",
+	"root": false,
+	"extends": "//",
+	"files": {
+		"includes": ["**", "!**/dist", "!**/src/version.ts", "!**/index.saas.html"]
+	},
+	"overrides": [
+		{
+			"includes": ["**/*.vue"],
+			"linter": {
+				"rules": {
+					"correctness": {
+						"noUnusedImports": "off",
+						"noUnusedVariables": "off"
+					}
+				}
+			}
+		}
+	]
+}

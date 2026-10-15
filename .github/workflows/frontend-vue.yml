@@ -1,0 +1,53 @@
+name: frontend-vue
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'frontend-vue/**'
+      - 'frontend/src/assets/**'
+      - '.github/workflows/frontend-vue.yml'
+  pull_request:
+    paths:
+      - 'frontend-vue/**'
+      - 'frontend/src/assets/**'
+      - '.github/workflows/frontend-vue.yml'
+
+concurrency:
+  group: frontend-vue-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: frontend-vue
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: frontend-vue/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+          cache-dependency-path: frontend-vue/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm lint
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Unit tests
+        run: pnpm test:ci
+      - name: Build (self-hosted)
+        run: pnpm build
+      - name: Build (SaaS)
+        run: pnpm build:saas

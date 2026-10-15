@@ -1,0 +1,49 @@
+{
+	"name": "rocketadmin-vue",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "node scripts/update-version.js && vite --mode development",
+		"dev:saas": "node scripts/update-version.js && vite --mode saas",
+		"build": "node scripts/update-version.js && vite build --mode production",
+		"build:saas": "node scripts/update-version.js && vite build --mode saas-production",
+		"preview": "vite preview",
+		"typecheck": "vue-tsc --build",
+		"lint": "biome check . && eslint .",
+		"test": "vitest",
+		"test:ci": "vitest run",
+		"update-version": "node scripts/update-version.js"
+	},
+	"dependencies": {
+		"@cedar-policy/cedar-wasm": "^4.9.1",
+		"@fontsource/ibm-plex-mono": "^5.2.7",
+		"@fontsource/noto-sans": "^5.2.10",
+		"@material-symbols/font-400": "^0.40.2",
+		"@tanstack/vue-query": "^5.104.2",
+		"monaco-editor": "0.55.1",
+		"pinia": "^3.0.4",
+		"vue": "^3.5.43",
+		"vue-router": "^4.6.4",
+		"vuetify": "^3.13.6"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.4.0",
+		"@types/node": "^24.0.0",
+		"@vitejs/plugin-vue": "^6.0.10",
+		"@vue/test-utils": "^2.5.1",
+		"@vue/tsconfig": "^0.8.1",
+		"eslint": "^10.12.0",
+		"eslint-plugin-vue": "^10.11.1",
+		"jsdom": "^27.4.0",
+		"typescript": "~5.9.3",
+		"typescript-eslint": "^8.71.1",
+		"vite": "^8.3.4",
+		"vite-plugin-static-copy": "^4.1.1",
+		"vite-plugin-vuetify": "^2.1.3",
+		"vitest": "^5.0.4",
+		"vue-eslint-parser": "^10.2.0",
+		"vue-tsc": "^3.3.13"
+	},
+	"packageManager": "pnpm@10.33.0"
+}
