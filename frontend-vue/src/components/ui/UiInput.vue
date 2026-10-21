@@ -14,8 +14,21 @@ import { FIELD_CONTEXT } from './fieldContext';
 
 const props = withDefaults(
 	defineProps<{
-		modelValue?: string;
-		type?: 'text' | 'email' | 'password' | 'url' | 'search';
+		/** `null` renders as empty, so a nullable DB column can be bound directly. */
+		modelValue?: string | number | null;
+		/** Native input type. The date/time/number types are what the record-edit widgets need. */
+		type?:
+			| 'text'
+			| 'email'
+			| 'password'
+			| 'url'
+			| 'search'
+			| 'tel'
+			| 'number'
+			| 'date'
+			| 'time'
+			| 'datetime-local'
+			| 'color';
 		/** Geometry only. `sm` for dense rows such as an inline rename. */
 		size?: 'sm' | 'md';
 		placeholder?: string;
@@ -60,7 +73,7 @@ export default {
 		:id="field?.inputId"
 		:class="classes"
 		:type="type"
-		:value="modelValue"
+		:value="modelValue ?? ''"
 		:placeholder="placeholder"
 		:disabled="disabled"
 		:autocomplete="autocomplete"

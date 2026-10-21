@@ -8,11 +8,14 @@
 
 export { FIELD_CONTEXT, type FieldContext } from './fieldContext';
 export { MENU_CONTEXT, type MenuContext } from './menuContext';
+export type { AutocompleteOption, SelectOption, SelectValue } from './selectOption';
 export { TABS_CONTEXT, type TabsContext } from './tabsContext';
 export { default as UiAlert } from './UiAlert.vue';
+export { default as UiAutocomplete } from './UiAutocomplete.vue';
 export { default as UiBadge } from './UiBadge.vue';
 export { default as UiButton } from './UiButton.vue';
 export { default as UiCard } from './UiCard.vue';
+export { default as UiCheckbox } from './UiCheckbox.vue';
 export { default as UiChip } from './UiChip.vue';
 export { default as UiConfirmDialog } from './UiConfirmDialog.vue';
 export { default as UiDrawer } from './UiDrawer.vue';
@@ -25,8 +28,11 @@ export { default as UiMenuItem } from './UiMenuItem.vue';
 export { default as UiModal } from './UiModal.vue';
 export { default as UiPageShell } from './UiPageShell.vue';
 export { default as UiProgressBar } from './UiProgressBar.vue';
+export { default as UiSegmented } from './UiSegmented.vue';
+export { default as UiSelect } from './UiSelect.vue';
 export { default as UiSkeleton } from './UiSkeleton.vue';
 export { default as UiSpinner } from './UiSpinner.vue';
 export { default as UiTab } from './UiTab.vue';
 export { default as UiTabPanel } from './UiTabPanel.vue';
 export { default as UiTabs } from './UiTabs.vue';
+export { default as UiTextarea } from './UiTextarea.vue';

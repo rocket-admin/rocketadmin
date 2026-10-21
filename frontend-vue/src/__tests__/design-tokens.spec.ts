@@ -24,7 +24,10 @@ import { describe, expect, it } from 'vitest';
 const SRC = resolve(process.cwd(), 'src');
 
 /** Hex colours that are legitimately not tokens, as `relative/path.vue:<hex>`. */
-const HEX_ALLOWLIST = new Set<string>([]);
+const HEX_ALLOWLIST = new Set<string>([
+	// Placeholder text showing users the hex format a colour column accepts — data, not a style.
+	'components/fields/record-edit/ColorEdit.vue:#000000',
+]);
 
 /**
  * Rule 3 — the three properties that carry the spacing and type scales.

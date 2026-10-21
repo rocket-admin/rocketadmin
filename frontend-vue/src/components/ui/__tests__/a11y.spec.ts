@@ -1,10 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { defineComponent, h } from 'vue';
+import { defineComponent, h, onMounted, ref } from 'vue';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import UiAlert from '../UiAlert.vue';
+import UiAutocomplete from '../UiAutocomplete.vue';
 import UiBadge from '../UiBadge.vue';
 import UiButton from '../UiButton.vue';
 import UiCard from '../UiCard.vue';
+import UiCheckbox from '../UiCheckbox.vue';
 import UiChip from '../UiChip.vue';
 import UiConfirmDialog from '../UiConfirmDialog.vue';
 import UiDrawer from '../UiDrawer.vue';
@@ -17,11 +19,14 @@ import UiMenuItem from '../UiMenuItem.vue';
 import UiModal from '../UiModal.vue';
 import UiPageShell from '../UiPageShell.vue';
 import UiProgressBar from '../UiProgressBar.vue';
+import UiSegmented from '../UiSegmented.vue';
+import UiSelect from '../UiSelect.vue';
 import UiSkeleton from '../UiSkeleton.vue';
 import UiSpinner from '../UiSpinner.vue';
 import UiTab from '../UiTab.vue';
 import UiTabPanel from '../UiTabPanel.vue';
 import UiTabs from '../UiTabs.vue';
+import UiTextarea from '../UiTextarea.vue';
 import { axeViolations, formatViolations } from './axe';
 
 /**
@@ -144,6 +149,134 @@ describe('primitive accessibility', () => {
 			});
 
 			await expectNoViolations(Host);
+		});
+	});
+
+	describe('UiField + UiTextarea', () => {
+		it('is accessible with hint and error', async () => {
+			await expectNoViolations(UiField, {
+				props: { label: 'Description', hint: 'Markdown allowed', error: 'Too long', required: true },
+				slots: { default: () => h(UiTextarea, { rows: 3 }) },
+			});
+		});
+	});
+
+	describe('UiSelect', () => {
+		const options = [
+			{ value: true, label: 'Yes' },
+			{ value: 42, label: 'Forty-two' },
+			{ value: null, label: 'Null', disabled: true },
+		];
+
+		it('is accessible inside a UiField with an error', async () => {
+			await expectNoViolations(UiField, {
+				props: { label: 'Plan', error: 'Pick a plan', required: true },
+				slots: { default: () => h(UiSelect, { options, placeholder: 'Choose…' }) },
+			});
+		});
+
+		it('is accessible as a multiple list box', async () => {
+			await expectNoViolations(UiField, {
+				props: { label: 'Roles' },
+				slots: { default: () => h(UiSelect, { options, multiple: true, modelValue: [true] }) },
+			});
+		});
+
+		it('is accessible disabled, labelled standalone', async () => {
+			await expectNoViolations(UiSelect, { props: { options, disabled: true }, attrs: { 'aria-label': 'Operator' } });
+		});
+	});
+
+	describe('UiCheckbox', () => {
+		for (const [state, props] of [
+			['unchecked', {}],
+			['checked', { modelValue: true }],
+			['indeterminate', { indeterminate: true }],
+			['disabled', { disabled: true, modelValue: true }],
+		] as const) {
+			it(`is accessible ${state}`, async () => {
+				await expectNoViolations(UiCheckbox, { props, slots: { default: () => 'Select all rows' } });
+			});
+		}
+
+		it('is accessible with no visible text and an aria-label', async () => {
+			// The table-row shape: no slot text, so the name has to come from the attr on the input.
+			await expectNoViolations(UiCheckbox, { attrs: { 'aria-label': 'Select row 1' } });
+		});
+	});
+
+	describe('UiSegmented', () => {
+		const options = [
+			{ value: true, label: 'Yes' },
+			{ value: false, label: 'No' },
+			{ value: null, label: 'Null' },
+		];
+
+		it('is accessible with a choice made', async () => {
+			// radiogroup naming via `label`, and native radios each named by their segment text.
+			await expectNoViolations(UiSegmented, { props: { options, label: 'Active', modelValue: true } });
+		});
+
+		it('is accessible with nothing chosen and one option disabled', async () => {
+			await expectNoViolations(UiSegmented, {
+				props: { options: [...options.slice(0, 2), { value: null, label: 'Null', disabled: true }], label: 'Active' },
+			});
+		});
+
+		it('is accessible disabled', async () => {
+			await expectNoViolations(UiSegmented, { props: { options, label: 'Active', disabled: true } });
+		});
+	});
+
+	describe('UiAutocomplete', () => {
+		const options = [
+			{ value: 'de', label: 'Germany' },
+			{ value: 'fr', label: 'France', disabled: true },
+			{ value: 'it', label: 'Italy' },
+		];
+		/** Mounts inside a UiField and, when `open`, focuses and presses ArrowDown before axe runs. */
+		const Host = (props: Record<string, unknown>, open: boolean) =>
+			defineComponent({
+				components: { UiField, UiAutocomplete },
+				setup() {
+					const root = ref<HTMLElement | null>(null);
+					onMounted(() => {
+						if (!open) return;
+						const input = root.value?.querySelector('input');
+						input?.dispatchEvent(new Event('focus'));
+						input?.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
+					});
+					return { root, props };
+				},
+				template: `
+          <div ref="root">
+            <UiField label="Country" hint="Start typing">
+              <UiAutocomplete v-bind="props" />
+            </UiField>
+          </div>
+        `,
+			});
+
+		it('is accessible when closed', async () => {
+			// aria-controls must still resolve while closed, which is why the listbox is v-show.
+			await expectNoViolations(Host({ options }, false));
+		});
+
+		it('is accessible when open with an active option', async () => {
+			// aria-activedescendant must name a rendered role="option" inside the controlled listbox.
+			await expectNoViolations(Host({ options, modelValue: 'G' }, true));
+		});
+
+		it('is accessible when open showing emptyText', async () => {
+			await expectNoViolations(Host({ options: [], modelValue: 'zz', emptyText: 'No matches' }, true));
+		});
+
+		it('is accessible while loading', async () => {
+			await expectNoViolations(Host({ options: [], modelValue: 'zz', loading: true }, false));
+		});
+
+		it('is accessible disabled', async () => {
+			await expectNoViolations(Host({ options, disabled: true }, false));
 		});
 	});
 

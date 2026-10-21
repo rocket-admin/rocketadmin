@@ -87,11 +87,11 @@ Copy these as-is and add tests where they are missing:
 6. **Port all services to Pinia stores and composables.** Replace the string-event BehaviorSubjects (for example `tables.cast` emitting `'delete row'`) with explicit store actions and state, or with a typed event bus (`mitt`) where it really is fire-and-forget. List every `cast` consumer before removing it.
 
 ### Phase 2 – The field widget system (the core of the app)
-1. Port the `base-*` classes as composables (`useRecordEditField(props, emit)`, and so on) with a shared props contract (`label`, `value`, `structure`, `widgetStructure`, `relations`, `readonly`, `required`, `disabled`).
+1. Port the `base-*` classes as composables (`useRecordEditField(props)`, `useFilterField(props)`, `useViewField(props, emit)` in `src/components/fields/useFieldWidget.ts`) with a shared props contract in `src/components/fields/types.ts` (`label`, `value`, `structure`, `widgetStructure`, `relations`, `readonly`, `required`, `disabled`). Two renames are forced by Vue: `key` becomes `fieldKey` (Vue reserves `key`), and the outputs become events (`fieldChange`, `comparatorChange`, `copyToClipboard`). The primitives the widgets need were added to the design system first: `UiTextarea`, `UiSelect`, `UiCheckbox`, `UiSegmented` (button-toggle group), `UiAutocomplete` (combobox), plus `AppCodeEditor` (Monaco) and `AppMarkdown` (marked + DOMPurify).
 2. Port the widgets one family at a time, as a mechanical template-to-SFC conversion:
    - `record-view-fields` (32), `table-display-fields` (32), `record-edit-fields` (32), `filter-fields` (23)
    - Include foreign-key autocomplete, S3/file/image upload, the Monaco-based code, json and markdown fields, and country/phone (`libphonenumber-js`).
-3. Rebuild `consts/record-edit-types.ts`, `record-view-types.ts`, `table-display-types.ts` and `filter-types.ts` as maps from type to `defineAsyncComponent`. Keep the DB-type mapping tables exactly as they are.
+3. Rebuild `consts/record-edit-types.ts`, `record-view-types.ts`, `table-display-types.ts` and `filter-types.ts` as maps from type to `defineAsyncComponent`. Keep the DB-type mapping tables exactly as they are. `src/consts/widget-types.spec.ts` checks every map against the Angular source, key by key.
 4. Write a Storybook story for each widget, ported from the existing 159 stories, so each one can be compared visually with the Angular version.
 
 ### Phase 3 – Features (each one should ship complete; this is the recommended order)

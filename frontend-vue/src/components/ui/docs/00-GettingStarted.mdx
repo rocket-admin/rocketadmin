@@ -61,7 +61,8 @@ Full rules in **Conventions**.
 1. `src/components/ui/UiThing.vue` — `<script setup lang="ts">` with a
    `withDefaults(defineProps<…>(), …)` call carrying a JSDoc line per prop, and scoped BEM styles
    reading only tokens.
-2. `UiThing.stories.ts` — `tags: ['autodocs']`, `parameters: { a11y: { test: 'error' } }`, and an
-   `AllVariants` matrix story.
+2. `UiThing.stories.ts` — `tags: ['autodocs']` and an `AllVariants` matrix story. The a11y
+   `test: 'error'` parameter is already set globally in `.storybook/preview.ts`; don't repeat it.
 3. `UiThing.spec.ts` — behaviour and ARIA contracts, never CSS values.
-4. Export it from `src/components/ui/index.ts`.
+4. Add it to `__tests__/a11y.spec.ts`, once per state whose ARIA shape differs.
+5. Export it from `src/components/ui/index.ts`.

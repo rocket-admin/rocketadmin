@@ -24,4 +24,10 @@ export default tseslint.config(
 			'vue/require-default-prop': 'off',
 		},
 	},
+	{
+		// The one sanctioned v-html: renderMarkdown() sanitizes with DOMPurify. A template comment
+		// would add a second root node in dev builds, so the exception lives here.
+		files: ['src/components/shared/AppMarkdown.vue'],
+		rules: { 'vue/no-v-html': 'off' },
+	},
 );
