@@ -1,0 +1,215 @@
+/**
+ * RocketAdmin design tokens, copied from SiteNova (`sitenova/frontend/src/assets/theme.css`).
+ *
+ * Two layers, and the distinction matters:
+ *
+ *   Layer 1 — `--palette-*` / `--font-*`: raw values. Verbatim from SiteNova, which mirrors the
+ *     brand defined in `sitenova-landing/src/styles/global.css` (a Tailwind v4 `@theme` block).
+ *     The products share one look, so these MUST BE CHANGED TOGETHER with SiteNova's copy. Component CSS must never
+ *     reference this layer directly.
+ *
+ *   Layer 2 — `--color-*` / `--shadow-*`: semantic aliases. The only layer component CSS may use.
+ *     `--color-paper` means "the page background", which happens to resolve to a specific
+ *     blue-white today. Naming the *role* rather than the value is what makes a dark theme a
+ *     dozen-line override instead of a sweep across every view.
+ *
+ * Everything below the colour block — spacing, type scale, weights, motion, z-index, sizing — is
+ * app-only and NOT mirrored in the landing. Change it freely.
+ *
+ * The luminous white-blue "supernova" palette: cool paper, deep navy ink, one electric-blue accent
+ * with a hot cyan-white highlight for glow.
+ */
+:root {
+	/* TODO(dark-mode): flip to `light dark` when a [data-theme='dark'] block exists. Claiming dark
+	   support before the aliases have dark values would make form controls render dark-on-dark. */
+	color-scheme: light;
+
+	/* ===================================================================================
+	   LAYER 1 — RAW PALETTE. Mirrored in SiteNova. Never referenced by components.
+	   =================================================================================== */
+
+	/* Brand: verbatim from the landing's @theme block. */
+	--palette-blue-50: #f5f8fe;
+	--palette-blue-100: #e9f0fc;
+	--palette-blue-200: #dae3f4;
+	--palette-blue-300: #8fc2ff;
+	--palette-blue-600: #2b5cff;
+	--palette-blue-700: #1e46d6;
+	--palette-navy-900: #0a0f24;
+	--palette-white: #fff;
+
+	/* Text ramp intermediates.
+	   The landing is a marketing page and needs only ink + muted for text. This app has a denser
+	   4-step ramp (#101828 / #344054 / #667085 / #98a2b3); flattening it to two steps would lose
+	   hierarchy in the tables and detail panels, so two intermediates are interpolated into the
+	   cooler palette.
+
+	   Contrast on paper: ink 17.8:1, navy-700 12.2:1, slate-500 5.7:1, slate-600 4.5:1 — all pass
+	   WCAG AA for body text. slate-600 is deliberately darker than the #98a2b3 it replaces (which
+	   was only 2.6:1 on white) because it carries real copy here, not just decoration: empty-state
+	   messages, the "(optional)" field hint and the slug-field domain suffix. */
+	--palette-navy-700: #26304d;
+	--palette-slate-500: #59637a;
+	--palette-slate-600: #67728a;
+
+	/* Status ramps.
+	   The landing has no error/warning/success states, so these keep the app's existing Untitled UI
+	   ramps; they read correctly against the cooler paper without rehueing. */
+	--palette-red-700: #b42318;
+	--palette-red-600: #d92d20;
+	--palette-red-50: #fef3f2;
+	--palette-red-200: #fecdca;
+	--palette-amber-700: #b54708;
+	--palette-amber-50: #fffaeb;
+	--palette-amber-200: #fedf89;
+	--palette-green-700: #027a48;
+	--palette-green-50: #ecfdf3;
+	--palette-green-200: #a6f4c5;
+
+	/* Typography families.
+	   Match the installed @fontsource-variable packages exactly (verified against their index.css);
+	   the fallbacks mirror the metric-matched stacks the landing declares in astro.config.mjs. All
+	   three are variable fonts, normal style only — no italics. */
+	--font-sans: "Geist Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
+	--font-display: "Space Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
+	--font-mono: "Geist Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+	/* ===================================================================================
+	   LAYER 2 — SEMANTIC ALIASES. The only colour layer components may use.
+	   =================================================================================== */
+
+	/* Surfaces */
+	--color-paper: var(--palette-blue-50);
+	--color-paper-2: var(--palette-blue-100);
+	--color-surface: var(--palette-white);
+	/* A surface stacked above --color-surface: modal panels, dropdowns. Identical in the light
+	   theme; a dark theme lifts it above the page rather than tinting it. */
+	--color-surface-raised: var(--palette-white);
+	--color-overlay: rgb(10 15 36 / 0.45);
+
+	/* Text, darkest to lightest */
+	--color-ink: var(--palette-navy-900);
+	--color-ink-soft: var(--palette-navy-700);
+	--color-muted: var(--palette-slate-500);
+	--color-muted-soft: var(--palette-slate-600);
+
+	/* Lines. `line` divides content; `line-strong` bounds an interactive control — an input border
+	   needs to read as an edge you can type inside, not as a hairline rule. */
+	--color-line: var(--palette-blue-200);
+	--color-line-strong: var(--palette-slate-600);
+
+	/* Accent */
+	--color-accent: var(--palette-blue-600);
+	--color-accent-ink: var(--palette-blue-700);
+	--color-hot: var(--palette-blue-300);
+
+	/* Status */
+	--color-danger: var(--palette-red-700);
+	--color-danger-strong: var(--palette-red-600);
+	--color-danger-bg: var(--palette-red-50);
+	--color-danger-border: var(--palette-red-200);
+	--color-warning: var(--palette-amber-700);
+	--color-warning-bg: var(--palette-amber-50);
+	--color-warning-border: var(--palette-amber-200);
+	--color-success: var(--palette-green-700);
+	--color-success-bg: var(--palette-green-50);
+	--color-success-border: var(--palette-green-200);
+
+	/* Shadows — large, tight-spread, heavily negative-offset and accent-tinted: glow rather than
+	   drop shadow. Aliased because they're tuned for dark-on-light and a dark theme must swap them,
+	   not merely re-point their colours. */
+	--shadow-card: 0 1px 0 rgb(0 0 0 / 0.02), 0 20px 50px -34px rgb(10 15 36 / 0.35);
+	--shadow-lift: 0 24px 50px -30px rgb(43 92 255 / 0.4);
+	--shadow-focus: 0 0 0 3px rgb(43 92 255 / 0.2);
+	/* Spelled `--ring-*` at call sites so "focus ring" is one concept rather than a shadow that
+	   happens to be used as one. --shadow-focus is kept as the historical name. */
+	--ring-focus: var(--shadow-focus);
+	--ring-danger: 0 0 0 3px rgb(217 45 32 / 0.18);
+
+	/* ===================================================================================
+	   APP-ONLY SCALES. Not mirrored in the landing.
+	   =================================================================================== */
+
+	/* --- Shape ---
+	   The landing puts every button and chip on `rounded-full`, cards on `rounded-2xl` and large
+	   panels on its own `--radius-card`. Inputs get a tighter radius than buttons: pill-shaped text
+	   fields read as buttons and hurt affordance in a form-heavy app. */
+	--radius-pill: 999px;
+	--radius-card: 1.5rem;
+	--radius-panel: 1rem;
+	--radius-control: 0.75rem;
+
+	/* --- Spacing ---
+	   4px base. The pre-scale code used 12 gap values, most within 0.025rem of a neighbour. */
+	--space-0: 0;
+	--space-05: 0.125rem; /*  2px */
+	--space-1: 0.25rem; /*  4px */
+	--space-2: 0.5rem; /*  8px */
+	--space-3: 0.75rem; /* 12px */
+	--space-4: 1rem; /* 16px */
+	--space-5: 1.25rem; /* 20px */
+	--space-6: 1.5rem; /* 24px */
+	--space-8: 2rem; /* 32px */
+	--space-10: 2.5rem; /* 40px */
+	--space-12: 3rem; /* 48px */
+	--space-16: 4rem; /* 64px */
+
+	/* A deliberate off-scale step, kept because two of its nine uses are load-bearing in brand
+	   assets: AppLogo's mark↔wordmark gap (mirrored in sitenova-landing) and the GitHub button's
+	   icon gap. Snapping 10px→12px inside a 32px lockup is visible.
+	   A third legitimate use is UiChip's `sm` horizontal padding — 10px is the arbitrated value from
+	   the chip copies it replaces, and 12px visibly widens every chip in a dense list. Those three
+	   are the whole allowlist; don't reach for it elsewhere. */
+	--space-25: 0.625rem; /* 10px — brand lockup, inline icon gaps, UiChip sm padding */
+
+	/* --- Type scale ---
+	   7 steps, collapsed from the 20 ad-hoc sizes the views had accumulated (nine of which sat
+	   inside a single 0.15rem band). --text-base absorbs the whole 0.9–0.95rem cluster. */
+	--text-2xs: 0.75rem; /* 12px */
+	--text-xs: 0.8125rem; /* 13px */
+	--text-sm: 0.875rem; /* 14px */
+	--text-base: 0.9375rem; /* 15px */
+	--text-md: 1.0625rem; /* 17px */
+	--text-xl: 1.5rem; /* 24px */
+	--text-2xl: 1.875rem; /* 30px */
+
+	/* Line-heights are separate tokens rather than bundled into the size: pairing them would need
+	   the `font:` shorthand, which resets font-weight and font-family — a footgun in scoped CSS
+	   where weight is set independently. */
+	--leading-tight: 1.15; /* display headings */
+	--leading-snug: 1.3; /* card + section titles */
+	--leading-normal: 1.5; /* body */
+	--leading-relaxed: 1.6; /* long-form muted copy, empty states */
+
+	/* Geist is a variable font, so 550/650 rendered as real intermediate weights — but they're
+	   indistinguishable from 500/600 at 15px, so the scale has four steps. */
+	--weight-regular: 400;
+	--weight-medium: 500;
+	--weight-semibold: 600;
+	--weight-bold: 700;
+
+	/* --- Motion ---
+	   See base.css for the prefers-reduced-motion guard that neutralises all of these. */
+	--motion-fast: 0.15s; /* colour/opacity on interaction */
+	--motion-base: 0.2s; /* transform + shadow lift */
+	--motion-slow: 0.3s;
+	--ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+	--spin-duration: 0.7s;
+	--shimmer-duration: 1.4s;
+
+	/* --- Z-index ---
+	   Named so overlays stack predictably instead of racing to z-index: 9999. */
+	--z-sticky: 100;
+	--z-dropdown: 200;
+	--z-overlay: 300; /* modal backdrop */
+	--z-modal: 310;
+	--z-toast: 400;
+	--z-tooltip: 500;
+
+	/* --- Sizing ---
+	   Layout constants that repeat across views. */
+	--header-height: 60px;
+	--footer-height: 1.75rem; /* the version line under every page */
+	--width-panel: 44rem; /* app page content column */
+	--width-auth-card: 26rem; /* auth page content column */
+}

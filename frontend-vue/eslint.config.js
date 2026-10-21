@@ -20,6 +20,8 @@ export default tseslint.config(
 			'vue/max-attributes-per-line': 'off',
 			'vue/singleline-html-element-content-max-length': 'off',
 			'vue/singleline-html-element-content-newline': 'off',
+			// Optional typed props are allowed to be undefined; withDefaults covers the ones with a real default.
+			'vue/require-default-prop': 'off',
 		},
 	},
 );

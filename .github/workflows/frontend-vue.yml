@@ -51,3 +51,5 @@ jobs:
         run: pnpm build
       - name: Build (SaaS)
         run: pnpm build:saas
+      - name: Build Storybook
+        run: pnpm build-storybook

@@ -4,7 +4,6 @@ import { fileURLToPath, URL } from 'node:url';
 import vue from '@vitejs/plugin-vue';
 import { defineConfig, type Plugin } from 'vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
-import vuetify from 'vite-plugin-vuetify';
 
 const isSaasMode = (mode: string) => mode === 'saas' || mode === 'saas-production';
 
@@ -24,7 +23,6 @@ function saasIndexHtml(mode: string): Plugin {
 export default defineConfig(({ mode }) => ({
 	plugins: [
 		vue(),
-		vuetify({ autoImport: true }),
 		saasIndexHtml(mode),
 		viteStaticCopy({
 			targets: [
@@ -57,11 +55,11 @@ export default defineConfig(({ mode }) => ({
 	},
 	test: {
 		environment: 'jsdom',
+		// Process real CSS: the Foundations docs parse theme.css through a `?raw` import
+		// (src/components/ui/docs/readTokens.ts), which is an empty string under `css: false`.
+		css: true,
 		setupFiles: ['src/test-setup.ts'],
-		server: {
-			deps: {
-				inline: ['vuetify'],
-			},
-		},
+		// Pinned so the source-hygiene specs can resolve `src/` from process.cwd().
+		root: fileURLToPath(new URL('./', import.meta.url)),
 	},
 }));

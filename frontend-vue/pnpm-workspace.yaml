@@ -4,4 +4,7 @@ packages:
 
 # vue-demi's postinstall only switches between Vue 2/3 builds; the default Vue 3 build is what we need.
 ignoredBuiltDependencies:
+  # esbuild's postinstall only re-checks the platform binary, which pnpm already installs as an
+  # optional dependency.
+  - esbuild
   - vue-demi

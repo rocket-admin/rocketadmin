@@ -1,0 +1,11 @@
+/**
+ * Storybook-only overrides. Everything else comes from src/assets/base.css, which the app loads
+ * too — this file holds just the handful of rules that must differ in a story canvas.
+ */
+
+body {
+	/* The backgrounds toolbar owns the canvas colour so components can be checked on paper, surface
+	   and ink. base.css hard-sets --color-paper for the real app, which would pin every story to
+	   paper and hide contrast bugs. */
+	background: transparent;
+}

@@ -1,0 +1,35 @@
+import { Meta, Story, Unstyled } from '@storybook/addon-docs/blocks'
+import * as Specimens from './foundations.stories'
+
+<Meta title="Foundations/Shape" />
+
+# Shape
+
+Four radii. Larger surfaces get larger radii, so the corner curvature stays visually proportional as
+the element grows.
+
+<Unstyled>
+	<Story of={Specimens.ShapeRadii} />
+</Unstyled>
+
+## Which radius
+
+| Token | Value | Applies to |
+| --- | --- | --- |
+| `--radius-pill` | `999px` | Chips, badges, avatar frames |
+| `--radius-card` | `1.5rem` | Auth cards — the largest standalone surface |
+| `--radius-panel` | `1rem` | Content cards, panels, modal dialogs |
+| `--radius-control` | `0.75rem` | Buttons, inputs, selects, alerts, skeleton lines |
+
+## Why inputs aren't pills
+
+`sitenova-landing` puts every button and chip on `rounded-full`. This app doesn't, for text fields
+specifically: a pill-shaped text field reads as a button, and in a form-heavy product that costs
+real affordance — people click where they should type.
+
+So controls sit at `--radius-control`, one step tighter than the panel they're inside, and
+`--radius-pill` is reserved for things that genuinely are not typed into.
+
+The nesting rule that follows: **a child's radius should be smaller than its parent's.** A
+`--radius-control` button inside a `--radius-panel` card looks intentional; the reverse looks like a
+mistake.

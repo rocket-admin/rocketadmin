@@ -1,0 +1,85 @@
+import { Meta, Story, Unstyled } from '@storybook/addon-docs/blocks'
+import * as Specimens from './foundations.stories'
+
+<Meta title="Foundations/Motion" />
+
+# Motion
+
+Three durations, one easing curve, two animation loops — and a global guard that neutralises all of
+them for anyone who asks.
+
+## Durations
+
+Hover a specimen to play it.
+
+<Unstyled>
+	<Story of={Specimens.MotionDurations} />
+</Unstyled>
+
+| Token | Value | Use |
+| --- | --- | --- |
+| `--motion-fast` | `0.15s` | Colour and opacity on interaction |
+| `--motion-base` | `0.2s` | Transform + shadow lift |
+| `--motion-slow` | `0.3s` | Entrances — a panel or dialog appearing |
+
+## Easing
+
+`--ease-out` is `cubic-bezier(0.16, 1, 0.3, 1)` — a hard decelerate. It starts fast and settles, which
+is what makes a hover lift feel responsive rather than sluggish. Use it for everything that animates
+in response to input.
+
+There is deliberately no `--ease-in` or `--ease-in-out`: ease-in on an interaction means the element
+lags behind the cursor, and nothing in the app has needed a symmetric curve.
+
+## Loops
+
+`--spin-duration` (`0.7s`) drives `UiSpinner`'s single `@keyframes spin`. `--shimmer-duration`
+(`1.4s`) drives `UiSkeleton`'s single `@keyframes shimmer`. Before the design system these keyframes
+existed in **four** and **two** copies respectively, drifting; `design-tokens.spec.ts` now enforces
+the count with a ratchet that fails both when a copy is added and when one disappears.
+
+<Unstyled>
+	<Story of={Specimens.MotionTable} />
+</Unstyled>
+
+## Reduced motion
+
+`base.css` carries one global guard rather than a media query per animation:
+
+```css
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+```
+
+Global because the skeleton shimmer and the spinner loop **indefinitely**, which is precisely the
+vestibular-trigger case the media query exists for — and an opt-in-per-animation policy means the
+next animation someone adds is unguarded by default.
+
+Durations go to near-zero rather than `none` so `transitionend` / `animationend` still fire; JS
+waiting on either doesn't hang.
+
+You get this for free. Don't write your own `prefers-reduced-motion` block in a primitive.
+
+## Layering
+
+Overlays stack on named steps so nothing has to race to `z-index: 9999`.
+
+<Unstyled>
+	<Story of={Specimens.ZIndexTable} />
+</Unstyled>
+
+## Layout constants
+
+Sizes that repeat across views, tokenised so they can't drift apart.
+
+<Unstyled>
+	<Story of={Specimens.SizingTable} />
+</Unstyled>

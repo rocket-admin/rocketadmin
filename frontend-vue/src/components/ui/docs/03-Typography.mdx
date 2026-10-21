@@ -1,0 +1,61 @@
+import { Meta, Story, Unstyled } from '@storybook/addon-docs/blocks'
+import * as Specimens from './foundations.stories'
+
+<Meta title="Foundations/Typography" />
+
+# Typography
+
+Three families, seven sizes, four line-heights, four weights.
+
+## Families
+
+<Unstyled>
+	<Story of={Specimens.TypeFamilies} />
+</Unstyled>
+
+`--font-sans` (Geist) is the body face and the `body` default. `--font-display` (Space Grotesk) is
+for the logo wordmark and large headings only. `--font-mono` (Geist Mono) is for slugs, ids and
+code.
+
+All three are variable fonts, normal style only — **there are no italics**. The fallback stacks are
+metric-matched, so a font-load failure doesn't reflow the page. Geist's stylistic sets `ss01` and
+`cv01` are enabled globally in `base.css` to match the landing.
+
+## Size scale
+
+Seven steps, collapsed from the 20 ad-hoc sizes the views had accumulated — nine of which sat inside
+a single 0.15rem band (`0.8 / 0.82 / 0.825 / 0.85 / 0.875 / 0.9 / 0.92 / 0.925 / 0.95rem`). Nobody
+can see those differences; maintaining them cost every new view a decision.
+
+<Unstyled>
+	<Story of={Specimens.TypeSizes} />
+</Unstyled>
+
+`--text-base` absorbs the whole 0.9–0.95rem cluster — 38 declarations. `0.9rem → 0.9375rem` grows
+0.6px; `0.95rem → 0.9375rem` shrinks 0.2px. That merge is the largest single visual change in the
+migration and is called out in each migration PR.
+
+There is no `--text-lg`. Its only two uses were the logo wordmark — which keeps a hard-coded
+`1.15rem` inside `AppLogo.vue`, correctly off the body scale because it carries its own
+letter-spacing tuning — and one heading, which moved to `--text-md`.
+
+## Line-heights
+
+Separate tokens rather than bundled into the size. Pairing them would mean the `font:` shorthand,
+which resets `font-weight` and `font-family` — a footgun in scoped CSS where weight is set
+independently.
+
+<Unstyled>
+	<Story of={Specimens.TypeLeading} />
+</Unstyled>
+
+## Weights
+
+Four steps. Geist is a variable font, so the `550` and `650` the views used rendered as genuine
+intermediate weights — but they're indistinguishable from `500` / `600` at 15px.
+
+<Unstyled>
+	<Story of={Specimens.TypeWeights} />
+</Unstyled>
+
+`--weight-bold` is reserved for the logo accent.

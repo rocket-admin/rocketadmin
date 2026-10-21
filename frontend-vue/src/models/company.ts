@@ -1,0 +1,69 @@
+import type { SubscriptionPlans, User, UserGroup } from './user';
+
+export interface Address {
+	street: string;
+	number: string;
+	complement: string;
+	neighborhood: string;
+	city: string;
+	state: string;
+	country: string;
+	zipCode: string;
+}
+
+export interface CompanyConnection {
+	id: string;
+	createdAt: string;
+	updatedAt: string;
+	title: string;
+	author: User;
+	groups: UserGroup[];
+}
+
+export interface Company {
+	id: string;
+	additional_info?: string;
+	name: string;
+	address: Address | {};
+	subscriptionLevel: SubscriptionPlans;
+	connections: CompanyConnection[];
+	invitations: CompanyMemberInvitation[];
+}
+
+export interface CompanyMembershipGroup {
+	id: string;
+	title: string;
+}
+
+export interface CompanyMembershipConnection {
+	id: string;
+	title: string;
+	database: string;
+	groups: CompanyMembershipGroup[];
+}
+
+export interface CompanyMember {
+	id: string;
+	isActive: boolean;
+	name: string;
+	email: string;
+	is_2fa_enabled: boolean;
+	role: CompanyMemberRole;
+	has_groups: boolean;
+	user_membership: CompanyMembershipConnection[];
+}
+
+export enum CompanyMemberRole {
+	CAO = 'ADMIN',
+	SystemAdmin = 'DB_ADMIN',
+	Member = 'USER',
+}
+
+export interface CompanyMemberInvitation {
+	id: string;
+	verification_string: string;
+	groupId: string;
+	inviterId: string;
+	invitedUserEmail: string;
+	role: CompanyMemberRole;
+}

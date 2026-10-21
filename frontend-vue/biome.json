@@ -3,7 +3,7 @@
 	"root": false,
 	"extends": "//",
 	"files": {
-		"includes": ["**", "!**/dist", "!**/src/version.ts", "!**/index.saas.html"]
+		"includes": ["**", "!**/dist", "!**/src/version.ts", "!**/index.saas.html", "!**/storybook-static"]
 	},
 	"overrides": [
 		{

@@ -4,3 +4,4 @@ coverage
 *.tsbuildinfo
 .env.local
 .env.*.local
+storybook-static

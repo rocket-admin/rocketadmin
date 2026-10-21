@@ -1,0 +1,13 @@
+import { Markdown, Meta } from '@storybook/addon-docs/blocks'
+import conventions from '../CONVENTIONS.md?raw'
+
+<Meta title="Foundations/Conventions" />
+
+{/*
+  Renders src/components/ui/CONVENTIONS.md verbatim rather than restating it. The .md is the file a
+  reviewer greps and a PR diffs; this page is the same bytes with a Storybook wrapper, so the two
+  cannot drift — which is the same reason Phase 1 replaced the hand-copied .storybook/preview.css
+  with a 4-line Storybook-only override.
+*/}
+
+<Markdown>{conventions}</Markdown>

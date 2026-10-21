@@ -2,7 +2,7 @@
 
 Vue 3 rewrite of the RocketAdmin frontend (see `../VUE_MIGRATION_PLAN.md`). The Angular app in `../frontend` stays in production until this one reaches parity.
 
-Stack: Vite, Vue 3 (`<script setup lang="ts">`), Pinia, vue-router 4, Vuetify 3, TanStack Vue Query, Vitest.
+Stack: Vite, Vue 3 (`<script setup lang="ts">`), Pinia, vue-router 4, TanStack Vue Query, Vitest, Storybook. UI: the design system copied from SiteNova (`src/assets/theme.css`, `src/components/ui/`), no component library.
 
 ```bash
 pnpm install
@@ -13,6 +13,7 @@ pnpm build:saas     # mode `saas-production` (uses index.saas.html)
 pnpm lint           # biome + eslint-plugin-vue
 pnpm typecheck      # vue-tsc
 pnpm test:ci        # vitest
+pnpm storybook      # design system docs and component stories on :6006
 ```
 
 - **Modes / environments:** `.env.<mode>` files mirror `frontend/src/environments/*.ts`; `src/environment.ts` exposes them with the same shape.
@@ -20,3 +21,7 @@ pnpm test:ci        # vitest
 - **Version:** `scripts/update-version.js` writes `package.json`'s version to `src/version.ts`.
 - **Assets:** served from `../frontend/src/assets` at `/assets` until the cutover, when they move here.
 - **Monaco / Cedar:** `src/lib/monaco.ts` and `src/lib/cedar-wasm.ts` load them lazily; Vite bundles the Monaco workers and the Cedar wasm.
+- **Design system:** copied from SiteNova (`sitenova/frontend`). Tokens in `src/assets/theme.css` (the `--palette-*` layer must stay in sync with SiteNova), primitives in `src/components/ui/` — read `src/components/ui/CONVENTIONS.md` before adding one. `src/__tests__/design-tokens.spec.ts` fails on hex colours and raw `font-size`/`gap`/`padding` values; `src/components/ui/__tests__/a11y.spec.ts` runs axe-core over every primitive.
+- **HTTP:** every request goes through `src/api/client.ts` (base URL, credentials, GCLID/masterpwd headers, 401 handling, error notifications, NDJSON streams). A failed request is shown to the user and then thrown as a `notified` `ApiError`, which `main.ts` keeps out of the console.
+- **Dialogs and snackbars:** `useDialog().open(Component, { data }).afterClosed()` and `useNotify()`; dialogs with inputs use `AppDialogForm`.
+- **Routes:** `src/router/routes.ts` has every Angular route with the same paths; guards come from route `meta` (`requiresAuth`, `guestOnly`, `configuration`, `setup`). Pages not ported yet render `PendingView`.

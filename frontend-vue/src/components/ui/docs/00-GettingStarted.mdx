@@ -1,0 +1,67 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+
+<Meta title="Foundations/Getting Started" />
+
+# Getting started
+
+The RocketAdmin design system (copied from SiteNova) is **tokens in CSS custom properties + a flat set of `Ui*` Vue
+primitives**. There is no CSS framework, no utility classes and no CSS-in-JS: components use scoped
+`<style>` blocks with BEM class names, and every value in them is a `var(--…)` from
+[`src/assets/theme.css`](#the-token-layer).
+
+## Importing
+
+Primitives are re-exported from a barrel, so a view imports them in one line:
+
+```vue
+<script setup lang="ts">
+import { UiAlert, UiButton, UiField, UiInput } from '@/components/ui'
+</script>
+```
+
+Doc-only helpers (`readTokens`, the specimen components under `docs/`) are **not** in the barrel —
+they exist to render these pages and must never end up in an app bundle.
+
+## The three layers
+
+| Layer | Lives in | May be read by |
+| --- | --- | --- |
+| Raw palette — `--palette-*`, `--font-*` | `theme.css`, layer 1 | The semantic layer only |
+| Semantic aliases — `--color-*`, `--shadow-*`, `--ring-*` | `theme.css`, layer 2 | Any component CSS |
+| App scales — spacing, type, weight, motion, z-index, sizing, radius | `theme.css`, app-only block | Any component CSS |
+
+Global element styles (`box-sizing`, `body`, the focus ring, the `prefers-reduced-motion` guard)
+live in `src/assets/base.css`, imported by both `src/main.ts` and `.storybook/preview.ts` — so a
+story renders on exactly the same foundation as the app.
+
+## The mirroring contract
+
+The `--palette-*` and `--font-*` values are **copied verbatim from SiteNova's
+`frontend/src/assets/theme.css`**, which in turn mirrors `sitenova-landing`. The products share one
+look, so a palette edit there should be copied here (and the other way round) — otherwise
+RocketAdmin and SiteNova ship different blues.
+
+Everything below the colour block — spacing, type scale, weights, motion, z-index, sizing — is
+app-only and not mirrored. Change it freely.
+
+## New variant, or `class` passthrough?
+
+Callers _may_ pass `class` to any primitive, and Vue's attribute fallthrough will apply it. The line:
+
+- **Layout is passthrough.** Margin, width, `grid-area`, `order` — things that depend on where the
+  component sits, which the primitive can't know. `<UiButton class="row__action">` is correct.
+- **Colour is a variant.** If you're reaching for `class` to repaint a border, a background or a
+  text colour, the primitive is missing a variant — add it there so every call site gets it and the
+  a11y contrast is checked once.
+
+Full rules in **Conventions**.
+
+## Adding a primitive
+
+1. `src/components/ui/UiThing.vue` — `<script setup lang="ts">` with a
+   `withDefaults(defineProps<…>(), …)` call carrying a JSDoc line per prop, and scoped BEM styles
+   reading only tokens.
+2. `UiThing.stories.ts` — `tags: ['autodocs']`, `parameters: { a11y: { test: 'error' } }`, and an
+   `AllVariants` matrix story.
+3. `UiThing.spec.ts` — behaviour and ARIA contracts, never CSS values.
+4. Export it from `src/components/ui/index.ts`.

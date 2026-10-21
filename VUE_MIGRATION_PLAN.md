@@ -31,9 +31,9 @@ Why I'm not recommending a gradual, route-by-route hybrid: the app shell, sidena
 | Routing | Angular Router, `loadComponent`, guards | **vue-router 4**: lazy `() => import()` routes and `beforeEach` guards based on route `meta` |
 | State | BehaviorSubject and signal services | **Pinia** stores (setup syntax). Signals map to `ref`/`computed`; `rxResource`/`httpResource` map to **TanStack Vue Query** |
 | HTTP | HttpClient, interceptors, `api.service.ts` (fetch) | One `fetch` wrapper (`src/api/client.ts`) that ports the interceptor logic and the NDJSON streaming |
-| UI kit | Angular Material and CDK | **Vuetify 3** (Material Design, so its components match `mat-*` most closely) |
-| Theming | ngx-theme runtime palettes, `--color-*` variables | Generate the same `--color-<palette>-<shade>` variables from the same `colorConfig` (ported to `src/theme/palettes.ts`), and map them into the Vuetify theme. Dark mode follows `prefers-color-scheme` |
-| Forms | `ngModel` plus validator directives | `v-model`, Vuetify `:rules`, and the validators ported as pure functions in `src/validators/` |
+| UI kit | Angular Material and CDK | **The SiteNova design system**, copied into `src/components/ui/`: a flat set of `Ui*` primitives (button, field, input, modal, menu, drawer, tabs, alert, chip, skeleton, …) on native elements, no component library. Rules in `src/components/ui/CONVENTIONS.md`, docs in Storybook |
+| Theming | ngx-theme runtime palettes, `--color-*` variables | SiteNova's tokens (`src/assets/theme.css`), verbatim: a raw `--palette-*` layer kept in sync with SiteNova, and semantic `--color-*` / `--space-*` / `--text-*` aliases that components use. Per-connection custom accent colours override `--color-accent*` at runtime. Light only for now, like SiteNova (dark mode is a follow-up) |
+| Forms | `ngModel` plus validator directives | `v-model` on `UiField`/`UiInput`, and the validators ported as pure functions in `src/validators/` |
 | Dynamic widgets | `ndc-dynamic` | `<component :is="map[type]" v-bind="inputs" v-on="outputs">` |
 | Code editor | `@ngstack/code-editor` | **`@guolao/vue-monaco-editor`**, or a thin wrapper around `monaco-editor`; the Cedar language in `lib/cedar-monaco-language.ts` is reused as is |
 | Charts | ng2-charts | **vue-chartjs**; `lib/chart-config.helper.ts` is reused |
@@ -59,7 +59,7 @@ Copy these as-is and add tests where they are missing:
 ## Phases
 
 ### Phase 0 – Scaffolding and infrastructure
-1. Create `frontend-vue/` with Vite, Vue 3, TypeScript, Pinia, vue-router, Vuetify, TanStack Query and Vitest.
+1. Create `frontend-vue/` with Vite, Vue 3, TypeScript, Pinia, vue-router, TanStack Query and Vitest. (Phase 0 started with Vuetify; Phase 1 replaced it with the SiteNova design system.)
 2. **Environments:** use Vite modes `development`, `production`, `saas` and `saas-production`, with `.env.*` files that hold the same fields (`VITE_SAAS`, `VITE_API_ROOT`, `VITE_SAAS_URL`, `VITE_SAAS_HOSTNAMES`, `VITE_STAGING_HOST`, `VITE_TURNSTILE_SITE_KEY`). Choose the SaaS `index.html` with a small Vite plugin (`transformIndexHtml`), or with two HTML entry points.
 3. **Runtime `config.json` loader:** port `ConfigModule.buildForConfigUrl` so `baseURL` is read before the app mounts.
 4. **Dev proxy:** port `src/proxy.conf.json` to `server.proxy` in Vite (`/api` → `https://app.rocketadmin.com/api/`).
@@ -77,7 +77,7 @@ Copy these as-is and add tests where they are missing:
    - Show errors through the notifications store.
    - Support NDJSON streaming.
 2. **Auth and guards:** an `auth` store, plus router guards (`requiresAuth`, `guestOnly`, `configuration`, `setup`) that reproduce the `token_expiration` check and the self-hosted setup redirect.
-3. **Theme:** port the `colorConfig` from `src/main.ts` into a palette generator that writes the same `--color-*` CSS variables. Port the global `custom-theme.scss` and `styles.scss`. Recreate the `--mat-*` overrides as Vuetify defaults and variables.
+3. **Theme and design system:** copy SiteNova's design system (`sitenova/frontend`): `theme.css`, `base.css`, the `Ui*` primitives with their specs, stories and Foundations docs, the axe-core a11y gate and the token-hygiene test (`src/__tests__/design-tokens.spec.ts`), and Storybook. Drop the SiteNova-only parts (vue-i18n, the site preview). This replaces `colorConfig`, `custom-theme.scss` and the `--mat-*` overrides.
 4. **App shell:** port `app.component` (toolbar, sidenav, user menu, banners), route titles (`meta.title` through `afterEach`), the 404 page, and Sentry/analytics setup (SaaS mode only).
 5. **Shared UI primitives** that replace Material patterns used everywhere:
    - **`useDialog()`:** a programmatic dialog service that keeps the `dialog.open(Component, { data })` → `afterClosed()` promise shape. This keeps the 47 dialogs mechanical to port.
@@ -98,7 +98,7 @@ Copy these as-is and add tests where they are missing:
 1. **Auth flows:** login (with Google GSI and Turnstile), setup, forget-password, password-reset/change, email verify/change, company invitation, deleted account.
 2. **Connections:** `connections-list`, `connect-db` (16 components), `edit-db`, `connection-settings`, `auto-configure`.
 3. **Table browser** (`components/dashboard/`, the hardest part):
-   - `db-tables-list` (630 lines) and `db-table-view` (1,103 + 752 lines). Use Vuetify `v-data-table-server` for paging, sorting and selection, and sync the query state with the URL (replaces `ngmat-table-query-reflector`).
+   - `db-tables-list` (630 lines) and `db-table-view` (1,103 + 752 lines). Build a `UiTable` primitive (server-side paging, sorting and selection), and sync the query state with the URL (replaces `ngmat-table-query-reflector`).
    - Filters dialog, saved-filters panel, export/import, row view/edit (`db-table-row-edit`, 871 lines), and the actions, widgets and settings pages.
    - The AI panel, with NDJSON streaming and markdown/mermaid rendering.
 4. **Users and permissions:** groups, permissions, the Cedar policy editor (Monaco plus wasm), view-as.
@@ -120,7 +120,7 @@ Copy these as-is and add tests where they are missing:
 - **Tests:** port the useful specs, focused on behavior (stores, API client, guards, validators, widgets), with `@vue/test-utils`, using `Partial<Store>` mocks and no `as any`.
 
 ## Risks
-- **Matching Material's look in Vuetify:** form-field density and the dialog and snackbar look will differ slightly. Settle the look in Phase 1 against Storybook before porting 250 components.
+- **The look changes on purpose:** the Vue app uses the SiteNova look, not Material, so the parity review compares behaviour and information, not pixels. Missing primitives (table, select, autocomplete, date picker, …) have to be built in the design system before the pages that need them; settle each one in Storybook first.
 - **`db-table-view` and `db-table-row-edit`** hold the most logic. Pull their logic into composables first, and test that logic before porting the templates.
 - **The string-based event bus** in legacy services can hide coupling between components. Map every consumer before replacing it.
 - **Monaco workers and the Cedar wasm under Vite** must be checked early, in Phase 0.
