@@ -16,6 +16,7 @@ import {
 	type ConnectionSettings,
 	ConnectionType,
 	DBtype,
+	type TestConnection,
 } from '@/models/connection';
 import type { AccessLevel } from '@/models/user';
 import { useCedarPermissionsStore } from '@/stores/cedar-permissions';
@@ -49,6 +50,13 @@ interface ConnectionsResponse {
 
 export interface CreatedConnection extends Partial<Connection> {
 	id: string;
+	/** Agent connections only: the token the agent's .config.env needs. */
+	token?: string;
+}
+
+/** PUT /connection/:id */
+export interface UpdatedConnection {
+	connection: CreatedConnection;
 }
 
 export interface AuditLogParams {
@@ -216,8 +224,8 @@ export const useConnectionsStore = defineStore('connections', () => {
 		return res;
 	}
 
-	function testConnection(id: string | null, credentials: Connection): Promise<unknown> {
-		return api.post('/connection/test', toDbCredentials(credentials), {
+	function testConnection(id: string | null, credentials: Connection): Promise<TestConnection> {
+		return api.post<TestConnection>('/connection/test', toDbCredentials(credentials), {
 			params: id ? { connectionId: id } : undefined,
 			notify: 'alert',
 		});
@@ -234,8 +242,8 @@ export const useConnectionsStore = defineStore('connections', () => {
 		return res;
 	}
 
-	async function updateConnection(credentials: Connection, masterKey: string): Promise<unknown> {
-		const res = await api.put(`/connection/${credentials.id}`, toDbCredentials(credentials), {
+	async function updateConnection(credentials: Connection, masterKey: string): Promise<UpdatedConnection> {
+		const res = await api.put<UpdatedConnection>(`/connection/${credentials.id}`, toDbCredentials(credentials), {
 			headers: masterKey ? { masterpwd: masterKey } : {},
 			notify: 'alert',
 		});

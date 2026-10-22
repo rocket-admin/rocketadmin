@@ -10,6 +10,10 @@
  * maps it back, so `true`, `42` and `null` round-trip through `v-model` unchanged.
  *
  * `multiple` renders a native list box and makes the model an array.
+ *
+ * Option groups (`mat-optgroup`): give options a `group` label. Runs of consecutive options with the
+ * same `group` render inside one native `<optgroup>`, so keep each group's options adjacent. The
+ * `options` array stays flat, which keeps the index mapping — and every existing caller — unchanged.
  */
 import { computed, inject } from 'vue';
 import { FIELD_CONTEXT } from './fieldContext';
@@ -53,6 +57,22 @@ function isSelected(value: T): boolean {
 /** True when nothing matches, so the placeholder option shows as selected. */
 const noneSelected = computed(() => !props.options.some((option) => isSelected(option.value)));
 
+interface OptionRun {
+	/** The `<optgroup>` label, or `undefined` for options rendered ungrouped. */
+	group: string | undefined;
+	items: Array<{ option: SelectOption<T>; index: number }>;
+}
+
+/** Consecutive options with the same `group`, each item keeping its index into the flat `options`. */
+const runs = computed(() =>
+	props.options.reduce<OptionRun[]>((acc, option, index) => {
+		const last = acc[acc.length - 1];
+		if (last && last.group === option.group) last.items.push({ option, index });
+		else acc.push({ group: option.group, items: [{ option, index }] });
+		return acc;
+	}, []),
+);
+
 function onChange(event: Event) {
 	const select = event.target as HTMLSelectElement;
 	if (props.multiple) {
@@ -89,15 +109,30 @@ export default {
 		@change="onChange"
 	>
 		<option v-if="placeholder !== undefined && !multiple" value="" :selected="noneSelected">{{ placeholder }}</option>
-		<option
-			v-for="(option, index) in options"
-			:key="index"
-			:value="index"
-			:selected="isSelected(option.value)"
-			:disabled="option.disabled"
-		>
-			{{ option.label }}
-		</option>
+		<template v-for="(run, runIndex) in runs" :key="runIndex">
+			<optgroup v-if="run.group !== undefined" :label="run.group">
+				<option
+					v-for="{ option, index } in run.items"
+					:key="index"
+					:value="index"
+					:selected="isSelected(option.value)"
+					:disabled="option.disabled"
+				>
+					{{ option.label }}
+				</option>
+			</optgroup>
+			<template v-else>
+				<option
+					v-for="{ option, index } in run.items"
+					:key="index"
+					:value="index"
+					:selected="isSelected(option.value)"
+					:disabled="option.disabled"
+				>
+					{{ option.label }}
+				</option>
+			</template>
+		</template>
 	</select>
 </template>
 

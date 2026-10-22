@@ -55,22 +55,31 @@ export interface PersonalTableViewSettings {
 	// sortable_by: string[],
 }
 
+/** Where a row is referenced from — GET /table/row's `referenced_table_names_and_columns[0]`. */
+export interface RelatedRecords {
+	referenced_on_column_name: string;
+	referenced_by: { table_name: string; column_name: string; display_name?: string }[];
+}
+
+/**
+ * The row open in the table view's side panel (TableStateService.selectRow). Every field is null
+ * while a foreign-key row is being fetched: the panel then shows its loading skeleton.
+ */
 export interface TableRow {
-	connectionID: string;
-	tableName: string;
-	record: object;
-	columnsOrder: string[];
-	primaryKeys: object;
-	foreignKeys: TableForeignKey[];
-	foreignKeysList: string[];
-	widgets: Widget[];
-	widgetsList: string[];
-	fieldsTypes: { [key: string]: string };
-	relatedRecords: {
-		referenced_on_column_name: string;
-		referenced_by: [];
-	}[];
-	link?: string;
+	connectionID: string | null;
+	tableName: string | null;
+	record: Record<string, unknown> | null;
+	columnsOrder: string[] | null;
+	primaryKeys: Record<string, unknown> | null;
+	/** Keyed by column name. */
+	foreignKeys: Record<string, TableForeignKey> | null;
+	foreignKeysList: string[] | null;
+	/** Keyed by column name, `widget_params` parsed. */
+	widgets: Record<string, WidgetStructure> | null;
+	widgetsList: string[] | null;
+	fieldsTypes: { [key: string]: string } | null;
+	relatedRecords: RelatedRecords | null;
+	link?: string | null;
 }
 
 export interface TableField {
@@ -126,6 +135,8 @@ export interface CustomAction {
 	method: CustomActionMethod;
 	emails: string[];
 	url: string;
+	/** The Slack webhook, for the actions page's Slack method. */
+	slack_url?: string;
 }
 
 export enum EventType {

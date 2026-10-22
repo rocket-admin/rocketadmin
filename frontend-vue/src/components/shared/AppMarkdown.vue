@@ -5,10 +5,11 @@
  *
  * `marked` parses, DOMPurify sanitizes: the source is user data from a database column, so the
  * HTML is never trusted. ngx-markdown sanitized through Angular's DomSanitizer for the same reason.
- * Mermaid diagrams (the AI panel) are a separate concern and are added there.
+ * With `mermaid` (the AI panel's `<markdown mermaid>`), ```mermaid fences are rendered as
+ * diagrams after each render; the library loads on the first diagram.
  */
-import { computed } from 'vue';
-import { renderMarkdown } from '@/lib/markdown';
+import { computed, ref, watch } from 'vue';
+import { renderMarkdown, renderMermaidBlocks } from '@/lib/markdown';
 
 const props = withDefaults(
 	defineProps<{
@@ -16,15 +17,28 @@ const props = withDefaults(
 		source?: string | null;
 		/** Renders inline (no block wrappers' margins), for one-line previews in a table cell. */
 		inline?: boolean;
+		/** Renders ```mermaid code blocks as diagrams. */
+		mermaid?: boolean;
 	}>(),
-	{ inline: false },
+	{ inline: false, mermaid: false },
 );
 
+const root = ref<HTMLElement | null>(null);
 const html = computed(() => renderMarkdown(props.source ?? '', { inline: props.inline }));
+
+// flush: 'post' — v-html has replaced the content by then, so the fences are in the DOM.
+watch(
+	[html, () => props.mermaid, root],
+	() => {
+		if (!props.mermaid || !root.value) return;
+		renderMermaidBlocks(root.value).catch((error: unknown) => console.error('Mermaid rendering failed:', error));
+	},
+	{ flush: 'post', immediate: true },
+);
 </script>
 
 <template>
-	<div class="app-markdown" :class="{ 'app-markdown--inline': inline }" v-html="html" />
+	<div ref="root" class="app-markdown" :class="{ 'app-markdown--inline': inline }" v-html="html" />
 </template>
 
 <style scoped>
@@ -65,6 +79,12 @@ const html = computed(() => renderMarkdown(props.source ?? '', { inline: props.i
 
 .app-markdown :deep(a) {
   color: var(--color-accent);
+}
+
+.app-markdown :deep(.mermaid) {
+  display: flex;
+  justify-content: center;
+  overflow-x: auto;
 }
 
 .app-markdown--inline {

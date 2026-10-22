@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { defineComponent, h, onMounted, ref } from 'vue';
+import { defineComponent, h, nextTick, onMounted, ref } from 'vue';
 import { createMemoryHistory, createRouter } from 'vue-router';
+import { vTooltip } from '../tooltip';
+import UiAccordion from '../UiAccordion.vue';
 import UiAlert from '../UiAlert.vue';
 import UiAutocomplete from '../UiAutocomplete.vue';
 import UiBadge from '../UiBadge.vue';
@@ -9,21 +11,30 @@ import UiCard from '../UiCard.vue';
 import UiCheckbox from '../UiCheckbox.vue';
 import UiChip from '../UiChip.vue';
 import UiConfirmDialog from '../UiConfirmDialog.vue';
+import UiDivider from '../UiDivider.vue';
 import UiDrawer from '../UiDrawer.vue';
+import UiExpansionPanel from '../UiExpansionPanel.vue';
 import UiField from '../UiField.vue';
 import UiIcon from '../UiIcon.vue';
 import UiIconButton from '../UiIconButton.vue';
 import UiInput from '../UiInput.vue';
+import UiList from '../UiList.vue';
+import UiListItem from '../UiListItem.vue';
 import UiMenu from '../UiMenu.vue';
 import UiMenuItem from '../UiMenuItem.vue';
 import UiModal from '../UiModal.vue';
 import UiPageShell from '../UiPageShell.vue';
+import UiPaginator from '../UiPaginator.vue';
 import UiProgressBar from '../UiProgressBar.vue';
+import UiRadio from '../UiRadio.vue';
+import UiRadioGroup from '../UiRadioGroup.vue';
 import UiSegmented from '../UiSegmented.vue';
 import UiSelect from '../UiSelect.vue';
 import UiSkeleton from '../UiSkeleton.vue';
 import UiSpinner from '../UiSpinner.vue';
+import UiSwitch from '../UiSwitch.vue';
 import UiTab from '../UiTab.vue';
+import UiTable from '../UiTable.vue';
 import UiTabPanel from '../UiTabPanel.vue';
 import UiTabs from '../UiTabs.vue';
 import UiTextarea from '../UiTextarea.vue';
@@ -277,6 +288,253 @@ describe('primitive accessibility', () => {
 
 		it('is accessible disabled', async () => {
 			await expectNoViolations(Host({ options, disabled: true }, false));
+		});
+	});
+
+	describe('UiSelect option groups', () => {
+		it('is accessible with optgroups', async () => {
+			await expectNoViolations(UiField, {
+				props: { label: 'Action' },
+				slots: {
+					default: () =>
+						h(UiSelect, {
+							options: [
+								{ value: 'none', label: 'None' },
+								{ value: 'read', label: 'Read', group: 'Table' },
+								{ value: 'manage', label: 'Manage', group: 'Connection' },
+							],
+						}),
+				},
+			});
+		});
+	});
+
+	describe('UiSwitch', () => {
+		for (const [state, props] of [
+			['off', {}],
+			['on', { modelValue: true }],
+			['disabled', { disabled: true, modelValue: true }],
+		] as const) {
+			it(`is accessible ${state}`, async () => {
+				// role="switch" on a native checkbox: aria-allowed-role must accept it, and the label names it.
+				await expectNoViolations(UiSwitch, { props: { ...props, label: 'Show only my connections' } });
+			});
+		}
+
+		it('is accessible inside a UiField with a hint', async () => {
+			await expectNoViolations(UiField, {
+				props: { label: 'Notifications', hint: 'Sent by email' },
+				slots: { default: () => h(UiSwitch, { label: 'Enabled' }) },
+			});
+		});
+	});
+
+	describe('UiRadioGroup + UiRadio', () => {
+		const options = [
+			{ value: 'none', label: 'No access' },
+			{ value: 'readonly', label: 'Read only' },
+			{ value: 'edit', label: 'Full access', disabled: true },
+		];
+
+		it('is accessible labelled by its own caption, with a choice made', async () => {
+			await expectNoViolations(UiRadioGroup, { props: { options, label: 'Table access', modelValue: 'readonly' } });
+		});
+
+		it('is accessible disabled with nothing chosen', async () => {
+			await expectNoViolations(UiRadioGroup, { props: { options, label: 'Table access', disabled: true } });
+		});
+
+		it('is accessible inside a UiField with hint and error', async () => {
+			// aria-labelledby → the field label, aria-describedby → hint + error, aria-invalid on a radiogroup.
+			await expectNoViolations(UiField, {
+				props: { label: 'Table access', hint: 'Applies to every table', error: 'Choose one', required: true },
+				slots: { default: () => h(UiRadioGroup, { options }) },
+			});
+		});
+
+		it('is accessible with slotted radios', async () => {
+			const Host = defineComponent({
+				components: { UiRadioGroup, UiRadio },
+				template: `
+          <UiRadioGroup label="Direction" orientation="horizontal" :model-value="true">
+            <UiRadio :value="true">Ascending</UiRadio>
+            <UiRadio :value="false">Descending</UiRadio>
+          </UiRadioGroup>
+        `,
+			});
+
+			await expectNoViolations(Host);
+		});
+	});
+
+	describe('UiExpansionPanel', () => {
+		it('is accessible collapsed', async () => {
+			// aria-controls must still resolve while collapsed, which is why the region is v-show.
+			await expectNoViolations(UiExpansionPanel, {
+				props: { title: 'Advanced settings' },
+				slots: { default: () => 'Body' },
+			});
+		});
+
+		it('is accessible expanded with header actions', async () => {
+			await expectNoViolations(UiExpansionPanel, {
+				props: { title: 'orders', description: '3 records', open: true, headingLevel: 3 },
+				slots: {
+					default: () => 'Body',
+					actions: () => h(UiIconButton, { icon: 'add', label: 'Add a new record to orders' }),
+				},
+			});
+		});
+
+		it('is accessible disabled without a chevron', async () => {
+			await expectNoViolations(UiExpansionPanel, {
+				props: { title: 'orders', description: 'Empty', disabled: true, hideToggle: true },
+				slots: { default: () => 'Body' },
+			});
+		});
+
+		it('is accessible as an accordion', async () => {
+			const Host = defineComponent({
+				components: { UiAccordion, UiExpansionPanel },
+				template: `
+          <UiAccordion>
+            <UiExpansionPanel title="General" :open="true">General</UiExpansionPanel>
+            <UiExpansionPanel title="Security">Security</UiExpansionPanel>
+          </UiAccordion>
+        `,
+			});
+
+			await expectNoViolations(Host);
+		});
+	});
+
+	describe('UiTable', () => {
+		const columns = [
+			{ key: 'name', label: 'Name', sortable: true },
+			{ key: 'age', label: 'Age', sortable: true, align: 'end' as const },
+			{ key: 'city', label: 'City' },
+		];
+		const rows = [
+			{ id: 1, name: 'Ann', age: 30, city: 'Oslo' },
+			{ id: 2, name: 'Bob', age: 4, city: 'Rome' },
+		];
+
+		it('is accessible plain', async () => {
+			await expectNoViolations(UiTable, { props: { columns, rows, rowKey: 'id', label: 'Users' } });
+		});
+
+		it('is accessible sorted, selectable, partly selected, with actions', async () => {
+			// aria-sort on the <th>, named row checkboxes, an indeterminate header box, buttons in a sticky cell.
+			await expectNoViolations(UiTable, {
+				props: {
+					columns,
+					rows,
+					rowKey: 'id',
+					label: 'Users',
+					selectable: true,
+					selected: [2],
+					sort: { active: 'age', direction: 'desc' },
+					stickyHeader: true,
+				},
+				slots: {
+					actions: ({ row }: { row: { id: number } }) =>
+						h(UiIconButton, { icon: 'delete', label: `Delete row ${row.id}` }),
+				},
+			});
+		});
+
+		it('is accessible loading', async () => {
+			await expectNoViolations(UiTable, { props: { columns, rows: [], rowKey: 'id', label: 'Users', loading: true } });
+		});
+
+		it('is accessible empty', async () => {
+			await expectNoViolations(UiTable, {
+				props: { columns, rows: [], rowKey: 'id', label: 'Users', selectable: true, emptyText: 'No data' },
+			});
+		});
+	});
+
+	describe('UiPaginator', () => {
+		it('is accessible with the size picker and first/last buttons', async () => {
+			// The size <select> is named by the visible "Items per page:" text through aria-labelledby.
+			await expectNoViolations(UiPaginator, {
+				props: { length: 120, pageIndex: 1, pageSize: 30, pageSizeOptions: [10, 30, 100], showFirstLast: true },
+			});
+		});
+
+		it('is accessible empty and disabled', async () => {
+			await expectNoViolations(UiPaginator, { props: { length: 0, pageSize: 30, disabled: true } });
+		});
+	});
+
+	describe('UiDivider', () => {
+		it('is accessible horizontal and vertical', async () => {
+			await expectNoViolations(UiDivider);
+			await expectNoViolations(UiDivider, { props: { vertical: true } });
+		});
+	});
+
+	describe('UiList + UiListItem', () => {
+		const router = () =>
+			createRouter({
+				history: createMemoryHistory(),
+				routes: [{ path: '/:p(.*)*', component: { template: '<div />' } }],
+			});
+
+		it('is accessible as a navigation list of links', async () => {
+			const Host = defineComponent({
+				components: { UiList, UiListItem, UiIcon },
+				template: `
+          <UiList as="nav" label="Connection">
+            <UiListItem to="/dashboard"><template #leading><UiIcon name="table" /></template>Tables</UiListItem>
+            <UiListItem href="https://docs.rocketadmin.com/" target="_blank">Help center</UiListItem>
+            <UiListItem href="/x" disabled>Disabled</UiListItem>
+          </UiList>
+        `,
+			});
+
+			await expectNoViolations(Host, { global: { plugins: [router()] } });
+		});
+
+		it('is accessible as a list of buttons and static rows', async () => {
+			const Host = defineComponent({
+				components: { UiList, UiListItem },
+				template: `
+          <UiList label="Related records">
+            <UiListItem interactive active>Order 1<template #description>shipped</template></UiListItem>
+            <UiListItem interactive disabled>Order 2</UiListItem>
+            <UiListItem>Static</UiListItem>
+          </UiList>
+        `,
+			});
+
+			await expectNoViolations(Host);
+		});
+	});
+
+	describe('vTooltip', () => {
+		it('is accessible on a described icon button, hidden and shown', async () => {
+			// aria-describedby must resolve to the describer node, and the shown bubble must be
+			// aria-hidden so the text is not announced twice.
+			const Host = defineComponent({
+				components: { UiIconButton },
+				directives: { tooltip: vTooltip },
+				setup() {
+					const root = ref<HTMLElement | null>(null);
+					onMounted(async () => {
+						await nextTick();
+						root.value?.querySelector('button')?.dispatchEvent(new Event('focusin'));
+					});
+					return { root };
+				},
+				template: `
+          <div ref="root">
+            <UiIconButton v-tooltip="'Opens the row in a side panel'" icon="visibility" label="View row" />
+          </div>
+        `,
+			});
+
+			await expectNoViolations(Host);
 		});
 	});
 

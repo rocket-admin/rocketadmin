@@ -12,6 +12,7 @@ import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 import App from './App.vue';
 import { isApiError } from './api/client';
+import { vTooltip } from './components/ui';
 import { loadConfig } from './config';
 import { initMonitoring } from './lib/monitoring';
 import { router } from './router';
@@ -25,6 +26,7 @@ async function bootstrap() {
 	const app = createApp(App);
 	const pinia = createPinia();
 	app.use(pinia);
+	app.directive('tooltip', vTooltip);
 	initMonitoring(app, router);
 
 	// An awaited request that failed has already been shown to the user (see ApiError.notified);

@@ -26,6 +26,11 @@ export interface CompanyOption {
 	name: string;
 }
 
+/** GET /company/invite/verify/:token: whether the invitation link can still be used. */
+export interface InvitationAvailability {
+	success: boolean;
+}
+
 export function readTokenExpiration(): Date | null {
 	const raw = localStorage.getItem(TOKEN_EXPIRATION_KEY);
 	if (!raw) return null;
@@ -156,8 +161,8 @@ export const useAuthStore = defineStore('auth', () => {
 		return api.get<CompanyOption[]>(`/company/my/email/${email}`, { notify: 'alert' });
 	}
 
-	function checkInvitationAvailability(token: string): Promise<unknown> {
-		return api.get(`/company/invite/verify/${token}`, { notify: 'alert' });
+	function checkInvitationAvailability(token: string): Promise<InvitationAvailability> {
+		return api.get<InvitationAvailability>(`/company/invite/verify/${token}`, { notify: 'alert' });
 	}
 
 	function acceptCompanyInvitation(token: string, password: string, userName: string): Promise<AuthResponse> {

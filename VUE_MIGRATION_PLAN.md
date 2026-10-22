@@ -95,6 +95,7 @@ Copy these as-is and add tests where they are missing:
 4. Write a Storybook story for each widget, ported from the existing 159 stories, so each one can be compared visually with the Angular version.
 
 ### Phase 3 – Features (each one should ship complete; this is the recommended order)
+Every route now renders its ported page; `PendingView` is gone. New primitives built first for these pages: `v-tooltip`, `UiSwitch`, `UiRadioGroup`/`UiRadio`, `UiExpansionPanel`/`UiAccordion`, `UiTable` (server-side sort and selection, cell slots) with `UiPaginator`, `UiDivider`, `UiList`/`UiListItem`, and option groups in `UiSelect`. Pages live in `src/views/<area>/` and their parts in `src/components/<area>/`.
 1. **Auth flows:** login (with Google GSI and Turnstile), setup, forget-password, password-reset/change, email verify/change, company invitation, deleted account.
 2. **Connections:** `connections-list`, `connect-db` (16 components), `edit-db`, `connection-settings`, `auto-configure`.
 3. **Table browser** (`components/dashboard/`, the hardest part):

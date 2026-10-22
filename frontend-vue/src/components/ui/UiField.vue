@@ -35,6 +35,7 @@ const props = withDefaults(
 // across two fields on one page — the regression this guards is two inputs sharing one label.
 const uid = useId();
 const inputId = `${uid}-input`;
+const labelId = `${uid}-label`;
 const hintId = `${uid}-hint`;
 const errorId = `${uid}-error`;
 
@@ -49,6 +50,7 @@ const describedBy = computed(() => {
 
 provide(FIELD_CONTEXT, {
 	inputId,
+	labelId,
 	describedBy,
 	invalid,
 	required: toRef(props, 'required'),
@@ -57,7 +59,7 @@ provide(FIELD_CONTEXT, {
 
 <template>
 	<div class="ui-field">
-		<label class="ui-field__label" :for="inputId">
+		<label :id="labelId" class="ui-field__label" :for="inputId">
 			{{ label }}
 			<span v-if="required" class="ui-field__required" aria-hidden="true">*</span>
 		</label>

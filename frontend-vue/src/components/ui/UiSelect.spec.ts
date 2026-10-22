@@ -152,6 +152,34 @@ describe('UiSelect', () => {
 		});
 	});
 
+	describe('option groups', () => {
+		const GROUPED: SelectOption<string>[] = [
+			{ value: 'none', label: 'None' },
+			{ value: 'read', label: 'Read', group: 'Table' },
+			{ value: 'edit', label: 'Edit', group: 'Table' },
+			{ value: 'manage', label: 'Manage', group: 'Connection' },
+		];
+
+		it('wraps consecutive options of a group in one labelled optgroup', () => {
+			const wrapper = mount(UiSelect, { props: { options: GROUPED } });
+			const groups = wrapper.findAll('optgroup');
+
+			expect(groups.map((group) => group.attributes('label'))).toEqual(['Table', 'Connection']);
+			expect(groups[0]!.findAll('option').map((option) => option.text())).toEqual(['Read', 'Edit']);
+			expect(wrapper.get('select').element.children[0]!.tagName).toBe('OPTION');
+		});
+
+		it('still maps the chosen option back to its typed value', async () => {
+			const wrapper = mount(UiSelect, { props: { options: GROUPED, modelValue: 'edit' } });
+			const select = wrapper.get('select').element as HTMLSelectElement;
+
+			expect(select.selectedIndex).toBe(2);
+			select.selectedIndex = 3;
+			await wrapper.get('select').trigger('change');
+			expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual(['manage']);
+		});
+	});
+
 	it('disables individual options', () => {
 		const wrapper = mount(UiSelect, {
 			props: {

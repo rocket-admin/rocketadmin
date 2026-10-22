@@ -1,6 +1,9 @@
-import { mount } from '@vue/test-utils';
-import { describe, expect, it } from 'vitest';
+import { flushPromises, mount } from '@vue/test-utils';
+import { describe, expect, it, vi } from 'vitest';
 import AppMarkdown from './AppMarkdown.vue';
+
+const mermaidMock = vi.hoisted(() => ({ initialize: vi.fn(), run: vi.fn(() => Promise.resolve()) }));
+vi.mock('mermaid', () => ({ default: mermaidMock }));
 
 /**
  * Parsing and sanitizing are pinned in `src/lib/markdown.spec.ts`; this covers the component.
@@ -51,5 +54,42 @@ describe('AppMarkdown', () => {
 		await wrapper.setProps({ source: 'second' });
 
 		expect(root(wrapper).text()).toBe('second');
+	});
+});
+
+describe('AppMarkdown with mermaid', () => {
+	it('renders ```mermaid blocks through mermaid, lazily', async () => {
+		const wrapper = mount(AppMarkdown, {
+			props: { source: 'Intro\n\n```mermaid\ngraph TD; A-->B\n```', mermaid: true },
+		});
+		await flushPromises();
+
+		expect(mermaidMock.initialize).toHaveBeenCalledWith(expect.objectContaining({ startOnLoad: false }));
+		const diagram = wrapper.get('div.mermaid');
+		expect(diagram.text()).toBe('graph TD; A-->B');
+		expect(wrapper.find('code.language-mermaid').exists()).toBe(false);
+		expect(mermaidMock.run).toHaveBeenCalledWith({ nodes: [diagram.element], suppressErrors: true });
+	});
+
+	it('leaves mermaid fences as code without the prop', async () => {
+		mermaidMock.run.mockClear();
+		const wrapper = mount(AppMarkdown, { props: { source: '```mermaid\ngraph TD; A-->B\n```' } });
+		await flushPromises();
+
+		expect(wrapper.find('code.language-mermaid').exists()).toBe(true);
+		expect(mermaidMock.run).not.toHaveBeenCalled();
+	});
+
+	it('renders diagrams that arrive in a later source (streamed answers)', async () => {
+		mermaidMock.run.mockClear();
+		const wrapper = mount(AppMarkdown, { props: { source: 'Thinking', mermaid: true } });
+		await flushPromises();
+		expect(mermaidMock.run).not.toHaveBeenCalled();
+
+		await wrapper.setProps({ source: 'Done\n\n```mermaid\npie\n```' });
+		await flushPromises();
+
+		expect(wrapper.get('div.mermaid').text()).toBe('pie');
+		expect(mermaidMock.run).toHaveBeenCalledTimes(1);
 	});
 });

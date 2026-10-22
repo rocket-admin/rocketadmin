@@ -10,12 +10,12 @@ function row(id: number): TableRow {
 		record: { id },
 		columnsOrder: [],
 		primaryKeys: { id },
-		foreignKeys: [],
+		foreignKeys: {},
 		foreignKeysList: [],
-		widgets: [],
+		widgets: {},
 		widgetsList: [],
 		fieldsTypes: {},
-		relatedRecords: [],
+		relatedRecords: null,
 	};
 }
 

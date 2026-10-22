@@ -1,4 +1,4 @@
-import type { SubscriptionPlans, User, UserGroup } from './user';
+import type { RegistrationProvider, SubscriptionPlans, User, UserGroup } from './user';
 
 export interface Address {
 	street: string;
@@ -18,6 +18,8 @@ export interface CompanyConnection {
 	title: string;
 	author: User;
 	groups: UserGroup[];
+	/** The demo connections every company gets; listed last in the invite dialog's groups. */
+	isTestConnection?: boolean;
 }
 
 export interface Company {
@@ -51,6 +53,8 @@ export interface CompanyMember {
 	role: CompanyMemberRole;
 	has_groups: boolean;
 	user_membership: CompanyMembershipConnection[];
+	suspended?: boolean;
+	externalRegistrationProvider?: RegistrationProvider | null;
 }
 
 export enum CompanyMemberRole {

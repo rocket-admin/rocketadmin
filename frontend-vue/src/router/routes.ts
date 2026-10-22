@@ -1,15 +1,54 @@
 // Every route of frontend/src/app/app-routing.module.ts, with the same paths, so bookmarks and
-// emailed links keep working. Pages not ported yet (Phase 3) render PendingView.
-import type { RouteRecordRaw } from 'vue-router';
+// emailed links keep working.
+import type { RouteComponent, RouteRecordRaw } from 'vue-router';
 
-const PendingView = () => import('@/views/PendingView.vue');
+type LazyView = () => Promise<RouteComponent | { default: RouteComponent }>;
 
-const page = (path: string, name: string, meta: RouteRecordRaw['meta'] = {}): RouteRecordRaw => ({
-	path,
-	name,
-	component: PendingView,
-	meta,
-});
+// `dashboard` redirects to `table`; one loader for both keeps the page mounted across that redirect.
+const DashboardView = () => import('@/views/dashboard/DashboardView.vue');
+
+// Page components by route name.
+const views: Record<string, LazyView> = {
+	setup: () => import('@/views/auth/SetupView.vue'),
+	login: () => import('@/views/auth/LoginView.vue'),
+	'forget-password': () => import('@/views/auth/ForgetPasswordView.vue'),
+	'password-reset': () => import('@/views/auth/PasswordResetView.vue'),
+	'email-verification': () => import('@/views/auth/EmailVerificationView.vue'),
+	'email-change': () => import('@/views/auth/EmailChangeView.vue'),
+	'user-deleted': () => import('@/views/auth/UserDeletedView.vue'),
+	'company-invitation': () => import('@/views/auth/CompanyInvitationView.vue'),
+	'change-password': () => import('@/views/auth/PasswordChangeView.vue'),
+	'connections-list': () => import('@/views/connections/ConnectionsListView.vue'),
+	'connect-db': () => import('@/views/connections/ConnectDbView.vue'),
+	'edit-db': () => import('@/views/connections/ConnectDbView.vue'),
+	'connection-settings': () => import('@/views/connections/ConnectionSettingsView.vue'),
+	'auto-configure': () => import('@/views/connections/AutoConfigureView.vue'),
+	dashboard: DashboardView,
+	table: DashboardView,
+	permissions: () => import('@/views/users/PermissionsView.vue'),
+	company: () => import('@/views/settings/CompanyView.vue'),
+	'user-settings': () => import('@/views/settings/UserSettingsView.vue'),
+	'api-keys': () => import('@/views/settings/ApiKeysView.vue'),
+	secrets: () => import('@/views/settings/SecretsView.vue'),
+	zapier: () => import('@/views/settings/ZapierView.vue'),
+	audit: () => import('@/views/audit/AuditView.vue'),
+	panels: () => import('@/views/charts/ChartsListView.vue'),
+	'panel-new': () => import('@/views/charts/ChartEditView.vue'),
+	'panel-edit': () => import('@/views/charts/ChartEditView.vue'),
+	dashboards: () => import('@/views/dashboards/DashboardsListView.vue'),
+	'dashboard-view': () => import('@/views/dashboards/DashboardView.vue'),
+	'row-edit': () => import('@/views/table/RowEditView.vue'),
+	'table-actions': () => import('@/views/table/TableActionsView.vue'),
+	'table-widgets': () => import('@/views/table/TableWidgetsView.vue'),
+	'table-settings': () => import('@/views/table/TableSettingsView.vue'),
+	'edit-database-schema': () => import('@/views/schema/EditDatabaseSchemaView.vue'),
+};
+
+function page(path: string, name: string, meta: RouteRecordRaw['meta'] = {}): RouteRecordRaw {
+	const component = views[name];
+	if (!component) throw new Error(`No view registered for route "${name}"`);
+	return { path, name, component, meta };
+}
 
 const auth = { requiresAuth: true };
 

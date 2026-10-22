@@ -9,6 +9,12 @@ import type { InjectionKey, Ref } from 'vue';
 export interface FieldContext {
 	/** Goes on the control's `id`; `UiField`'s `<label for>` already points at it. */
 	inputId: string;
+	/**
+	 * Id of `UiField`'s visible `<label>`. For group controls (`UiRadioGroup`) that `<label for>`
+	 * cannot name: they point `aria-labelledby` here instead. Optional so a hand-built context in a
+	 * test or story still type-checks.
+	 */
+	labelId?: string;
 	/** Space-joined ids of the hint and error nodes, or `undefined` when there are none. */
 	describedBy: Ref<string | undefined>;
 	/** True while the field carries an error, for `aria-invalid`. */

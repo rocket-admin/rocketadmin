@@ -77,6 +77,27 @@ export const Multiple: Story = {
 	}),
 };
 
+/** `group` on an option renders it under a native `<optgroup>` — the `mat-optgroup` replacement. */
+export const Grouped: Story = {
+	render: () => ({
+		components: { UiField, UiSelect },
+		setup: () => ({
+			options: [
+				{ value: 'none', label: 'None' },
+				{ value: 'table:read', label: 'Read', group: 'Table' },
+				{ value: 'table:edit', label: 'Edit', group: 'Table' },
+				{ value: 'connection:manage', label: 'Manage', group: 'Connection' },
+			] satisfies SelectOption<string>[],
+			value: ref<string | null>('table:edit'),
+		}),
+		template: `
+      <div style="max-width: 22rem;">
+        <UiField label="Action"><UiSelect v-model="value" :options="options" /></UiField>
+      </div>
+    `,
+	}),
+};
+
 /** Every state, both sizes. */
 export const AllVariants: Story = {
 	render: () => ({
