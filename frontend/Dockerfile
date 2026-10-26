@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/node:18-alpine as builder
+FROM public.ecr.aws/docker/library/node:24.22.1-alpine AS builder
 ARG VERSION
 WORKDIR /app
 COPY package.json yarn.lock ./

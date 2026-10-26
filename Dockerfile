@@ -1,4 +1,4 @@
-FROM node:24-slim AS front_builder
+FROM node:24.22.1-slim AS front_builder
 ARG VERSION
 ARG SAAS
 SHELL ["/bin/bash", "-c"]
@@ -24,7 +24,7 @@ RUN if [[ -n $SAAS ]]; then API_ROOT=/api yarn build --configuration=saas-produc
     else API_ROOT=/api yarn build --configuration=production; fi
 RUN ls /app/frontend/dist/rocketadmin/browser
 
-FROM node:24-slim
+FROM node:24.22.1-slim
 
 RUN groupadd -r -g 1001 appuser && useradd -r -u 1001 -g appuser -d /app -s /sbin/nologin appuser
 

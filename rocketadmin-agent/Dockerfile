@@ -1,4 +1,4 @@
-FROM node:22-slim
+FROM node:24.22.1-slim
 WORKDIR /app
 RUN apt-get update && apt-get install -y netcat-openbsd make gcc g++ python3 libxml2
 RUN npm install -g pnpm@10.33.0
