@@ -149,3 +149,18 @@ Test databases are defined in `docker-compose.tst.yml`:
 ### Class Member Ordering
 
 - Private methods must be placed at the end of the class, after all public methods
+
+## Writing rules (ASD-STE100)
+
+New prose in code comments follows ASD-STE100, Simplified Technical English. The rules and the word list: `../sitenova/architecture-design-records/STE100-WRITING-RULES.md`. When the sibling checkout is absent, the rules in this section are the contract. The checker: `node scripts/ste-check.mjs <file>` (`--help` lists the modes). A Claude Code hook runs the checker after each `Write` and `Edit`. Fix every error it reports before you continue.
+
+The core rules:
+
+- One idea per sentence. 25 words or fewer in a description, 20 or fewer in an instruction.
+- Active voice, simple present or simple past. Name the actor. No perfect tenses. No `-ing` verb forms: write `before you run`, not `before running`.
+- No dash between two ideas. Write two sentences. Keep parentheses for a short reference such as `(plan 61)`.
+- Approved words only: `use` not `utilize`, `make sure` not `ensure`, `through` not `via`, `but` not `however`, `for example` not `e.g.`. No contractions.
+- Technical names and technical verbs are fine: identifiers in backticks, product names, `deploy`, `merge`, `upsert`.
+- Existing text stays as it is. When you change a paragraph, rewrite that paragraph. Do not rewrite a document only for style.
+- Out of scope: model prompts, UI strings, log and error messages, test names.
+- Plans and architecture records live in the `sitenova` repository. The same rules apply there.
