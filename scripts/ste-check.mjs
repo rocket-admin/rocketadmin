@@ -619,7 +619,7 @@ export function normalizeProse(text) {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Checks on one paragraph (a "segment": text plus the line where it starts)
+// Checks on one segment. A segment is one paragraph with the line where it starts.
 // ---------------------------------------------------------------------------------------------
 
 export function checkSegment(segment, options = {}) {
@@ -1170,7 +1170,7 @@ function cleanupSegments(segments) {
 }
 
 const CODE_LINE_RE =
-	/[;{}]\s*$|=>|^\s*(const|let|var|import|export|return|if|for|while|function|class|await)\b|^\s*[\w.$]+\([^()]*\)\s*;?$|^\s*[\w$]+\s*=\s*\S/;
+	/[;{}]\s*$|=>|^\s*(node|pnpm|npm|npx|git|docker|curl|sh|bash)\s|^\s*--?[a-z]|^\s*(const|let|var|import|export|return|if|for|while|function|class|await)\b|^\s*[\w.$]+\([^()]*\)\s*;?$|^\s*[\w$]+\s*=\s*\S/;
 
 function looksLikeCode(text) {
 	const lines = text.split('\n').filter((l) => l.trim().length > 0);
@@ -1242,7 +1242,7 @@ function expandPaths(paths, root) {
 	return files.map((f) => relative(root, f) || basename(f));
 }
 
-// Parse `git diff -U0` output into { file: [[start, end], ...] } of added lines.
+// Parse `git diff -U0` output into the added line ranges per file: `{ file: [[start, end]] }`.
 export function parseAddedRanges(diff) {
 	const ranges = {};
 	let file = null;
@@ -1459,7 +1459,7 @@ export function main(argv = process.argv.slice(2)) {
 	for (const file of files) {
 		const kind = classifyPath(file, config);
 		if (kind === null || !wantKind(kind, options)) continue;
-		// Explicit Markdown paths outside the document directories are checked too.
+		// The checker also reads explicit Markdown paths outside the document directories.
 		const full = resolve(root, file);
 		if (!existsSync(full)) continue;
 		checked += 1;
