@@ -92,6 +92,31 @@ describe('UiMenu', () => {
 		expect(isOpen()).toBe(false);
 	});
 
+	it('opens when the trigger has a click listener of its own', async () => {
+		// The listener turns the trigger's onClick into an array; inherited attrs would add it twice,
+		// so one click toggled the menu open and shut again.
+		const onTriggerClick = vi.fn();
+		const Host = defineComponent({
+			components: { UiMenu, UiMenuItem, UiIconButton },
+			setup: () => ({ onTriggerClick }),
+			template: `
+        <UiMenu>
+          <template #trigger="{ triggerProps }">
+            <UiIconButton icon="settings" label="Settings" v-bind="triggerProps" @click="onTriggerClick" />
+          </template>
+          <UiMenuItem>Widgets</UiMenuItem>
+        </UiMenu>
+      `,
+		});
+		const host = mount(Host, { attachTo: document.body });
+		await host.get('.ui-icon-button').trigger('click');
+		await flushPromises();
+
+		expect((host.get('[role="menu"]').element as HTMLElement).style.display).not.toBe('none');
+		expect(onTriggerClick).toHaveBeenCalledTimes(1);
+		host.unmount();
+	});
+
 	it('opens on ArrowDown at the first item and ArrowUp at the last enabled item', async () => {
 		wrapper = mountMenu();
 		await trigger().trigger('keydown', { key: 'ArrowDown' });

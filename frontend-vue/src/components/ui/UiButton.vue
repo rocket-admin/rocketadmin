@@ -93,6 +93,14 @@ function onClick(event: MouseEvent) {
 }
 </script>
 
+<script lang="ts">
+// The root binds `attrs` itself. Inheriting them too would add a parent's listeners twice: a menu
+// trigger with its own @click then runs the menu's toggle twice and never opens.
+export default {
+  inheritAttrs: false,
+}
+</script>
+
 <template>
 	<component :is="tag" v-bind="{ ...attrs, ...bindings }" :class="classes" @click="onClick">
 		<!-- The spinner replaces the leading adornment rather than displacing it, so the button's

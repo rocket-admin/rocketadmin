@@ -40,7 +40,8 @@ export default defineConfig(({ mode }) => ({
 		host: '127.0.0.1',
 		// Port of frontend/src/proxy.conf.json
 		proxy: {
-			'/api': {
+			// Anchored with the trailing slash: a bare '/api' prefix also proxies the /api-keys page.
+			'^/api/': {
 				target: 'https://app.rocketadmin.com',
 				changeOrigin: true,
 				secure: false,
