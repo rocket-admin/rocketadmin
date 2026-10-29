@@ -13,6 +13,8 @@
 		"lint": "biome check . && eslint .",
 		"test": "vitest",
 		"test:ci": "vitest run",
+		"test:e2e": "playwright test",
+		"test:e2e:ui": "playwright test --ui",
 		"update-version": "node scripts/update-version.js",
 		"storybook": "node scripts/update-version.js && storybook dev -p 6006",
 		"build-storybook": "node scripts/update-version.js && storybook build"
@@ -60,6 +62,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.0",
+		"@playwright/test": "^1.64.1",
 		"@storybook/addon-a11y": "^10.6.3",
 		"@storybook/addon-docs": "^10.6.3",
 		"@storybook/vue3-vite": "^10.6.3",

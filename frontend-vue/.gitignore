@@ -5,3 +5,6 @@ coverage
 .env.local
 .env.*.local
 storybook-static
+dist-e2e
+test-results
+playwright-report
