@@ -126,6 +126,14 @@ describe('DashboardView', () => {
 		wrapper.unmount();
 	});
 
+	it('lets the header tabs leave the page without sending it back to a table', async () => {
+		const { wrapper, router } = await mountPage('/dashboard/conn/actor');
+		await router.push('/audit/conn');
+		await flushPromises();
+		expect(router.currentRoute.value.path).toBe('/audit/conn');
+		wrapper.unmount();
+	});
+
 	it('loads the rows the URL describes and titles the page', async () => {
 		const { wrapper, tableView } = await mountPage(
 			'/dashboard/conn/city?page_index=2&page_size=100&sort_active=name&sort_direction=DESC&filters=(name:(eq:A))&search=x&uncached=true',

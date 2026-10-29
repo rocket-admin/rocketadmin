@@ -78,6 +78,8 @@ const routeTableName = computed(() => {
 	const value = route.params.tableName;
 	return (Array.isArray(value) ? value[0] : value) || null;
 });
+/** The route watchers fire once more while this page is being left; only react while it is shown. */
+const onDashboardRoute = computed(() => route.name === 'dashboard' || route.name === 'table');
 
 const tableData = useTableData();
 const selection = useRowSelection();
@@ -114,7 +116,7 @@ onMounted(load);
 
 // Another connection in the same page instance: start over, as a fresh page would.
 watch(connectionID, (id, previous) => {
-	if (id === previous) return;
+	if (id === previous || !onDashboardRoute.value) return;
 	stopRouteWatch?.();
 	stopRouteWatch = null;
 	selection.clear();
@@ -186,6 +188,7 @@ async function getData() {
 
 /** paramMap: open the table of the URL, or redirect to the default (or first) table. */
 function onTableParam(tableName: string | null) {
+	if (!onDashboardRoute.value) return;
 	if (tableName) {
 		selectedTableName.value = tableName;
 		setTable(tableName);

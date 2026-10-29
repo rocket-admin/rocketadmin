@@ -128,7 +128,9 @@ const signedIn = computed(() => props.userLoggedIn === true);
 	position: sticky;
 	top: 0;
 	z-index: var(--z-sticky);
-	display: flex;
+	/* Brand and actions take equal side columns so the connection tabs sit in the true center. */
+	display: grid;
+	grid-template-columns: 1fr minmax(0, auto) 1fr;
 	align-items: center;
 	gap: var(--space-4);
 	height: var(--header-height);
@@ -138,6 +140,7 @@ const signedIn = computed(() => props.userLoggedIn === true);
 }
 
 .app-header__brand {
+	grid-column: 1;
 	display: flex;
 	align-items: center;
 	gap: var(--space-2);
@@ -199,6 +202,7 @@ const signedIn = computed(() => props.userLoggedIn === true);
 }
 
 .app-header__tabs {
+	grid-column: 2;
 	display: flex;
 	align-items: center;
 	gap: var(--space-1);
@@ -231,13 +235,15 @@ const signedIn = computed(() => props.userLoggedIn === true);
 	color: var(--color-accent);
 }
 
-.app-header__actions {
-	margin-left: auto;
+.app-header__actions,
+.app-header__menu-button {
+	grid-column: 3;
+	grid-row: 1;
+	justify-self: end;
 }
 
 .app-header__menu-button {
 	display: none;
-	margin-left: auto;
 }
 
 @media screen and (max-width: 600px) {
