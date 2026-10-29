@@ -7,7 +7,9 @@
 	},
 	"scripts": {
 		"lint": "biome lint",
-		"prepare": "husky"
+		"prepare": "husky",
+		"ste:check": "node scripts/ste-check.mjs",
+		"ste:test": "node --test scripts/ste-check.test.mjs"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.5.15",

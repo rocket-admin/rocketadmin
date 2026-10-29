@@ -43,3 +43,10 @@ jobs:
       - name: Typecheck backend
         if: steps.changed.outputs.files != ''
         run: pnpm --filter ./backend typecheck
+      # Writing rules (ASD-STE100) for the comments this pull request adds: annotations only, the
+      # job does not fail on them. The checker has no dependencies. Rules and the word list:
+      # ../sitenova/architecture-design-records/STE100-WRITING-RULES.md (summary in CLAUDE.md).
+      - name: Writing rules (changed comments, annotations only)
+        run: |
+          node --test scripts/ste-check.test.mjs
+          node scripts/ste-check.mjs --changed "${{ github.event.pull_request.base.sha }}" --code --format github
