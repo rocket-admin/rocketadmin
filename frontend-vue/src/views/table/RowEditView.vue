@@ -187,11 +187,11 @@ function isEmptyRelated(table: string): boolean {
 			</template>
 		</AppBanner>
 
-		<div class="row-edit__page">
+		<div class="row-edit__page" :class="{ 'row-edit__page--loading': loading }">
 			<div
 				v-if="tableRowValues"
 				class="row-edit__wrapper"
-				:class="{ 'row-edit__wrapper--shifted': tableState.selectedRow }"
+				:class="{ 'row-edit__wrapper--shifted': tableState.selectedRow || referencedTables.length }"
 			>
 				<div class="row-edit__header">
 					<div class="row-edit__header-main">
@@ -246,79 +246,6 @@ function isEmptyRelated(table: string): boolean {
 					</div>
 				</div>
 
-				<section v-if="referencedTables.length" class="row-edit__related" aria-labelledby="row-edit-related-title">
-					<h2 id="row-edit-related-title" class="row-edit__related-title">
-						Records related to&nbsp;
-						<span v-if="identityColumn && tableRowValues[identityColumn]">"{{ tableRowValues[identityColumn] }}"</span>
-						<span v-else>this row</span>
-					</h2>
-
-					<UiAccordion multi>
-						<UiExpansionPanel
-							v-for="(referencedTable, tableIndex) in referencedTables"
-							:key="referencedTable.table_name"
-							:disabled="isEmptyRelated(referencedTable.table_name)"
-							:hide-toggle="isEmptyRelated(referencedTable.table_name)"
-							class="row-edit__related-panel"
-						>
-							<template #title>
-								<span class="row-edit__related-name">
-									<span class="row-edit__related-name-text" :title="referencedTable.displayTableName">
-										{{ referencedTable.displayTableName }}
-									</span>
-									<span v-if="isEmptyRelated(referencedTable.table_name)" class="row-edit__related-empty">Empty</span>
-								</span>
-							</template>
-							<template #actions>
-								<UiSpinner v-if="!recordsOf(referencedTable.table_name)" size="sm" label="Loading records" />
-								<template v-else>
-									<UiIconButton
-										icon="add"
-										size="sm"
-										:label="`Add a new record to ${referencedTable.displayTableName}`"
-										:href="router.resolve(`/dashboard/${connectionId}/${referencedTable.table_name}/entry`).href"
-										target="_blank"
-									/>
-									<UiIconButton
-										icon="open_in_new"
-										size="sm"
-										label="Open records in table view"
-										:to="{
-											path: `/dashboard/${connectionId}/${referencedTable.table_name}`,
-											query: referencedTablesURLParams[tableIndex],
-										}"
-									/>
-								</template>
-							</template>
-
-							<UiList v-if="recordsOf(referencedTable.table_name)" size="sm">
-								<UiListItem
-									v-for="(rawRow, rowIndex) in recordsOf(referencedTable.table_name)?.rawRows"
-									:key="rowIndex"
-									interactive
-									class="row-edit__related-record"
-									@click="rowEdit.handleViewRow(referencedTable.table_name, rawRow)"
-								>
-									<strong v-if="!recordsOf(referencedTable.table_name)?.identityColumn.isSet">
-										{{ recordsOf(referencedTable.table_name)?.identityColumn.displayName }}:&nbsp;
-									</strong>
-									{{ relatedIdentity(referencedTable.table_name, rowIndex) }}
-									<template #description>
-										<span
-											v-for="field in recordsOf(referencedTable.table_name)?.fieldsOrder"
-											:key="field.fieldName"
-											class="row-edit__related-field"
-										>
-											<strong class="row-edit__related-field-name">{{ field.displayName }}:</strong>
-											<span>{{ relatedValue(referencedTable.table_name, rowIndex, field.fieldName) }};</span>
-										</span>
-									</template>
-								</UiListItem>
-							</UiList>
-						</UiExpansionPanel>
-					</UiAccordion>
-				</section>
-
 				<form
 					ref="form"
 					class="row-edit__form"
@@ -344,55 +271,131 @@ function isEmptyRelated(table: string): boolean {
 					</div>
 
 					<div class="row-edit__actions">
-						<UiButton
-							v-if="showKeyActions && pageMode === 'view'"
-							data-testid="switch-to-editing-button"
-							@click="rowEdit.switchToEditMode()"
-						>
-							<template #leading><UiIcon name="edit" /></template>
-							Edit
-						</UiButton>
+						<div class="row-edit__actions-inner">
+							<UiButton
+								v-if="showKeyActions && pageMode === 'view'"
+								data-testid="switch-to-editing-button"
+								@click="rowEdit.switchToEditMode()"
+							>
+								<template #leading><UiIcon name="edit" /></template>
+								Edit
+							</UiButton>
 
-						<UiButton
-							v-if="showKeyActions && pageMode !== 'view'"
-							variant="ghost"
-							class="row-edit__continue"
-							data-testid="record-save-and-continue-editing-button"
-							:disabled="submitting || formInvalid"
-							@click="rowEdit.handleRowSubmitting(true)"
-						>
-							Save &amp; continue
-						</UiButton>
+							<UiButton
+								v-if="showKeyActions && pageMode !== 'view'"
+								variant="ghost"
+								class="row-edit__continue"
+								data-testid="record-save-and-continue-editing-button"
+								:disabled="submitting || formInvalid"
+								@click="rowEdit.handleRowSubmitting(true)"
+							>
+								Save &amp; continue
+							</UiButton>
 
-						<UiButton
-							v-if="hasKeyAttributesFromURL && canEditRow && !pageAction && pageMode !== 'view'"
-							type="submit"
-							data-testid="record-edit-button"
-							:disabled="submitting || formInvalid"
-						>
-							Save
-						</UiButton>
+							<UiButton
+								v-if="hasKeyAttributesFromURL && canEditRow && !pageAction && pageMode !== 'view'"
+								type="submit"
+								data-testid="record-edit-button"
+								:disabled="submitting || formInvalid"
+							>
+								Save
+							</UiButton>
 
-						<UiButton
-							v-if="hasKeyAttributesFromURL && canAddRow && pageAction === 'dub'"
-							type="submit"
-							data-testid="record-duplicate-button"
-							:disabled="submitting || formInvalid"
-						>
-							Duplicate
-						</UiButton>
+							<UiButton
+								v-if="hasKeyAttributesFromURL && canAddRow && pageAction === 'dub'"
+								type="submit"
+								data-testid="record-duplicate-button"
+								:disabled="submitting || formInvalid"
+							>
+								Duplicate
+							</UiButton>
 
-						<UiButton
-							v-if="!hasKeyAttributesFromURL"
-							type="submit"
-							data-testid="record-add-button"
-							:disabled="submitting || formInvalid"
-						>
-							Add
-						</UiButton>
+							<UiButton
+								v-if="!hasKeyAttributesFromURL"
+								type="submit"
+								data-testid="record-add-button"
+								:disabled="submitting || formInvalid"
+							>
+								Add
+							</UiButton>
+						</div>
 					</div>
 				</form>
 			</div>
+
+			<!-- A static side panel that scrolls on its own, independent of the form. -->
+			<aside v-if="tableRowValues && referencedTables.length" class="row-edit__related" aria-labelledby="row-edit-related-title">
+				<h2 id="row-edit-related-title" class="row-edit__related-title">
+					Records related to&nbsp;
+					<span v-if="identityColumn && tableRowValues[identityColumn]">"{{ tableRowValues[identityColumn] }}"</span>
+					<span v-else>this row</span>
+				</h2>
+
+				<UiAccordion multi>
+					<UiExpansionPanel
+						v-for="(referencedTable, tableIndex) in referencedTables"
+						:key="referencedTable.table_name"
+						:disabled="isEmptyRelated(referencedTable.table_name)"
+						:hide-toggle="isEmptyRelated(referencedTable.table_name)"
+						class="row-edit__related-panel"
+					>
+						<template #title>
+							<span class="row-edit__related-name">
+								<span class="row-edit__related-name-text" :title="referencedTable.displayTableName">
+									{{ referencedTable.displayTableName }}
+								</span>
+								<span v-if="isEmptyRelated(referencedTable.table_name)" class="row-edit__related-empty">Empty</span>
+							</span>
+						</template>
+						<template #actions>
+							<UiSpinner v-if="!recordsOf(referencedTable.table_name)" size="sm" label="Loading records" />
+							<template v-else>
+								<UiIconButton
+									icon="add"
+									size="sm"
+									:label="`Add a new record to ${referencedTable.displayTableName}`"
+									:href="router.resolve(`/dashboard/${connectionId}/${referencedTable.table_name}/entry`).href"
+									target="_blank"
+								/>
+								<UiIconButton
+									icon="open_in_new"
+									size="sm"
+									label="Open records in table view"
+									:to="{
+										path: `/dashboard/${connectionId}/${referencedTable.table_name}`,
+										query: referencedTablesURLParams[tableIndex],
+									}"
+								/>
+							</template>
+						</template>
+
+						<UiList v-if="recordsOf(referencedTable.table_name)" size="sm">
+							<UiListItem
+								v-for="(rawRow, rowIndex) in recordsOf(referencedTable.table_name)?.rawRows"
+								:key="rowIndex"
+								interactive
+								class="row-edit__related-record"
+								@click="rowEdit.handleViewRow(referencedTable.table_name, rawRow)"
+							>
+								<strong v-if="!recordsOf(referencedTable.table_name)?.identityColumn.isSet">
+									{{ recordsOf(referencedTable.table_name)?.identityColumn.displayName }}:&nbsp;
+								</strong>
+								{{ relatedIdentity(referencedTable.table_name, rowIndex) }}
+								<template #description>
+									<span
+										v-for="field in recordsOf(referencedTable.table_name)?.fieldsOrder"
+										:key="field.fieldName"
+										class="row-edit__related-field"
+									>
+										<strong class="row-edit__related-field-name">{{ field.displayName }}:</strong>
+										<span>{{ relatedValue(referencedTable.table_name, rowIndex, field.fieldName) }};</span>
+									</span>
+								</template>
+							</UiListItem>
+						</UiList>
+					</UiExpansionPanel>
+				</UiAccordion>
+			</aside>
 
 			<!-- A related record opened from the side lists, as Angular's app-db-table-row-view here. -->
 			<TableRowView v-if="tableState.selectedRow" :active-filters="null" />
@@ -404,7 +407,7 @@ function isEmptyRelated(table: string): boolean {
 .row-edit {
 	display: flex;
 	flex-direction: column;
-	min-height: 100%;
+	min-height: calc(100vh - var(--header-height));
 	padding: var(--space-4) var(--space-4) 0;
 }
 
@@ -424,6 +427,11 @@ function isEmptyRelated(table: string): boolean {
 .row-edit__page {
 	display: flex;
 	flex: 1;
+}
+
+/* Empty while the skeleton shows, so the skeleton gets the full height for its bottom save bar. */
+.row-edit__page--loading {
+	flex: none;
 }
 
 .row-edit__wrapper {
@@ -494,13 +502,22 @@ function isEmptyRelated(table: string): boolean {
 	gap: var(--space-2);
 }
 
+/* Pinned under the app header, flush with the page's top and right edges, and scrolled on its own. */
 .row-edit__related {
+	position: sticky;
+	top: var(--header-height);
 	display: flex;
 	flex-direction: column;
+	flex-shrink: 0;
 	gap: var(--space-3);
-	width: 100%;
-	max-width: 32.5rem;
-	margin: var(--space-3) 0 var(--space-1);
+	align-self: flex-start;
+	width: clamp(16rem, 24vw, 24rem);
+	height: calc(100vh - var(--header-height));
+	margin: calc(-1 * var(--space-4)) calc(-1 * var(--space-4)) 0 0;
+	padding: var(--space-5) var(--space-4);
+	overflow-y: auto;
+	border-inline-start: 1px solid var(--color-line);
+	background: var(--color-surface);
 }
 
 .row-edit__related-title {
@@ -545,17 +562,22 @@ function isEmptyRelated(table: string): boolean {
 
 .row-edit__form {
 	display: flex;
+	flex: 1;
 	flex-direction: column;
 	width: 100%;
 	min-width: 18.75rem;
-	max-width: 32.5rem;
-	margin: var(--space-6) auto 0;
+	margin-top: var(--space-6);
 }
 
+/* Grows to push the actions panel to the bottom of the page when the form is short. */
 .row-edit__fields {
 	display: flex;
+	flex: 1 0 auto;
 	flex-direction: column;
 	gap: var(--space-4);
+	width: 100%;
+	max-width: 32.5rem;
+	margin: 0 auto;
 	padding-bottom: var(--space-10);
 }
 
@@ -568,14 +590,43 @@ function isEmptyRelated(table: string): boolean {
 	position: sticky;
 	bottom: 0;
 	z-index: var(--z-sticky);
-	display: flex;
-	align-items: center;
-	justify-content: flex-end;
-	gap: var(--space-2);
 	margin: 0 calc(-1 * var(--space-4));
 	padding: var(--space-3) var(--space-4);
 	border-top: 1px solid var(--color-line);
 	background: var(--color-surface);
+}
+
+/* Beside the related records or the related-record preview the panel stops at the wrapper edge instead of running under it. */
+/* The record preview opens right of the related records, pinned like the related panel and flush with the page edge. */
+@media (width > 900px) {
+	.row-edit__page :deep(.row-view) {
+		position: sticky;
+		top: var(--header-height);
+		align-self: flex-start;
+		height: calc(100vh - var(--header-height));
+		max-height: none;
+		margin: calc(-1 * var(--space-4)) calc(-1 * var(--space-4)) 0 0;
+	}
+
+	.row-edit__page:has(.row-view) .row-edit__related {
+		margin-right: 0;
+	}
+}
+
+.row-edit__wrapper--shifted .row-edit__actions {
+	margin-right: 0;
+	/* Its content box then matches the wrapper, so the centred buttons line up with the form. */
+	padding-right: 0;
+}
+
+/* Buttons stay aligned with the form column while the panel spans the full width. */
+.row-edit__actions-inner {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: var(--space-2);
+	max-width: 32.5rem;
+	margin: 0 auto;
 }
 
 .row-edit__continue {
@@ -591,8 +642,32 @@ function isEmptyRelated(table: string): boolean {
 		display: flex;
 	}
 
-	.row-edit__actions {
+	.row-edit__actions-inner {
 		flex-wrap: wrap;
+	}
+}
+
+/* Too narrow for a side panel: the related records go back above the form and scroll with the page. */
+@media (width <= 900px) {
+	.row-edit__page {
+		flex-direction: column;
+	}
+
+	.row-edit__related {
+		position: static;
+		order: -1;
+		width: 100%;
+		height: auto;
+		margin: 0 0 var(--space-4);
+		padding: 0;
+		overflow: visible;
+		border: none;
+		background: none;
+	}
+
+	.row-edit__wrapper--shifted .row-edit__actions {
+		margin-right: calc(-1 * var(--space-4));
+		padding-right: var(--space-4);
 	}
 }
 </style>
