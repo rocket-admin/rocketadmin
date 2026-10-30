@@ -35,7 +35,7 @@ const PLACEHOLDERS: Array<[string, Component, number]> = [
 	['PlaceholderConnections', PlaceholderConnections, 4],
 	['PlaceholderDashboards', PlaceholderDashboards, 6 * 5],
 	['PlaceholderRecordView', PlaceholderRecordView, 2 + 5 * 2],
-	['PlaceholderRowEdit', PlaceholderRowEdit, 3 + 5 + 3],
+	['PlaceholderRowEdit', PlaceholderRowEdit, 5 + 5 + 2],
 	['PlaceholderSavedFilters', PlaceholderSavedFilters, 4],
 	['PlaceholderTableData', PlaceholderTableData, 42 + 6 * 4],
 	['PlaceholderTableSettings', PlaceholderTableSettings, 3 + 1 + 2 + 10 * 2 + 3],

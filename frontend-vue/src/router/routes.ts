@@ -89,7 +89,7 @@ export const routes: RouteRecordRaw[] = [
 	page('/dashboard/:connectionId', 'dashboard', auth),
 	page('/audit/:connectionId', 'audit', auth),
 	page('/dashboard/:connectionId/:tableName', 'table', auth),
-	page('/dashboard/:connectionId/:tableName/entry', 'row-edit', auth),
+	page('/dashboard/:connectionId/:tableName/entry', 'row-edit', { ...auth, hideFooter: true }),
 	page('/dashboard/:connectionId/:tableName/widgets', 'table-widgets', auth),
 	page('/dashboard/:connectionId/:tableName/settings', 'table-settings', auth),
 	page('/dashboard/:connectionId/:tableName/actions', 'table-actions', auth),

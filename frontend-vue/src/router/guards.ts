@@ -17,6 +17,8 @@ declare module 'vue-router' {
 		setup?: boolean;
 		/** Document title, set after navigation. Routes without one leave the title alone. */
 		title?: string;
+		/** Leave out the version footer, for pages with their own bottom-pinned panel. */
+		hideFooter?: boolean;
 	}
 }
 

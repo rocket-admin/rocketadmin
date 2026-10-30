@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // Port of AppComponent: the shell around every page.
 import { ref } from 'vue';
+import { useRoute } from 'vue-router';
 import AppHeader from '@/components/app/AppHeader.vue';
 import AppNavDrawer from '@/components/app/AppNavDrawer.vue';
 import AppSnackbars from '@/components/app/AppSnackbars.vue';
@@ -13,6 +14,7 @@ import { version } from '@/version';
 
 const session = useAppSession();
 const masterPassword = useMasterPasswordStore();
+const route = useRoute();
 const navOpen = ref(false);
 
 function logOut() {
@@ -29,7 +31,7 @@ function logOut() {
 			<!-- Keyed so entering a master password re-creates the page with the key in place. -->
 			<RouterView :key="masterPassword.pageReloadKey" />
 		</main>
-		<footer class="app-footer">&copy; 2026 Rocketadmin • v{{ version }}</footer>
+		<footer v-if="!route.meta.hideFooter" class="app-footer">&copy; 2026 Rocketadmin • v{{ version }}</footer>
 		<FeatureNotification
 			v-if="session.isFeatureNotificationShown.value"
 			@dismiss="session.dismissFeatureNotification"
