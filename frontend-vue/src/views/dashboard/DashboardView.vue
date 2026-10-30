@@ -158,10 +158,12 @@ function refreshAfterChange() {
 }
 
 async function getData() {
+	const id = connectionID.value;
 	let res: TableFolder[];
 	try {
-		res = await tables.fetchTablesFolders(connectionID.value);
+		res = await tables.fetchTablesFolders(id);
 	} catch (error) {
+		if (connectionID.value !== id) return;
 		isServerError.value = true;
 		serverError.value = {
 			abstract: (isApiError(error) && error.body?.message) || (error as Error).message,
@@ -172,6 +174,8 @@ async function getData() {
 		return;
 	}
 
+	// Switched to another connection while loading: that connection's own load takes over.
+	if (connectionID.value !== id) return;
 	tableFolders.value = res;
 	const all = res.find((item) => item.category_id === ALL_TABLES)?.tables || [];
 	if (all.length === 0) {
@@ -183,12 +187,15 @@ async function getData() {
 
 	formatTableNames();
 	stopRouteWatch?.();
-	stopRouteWatch = watch(routeTableName, onTableParam, { immediate: true });
+	stopRouteWatch = watch(routeTableName, (tableName) => onTableParam(tableName, id), { immediate: true });
 }
 
-/** paramMap: open the table of the URL, or redirect to the default (or first) table. */
-function onTableParam(tableName: string | null) {
-	if (!onDashboardRoute.value) return;
+/**
+ * paramMap: open the table of the URL, or redirect to the default (or first) table. Skipped once the
+ * route has moved to another connection: the tables loaded are still those of `loadedConnectionID`.
+ */
+function onTableParam(tableName: string | null, loadedConnectionID: string) {
+	if (!onDashboardRoute.value || connectionID.value !== loadedConnectionID) return;
 	if (tableName) {
 		selectedTableName.value = tableName;
 		setTable(tableName);

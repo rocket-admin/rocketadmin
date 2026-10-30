@@ -16,6 +16,27 @@ test.describe('connections', () => {
 		await expect(page.getByRole('table', { name: 'Customers' })).toBeVisible();
 	});
 
+	test('switches connections from the header without carrying the table over', async ({ page, backend }) => {
+		const shop = backend.state.connections[0];
+		backend.state.connections.push({ ...shop, id: 'conn-warehouse', title: 'Warehouse DB', database: 'warehouse' });
+		backend.state.tables['conn-warehouse'] = {
+			products: structuredClone(backend.state.tables[CONNECTION_ID].customers),
+		};
+
+		await page.goto(`/dashboard/${CONNECTION_ID}/orders`);
+		await expect(page.getByRole('table', { name: 'Orders' })).toBeVisible();
+
+		await page.getByRole('banner').getByRole('button', { name: 'Shop DB' }).click();
+		await page.getByRole('menuitem', { name: /Warehouse DB/ }).click();
+
+		await expect(page).toHaveURL(/\/dashboard\/conn-warehouse\/products$/);
+		await expect(page.getByRole('table', { name: 'Customers' })).toBeVisible();
+		const warehouseTables = backend
+			.callsTo('POST', '/table/rows/find/conn-warehouse')
+			.map((call) => call.query.tableName);
+		expect(warehouseTables).toEqual(['products']);
+	});
+
 	test('adds a PostgreSQL connection and runs the auto-configuration', async ({ page, backend }) => {
 		await page.goto('/connections-list');
 		await page.getByRole('link', { name: 'Add database' }).click();
