@@ -1463,9 +1463,12 @@ defineExpose({ loadRowsPage, searchString, sort });
 }
 
 .table-view__name {
+	overflow: hidden;
 	margin: 0;
 	font-size: var(--text-xl);
 	font-weight: var(--weight-semibold);
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .table-view__switcher,
@@ -1497,7 +1500,6 @@ defineExpose({ loadRowsPage, searchString, sort });
 }
 
 .table-view__bulk-actions,
-.table-view__actions-bar,
 .table-view__actions,
 .table-view__search-row,
 .table-view__search-buttons {
@@ -1507,16 +1509,22 @@ defineExpose({ loadRowsPage, searchString, sort });
 	gap: var(--space-2);
 }
 
+/* The search and the actions wrap as separate header items, so a narrow header (side panels open)
+   moves the actions onto their own row before the search ever drops under the table name. */
 .table-view__actions-bar {
-	flex: 1;
-	justify-content: space-between;
+	display: contents;
+}
+
+.table-view__search-row {
+	flex: 1 1 10rem;
 }
 
 .table-view__search {
 	display: flex;
 	align-items: center;
+	flex: 0 1 16rem;
 	gap: var(--space-1);
-	min-width: 16rem;
+	min-width: 10rem;
 	padding: 0 var(--space-2);
 	border: 1px solid var(--color-line);
 	border-radius: var(--radius-control);
@@ -1848,12 +1856,12 @@ defineExpose({ loadRowsPage, searchString, sort });
 	}
 
 	.table-view__search {
-		flex: 1;
+		flex: 1 1 100%;
 		min-width: 0;
 	}
 
 	.table-view__search-row {
-		width: 100%;
+		flex-basis: 100%;
 	}
 
 	.table-view__fab {
