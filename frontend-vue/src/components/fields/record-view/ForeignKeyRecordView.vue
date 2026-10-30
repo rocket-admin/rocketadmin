@@ -47,23 +47,29 @@ function onClick() {
 
 <template>
 	<RecordViewValue v-if="displayValue == null">—</RecordViewValue>
-	<RouterLink
-		v-else
-		:to="{ path: link ?? '', query: foreignKeyURLParams }"
-		class="foreign-key-record-view__link"
-		@click="onClick"
-	>
-		<RecordViewValue>{{ displayValue }}</RecordViewValue>
+	<span v-else class="foreign-key-record-view">
+		<RouterLink
+			:to="{ path: link ?? '', query: foreignKeyURLParams }"
+			class="foreign-key-record-view__link"
+			@click="onClick"
+		>
+			<RecordViewValue>{{ displayValue }}</RecordViewValue>
+		</RouterLink>
 		<UiIcon name="visibility" size="sm" />
-	</RouterLink>
+	</span>
 </template>
 
 <style scoped>
-.foreign-key-record-view__link {
-  display: flex;
+.foreign-key-record-view {
+  display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  text-decoration: none;
-  border-bottom: 1px solid var(--color-ink-soft);
+}
+
+.foreign-key-record-view__link {
+  min-width: 0;
+  text-decoration: underline;
+  text-decoration-color: var(--color-ink-soft);
+  text-underline-offset: 3px;
 }
 </style>

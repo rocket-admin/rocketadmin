@@ -297,6 +297,14 @@ function handleClose() {
 	font-weight: var(--weight-semibold);
 }
 
+.row-view__related-panel :deep(.ui-expansion-panel__toggle) {
+	padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3);
+}
+
+.row-view__related-panel :deep(.ui-expansion-panel__title) {
+	font-size: var(--text-sm);
+}
+
 .row-view__related-name {
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -304,9 +312,15 @@ function handleClose() {
 }
 
 .row-view__empty-mark {
+	flex: none;
 	margin-inline-start: var(--space-2);
+	padding: 0 var(--space-2);
+	border-radius: var(--radius-pill);
+	font-size: var(--text-2xs);
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
 	color: var(--color-muted);
-	font-size: var(--text-xs);
+	background: var(--color-paper-2);
 }
 
 .row-view__fields {
