@@ -567,7 +567,7 @@ function openIntercom() {
 .dashboard__content {
 	flex: 1;
 	min-width: 0;
-	padding: 0 var(--space-6) var(--space-6);
+	padding: var(--space-6);
 	overflow-y: auto;
 }
 
@@ -575,7 +575,7 @@ function openIntercom() {
 	display: flex;
 	flex-direction: column;
 	gap: var(--space-2);
-	margin: var(--space-6) 0 var(--space-4);
+	margin: 0 0 var(--space-4);
 }
 
 .dashboard__alerts:empty {
@@ -694,7 +694,7 @@ function openIntercom() {
 	}
 
 	.dashboard__content {
-		padding: 0 var(--space-4) var(--space-4);
+		padding: var(--space-4);
 	}
 
 	.dashboard__ai-config {

@@ -41,7 +41,12 @@ const backgroundColor = computed(() => {
 
 <style scoped>
 .select-display__value {
-  padding: var(--space-05) var(--space-1);
+  display: inline-block;
+  max-width: 100%;
+  padding: var(--space-05) var(--space-2);
+  overflow: hidden;
   border-radius: var(--radius-control);
+  text-overflow: ellipsis;
+  vertical-align: middle;
 }
 </style>

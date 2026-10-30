@@ -46,7 +46,7 @@ function toPoint(value: PointValue | string | null | undefined): PointValue | nu
 
 <template>
 	<div v-if="hasValue" class="point-filter">
-		<UiField :label="`${normalizedLabel} X coordinate`" :required="required">
+		<UiField floating-label :label="`${normalizedLabel} X coordinate`" :required="required">
 			<UiInput
 				ref="input"
 				type="number"
@@ -56,7 +56,7 @@ function toPoint(value: PointValue | string | null | undefined): PointValue | nu
 				@update:model-value="onInput('x', $event)"
 			/>
 		</UiField>
-		<UiField :label="`${normalizedLabel} Y coordinate`" :required="required">
+		<UiField floating-label :label="`${normalizedLabel} Y coordinate`" :required="required">
 			<UiInput
 				type="number"
 				:name="`${label}-${fieldKey}-y`"

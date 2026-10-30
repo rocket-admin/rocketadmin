@@ -198,7 +198,7 @@ function getModifiedRow(row: Record<string, unknown>): Record<string, unknown> {
 
 <template>
 	<div class="foreign-key-filter">
-		<UiField :label="normalizedLabel" :required="required">
+		<UiField floating-label :label="normalizedLabel" :required="required">
 			<UiAutocomplete
 				ref="input"
 				:model-value="currentDisplayedString"

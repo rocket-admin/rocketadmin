@@ -389,7 +389,10 @@ function later(fn: () => void, delay: number) {
 						:aria-expanded="helpOpenFor === key ? 'true' : 'false'"
 						@click="toggleHelp(key)"
 					/>
-					<span v-tooltip.top="dynamicColumn === key ? 'Disable editing' : 'Enable editing'">
+					<span
+						v-tooltip.top="dynamicColumn === key ? 'Disable editing' : 'Enable editing'"
+						class="condition-card__editable-toggle"
+					>
 						<UiSwitch
 							:model-value="dynamicColumn === key"
 							size="sm"
@@ -552,6 +555,11 @@ function later(fn: () => void, delay: number) {
 .condition-card__editable-label {
   font-size: var(--text-xs);
   color: var(--color-muted);
+}
+
+.condition-card__editable-toggle {
+  display: inline-flex;
+  align-items: center;
 }
 
 /* The animated "quick editing" example: the toggle switches on, the chip turns into an input. */

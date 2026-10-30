@@ -48,7 +48,7 @@ function onSelect(value: string | string[] | null) {
 <style scoped>
 .filter-comparator-row {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: var(--space-2);
   width: 100%;
 }

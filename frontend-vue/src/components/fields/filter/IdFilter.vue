@@ -43,7 +43,7 @@ function onInput(value: string) {
 </script>
 
 <template>
-	<UiField class="id-filter" :label="normalizedLabel" :required="required" :error="error">
+	<UiField floating-label class="id-filter" :label="normalizedLabel" :required="required" :error="error">
 		<UiInput
 			ref="input"
 			v-custom-validity="patternMessage"

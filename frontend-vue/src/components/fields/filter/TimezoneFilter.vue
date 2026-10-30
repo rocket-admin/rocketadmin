@@ -35,7 +35,7 @@ function onChange(value: string | null | (string | null)[]) {
 </script>
 
 <template>
-	<UiField class="timezone-filter" :label="normalizedLabel" :required="required">
+	<UiField floating-label class="timezone-filter" :label="normalizedLabel" :required="required">
 		<!-- An empty placeholder for a non-nullable column, so nothing shows as picked before a choice
 		     (mat-select's empty state); nullable columns have the real null option instead. -->
 		<UiSelect

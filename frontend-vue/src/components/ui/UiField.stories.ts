@@ -56,6 +56,9 @@ export const WithHintAndError: Story = {
 
 export const Required: Story = { args: { required: true } };
 
+/** The label sits on the control's top border — for dense rows such as the filters dialog. */
+export const FloatingLabel: Story = { args: { floatingLabel: true } };
+
 export const Disabled: Story = {
 	render: (args) => ({
 		components: { UiField, UiInput },
@@ -121,6 +124,7 @@ export const AllVariants: Story = {
         <UiField label="Required" required><UiInput /></UiField>
         <UiField label="Disabled"><UiInput model-value="Locked" disabled /></UiField>
         <UiField label="Small control"><UiInput size="sm" placeholder="Dense row" /></UiField>
+        <UiField label="Floating label" floating-label><UiInput /></UiField>
       </form>
     `,
 	}),

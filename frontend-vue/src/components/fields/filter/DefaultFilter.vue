@@ -144,7 +144,7 @@ function onBetweenUpperChange(next: unknown) {
 		:label="`${normalizedLabel} comparator`"
 		@update:model-value="onComparatorSelect"
 	>
-		<UiField v-if="comparator === 'in'" :label="`${normalizedLabel} (comma-separated)`" :required="required">
+		<UiField floating-label v-if="comparator === 'in'" :label="`${normalizedLabel} (comma-separated)`" :required="required">
 			<UiInput
 				ref="inInput"
 				:name="`${label}-${fieldKey}-in`"

@@ -12,6 +12,7 @@
  * to the `<dialog>` itself, which is the box they mean. See _Foundations → Conventions_.
  */
 import { computed, nextTick, onBeforeUnmount, ref, useId, watch } from 'vue';
+import UiIconButton from './UiIconButton.vue';
 
 defineOptions({ inheritAttrs: false });
 
@@ -120,15 +121,13 @@ const classes = computed(() => ['ui-modal', `ui-modal--size-${props.size}`]);
 		>
 			<header class="ui-modal__head">
 				<h2 :id="titleId" class="ui-modal__title">{{ title }}</h2>
-				<button
+				<UiIconButton
 					v-if="dismissible"
-					type="button"
 					class="ui-modal__close"
-					aria-label="Close dialog"
+					icon="close"
+					label="Close dialog"
 					@click="requestClose"
-				>
-					<span aria-hidden="true">×</span>
-				</button>
+				/>
 			</header>
 
 			<div class="ui-modal__body"><slot /></div>
@@ -193,31 +192,9 @@ const classes = computed(() => ['ui-modal', `ui-modal--size-${props.size}`]);
   color: var(--color-ink);
 }
 
+/* A 40px hit area, pulled into the panel's padding so it doesn't push the title down or inward. */
 .ui-modal__close {
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 1.75rem;
-  height: 1.75rem;
-  padding: 0;
-  border: none;
-  border-radius: var(--radius-control);
-  background: transparent;
-  font-size: var(--text-md);
-  line-height: 1;
-  color: var(--color-muted);
-  cursor: pointer;
-  transition: background var(--motion-fast) var(--ease-out);
-}
-
-.ui-modal__close:hover {
-  background: var(--color-paper);
-  color: var(--color-ink);
-}
-
-.ui-modal__close:focus-visible {
-  outline: none;
-  box-shadow: var(--ring-focus);
+  margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) 0;
 }
 
 .ui-modal__body {

@@ -88,7 +88,7 @@ function currentHex(): string {
 		:label="`${normalizedLabel} comparator`"
 		@update:model-value="onFilterModeChange"
 	>
-		<UiField v-if="filterMode !== 'empty'" :label="`${normalizedLabel} (${encoding})`" :required="required" :error="error">
+		<UiField floating-label v-if="filterMode !== 'empty'" :label="`${normalizedLabel} (${encoding})`" :required="required" :error="error">
 			<UiInput
 				ref="input"
 				v-custom-validity="validationMessage"

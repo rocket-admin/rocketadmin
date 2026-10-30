@@ -36,7 +36,7 @@ function onClearPasswordChange(checked: boolean) {
 
 <template>
 	<div class="password-filter">
-		<UiField :label="normalizedLabel" :required="required" hint="To keep password the same keep this field blank.">
+		<UiField floating-label :label="normalizedLabel" :required="required" hint="To keep password the same keep this field blank.">
 			<UiInput
 				ref="input"
 				type="password"

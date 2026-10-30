@@ -110,7 +110,7 @@ function displayFn(country: CountryWithFlag): string {
 		:label="`${normalizedLabel} comparator`"
 		@update:model-value="onFilterModeChange"
 	>
-		<UiField v-if="filterMode === 'country'" :label="`${normalizedLabel} (country)`" :required="required">
+		<UiField floating-label v-if="filterMode === 'country'" :label="`${normalizedLabel} (country)`" :required="required">
 			<UiAutocomplete
 				ref="input"
 				:model-value="countryText"
@@ -127,7 +127,7 @@ function displayFn(country: CountryWithFlag): string {
 				</template>
 			</UiAutocomplete>
 		</UiField>
-		<UiField v-else-if="filterMode !== 'empty'" :label="normalizedLabel" :required="required">
+		<UiField floating-label v-else-if="filterMode !== 'empty'" :label="normalizedLabel" :required="required">
 			<UiInput
 				ref="input"
 				type="text"

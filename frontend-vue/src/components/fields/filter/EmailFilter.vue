@@ -77,7 +77,7 @@ function onValueChange(value: string) {
 		:label="`${normalizedLabel} comparator`"
 		@update:model-value="onFilterModeChange"
 	>
-		<UiField v-if="filterMode === 'domain'" :label="`${normalizedLabel} (domain)`" :required="required">
+		<UiField floating-label v-if="filterMode === 'domain'" :label="`${normalizedLabel} (domain)`" :required="required">
 			<div class="email-filter__domain">
 				<span class="email-filter__prefix" aria-hidden="true">@</span>
 				<UiInput
@@ -92,7 +92,7 @@ function onValueChange(value: string) {
 				/>
 			</div>
 		</UiField>
-		<UiField v-else-if="filterMode !== 'empty'" :label="normalizedLabel" :required="required">
+		<UiField floating-label v-else-if="filterMode !== 'empty'" :label="normalizedLabel" :required="required">
 			<UiInput
 				ref="input"
 				type="text"

@@ -502,6 +502,7 @@ defineExpose({
 						:is="dynamicWidget(dynamicColumn.column)"
 						v-if="dynamicWidget(dynamicColumn.column)"
 						:key="`${selectedFilterSetId}-${dynamicColumn.column}`"
+						class="dynamic-column__value"
 						v-bind="dynamicWidgetInputs(dynamicColumn.column)"
 						@field-change="updateDynamicColumnValue"
 						@comparator-change="updateDynamicColumnComparator"
@@ -521,6 +522,7 @@ defineExpose({
 						:is="columnFilterComponent(ctx, dynamicColumn.column)"
 						v-if="columnFilterComponent(ctx, dynamicColumn.column)"
 						:key="`${selectedFilterSetId}-${dynamicColumn.column}`"
+						class="dynamic-column__value"
 						v-bind="dynamicValueInputs(dynamicColumn.column)"
 						@field-change="updateDynamicColumnValue"
 					/>
@@ -653,6 +655,18 @@ defineExpose({
 
 .dynamic-column__comparator-text {
   display: none;
+}
+
+/* Controls are full-width by default, which would wrap each one onto its own line. */
+.dynamic-column__comparator {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 9.5rem;
+}
+
+.dynamic-column__value {
+  flex: 1 1 15rem;
+  min-width: 0;
 }
 
 .saved-filters__static {

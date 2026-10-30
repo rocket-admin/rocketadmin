@@ -63,7 +63,7 @@ function onCountrySelected(option: AutocompleteOption<CountryOption>) {
 </script>
 
 <template>
-	<UiField class="country-filter" :label="normalizedLabel" :required="required">
+	<UiField floating-label class="country-filter" :label="normalizedLabel" :required="required">
 		<UiAutocomplete
 			ref="input"
 			:model-value="text"

@@ -63,7 +63,7 @@ function onSelectionChange(values: OptionValue | OptionValue[] | null) {
 </script>
 
 <template>
-	<UiField class="select-filter" :label="normalizedLabel" :required="required">
+	<UiField floating-label class="select-filter" :label="normalizedLabel" :required="required">
 		<UiSelect
 			ref="input"
 			multiple

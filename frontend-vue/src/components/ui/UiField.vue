@@ -27,8 +27,10 @@ const props = withDefaults(
 		/** Validation message. Its presence is what sets `aria-invalid` on the control. */
 		error?: string;
 		required?: boolean;
+		/** Label sits on the control's top border instead of above it, for dense rows like filters. */
+		floatingLabel?: boolean;
 	}>(),
-	{ required: false },
+	{ required: false, floatingLabel: false },
 );
 
 // useId() rather than a counter: deterministic per instance, stable across re-renders, and unique
@@ -40,6 +42,8 @@ const hintId = `${uid}-hint`;
 const errorId = `${uid}-error`;
 
 const invalid = computed(() => Boolean(props.error));
+
+const classes = computed(() => ['ui-field', { 'ui-field--floating-label': props.floatingLabel }]);
 
 /* Both ids when both are present — an error must not silence the hint, since the hint usually
    states the rule the error is complaining about. */
@@ -58,7 +62,7 @@ provide(FIELD_CONTEXT, {
 </script>
 
 <template>
-	<div class="ui-field">
+	<div :class="classes">
 		<label :id="labelId" class="ui-field__label" :for="inputId">
 			{{ label }}
 			<span v-if="required" class="ui-field__required" aria-hidden="true">*</span>
@@ -85,6 +89,28 @@ provide(FIELD_CONTEXT, {
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
   color: var(--color-ink-soft);
+}
+
+/* The label overlaps the control's top border; its surface background cuts the border line. Only
+   the label leaves the flow — hint and error stay under the control. */
+.ui-field--floating-label {
+  position: relative;
+}
+
+.ui-field--floating-label .ui-field__label {
+  position: absolute;
+  top: 0;
+  inset-inline-start: var(--space-2);
+  z-index: 1;
+  max-width: calc(100% - var(--space-4));
+  padding: 0 var(--space-1);
+  overflow: hidden;
+  font-size: var(--text-xs);
+  line-height: 1;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  background: var(--color-surface);
+  transform: translateY(-50%);
 }
 
 /* Decorative: `required` is already on the control, where AT reads it. */

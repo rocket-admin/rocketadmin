@@ -35,7 +35,7 @@ function onInput(value: string) {
 </script>
 
 <template>
-	<UiField class="long-text-filter" :label="normalizedLabel" :required="required">
+	<UiField floating-label class="long-text-filter" :label="normalizedLabel" :required="required">
 		<UiTextarea
 			ref="input"
 			class="long-text-filter__textarea"

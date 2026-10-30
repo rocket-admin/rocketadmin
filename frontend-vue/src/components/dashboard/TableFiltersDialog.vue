@@ -324,15 +324,19 @@ function definedComparators(comparators: Record<string, string | undefined>): Re
   color: var(--color-muted);
 }
 
+/* Separates the picker from the filters it adds, on top of the column gap. */
+.table-filters__select {
+  margin-bottom: var(--space-4);
+}
+
 .table-filters__line {
   display: grid;
   grid-template-columns: minmax(6rem, 10rem) minmax(0, 1fr) auto;
-  align-items: start;
+  align-items: center;
   gap: var(--space-3);
 }
 
 .table-filters__column {
-  padding-top: var(--space-2);
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
   color: var(--color-ink);
@@ -354,7 +358,6 @@ function definedComparators(comparators: Record<string, string | undefined>): Re
 
   .table-filters__column {
     grid-column: 1 / -1;
-    padding-top: 0;
   }
 }
 </style>

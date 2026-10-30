@@ -84,7 +84,7 @@ function parseIntervalString(text: string): Interval {
 		<span class="time-interval-filter__label">
 			{{ normalizedLabel }} <span v-if="required" aria-hidden="true">*</span>
 		</span>
-		<UiField v-for="(unit, index) in UNITS" :key="unit" :label="unit" :required="required">
+		<UiField floating-label v-for="(unit, index) in UNITS" :key="unit" :label="unit" :required="required">
 			<UiInput
 				:ref="(el) => setUnitRef(el, index)"
 				type="number"

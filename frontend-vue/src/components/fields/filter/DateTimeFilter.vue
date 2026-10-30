@@ -209,7 +209,7 @@ function computePresetValue(mode: string): string {
 	>
 		<div v-if="filterMode === 'between'" class="date-time-filter__between">
 			<div class="date-time-filter__couple">
-				<UiField :label="`${normalizedLabel} (from date)`" :required="required">
+				<UiField floating-label :label="`${normalizedLabel} (from date)`" :required="required">
 					<UiInput
 						ref="input"
 						type="date"
@@ -219,7 +219,7 @@ function computePresetValue(mode: string): string {
 						@update:model-value="onBetweenChange('lowerDate', $event)"
 					/>
 				</UiField>
-				<UiField label="(from time)" :required="required">
+				<UiField floating-label label="(from time)" :required="required">
 					<UiInput
 						type="time"
 						:name="`${label}-${fieldKey}-lower-time`"
@@ -230,7 +230,7 @@ function computePresetValue(mode: string): string {
 				</UiField>
 			</div>
 			<div class="date-time-filter__couple">
-				<UiField :label="`${normalizedLabel} (to date)`" :required="required">
+				<UiField floating-label :label="`${normalizedLabel} (to date)`" :required="required">
 					<UiInput
 						type="date"
 						:name="`${label}-${fieldKey}-upper-date`"
@@ -239,7 +239,7 @@ function computePresetValue(mode: string): string {
 						@update:model-value="onBetweenChange('upperDate', $event)"
 					/>
 				</UiField>
-				<UiField label="(to time)" :required="required">
+				<UiField floating-label label="(to time)" :required="required">
 					<UiInput
 						type="time"
 						:name="`${label}-${fieldKey}-upper-time`"
@@ -250,7 +250,7 @@ function computePresetValue(mode: string): string {
 				</UiField>
 			</div>
 		</div>
-		<UiField
+		<UiField floating-label
 			v-else-if="filterMode === 'in'"
 			:label="`${normalizedLabel} (comma-separated ISO datetimes)`"
 			:required="required"
@@ -265,7 +265,7 @@ function computePresetValue(mode: string): string {
 			/>
 		</UiField>
 		<div v-else-if="!isPresetMode()" class="date-time-filter__couple">
-			<UiField :label="`${normalizedLabel} (date)`" :required="required">
+			<UiField floating-label :label="`${normalizedLabel} (date)`" :required="required">
 				<UiInput
 					ref="input"
 					type="date"
@@ -277,7 +277,7 @@ function computePresetValue(mode: string): string {
 					@update:model-value="onDateChange"
 				/>
 			</UiField>
-			<UiField :label="`${normalizedLabel} (time)`" :required="required">
+			<UiField floating-label :label="`${normalizedLabel} (time)`" :required="required">
 				<UiInput
 					type="time"
 					:name="`${label}-${fieldKey}-time`"

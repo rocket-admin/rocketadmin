@@ -34,7 +34,7 @@ function onInput(value: string) {
 </script>
 
 <template>
-	<UiField class="number-filter" :label="normalizedLabel" :required="required">
+	<UiField floating-label class="number-filter" :label="normalizedLabel" :required="required">
 		<UiInput
 			ref="input"
 			type="number"

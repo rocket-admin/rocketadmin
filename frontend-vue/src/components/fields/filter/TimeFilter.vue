@@ -32,7 +32,7 @@ function onInput(value: string) {
 </script>
 
 <template>
-	<UiField class="time-filter" :label="normalizedLabel" :required="required">
+	<UiField floating-label class="time-filter" :label="normalizedLabel" :required="required">
 		<UiInput
 			ref="input"
 			type="time"

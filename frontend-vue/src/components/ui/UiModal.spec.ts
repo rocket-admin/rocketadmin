@@ -94,6 +94,14 @@ describe('UiModal', () => {
 		expect(wrapper.emitted('close')).toHaveLength(1);
 	});
 
+	it('gives the close button an accessible name and native button semantics', () => {
+		const close = mountModal().get('.ui-modal__close');
+
+		expect(close.element.tagName).toBe('BUTTON');
+		expect(close.attributes('type')).toBe('button');
+		expect(close.attributes('aria-label')).toBe('Close dialog');
+	});
+
 	it('dismisses on Escape, which arrives as the native cancel event', async () => {
 		const wrapper = mountModal();
 

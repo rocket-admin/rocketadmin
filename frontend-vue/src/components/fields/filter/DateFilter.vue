@@ -28,7 +28,7 @@ function onDateChange(value: string) {
 </script>
 
 <template>
-	<UiField class="date-filter" :label="normalizedLabel" :required="required">
+	<UiField floating-label class="date-filter" :label="normalizedLabel" :required="required">
 		<UiInput
 			ref="input"
 			type="date"

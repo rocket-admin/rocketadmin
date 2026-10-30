@@ -102,6 +102,16 @@ describe('UiField + UiInput', () => {
 		});
 	});
 
+	describe('floating label', () => {
+		it('adds the modifier only when asked, keeping the label linked to the control', () => {
+			expect(mountField().classes()).not.toContain('ui-field--floating-label');
+
+			const wrapper = mountField({ floatingLabel: true });
+			expect(wrapper.classes()).toContain('ui-field--floating-label');
+			expect(wrapper.find('label').attributes('for')).toBe(wrapper.find('input').attributes('id'));
+		});
+	});
+
 	describe('scoped slot', () => {
 		it('exposes the wiring so a non-UiInput control can use it', () => {
 			// This is what lets a field wrap a <select>, a <textarea> or the Turnstile widget.
