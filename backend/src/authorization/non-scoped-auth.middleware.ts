@@ -13,10 +13,10 @@ import { Repository } from 'typeorm';
 import { LogOutEntity } from '../entities/log-out/log-out.entity.js';
 import { Messages } from '../exceptions/text/messages.js';
 import { isTest } from '../helpers/app/is-test.js';
-import { Constants } from '../helpers/constants/constants.js';
 import { isObjectEmpty } from '../helpers/is-object-empty.js';
 import { appConfig } from '../shared/config/app-config.js';
 import { IRequestWithCognitoInfo } from './cognito-decoded.interface.js';
+import { getSessionTokenFromRequest } from './utils/session-token.js';
 
 @Injectable()
 export class NonScopedAuthMiddleware implements NestMiddleware {
@@ -28,7 +28,7 @@ export class NonScopedAuthMiddleware implements NestMiddleware {
 		console.log(`auth middleware triggered ->: ${new Date().toISOString()}`);
 		let token: string | undefined;
 		try {
-			token = req.cookies[Constants.JWT_COOKIE_KEY_NAME];
+			token = getSessionTokenFromRequest(req);
 		} catch (_e) {
 			if (!isTest()) {
 				throw new UnauthorizedException('JWT verification failed');
