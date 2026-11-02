@@ -293,6 +293,7 @@ function setEmails(value: string | string[] | null) {
 							:model-value="actionMethod"
 							:options="methodOptions"
 							label="Action method"
+							class="table-actions__method"
 							@update:model-value="rules.selectActionMethod"
 						/>
 
@@ -436,13 +437,17 @@ function setEmails(value: string | string[] | null) {
 }
 
 .table-actions__badge--when {
-	color: var(--color-accent-ink);
+	color: var(--color-surface);
 	background: var(--color-accent);
 }
 
 .table-actions__badge--then {
 	color: var(--color-paper);
 	background: var(--color-ink);
+}
+
+.table-actions__method {
+	align-self: flex-start;
 }
 
 .table-actions__pills {

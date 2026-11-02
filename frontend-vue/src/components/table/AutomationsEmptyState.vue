@@ -160,7 +160,7 @@ const actions = [
 }
 
 .automations-empty__badge--when {
-	color: var(--color-accent-ink);
+	color: var(--color-surface);
 	background: var(--color-accent);
 }
 
