@@ -124,6 +124,17 @@ async function loadCollapsedState(): Promise<void> {
 	padding: 0 var(--space-2);
 }
 
+/* Collapsed, the item shows the icon alone, centered in the rail. */
+.dashboards-sidebar--collapsed :deep(.ui-list-item__content) {
+	justify-content: center;
+	gap: 0;
+	padding-inline: 0;
+}
+
+.dashboards-sidebar--collapsed :deep(.ui-list-item__body) {
+	flex: none;
+}
+
 .dashboards-sidebar__item--active :deep(.ui-list-item__leading) {
 	color: var(--color-accent);
 }

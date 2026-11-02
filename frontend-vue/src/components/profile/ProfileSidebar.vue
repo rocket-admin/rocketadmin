@@ -163,6 +163,17 @@ function toggleCollapsed() {
 	white-space: nowrap;
 }
 
+/* Collapsed, the item shows the icon alone, centered in the rail. */
+.profile-sidebar--collapsed :deep(.ui-list-item__content) {
+	justify-content: center;
+	gap: 0;
+	padding-inline: 0;
+}
+
+.profile-sidebar--collapsed :deep(.ui-list-item__body) {
+	flex: none;
+}
+
 .profile-sidebar__item--active :deep(.ui-list-item__leading) {
 	color: var(--color-accent);
 }
