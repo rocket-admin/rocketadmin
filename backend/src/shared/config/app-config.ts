@@ -142,6 +142,7 @@ export class AppConfig {
 			globalPrefix: readString('GLOBAL_PREFIX') ?? DEFAULT_GLOBAL_PREFIX,
 			logLevel: readString('LOG_LEVEL') ?? DEFAULT_LOG_LEVEL,
 			domainAddress: readString('APP_DOMAIN_ADDRESS') ?? DEFAULT_APP_DOMAIN_ADDRESS,
+			// A comma-separated list of registrable domains (plan 84). The saas must carry the same value.
 			cookieDomain: readString('ROCKETADMIN_COOKIE_DOMAIN'),
 		});
 
