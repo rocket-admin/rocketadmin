@@ -925,11 +925,6 @@ defineExpose({ loadRowsPage, searchString, sort });
 				</div>
 
 				<div class="table-view__actions">
-					<UiButton variant="ghost" class="table-view__ai-insights" @click="handleViewAIpanel">
-						<template #leading><img :src="AI_ROCKET_ICON" alt="" class="table-view__ai-icon"></template>
-						<span class="table-view__action-label">AI insights</span>
-					</UiButton>
-
 					<UiButton
 						v-if="canAddRow && (!tableData.isEmptyTable || searchString || filtersCount)"
 						variant="ghost"
@@ -1041,6 +1036,11 @@ defineExpose({ loadRowsPage, searchString, sort });
 							</UiMenuItem>
 						</template>
 					</UiMenu>
+
+					<UiButton variant="ghost" class="table-view__ai-insights" @click="handleViewAIpanel">
+						<template #leading><img :src="AI_ROCKET_ICON" alt="" class="table-view__ai-icon"></template>
+						<span class="table-view__action-label">AI insights</span>
+					</UiButton>
 				</div>
 			</div>
 		</div>
