@@ -4,6 +4,7 @@ import { SaaSAuthMiddleware } from '../../authorization/saas-auth.middleware.js'
 import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
 import { AgentsController } from './agents.controller.js';
+import { DeleteAiRowsUseCase } from './use-cases/delete-ai-rows.use.case.js';
 import { ExecuteAiAggregationPipelineUseCase } from './use-cases/execute-ai-aggregation-pipeline.use.case.js';
 import { ExecuteAiRawQueryUseCase } from './use-cases/execute-ai-raw-query.use.case.js';
 import { GetAiConnectionContextUseCase } from './use-cases/get-ai-connection-context.use.case.js';
@@ -11,9 +12,11 @@ import { GetAiConnectionTablesUseCase } from './use-cases/get-ai-connection-tabl
 import { GetAiSampleRowsUseCase } from './use-cases/get-ai-sample-rows.use.case.js';
 import { GetAiTableStructureUseCase } from './use-cases/get-ai-table-structure.use.case.js';
 import { GetCompanySubscriptionInfoUseCase } from './use-cases/get-company-subscription-info.use.case.js';
+import { InsertAiRowsUseCase } from './use-cases/insert-ai-rows.use.case.js';
 import { ScanAndCreateSettingsUseCase } from './use-cases/scan-and-create-settings.use.case.js';
 import { SetPublicPermissionsUseCase } from './use-cases/set-public-permissions.use.case.js';
 import { SetSiteRuntimePolicyUseCase } from './use-cases/set-site-runtime-policy.use.case.js';
+import { UpdateAiRowsUseCase } from './use-cases/update-ai-rows.use.case.js';
 import { ValidateConnectionEditUseCase } from './use-cases/validate-connection-edit.use.case.js';
 import { ValidateTableAiRequestUseCase } from './use-cases/validate-table-ai-request.use.case.js';
 import { ValidateUserTokenUseCase } from './use-cases/validate-user-token.use.case.js';
@@ -76,6 +79,18 @@ import { ValidateUserTokenUseCase } from './use-cases/validate-user-token.use.ca
 		{
 			provide: UseCaseType.AGENTS_GET_COMPANY_SUBSCRIPTION_INFO,
 			useClass: GetCompanySubscriptionInfoUseCase,
+		},
+		{
+			provide: UseCaseType.AGENTS_INSERT_AI_ROWS,
+			useClass: InsertAiRowsUseCase,
+		},
+		{
+			provide: UseCaseType.AGENTS_UPDATE_AI_ROWS,
+			useClass: UpdateAiRowsUseCase,
+		},
+		{
+			provide: UseCaseType.AGENTS_DELETE_AI_ROWS,
+			useClass: DeleteAiRowsUseCase,
 		},
 	],
 	controllers: [AgentsController],

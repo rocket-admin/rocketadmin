@@ -12,6 +12,9 @@ import {
 	AiConnectionContextRO,
 	AiConnectionTablesRO,
 	AiQueryResultRO,
+	AiRowsDeletedRO,
+	AiRowsInsertedRO,
+	AiRowsUpdatedRO,
 	AiSampleRowsRO,
 	CompanySubscriptionInfoRO,
 	PermissionAllowedRO,
@@ -21,16 +24,20 @@ import {
 } from './data-structures/agents-responses.ds.js';
 import {
 	AiDataRequestBaseDto,
+	DeleteAiRowsDto,
 	ExecuteAiAggregationPipelineDto,
 	ExecuteAiRawQueryDto,
 	GetAiSampleRowsDto,
 	GetAiTableStructureDto,
+	InsertAiRowsDto,
+	UpdateAiRowsDto,
 } from './dto/agents-ai-data.dtos.js';
 import { ValidateConnectionEditDto, ValidateTableAiRequestDto, ValidateUserTokenDto } from './dto/agents-auth.dtos.js';
 import { GetCompanySubscriptionInfoDto } from './dto/agents-company.dtos.js';
 import { SetAgentsPublicPermissionsDto } from './dto/agents-public-permissions.dtos.js';
 import { SetSiteRuntimePolicyDto } from './dto/agents-site-runtime-policy.dtos.js';
 import {
+	IDeleteAiRows,
 	IExecuteAiAggregationPipeline,
 	IExecuteAiRawQuery,
 	IGetAiConnectionContext,
@@ -38,9 +45,11 @@ import {
 	IGetAiSampleRows,
 	IGetAiTableStructure,
 	IGetCompanySubscriptionInfo,
+	IInsertAiRows,
 	IScanAndCreateSettings,
 	ISetPublicPermissions,
 	ISetSiteRuntimePolicy,
+	IUpdateAiRows,
 	IValidateConnectionEdit,
 	IValidateTableAiRequest,
 	IValidateUserToken,
@@ -80,6 +89,12 @@ export class AgentsController {
 		private readonly scanAndCreateSettingsUseCase: IScanAndCreateSettings,
 		@Inject(UseCaseType.AGENTS_GET_COMPANY_SUBSCRIPTION_INFO)
 		private readonly getCompanySubscriptionInfoUseCase: IGetCompanySubscriptionInfo,
+		@Inject(UseCaseType.AGENTS_INSERT_AI_ROWS)
+		private readonly insertAiRowsUseCase: IInsertAiRows,
+		@Inject(UseCaseType.AGENTS_UPDATE_AI_ROWS)
+		private readonly updateAiRowsUseCase: IUpdateAiRows,
+		@Inject(UseCaseType.AGENTS_DELETE_AI_ROWS)
+		private readonly deleteAiRowsUseCase: IDeleteAiRows,
 	) {}
 
 	@ApiOperation({ summary: 'Validate an end-user JWT on behalf of the agents microservice' })
@@ -259,6 +274,88 @@ export class AgentsController {
 				masterPassword: body.masterPassword ?? null,
 				tableName: body.tableName,
 				pipeline: body.pipeline,
+			},
+			InTransactionEnum.OFF,
+		);
+	}
+
+	@ApiOperation({
+		summary: 'Insert rows on behalf of a user — SiteNova chat data agent (sitenova plan 85)',
+		description:
+			'Re-checks Cedar table:add for the given user, validates each row against the table structure, inserts ' +
+			'the rows one by one (stops at the first failure and reports how many went in), writes the audit log and ' +
+			'fires the ADD_ROW table actions. At most 100 rows per call.',
+	})
+	@ApiResponse({ status: 201, type: AiRowsInsertedRO })
+	@ApiBody({ type: InsertAiRowsDto })
+	@Timeout(!isTest() ? TimeoutDefaults.EXTENDED : TimeoutDefaults.EXTENDED_TEST)
+	@Post('/ai/data/:connectionId/rows/insert')
+	public async insertAiRows(
+		@SlugUuid('connectionId') connectionId: string,
+		@Body() body: InsertAiRowsDto,
+	): Promise<AiRowsInsertedRO> {
+		return await this.insertAiRowsUseCase.execute(
+			{
+				connectionId,
+				userId: body.userId,
+				masterPassword: body.masterPassword ?? null,
+				tableName: body.tableName,
+				rows: body.rows,
+			},
+			InTransactionEnum.OFF,
+		);
+	}
+
+	@ApiOperation({
+		summary: 'Update rows by primary key on behalf of a user — SiteNova chat data agent (sitenova plan 85)',
+		description:
+			'Re-checks Cedar table:edit for the given user, applies one set of new values to every listed primary key ' +
+			'(a key that names no row refuses the whole call before any write), writes the audit log and fires the ' +
+			'UPDATE_ROW table actions. At most 100 keys per call.',
+	})
+	@ApiResponse({ status: 201, type: AiRowsUpdatedRO })
+	@ApiBody({ type: UpdateAiRowsDto })
+	@Timeout(!isTest() ? TimeoutDefaults.EXTENDED : TimeoutDefaults.EXTENDED_TEST)
+	@Post('/ai/data/:connectionId/rows/update')
+	public async updateAiRows(
+		@SlugUuid('connectionId') connectionId: string,
+		@Body() body: UpdateAiRowsDto,
+	): Promise<AiRowsUpdatedRO> {
+		return await this.updateAiRowsUseCase.execute(
+			{
+				connectionId,
+				userId: body.userId,
+				masterPassword: body.masterPassword ?? null,
+				tableName: body.tableName,
+				primaryKeys: body.primaryKeys,
+				newValues: body.newValues,
+			},
+			InTransactionEnum.OFF,
+		);
+	}
+
+	@ApiOperation({
+		summary: 'Delete rows by primary key on behalf of a user — SiteNova chat data agent (sitenova plan 85)',
+		description:
+			'Re-checks Cedar table:delete for the given user, deletes every listed primary key in one statement (a key ' +
+			'that names no row refuses the whole call before any write), writes the audit log and fires the DELETE_ROW ' +
+			'table actions. At most 100 keys per call.',
+	})
+	@ApiResponse({ status: 201, type: AiRowsDeletedRO })
+	@ApiBody({ type: DeleteAiRowsDto })
+	@Timeout(!isTest() ? TimeoutDefaults.EXTENDED : TimeoutDefaults.EXTENDED_TEST)
+	@Post('/ai/data/:connectionId/rows/delete')
+	public async deleteAiRows(
+		@SlugUuid('connectionId') connectionId: string,
+		@Body() body: DeleteAiRowsDto,
+	): Promise<AiRowsDeletedRO> {
+		return await this.deleteAiRowsUseCase.execute(
+			{
+				connectionId,
+				userId: body.userId,
+				masterPassword: body.masterPassword ?? null,
+				tableName: body.tableName,
+				primaryKeys: body.primaryKeys,
 			},
 			InTransactionEnum.OFF,
 		);

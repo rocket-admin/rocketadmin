@@ -1,14 +1,17 @@
 import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import {
 	AiDataRequestDs,
+	DeleteAiRowsDs,
 	ExecuteAiAggregationPipelineDs,
 	ExecuteAiRawQueryDs,
 	GetAiSampleRowsDs,
 	GetAiTableStructureDs,
 	GetCompanySubscriptionInfoDs,
+	InsertAiRowsDs,
 	ScanAndCreateSettingsDs,
 	SetPublicPermissionsDs,
 	SetSiteRuntimePolicyDs,
+	UpdateAiRowsDs,
 	ValidateConnectionEditDs,
 	ValidateTableAiRequestDs,
 	ValidateUserTokenDs,
@@ -17,6 +20,9 @@ import {
 	AiConnectionContextRO,
 	AiConnectionTablesRO,
 	AiQueryResultRO,
+	AiRowsDeletedRO,
+	AiRowsInsertedRO,
+	AiRowsUpdatedRO,
 	AiSampleRowsRO,
 	CompanySubscriptionInfoRO,
 	PermissionAllowedRO,
@@ -78,4 +84,17 @@ export interface IGetCompanySubscriptionInfo {
 		inputData: GetCompanySubscriptionInfoDs,
 		inTransaction: InTransactionEnum,
 	): Promise<CompanySubscriptionInfoRO>;
+}
+
+// Row writes for the SiteNova chat data agent (sitenova plan 85).
+export interface IInsertAiRows {
+	execute(inputData: InsertAiRowsDs, inTransaction: InTransactionEnum): Promise<AiRowsInsertedRO>;
+}
+
+export interface IUpdateAiRows {
+	execute(inputData: UpdateAiRowsDs, inTransaction: InTransactionEnum): Promise<AiRowsUpdatedRO>;
+}
+
+export interface IDeleteAiRows {
+	execute(inputData: DeleteAiRowsDs, inTransaction: InTransactionEnum): Promise<AiRowsDeletedRO>;
 }
