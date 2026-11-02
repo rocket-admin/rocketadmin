@@ -414,7 +414,7 @@ function setLabelType(value: SelectModel<LabelType>): void {
 <style scoped>
 .chart-edit {
 	display: flex;
-	height: calc(100vh - var(--header-height) - var(--footer-height));
+	height: calc(100vh - var(--header-height));
 	overflow: hidden;
 }
 
@@ -616,11 +616,11 @@ function setLabelType(value: SelectModel<LabelType>): void {
 	flex-shrink: 0;
 	align-items: center;
 	justify-content: space-between;
-	gap: var(--space-4);
-	height: 64px;
-	padding: 0 clamp(var(--space-10), 5vw, 100px);
+	gap: var(--space-2);
+	/* Full width, with the buttons aligned to the 1400px page column. */
+	padding: var(--space-3) calc(max(50% - 700px, 0px) + clamp(var(--space-10), 5vw, 100px));
+	border-top: 1px solid var(--color-line);
 	background: var(--color-surface);
-	box-shadow: var(--shadow-card);
 }
 
 @media (width <= 900px) {
@@ -644,7 +644,7 @@ function setLabelType(value: SelectModel<LabelType>): void {
 	}
 
 	.chart-edit__actions {
-		padding: 0 var(--space-4);
+		padding-inline: var(--space-4);
 	}
 }
 </style>

@@ -339,7 +339,7 @@ function setEmails(value: string | string[] | null) {
 <style scoped>
 .table-actions {
 	display: flex;
-	min-height: 100%;
+	min-height: calc(100vh - var(--header-height));
 }
 
 .table-actions__sidebar {
@@ -380,13 +380,19 @@ function setEmails(value: string | string[] | null) {
 	gap: var(--space-4);
 	min-width: 0;
 	padding: var(--space-6) var(--space-8) 0;
-	overflow-y: auto;
 }
 
+/* Spans the main column so its actions panel can too; the content keeps to 56rem. */
 .table-actions__form {
+	--form-width: 56rem;
+
 	display: flex;
+	flex: 1;
 	flex-direction: column;
-	max-width: 56rem;
+}
+
+.table-actions__form > :not(.table-actions__actions) {
+	max-width: var(--form-width);
 }
 
 .table-actions__name-row {
@@ -409,6 +415,10 @@ function setEmails(value: string | string[] | null) {
 	border-radius: var(--radius-card);
 	background: var(--color-surface);
 	transition: box-shadow var(--motion-base) var(--ease-out);
+}
+
+.table-actions__card:has(+ .table-actions__actions) {
+	margin-bottom: var(--space-10);
 }
 
 .table-actions__card--highlight {
@@ -547,15 +557,23 @@ function setEmails(value: string | string[] | null) {
 	gap: var(--space-3);
 }
 
+/* Pushed to the bottom of the page when the form is short, flush with the main column's edges, with
+   the buttons aligned to the form. */
 .table-actions__actions {
+	--actions-gutter: var(--space-8);
+
 	position: sticky;
 	bottom: 0;
+	z-index: var(--z-sticky);
 	display: flex;
+	align-items: center;
 	justify-content: space-between;
-	margin-top: var(--space-6);
-	padding: var(--space-3) 0;
+	gap: var(--space-2);
+	margin: auto calc(-1 * var(--actions-gutter)) 0;
+	padding: var(--space-3) calc(max(100% - var(--form-width), 0px) + var(--actions-gutter)) var(--space-3)
+		var(--actions-gutter);
 	border-top: 1px solid var(--color-line);
-	background: var(--color-paper);
+	background: var(--color-surface);
 }
 
 @media (width <= 600px) {
@@ -571,6 +589,10 @@ function setEmails(value: string | string[] | null) {
 
 	.table-actions__main {
 		padding: var(--space-4) var(--space-4) 0;
+	}
+
+	.table-actions__actions {
+		--actions-gutter: var(--space-4);
 	}
 }
 </style>

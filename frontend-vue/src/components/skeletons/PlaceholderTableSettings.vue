@@ -36,8 +36,10 @@ import { UiIcon, UiSkeleton } from '@/components/ui';
 </template>
 
 <style scoped>
+/* Mirrors TableSettingsView's layout: it fills the page so the save bar sits at the bottom. */
 .ph {
 	display: flex;
+	flex: 1;
 	flex-direction: column;
 	align-items: center;
 	padding: var(--space-8) 0 0;
@@ -45,6 +47,7 @@ import { UiIcon, UiSkeleton } from '@/components/ui';
 
 .ph__form {
 	display: flex;
+	flex: 1 0 auto;
 	flex-direction: column;
 	width: 100%;
 	margin: var(--space-6) auto var(--space-10);
@@ -89,6 +92,11 @@ import { UiIcon, UiSkeleton } from '@/components/ui';
 	.ph__form {
 		padding: 0;
 	}
+
+	.ph .ph-actions {
+		margin-inline: calc(-9vw - var(--space-4));
+		padding-inline: calc(9vw + var(--space-4));
+	}
 }
 
 .ph-crumbs {
@@ -101,16 +109,16 @@ import { UiIcon, UiSkeleton } from '@/components/ui';
 	color: var(--color-line-strong);
 }
 
-/* The Angular placeholders faked the fixed save bar at the bottom of the page. */
+/* Full width, with the buttons aligned to the 650px fields column. */
 .ph-actions {
 	position: sticky;
 	bottom: 0;
 	display: flex;
 	align-items: center;
 	justify-content: flex-end;
-	gap: var(--space-5);
-	min-height: var(--space-16);
-	padding: 0 var(--space-6);
+	gap: var(--space-2);
+	margin: 0 calc(-1 * var(--space-4));
+	padding: var(--space-3) max(calc(50% - 20.3125rem), var(--space-4));
 	border-top: 1px solid var(--color-line);
 	background: var(--color-surface);
 }

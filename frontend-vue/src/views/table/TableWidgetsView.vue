@@ -256,6 +256,9 @@ async function updateWidgets(afterDeleteAll = false) {
 
 <style scoped>
 .table-widgets {
+	display: flex;
+	flex-direction: column;
+	min-height: calc(100vh - var(--header-height));
 	padding: 0 var(--space-4);
 }
 
@@ -264,9 +267,18 @@ async function updateWidgets(afterDeleteAll = false) {
 }
 
 .table-widgets__wrapper {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
 	width: 90%;
 	min-width: 18.75rem;
 	margin: 0 auto;
+}
+
+.table-widgets__form {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
 }
 
 .table-widgets__header {
@@ -298,17 +310,24 @@ async function updateWidgets(afterDeleteAll = false) {
 	grid-template-columns: minmax(10%, 8rem) 1fr 2fr 1fr 2fr 3rem;
 	align-items: start;
 	gap: var(--space-5);
+	padding-bottom: var(--space-10);
 }
 
+/* Pushed to the bottom of the page when the list is short. The wrapper is 90% of the page, so the
+   panel bleeds by the other 10% plus the page gutter and pads back by the same to keep the buttons
+   aligned with the grid. */
 .table-widgets__actions {
 	position: sticky;
 	bottom: 0;
+	z-index: var(--z-sticky);
 	display: flex;
+	align-items: center;
 	justify-content: space-between;
-	margin-top: var(--space-6);
-	padding: var(--space-3) 0;
+	gap: var(--space-2);
+	margin: auto calc(-100% / 18 - var(--space-4)) 0;
+	padding: var(--space-3) calc(100% / 18 + var(--space-4));
 	border-top: 1px solid var(--color-line);
-	background: var(--color-paper);
+	background: var(--color-surface);
 }
 
 @media (width <= 600px) {
@@ -377,6 +396,8 @@ async function updateWidgets(afterDeleteAll = false) {
 
 	.table-widgets__actions {
 		justify-content: flex-end;
+		margin-inline: calc(-1 * var(--space-4));
+		padding-inline: var(--space-4);
 	}
 }
 </style>

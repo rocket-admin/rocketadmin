@@ -30,10 +30,14 @@ import { UiIcon, UiSkeleton } from '@/components/ui';
 </template>
 
 <style scoped>
+/* Mirrors TableWidgetsView's layout: it fills the page so the save bar sits at the bottom. */
 .ph {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
 	width: 90%;
 	min-width: 18.75rem;
-	margin: 0 auto var(--space-4);
+	margin: 0 auto;
 }
 
 .ph .ph-crumbs {
@@ -58,16 +62,16 @@ import { UiIcon, UiSkeleton } from '@/components/ui';
 	color: var(--color-line-strong);
 }
 
-/* The Angular placeholders faked the fixed save bar at the bottom of the page. */
+/* Bleeds past the 90% column to the page edges, with the buttons aligned to the column. */
 .ph-actions {
 	position: sticky;
 	bottom: 0;
 	display: flex;
 	align-items: center;
 	justify-content: flex-end;
-	gap: var(--space-5);
-	min-height: var(--space-16);
-	padding: 0 var(--space-6);
+	gap: var(--space-2);
+	margin: auto calc(-100% / 18 - var(--space-4)) 0;
+	padding: var(--space-3) calc(100% / 18 + var(--space-4));
 	border-top: 1px solid var(--color-line);
 	background: var(--color-surface);
 }

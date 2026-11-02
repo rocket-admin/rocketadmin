@@ -27,6 +27,13 @@ import { UiSkeleton } from '@/components/ui';
 </template>
 
 <style scoped>
+/* Mirrors ConnectionSettingsView's layout: it fills the page so the save bar sits at the bottom. */
+.ph {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+}
+
 .ph__form {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
@@ -48,16 +55,16 @@ import { UiSkeleton } from '@/components/ui';
 	flex: 1;
 }
 
-/* The Angular placeholders faked the fixed save bar at the bottom of the page. */
+/* Bleeds through the page's --settings-gutter to its edges, with the buttons aligned to the form. */
 .ph-actions {
 	position: sticky;
 	bottom: 0;
 	display: flex;
 	align-items: center;
 	justify-content: flex-end;
-	gap: var(--space-5);
-	min-height: var(--space-16);
-	padding: 0 var(--space-6);
+	gap: var(--space-2);
+	margin: auto calc(-1 * var(--settings-gutter)) 0;
+	padding: var(--space-3) var(--settings-gutter);
 	border-top: 1px solid var(--color-line);
 	background: var(--color-surface);
 }

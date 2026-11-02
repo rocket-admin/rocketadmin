@@ -450,6 +450,9 @@ async function resetSettings() {
 
 <style scoped>
 .table-settings {
+	display: flex;
+	flex-direction: column;
+	min-height: calc(100vh - var(--header-height));
 	padding: 0 var(--space-4);
 }
 
@@ -459,19 +462,26 @@ async function resetSettings() {
 
 .table-settings__page {
 	display: flex;
+	flex: 1;
 	flex-direction: column;
 	align-items: center;
 	margin-top: var(--space-10);
 }
 
 .table-settings__form {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
 	width: 100%;
 }
 
+/* Grows to push the actions panel to the bottom of the page when the form is short. */
 .table-settings__fields {
 	display: flex;
+	flex: 1 0 auto;
 	flex-direction: column;
 	gap: var(--space-5);
+	width: 100%;
 	max-width: 40.625rem;
 	margin: 0 auto;
 	padding: var(--space-6) 0 var(--space-10);
@@ -570,10 +580,13 @@ async function resetSettings() {
 	z-index: var(--z-sticky);
 	display: flex;
 	align-items: center;
-	gap: var(--space-5);
+	justify-content: flex-end;
+	gap: var(--space-2);
+	margin: 0 calc(-1 * var(--space-4));
+	/* Full width, with the buttons aligned to the fields column. */
 	padding: var(--space-3) max(calc(50% - 20.3125rem), var(--space-4));
 	border-top: 1px solid var(--color-line);
-	background: var(--color-paper);
+	background: var(--color-surface);
 }
 
 .table-settings__back {

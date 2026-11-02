@@ -350,10 +350,12 @@ function summarize(settings: ConnectionSettings): Record<string, boolean> {
 <style scoped>
 .connection-settings {
 	/* The Angular page's centred 650px column. */
-	--settings-gutter: max(calc(50vw - 325px), 10%);
+	--settings-gutter: max(calc(50vw - 325px), 10vw);
 
-	min-height: 100%;
-	padding: var(--space-8) var(--settings-gutter);
+	display: flex;
+	flex-direction: column;
+	min-height: calc(100vh - var(--header-height));
+	padding: var(--space-8) var(--settings-gutter) 0;
 }
 
 .connection-settings__alert {
@@ -377,12 +379,20 @@ function summarize(settings: ConnectionSettings): Record<string, boolean> {
 	margin-top: var(--space-2);
 }
 
+.connection-settings__form {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+}
+
+/* Grows to push the actions panel to the bottom of the page when the form is short. */
 .connection-settings__fields {
 	display: flex;
+	flex: 1 0 auto;
 	flex-direction: column;
 	align-items: stretch;
 	gap: var(--space-4);
-	padding-bottom: var(--space-16);
+	padding-bottom: var(--space-10);
 }
 
 .connection-settings__logo {
@@ -447,19 +457,19 @@ function summarize(settings: ConnectionSettings): Record<string, boolean> {
 	margin-top: var(--space-1);
 }
 
+/* Full width, with the buttons aligned to the form column. */
 .connection-settings__actions {
-	position: fixed;
+	position: sticky;
 	bottom: 0;
-	left: 0;
 	z-index: var(--z-sticky);
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	height: 4rem;
-	width: 100vw;
-	padding: 0 var(--settings-gutter);
-	background-color: var(--color-surface);
-	box-shadow: var(--shadow-card);
+	gap: var(--space-2);
+	margin: 0 calc(-1 * var(--settings-gutter));
+	padding: var(--space-3) var(--settings-gutter);
+	border-top: 1px solid var(--color-line);
+	background: var(--color-surface);
 }
 
 @media (width <= 600px) {
