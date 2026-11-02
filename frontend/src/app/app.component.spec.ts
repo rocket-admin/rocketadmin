@@ -9,7 +9,7 @@ import { By, DomSanitizer } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Angulartics2Module } from 'angulartics2';
-import { of, Subject } from 'rxjs';
+import { EMPTY, of, Subject } from 'rxjs';
 import { type Mock, vi } from 'vitest';
 import { AppComponent } from './app.component';
 import { AuthService } from './services/auth.service';
@@ -323,6 +323,21 @@ describe('AppComponent', () => {
 
 		expect(app.initializeUserSession).not.toHaveBeenCalled();
 		expect(app.logOut).toHaveBeenCalledWith(true);
+		expect(app.router.navigate).toHaveBeenCalledWith(['/login']);
+	});
+
+	it('clears the local session when the logout request fails (plan 84)', () => {
+		localStorage.setItem('token_expiration', new Date(Date.now() + 60_000).toISOString());
+		mockAuthService.setAuthenticated(true);
+		app.userLoggedIn = true;
+		// logOutUser() maps a failed request to EMPTY: it completes without a value.
+		mockAuthService.logOutUser.mockReturnValueOnce(EMPTY);
+
+		app.logOut(true);
+
+		expect(localStorage.getItem('token_expiration')).toBeNull();
+		expect(mockAuthService.isAuthenticated()).toBe(false);
+		expect(app.userLoggedIn).toBeNull();
 		expect(app.router.navigate).toHaveBeenCalledWith(['/login']);
 	});
 });

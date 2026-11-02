@@ -17,10 +17,11 @@ import { Angulartics2Amplitude, Angulartics2OnModule } from 'angulartics2';
 import { differenceInMilliseconds } from 'date-fns';
 import posthog from 'posthog-js';
 import { Subject } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { filter, finalize } from 'rxjs/operators';
 import { environment } from '../environments/environment';
 import { FeatureNotificationComponent } from './components/feature-notification/feature-notification.component';
 import { ViewAsBannerComponent } from './components/view-as-banner/view-as-banner.component';
+import { postLogoutUrl } from './lib/post-logout-url';
 import { Connection } from './models/connection';
 import { AuthService } from './services/auth.service';
 import { ConnectionsService } from './services/connections.service';
@@ -330,16 +331,24 @@ export class AppComponent {
 			console.log(error);
 		}
 
-		this._auth.logOutUser().subscribe(() => {
-			this.setUserLoggedIn(null);
-			localStorage.removeItem('token_expiration');
-			this._auth.setAuthenticated(false);
+		// The local cleanup runs on every outcome (plan 84). `logOutUser()` maps an error to
+		// EMPTY, so a `subscribe` callback never ran after a failed request, and the user stayed
+		// logged in locally.
+		this._auth
+			.logOutUser()
+			.pipe(finalize(() => this._finishLogOut(isTokenExpired)))
+			.subscribe();
+	}
 
-			if (this.isSaas) {
-				if (!isTokenExpired) window.location.href = 'https://rocketadmin.com/';
-			} else {
-				this.router.navigate(['/login']);
-			}
-		});
+	private _finishLogOut(isTokenExpired?: boolean): void {
+		this.setUserLoggedIn(null);
+		localStorage.removeItem('token_expiration');
+		this._auth.setAuthenticated(false);
+
+		if (this.isSaas) {
+			if (!isTokenExpired) window.location.href = postLogoutUrl(window.location.hostname);
+		} else {
+			this.router.navigate(['/login']);
+		}
 	}
 }
