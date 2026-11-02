@@ -64,3 +64,20 @@ export class ScanAndCreateSettingsDs extends AiDataRequestDs {
 export class GetCompanySubscriptionInfoDs {
 	userId: string;
 }
+
+// Row writes for the SiteNova chat data agent (sitenova plan 85).
+export class InsertAiRowsDs extends AiDataRequestDs {
+	tableName: string;
+	rows: Array<Record<string, unknown>>;
+}
+
+export class UpdateAiRowsDs extends AiDataRequestDs {
+	tableName: string;
+	primaryKeys: Array<Record<string, unknown>>;
+	newValues: Record<string, unknown>;
+}
+
+export class DeleteAiRowsDs extends AiDataRequestDs {
+	tableName: string;
+	primaryKeys: Array<Record<string, unknown>>;
+}
