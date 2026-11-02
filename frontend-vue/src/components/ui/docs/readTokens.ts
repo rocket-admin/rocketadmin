@@ -26,12 +26,18 @@ export type Token = {
 const DECLARATION = /^\s*(--[a-z0-9-]+)\s*:\s*([^;]+);(?:\s*\/\*\s*(.*?)\s*\*\/)?/gim;
 
 /**
- * Every token declared in theme.css, in source order.
+ * The base `:root` block only. The dark theme at the end of theme.css redeclares the colour aliases
+ * inside `@media (prefers-color-scheme: dark)`; reading those too would list every alias twice.
+ */
+const BASE_CSS = themeCss.split(/@media\s*\(prefers-color-scheme:\s*dark\)/)[0] ?? '';
+
+/**
+ * Every token declared in theme.css's base block, in source order.
  *
  * Parsed once at module scope: the CSS is a build-time constant, so re-parsing per call would be
  * pure waste.
  */
-const ALL_TOKENS: Token[] = [...themeCss.matchAll(DECLARATION)].map(([, name, value, note]) => ({
+const ALL_TOKENS: Token[] = [...BASE_CSS.matchAll(DECLARATION)].map(([, name, value, note]) => ({
 	name: name as string,
 	value: (value as string).trim(),
 	...(note ? { note } : {}),

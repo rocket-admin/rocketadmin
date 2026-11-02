@@ -113,7 +113,7 @@ function select(option: SelectOption<T>) {
 .ui-segmented__option--selected,
 .ui-segmented__option--selected:hover {
   background: var(--color-accent);
-  color: var(--color-surface);
+  color: var(--color-on-accent);
 }
 
 /* Visually hidden but focusable: the radio is what keyboard and AT interact with. */

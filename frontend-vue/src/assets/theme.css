@@ -20,8 +20,8 @@
  * with a hot cyan-white highlight for glow.
  */
 :root {
-	/* TODO(dark-mode): flip to `light dark` when a [data-theme='dark'] block exists. Claiming dark
-	   support before the aliases have dark values would make form controls render dark-on-dark. */
+	/* Flipped to `dark` by the prefers-color-scheme block at the end of this file, together with the
+	   aliases — native controls and scrollbars must never claim dark ahead of the aliases. */
 	color-scheme: light;
 
 	/* ===================================================================================
@@ -66,6 +66,36 @@
 	--palette-green-50: #ecfdf3;
 	--palette-green-200: #a6f4c5;
 
+	/* Dark ramp. App-only: neither SiteNova nor the landing has a dark theme yet, so these are NOT
+	   mirrored — when SiteNova gains one, reconcile and move them into the shared block above.
+	   The paper is the brand's own navy-900; surfaces step up from it in the same hue.
+
+	   Contrast on dark surface: ink 15.4:1, ink-soft 11.2:1, muted 7.4:1, muted-soft 5.8:1,
+	   accent 6.1:1, line-strong 3.9:1 (non-text, needs 3:1). The accent is lifted from blue-600
+	   because no blue reads as link text on navy *and* carries white text on its own fill; dark
+	   mode puts navy-900 text on it instead (6.8:1), via --color-on-accent. */
+	--palette-navy-850: #121a36;
+	--palette-navy-800: #1a2344;
+	--palette-navy-750: #1c2650;
+	--palette-navy-650: #2a3558;
+	--palette-slate-400: #6b7895;
+	--palette-slate-300: #8b97b2;
+	--palette-slate-200: #a0abc4;
+	--palette-slate-100: #c8d1e6;
+	--palette-slate-50: #eef3ff;
+	--palette-blue-400: #7196ff;
+	--palette-blue-250: #a9c1ff;
+	--palette-red-300: #fda29b;
+	--palette-red-400: #f97066;
+	--palette-red-950: #2b1520;
+	--palette-red-900: #7a271a;
+	--palette-amber-400: #fdb022;
+	--palette-amber-950: #2a2010;
+	--palette-amber-900: #93370d;
+	--palette-green-400: #32d583;
+	--palette-green-950: #0b2a20;
+	--palette-green-900: #05603a;
+
 	/* Typography families.
 	   Match the installed @fontsource-variable packages exactly (verified against their index.css);
 	   the fallbacks mirror the metric-matched stacks the landing declares in astro.config.mjs. All
@@ -102,6 +132,9 @@
 	--color-accent: var(--palette-blue-600);
 	--color-accent-ink: var(--palette-blue-700);
 	--color-hot: var(--palette-blue-300);
+	/* Text and icons on an accent or danger-strong fill. Not --color-surface: that is a background,
+	   and in the dark theme it turns navy while the fills stay bright. */
+	--color-on-accent: var(--palette-white);
 
 	/* Status */
 	--color-danger: var(--palette-red-700);
@@ -212,4 +245,53 @@
 	--footer-height: 1.75rem; /* the version line under every page */
 	--width-panel: 44rem; /* app page content column */
 	--width-auth-card: 26rem; /* auth page content column */
+}
+
+/* ===================================================================================
+   DARK THEME — Layer 2 re-pointed at the dark ramp. Follows the OS setting, as the Angular app
+   does; there is no in-app toggle. Only aliases change here: the scales above are theme-neutral.
+   =================================================================================== */
+@media (prefers-color-scheme: dark) {
+	:root {
+		color-scheme: dark;
+
+		/* Surfaces: unlike the light theme, a surface is lighter than the page, and raised lighter still. */
+		--color-paper: var(--palette-navy-900);
+		--color-paper-2: var(--palette-navy-750);
+		--color-surface: var(--palette-navy-850);
+		--color-surface-raised: var(--palette-navy-800);
+		--color-overlay: rgb(0 0 0 / 0.6);
+
+		--color-ink: var(--palette-slate-50);
+		--color-ink-soft: var(--palette-slate-100);
+		--color-muted: var(--palette-slate-200);
+		--color-muted-soft: var(--palette-slate-300);
+
+		--color-line: var(--palette-navy-650);
+		--color-line-strong: var(--palette-slate-400);
+
+		/* accent-ink is the pressed/emphasis step, so on dark it goes lighter rather than darker. */
+		--color-accent: var(--palette-blue-400);
+		--color-accent-ink: var(--palette-blue-250);
+		--color-hot: var(--palette-blue-300);
+		--color-on-accent: var(--palette-navy-900);
+
+		--color-danger: var(--palette-red-300);
+		--color-danger-strong: var(--palette-red-400);
+		--color-danger-bg: var(--palette-red-950);
+		--color-danger-border: var(--palette-red-900);
+		--color-warning: var(--palette-amber-400);
+		--color-warning-bg: var(--palette-amber-950);
+		--color-warning-border: var(--palette-amber-900);
+		--color-success: var(--palette-green-400);
+		--color-success-bg: var(--palette-green-950);
+		--color-success-border: var(--palette-green-900);
+
+		/* A navy drop shadow vanishes on a navy page: depth comes from a black shadow plus a faint
+		   top highlight, and the glow keeps its accent tint. */
+		--shadow-card: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 20px 50px -30px rgb(0 0 0 / 0.7);
+		--shadow-lift: 0 24px 50px -30px rgb(113 150 255 / 0.45);
+		--shadow-focus: 0 0 0 3px rgb(113 150 255 / 0.35);
+		--ring-danger: 0 0 0 3px rgb(249 112 102 / 0.3);
+	}
 }

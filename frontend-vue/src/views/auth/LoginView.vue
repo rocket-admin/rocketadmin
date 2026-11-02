@@ -229,7 +229,7 @@ function onPasswordInput(value: string) {
 							@click="loginWithGithub"
 						>
 							<template #leading>
-								<img :src="GITHUB_ICON_URL" alt="" class="login__github-icon">
+								<img :src="GITHUB_ICON_URL" alt="" class="login__github-icon invert-on-dark">
 							</template>
 							Continue with GitHub
 						</UiButton>

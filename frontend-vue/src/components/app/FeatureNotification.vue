@@ -64,7 +64,7 @@ const emit = defineEmits<{ dismiss: [] }>();
 						<!-- Send button -->
 						<g class="fn-send-button">
 							<circle cx="326" cy="151" r="11" style="fill: var(--color-accent)" />
-							<path d="M321 154 L326 147 L331 154 M326 147 L326 159" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="stroke: var(--color-surface)" />
+							<path d="M321 154 L326 147 L331 154 M326 147 L326 159" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="stroke: var(--color-on-accent)" />
 						</g>
 					</g>
 
@@ -84,7 +84,7 @@ const emit = defineEmits<{ dismiss: [] }>();
 					<g class="fn-table fn-table--1">
 						<rect x="18" y="74" width="102" height="66" rx="7" stroke-width="1.2" style="fill: var(--color-surface); stroke: var(--color-line)" />
 						<rect x="18" y="74" width="102" height="18" rx="7" style="fill: var(--color-accent)" />
-						<text x="28" y="87" font-size="12" font-weight="600" font-family="system-ui, sans-serif" style="fill: var(--color-surface)">members</text>
+						<text x="28" y="87" font-size="12" font-weight="600" font-family="system-ui, sans-serif" style="fill: var(--color-on-accent)">members</text>
 						<text x="28" y="106" font-size="10" font-family="system-ui, sans-serif" style="fill: var(--color-ink-soft)">id</text>
 						<text x="112" y="106" font-size="8" font-weight="700" font-family="system-ui, sans-serif" text-anchor="end" style="fill: var(--color-warning)">PK</text>
 						<text x="28" y="120" font-size="10" font-family="system-ui, sans-serif" style="fill: var(--color-ink-soft)">name</text>
@@ -94,7 +94,7 @@ const emit = defineEmits<{ dismiss: [] }>();
 					<g class="fn-table fn-table--2">
 						<rect x="130" y="58" width="102" height="66" rx="7" stroke-width="1.2" style="fill: var(--color-surface); stroke: var(--color-line)" />
 						<rect x="130" y="58" width="102" height="18" rx="7" style="fill: var(--color-hot)" />
-						<text x="140" y="71" font-size="12" font-weight="600" font-family="system-ui, sans-serif" style="fill: var(--color-surface)">bookings</text>
+						<text x="140" y="71" font-size="12" font-weight="600" font-family="system-ui, sans-serif" style="fill: var(--color-on-accent)">bookings</text>
 						<text x="140" y="90" font-size="10" font-family="system-ui, sans-serif" style="fill: var(--color-ink-soft)">id</text>
 						<text x="224" y="90" font-size="8" font-weight="700" font-family="system-ui, sans-serif" text-anchor="end" style="fill: var(--color-warning)">PK</text>
 						<text x="140" y="104" font-size="10" font-family="system-ui, sans-serif" style="fill: var(--color-ink-soft)">member_id</text>
@@ -105,7 +105,7 @@ const emit = defineEmits<{ dismiss: [] }>();
 					<g class="fn-table fn-table--3">
 						<rect x="242" y="78" width="102" height="62" rx="7" stroke-width="1.2" style="fill: var(--color-surface); stroke: var(--color-line)" />
 						<rect x="242" y="78" width="102" height="18" rx="7" style="fill: var(--color-accent-ink)" />
-						<text x="252" y="91" font-size="12" font-weight="600" font-family="system-ui, sans-serif" style="fill: var(--color-surface)">sessions</text>
+						<text x="252" y="91" font-size="12" font-weight="600" font-family="system-ui, sans-serif" style="fill: var(--color-on-accent)">sessions</text>
 						<text x="252" y="110" font-size="10" font-family="system-ui, sans-serif" style="fill: var(--color-ink-soft)">id</text>
 						<text x="336" y="110" font-size="8" font-weight="700" font-family="system-ui, sans-serif" text-anchor="end" style="fill: var(--color-warning)">PK</text>
 						<text x="252" y="124" font-size="10" font-family="system-ui, sans-serif" style="fill: var(--color-ink-soft)">starts_at</text>

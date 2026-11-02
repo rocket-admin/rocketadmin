@@ -367,6 +367,15 @@ function track(action: string) {
 	overflow: hidden;
 }
 
+/* The tile is dark in both themes — the default logo is the white mark, and custom logos are made
+   for a dark tile — so on the dark theme it stays navy rather than inverting with --color-ink. */
+@media (prefers-color-scheme: dark) {
+	.own-connections__card {
+		background-color: var(--color-paper-2);
+		color: var(--color-ink);
+	}
+}
+
 .own-connections__logo {
 	height: 85%;
 	max-width: 40%;

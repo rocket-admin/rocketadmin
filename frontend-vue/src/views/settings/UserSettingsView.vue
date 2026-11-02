@@ -169,7 +169,7 @@ function confirmDeleteAccount() {
 						v-tooltip="`You registred with ${currentUser.externalRegistrationProvider}`"
 						:src="providerIcon"
 						alt=""
-						class="user-settings__provider-icon"
+						:class="['user-settings__provider-icon', { 'invert-on-dark': currentUser.externalRegistrationProvider === 'GITHUB' }]"
 					>
 					<strong>Email:</strong>
 					<span class="user-settings__value">{{ currentUser.email }}</span>

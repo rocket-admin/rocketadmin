@@ -271,7 +271,7 @@ async function switchSuspendance(isSuspendance: boolean, memberEmail: string) {
 							v-tooltip="`${row.externalRegistrationProvider} registration`"
 							:src="AUTH_PROVIDER_ICONS[row.externalRegistrationProvider]"
 							:alt="`${row.externalRegistrationProvider} registration`"
-							class="company__email-icon"
+							:class="['company__email-icon', { 'invert-on-dark': row.externalRegistrationProvider === 'GITHUB' }]"
 						>
 						<span>{{ row.email }}</span>
 					</span>

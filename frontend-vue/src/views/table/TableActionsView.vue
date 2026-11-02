@@ -447,7 +447,7 @@ function setEmails(value: string | string[] | null) {
 }
 
 .table-actions__badge--when {
-	color: var(--color-surface);
+	color: var(--color-on-accent);
 	background: var(--color-accent);
 }
 

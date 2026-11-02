@@ -104,12 +104,12 @@ const indicatorClasses = computed(() => [
 
 .ui-badge__indicator--accent {
   background: var(--color-accent);
-  color: var(--color-surface);
+  color: var(--color-on-accent);
 }
 
 .ui-badge__indicator--danger {
   background: var(--color-danger-strong);
-  color: var(--color-surface);
+  color: var(--color-on-accent);
 }
 
 .ui-badge__indicator--neutral {

@@ -1,7 +1,7 @@
 // Mermaid, imported on first use (it is large) and initialized once with the options Angular's
-// MERMAID_OPTIONS gave ngx-markdown in light mode. The Vue app has no dark theme yet, so the dark
-// themeVariables Angular switched to under `prefers-color-scheme: dark` are not carried over.
+// MERMAID_OPTIONS gave ngx-markdown (see lib/mermaid-config.ts).
 import type { Mermaid } from 'mermaid';
+import { mermaidConfig } from '@/lib/mermaid-config';
 
 let loading: Promise<Mermaid> | null = null;
 let renderCount = 0;
@@ -10,7 +10,7 @@ function loadMermaid(): Promise<Mermaid> {
 	loading ??= import('mermaid')
 		.then((module) => {
 			const mermaid = module.default;
-			mermaid.initialize({ startOnLoad: false, theme: 'default' });
+			mermaid.initialize(mermaidConfig());
 			return mermaid;
 		})
 		.catch((error: unknown) => {

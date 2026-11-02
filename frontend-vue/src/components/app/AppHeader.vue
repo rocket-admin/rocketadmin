@@ -11,8 +11,9 @@ import { useConnectionsStore } from '@/stores/connections';
 import { useUserStore } from '@/stores/user';
 import { ACCOUNT_LINKS, CONNECTION_TAB_CAPTIONS, connectionTabPath, HELP_CENTER_URL } from './navigation';
 
-// Served from /assets at runtime (copied from frontend/src/assets), so it is not a module import.
+// Served from /assets at runtime (copied from frontend/src/assets), so they are not module imports.
 const LOGO_URL = '/assets/rocketadmin_logo_black.svg';
+const LOGO_DARK_URL = '/assets/rocketadmin_logo_white.svg';
 
 const props = defineProps<{
 	/** AppComponent.userLoggedIn: null while the user is loading. */
@@ -38,10 +39,16 @@ const signedIn = computed(() => props.userLoggedIn === true);
 	<header :class="['app-header', { 'app-header--connection': connections.connectionID }]">
 		<div class="app-header__brand">
 			<RouterLink v-if="userLoggedIn" to="/connections-list" class="app-header__logo">
-				<img :src="LOGO_URL" alt="Rocketadmin logo" class="app-header__logo-image">
+				<picture>
+					<source :srcset="LOGO_DARK_URL" media="(prefers-color-scheme: dark)">
+					<img :src="LOGO_URL" alt="Rocketadmin logo" class="app-header__logo-image">
+				</picture>
 			</RouterLink>
 			<a v-else-if="userLoggedIn === false" href="https://rocketadmin.com/" class="app-header__logo">
-				<img :src="LOGO_URL" alt="Rocketadmin logo" class="app-header__logo-image">
+				<picture>
+					<source :srcset="LOGO_DARK_URL" media="(prefers-color-scheme: dark)">
+					<img :src="LOGO_URL" alt="Rocketadmin logo" class="app-header__logo-image">
+				</picture>
 			</a>
 
 			<template v-if="connections.connectionID">

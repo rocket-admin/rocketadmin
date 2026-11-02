@@ -176,7 +176,7 @@ export default {
 
 .ui-icon-button--primary {
   background: var(--color-accent);
-  color: var(--color-surface);
+  color: var(--color-on-accent);
 }
 
 .ui-icon-button--primary:hover:not(:disabled, [aria-disabled='true']) {

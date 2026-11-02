@@ -1,5 +1,6 @@
 import DOMPurify from 'dompurify';
 import { marked } from 'marked';
+import { mermaidConfig } from '@/lib/mermaid-config';
 
 /** Markdown → sanitized HTML. The source is user data, so the output is always sanitized. */
 export function renderMarkdown(source: string, options: { inline?: boolean } = {}): string {
@@ -15,13 +16,10 @@ type Mermaid = typeof import('mermaid')['default'];
 
 let mermaidLoader: Promise<Mermaid> | null = null;
 
-/**
- * Loads and initializes mermaid once. Angular picked `dark` under `prefers-color-scheme: dark`; this
- * app has no dark theme yet (see theme.css), so diagrams use the default theme to match the page.
- */
+/** Loads and initializes mermaid once. */
 export function loadMermaid(): Promise<Mermaid> {
 	mermaidLoader ??= import('mermaid').then(({ default: mermaid }) => {
-		mermaid.initialize({ startOnLoad: false, theme: 'default' });
+		mermaid.initialize(mermaidConfig());
 		return mermaid;
 	});
 	return mermaidLoader;
