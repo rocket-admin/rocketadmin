@@ -27,6 +27,7 @@ import {
 } from '@/components/ui';
 import { type ReferencedRecords, TEST_CONNECTION_WARNING, useRowEdit } from '@/composables/useRowEdit';
 import { recordEditTypes, UIwidgets } from '@/consts/record-edit-types';
+import { tablePagePath } from '@/lib/table-url';
 import { type Alert, AlertType } from '@/models/alert';
 import { useTableStateStore } from '@/stores/table-state';
 
@@ -354,7 +355,7 @@ function isEmptyRelated(table: string): boolean {
 									icon="add"
 									size="sm"
 									:label="`Add a new record to ${referencedTable.displayTableName}`"
-									:href="router.resolve(`/dashboard/${connectionId}/${referencedTable.table_name}/entry`).href"
+									:href="router.resolve(tablePagePath(connectionId, referencedTable.table_name, 'entry')).href"
 									target="_blank"
 								/>
 								<UiIconButton
@@ -362,7 +363,7 @@ function isEmptyRelated(table: string): boolean {
 									size="sm"
 									label="Open records in table view"
 									:to="{
-										path: `/dashboard/${connectionId}/${referencedTable.table_name}`,
+										path: tablePagePath(connectionId, referencedTable.table_name),
 										query: referencedTablesURLParams[tableIndex],
 									}"
 								/>

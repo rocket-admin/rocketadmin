@@ -40,6 +40,7 @@ import { tableDisplayTypes, UIwidgets } from '@/consts/table-display-types';
 import { formatFieldValue } from '@/lib/format-field-value';
 import { getTableTypes } from '@/lib/setup-table-row-structure';
 import { queryValue, sortPageQuery, type TableFilters, toSortOrder } from '@/lib/table-query';
+import { tablePagePath } from '@/lib/table-url';
 import {
 	buildSelectionCsv,
 	downloadCsv,
@@ -256,7 +257,7 @@ watch(
 /** sortChange / paginator.page: write the URL, then load the page. */
 function onStateChange() {
 	router.push({
-		path: `/dashboard/${props.connectionID}/${props.name}`,
+		path: tablePagePath(props.connectionID, props.name),
 		query: sortPageQuery({
 			filters: props.activeFilters ?? undefined,
 			savedFilter: queryValue(route.query, 'saved_filter'),
@@ -492,7 +493,7 @@ function handleViewRow(row: TableDataRow) {
 		widgetsList: tableData.value.widgetsList,
 		fieldsTypes: tableData.value.tableTypes,
 		relatedRecords: tableData.value.relatedRecords || null,
-		link: `/dashboard/${props.connectionID}/${props.name}/entry`,
+		link: tablePagePath(props.connectionID, props.name, 'entry'),
 	});
 }
 
@@ -560,7 +561,7 @@ async function handleForeignKeyView(foreignKey: TableForeignKey, cell: Record<st
 		widgetsList: res.table_widgets.map((widget) => widget.field_name),
 		fieldsTypes,
 		relatedRecords: res.referenced_table_names_and_columns[0] ?? null,
-		link: `/dashboard/${props.connectionID}/${foreignKey.referenced_table_name}/entry`,
+		link: tablePagePath(props.connectionID, foreignKey.referenced_table_name, 'entry'),
 	});
 }
 
@@ -607,7 +608,7 @@ function stashUrlParams() {
 }
 
 function entryLink(query?: Record<string, unknown>) {
-	return { path: `/dashboard/${props.connectionID}/${props.name}/entry`, query: query as Record<string, string> };
+	return { path: tablePagePath(props.connectionID, props.name, 'entry'), query: query as Record<string, string> };
 }
 
 function onAddRowClick() {
@@ -691,7 +692,7 @@ function isFolderCollapsed(folderId: string): boolean {
 
 function switchTable(tableName: string) {
 	if (tableName && tableName !== props.name) {
-		router.push({ path: `/dashboard/${props.connectionID}/${tableName}`, query: { page_index: '0', page_size: '30' } });
+		router.push({ path: tablePagePath(props.connectionID, tableName), query: { page_index: '0', page_size: '30' } });
 	}
 }
 
@@ -999,21 +1000,21 @@ defineExpose({ loadRowsPage, searchString, sort });
 							/>
 						</template>
 						<UiMenuItem
-							:to="`/dashboard/${connectionID}/${name}/widgets`"
+							:to="tablePagePath(connectionID, name, 'widgets')"
 							:class="{ 'table-view__action--active': tableData.widgetsCount }"
 							@select="track('Dashboard: widgets is clicked')"
 						>
 							UI Widgets
 						</UiMenuItem>
 						<UiMenuItem
-							:to="`/dashboard/${connectionID}/${name}/actions`"
+							:to="tablePagePath(connectionID, name, 'actions')"
 							:disabled="!tableData.keyAttributes?.length"
 							:description="!tableData.keyAttributes?.length ? 'Primary keys are required.' : undefined"
 							@select="track('Dashboard: actions is clicked')"
 						>
 							Automations
 						</UiMenuItem>
-						<UiMenuItem :to="`/dashboard/${connectionID}/${name}/settings`" @select="track('Dashboard: settings is clicked')">
+						<UiMenuItem :to="tablePagePath(connectionID, name, 'settings')" @select="track('Dashboard: settings is clicked')">
 							Settings
 						</UiMenuItem>
 						<template v-if="tableData.isImportAllowed || tableData.isExportAllowed">

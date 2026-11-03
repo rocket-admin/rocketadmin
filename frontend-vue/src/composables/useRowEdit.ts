@@ -25,6 +25,7 @@ import { defaultTimestampValues, timestampTypes } from '@/consts/record-edit-typ
 import { formatFieldValue } from '@/lib/format-field-value';
 import { normalizeFieldName, normalizeTableName } from '@/lib/normalize';
 import { getTableTypes } from '@/lib/setup-table-row-structure';
+import { tablePagePath } from '@/lib/table-url';
 import type { ServerError } from '@/models/alert';
 import { DBtype } from '@/models/connection';
 import type { CustomEvent, TableField, TableForeignKey, TableRow, Widget, WidgetStructure } from '@/models/table';
@@ -173,7 +174,7 @@ export function useRowEdit({ connectionId, tableName, router }: UseRowEditOption
 	/** Every widget is readonly when the user may not edit (unless duplicating) or in view mode. */
 	const fieldsReadonly = computed(() => (!canEditRow.value && pageAction.value !== 'dub') || pageMode.value === 'view');
 
-	const tablePath = computed(() => `/dashboard/${toValue(connectionId)}/${toValue(tableName)}`);
+	const tablePath = computed(() => tablePagePath(toValue(connectionId), toValue(tableName)));
 	const entryPath = computed(() => `${tablePath.value}/entry`);
 
 	/** Loads the page for the route's query: add a row without one, edit/duplicate/view with a key. */
@@ -353,7 +354,7 @@ export function useRowEdit({ connectionId, tableName, router }: UseRowEditOption
 				widgetsList: res.widgets.map((widget) => widget.field_name),
 				fieldsTypes: getTableTypes(res.structure, foreignKeysList),
 				relatedRecords: [],
-				link: `/dashboard/${id}/${table.table_name}/entry`,
+				link: tablePagePath(id, table.table_name, 'entry'),
 			},
 		};
 

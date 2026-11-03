@@ -14,6 +14,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import { type AutocompleteOption, UiAutocomplete, UiField, UiIcon } from '@/components/ui';
+import { tablePagePath } from '@/lib/table-url';
 import type { TableForeignKey } from '@/models/table';
 import { useConnectionsStore } from '@/stores/connections';
 import { useTablesStore } from '@/stores/tables';
@@ -75,9 +76,9 @@ const options = computed<AutocompleteOption<ForeignKeySuggestion>[]>(() =>
 );
 
 const tableName = computed(() => fkRelations.value?.referenced_table_name ?? '');
-const settingsLink = computed(() => `/dashboard/${connections.connectionID}/${tableName.value}/settings`);
+const settingsLink = computed(() => tablePagePath(connections.connectionID, tableName.value, 'settings'));
 const entryLink = computed(() => ({
-	path: `/dashboard/${connections.connectionID}/${tableName.value}/entry`,
+	path: tablePagePath(connections.connectionID, tableName.value, 'entry'),
 	query: toQuery(currentFieldQueryParams.value),
 }));
 
@@ -222,8 +223,13 @@ function withNullOption(list: ForeignKeySuggestion[]): ForeignKeySuggestion[] {
 	return allowsNull.value ? [...list, NULL_SUGGESTION] : list;
 }
 
+// Null and undefined keys are left out, as the Angular router drops them from query params.
 function toQuery(params: Record<string, unknown> | undefined): Record<string, string> {
-	return Object.fromEntries(Object.entries(params ?? {}).map(([key, value]) => [key, String(value)]));
+	return Object.fromEntries(
+		Object.entries(params ?? {})
+			.filter(([, value]) => value !== null && value !== undefined)
+			.map(([key, value]) => [key, String(value)]),
+	);
 }
 </script>
 

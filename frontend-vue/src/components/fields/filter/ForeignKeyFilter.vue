@@ -12,6 +12,7 @@
 import { computed, onBeforeUnmount, ref } from 'vue';
 import { type LocationQueryRaw, RouterLink } from 'vue-router';
 import { type AutocompleteOption, UiAutocomplete, UiField, UiIcon } from '@/components/ui';
+import { tablePagePath } from '@/lib/table-url';
 import { useConnectionsStore } from '@/stores/connections';
 import { useTablesStore } from '@/stores/tables';
 import type { FilterFieldEmits, FilterFieldProps } from '../types';
@@ -215,7 +216,7 @@ function getModifiedRow(row: Record<string, unknown>): Record<string, unknown> {
 			v-if="relations"
 			class="foreign-key-filter__link"
 			:to="{
-				path: `/dashboard/${connectionID}/${relations.referenced_table_name}/entry`,
+				path: tablePagePath(connectionID, relations.referenced_table_name, 'entry'),
 				query: linkQuery,
 			}"
 			target="_blank"

@@ -29,6 +29,7 @@ import {
 	UiSwitch,
 } from '@/components/ui';
 import { normalizeTableName } from '@/lib/normalize';
+import { tablePagePath } from '@/lib/table-url';
 import { TableOrdering, type TableSettings } from '@/models/table';
 import { useConnectionsStore } from '@/stores/connections';
 import { type TableStructureResponse, useTablesStore } from '@/stores/tables';
@@ -114,7 +115,7 @@ const crumbs = computed(() => {
 		{ label: connection.title || connection.database, link: `/dashboard/${connectionId.value}` },
 		{
 			label: tableSettings.value?.display_name || displayTableName.value,
-			link: `/dashboard/${connectionId.value}/${tableName.value}`,
+			link: tablePagePath(connectionId.value, tableName.value),
 		},
 		{ label: 'Settings', link: null },
 	];
@@ -211,7 +212,7 @@ async function updateSettings() {
 	try {
 		await tables.updateTableSettings(isSettingsExist.value, connectionId.value, tableName.value, settings);
 		trackTableEvent('Table settings: updated successfully', updatedSettings);
-		router.push(`/dashboard/${connectionId.value}/${tableName.value}`);
+		router.push(tablePagePath(connectionId.value, tableName.value));
 	} catch {
 		// Reported by the store.
 	} finally {

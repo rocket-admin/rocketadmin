@@ -23,6 +23,7 @@ import {
 } from '@/composables/useRowView';
 import { recordViewFieldTypes, UIwidgets } from '@/consts/record-view-types';
 import { copyToClipboard } from '@/lib/clipboard';
+import { tablePagePath } from '@/lib/table-url';
 import { useConnectionsStore } from '@/stores/connections';
 import { useTableStateStore } from '@/stores/table-state';
 import { stashBackUrl } from './backUrl';
@@ -74,7 +75,7 @@ function foreignKeyDisplayValue(column: string): string | number | null {
 
 function foreignKeyLink(column: string): string {
 	const row = selectedRow.value;
-	return `/dashboard/${row?.connectionID}/${row?.foreignKeys?.[column]?.referenced_table_name}/entry`;
+	return tablePagePath(row?.connectionID, row?.foreignKeys?.[column]?.referenced_table_name, 'entry');
 }
 
 /** These links open in a new tab, as the Angular `target="_blank"` routerLinks did. */
@@ -160,7 +161,7 @@ function handleClose() {
 									icon="add"
 									size="sm"
 									:label="`Add a new record to ${panel.table.displayTableName}`"
-									:href="newTabHref(`/dashboard/${selectedRow.connectionID}/${panel.table.table_name}/entry`)"
+									:href="newTabHref(tablePagePath(selectedRow.connectionID, panel.table.table_name, 'entry'))"
 									target="_blank"
 									@click="handleClose"
 								/>
@@ -168,7 +169,7 @@ function handleClose() {
 									icon="open_in_new"
 									size="sm"
 									label="Open records in table view"
-									:href="newTabHref(`/dashboard/${selectedRow.connectionID}/${panel.table.table_name}`, panel.urlParams)"
+									:href="newTabHref(tablePagePath(selectedRow.connectionID, panel.table.table_name), panel.urlParams)"
 									target="_blank"
 									@click="handleClose"
 								/>
@@ -199,7 +200,7 @@ function handleClose() {
 										size="sm"
 										label="Open record"
 										:to="{
-											path: `/dashboard/${selectedRow.connectionID}/${panel.table.table_name}/entry`,
+											path: tablePagePath(selectedRow.connectionID, panel.table.table_name, 'entry'),
 											query: panel.records.links[rowIndex] as Record<string, string>,
 										}"
 										@click="handleClose"

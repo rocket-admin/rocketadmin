@@ -21,6 +21,7 @@ import { UiButton, UiIcon, UiIconButton } from '@/components/ui';
 import { useDialog } from '@/composables/useDialog';
 import { UIwidgets } from '@/consts/record-edit-types';
 import { normalizeTableName } from '@/lib/normalize';
+import { tablePagePath } from '@/lib/table-url';
 import type { Widget } from '@/models/table';
 import { useConnectionsStore } from '@/stores/connections';
 import { type TableStructureResponse, useTablesStore } from '@/stores/tables';
@@ -45,7 +46,7 @@ const displayTableName = ref('');
 const submitting = ref(false);
 
 const widgetList = computed(() => widgets.value ?? []);
-const tablePath = computed(() => `/dashboard/${connectionId.value}/${tableName.value}`);
+const tablePath = computed(() => tablePagePath(connectionId.value, tableName.value));
 
 const crumbs = computed(() => {
 	const connection = connections.currentConnection;

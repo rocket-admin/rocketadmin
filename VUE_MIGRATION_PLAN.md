@@ -112,6 +112,11 @@ Every route now renders its ported page; `PendingView` is gone. New primitives b
 1. **Parity checklist:** every route in `app-routing.module.ts` has a matching route in Vue, with the same paths and query params, so existing bookmarks and emailed links keep working.
 2. **Dockerfile:** change the `front_builder` stage to build `frontend-vue` (`vite build --mode saas-production|production`) and copy its `dist/` to `/var/www/html`. `frontend/nginx/default.conf` does not change. During the trial period, use a build arg (`FRONTEND=angular|vue`) so switching back is one parameter.
 3. **Rollout:** staging first, then SaaS production, then self-hosted images.
+
+   Status:
+   - **Parity checklist:** `src/router/routes.spec.ts` holds a snapshot of every Angular route, its guard and its title, and checks each one against the Vue router; it also checks that Vue has no extra pages. An audit of query params found one link-breaking difference: table names with `?`, `#` or `%` were cut off. All table links now go through `tablePagePath()` (`src/lib/table-url.ts`), which encodes each path segment the way the Angular router does. Sentry transactions are now named by the Angular route template (`/dashboard/:connection-id/:table-name`), and `query.*` values are no longer sent (`toAngularSentryEvent` in `src/lib/monitoring.ts`). Known cosmetic differences are left as they are: an empty `filters=()` or `sort_active=`, the back link always carrying `page_index`/`page_size`, and vue-router matching paths case-insensitively.
+   - **Dockerfile:** has `ARG FRONTEND=angular` with two builder stages, `front_builder_angular` and `front_builder_vue`. `docker-bake.hcl` passes the `FRONTEND` variable through, so `FRONTEND=vue docker buildx bake` builds the Vue image.
+   - **Rollout switches:** SaaS adds `FRONTEND=vue` to the `build-args` in `.github/workflows/saas.yml`. Self-hosted images change the `FRONTEND` default in `docker-bake.hcl`. Switching back means reverting that one line.
 4. **Cleanup:** after one stable release, delete `frontend/`, rename `frontend-vue/` to `frontend/`, delete the stale `frontend/Dockerfile`, and update `CLAUDE.md` and `frontend/CLAUDE.md` with the Vue conventions (`<script setup>`, Pinia setup stores, composables, palette-only colors, BEM).
 
 ## Rules for the rewrite

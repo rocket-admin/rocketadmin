@@ -14,6 +14,7 @@ import { UiButton, UiIcon, UiIconButton, UiInput, UiMenu, UiMenuItem, vTooltip }
 import { useDialog } from '@/composables/useDialog';
 import { ALL_TABLES_FOLDER_ID, type Folder, useTableFolders } from '@/composables/useTableFolders';
 import { FIRST_PAGE_QUERY } from '@/lib/table-query';
+import { tablePagePath } from '@/lib/table-url';
 import type { TableProperties } from '@/models/table';
 import type { ConnectionSettingsUI } from '@/models/ui-settings';
 import { useConnectionsStore } from '@/stores/connections';
@@ -63,7 +64,7 @@ function getTableName(table: TableProperties): string {
 }
 
 function tableLink(table: TableProperties) {
-	return { path: `/dashboard/${props.connectionID}/${table.table}`, query: { ...FIRST_PAGE_QUERY } };
+	return { path: tablePagePath(props.connectionID, table.table), query: { ...FIRST_PAGE_QUERY } };
 }
 
 function closeSidebar() {

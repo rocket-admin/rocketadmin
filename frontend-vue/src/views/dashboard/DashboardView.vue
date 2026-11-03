@@ -48,6 +48,7 @@ import {
 	type TableFilters,
 	toSortOrder,
 } from '@/lib/table-query';
+import { tablePagePath } from '@/lib/table-url';
 import { AlertType, type ServerError } from '@/models/alert';
 import type { TableProperties } from '@/models/table';
 import type { ConnectionSettingsUI } from '@/models/ui-settings';
@@ -203,7 +204,7 @@ function onTableParam(tableName: string | null, loadedConnectionID: string) {
 		selection.clear();
 	} else {
 		const target = connections.defaultDisplayTable || allTables.value[0]?.table;
-		router.replace({ path: `/dashboard/${connectionID.value}/${target}`, query: route.query });
+		router.replace({ path: tablePagePath(connectionID.value, target), query: route.query });
 		selectedTableName.value = target ?? null;
 	}
 }
@@ -254,7 +255,7 @@ function getRows(search?: string | null, uncached?: boolean) {
 }
 
 function tablePath() {
-	return `/dashboard/${connectionID.value}/${selectedTableName.value}`;
+	return tablePagePath(connectionID.value, selectedTableName.value);
 }
 
 /** Filters from the dialog: `{ [column]: { [comparator]: value } }`, first page, in the URL. */

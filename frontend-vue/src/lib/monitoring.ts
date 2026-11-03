@@ -3,6 +3,8 @@
 // - Sentry: SaaS builds only.
 // - PostHog: SaaS production builds only.
 // - Amplitude: every build, page views on each navigation (Angulartics2Amplitude.startTracking).
+
+import type { Event } from '@sentry/vue';
 import * as Sentry from '@sentry/vue';
 import amplitude from 'amplitude-js';
 import posthog from 'posthog-js';
@@ -19,11 +21,14 @@ export function initMonitoring(app: App, router: Router): void {
 		Sentry.init({
 			app,
 			dsn: SENTRY_DSN,
-			integrations: [Sentry.browserTracingIntegration({ router })],
+			// Named by route template, like the Angular app, rather than by Vue route name.
+			integrations: [Sentry.browserTracingIntegration({ router, routeLabel: 'path' })],
 			tracePropagationTargets: ['localhost', /^https:\/\/app\.rocketadmin\.com\/api/],
 			tracesSampleRate: 1.0,
 			replaysSessionSampleRate: 0.1,
 			replaysOnErrorSampleRate: 1.0,
+			beforeSend: toAngularSentryEvent,
+			beforeSendTransaction: toAngularSentryEvent,
 		});
 	}
 
@@ -37,4 +42,39 @@ export function initMonitoring(app: App, router: Router): void {
 	router.afterEach((to) => {
 		amplitude.getInstance().logEvent('Pageview', { url: to.fullPath });
 	});
+}
+
+/**
+ * The route template as the Angular app names it: `/dashboard/:connectionId/:tableName` becomes
+ * `/dashboard/:connection-id/:table-name`, and the catch-all becomes `**`. Keeps Sentry grouping,
+ * alerts and dashboards the same across the cutover.
+ */
+export function toAngularRoutePath(path: string): string {
+	if (path.startsWith('/:pathMatch')) return '**';
+	return path.replace(/:([a-zA-Z]+)/g, (_match, name: string) => `:${kebabCase(name)}`);
+}
+
+/**
+ * Renames the transaction and the route-param attributes the Vue router integration sets, and drops
+ * its `query.*` attributes: they carry filters, searches and primary-key values that Angular never sent.
+ */
+export function toAngularSentryEvent<T extends Event>(event: T): T {
+	if (event.transaction) event.transaction = toAngularRoutePath(event.transaction);
+	const data = event.contexts?.trace?.data;
+	if (data) {
+		for (const key of Object.keys(data)) {
+			const value = data[key];
+			delete data[key];
+			if (key.startsWith('query.')) continue;
+			const param = /^(?<base>url\.path\.parameter|url\.path\.params|params)\.(?<name>.+)$/.exec(key)?.groups;
+			if (param) data[`${param.base}.${kebabCase(param.name ?? '')}`] = value;
+			else if (key === 'url.template' && typeof value === 'string') data[key] = toAngularRoutePath(value);
+			else data[key] = value;
+		}
+	}
+	return event;
+}
+
+function kebabCase(name: string): string {
+	return name.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
 }

@@ -24,6 +24,7 @@ import { trackEvent } from '@/composables/useAnalytics';
 import { useDialogRef } from '@/composables/useDialog';
 import { getComparatorsFromUrl, getFiltersFromUrl } from '@/lib/parse-filter-params';
 import { getTableTypes } from '@/lib/setup-table-row-structure';
+import { tablePagePath } from '@/lib/table-url';
 import type { TableField, Widget, WidgetStructure } from '@/models/table';
 import { useConnectionsStore } from '@/stores/connections';
 import {
@@ -269,7 +270,7 @@ function definedComparators(comparators: Record<string, string | undefined>): Re
 					icon="settings"
 					label="Advanced settings"
 					size="sm"
-					:to="`/dashboard/${data.connectionID}/${data.tableName}/settings`"
+					:to="tablePagePath(data.connectionID, data.tableName, 'settings')"
 					@click="dialogRef.close()"
 				/>
 			</div>

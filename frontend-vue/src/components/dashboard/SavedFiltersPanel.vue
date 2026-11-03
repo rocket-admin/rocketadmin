@@ -23,6 +23,7 @@ import { UiButton, UiChip, UiIcon, UiIconButton, UiMenu, UiMenuItem, UiSelect } 
 import { trackEvent } from '@/composables/useAnalytics';
 import { useDialog } from '@/composables/useDialog';
 import { onTableEvent } from '@/lib/table-events';
+import { tablePagePath } from '@/lib/table-url';
 import type { TableField, WidgetStructure } from '@/models/table';
 import { useConnectionsStore } from '@/stores/connections';
 import { useTablesStore } from '@/stores/tables';
@@ -365,7 +366,7 @@ function comparatorWord(operator: string): string | undefined {
 }
 
 function navigate(query: LocationQueryRaw) {
-	router.push({ path: `/dashboard/${props.connectionID}/${tableName.value}`, query });
+	router.push({ path: tablePagePath(props.connectionID, tableName.value), query });
 }
 
 function routeParam(name: string): string | undefined {

@@ -25,6 +25,7 @@ import {
 	UiSelect,
 } from '@/components/ui';
 import { AVAILABLE_EVENTS, type RuleProblem, useTableRules } from '@/composables/useTableRules';
+import { tablePagePath } from '@/lib/table-url';
 import type { CompanyMember } from '@/models/company';
 import { EventType } from '@/models/table';
 import { useCompanyStore } from '@/stores/company';
@@ -98,12 +99,12 @@ const crumbs = computed(() => {
 	const connection = connections.currentConnection;
 	return [
 		{ label: connection.title || connection.database, link: `/dashboard/${connectionId.value}` },
-		{ label: displayTableName.value, link: `/dashboard/${connectionId.value}/${tableName.value}` },
+		{ label: displayTableName.value, link: tablePagePath(connectionId.value, tableName.value) },
 		{ label: 'Automations', link: null },
 	];
 });
 
-const tablePath = computed(() => `/dashboard/${connectionId.value}/${tableName.value}`);
+const tablePath = computed(() => tablePagePath(connectionId.value, tableName.value));
 const action = computed(() => selectedRule.value?.table_actions[0]);
 const showEmptyState = computed(() => (!selectedRule.value || !ruleList.value?.length) && !isCreationMode.value);
 
