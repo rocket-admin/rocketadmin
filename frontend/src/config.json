@@ -1,5 +1,0 @@
-{
-	"#important to keep it /api for prod": true,
-	"baseURL": "/api",
-	"saasURL": ""
-}

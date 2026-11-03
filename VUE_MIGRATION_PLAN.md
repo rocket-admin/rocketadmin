@@ -120,6 +120,16 @@ Every route now renders its ported page; `PendingView` is gone. New primitives b
    - **Rollout switch:** `FRONTEND` now defaults to `vue` in both the `Dockerfile` (used by `saas.yml`) and `docker-bake.hcl` (used by `build.yml` and `quay.yml` for the self-hosted images). To roll back, either revert that commit or pass `FRONTEND=angular`. The rollback stays available until the Angular cleanup commit that follows. Reverting that commit brings `frontend/` back.
 4. **Cleanup:** after one stable release, delete `frontend/`, rename `frontend-vue/` to `frontend/`, delete the stale `frontend/Dockerfile`, and update `CLAUDE.md` and `frontend/CLAUDE.md` with the Vue conventions (`<script setup>`, Pinia setup stores, composables, palette-only colors, BEM).
 
+   Status: done ahead of the stable release, in a separate commit that sits on top of the rollout switch.
+   - The Angular app and its stale `Dockerfile` are deleted, and `frontend-vue/` is now `frontend/` (package name `rocketadmin`).
+   - The static assets moved to `frontend/public/assets/`, replacing the `vite-plugin-static-copy` step. The nginx config moved to `frontend/nginx/default.conf`.
+   - The `Dockerfile` has one `front_builder` stage. The `FRONTEND` arg is gone from the `Dockerfile` and `docker-bake.hcl`.
+   - The two specs that read Angular source are now self-contained. `routes.spec.ts` already held a snapshot. `consts/widget-types.spec.ts` now compares against `consts/widget-types.angular.json`, frozen from the Angular `*-types.ts` maps.
+   - CI: `frontend.yml` is the old `frontend-vue.yml`. It also runs on tags and gained the Angular workflow's license check, with `OFL-1.1` allowed for the Geist and Space Grotesk fonts. `storybook.yml` builds the Vue Storybook with pnpm.
+   - `CLAUDE.md`/`AGENTS.md`, the new `frontend/CLAUDE.md`, `frontend/README.md` and `WIDGETS.md` describe the Vue app.
+   - The "Port of frontend/src/app/…" comments in the Vue sources still name the Angular files they came from. Those files can be found in the history before the cleanup commit.
+   - **Rollback:** revert the cleanup commit, then build with `FRONTEND=angular`.
+
 ## Rules for the rewrite
 - **No feature changes during the port.** File UI or UX improvements as separate follow-ups so the parity review stays meaningful.
 - **Freeze new features in Angular** once Phase 3 starts, or require each new Angular feature to be ported to Vue in the same PR.

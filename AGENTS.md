@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 RocketAdmin is a database administration panel that allows users to manage database connections, tables, and data. It consists of multiple components in a monorepo structure:
 
 - **backend/** - NestJS API server (TypeScript, ES modules)
-- **frontend/** - Angular 19 web application (standalone components)
+- **frontend/** - Vue 3 web application (Vite, Pinia, vue-router)
 - **rocketadmin-agent/** - NestJS agent for connecting to databases behind firewalls
 - **autoadmin-ws-server/** - WebSocket server for agent communication
 - **shared-code/** - Shared data access layer and utilities used by backend and agent
@@ -30,11 +30,13 @@ pnpm test-saas          # Run SaaS-specific tests
 
 ```bash
 cd frontend
-yarn start              # Start Angular dev server
-yarn build              # Production build
-yarn test:ci            # Run tests headlessly (CI mode)
-yarn test --browsers=ChromeHeadlessCustom --no-watch --no-progress  # Headless tests
-yarn lint               # TSLint (deprecated, needs ESLint migration)
+pnpm install            # Installed on its own, not as a workspace member
+pnpm dev                # Start Vite dev server (proxies /api)
+pnpm build              # Production build (pnpm build:saas for SaaS)
+pnpm lint               # biome + eslint-plugin-vue
+pnpm typecheck          # vue-tsc
+pnpm test:ci            # Vitest (unit and component tests)
+pnpm test:e2e           # Playwright against a mocked API
 ```
 
 ### Running Backend Tests with Docker
@@ -64,7 +66,7 @@ pnpm migration:revert   # Revert last migration
 
 - Uses pnpm workspaces with packages: `backend`, `rocketadmin-agent`, `shared-code`
 - `shared-code` is imported as `@rocketadmin/shared-code` workspace dependency
-- Frontend is a separate Angular project (not a workspace member)
+- Frontend is a separate pnpm project with its own lockfile (not a workspace member)
 
 ### Backend (NestJS)
 
@@ -82,15 +84,16 @@ pnpm migration:revert   # Revert last migration
   - `saas-tests/` - SaaS-specific feature tests
   - `complex-table-tests/` - Complex table operation tests
 
-### Frontend (Angular 19)
+### Frontend (Vue 3)
 
-See `frontend/CLAUDE.md` for detailed frontend architecture.
+See `frontend/CLAUDE.md` for detailed frontend architecture and conventions.
 
 Key points:
-- Standalone components (no NgModules)
-- BehaviorSubject-based state management (no NgRx)
-- Multi-environment builds (development, production, saas, saas-production)
-- Jasmine/Karma testing with ChromeHeadless
+- `<script setup lang="ts">` components, Composition API, composables for shared logic
+- Pinia setup stores; TanStack Vue Query for cached server data
+- UI primitives in `src/components/ui/` (SiteNova design system); colours only via `--color-*` variables, BEM class names
+- Multi-environment builds via Vite modes (development, production, saas, saas-production)
+- Vitest + @vue/test-utils for unit tests, Playwright for e2e
 
 ### Shared Code
 

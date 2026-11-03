@@ -1,10 +1,14 @@
 {
-	"extends": "./tsconfig.json",
+	"extends": "@vue/tsconfig/tsconfig.dom.json",
 	"compilerOptions": {
-		"outDir": "./out-tsc/app",
-		"types": []
+		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+		"types": ["vite/client"],
+		"paths": {
+			"@/*": ["./src/*"]
+		},
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"lib": ["ES2023", "DOM", "DOM.Iterable"]
 	},
-	"files": ["src/main.ts", "src/polyfills.ts"],
-	"include": ["src/**/*.d.ts"],
-	"exclude": ["src/test.ts", "src/**/*.spec.ts", "src/**/*.stories.ts"]
+	"include": ["src/**/*.ts", "src/**/*.vue"]
 }

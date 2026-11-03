@@ -8,28 +8,30 @@ The widget system in RocketAdmin allows customization of how database fields are
 
 Widgets are implemented across **four different contexts**, each serving a specific purpose in the UI:
 
-| Context | Location | Purpose | Editable | Base Component |
-|---------|----------|---------|----------|----------------|
-| **Record Edit Fields** | Create/Edit forms | Interactive input for data entry | ✅ Yes | `BaseEditFieldComponent` |
-| **Record View Fields** | Single record detail page | Read-only formatted display | ❌ No | `BaseRecordViewFieldComponent` |
-| **Table Display Fields** | Table rows | Compact display in lists | ❌ No | `BaseTableDisplayFieldComponent` |
-| **Filter Fields** | Filter panels | Search and filter inputs | ✅ Yes | `BaseFilterFieldComponent` |
+| Context | Location | Purpose | Editable | Composable |
+|---------|----------|---------|----------|------------|
+| **Record Edit Fields** | Create/Edit forms | Interactive input for data entry | ✅ Yes | `useRecordEditField(props)` |
+| **Record View Fields** | Single record detail page | Read-only formatted display | ❌ No | `useViewField(props, emit)` |
+| **Table Display Fields** | Table rows | Compact display in lists | ❌ No | `useViewField(props, emit)` |
+| **Filter Fields** | Filter panels | Search and filter inputs | ✅ Yes | `useFilterField(props)` (an alias of `useRecordEditField`) |
 
-**Example:** The `Boolean` widget type has four implementations:
-- `record-edit-fields/boolean/` - Checkbox toggle for editing
-- `record-view-fields/boolean/` - "Yes/No" or icon display
-- `table-display-fields/boolean/` - Badge or icon in table cells
-- `filter-fields/boolean/` - True/False/All dropdown for filtering
+All four composables live in `frontend/src/components/fields/useFieldWidget.ts`.
+
+**Example:** The `Boolean` widget type has four implementations under `frontend/src/components/fields/`:
+- `record-edit/BooleanEdit.vue` - Checkbox toggle for editing
+- `record-view/BooleanRecordView.vue` - "Yes/No" or icon display
+- `table-display/BooleanDisplay.vue` - Badge or icon in table cells
+- `filter/BooleanFilter.vue` - True/False/All dropdown for filtering
 
 ## Table of Contents
 
 1. [Where Widgets Are Stored](#where-widgets-are-stored)
    - [Backend (Database & Entity)](#backend-database--entity)
    - [Frontend (UI Components)](#frontend-ui-components)
-     - [Record Edit Fields](#1-record-edit-fields-record-edit-fields)
-     - [Record View Fields](#2-record-view-fields-record-view-fields)
-     - [Table Display Fields](#3-table-display-fields-table-display-fields)
-     - [Filter Fields](#4-filter-fields-filter-fields)
+     - [Record Edit Fields](#1-record-edit-fields-record-edit-editvue)
+     - [Record View Fields](#2-record-view-fields-record-view-recordviewvue)
+     - [Table Display Fields](#3-table-display-fields-table-display-displayvue)
+     - [Filter Fields](#4-filter-fields-filter-filtervue)
    - [Shared Code](#shared-code)
 2. [Widget Structure](#widget-structure)
 3. [Available Widget Types](#available-widget-types)
@@ -65,157 +67,51 @@ backend/src/entities/widget/
 
 ### Frontend (UI Components)
 
-The frontend implements widgets across **four different contexts**, each with its own set of components:
+The frontend (Vue 3, `frontend/`) implements widgets in **four contexts**. Each one is a folder of single-file components under `frontend/src/components/fields/`, named `<Widget><Suffix>.vue`. The props they share (`label`, `value`, `fieldKey`, `structure`, `widgetStructure`, `relations`, `readonly`, `required`, `disabled`) are defined in `fields/types.ts`. Their common logic lives in the composables in `fields/useFieldWidget.ts`.
 
-#### 1. Record Edit Fields (`record-edit-fields/`)
-**Purpose:** Interactive form inputs for editing/creating records
-**Base Component:** `BaseEditFieldComponent`
+#### 1. Record Edit Fields (`record-edit/`, `*Edit.vue`)
+**Purpose:** Interactive form inputs for editing and creating records.
+**Composable:** `useRecordEditField(props)`
 **Key Features:**
-- Two-way data binding with `@Output() onFieldChange`
-- Supports validation, required fields, disabled/readonly states
-- Full CRUD functionality
+- Emit `fieldChange` with the new value.
+- Support validation and the required, disabled and readonly states.
 
-**Available Components:**
-```
-frontend/src/app/components/ui-components/record-edit-fields/
-├── boolean/          # Checkbox/toggle for true/false
-├── code/             # Code editor with syntax highlighting
-├── color/            # Color picker
-├── country/          # Country selector with flags
-├── date/             # Date picker
-├── date-time/        # Date and time picker
-├── file/             # File upload
-├── foreign-key/      # Related record selector
-├── image/            # Image upload with preview
-├── json-editor/      # JSON editor
-├── long-text/        # Multi-line textarea
-├── money/            # Currency input
-├── number/           # Numeric input
-├── password/         # Password input with encryption
-├── phone/            # International phone number
-├── point/            # Geographic point input
-├── range/            # Range slider
-├── select/           # Dropdown select
-├── static-text/      # Read-only text
-├── text/             # Single-line text input
-├── time/             # Time picker
-├── time-interval/    # Time interval input
-├── timezone/         # Timezone selector with UTC offsets
-├── url/              # URL input with validation
-└── uuid/             # UUID display/input
-```
+**Widgets:** Binary, BinaryDataCaption, Boolean, Code, Color, Country, Date, DateTime, File, ForeignKey, Id, Image, JsonEditor, Language, LongText, Markdown, Money, Number, Password, Phone, Point, Range, S3, Select, StaticText, Text, Time, TimeInterval, Timezone, Url, Uuid
 
-#### 2. Record View Fields (`record-view-fields/`)
-**Purpose:** Read-only display for single record detail view
-**Base Component:** `BaseRecordViewFieldComponent`
+#### 2. Record View Fields (`record-view/`, `*RecordView.vue`)
+**Purpose:** Read-only display for the single-record detail view.
+**Composable:** `useViewField(props, emit)`
 **Key Features:**
-- Display-only (no editing)
-- Copy-to-clipboard functionality via `@Output() onCopyToClipboard`
-- Formatted value presentation
+- Display only, no editing.
+- Copy to clipboard, which emits `copyToClipboard`.
+- Present formatted values.
 
-**Available Components:**
-```
-frontend/src/app/components/ui-components/record-view-fields/
-├── boolean/          # Display boolean as Yes/No or icons
-├── code/             # Syntax-highlighted code display
-├── color/            # Color swatch display
-├── country/          # Country name with flag
-├── date/             # Formatted date display
-├── date-time/        # Formatted datetime display
-├── file/             # File download link
-├── foreign-key/      # Related record link
-├── image/            # Image display
-├── json-editor/      # Formatted JSON display
-├── long-text/        # Multi-line text display
-├── money/            # Formatted currency display
-├── number/           # Formatted number display
-├── password/         # Masked password display
-├── phone/            # Formatted phone number
-├── point/            # Geographic coordinates display
-├── range/            # Range value display
-├── select/           # Selected option display
-├── static-text/      # Plain text display
-├── text/             # Text display
-├── time/             # Formatted time display
-├── time-interval/    # Time interval display
-├── url/              # Clickable URL link
-└── uuid/             # UUID display with copy option
-```
+**Widgets:** the same set as Record Edit. `RecordViewValue.vue` picks the widget for a field.
 
-#### 3. Table Display Fields (`table-display-fields/`)
-**Purpose:** Compact, read-only display for table rows
-**Base Component:** `BaseTableDisplayFieldComponent`
+#### 3. Table Display Fields (`table-display/`, `*Display.vue`)
+**Purpose:** Compact, read-only display in table rows.
+**Composable:** `useViewField(props, emit)`
 **Key Features:**
-- Condensed display optimized for tables
-- Copy-to-clipboard functionality
-- Truncation for long values
-- Inline formatting
+- Condensed display for tables, with long values truncated.
+- Copy to clipboard.
 
-**Available Components:**
-```
-frontend/src/app/components/ui-components/table-display-fields/
-├── boolean/          # Icon or badge display
-├── code/             # Truncated code snippet
-├── color/            # Color swatch
-├── country/          # Flag or country code
-├── date/             # Short date format
-├── date-time/        # Short datetime format
-├── file/             # File icon/link
-├── foreign-key/      # Related record link
-├── image/            # Thumbnail image
-├── json-editor/      # JSON preview (truncated)
-├── long-text/        # Truncated text with tooltip
-├── money/            # Currency symbol + amount
-├── number/           # Formatted number
-├── password/         # Masked (*****)
-├── phone/            # Phone number
-├── point/            # Coordinates
-├── range/            # Range value
-├── select/           # Selected option
-├── static-text/      # Plain text
-├── text/             # Text (truncated if long)
-├── time/             # Time display
-├── time-interval/    # Interval display
-├── url/              # Clickable link (truncated)
-└── uuid/             # Shortened UUID
-```
+**Widgets:** the same set as Record Edit. `TableDisplayCell.vue` picks the widget for a cell.
 
-#### 4. Filter Fields (`filter-fields/`)
-**Purpose:** Search/filter inputs for table data
-**Base Component:** `BaseFilterFieldComponent`
+#### 4. Filter Fields (`filter/`, `*Filter.vue`)
+**Purpose:** Search and filter inputs for table data.
+**Composable:** `useFilterField(props)`
 **Key Features:**
-- Specialized for filtering operations
-- Supports comparison operators (equals, contains, greater than, etc.)
-- `@Output() onFieldChange` for filter updates
-- Auto-focus support for better UX
+- Comparison operators (equals, contains, greater than, ...), which emit `comparatorChange`.
+- Emit `fieldChange` when the filter value changes.
+- Autofocus support.
 
-**Available Components:**
-```
-frontend/src/app/components/ui-components/filter-fields/
-├── boolean/          # Boolean filter (true/false/all)
-├── country/          # Country filter dropdown
-├── date/             # Date range picker
-├── date-time/        # Datetime range picker
-├── file/             # File type filter
-├── foreign-key/      # Related record filter
-├── id/               # ID search
-├── json-editor/      # JSON query filter
-├── long-text/        # Text search with operators
-├── number/           # Numeric range filter
-├── password/         # Password field filter
-├── point/            # Geographic filter
-├── select/           # Dropdown filter
-├── static-text/      # Text filter
-├── text/             # Text search input
-├── time/             # Time range filter
-└── time-interval/    # Interval filter
-```
+**Widgets:** Binary, BinaryDataCaption, Boolean, Country, Date, DateTime, Default, Email, File, ForeignKey, Id, JsonEditor, LongText, Number, Password, Phone, Point, Select, StaticText, Text, Time, TimeInterval, Timezone. `FilterComparatorRow.vue` lays out the comparator next to the input.
 
 **Widget Registration:**
-- `frontend/src/app/consts/record-edit-types.ts` - Maps widget types to Angular components
+- `frontend/src/consts/record-edit-types.ts`, `record-view-types.ts`, `table-display-types.ts` and `filter-types.ts` map widget types and DB types to components (`defineAsyncComponent`). `frontend/src/consts/widget-types.spec.ts` checks these maps against a snapshot of the old Angular maps.
 
 **Widget Configuration UI:**
-- `frontend/src/app/components/dashboard/db-table-view/db-table-widgets/` - UI for managing widgets
+- `frontend/src/views/table/TableWidgetsView.vue` with `frontend/src/components/table/TableWidgetItem.vue` and `widget-defaults.ts`.
 
 ### Shared Code
 
@@ -320,220 +216,235 @@ export enum WidgetTypeEnum {
 
 ### Step 2: Create Frontend Components
 
-When adding a new widget, you need to create components for **all four contexts**:
+When adding a new widget, you need to create components for **all four contexts**, under `frontend/src/components/fields/`:
 
-1. **Record Edit Field** (required) - `record-edit-fields/your-new-widget/`
-2. **Record View Field** (optional) - `record-view-fields/your-new-widget/`
-3. **Table Display Field** (optional) - `table-display-fields/your-new-widget/`
-4. **Filter Field** (optional) - `filter-fields/your-new-widget/`
+1. **Record Edit Field** (required) - `record-edit/YourNewWidgetEdit.vue`
+2. **Record View Field** (optional) - `record-view/YourNewWidgetRecordView.vue`
+3. **Table Display Field** (optional) - `table-display/YourNewWidgetDisplay.vue`
+4. **Filter Field** (optional) - `filter/YourNewWidgetFilter.vue`
 
-**Note:** At minimum, create the **record-edit-field** component. The other contexts will fall back to default rendering if not provided.
+**Note:** At minimum, create the **record-edit** component. The other contexts will fall back to default rendering if not provided.
+
+Every widget is a `<script setup lang="ts">` single-file component. Next to it go a `*.spec.ts` (Vitest) and a `*.stories.ts` (Storybook), like the existing widgets. Build the markup from the primitives in `@/components/ui` (`UiField`, `UiInput`, `UiSelect`, ...). Keep styles `scoped`, BEM-named, and use only the `--color-*` (and spacing/text) CSS variables, so the dark theme works.
 
 #### Creating the Record Edit Field Component
 
-**Location:** `frontend/src/app/components/ui-components/record-edit-fields/your-new-widget/`
+**File:** `frontend/src/components/fields/record-edit/YourNewWidgetEdit.vue`
 
-Create three files:
+```vue
+<script setup lang="ts">
+import { ref } from 'vue';
+import { UiField, UiInput } from '@/components/ui';
+import type { RecordEditFieldEmits, RecordEditFieldProps } from '../types';
+import { useRecordEditField } from '../useFieldWidget';
 
-#### 1. Component TypeScript (`your-new-widget.component.ts`)
+const props = defineProps<RecordEditFieldProps & { value?: string | null }>();
+const emit = defineEmits<RecordEditFieldEmits>();
 
-```typescript
-import { CUSTOM_ELEMENTS_SCHEMA, Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+const { normalizedLabel, widgetParams } = useRecordEditField(props);
 
-import { BaseEditFieldComponent } from '../base-row-field/base-row-field.component';
+const text = ref(props.value ?? '');
 
-@Component({
-  selector: 'app-edit-your-new-widget',
-  imports: [CommonModule, FormsModule, MatFormFieldModule, MatInputModule],
-  templateUrl: './your-new-widget.component.html',
-  styleUrls: ['./your-new-widget.component.css'],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
-})
-export class YourNewWidgetEditComponent extends BaseEditFieldComponent {
-  @Input() value: any;
-
-  ngOnInit(): void {
-    super.ngOnInit();
-    // Additional initialization here
-  }
-
-  handleChange(newValue: any): void {
-    this.onFieldChange.emit(newValue);
-  }
+function onInput(value: string) {
+	text.value = value;
+	emit('fieldChange', value);
 }
-```
+</script>
 
-#### 2. Component Template (`your-new-widget.component.html`)
+<template>
+	<UiField class="your-new-widget-edit" :label="normalizedLabel" :required="required">
+		<UiInput
+			:name="`${label}-${fieldKey}`"
+			:model-value="text"
+			:disabled="disabled"
+			:readonly="readonly"
+			:data-testid="`record-${label}-your-new-widget`"
+			@update:model-value="onInput"
+		/>
+	</UiField>
+</template>
 
-```html
-<mat-form-field class="your-new-widget-form-field" appearance="outline">
-  <mat-label>{{normalizedLabel}}</mat-label>
-  <input
-    matInput
-    name="{{label}}-{{key}}"
-    [required]="required"
-    [disabled]="disabled"
-    [readonly]="readonly"
-    attr.data-testid="record-{{label}}-your-new-widget"
-    [(ngModel)]="value"
-    (ngModelChange)="onFieldChange.emit($event)"
-  />
-</mat-form-field>
-```
-
-#### 3. Component Styles (`your-new-widget.component.css`)
-
-```css
-.your-new-widget-form-field {
+<style scoped>
+.your-new-widget-edit {
   width: 100%;
 }
+</style>
 ```
+
+The shared props (`fieldKey`, `label`, `required`, `readonly`, `disabled`, `structure`, `widgetStructure`, `relations`) come from `RecordEditFieldProps` in `fields/types.ts`; each widget adds its own typed `value`. Note that the field key is `fieldKey` (`key` is reserved in Vue), and the output is the `fieldChange` event. `widgetParams` is the parsed `widget_params` object, whether the API sent it as a string or an object.
 
 #### Optional: Create Other Field Type Components
 
-**Record View Field** (`record-view-fields/your-new-widget/`):
-```typescript
-import { Component, Input } from '@angular/core';
-import { BaseRecordViewFieldComponent } from '../base-record-view-field/base-record-view-field.component';
+**Record View Field** (`record-view/YourNewWidgetRecordView.vue`):
+```vue
+<script setup lang="ts">
+import type { RecordViewFieldProps, ViewFieldEmits } from '../types';
+import RecordViewValue from './RecordViewValue.vue';
 
-@Component({
-  selector: 'app-view-your-new-widget',
-  templateUrl: './your-new-widget.component.html',
-  styleUrls: ['./your-new-widget.component.css']
-})
-export class YourNewWidgetViewComponent extends BaseRecordViewFieldComponent {
-  // Read-only display logic
-}
+defineProps<RecordViewFieldProps & { value?: string | null }>();
+defineEmits<ViewFieldEmits>();
+</script>
+
+<template>
+	<RecordViewValue>{{ value || '—' }}</RecordViewValue>
+</template>
 ```
 
-**Table Display Field** (`table-display-fields/your-new-widget/`):
-```typescript
-import { Component } from '@angular/core';
-import { BaseTableDisplayFieldComponent } from '../base-table-display-field/base-table-display-field.component';
+**Table Display Field** (`table-display/YourNewWidgetDisplay.vue`):
+```vue
+<script setup lang="ts">
+import type { TableDisplayFieldProps, ViewFieldEmits } from '../types';
+import { useViewField } from '../useFieldWidget';
+import TableDisplayCell from './TableDisplayCell.vue';
 
-@Component({
-  selector: 'app-display-your-new-widget',
-  templateUrl: './your-new-widget.component.html',
-  styleUrls: ['./your-new-widget.component.css']
-})
-export class YourNewWidgetDisplayComponent extends BaseTableDisplayFieldComponent {
-  // Condensed table display logic
-}
+const props = defineProps<TableDisplayFieldProps & { value?: string | null }>();
+const emit = defineEmits<ViewFieldEmits>();
+
+// `copy()` copies the value and emits `copyToClipboard` with the snackbar message.
+const { copy } = useViewField(props, emit);
+</script>
+
+<template>
+	<TableDisplayCell @copy="copy(value)">{{ value || '—' }}</TableDisplayCell>
+</template>
 ```
 
-**Filter Field** (`filter-fields/your-new-widget/`):
-```typescript
-import { Component } from '@angular/core';
-import { BaseFilterFieldComponent } from '../base-filter-field/base-filter-field.component';
+**Filter Field** (`filter/YourNewWidgetFilter.vue`):
+```vue
+<script setup lang="ts">
+import { ref } from 'vue';
+import { UiField, UiInput } from '@/components/ui';
+import type { FilterFieldEmits, FilterFieldProps } from '../types';
+import { useFilterField } from '../useFieldWidget';
+import { type FocusTarget, useAutofocus } from './useAutofocus';
 
-@Component({
-  selector: 'app-filter-your-new-widget',
-  templateUrl: './your-new-widget.component.html',
-  styleUrls: ['./your-new-widget.component.css']
-})
-export class YourNewWidgetFilterComponent extends BaseFilterFieldComponent {
-  // Filter logic with operators
-}
+const props = defineProps<FilterFieldProps & { value?: string | null }>();
+const emit = defineEmits<FilterFieldEmits>();
+
+const { normalizedLabel } = useFilterField(props);
+
+const input = ref<FocusTarget>(null);
+useAutofocus(props, input);
+</script>
+
+<template>
+	<UiField floating-label :label="normalizedLabel">
+		<UiInput
+			ref="input"
+			:name="`${label}-${fieldKey}`"
+			:model-value="value ?? ''"
+			:data-testid="`filter-${label}-your-new-widget`"
+			@update:model-value="emit('fieldChange', $event)"
+		/>
+	</UiField>
+</template>
 ```
 
-### Step 3: Register Component (Angular Standalone)
+A filter widget that picks its own comparator (`eq`, `contains`, `startswith`, `empty`, ...) emits `comparatorChange` as well.
 
-**Note:** With Angular 19's standalone components, you don't need to register in NgModule. Components are self-contained with their imports.
+### Step 3: Add to Widget Registries
 
-### Step 4: Add to Widget Registries
+You need to register your widget components in **four separate registry files** under `frontend/src/consts/`, one for each context. Each file declares the components as lazily loaded `defineAsyncComponent(() => import(...))` constants and maps widget types to them in its `UIwidgets` export:
 
-You need to register your widget components in **four separate registry files**, one for each context:
+#### 3.1 Record Edit Types Registry
 
-#### 4.1 Record Edit Types Registry
-
-**File:** `frontend/src/app/consts/record-edit-types.ts`
+**File:** `frontend/src/consts/record-edit-types.ts`
 
 ```typescript
-// Add import at the top
-import { YourNewWidgetEditComponent } from '../components/ui-components/record-edit-fields/your-new-widget/your-new-widget.component';
+const YourNewWidgetEdit = defineAsyncComponent(() => import('@/components/fields/record-edit/YourNewWidgetEdit.vue'));
 
-// Add to UIwidgets export
 export const UIwidgets = {
-  // ... existing widgets
-  Your_new_widget: YourNewWidgetEditComponent,
-}
+	// ... existing widgets
+	Your_new_widget: YourNewWidgetEdit,
+};
 ```
 
-#### 4.2 Record View Types Registry
+The keys of this map also fill the widget type dropdown on the widgets settings page.
 
-**File:** `frontend/src/app/consts/record-view-types.ts`
+#### 3.2 Record View Types Registry
+
+**File:** `frontend/src/consts/record-view-types.ts`
 
 ```typescript
-// Add import at the top
-import { YourNewWidgetRecordViewComponent } from '../components/ui-components/record-view-fields/your-new-widget/your-new-widget.component';
+const YourNewWidgetRecordView = defineAsyncComponent(
+	() => import('@/components/fields/record-view/YourNewWidgetRecordView.vue'),
+);
 
-// Add to UIwidgets export
 export const UIwidgets = {
-  // ... existing widgets
-  Your_new_widget: YourNewWidgetRecordViewComponent,
-}
+	// ... existing widgets
+	Your_new_widget: YourNewWidgetRecordView,
+};
 ```
 
-#### 4.3 Table Display Types Registry
+#### 3.3 Table Display Types Registry
 
-**File:** `frontend/src/app/consts/table-display-types.ts`
+**File:** `frontend/src/consts/table-display-types.ts`
 
 ```typescript
-// Add import at the top
-import { YourNewWidgetDisplayComponent } from '../components/ui-components/table-display-fields/your-new-widget/your-new-widget.component';
+const YourNewWidgetDisplay = defineAsyncComponent(() => import('@/components/fields/table-display/YourNewWidgetDisplay.vue'));
 
-// Add to UIwidgets export
 export const UIwidgets = {
-  // ... existing widgets
-  Your_new_widget: YourNewWidgetDisplayComponent,
-}
+	// ... existing widgets
+	Your_new_widget: YourNewWidgetDisplay,
+};
 ```
 
-#### 4.4 Filter Types Registry
+#### 3.4 Filter Types Registry
 
-**File:** `frontend/src/app/consts/filter-types.ts`
+**File:** `frontend/src/consts/filter-types.ts`
 
 ```typescript
-// Add import at the top
-import { YourNewWidgetFilterComponent } from '../components/ui-components/filter-fields/your-new-widget/your-new-widget.component';
+const YourNewWidgetFilter = defineAsyncComponent(() => import('@/components/fields/filter/YourNewWidgetFilter.vue'));
 
-// Add to UIwidgets export
 export const UIwidgets = {
-  // ... existing widgets
-  Your_new_widget: YourNewWidgetFilterComponent,
+	// ... existing widgets
+	Your_new_widget: YourNewWidgetFilter,
+};
+```
+
+#### 3.5 Update the Registry Snapshot
+
+`frontend/src/consts/widget-types.spec.ts` compares every map in these four files against `frontend/src/consts/widget-types.angular.json`, a frozen snapshot of the old Angular maps (each entry is the SFC name, e.g. `"Timezone": "TimezoneEdit"`). A new entry fails that test until you add it to the JSON too:
+
+```json
+{
+	"record-edit-types.ts": {
+		"UIwidgets": {
+			"Your_new_widget": "YourNewWidgetEdit"
+		}
+	}
 }
 ```
+
+Add the matching entry under `record-view-types.ts`, `table-display-types.ts` and `filter-types.ts` for each context you registered.
 
 **Important Notes:**
 - Each registry file has its own `UIwidgets` export mapping widget types to components
-- If you only created the record-edit-fields component, only add it to `record-edit-types.ts`
+- The same files also hold the DB-type maps (`recordEditTypes`, `recordViewFieldTypes`, `tableDisplayTypes`, `filterTypes`) used for columns without a widget
+- If you only created the record-edit component, only add it to `record-edit-types.ts`
 - The system will gracefully fall back to default rendering for missing contexts
-- Component names follow the pattern: `{WidgetName}{Context}Component` where Context is Edit, RecordView, Display, or Filter
+- Component names follow the pattern: `{WidgetName}{Context}.vue` where Context is Edit, RecordView, Display, or Filter
 
-### Step 5: Add Default Parameters (Optional)
+### Step 4: Add Default Parameters (Optional)
 
-**File:** `frontend/src/app/components/dashboard/db-table-view/db-table-widgets/db-table-widgets.component.ts`
+**File:** `frontend/src/components/table/widget-defaults.ts`
 
-Add default parameters with documentation:
+Add default parameters with documentation to `WIDGET_DEFAULT_PARAMS`. This is the JSON5 text the params editor starts with when the widget type is picked. A type whose default is `NO_SETTINGS` gets a read-only editor. You can also add a docs link to `WIDGET_DOCS_URLS`.
 
 ```typescript
-public defaultParams = {
-  // ... existing defaults
-  Your_new_widget: `{
-    // Parameter 1 description
-    "param1": "value1",
-
-    // Parameter 2 description
-    "param2": 100
-  }`,
+export const WIDGET_DEFAULT_PARAMS: Record<string, string> = {
+	// ... existing defaults
+	Your_new_widget: `// Parameter 1 description
+// Parameter 2 description
+{
+  "param1": "value1",
+  "param2": 100
 }
+`,
+};
 ```
 
-### Step 6: Add Backend Validation (Optional)
+### Step 5: Add Backend Validation (Optional)
 
 **File:** `backend/src/entities/widget/utils/validate-create-widgets-ds.ts`
 
@@ -556,7 +467,7 @@ async function validateCreateWidgetsDs(widgets, connection, tableName) {
 }
 ```
 
-### Step 7: Add Documentation
+### Step 6: Add Documentation
 
 Update this file with:
 1. Description of the new widget
@@ -564,7 +475,7 @@ Update this file with:
 3. Example configuration
 4. Supported database types
 
-### Step 8: Write Tests
+### Step 7: Write Tests
 
 #### Backend Test
 
@@ -592,38 +503,27 @@ test('should create widget with YOUR_NEW_WIDGET type', async t => {
 
 #### Frontend Test
 
-**File:** `frontend/src/app/components/ui-components/your-new-widget-edit/your-new-widget-edit.component.spec.ts`
+**File:** `frontend/src/components/fields/record-edit/YourNewWidgetEdit.spec.ts`
 
 ```typescript
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { YourNewWidgetEditComponent } from './your-new-widget-edit.component';
+import { mount } from '@vue/test-utils';
+import { describe, expect, it } from 'vitest';
+import { mockWidgetStructure } from '../stories.mocks';
+import YourNewWidgetEdit from './YourNewWidgetEdit.vue';
 
-describe('YourNewWidgetEditComponent', () => {
-  let component: YourNewWidgetEditComponent;
-  let fixture: ComponentFixture<YourNewWidgetEditComponent>;
+describe('YourNewWidgetEdit', () => {
+	it('renders the value', () => {
+		const wrapper = mount(YourNewWidgetEdit, { props: { label: 'field', value: 'hello' } });
+		expect(wrapper.find('input').element.value).toBe('hello');
+	});
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [ YourNewWidgetEditComponent ]
-    })
-    .compileComponents();
-  });
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(YourNewWidgetEditComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should emit value on change', () => {
-    spyOn(component.onFieldChange, 'emit');
-    component.handleChange('new value');
-    expect(component.onFieldChange.emit).toHaveBeenCalledWith('new value');
-  });
+	it('emits fieldChange on input', async () => {
+		const wrapper = mount(YourNewWidgetEdit, {
+			props: { label: 'field', widgetStructure: mockWidgetStructure({ param1: 'value1' }) },
+		});
+		await wrapper.find('[data-testid="record-field-your-new-widget"]').setValue('new value');
+		expect(wrapper.emitted('fieldChange')).toEqual([['new value']]);
+	});
 });
 ```
 
@@ -647,13 +547,13 @@ describe('YourNewWidgetEditComponent', () => {
 ### 3. Retrieval
 - Widgets fetched when table is loaded
 - API: `GET /widgets/:connectionId?tableName={tableName}`
-- Cached in frontend service
+- Cached in the frontend tables store (`stores/tables.ts`)
 
 ### 4. Rendering
 - When displaying/editing records:
   1. System checks if field has widget configured
-  2. If yes: Instantiates corresponding Angular component
-  3. Passes `field` config and `value` to component
+  2. If yes: Renders the Vue component registered for its `widget_type` in that context's `UIwidgets` map (a dynamic `<component :is>`)
+  3. Passes `value`, `fieldKey`, `structure` and `widgetStructure` as props, and listens for `fieldChange` / `comparatorChange` / `copyToClipboard`
   4. Component renders based on `widget_params`
 
 ### 5. Updates
@@ -748,14 +648,16 @@ Test files:
 
 Run frontend tests (from project root):
 ```bash
-cd frontend && yarn test --browsers=ChromeHeadlessCustom --no-watch --no-progress
+cd frontend && pnpm test:ci
 ```
 
-Widget component tests located in:
-- `frontend/src/app/components/ui-components/record-edit-fields/*/your-widget.component.spec.ts`
-- `frontend/src/app/components/ui-components/record-view-fields/*/your-widget.component.spec.ts`
-- `frontend/src/app/components/ui-components/table-display-fields/*/your-widget.component.spec.ts`
-- `frontend/src/app/components/ui-components/filter-fields/*/your-widget.component.spec.ts`
+The tests use Vitest with `@vue/test-utils` (`mount`). Widget component tests sit next to each component:
+- `frontend/src/components/fields/record-edit/YourWidgetEdit.spec.ts`
+- `frontend/src/components/fields/record-view/YourWidgetRecordView.spec.ts`
+- `frontend/src/components/fields/table-display/YourWidgetDisplay.spec.ts`
+- `frontend/src/components/fields/filter/YourWidgetFilter.spec.ts`
+
+`frontend/src/consts/widget-types.spec.ts` checks the registries against the frozen Angular snapshot.
 
 ---
 
@@ -770,101 +672,104 @@ The **Timezone widget** is a complete example demonstrating all the concepts cov
 Timezone = 'Timezone'
 ```
 
-**Frontend Component** (`record-edit-fields/timezone/timezone.component.ts`):
-```typescript
-import { CUSTOM_ELEMENTS_SCHEMA, Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { BaseEditFieldComponent } from '../base-row-field/base-row-field.component';
+**Frontend Component** (`frontend/src/components/fields/record-edit/TimezoneEdit.vue`):
+```vue
+<script setup lang="ts">
+import { computed, ref } from 'vue';
+import { type SelectOption, UiField, UiSelect } from '@/components/ui';
+import type { RecordEditFieldEmits, RecordEditFieldProps } from '../types';
+import { useRecordEditField } from '../useFieldWidget';
 
-@Component({
-  selector: 'app-edit-timezone',
-  imports: [CommonModule, FormsModule, MatFormFieldModule, MatSelectModule],
-  templateUrl: './timezone.component.html',
-  styleUrls: ['./timezone.component.css'],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
-})
-export class TimezoneEditComponent extends BaseEditFieldComponent {
-  @Input() value: string;
-  public timezones: { value: string, label: string }[] = [];
+const props = defineProps<RecordEditFieldProps & { value?: string | null }>();
+const emit = defineEmits<RecordEditFieldEmits>();
 
-  ngOnInit(): void {
-    super.ngOnInit();
-    this.initializeTimezones();
-  }
+const { normalizedLabel, widgetParams } = useRecordEditField(props);
 
-  private initializeTimezones(): void {
-    // Get all available timezone identifiers from Intl API
-    const timezoneList = Intl.supportedValuesOf('timeZone');
+const selected = ref<string | null>(props.value ?? null);
 
-    // Map timezones to format with offset and readable label
-    this.timezones = timezoneList.map(tz => {
-      const offset = this.getTimezoneOffset(tz);
-      return {
-        value: tz,
-        label: `${tz} (UTC${offset})`
-      };
-    });
+// Built once from the Intl API, sorted by name, each labelled with its current offset
+const allTimezones: SelectOption<string | null>[] = Intl.supportedValuesOf('timeZone')
+	.map((tz) => ({ value: tz, label: `${tz} (UTC${getTimezoneOffset(tz)})` }))
+	.sort((a, b) => a.value.localeCompare(b.value));
 
-    // Sort by timezone name
-    this.timezones.sort((a, b) => a.value.localeCompare(b.value));
+// Empty option when the widget's allow_null or the column's allow_null is set
+const timezones = computed<SelectOption<string | null>[]>(() =>
+	widgetParams.value.allow_null || props.structure?.allow_null
+		? [{ value: null, label: '' }, ...allTimezones]
+		: allTimezones,
+);
 
-    // Add null option if allowed
-    if (this.widgetStructure?.widget_params?.allow_null) {
-      this.timezones = [{ value: null, label: '' }, ...this.timezones];
-    }
-  }
-
-  private getTimezoneOffset(timezone: string): string {
-    // Implementation details for calculating UTC offset
-    // ...
-  }
+function onChange(value: string | null | (string | null)[]) {
+	if (Array.isArray(value)) return;
+	selected.value = value;
+	emit('fieldChange', value);
 }
+
+function getTimezoneOffset(timezone: string): string {
+	// `+HH:MM` from Intl's `longOffset` ("GMT+05:30"), with a manual fallback
+	// ...
+}
+</script>
+
+<template>
+	<UiField class="timezone-edit" :label="normalizedLabel" :required="required">
+		<UiSelect
+			:name="`${label}-${fieldKey}`"
+			:model-value="selected"
+			:options="timezones"
+			:disabled="disabled || readonly"
+			:data-testid="`record-${label}-timezone`"
+			@update:model-value="onChange"
+		/>
+	</UiField>
+</template>
 ```
 
 **Widget Registration in All Four Registries:**
 
-1. `consts/record-edit-types.ts:57`:
+1. `frontend/src/consts/record-edit-types.ts:33, 85`:
 ```typescript
+const TimezoneEdit = defineAsyncComponent(() => import('@/components/fields/record-edit/TimezoneEdit.vue'));
+
 export const UIwidgets = {
-  // ... other widgets
-  Timezone: TimezoneEditComponent,
-  // ... other widgets
-}
+	// ... other widgets
+	Timezone: TimezoneEdit,
+	// ... other widgets
+};
 ```
 
-2. `consts/record-view-types.ts:52`:
+2. `frontend/src/consts/record-view-types.ts:41, 72`:
 ```typescript
 export const UIwidgets = {
-  // ... other widgets
-  Timezone: TimezoneRecordViewComponent,
-  // ... other widgets
-}
+	// ... other widgets
+	Timezone: TimezoneRecordView,
+	// ... other widgets
+};
 ```
 
-3. `consts/table-display-types.ts:50`:
+3. `frontend/src/consts/table-display-types.ts:35, 64`:
 ```typescript
 export const UIwidgets = {
-  // ... other widgets
-  Timezone: TimezoneDisplayComponent,
-  // ... other widgets
-}
+	// ... other widgets
+	Timezone: TimezoneDisplay,
+	// ... other widgets
+};
 ```
 
-4. `consts/filter-types.ts:38`:
+4. `frontend/src/consts/filter-types.ts:26, 46`:
 ```typescript
 export const UIwidgets = {
-  // ... other widgets
-  Timezone: TimezoneFilterComponent,
-  // ... other widgets
-}
+	// ... other widgets
+	Timezone: TimezoneFilter,
+	// ... other widgets
+};
 ```
 
-**Default Parameters** (`db-table-widgets.component.ts:249-255`):
+Each of these entries is also listed in the frozen snapshot `frontend/src/consts/widget-types.angular.json`.
+
+**Default Parameters** (`frontend/src/components/table/widget-defaults.ts:185-191`):
 ```typescript
-Timezone: `// Configure timezone widget options
+	Timezone: `// Configure timezone widget options
 // Uses Intl API to populate timezone list automatically
 // allow_null: Allow empty/null value selection
 {
@@ -876,42 +781,41 @@ Timezone: `// Configure timezone widget options
 **Key Features:**
 - Uses browser's Intl API (`Intl.supportedValuesOf('timeZone')`)
 - Automatically calculates UTC offsets for each timezone
-- Supports `allow_null` parameter
-- Material Design dropdown with search capability
+- Supports the `allow_null` parameter, and adds the empty option for nullable columns too
+- `UiSelect` dropdown
 - Alphabetically sorted timezone list
+- The record view and table display show the zone with its offset; the table cell copies the value to the clipboard
 - Comprehensive test coverage
 
 **Component Files (All Four Contexts):**
 
+Each context has the component, a Vitest spec and a Storybook story, under `frontend/src/components/fields/`:
+
 **Record Edit Fields:**
-- Component: `frontend/src/app/components/ui-components/record-edit-fields/timezone/timezone.component.ts`
-- Template: `frontend/src/app/components/ui-components/record-edit-fields/timezone/timezone.component.html`
-- Styles: `frontend/src/app/components/ui-components/record-edit-fields/timezone/timezone.component.css`
-- Tests: `frontend/src/app/components/ui-components/record-edit-fields/timezone/timezone.component.spec.ts`
+- Component: `record-edit/TimezoneEdit.vue`
+- Tests: `record-edit/TimezoneEdit.spec.ts`
+- Stories: `record-edit/TimezoneEdit.stories.ts`
 
 **Record View Fields:**
-- Component: `frontend/src/app/components/ui-components/record-view-fields/timezone/timezone.component.ts`
-- Template: `frontend/src/app/components/ui-components/record-view-fields/timezone/timezone.component.html`
-- Styles: `frontend/src/app/components/ui-components/record-view-fields/timezone/timezone.component.css`
-- Tests: `frontend/src/app/components/ui-components/record-view-fields/timezone/timezone.component.spec.ts`
+- Component: `record-view/TimezoneRecordView.vue`
+- Tests: `record-view/TimezoneRecordView.spec.ts`
+- Stories: `record-view/TimezoneRecordView.stories.ts`
 
 **Table Display Fields:**
-- Component: `frontend/src/app/components/ui-components/table-display-fields/timezone/timezone.component.ts`
-- Template: `frontend/src/app/components/ui-components/table-display-fields/timezone/timezone.component.html`
-- Styles: `frontend/src/app/components/ui-components/table-display-fields/timezone/timezone.component.css`
-- Tests: `frontend/src/app/components/ui-components/table-display-fields/timezone/timezone.component.spec.ts`
+- Component: `table-display/TimezoneDisplay.vue`
+- Tests: `table-display/TimezoneDisplay.spec.ts`
+- Stories: `table-display/TimezoneDisplay.stories.ts`
 
 **Filter Fields:**
-- Component: `frontend/src/app/components/ui-components/filter-fields/timezone/timezone.component.ts`
-- Template: `frontend/src/app/components/ui-components/filter-fields/timezone/timezone.component.html`
-- Styles: `frontend/src/app/components/ui-components/filter-fields/timezone/timezone.component.css`
-- Tests: `frontend/src/app/components/ui-components/filter-fields/timezone/timezone.component.spec.ts`
+- Component: `filter/TimezoneFilter.vue` (its option list comes from `filter/timezones.ts`)
+- Tests: `filter/TimezoneFilter.spec.ts`
+- Stories: `filter/TimezoneFilter.stories.ts`
 
 **Registry Files:**
-- `frontend/src/app/consts/record-edit-types.ts` (line 25, 57)
-- `frontend/src/app/consts/record-view-types.ts` (line 24, 52)
-- `frontend/src/app/consts/table-display-types.ts` (line 24, 50)
-- `frontend/src/app/consts/filter-types.ts` (line 19, 38)
+- `frontend/src/consts/record-edit-types.ts` (line 33, 85)
+- `frontend/src/consts/record-view-types.ts` (line 41, 72)
+- `frontend/src/consts/table-display-types.ts` (line 35, 64)
+- `frontend/src/consts/filter-types.ts` (line 26, 46)
 
 ---
 
@@ -923,13 +827,12 @@ Timezone: `// Configure timezone widget options
    - **Table Display Fields:** Used in table rows for listing multiple records (compact display)
    - **Filter Fields:** Used in filter panels for searching/filtering table data
 
-2. **Component Inheritance:** All field components should extend their respective base components:
-   - `BaseEditFieldComponent` for record-edit-fields
-   - `BaseRecordViewFieldComponent` for record-view-fields
-   - `BaseTableDisplayFieldComponent` for table-display-fields
-   - `BaseFilterFieldComponent` for filter-fields
+2. **Composables, Not Inheritance:** Field components don't extend a base class. Each one types its props and events with `fields/types.ts` and calls the composable for its context:
+   - `useRecordEditField(props)` for record-edit
+   - `useViewField(props, emit)` for record-view and table-display
+   - `useFilterField(props)` for filter
 
-3. **Standalone Architecture:** Angular 19 uses standalone components. No NgModule registration needed. Import dependencies directly in component metadata.
+3. **Single-File Components:** Widgets are `<script setup lang="ts">` SFCs, loaded lazily through `defineAsyncComponent` in the registries. No other registration is needed. Use the `@/components/ui` primitives, and keep styles scoped with only `--color-*` variables.
 
 4. **JSON5 Support:** Widget parameters support JSON5 format (comments, unquoted keys) in the UI editor, but are stored as standard JSON
 
@@ -943,7 +846,7 @@ Timezone: `// Configure timezone widget options
 
 9. **Null Values:** Widget type can be null (defaults to standard rendering)
 
-10. **Progressive Enhancement:** Start with the record-edit-field component. Add view/display/filter components only if you need custom behavior for those contexts
+10. **Progressive Enhancement:** Start with the record-edit component. Add view/display/filter components only if you need custom behavior for those contexts
 
 ---
 
@@ -959,20 +862,26 @@ Timezone: `// Configure timezone widget options
 ### Frontend
 
 **Widget Registries (Type to Component Mapping):**
-- `frontend/src/app/consts/record-edit-types.ts` - Edit form components
-- `frontend/src/app/consts/record-view-types.ts` - Detail view components
-- `frontend/src/app/consts/table-display-types.ts` - Table row components
-- `frontend/src/app/consts/filter-types.ts` - Filter panel components
+- `frontend/src/consts/record-edit-types.ts` - Edit form components
+- `frontend/src/consts/record-view-types.ts` - Detail view components
+- `frontend/src/consts/table-display-types.ts` - Table row components
+- `frontend/src/consts/filter-types.ts` - Filter panel components
+- `frontend/src/consts/widget-types.spec.ts` + `widget-types.angular.json` - Parity test against the frozen Angular snapshot
+
+**Shared Widget Code:**
+- `frontend/src/components/fields/types.ts` - Props and events of each context
+- `frontend/src/components/fields/useFieldWidget.ts` - `useRecordEditField`, `useViewField`, `useFilterField`
 
 **Widget Configuration:**
-- **Widget Manager:** `frontend/src/app/components/dashboard/db-table-view/db-table-widgets/` - Configuration UI
-- **Service:** `frontend/src/app/services/tables.service.ts` - Widget CRUD operations
+- **Widget Manager:** `frontend/src/views/table/TableWidgetsView.vue` with `frontend/src/components/table/TableWidgetItem.vue` - Configuration UI
+- **Defaults:** `frontend/src/components/table/widget-defaults.ts` - Default params and docs links
+- **Store:** `frontend/src/stores/tables.ts` - Widget fetch/update (`/widgets/:connectionId`, `/widget/:connectionId`)
 
 **Component Directories:**
-- **Record Edit Fields:** `frontend/src/app/components/ui-components/record-edit-fields/` - Interactive form inputs
-- **Record View Fields:** `frontend/src/app/components/ui-components/record-view-fields/` - Read-only detail display
-- **Table Display Fields:** `frontend/src/app/components/ui-components/table-display-fields/` - Compact table display
-- **Filter Fields:** `frontend/src/app/components/ui-components/filter-fields/` - Search/filter inputs
+- **Record Edit Fields:** `frontend/src/components/fields/record-edit/` - Interactive form inputs
+- **Record View Fields:** `frontend/src/components/fields/record-view/` - Read-only detail display
+- **Table Display Fields:** `frontend/src/components/fields/table-display/` - Compact table display
+- **Filter Fields:** `frontend/src/components/fields/filter/` - Search/filter inputs
 
 ### Shared
 - Data Structures: `shared-code/src/data-access-layer/shared/data-structures/table-widget.ds.ts`
@@ -990,4 +899,4 @@ For questions or issues related to widgets:
 
 ---
 
-**Last Updated:** 2025-11-07
+**Last Updated:** 2026-11-03

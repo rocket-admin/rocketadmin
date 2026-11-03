@@ -1,3 +1,4 @@
+// Third-party globals injected by index.saas.html (Intercom, Hotjar).
 declare global {
 	interface Window {
 		Intercom?: (command: string, options?: Record<string, unknown>) => void;

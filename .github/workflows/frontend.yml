@@ -22,35 +22,56 @@ defaults:
   run:
     working-directory: frontend
 
-# TODO: add a lint job once ESLint migration replaces the (already-removed in
-# @angular-devkit/build-angular v20) `tslint` builder that `yarn lint` calls.
-
 jobs:
-  test:
+  check:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    container:
-      image: mcr.microsoft.com/playwright:v1.58.1-noble
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: frontend/package.json
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-          cache: 'yarn'
-          cache-dependency-path: frontend/yarn.lock
-      - run: yarn install --immutable
-      - name: Run unit tests
-        run: yarn test:ci
+          cache: 'pnpm'
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm lint
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Unit tests
+        run: pnpm test:ci
+      - name: Build (self-hosted)
+        run: pnpm build
+      - name: Build (SaaS)
+        run: pnpm build:saas
+      - name: Build Storybook
+        run: pnpm build-storybook
 
   license:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: frontend/package.json
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-          cache: 'yarn'
-          cache-dependency-path: frontend/yarn.lock
+          cache: 'pnpm'
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      # OFL-1.1: the Geist and Space Grotesk fonts (@fontsource-variable/*).
       - name: license checker
-        run: 'npx --yes license-checker --onlyAllow="MIT;ISC;Python-2.0;Apache-2.0;BSD;MPL;CC;Custom: http://github.com/dscape/statsd-parser;" --excludePrivatePackages'
+        run: 'npx --yes license-checker --onlyAllow="MIT;ISC;Python-2.0;Apache-2.0;BSD;MPL;CC;OFL-1.1;Custom: http://github.com/dscape/statsd-parser;" --excludePrivatePackages'

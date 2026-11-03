@@ -20,13 +20,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: frontend/package.json
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-          cache: yarn
-          cache-dependency-path: frontend/yarn.lock
-      - run: cd frontend && yarn install --frozen-lockfile
-      - run: cd frontend && yarn storybook:build
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - run: cd frontend && pnpm install --frozen-lockfile
+      - run: cd frontend && pnpm build-storybook
       - uses: actions/upload-pages-artifact@v3
         with:
           path: frontend/storybook-static
