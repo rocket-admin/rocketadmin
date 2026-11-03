@@ -52,6 +52,11 @@ export default defineConfig(({ mode }) => ({
 		format: 'es',
 	},
 	build: {
+		// Hashed bundles go in the root, like the Angular build: the immutable-cache rule in
+		// frontend/nginx/default.conf only matches root files and answers 404 for a missing one.
+		// Under assets/ a stale chunk would fall through to index.html, and the folder is shared
+		// with the unhashed static assets.
+		assetsDir: '',
 		sourcemap: true,
 	},
 	test: {
