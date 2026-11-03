@@ -1,6 +1,7 @@
 # Which frontend goes into the image: angular (frontend/) or vue (frontend-vue/).
-# During the Vue trial period this is the one switch between them (VUE_MIGRATION_PLAN.md, Phase 4).
-ARG FRONTEND=angular
+# During the Vue trial period this is the one switch between them (VUE_MIGRATION_PLAN.md, Phase 4):
+# pass --build-arg FRONTEND=angular to roll back.
+ARG FRONTEND=vue
 
 FROM node:24-slim AS front_builder_angular
 ARG VERSION

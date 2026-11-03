@@ -3,9 +3,9 @@ variable "DEFAULT_TAG" {
 }
 
 // Frontend built into the image: "angular" (frontend/) or "vue" (frontend-vue/).
-// Override with FRONTEND=vue docker buildx bake ...
+// Override with FRONTEND=angular docker buildx bake ... to roll back to the Angular app.
 variable "FRONTEND" {
-  default = "angular"
+  default = "vue"
 }
 
 // Special target: https://github.com/docker/metadata-action#bake-definition
