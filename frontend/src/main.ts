@@ -1,191 +1,61 @@
-import { ClipboardModule } from '@angular/cdk/clipboard';
-import { DragDropModule } from '@angular/cdk/drag-drop';
-import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { APP_INITIALIZER, ErrorHandler, enableProdMode, importProvidersFrom } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MAT_ICON_DEFAULT_OPTIONS, MatIconDefaultOptions } from '@angular/material/icon';
-import { BrowserModule, bootstrapApplication, Title } from '@angular/platform-browser';
-import { provideAnimations } from '@angular/platform-browser/animations';
-import { Router, RouterModule } from '@angular/router';
-import { IColorConfig, NgxThemeModule } from '@brumeilde/ngx-theme';
-import { provideCodeEditor } from '@ngstack/code-editor';
-import * as Sentry from '@sentry/angular';
-import { Angulartics2Module } from 'angulartics2';
-import { DynamicModule } from 'ng-dynamic-component';
-import { SignalComponentIoModule } from 'ng-dynamic-component/signal-component-io';
-import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
-import { CookieService } from 'ngx-cookie-service';
-import { MarkdownModule, MERMAID_OPTIONS, provideMarkdown } from 'ngx-markdown';
-import { AppComponent } from './app/app.component';
-import { AppRoutingModule } from './app/app-routing.module';
-import { ConfigModule } from './app/modules/config.module';
-import { ConnectionsService } from './app/services/connections.service';
-import { NotificationsService } from './app/services/notifications.service';
-import { TablesService } from './app/services/tables.service';
-import { TokenInterceptor } from './app/services/token.interceptor';
-import { EncodeUrlParamsSafelyInterceptor } from './app/services/url-params.interceptor';
-import { UsersService } from './app/services/users.service';
-import { environment } from './environments/environment';
+// Self-hosted brand fonts first so their @font-face rules land before the theme, then the tokens,
+// then base.css (which reads them). .storybook/preview.ts mirrors this order — keep them together.
+import '@fontsource-variable/geist';
+import '@fontsource-variable/space-grotesk';
+import '@fontsource-variable/geist-mono';
+import '@material-symbols/font-400/outlined.css';
+import './assets/theme.css';
+import './assets/base.css';
 
-const saasExtraProviders = (environment as any).saas
-	? [
-			{
-				provide: Sentry.TraceService,
-				deps: [Router],
-			},
-			{
-				provide: ErrorHandler,
-				useValue: Sentry.createErrorHandler({
-					showDialog: true,
-				}),
-			},
-		]
-	: [];
-const colorConfig: IColorConfig<Palettes, Colors> = {
-	palettes: {
-		primaryPalette: '#212121',
-		accentedPalette: '#2563eb',
-		warnPalette: '#B71C1C',
-		whitePalette: '#FFFFFF',
-		warnDarkPalette: '#E53935',
-		warningPalette: '#f79008',
-		infoPalette: '#296ee9',
-		successPalette: '#008027',
-		alternativePalette: '#6d28d9',
-		successDarkPalette: '#4caf50',
-		alternativeDarkPalette: '#c084fc',
-	},
-	simpleColors: { myColorName: '#2e959a' },
-};
-type Palettes = {
-	primaryPalette: string;
-	accentedPalette: string;
-	warnPalette: string;
-	whitePalette: string;
-	warnDarkPalette: string;
-	warningPalette: string;
-	infoPalette: string;
-	successPalette: string;
-	alternativePalette: string;
-	successDarkPalette: string;
-	alternativeDarkPalette: string;
-};
-type Colors = { myColorName: string };
+import { VueQueryPlugin } from '@tanstack/vue-query';
+import { createPinia } from 'pinia';
+import { createApp } from 'vue';
+import App from './App.vue';
+import { isApiError } from './api/client';
+import { vTooltip } from './components/ui';
+import { loadConfig } from './config';
+import { initMonitoring } from './lib/monitoring';
+import { router } from './router';
+import { useAuthStore } from './stores/auth';
+import { bindConnectionsToRouter } from './stores/connections';
+import { bindTablesToRouter } from './stores/tables';
 
-if (environment.production) {
-	enableProdMode();
-}
+async function bootstrap() {
+	await loadConfig('/config.json');
 
-if ((environment as Record<string, unknown>).saas) {
-	Sentry.init({
-		dsn: 'https://4d774c4c2c8a8f733cb4d43599cc0dc6@o4506084700389376.ingest.sentry.io/4506084702486528',
-		integrations: [Sentry.browserTracingIntegration()],
-		// Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
-		tracePropagationTargets: ['localhost', /^https:\/\/app\.rocketadmin\.com\/api/],
-		// Performance Monitoring
-		tracesSampleRate: 1.0, // Capture 100% of the transactions
-		// Session Replay
-		replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
-		replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
+	const app = createApp(App);
+	const pinia = createPinia();
+	app.use(pinia);
+	app.directive('tooltip', vTooltip);
+	initMonitoring(app, router);
+
+	// An awaited request that failed has already been shown to the user (see ApiError.notified);
+	// letting it reach the console as an unhandled error would only add noise.
+	const defaultHandler = app.config.errorHandler;
+	app.config.errorHandler = (error, instance, info) => {
+		if (isApiError(error) && error.notified) return;
+		if (defaultHandler) defaultHandler(error, instance, info);
+		else console.error(error);
+	};
+	window.addEventListener('unhandledrejection', (event) => {
+		if (isApiError(event.reason) && event.reason.notified) event.preventDefault();
 	});
+
+	// Before the router resolves the first route: the guards read the restored session.
+	useAuthStore(pinia).restoreSession();
+
+	// Queries behave like Angular's httpResource: one attempt (the client already reported the
+	// failure) and no refetch on window focus.
+	// Angular read the current connection and table from the URL on every navigation.
+	bindConnectionsToRouter(router);
+	bindTablesToRouter(router);
+
+	app
+		.use(router)
+		.use(VueQueryPlugin, {
+			queryClientConfig: { defaultOptions: { queries: { retry: false, refetchOnWindowFocus: false } } },
+		})
+		.mount('#app');
 }
 
-bootstrapApplication(AppComponent, {
-	providers: [
-		importProvidersFrom(
-			BrowserModule,
-			AppRoutingModule,
-			FormsModule,
-			ReactiveFormsModule,
-			RouterModule,
-			DynamicModule,
-			SignalComponentIoModule,
-			Angulartics2Module.forRoot(),
-			ClipboardModule,
-			DragDropModule,
-			MarkdownModule.forRoot(),
-			// ...saasExtraModules,
-			NgxThemeModule.forRoot(colorConfig, {
-				frameworks: ['material'], // optional, default : ['tailwind', 'material']
-			}),
-			ConfigModule.buildForConfigUrl('/config.json'),
-		),
-		provideCodeEditor({
-			baseUrl: 'assets/monaco',
-		}),
-		ConnectionsService,
-		UsersService,
-		NotificationsService,
-		TablesService,
-		CookieService,
-		provideMarkdown({
-			mermaidOptions: {
-				provide: MERMAID_OPTIONS,
-				useValue: window.matchMedia('(prefers-color-scheme: dark)').matches ? {
-					startOnLoad: false,
-					theme: 'base',
-					themeVariables: {
-						darkMode: true,
-						background: '#15102b',
-						primaryColor: '#1d143a',
-						primaryBorderColor: '#3d2b6e',
-						primaryTextColor: '#ede9fe',
-						secondaryColor: '#251a47',
-						tertiaryColor: '#1d143a',
-						lineColor: '#a78bfa',
-						mainBkg: '#1d143a',
-						nodeBkg: '#1d143a',
-						nodeBorder: '#3d2b6e',
-						clusterBkg: '#1d143a',
-						clusterBorder: '#3d2b6e',
-						attributeBackgroundColorOdd: '#1d143a',
-						attributeBackgroundColorEven: '#1d143a',
-						titleColor: '#ede9fe',
-						edgeLabelBackground: '#1d143a',
-						textColor: '#ede9fe',
-						labelTextColor: '#ede9fe',
-						nodeTextColor: '#ede9fe',
-					},
-				} : {
-					startOnLoad: false,
-					theme: 'default',
-				},
-			},
-		}),
-		Title,
-		{
-			provide: HTTP_INTERCEPTORS,
-			useClass: TokenInterceptor,
-			multi: true,
-		},
-		{
-			provide: HTTP_INTERCEPTORS,
-			useClass: EncodeUrlParamsSafelyInterceptor,
-			multi: true,
-		},
-		{
-			provide: APP_INITIALIZER,
-			useFactory: () => () => {},
-			deps: (environment as Record<string, unknown>).saas ? [Sentry.TraceService] : [],
-			multi: true,
-		},
-		{
-			provide: 'COLOR_CONFIG',
-			useValue: colorConfig,
-		},
-		{
-			provide: 'THEME_OPTIONS',
-			useValue: { frameworks: ['material'] },
-		},
-		...saasExtraProviders,
-		provideHttpClient(withInterceptorsFromDi()),
-		provideAnimations(),
-		provideCharts(withDefaultRegisterables()),
-		{
-			provide: MAT_ICON_DEFAULT_OPTIONS,
-			useValue: {
-				fontSet: 'material-symbols-outlined',
-			} as MatIconDefaultOptions,
-		},
-	],
-}).catch((err) => console.error(err));
+bootstrap();

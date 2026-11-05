@@ -1,0 +1,56 @@
+import { Meta, Story, Unstyled } from '@storybook/addon-docs/blocks'
+import * as Specimens from './foundations.stories'
+
+<Meta title="Foundations/Elevation" />
+
+# Elevation
+
+Three shadows and two focus rings. All of them are large, tight-spread, heavily negative-offset and
+accent-tinted — **glow, not drop shadow**, which is what makes the supernova palette read as
+luminous rather than as a card sitting on a desk.
+
+They're semantic aliases rather than raw values because they're tuned for dark-on-light: a dark theme
+has to swap them wholesale, not merely re-point their colours.
+
+## On the page background
+
+<Unstyled>
+	<Story of={Specimens.ElevationOnPaper} />
+</Unstyled>
+
+## On a white surface
+
+The same three, on `--color-surface`. Worth checking both: `--shadow-card` carries a `0 1px 0` hairline
+that does most of its work against paper and almost none against white.
+
+<Unstyled>
+	<Story of={Specimens.ElevationOnSurface} />
+</Unstyled>
+
+## Which shadow
+
+| Token | Use |
+| --- | --- |
+| `--shadow-card` | The resting state of any raised surface — cards, panels, the header |
+| `--shadow-lift` | Hover / active on an interactive surface, paired with a `translateY(-2px)` |
+| `--shadow-focus` | The focus ring. Prefer the `--ring-focus` spelling at call sites |
+
+`--shadow-lift` is accent-tinted at 0.4 alpha, so a lifted card glows blue. Pair it with
+`transition: box-shadow var(--motion-base) var(--ease-out), transform var(--motion-base) var(--ease-out)`.
+
+## Focus rings
+
+<Unstyled>
+	<Story of={Specimens.ElevationRings} />
+</Unstyled>
+
+`--ring-focus` is an alias for `--shadow-focus` so that "focus ring" is one concept rather than a
+shadow that happens to be used as one. `--ring-danger` is the same geometry in red, for a control
+that is both focused and invalid.
+
+Two rules:
+
+- **Always `:focus-visible`, never `:focus`.** Ringing on mouse click is noise; the pre-design-system
+  views did it and it read as a bug.
+- Controls that carry their own border use the ring as a `box-shadow` on the control. Bare links and
+  buttons fall through to the global `outline` rule in `base.css`.

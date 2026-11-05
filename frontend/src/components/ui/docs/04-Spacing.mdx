@@ -1,0 +1,49 @@
+import { Meta, Story, Unstyled } from '@storybook/addon-docs/blocks'
+import * as Specimens from './foundations.stories'
+
+<Meta title="Foundations/Spacing" />
+
+# Spacing
+
+A 4px base scale, named by multiple: `--space-4` is 4 × 4px = 16px. Use it for `gap`, `padding` and
+`margin` — every one of them, so a layout is a sequence of scale steps rather than a sequence of
+guesses.
+
+The pre-scale code used 12 distinct gap values, most within 0.025rem of a neighbour
+(`0.375 / 0.4 / 0.5rem` all appeared). Those are invisible differences that still cost a decision
+every time someone wrote a new rule.
+
+<Unstyled>
+	<Story of={Specimens.SpacingScale} />
+</Unstyled>
+
+## Picking a step
+
+| Step | px | Typical use |
+| --- | --- | --- |
+| `--space-05` | 2 | Optical nudges only |
+| `--space-1` | 4 | Label ↔ hint, icon ↔ text inside a chip |
+| `--space-2` | 8 | Related controls in a row |
+| `--space-3` | 12 | Field ↔ field inside a form |
+| `--space-4` | 16 | Card padding, section internals |
+| `--space-5` | 20 | Card padding on roomier surfaces |
+| `--space-6` | 24 | Section ↔ section |
+| `--space-8` | 32 | Page top padding, major blocks |
+| `--space-10`–`--space-12` | 40–48 | Empty-state padding |
+| `--space-16` | 64 | Page bottom padding |
+
+## The one deliberate violation
+
+`--space-25` is 10px — off the 4px grid, and kept anyway. Two of its nine uses are load-bearing in
+brand assets: `AppLogo`'s mark ↔ wordmark gap, which is mirrored pixel-for-pixel in
+`sitenova-landing`, and the GitHub sign-in button's icon gap. Snapping 10px → 12px inside a 32px
+lockup is visible.
+
+**Don't reach for it elsewhere.** It exists for the brand lockup and inline icon gaps; anything else
+belongs on the scale.
+
+## Every spacing token
+
+<Unstyled>
+	<Story of={Specimens.SpacingTable} />
+</Unstyled>

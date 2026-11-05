@@ -1,0 +1,77 @@
+import { Meta, Story, Unstyled } from '@storybook/addon-docs/blocks'
+import * as Specimens from './foundations.stories'
+
+<Meta title="Foundations/Color" />
+
+# Color
+
+Two layers, and the distinction is the whole point.
+
+**Layer 1 — `--palette-*`.** Raw values, copied verbatim from SiteNova's `theme.css` (which mirrors
+`sitenova-landing`); the products share one brand, so change them together. **Component CSS must never reference this
+layer.**
+
+**Layer 2 — `--color-*`.** Semantic aliases naming a _role_: `--color-paper` means "the page
+background", which happens to resolve to a specific blue-white today. This is the only layer
+component CSS may use, and it's what makes a dark theme a dozen-line override instead of a sweep
+across every view.
+
+Every swatch below is painted with `var(--token)`, not a copied hex — so if an alias chain ever
+breaks, the swatch goes blank and this page shows the bug rather than hiding it.
+
+## Surfaces
+
+<Unstyled>
+	<Story of={Specimens.ColorSurfaces} />
+</Unstyled>
+
+`--color-surface-raised` is identical to `--color-surface` in the light theme and exists for the dark
+one, where a modal or dropdown must lift above the page rather than tint it. `--color-overlay` is the
+`UiModal` backdrop.
+
+## Text
+
+<Unstyled>
+	<Story of={Specimens.ColorText} />
+</Unstyled>
+
+Contrast on `--color-paper`: ink **17.8:1**, ink-soft **12.2:1**, muted **5.7:1**, muted-soft
+**4.5:1** — all pass WCAG AA for body text. `--color-muted-soft` is deliberately darker than the
+`#98a2b3` it replaced (only 2.6:1 on white) because it carries real copy here, not decoration:
+empty-state messages, the "(optional)" field hint, the slug-field domain suffix.
+
+## Lines and accent
+
+<Unstyled>
+	<Story of={Specimens.ColorLinesAndAccent} />
+</Unstyled>
+
+`--color-line` divides content; `--color-line-strong` bounds an interactive control — an input border
+needs to read as an edge you can type inside, not as a hairline rule. `--color-accent-ink` is the
+hover/pressed accent. `--color-hot` is the cyan-white glow highlight, used in the logo gradient.
+
+## Status
+
+Each status is a triple — text colour, tinted background, border — so an alert or chip is one
+coherent choice rather than three independent ones.
+
+<Unstyled>
+	<Story of={Specimens.ColorStatus} />
+</Unstyled>
+
+## Raw palette
+
+Reference only. Reach for the semantic alias above instead: a component that reads
+`--palette-blue-600` is invisible to a theme switch.
+
+<Unstyled>
+	<Story of={Specimens.ColorPalette} />
+</Unstyled>
+
+## Every colour token
+
+The **Resolves to** column follows the alias chain down to a literal.
+
+<Unstyled>
+	<Story of={Specimens.ColorTable} />
+</Unstyled>

@@ -2,27 +2,23 @@ FROM node:24.22.1-slim AS front_builder
 ARG VERSION
 ARG SAAS
 SHELL ["/bin/bash", "-c"]
+RUN npm install -g pnpm@10.33.0
 WORKDIR /app/frontend
-COPY frontend/package.json frontend/yarn.lock frontend/.yarnrc.yml frontend/angular.json frontend/browserslist frontend/tsconfig.app.json frontend/tsconfig.json /app/frontend/
-COPY frontend/.yarn /app/frontend/.yarn
-RUN apt-get update && apt-get install -y \
-    git \
-    && rm -rf /var/lib/apt/lists/*
-RUN --mount=type=cache,target=/root/.yarn YARN_CACHE_FOLDER=/root/.yarn yarn install --immutable --network-timeout 1000000 --silent
+COPY frontend/package.json frontend/pnpm-lock.yaml frontend/pnpm-workspace.yaml /app/frontend/
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile
+COPY frontend/.env frontend/.env.production frontend/.env.saas-production frontend/index.html frontend/index.saas.html frontend/vite.config.ts frontend/tsconfig.json frontend/tsconfig.app.json frontend/tsconfig.node.json /app/frontend/
 COPY frontend/scripts /app/frontend/scripts
+COPY frontend/public /app/frontend/public
 COPY frontend/src /app/frontend/src
 
-# Update version if VERSION build arg is provided
+# Update version if VERSION build arg is provided (the build scripts write src/version.ts)
 RUN if [[ -n $VERSION ]]; then \
-    cd frontend; \
     echo "Updating package.json version to $VERSION" && \
-    npm version $VERSION --no-git-tag-version && \
-    yarn update-version; \
+    npm version $VERSION --no-git-tag-version; \
     fi
 
-RUN if [[ -n $SAAS ]]; then API_ROOT=/api yarn build --configuration=saas-production; \
-    else API_ROOT=/api yarn build --configuration=production; fi
-RUN ls /app/frontend/dist/rocketadmin/browser
+RUN if [[ -n $SAAS ]]; then pnpm build:saas; else pnpm build; fi
+RUN ls /app/frontend/dist
 
 FROM node:24.22.1-slim
 
@@ -43,7 +39,7 @@ COPY rocketadmin-agent /app/rocketadmin-agent
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile
 RUN cd shared-code && ../node_modules/.bin/tsc
 RUN cd backend && ../node_modules/.bin/tsc && pnpm exec nest build
-COPY --from=front_builder /app/frontend/dist/rocketadmin/browser /var/www/html
+COPY --from=front_builder /app/frontend/dist /var/www/html
 COPY frontend/nginx/default.conf /etc/nginx/sites-enabled/default
 RUN mkdir -p /app/backend/node_modules/.cache && chown -R appuser:appuser /app/backend/node_modules/.cache
 # c8 report dir for `just test-coverage` (the test compose runs this image as appuser)

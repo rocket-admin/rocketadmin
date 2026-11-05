@@ -1,13 +1,13 @@
-const fs = require('fs');
-const path = require('path');
+// Port of frontend/scripts/update-version.js: writes the package.json version to src/version.ts.
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-// Read package.json to get the version
-const packageJsonPath = path.join(__dirname, '..', 'package.json');
-const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+const packageJson = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
 const version = packageJson.version;
 
-// Update the version.ts file
-const versionTsPath = path.join(__dirname, '..', 'src', 'app', 'version.ts');
+const versionTsPath = path.join(root, 'src', 'version.ts');
 const versionTsContent = `// This file is auto-generated during build
 export const version = '${version}';
 `;
