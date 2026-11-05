@@ -4,7 +4,6 @@ import CryptoJS from 'crypto-js';
 process.env.PRIVATE_KEY = 'test-private-key-12345';
 
 const { Encryptor } = await import('../../src/helpers/encryption/encryptor.js');
-const awaitedAppConfig = await import('../../src/shared/config/app-config.js');
 
 const TEST_DATA = 'Hello, World! This is sensitive data.';
 const TEST_MASTER_PWD = 'my-secure-master-password-123';
@@ -201,19 +200,23 @@ test('hashUserPassword: should return empty string for empty password', async (t
 });
 
 test('encryptData: throws instead of returning the plaintext when the private key is missing', (t) => {
-	const { appConfig } = awaitedAppConfig;
-	const savedKey = appConfig.auth.privateKey;
-	appConfig.auth.privateKey = null;
+	// appConfig.auth is frozen, so the missing key is simulated on the accessor, not the config.
+	const originalGetPrivateKey = Encryptor.getPrivateKey;
+	Encryptor.getPrivateKey = () => {
+		throw new Error('Encryption private key is not configured.');
+	};
 	try {
 		const error = t.throws(() => Encryptor.encryptData(TEST_DATA));
 		t.true(error.message.includes('Data encryption failed'));
 		t.false(error.message.includes(TEST_DATA));
 	} finally {
-		appConfig.auth.privateKey = savedKey;
+		Encryptor.getPrivateKey = originalGetPrivateKey;
 	}
 });
 
-test('isEncrypted: true only for the V2 envelope', (t) => {
+test('isEncrypted: true for the V2 envelope and for legacy V1 ciphertext, false for clear text', (t) => {
 	t.true(Encryptor.isEncrypted(Encryptor.encryptData(TEST_DATA)));
+	t.true(Encryptor.isEncrypted(CryptoJS.AES.encrypt(TEST_DATA, process.env.PRIVATE_KEY).toString()));
 	t.false(Encryptor.isEncrypted(TEST_DATA));
+	t.false(Encryptor.isEncrypted('JBSWY3DPEHPK3PXP'), 'a base32 OTP seed is clear text');
 });

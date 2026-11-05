@@ -55,13 +55,21 @@ export class UserEntity {
 		this.emailToLowerCase();
 	}
 
+	// Not columns. The seed ciphertext as loaded and its decrypted form, so that a save with an
+	// unchanged seed writes the stored ciphertext back as it is. V1 decryption is not
+	// authenticated: with a wrong key it returns garbage, and a re-encryption of that garbage
+	// would destroy a recoverable seed. Only a changed seed is encrypted anew (as V2).
+	private otpSecretKeyAtRest: string | null = null;
+	private otpSecretKeyLoaded: string | null = null;
+
 	// The hook encrypts the OTP seed whenever it is set, not only after enrollment. Before this rule
 	// a user who never completed verify-otp kept a clear-text seed at rest (ADR 01 §5.1).
 	@BeforeInsert()
 	@BeforeUpdate()
 	encryptOtpSecretKey() {
 		if (this.otpSecretKey && !Encryptor.isEncrypted(this.otpSecretKey)) {
-			this.otpSecretKey = Encryptor.encryptData(this.otpSecretKey);
+			const unchanged = this.otpSecretKeyAtRest !== null && this.otpSecretKey === this.otpSecretKeyLoaded;
+			this.otpSecretKey = unchanged ? this.otpSecretKeyAtRest : Encryptor.encryptData(this.otpSecretKey);
 		}
 		this.emailToLowerCase();
 	}
@@ -69,7 +77,9 @@ export class UserEntity {
 	@AfterLoad()
 	decryptOtpSecretKey() {
 		if (this.otpSecretKey && Encryptor.isEncrypted(this.otpSecretKey)) {
+			this.otpSecretKeyAtRest = this.otpSecretKey;
 			this.otpSecretKey = Encryptor.decryptData(this.otpSecretKey);
+			this.otpSecretKeyLoaded = this.otpSecretKey;
 		}
 		this.emailToLowerCase();
 	}
