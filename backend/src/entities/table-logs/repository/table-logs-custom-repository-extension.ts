@@ -57,9 +57,11 @@ export const tableLogsCustomRepositoryExtension: ITableLogsRepository = {
 
 		if (!userConnectionEdit) {
 			if (userInGroupsIds.length > 0) {
-				for (const userId of userInGroupsIds) {
-					qb.orWhere('tableLogs.cognitoUserName = :userIdInAdminGroup', { userIdInAdminGroup: userId });
-				}
+				// An IN list, not a loop of orWhere. orWhere appends a top-level OR and drops the
+				// connection filter above. That leaked the logs of every connection.
+				qb.andWhere('tableLogs.cognitoUserName IN (:...userIdsInAdminGroup)', {
+					userIdsInAdminGroup: userInGroupsIds,
+				});
 			} else {
 				qb.andWhere('tableLogs.cognitoUserName = :currentUserId', { currentUserId: currentUserId });
 			}
@@ -76,9 +78,7 @@ export const tableLogsCustomRepositoryExtension: ITableLogsRepository = {
 			qb.andWhere('tableLogs.operationType = :logOperationType', { logOperationType: logOperationType });
 		}
 		if (logOperationTypes.length > 0) {
-			for (const type of logOperationTypes) {
-				qb.orWhere('tableLogs.operationType = :type', { type: type });
-			}
+			qb.andWhere('tableLogs.operationType IN (:...logOperationTypes)', { logOperationTypes });
 		}
 		const rowsCount = await qb.getCount();
 		const lastPage = Math.ceil(rowsCount / perPage);
@@ -126,9 +126,11 @@ export const tableLogsCustomRepositoryExtension: ITableLogsRepository = {
 		}
 		if (!userConnectionEdit) {
 			if (userInGroupsIds.length > 0) {
-				for (const userId of userInGroupsIds) {
-					qb.orWhere('tableLogs.cognitoUserName = :userIdInAdminGroup', { userIdInAdminGroup: userId });
-				}
+				// An IN list, not a loop of orWhere. orWhere appends a top-level OR and drops the
+				// connection filter above. That leaked the logs of every connection.
+				qb.andWhere('tableLogs.cognitoUserName IN (:...userIdsInAdminGroup)', {
+					userIdsInAdminGroup: userInGroupsIds,
+				});
 			} else {
 				qb.andWhere('tableLogs.cognitoUserName = :currentUserId', { currentUserId: currentUserId });
 			}
@@ -145,9 +147,7 @@ export const tableLogsCustomRepositoryExtension: ITableLogsRepository = {
 			qb.andWhere('tableLogs.operationType = :logOperationType', { logOperationType: logOperationType });
 		}
 		if (logOperationTypes.length > 0) {
-			for (const type of logOperationTypes) {
-				qb.orWhere('tableLogs.operationType = :type', { type: type });
-			}
+			qb.andWhere('tableLogs.operationType IN (:...logOperationTypes)', { logOperationTypes });
 		}
 
 		const offset = (page - 1) * perPage;

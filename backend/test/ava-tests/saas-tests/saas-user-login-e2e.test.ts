@@ -181,3 +181,38 @@ test.serial(`${currentTest} rejects a request without a microservice JWT`, async
 	t.is(result.status, 401);
 	t.pass();
 });
+
+test.serial(`${currentTest} refuses a suspended user with 401`, async (t) => {
+	const { email, password, companyId, userId } = await createCoreUser();
+	const dataSource = app.get<DataSource>(BaseType.DATA_SOURCE);
+	await dataSource.getRepository(UserEntity).update({ id: userId }, { suspended: true });
+
+	const result = await request(app.getHttpServer())
+		.post('/saas/user/login')
+		.set('Authorization', microserviceAuthHeader())
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json')
+		.send({ email, password, companyId, request_domain: '127.0.0.1' });
+
+	t.is(result.status, 401, result.text);
+	t.is(Object.hasOwn(JSON.parse(result.text), 'id'), false);
+});
+
+test.serial(`${currentTest} stores the OTP seed encrypted before enrollment completes`, async (t) => {
+	const { userId } = await createCoreUser();
+	const dataSource = app.get<DataSource>(BaseType.DATA_SOURCE);
+	const userRepository = dataSource.getRepository(UserEntity);
+	const seed = 'JBSWY3DPEHPK3PXP';
+
+	// The same path as generate-otp: a save with isOTPEnabled still false.
+	const user = await userRepository.findOneByOrFail({ id: userId });
+	user.otpSecretKey = seed;
+	await userRepository.save(user);
+
+	const [raw] = await dataSource.query('SELECT "otpSecretKey" FROM "user" WHERE id = $1', [userId]);
+	t.true(String(raw.otpSecretKey).startsWith('$v2:'), 'seed at rest must carry the V2 envelope');
+	t.not(raw.otpSecretKey, seed);
+
+	const reloaded = await userRepository.findOneByOrFail({ id: userId });
+	t.is(reloaded.otpSecretKey, seed, 'the entity hook decrypts the seed on load');
+});

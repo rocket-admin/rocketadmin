@@ -7,6 +7,7 @@ import { FoundUserDto } from '../../../entities/user/dto/found-user.dto.js';
 import { IOtpLogin } from '../../../entities/user/use-cases/user-use-cases.interfaces.js';
 import { UserHelperService } from '../../../entities/user/user-helper.service.js';
 import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 import { appConfig } from '../../../shared/config/app-config.js';
 import { SaasOtpLoginDs } from '../data-structures/saas-otp-login.ds.js';
 import { ISaasOtpLogin } from './saas-use-cases.interface.js';
@@ -67,6 +68,9 @@ export class SaasOtpLoginUseCase extends AbstractUseCase<SaasOtpLoginDs, FoundUs
 		const foundUser = await this._dbContext.userRepository.findOneUserById(userId);
 		if (!foundUser) {
 			throw new UnauthorizedException('JWT verification failed');
+		}
+		if (foundUser.suspended) {
+			throw new UnauthorizedException(Messages.ACCOUNT_SUSPENDED);
 		}
 		return await this.userHelperService.buildFoundUserDs(foundUser);
 	}
