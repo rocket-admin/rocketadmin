@@ -9,6 +9,8 @@ import { appConfig } from '../../shared/config/app-config.js';
 import { Constants } from '../constants/constants.js';
 
 const ENCRYPTION_VERSION_PREFIX = '$v2:k1$';
+// Base64 of `Salted__`, the first bytes of every CryptoJS (V1) ciphertext.
+const V1_LEGACY_PREFIX = 'U2FsdGVkX1';
 const ENCRYPTION_ALGORITHM = 'aes-256-gcm';
 const KDF_ITERATIONS = 100000;
 const SALT_LENGTH = 32;
@@ -115,10 +117,12 @@ export class Encryptor {
 		}
 	}
 
-	// True when the value already carries the V2 envelope. The user entity hooks use it to
-	// encrypt a value once and to skip a value that is still in clear text on load.
+	// True when the value is ciphertext of this class: the V2 envelope, or the legacy V1 format.
+	// CryptoJS writes V1 as base64 of the OpenSSL `Salted__` block, so it always starts with
+	// `U2FsdGVkX1`. A clear-text value such as a base32 OTP seed never does. The user entity hooks
+	// use it to decrypt both formats on load and to encrypt only clear text on save.
 	static isEncrypted(value: string): boolean {
-		return Encryptor.isV2Format(value);
+		return Encryptor.isV2Format(value) || value.startsWith(V1_LEGACY_PREFIX);
 	}
 
 	static decryptData(encryptedData: string): string;

@@ -4,6 +4,7 @@ import { Test } from '@nestjs/testing';
 import test from 'ava';
 import { ValidationError } from 'class-validator';
 import cookieParser from 'cookie-parser';
+import CryptoJS from 'crypto-js';
 import jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { DataSource } from 'typeorm';
@@ -216,3 +217,26 @@ test.serial(`${currentTest} stores the OTP seed encrypted before enrollment comp
 	const reloaded = await userRepository.findOneByOrFail({ id: userId });
 	t.is(reloaded.otpSecretKey, seed, 'the entity hook decrypts the seed on load');
 });
+
+test.serial(
+	`${currentTest} decrypts a legacy V1 OTP seed on load and upgrades it to V2 on the next save`,
+	async (t) => {
+		const { userId } = await createCoreUser({ isOTPEnabled: true });
+		const dataSource = app.get<DataSource>(BaseType.DATA_SOURCE);
+		const userRepository = dataSource.getRepository(UserEntity);
+		const seed = 'JBSWY3DPEHPK3PXP';
+		// The row of an enrolled user from before the V2 scheme: CryptoJS ciphertext at rest.
+		const legacy = CryptoJS.AES.encrypt(seed, appConfig.auth.privateKey as string).toString();
+		await dataSource.query('UPDATE "user" SET "otpSecretKey" = $1 WHERE id = $2', [legacy, userId]);
+
+		const loaded = await userRepository.findOneByOrFail({ id: userId });
+		t.is(loaded.otpSecretKey, seed, 'the load hook decrypts the V1 seed');
+
+		loaded.name = 'touched';
+		await userRepository.save(loaded);
+		const [raw] = await dataSource.query('SELECT "otpSecretKey" FROM "user" WHERE id = $1', [userId]);
+		t.true(String(raw.otpSecretKey).startsWith('$v2:'), 'the save re-encrypts the seed as V2, not twice');
+		const reloaded = await userRepository.findOneByOrFail({ id: userId });
+		t.is(reloaded.otpSecretKey, seed);
+	},
+);

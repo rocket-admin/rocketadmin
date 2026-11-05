@@ -213,7 +213,9 @@ test('encryptData: throws instead of returning the plaintext when the private ke
 	}
 });
 
-test('isEncrypted: true only for the V2 envelope', (t) => {
+test('isEncrypted: true for the V2 envelope and for legacy V1 ciphertext, false for clear text', (t) => {
 	t.true(Encryptor.isEncrypted(Encryptor.encryptData(TEST_DATA)));
+	t.true(Encryptor.isEncrypted(CryptoJS.AES.encrypt(TEST_DATA, process.env.PRIVATE_KEY).toString()));
 	t.false(Encryptor.isEncrypted(TEST_DATA));
+	t.false(Encryptor.isEncrypted('JBSWY3DPEHPK3PXP'), 'a base32 OTP seed is clear text');
 });
