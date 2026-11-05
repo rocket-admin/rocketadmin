@@ -4,6 +4,7 @@ import CryptoJS from 'crypto-js';
 process.env.PRIVATE_KEY = 'test-private-key-12345';
 
 const { Encryptor } = await import('../../src/helpers/encryption/encryptor.js');
+const awaitedAppConfig = await import('../../src/shared/config/app-config.js');
 
 const TEST_DATA = 'Hello, World! This is sensitive data.';
 const TEST_MASTER_PWD = 'my-secure-master-password-123';
@@ -197,4 +198,22 @@ test('hashUserPassword: should return empty string for empty password', async (t
 	const result = await Encryptor.hashUserPassword('');
 
 	t.is(result, '');
+});
+
+test('encryptData: throws instead of returning the plaintext when the private key is missing', (t) => {
+	const { appConfig } = awaitedAppConfig;
+	const savedKey = appConfig.auth.privateKey;
+	appConfig.auth.privateKey = null;
+	try {
+		const error = t.throws(() => Encryptor.encryptData(TEST_DATA));
+		t.true(error.message.includes('Data encryption failed'));
+		t.false(error.message.includes(TEST_DATA));
+	} finally {
+		appConfig.auth.privateKey = savedKey;
+	}
+});
+
+test('isEncrypted: true only for the V2 envelope', (t) => {
+	t.true(Encryptor.isEncrypted(Encryptor.encryptData(TEST_DATA)));
+	t.false(Encryptor.isEncrypted(TEST_DATA));
 });

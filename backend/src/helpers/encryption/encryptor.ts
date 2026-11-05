@@ -105,13 +105,20 @@ export class Encryptor {
 		if (data === null || data === undefined) {
 			return data;
 		}
+		// Fail closed. A return of the plaintext here stores a secret in clear text and the caller
+		// cannot tell. decryptData throws in the same case.
 		try {
 			const privateKey = Encryptor.getPrivateKey();
 			return Encryptor.encryptDataV2(data, privateKey);
 		} catch (e) {
-			console.log('-> Encryption error', e);
-			return data;
+			throw new Error('Data encryption failed with error: ' + e);
 		}
+	}
+
+	// True when the value already carries the V2 envelope. The user entity hooks use it to
+	// encrypt a value once and to skip a value that is still in clear text on load.
+	static isEncrypted(value: string): boolean {
+		return Encryptor.isV2Format(value);
 	}
 
 	static decryptData(encryptedData: string): string;

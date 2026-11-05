@@ -55,9 +55,12 @@ export class UserEntity {
 		this.emailToLowerCase();
 	}
 
+	// The hook encrypts the OTP seed whenever it is set, not only after enrollment. Before this rule
+	// a user who never completed verify-otp kept a clear-text seed at rest (ADR 01 §5.1).
+	@BeforeInsert()
 	@BeforeUpdate()
 	encryptOtpSecretKey() {
-		if (this.isOTPEnabled && this.otpSecretKey) {
+		if (this.otpSecretKey && !Encryptor.isEncrypted(this.otpSecretKey)) {
 			this.otpSecretKey = Encryptor.encryptData(this.otpSecretKey);
 		}
 		this.emailToLowerCase();
@@ -65,7 +68,7 @@ export class UserEntity {
 
 	@AfterLoad()
 	decryptOtpSecretKey() {
-		if (this.isOTPEnabled && this.otpSecretKey) {
+		if (this.otpSecretKey && Encryptor.isEncrypted(this.otpSecretKey)) {
 			this.otpSecretKey = Encryptor.decryptData(this.otpSecretKey);
 		}
 		this.emailToLowerCase();

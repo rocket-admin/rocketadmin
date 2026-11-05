@@ -143,6 +143,39 @@ test.serial(`${currentTest} should delete more rows than fit one statement and l
 	}
 });
 
+test.serial(`GET /logs/:connectionId with operationTypes stays inside the connection`, async (t) => {
+	// Regression for the orWhere leak: an operationTypes filter used to drop the connection filter
+	// and return the logs of every connection. The first test above left 1500 deleteRow logs on
+	// another connection of another user; this connection must report only its own.
+	const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+	const secondUserToken = (await registerUserAndReturnUserInfo(app)).token;
+	const { testTableName } = await createTestTable(connectionToTestDB, 5);
+	const connectionId = await createConnection(secondUserToken);
+
+	const deleteResponse = await request(app.getHttpServer())
+		.put(`/table/rows/delete/${connectionId}?tableName=${testTableName}`)
+		.send([{ id: 1 }, { id: 2 }])
+		.set('Cookie', secondUserToken)
+		.set('Content-Type', 'application/json')
+		.set('Accept', 'application/json');
+	t.is(deleteResponse.status, 200, deleteResponse.text);
+
+	for (const query of ['operationTypes=deleteRow', 'operationTypes=deleteRow,addRow', '']) {
+		const logsResponse = await request(app.getHttpServer())
+			.get(`/logs/${connectionId}?page=1&perPage=50&${query}`)
+			.set('Cookie', secondUserToken)
+			.set('Content-Type', 'application/json')
+			.set('Accept', 'application/json');
+		t.is(logsResponse.status, 200, logsResponse.text);
+		const logsRO = JSON.parse(logsResponse.text);
+		t.is(logsRO.pagination.total, 2, `query "${query}" must see only this connection`);
+		t.is(logsRO.logs.length, 2);
+		for (const log of logsRO.logs) {
+			t.is(log.table_name, testTableName);
+		}
+	}
+});
+
 test.serial(`${currentTest} should delete rows of a table with a composite primary key`, async (t) => {
 	const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
 	const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
