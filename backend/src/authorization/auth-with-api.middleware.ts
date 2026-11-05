@@ -16,11 +16,11 @@ import { UserEntity } from '../entities/user/user.entity.js';
 import { assertTokenScopeAllowed } from '../entities/user/utils/assert-token-scope-allowed.js';
 import { EncryptionAlgorithmEnum } from '../enums/encryption-algorithm.enum.js';
 import { Messages } from '../exceptions/text/messages.js';
-import { Constants } from '../helpers/constants/constants.js';
 import { Encryptor } from '../helpers/encryption/encryptor.js';
 import { isObjectEmpty } from '../helpers/is-object-empty.js';
 import { appConfig } from '../shared/config/app-config.js';
 import { IRequestWithCognitoInfo } from './cognito-decoded.interface.js';
+import { getSessionTokenFromRequest } from './utils/session-token.js';
 
 @Injectable()
 export class AuthWithApiMiddleware implements NestMiddleware {
@@ -52,7 +52,7 @@ export class AuthWithApiMiddleware implements NestMiddleware {
 	}
 
 	private getTokenFromCookie(req: IRequestWithCognitoInfo): string | undefined {
-		return req.cookies?.[Constants.JWT_COOKIE_KEY_NAME];
+		return getSessionTokenFromRequest(req);
 	}
 
 	private handleAuthenticationError(error: any): void {

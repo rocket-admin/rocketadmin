@@ -19,7 +19,9 @@ services:
         condition: service_healthy
     # $EXTRA_ARGS is a single ava glob (quoted so the extglob reaches ava
     # intact instead of being expanded by the container's dash shell).
-    command: ["/bin/sh", "-c", "pnpm test-all-parallel \"$EXTRA_ARGS\""]
+    # $TEST_SCRIPT picks the package script: `just test-coverage` sets it to
+    # test-all-parallel:coverage (same suite under c8, report in /app/backend/coverage).
+    command: ["/bin/sh", "-c", "pnpm ${TEST_SCRIPT:-test-all-parallel} \"$EXTRA_ARGS\""]
     develop:
       watch:
         - action: rebuild

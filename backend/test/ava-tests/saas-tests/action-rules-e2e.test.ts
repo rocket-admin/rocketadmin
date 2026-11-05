@@ -1061,7 +1061,8 @@ test.serial(`${currentTest} should return created table rule with action and eve
 	const scope = nock(fakeUrl)
 		.post('/')
 		.times(2)
-		.reply(201, (_uri, requestBody) => {
+		.reply(201, async (request) => {
+			const requestBody = await request.json();
 			nockBodiesArray.push(requestBody);
 			return {
 				status: 201,
@@ -1260,7 +1261,8 @@ test.serial(`${currentTest} should create trigger and activate http table action
 	const scope = nock(fakeUrl)
 		.post('/')
 		.times(6)
-		.reply(201, (_uri, requestBody) => {
+		.reply(201, async (request) => {
+			const requestBody = await request.json();
 			nockBodiesArray.push(requestBody);
 			return {
 				status: 201,

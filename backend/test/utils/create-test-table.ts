@@ -567,17 +567,19 @@ async function createTestDynamoDBTable(
 	for (let i = 0; i < testEntitiesSeedsCount; i++) {
 		const isSearchedUser = i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5;
 		const item = {
-			id: { N: i },
+			id: { N: String(i) },
 			name: { S: isSearchedUser ? testSearchedUserName : faker.person.firstName() },
 			email: { S: faker.internet.email() },
 			age: {
-				N: !isSearchedUser
-					? faker.number.int({ min: 16, max: 80 })
-					: i === 0
-						? 14
-						: i === testEntitiesSeedsCount - 21
-							? 90
-							: 95,
+				N: String(
+					!isSearchedUser
+						? faker.number.int({ min: 16, max: 80 })
+						: i === 0
+							? 14
+							: i === testEntitiesSeedsCount - 21
+								? 90
+								: 95,
+				),
 			},
 			created_at: { S: new Date().toISOString() },
 			updated_at: { S: new Date().toISOString() },
@@ -591,7 +593,7 @@ async function createTestDynamoDBTable(
 		if (isSearchedUser) {
 			insertedSearchedIds.push({
 				number: i,
-				id: String(item.id.N),
+				id: item.id.N,
 			});
 		}
 

@@ -165,3 +165,56 @@ test.serial(`${currentTest} rejects unauthenticated calls (401)`, async (t) => {
 		.set('Accept', 'application/json');
 	t.is(response.status, 401);
 });
+
+currentTest = 'POST /user/logout/ (browser session cookies, plan 84)';
+
+// Two distinct logins at least one second apart, so the two tokens carry different `iat` claims.
+async function loginTwiceAndReturnTokens(): Promise<{ older: string; newer: string }> {
+	const older = await loginAndReturnCookieToken();
+	await new Promise((resolve) => setTimeout(resolve, 1100));
+	const newer = await loginAndReturnCookieToken();
+	return { older, newer };
+}
+
+function userRequestWithCookies(cookies: Array<string>): request.Test {
+	return request(app.getHttpServer())
+		.get('/user')
+		.set('Cookie', cookies.map((token) => `rocketadmin_cookie=${token}`).join('; '))
+		.set('Accept', 'application/json');
+}
+
+test.serial(`${currentTest} authenticates with the newest session cookie when the browser sends two`, async (t) => {
+	const { older, newer } = await loginTwiceAndReturnTokens();
+	const newerId = (jwt.decode(newer) as jwt.JwtPayload).id;
+
+	const olderFirst = await userRequestWithCookies([older, newer]);
+	t.is(olderFirst.status, 200);
+	t.is(JSON.parse(olderFirst.text).id, newerId);
+
+	const newerFirst = await userRequestWithCookies([newer, older]);
+	t.is(newerFirst.status, 200);
+	t.is(JSON.parse(newerFirst.text).id, newerId);
+});
+
+test.serial(`${currentTest} revokes every token the browser sent and expires the cookies`, async (t) => {
+	const { older, newer } = await loginTwiceAndReturnTokens();
+
+	const logoutResult = await request(app.getHttpServer())
+		.post('/user/logout/')
+		.set('Cookie', `rocketadmin_cookie=${older}; rocketadmin_cookie=${newer}`)
+		.set('Accept', 'application/json');
+	t.is(logoutResult.status, 201);
+
+	const setCookie: Array<string> = logoutResult.get('Set-Cookie') ?? [];
+	const jwtClears = setCookie.filter((cookie) => cookie.startsWith('rocketadmin_cookie=;'));
+	const flagClears = setCookie.filter((cookie) => cookie.startsWith('rocketadmin_authenticated=;'));
+	t.true(jwtClears.length >= 1);
+	t.true(flagClears.length >= 1);
+	t.true(setCookie.every((cookie) => /Expires=Thu, 01 Jan 1970/.test(cookie)));
+	// The test environment sets no cookie domain, so the clear stays host-only and the response
+	// carries no Clear-Site-Data header.
+	t.is(logoutResult.headers['clear-site-data'], undefined);
+
+	t.is((await userRequestWithCookies([older])).status, 401);
+	t.is((await userRequestWithCookies([newer])).status, 401);
+});

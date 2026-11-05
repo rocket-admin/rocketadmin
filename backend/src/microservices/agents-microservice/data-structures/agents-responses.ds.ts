@@ -98,3 +98,39 @@ export class CompanySubscriptionInfoRO {
 	@ApiProperty()
 	isPaymentMethodAdded: boolean;
 }
+
+export class AiRowWriteFailureRO {
+	@ApiProperty({ description: 'Zero-based index of the first row that failed. The rows before it were inserted.' })
+	rowIndex: number;
+
+	@ApiProperty({ description: 'The database or validation message for that row.' })
+	message: string;
+}
+
+export class AiRowsInsertedRO {
+	@ApiProperty({ description: 'How many rows the call inserted.' })
+	insertedCount: number;
+
+	@ApiProperty({
+		type: 'array',
+		items: { type: 'object', additionalProperties: true },
+		description: 'The primary key of each inserted row, in request order.',
+	})
+	insertedPrimaryKeys: Array<Record<string, unknown>>;
+
+	@ApiPropertyOptional({
+		type: AiRowWriteFailureRO,
+		description: 'Present when a row failed. Inserts stop at the first failure.',
+	})
+	failure?: AiRowWriteFailureRO;
+}
+
+export class AiRowsUpdatedRO {
+	@ApiProperty({ description: 'How many rows the call updated.' })
+	updatedCount: number;
+}
+
+export class AiRowsDeletedRO {
+	@ApiProperty({ description: 'How many rows the call deleted.' })
+	deletedCount: number;
+}

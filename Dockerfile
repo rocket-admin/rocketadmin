@@ -1,4 +1,4 @@
-FROM node:24-slim AS front_builder
+FROM node:24.22.1-slim AS front_builder
 ARG VERSION
 ARG SAAS
 SHELL ["/bin/bash", "-c"]
@@ -20,7 +20,7 @@ RUN if [[ -n $VERSION ]]; then \
 RUN if [[ -n $SAAS ]]; then pnpm build:saas; else pnpm build; fi
 RUN ls /app/frontend/dist
 
-FROM node:24-slim
+FROM node:24.22.1-slim
 
 RUN groupadd -r -g 1001 appuser && useradd -r -u 1001 -g appuser -d /app -s /sbin/nologin appuser
 
@@ -42,6 +42,8 @@ RUN cd backend && ../node_modules/.bin/tsc && pnpm exec nest build
 COPY --from=front_builder /app/frontend/dist /var/www/html
 COPY frontend/nginx/default.conf /etc/nginx/sites-enabled/default
 RUN mkdir -p /app/backend/node_modules/.cache && chown -R appuser:appuser /app/backend/node_modules/.cache
+# c8 report dir for `just test-coverage` (the test compose runs this image as appuser)
+RUN mkdir -p /app/backend/coverage && chown appuser:appuser /app/backend/coverage
 RUN chown -R appuser:appuser  /var/lib/nginx
 RUN chown -R appuser:appuser  /var/log/nginx
 RUN chown -R appuser:appuser  /run

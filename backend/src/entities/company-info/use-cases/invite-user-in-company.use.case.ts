@@ -97,17 +97,16 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
 			const { rawToken } =
 				await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(foundInvitedUser);
 
-			if (isSaaS()) {
-				// Custom domains retired (plan 46): links are built on the default domain.
-				await this.emailService.sendEmailConfirmation(
-					foundInvitedUser.email,
-					rawToken,
-					null,
-					ValidationHelper.resolveEmailVerificationLinkBase(inputData.emailVerificationLinkBase),
-				);
-			} else {
-				// Plan 15 Phase 6 (rev 5): self-hosted sends no email — the admin takes the full
-				// confirmation link from the server logs and hands it to the user.
+			// Custom domains retired (plan 46): links are built on the default domain.
+			const confirmationResult = await this.emailService.sendEmailConfirmation(
+				foundInvitedUser.email,
+				rawToken,
+				null,
+				ValidationHelper.resolveEmailVerificationLinkBase(inputData.emailVerificationLinkBase),
+			);
+			if (!confirmationResult && !isSaaS()) {
+				// Self-hosted without a working SMTP server: the admin takes the full confirmation
+				// link from the server logs and hands it to the user.
 				this.logger.printTechString(
 					`Email confirmation link: ${Constants.APP_DOMAIN_ADDRESS}/external/user/email/verify/${rawToken}`,
 				);
@@ -150,18 +149,17 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
 			return invitationRO;
 		}
 
-		if (isSaaS()) {
-			await this.emailService.sendInvitationToCompany(
-				invitedUserEmail,
-				rawToken,
-				companyId,
-				foundCompany.name,
-				null,
-				ValidationHelper.resolveEmailVerificationLinkBase(inputData.inviteLinkBase),
-			);
-		} else {
-			// Plan 15 Phase 6 (rev 5): self-hosted sends no email — the admin takes the full
-			// invitation link from the server logs and hands it to the invited user.
+		const invitationResult = await this.emailService.sendInvitationToCompany(
+			invitedUserEmail,
+			rawToken,
+			companyId,
+			foundCompany.name,
+			null,
+			ValidationHelper.resolveEmailVerificationLinkBase(inputData.inviteLinkBase),
+		);
+		if (!invitationResult && !isSaaS()) {
+			// Self-hosted without a working SMTP server: the admin takes the full invitation link
+			// from the server logs and hands it to the invited user.
 			this.logger.printTechString(
 				`Invitation link: ${Constants.APP_DOMAIN_ADDRESS}/company/${companyId}/verify/${rawToken}/`,
 			);

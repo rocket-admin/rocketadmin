@@ -80,7 +80,7 @@ export class DeleteRowFromTableUseCase
 
 		Object.keys(primaryKey).forEach((key) => {
 			// eslint-disable-next-line security/detect-object-injection
-			if (!primaryKey[key] && primaryKey[key] !== '') {
+			if (primaryKey[key] === undefined) {
 				// eslint-disable-next-line security/detect-object-injection
 				delete primaryKey[key];
 			}

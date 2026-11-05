@@ -565,6 +565,7 @@ export class TableController {
 	})
 	@ApiQuery({ name: 'tableName', required: true })
 	@UseGuards(TableDeleteGuard)
+	@Timeout(TimeoutDefaults.EXTENDED)
 	@Put('/table/rows/delete/:connectionId')
 	async deleteRowsInTable(
 		@MasterPassword() masterPwd: string,

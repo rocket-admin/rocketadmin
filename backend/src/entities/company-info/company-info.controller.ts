@@ -37,6 +37,7 @@ import { TurnstileService } from '../../shared/services/turnstile.service.js';
 import { SimpleFoundUserInCompanyInfoDs } from '../user/dto/found-user.dto.js';
 import { ITokenExp } from '../user/utils/generate-gwt-token.js';
 import { getCookieDomainOptions } from '../user/utils/get-cookie-domain-options.js';
+import { clearSessionCookies } from '../user/utils/session-cookies.js';
 import {
 	FoundUserCompanyInfoDs,
 	FoundUserEmailCompaniesInfoDs,
@@ -398,15 +399,7 @@ export class CompanyInfoController {
 	): Promise<SuccessResponse> {
 		const deleteResult = await this.deleteCompanyUseCase.execute(userId, InTransactionEnum.ON);
 
-		response.cookie(Constants.JWT_COOKIE_KEY_NAME, '', {
-			...getCookieDomainOptions(request.hostname),
-			expires: new Date(0),
-		});
-		response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
-			expires: new Date(0),
-			httpOnly: false,
-			...getCookieDomainOptions(request.hostname),
-		});
+		clearSessionCookies(response, request.hostname);
 		return deleteResult;
 	}
 

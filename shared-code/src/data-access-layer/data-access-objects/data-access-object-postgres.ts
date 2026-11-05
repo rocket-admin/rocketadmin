@@ -6,6 +6,12 @@ import * as csv from 'csv';
 import { Knex } from 'knex';
 import { nanoid } from 'nanoid';
 import { LRUStorage } from '../../caching/lru-storage.js';
+import {
+	applyPrimaryKeysFilter,
+	BULK_PRIMARY_KEYS_LIMITS,
+	chunkPrimaryKeyRows,
+	normalisePrimaryKeys,
+} from '../../helpers/bulk-primary-keys.js';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 import { isPostgresDateOrTimeType, isPostgresDateStringByRegexp } from '../../helpers/is-database-date.js';
@@ -24,6 +30,15 @@ import { TableStructureDS } from '../shared/data-structures/table-structure.ds.j
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
+
+type PostgresCustomTypeDescription = {
+	enumLabels: Array<string>;
+	attributes: Array<{ column_name: string; data_type: string }>;
+};
+
+function customTypeKey(schema: string, name: string): string {
+	return `${schema}.${name}`;
+}
 
 export class DataAccessObjectPostgres extends BasicDataAccessObject implements IDataAccessObject {
 	public async addRowInTable(
@@ -110,6 +125,9 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
 		primaryKeys: Array<Record<string, unknown>>,
 		settings: TableSettingsDS,
 	): Promise<Array<Record<string, unknown>>> {
+		if (primaryKeys.length === 0) {
+			return [];
+		}
 		const knex: Knex<any, any[]> = await this.configureKnex();
 		let availableFields: string[] = [];
 		if (settings) {
@@ -121,16 +139,13 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
 			.withSchema(this.connection.schema ?? 'public')
 			.select(availableFields.length ? availableFields : '*');
 
-		primaryKeys.forEach((primaryKey) => {
-			query.orWhere((builder) => {
-				Object.entries(primaryKey).forEach(([column, value]) => {
-					builder.andWhere(column, value);
-				});
-			});
-		});
-
-		const results = await query;
-		return results as Array<Record<string, unknown>>;
+		const normalisedKeys = normalisePrimaryKeys(primaryKeys);
+		const results: Array<Record<string, unknown>> = [];
+		for (const rows of chunkPrimaryKeyRows(normalisedKeys, BULK_PRIMARY_KEYS_LIMITS.postgres)) {
+			const chunkRows = await applyPrimaryKeysFilter(query.clone(), normalisedKeys.columns, rows, true);
+			results.push(...(chunkRows as Array<Record<string, unknown>>));
+		}
+		return results;
 	}
 
 	public async getRowsFromTable(
@@ -379,6 +394,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
 				'column_name',
 				'column_default',
 				'data_type',
+				'udt_schema',
 				'udt_name',
 				'is_nullable',
 				'character_maximum_length',
@@ -403,45 +419,36 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
 		});
 
 		if (customTypeIndexes.length > 0) {
+			// One catalog round trip per type kind for the whole table, not per column: a table with N
+			// user-defined columns used to issue 2N sequential catalog queries (composite attributes +
+			// enum labels, once per column, even for repeated types), which Sentry reported as an
+			// "N+1 query with repeating spans" on the pg_type/pg_class/pg_attribute SELECT.
+			const customTypes = await this.describeCustomTypes(
+				knex,
+				customTypeIndexes.map((index) => ({
+					schema: result[index].udt_schema,
+					name: result[index].udt_name,
+				})),
+			);
 			for (const index of customTypeIndexes) {
-				const customTypeInTableName = result[index].udt_name;
-				const customTypeAttrsQueryResult = await knex.raw(
-					`select attname, format_type(atttypid, atttypmod)
-       from pg_type
-                join pg_class on pg_class.oid = pg_type.typrelid
-                join pg_attribute on pg_attribute.attrelid = pg_class.oid
-       where typname = ?
-       order by attnum`,
-					customTypeInTableName,
-				);
-				const customTypeAttrs = customTypeAttrsQueryResult.rows;
-				const enumLabelQueryResult = await knex.raw(
-					`SELECT e.enumlabel
-       FROM pg_enum e
-                JOIN pg_type t ON e.enumtypid = t.oid
-       WHERE t.typname = ?`,
-					customTypeInTableName,
-				);
-				let enumLabelRows = [];
-				if (enumLabelQueryResult?.rows && enumLabelQueryResult.rows.length > 0) {
-					enumLabelRows = enumLabelQueryResult.rows.map((el) => el.enumlabel);
+				const described = customTypes.get(customTypeKey(result[index].udt_schema, result[index].udt_name));
+				if (!described) {
+					continue;
 				}
-				if (enumLabelRows.length > 0) {
+				if (described.enumLabels.length > 0) {
 					result[index].data_type = 'enum';
-					result[index].data_type_params = enumLabelRows;
+					result[index].data_type_params = described.enumLabels;
 				}
-
-				if (customTypeAttrs && customTypeAttrs.length > 0) {
-					const customDataTypeRo = customTypeAttrs.map((attr) => ({
-						column_name: attr.attname,
-						data_type: attr.format_type,
-					}));
+				if (described.attributes.length > 0) {
 					result[index].data_type = result[index].udt_name;
-					result[index].data_type_params = customDataTypeRo;
+					result[index].data_type_params = described.attributes;
 				}
 			}
 		}
 
+		for (const element of result) {
+			delete element.udt_schema;
+		}
 		return result;
 	}
 
@@ -525,28 +532,27 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
 	}
 
 	public async bulkDeleteRowsInTable(tableName: string, primaryKeys: Array<Record<string, unknown>>): Promise<number> {
-		const knex = await this.configureKnex();
-
 		if (primaryKeys.length === 0) {
 			return 0;
 		}
+		const knex = await this.configureKnex();
+		const normalisedKeys = normalisePrimaryKeys(primaryKeys);
+		const chunks = chunkPrimaryKeyRows(normalisedKeys, BULK_PRIMARY_KEYS_LIMITS.postgres);
 
-		await knex.transaction(async (trx) => {
-			await trx(tableName)
-				.withSchema(this.connection.schema ?? 'public')
-				.delete()
-				.modify((queryBuilder) => {
-					primaryKeys.forEach((key) => {
-						queryBuilder.orWhere((builder) => {
-							Object.entries(key).forEach(([column, value]) => {
-								builder.andWhere(column, value);
-							});
-						});
-					});
-				});
+		return await knex.transaction(async (trx) => {
+			let deletedRowsCount = 0;
+			for (const rows of chunks) {
+				deletedRowsCount += await applyPrimaryKeysFilter(
+					trx(tableName)
+						.withSchema(this.connection.schema ?? 'public')
+						.delete(),
+					normalisedKeys.columns,
+					rows,
+					true,
+				);
+			}
+			return deletedRowsCount;
 		});
-
-		return primaryKeys.length;
 	}
 
 	public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {
@@ -892,6 +898,58 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
 			[tableSchema, tableName, tableSchema, tableName],
 		);
 		return parseInt(fastCount, 10);
+	}
+
+	/**
+	 * Describes user-defined column types with two catalog queries for the whole set: composite
+	 * attributes (pg_attribute of the type's row class) and enum labels. Types are matched by
+	 * (schema, name) so a same-named type in another schema cannot leak its attributes or labels in.
+	 */
+	private async describeCustomTypes(
+		knex: Knex<any, any[]>,
+		types: Array<{ schema: string; name: string }>,
+	): Promise<Map<string, PostgresCustomTypeDescription>> {
+		const descriptions = new Map<string, PostgresCustomTypeDescription>();
+		for (const { schema, name } of types) {
+			descriptions.set(customTypeKey(schema, name), { enumLabels: [], attributes: [] });
+		}
+		const typeNames = [...new Set(types.map(({ name }) => name))];
+
+		const [attributeRows, enumRows] = await Promise.all([
+			knex
+				.select(
+					'pg_namespace.nspname as type_schema',
+					'pg_type.typname as type_name',
+					'pg_attribute.attname as attname',
+					knex.raw('format_type(pg_attribute.atttypid, pg_attribute.atttypmod) as format_type'),
+				)
+				.from('pg_type')
+				.join('pg_namespace', 'pg_namespace.oid', 'pg_type.typnamespace')
+				.join('pg_class', 'pg_class.oid', 'pg_type.typrelid')
+				.join('pg_attribute', 'pg_attribute.attrelid', 'pg_class.oid')
+				.whereIn('pg_type.typname', typeNames)
+				.andWhere('pg_attribute.attnum', '>', 0)
+				.andWhere('pg_attribute.attisdropped', false)
+				.orderBy(['pg_type.typname', 'pg_attribute.attnum']),
+			knex
+				.select('pg_namespace.nspname as type_schema', 'pg_type.typname as type_name', 'pg_enum.enumlabel as enumlabel')
+				.from('pg_enum')
+				.join('pg_type', 'pg_type.oid', 'pg_enum.enumtypid')
+				.join('pg_namespace', 'pg_namespace.oid', 'pg_type.typnamespace')
+				.whereIn('pg_type.typname', typeNames)
+				.orderBy(['pg_type.typname', 'pg_enum.enumsortorder']),
+		]);
+
+		for (const row of attributeRows) {
+			descriptions.get(customTypeKey(row.type_schema, row.type_name))?.attributes.push({
+				column_name: row.attname,
+				data_type: row.format_type,
+			});
+		}
+		for (const row of enumRows) {
+			descriptions.get(customTypeKey(row.type_schema, row.type_name))?.enumLabels.push(row.enumlabel);
+		}
+		return descriptions;
 	}
 
 	private attachSchemaNameToTableName(tableName: string): string {

@@ -1,10 +1,12 @@
 import test from 'ava';
 import SMTPTransport from 'nodemailer/lib/smtp-transport/index.js';
+import type * as nunjucks from 'nunjucks';
 import {
 	EmailDispatchOutcome,
 	EmailService,
 	mapReminderOutcomeToCronResult,
 } from '../../../src/entities/email/email/email.service.js';
+import { EmailConfigService } from '../../../src/entities/email/email-config/email-config.service.js';
 import { EmailTransporterService } from '../../../src/entities/email/transporter/email-transporter-service.js';
 import { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 import { SaasEmailGatewayService } from '../../../src/microservices/gateways/saas-gateway.ts/saas-email-gateway.service.js';
@@ -50,6 +52,8 @@ test('sendRemindersToUsers in test env -> every result names the suppression', a
 		{} as unknown as EmailTransporterService,
 		{} as unknown as SaasEmailGatewayService,
 		{ error: () => {}, debug: () => {} } as unknown as WinstonLogger,
+		{} as unknown as EmailConfigService,
+		{} as unknown as nunjucks.Environment,
 	);
 	const results = await emailService.sendRemindersToUsers(['a@x.com', 'b@y.com']);
 	t.deepEqual(results, [

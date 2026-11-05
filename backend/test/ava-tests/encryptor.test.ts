@@ -198,3 +198,25 @@ test('hashUserPassword: should return empty string for empty password', async (t
 
 	t.is(result, '');
 });
+
+test('encryptData: throws instead of returning the plaintext when the private key is missing', (t) => {
+	// appConfig.auth is frozen, so the missing key is simulated on the accessor, not the config.
+	const originalGetPrivateKey = Encryptor.getPrivateKey;
+	Encryptor.getPrivateKey = () => {
+		throw new Error('Encryption private key is not configured.');
+	};
+	try {
+		const error = t.throws(() => Encryptor.encryptData(TEST_DATA));
+		t.true(error.message.includes('Data encryption failed'));
+		t.false(error.message.includes(TEST_DATA));
+	} finally {
+		Encryptor.getPrivateKey = originalGetPrivateKey;
+	}
+});
+
+test('isEncrypted: true for the V2 envelope and for legacy V1 ciphertext, false for clear text', (t) => {
+	t.true(Encryptor.isEncrypted(Encryptor.encryptData(TEST_DATA)));
+	t.true(Encryptor.isEncrypted(CryptoJS.AES.encrypt(TEST_DATA, process.env.PRIVATE_KEY).toString()));
+	t.false(Encryptor.isEncrypted(TEST_DATA));
+	t.false(Encryptor.isEncrypted('JBSWY3DPEHPK3PXP'), 'a base32 OTP seed is clear text');
+});

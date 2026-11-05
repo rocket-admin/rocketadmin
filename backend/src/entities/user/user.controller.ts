@@ -18,6 +18,7 @@ import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } 
 import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
 import validator from 'validator';
+import { getSessionTokensFromRequest } from '../../authorization/utils/session-token.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { BodyEmail } from '../../decorators/body-email.decorator.js';
 import { GCLlId } from '../../decorators/gclid-decorator.js';
@@ -77,6 +78,7 @@ import {
 } from './use-cases/user-use-cases.interfaces.js';
 import { ITokenExp, TokenExpDs } from './utils/generate-gwt-token.js';
 import { getCookieDomainOptions } from './utils/get-cookie-domain-options.js';
+import { clearSessionCookies } from './utils/session-cookies.js';
 
 @UseInterceptors(SentryInterceptor)
 @Timeout()
@@ -193,8 +195,8 @@ export class UserController {
 	})
 	@Post('user/logout/')
 	async logOut(@Req() request: Request, @Res({ passthrough: true }) response: Response): Promise<boolean> {
-		const token = request.cookies[Constants.JWT_COOKIE_KEY_NAME];
-		if (!token) {
+		const tokens = getSessionTokensFromRequest(request);
+		if (tokens.length === 0) {
 			throw new HttpException(
 				{
 					message: Messages.TOKEN_MISSING,
@@ -202,16 +204,13 @@ export class UserController {
 				HttpStatus.BAD_REQUEST,
 			);
 		}
-		response.cookie(Constants.JWT_COOKIE_KEY_NAME, '', {
-			expires: new Date(0),
-			...getCookieDomainOptions(request.hostname),
-		});
-		response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
-			expires: new Date(0),
-			httpOnly: false,
-			...getCookieDomainOptions(request.hostname),
-		});
-		return await this.logOutUseCase.execute(token, InTransactionEnum.ON);
+		clearSessionCookies(response, request.hostname);
+		// Revoke every token the browser sent, not only the one the middleware selected (plan 84).
+		let revoked = true;
+		for (const token of tokens) {
+			revoked = (await this.logOutUseCase.execute(token, InTransactionEnum.ON)) && revoked;
+		}
+		return revoked;
 	}
 
 	@ApiOperation({ summary: 'Change user password' })
@@ -392,15 +391,7 @@ export class UserController {
 		const { reason, message } = deletingAccountReasonData;
 		const slackMessage = Messages.USER_DELETED_ACCOUNT(deleteResult.email, reason, message);
 
-		response.cookie(Constants.JWT_COOKIE_KEY_NAME, '', {
-			...getCookieDomainOptions(request.hostname),
-			expires: new Date(0),
-		});
-		response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
-			expires: new Date(0),
-			httpOnly: false,
-			...getCookieDomainOptions(request.hostname),
-		});
+		clearSessionCookies(response, request.hostname);
 
 		await slackPostMessage(slackMessage);
 		return deleteResult;

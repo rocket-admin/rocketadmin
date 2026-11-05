@@ -46,9 +46,29 @@ The project uses `just` for test orchestration:
 ```bash
 just test               # Run all backend tests with Docker Compose
 just test "path/to/test.ts"  # Run specific test file
+just test-coverage      # Same suite under c8; report copied out to backend/coverage/ (what CI runs)
 ```
 
 This spins up test databases (MySQL, PostgreSQL, MSSQL, Oracle, MongoDB, DynamoDB) via `docker-compose.tst.yml`.
+
+### Backend test coverage
+
+`just test-coverage` runs the same compose stack with `TEST_SCRIPT=test-all-parallel:coverage`, i.e. the
+AVA suite under [c8](https://github.com/bcoe/c8) (V8 native coverage, no instrumented build). `backend/.c8rc.json`
+counts every file under `backend/src/` whether loaded or not (`all: true`) except `main.ts`, `migrations/` and
+`*.spec.ts`; the suite executes `dist/src/**/*.js`, so `exclude-after-remap` is set for the patterns to match the
+source paths the `.js.map` files point back to (`shared-code` is outside `src/` and is not counted). The container
+runs as `appuser`, which is why the `Dockerfile` pre-creates `/app/backend/coverage`. The recipe copies
+`coverage-summary.json`, `lcov.info` and `lcov-report/` (per-file HTML) out of the stopped container to
+`backend/coverage/` (git-ignored) — only those, because `coverage/tmp` holds ~1 GB of raw V8 dumps.
+
+CI (`.github/workflows/backend.yml`): the `test` job runs `just test-coverage`, writes a lines / statements /
+functions / branches table to the job summary (`scripts/coverage-report.mjs markdown`) and uploads
+`coverage-backend` as an artifact; on push to `main` the `coverage-badge` job writes the metrics table that the
+top of `README.md` links to (plus an SVG badge, `scripts/coverage-report.mjs`) and force-pushes it to the orphan
+`badges` branch using the workflow's own `GITHUB_TOKEN` — no external service or secret. A link rather than an
+embedded image: the image is broken until that branch exists. No minimum coverage is enforced; a gate is
+`"check-coverage": true` plus `"lines": <percent>` in `backend/.c8rc.json`.
 
 ### Migrations
 
@@ -132,3 +152,18 @@ Test databases are defined in `docker-compose.tst.yml`:
 ### Class Member Ordering
 
 - Private methods must be placed at the end of the class, after all public methods
+
+## Writing rules (ASD-STE100)
+
+New prose in code comments follows ASD-STE100, Simplified Technical English. The rules and the word list: `../sitenova/architecture-design-records/STE100-WRITING-RULES.md`. When the sibling checkout is absent, the rules in this section are the contract. The checker: `node scripts/ste-check.mjs <file>` (`--help` lists the modes). A Claude Code hook runs the checker after each `Write` and `Edit`. Fix every error it reports before you continue.
+
+The core rules:
+
+- One idea per sentence. 25 words or fewer in a description, 20 or fewer in an instruction.
+- Active voice, simple present or simple past. Name the actor. No perfect tenses. No `-ing` verb forms: write `before you run`, not `before running`.
+- No dash between two ideas. Write two sentences. Keep parentheses for a short reference such as `(plan 61)`.
+- Approved words only: `use` not `utilize`, `make sure` not `ensure`, `through` not `via`, `but` not `however`, `for example` not `e.g.`. No contractions.
+- Technical names and technical verbs are fine: identifiers in backticks, product names, `deploy`, `merge`, `upsert`.
+- Existing text stays as it is. When you change a paragraph, rewrite that paragraph. Do not rewrite a document only for style.
+- Out of scope: model prompts, UI strings, log and error messages, test names.
+- Plans and architecture records live in the `sitenova` repository. The same rules apply there.

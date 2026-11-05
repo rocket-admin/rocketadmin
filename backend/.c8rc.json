@@ -1,0 +1,9 @@
+{
+	"all": true,
+	"src": ["src"],
+	"include": ["src/**/*.ts"],
+	"exclude": ["src/main.ts", "src/migrations/**", "src/**/*.spec.ts", "src/**/*.d.ts"],
+	"exclude-after-remap": true,
+	"reporter": ["text-summary", "lcov", "json-summary"],
+	"reports-dir": "coverage"
+}

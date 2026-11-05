@@ -1,4 +1,4 @@
-FROM node:24-slim
+FROM node:24.22.1-slim
 
 RUN groupadd -r -g 1001 appuser && useradd -r -u 1001 -g appuser -d /app -s /sbin/nologin appuser
 

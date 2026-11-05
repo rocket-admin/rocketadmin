@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -75,6 +75,19 @@ export class SaasUsualLoginUseCase extends AbstractUseCase<UsualLoginDs, FoundUs
 		if (!user) {
 			await this.recordSignInAudit(email, null, SignInStatusEnum.FAILED, ipAddress, userAgent, Messages.USER_NOT_FOUND);
 			throw new NotFoundException(Messages.USER_NOT_FOUND);
+		}
+		// A suspended user must not get a session. The saas never reads the `suspended` flag of the
+		// returned user, so the check has to live here, as in UsualLoginUseCase.
+		if (user.suspended) {
+			await this.recordSignInAudit(
+				email,
+				user.id,
+				SignInStatusEnum.FAILED,
+				ipAddress,
+				userAgent,
+				Messages.ACCOUNT_SUSPENDED,
+			);
+			throw new UnauthorizedException(Messages.ACCOUNT_SUSPENDED);
 		}
 		if (!userData.password) {
 			await this.recordSignInAudit(

@@ -8,6 +8,7 @@ import { ref } from 'vue';
 import { api } from '@/api/client';
 import { getConfig } from '@/config';
 import { environment } from '@/environment';
+import { postLogoutUrl } from '@/lib/post-logout-url';
 import type { ExistingAuthUser } from '@/models/user';
 import { router } from '@/router';
 
@@ -173,16 +174,20 @@ export const useAuthStore = defineStore('auth', () => {
 
 	/**
 	 * Port of AppComponent.logOut. An expired session in SaaS stays on the page (the caller goes to
-	 * /login); a deliberate SaaS logout leaves for the marketing site.
+	 * /login). A deliberate SaaS logout leaves for the address from `postLogoutUrl`.
+	 * The local cleanup runs also when the logout request fails (plan 84). The error then goes to the caller.
 	 */
 	async function logOut(isTokenExpired = false, email?: string): Promise<void> {
 		revokeGoogleConsent(email);
-		await api.post('/user/logout', undefined, { notify: 'snackbar', successMessage: 'User is logged out.' });
-		clearSession();
-		if (environment.saas) {
-			if (!isTokenExpired) location.href = 'https://rocketadmin.com/';
-		} else {
-			await router.push('/login');
+		try {
+			await api.post('/user/logout', undefined, { notify: 'snackbar', successMessage: 'User is logged out.' });
+		} finally {
+			clearSession();
+			if (environment.saas) {
+				if (!isTokenExpired) location.href = postLogoutUrl(location.hostname);
+			} else {
+				await router.push('/login');
+			}
 		}
 	}
 

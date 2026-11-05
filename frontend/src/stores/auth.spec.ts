@@ -89,12 +89,15 @@ describe('auth store', () => {
 		expect(push).toHaveBeenCalledWith('/login');
 	});
 
-	it('keeps the session when the logout request fails', async () => {
+	it('clears the local session when the logout request fails (plan 84)', async () => {
 		post.mockRejectedValueOnce(new Error('offline'));
 		localStorage.setItem(TOKEN_EXPIRATION_KEY, inAnHour());
 		const auth = useAuthStore();
+		auth.setAuthenticated(true);
 
 		await expect(auth.logOut()).rejects.toThrow('offline');
-		expect(localStorage.getItem(TOKEN_EXPIRATION_KEY)).not.toBeNull();
+		expect(localStorage.getItem(TOKEN_EXPIRATION_KEY)).toBeNull();
+		expect(auth.isAuthenticated).toBe(false);
+		expect(push).toHaveBeenCalledWith('/login');
 	});
 });

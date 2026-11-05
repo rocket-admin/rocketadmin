@@ -16,10 +16,10 @@ import { UserEntity } from '../entities/user/user.entity.js';
 import { assertTokenScopeAllowed } from '../entities/user/utils/assert-token-scope-allowed.js';
 import { Messages } from '../exceptions/text/messages.js';
 import { isTest } from '../helpers/app/is-test.js';
-import { Constants } from '../helpers/constants/constants.js';
 import { isObjectEmpty } from '../helpers/is-object-empty.js';
 import { appConfig } from '../shared/config/app-config.js';
 import { IRequestWithCognitoInfo } from './cognito-decoded.interface.js';
+import { getSessionTokenFromRequest } from './utils/session-token.js';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
@@ -32,7 +32,7 @@ export class AuthMiddleware implements NestMiddleware {
 	async use(req: IRequestWithCognitoInfo, _res: Response, next: NextFunction): Promise<void> {
 		let token: string | undefined;
 		try {
-			token = req.cookies[Constants.JWT_COOKIE_KEY_NAME];
+			token = getSessionTokenFromRequest(req);
 		} catch (_e) {
 			if (!isTest()) {
 				throw new UnauthorizedException('JWT verification failed');
