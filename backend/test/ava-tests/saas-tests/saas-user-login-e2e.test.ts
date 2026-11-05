@@ -219,7 +219,7 @@ test.serial(`${currentTest} stores the OTP seed encrypted before enrollment comp
 });
 
 test.serial(
-	`${currentTest} decrypts a legacy V1 OTP seed on load and upgrades it to V2 on the next save`,
+	`${currentTest} decrypts a legacy V1 OTP seed on load and keeps the stored ciphertext on an unrelated save`,
 	async (t) => {
 		const { userId } = await createCoreUser({ isOTPEnabled: true });
 		const dataSource = app.get<DataSource>(BaseType.DATA_SOURCE);
@@ -235,8 +235,31 @@ test.serial(
 		loaded.name = 'touched';
 		await userRepository.save(loaded);
 		const [raw] = await dataSource.query('SELECT "otpSecretKey" FROM "user" WHERE id = $1', [userId]);
-		t.true(String(raw.otpSecretKey).startsWith('$v2:'), 'the save re-encrypts the seed as V2, not twice');
+		t.is(raw.otpSecretKey, legacy, 'an unchanged seed is written back as the stored V1 ciphertext');
 		const reloaded = await userRepository.findOneByOrFail({ id: userId });
 		t.is(reloaded.otpSecretKey, seed);
+
+		// A changed seed is encrypted anew, as V2.
+		reloaded.otpSecretKey = 'KRSXG5CTMVRXEZLU';
+		await userRepository.save(reloaded);
+		const [rawAfterChange] = await dataSource.query('SELECT "otpSecretKey" FROM "user" WHERE id = $1', [userId]);
+		t.true(String(rawAfterChange.otpSecretKey).startsWith('$v2:'));
+		t.is((await userRepository.findOneByOrFail({ id: userId })).otpSecretKey, 'KRSXG5CTMVRXEZLU');
 	},
 );
+
+test.serial(`${currentTest} does not re-encrypt a V2 seed with a new salt on an unrelated save`, async (t) => {
+	const { userId } = await createCoreUser({ isOTPEnabled: true });
+	const dataSource = app.get<DataSource>(BaseType.DATA_SOURCE);
+	const userRepository = dataSource.getRepository(UserEntity);
+	const user = await userRepository.findOneByOrFail({ id: userId });
+	user.otpSecretKey = 'JBSWY3DPEHPK3PXP';
+	await userRepository.save(user);
+	const [before] = await dataSource.query('SELECT "otpSecretKey" FROM "user" WHERE id = $1', [userId]);
+
+	const loaded = await userRepository.findOneByOrFail({ id: userId });
+	loaded.name = 'touched again';
+	await userRepository.save(loaded);
+	const [after] = await dataSource.query('SELECT "otpSecretKey" FROM "user" WHERE id = $1', [userId]);
+	t.is(after.otpSecretKey, before.otpSecretKey);
+});
