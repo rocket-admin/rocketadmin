@@ -3,6 +3,9 @@
 **Version:** 1.0
 **Date:** 2025-11-21
 **Status:** Draft
+**NOTE 2026-11-06:** the frontend is Vue 3 since 2026-11-05 (`VUE_MIGRATION_PLAN.md`). The Angular
+names in the implementation phases are history. The Vue code lives in
+`frontend/src/views/settings/SecretsView.vue` and `frontend/src/components/secrets/`.
 
 ## Table of Contents
 1. [Overview](#overview)
@@ -207,7 +210,7 @@ Implement a simple, encrypted secret storage system that allows users to securel
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                         Frontend (Angular)                   │
+│                         Frontend (Vue 3)                     │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
 │  │ Secrets List │  │Secret Details│  │ Share Dialog │      │
 │  └──────────────┘  └──────────────┘  └──────────────┘      │
@@ -941,7 +944,7 @@ export class CreateSecretDto {
 - Use QueryBuilder for complex queries
 
 ### XSS Prevention
-- Frontend sanitizes all output using Angular's built-in DomSanitizer
+- The Vue frontend renders secret values in text bindings, which Vue escapes. It does not use `v-html` for them
 - Content-Security-Policy headers set
 - Secret values displayed in `<pre>` tags or `<input type="password">`
 
@@ -1752,7 +1755,7 @@ async function migrateLegacySecrets() {
 - [NIST Password Guidelines](https://pages.nist.gov/800-63-3/)
 - [TypeORM Encryption](https://typeorm.io/)
 - [NestJS Security Best Practices](https://docs.nestjs.com/security/encryption-and-hashing)
-- [Angular Security Guide](https://angular.io/guide/security)
+- [Vue Security Guide](https://vuejs.org/guide/best-practices/security)
 
 ### Environment Variables Required
 
@@ -1781,16 +1784,12 @@ TypeOrmModule.forRoot({
 }),
 ```
 
-#### Angular Lazy Loading
+#### Vue Router Lazy Loading
 ```typescript
-// frontend/src/app/app-routing.module.ts
-{
-  path: 'secrets',
-  loadChildren: () =>
-    import('./components/secrets/secrets.module').then(m => m.SecretsModule),
-  canActivate: [AuthGuard],
-  data: { title: 'Secrets' },
-}
+// frontend/src/router/routes.ts: the page table and the route entry
+secrets: () => import('@/views/settings/SecretsView.vue'),
+
+page('/secrets', 'secrets', { ...auth, title: 'Secrets | Rocketadmin' }),
 ```
 
 ---

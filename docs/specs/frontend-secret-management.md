@@ -1,5 +1,11 @@
 # Frontend Secret Management Specification
 
+> **Status (2026-11-06):** historical. This document specified the Angular implementation. Vue 3
+> replaced the Angular app on 2026-11-05 (`../../VUE_MIGRATION_PLAN.md`). The Vue implementation
+> lives in `frontend/src/views/settings/SecretsView.vue`, `frontend/src/components/secrets/` and the
+> `secrets` entry of `frontend/src/router/routes.ts`. The backend API reference and the UI/UX
+> requirements still apply. The code samples describe the removed Angular app.
+
 ## Overview
 
 This specification describes the frontend implementation for company secret management, allowing users to securely store, retrieve, and manage secrets (API keys, passwords, tokens) within their company context.
