@@ -12,7 +12,7 @@
 		"ste:test": "node --test scripts/ste-check.test.mjs"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.5.15",
+		"@biomejs/biome": "2.6.6",
 		"husky": "^9.1.7",
 		"lint-staged": "^17.6.0"
 	},
