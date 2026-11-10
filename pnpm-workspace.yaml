@@ -2,3 +2,5 @@ packages:
   - backend
   - rocketadmin-agent
   - shared-code
+
+minimumReleaseAge: 1440
