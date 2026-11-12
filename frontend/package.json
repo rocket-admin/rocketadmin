@@ -61,7 +61,7 @@
 		"vuedraggable": "^4.1.0"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.4.0",
+		"@biomejs/biome": "2.6.6",
 		"@playwright/test": "^1.64.1",
 		"@storybook/addon-a11y": "^10.6.3",
 		"@storybook/addon-docs": "^10.6.3",
