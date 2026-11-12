@@ -47,7 +47,7 @@ describe('AppIconPicker', () => {
 		const radios = wrapper.findAll('input[type="radio"]');
 
 		expect(radios.map((radio) => (radio.element as HTMLInputElement).value)).toEqual(ICONS);
-		expect((radios[2]?.element as HTMLInputElement).checked).toBe(true);
+		expect((radios[2]?.element as HTMLInputElement | undefined)?.checked).toBe(true);
 		expect(wrapper.findAll('.app-icon-picker__option')[0]?.text()).toContain('star');
 	});
 

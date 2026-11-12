@@ -1,17 +1,34 @@
 <script setup lang="ts">
 // Port of frontend/src/app/components/user-settings (/user-settings): the account page — name,
-// email and password changes, two-factor authentication and account deletion.
+// email and password changes, two-factor authentication, the colour theme and account deletion.
 import { computed, onMounted, ref, watch } from 'vue';
 import { trackAuthEvent } from '@/components/auth/analytics';
 import ProfileLayout from '@/components/profile/ProfileLayout.vue';
 import AppAlert from '@/components/shared/AppAlert.vue';
-import { UiButton, UiField, UiIcon, UiInput, UiSwitch, vTooltip } from '@/components/ui';
+import {
+	type SelectOption,
+	UiButton,
+	UiField,
+	UiIcon,
+	UiInput,
+	UiSegmented,
+	UiSwitch,
+	vTooltip,
+} from '@/components/ui';
 import AccountDeleteDialog from '@/components/user-settings/AccountDeleteDialog.vue';
 import EnableTwoFaDialog, { type EnableTwoFaResult } from '@/components/user-settings/EnableTwoFaDialog.vue';
 import { useDialog } from '@/composables/useDialog';
+import type { ThemePreference } from '@/lib/color-theme';
 import { type Alert, AlertActionType, AlertType } from '@/models/alert';
 import { useAuthStore } from '@/stores/auth';
+import { useUiSettingsStore } from '@/stores/ui-settings';
 import { useUserStore } from '@/stores/user';
+
+const THEME_OPTIONS: SelectOption<ThemePreference>[] = [
+	{ value: 'system', label: 'System' },
+	{ value: 'light', label: 'Light' },
+	{ value: 'dark', label: 'Dark' },
+];
 
 const AUTH_PROVIDER_ICONS: Record<string, string> = {
 	GOOGLE: '/assets/icons/google.svg',
@@ -20,6 +37,7 @@ const AUTH_PROVIDER_ICONS: Record<string, string> = {
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
+const uiSettings = useUiSettingsStore();
 const dialog = useDialog();
 
 const currentUser = computed(() => userStore.currentUser);
@@ -120,6 +138,11 @@ async function switchOff2FA() {
 	} catch {
 		// The store has shown the error.
 	}
+}
+
+function changeTheme(theme: ThemePreference) {
+	uiSettings.setTheme(theme);
+	trackAuthEvent('User settings: theme is changed', { theme });
 }
 
 function confirmDeleteAccount() {
@@ -232,6 +255,17 @@ function confirmDeleteAccount() {
 						<UiButton type="submit" variant="ghost">Disable</UiButton>
 					</form>
 				</div>
+
+				<div class="user-settings__section-heading">
+					<strong>Theme:</strong>
+				</div>
+				<UiSegmented
+					:model-value="uiSettings.theme"
+					:options="THEME_OPTIONS"
+					label="Theme"
+					data-testid="theme-select"
+					@update:model-value="changeTheme"
+				/>
 			</div>
 
 			<UiButton variant="ghost" class="user-settings__delete" @click="confirmDeleteAccount">Delete account</UiButton>

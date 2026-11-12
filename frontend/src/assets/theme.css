@@ -20,8 +20,8 @@
  * with a hot cyan-white highlight for glow.
  */
 :root {
-	/* Flipped to `dark` by the prefers-color-scheme block at the end of this file, together with the
-	   aliases — native controls and scrollbars must never claim dark ahead of the aliases. */
+	/* The dark theme block at the end of this file changes it to `dark` together with the aliases.
+	   Native controls and scrollbars must not show dark before the aliases do. */
 	color-scheme: light;
 
 	/* ===================================================================================
@@ -248,50 +248,49 @@
 }
 
 /* ===================================================================================
-   DARK THEME — Layer 2 re-pointed at the dark ramp. Follows the OS setting, as the Angular app
-   does; there is no in-app toggle. Only aliases change here: the scales above are theme-neutral.
+   DARK THEME. Layer 2 points at the dark ramp here. The ui-settings store sets `data-theme` on
+   <html> from the account setting. The setting can follow the OS. Only aliases change here.
+   The scales above do not depend on the theme.
    =================================================================================== */
-@media (prefers-color-scheme: dark) {
-	:root {
-		color-scheme: dark;
+:root[data-theme="dark"] {
+	color-scheme: dark;
 
-		/* Surfaces: unlike the light theme, a surface is lighter than the page, and raised lighter still. */
-		--color-paper: var(--palette-navy-900);
-		--color-paper-2: var(--palette-navy-750);
-		--color-surface: var(--palette-navy-850);
-		--color-surface-raised: var(--palette-navy-800);
-		--color-overlay: rgb(0 0 0 / 0.6);
+	/* Surfaces: unlike the light theme, a surface is lighter than the page, and raised lighter still. */
+	--color-paper: var(--palette-navy-900);
+	--color-paper-2: var(--palette-navy-750);
+	--color-surface: var(--palette-navy-850);
+	--color-surface-raised: var(--palette-navy-800);
+	--color-overlay: rgb(0 0 0 / 0.6);
 
-		--color-ink: var(--palette-slate-50);
-		--color-ink-soft: var(--palette-slate-100);
-		--color-muted: var(--palette-slate-200);
-		--color-muted-soft: var(--palette-slate-300);
+	--color-ink: var(--palette-slate-50);
+	--color-ink-soft: var(--palette-slate-100);
+	--color-muted: var(--palette-slate-200);
+	--color-muted-soft: var(--palette-slate-300);
 
-		--color-line: var(--palette-navy-650);
-		--color-line-strong: var(--palette-slate-400);
+	--color-line: var(--palette-navy-650);
+	--color-line-strong: var(--palette-slate-400);
 
-		/* accent-ink is the pressed/emphasis step, so on dark it goes lighter rather than darker. */
-		--color-accent: var(--palette-blue-400);
-		--color-accent-ink: var(--palette-blue-250);
-		--color-hot: var(--palette-blue-300);
-		--color-on-accent: var(--palette-navy-900);
+	/* accent-ink is the pressed/emphasis step, so on dark it goes lighter rather than darker. */
+	--color-accent: var(--palette-blue-400);
+	--color-accent-ink: var(--palette-blue-250);
+	--color-hot: var(--palette-blue-300);
+	--color-on-accent: var(--palette-navy-900);
 
-		--color-danger: var(--palette-red-300);
-		--color-danger-strong: var(--palette-red-400);
-		--color-danger-bg: var(--palette-red-950);
-		--color-danger-border: var(--palette-red-900);
-		--color-warning: var(--palette-amber-400);
-		--color-warning-bg: var(--palette-amber-950);
-		--color-warning-border: var(--palette-amber-900);
-		--color-success: var(--palette-green-400);
-		--color-success-bg: var(--palette-green-950);
-		--color-success-border: var(--palette-green-900);
+	--color-danger: var(--palette-red-300);
+	--color-danger-strong: var(--palette-red-400);
+	--color-danger-bg: var(--palette-red-950);
+	--color-danger-border: var(--palette-red-900);
+	--color-warning: var(--palette-amber-400);
+	--color-warning-bg: var(--palette-amber-950);
+	--color-warning-border: var(--palette-amber-900);
+	--color-success: var(--palette-green-400);
+	--color-success-bg: var(--palette-green-950);
+	--color-success-border: var(--palette-green-900);
 
-		/* A navy drop shadow vanishes on a navy page: depth comes from a black shadow plus a faint
-		   top highlight, and the glow keeps its accent tint. */
-		--shadow-card: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 20px 50px -30px rgb(0 0 0 / 0.7);
-		--shadow-lift: 0 24px 50px -30px rgb(113 150 255 / 0.45);
-		--shadow-focus: 0 0 0 3px rgb(113 150 255 / 0.35);
-		--ring-danger: 0 0 0 3px rgb(249 112 102 / 0.3);
-	}
+	/* A navy drop shadow vanishes on a navy page: depth comes from a black shadow plus a faint
+	   top highlight, and the glow keeps its accent tint. */
+	--shadow-card: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 20px 50px -30px rgb(0 0 0 / 0.7);
+	--shadow-lift: 0 24px 50px -30px rgb(113 150 255 / 0.45);
+	--shadow-focus: 0 0 0 3px rgb(113 150 255 / 0.35);
+	--ring-danger: 0 0 0 3px rgb(249 112 102 / 0.3);
 }

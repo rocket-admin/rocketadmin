@@ -40,7 +40,6 @@ const displayedCardCount = ref(COLLAPSED_COUNT);
 /** undefined until the UI settings arrive (Angular's uninitialised field). */
 const connectionsListCollapsed = ref<boolean | undefined>(undefined);
 const hasMultipleMembers = ref(false);
-const isDarkMode = uiSettings.isDarkMode;
 
 const isAdmin = computed(
 	() => props.currentUser?.role === CompanyMemberRole.CAO || props.currentUser?.role === CompanyMemberRole.SystemAdmin,
@@ -171,7 +170,7 @@ function track(action: string) {
 					>
 						<span class="own-connections__db-icon-box">
 							<img
-								:src="dbLogo(database, isDarkMode)"
+								:src="dbLogo(database, uiSettings.isDarkMode)"
 								alt=""
 								:class="['own-connections__db-icon', `own-connections__db-icon--${database}`]"
 							>
@@ -369,11 +368,9 @@ function track(action: string) {
 
 /* The tile is dark in both themes — the default logo is the white mark, and custom logos are made
    for a dark tile — so on the dark theme it stays navy rather than inverting with --color-ink. */
-@media (prefers-color-scheme: dark) {
-	.own-connections__card {
-		background-color: var(--color-paper-2);
-		color: var(--color-ink);
-	}
+:root[data-theme='dark'] .own-connections__card {
+	background-color: var(--color-paper-2);
+	color: var(--color-ink);
 }
 
 .own-connections__logo {
@@ -484,13 +481,11 @@ function track(action: string) {
 	margin: var(--space-1) 0 0;
 }
 
-@media (prefers-color-scheme: dark) {
-	.own-connections__db-icon--mongodb,
-	.own-connections__db-icon--mysql,
-	.own-connections__db-icon--dynamodb,
-	.own-connections__db-icon--mssql {
-		filter: brightness(2);
-	}
+:root[data-theme='dark'] .own-connections__db-icon--mongodb,
+:root[data-theme='dark'] .own-connections__db-icon--mysql,
+:root[data-theme='dark'] .own-connections__db-icon--dynamodb,
+:root[data-theme='dark'] .own-connections__db-icon--mssql {
+	filter: brightness(2);
 }
 
 @media (width <= 600px) {

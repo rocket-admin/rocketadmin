@@ -1,5 +1,7 @@
+import { flushPromises } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { nextTick } from 'vue';
 import { api } from '@/api/client';
 import type { UiSettings } from '@/models/ui-settings';
 import { useUiSettingsStore } from './ui-settings';
@@ -21,6 +23,8 @@ function lastUpload(): UiSettings {
 
 describe('ui-settings store', () => {
 	beforeEach(() => {
+		localStorage.clear();
+		delete document.documentElement.dataset.theme;
 		setActivePinia(createPinia());
 		vi.clearAllMocks();
 		post.mockImplementation(async (_url, body) => body as never);
@@ -96,5 +100,58 @@ describe('ui-settings store', () => {
 		const store = useUiSettingsStore();
 		await store.syncUiSettings();
 		expect(store.loadedSettings).toEqual({ globalSettings: {}, connections: {} });
+	});
+
+	describe('theme', () => {
+		it('follows the system until the user picks a theme', () => {
+			const store = useUiSettingsStore();
+			expect(store.theme).toBe('system');
+			expect(document.documentElement.dataset.theme).toBe(store.isDarkMode ? 'dark' : 'light');
+		});
+
+		it('starts from the theme this browser remembers', () => {
+			localStorage.setItem('theme', 'dark');
+			const store = useUiSettingsStore();
+			expect(store.isDarkMode).toBe(true);
+			expect(document.documentElement.dataset.theme).toBe('dark');
+		});
+
+		it('applies the theme stored on the account when the settings load', async () => {
+			get.mockResolvedValue({
+				userSettings: JSON.stringify({ ...stored, globalSettings: { ...stored.globalSettings, theme: 'dark' } }),
+			});
+			const store = useUiSettingsStore();
+			await store.getUiSettings();
+			await nextTick();
+
+			expect(store.theme).toBe('dark');
+			expect(document.documentElement.dataset.theme).toBe('dark');
+			expect(localStorage.getItem('theme')).toBe('dark');
+		});
+
+		it('applies a new theme at once and saves it after the stored settings load', async () => {
+			get.mockResolvedValue({
+				userSettings: JSON.stringify({ ...stored, globalSettings: { ...stored.globalSettings, theme: 'dark' } }),
+			});
+			const store = useUiSettingsStore();
+			store.setTheme('light');
+			await nextTick();
+			expect(document.documentElement.dataset.theme).toBe('light');
+
+			await flushPromises();
+			expect(store.theme).toBe('light');
+			expect(lastUpload().globalSettings).toEqual({ ...stored.globalSettings, theme: 'light' });
+			expect(lastUpload().connections).toEqual(stored.connections);
+		});
+
+		it('does not upload a theme when the stored settings fail to load', async () => {
+			get.mockRejectedValue(new Error('offline'));
+			const store = useUiSettingsStore();
+			store.setTheme('dark');
+			await flushPromises();
+
+			expect(store.theme).toBe('dark');
+			expect(post).not.toHaveBeenCalled();
+		});
 	});
 });

@@ -27,9 +27,9 @@ const DECLARATION = /^\s*(--[a-z0-9-]+)\s*:\s*([^;]+);(?:\s*\/\*\s*(.*?)\s*\*\/)
 
 /**
  * The base `:root` block only. The dark theme at the end of theme.css redeclares the colour aliases
- * inside `@media (prefers-color-scheme: dark)`; reading those too would list every alias twice.
+ * inside `:root[data-theme='dark']`. If the reader reads that block too, it lists every alias two times.
  */
-const BASE_CSS = themeCss.split(/@media\s*\(prefers-color-scheme:\s*dark\)/)[0] ?? '';
+const BASE_CSS = themeCss.split(/:root\[data-theme=['"]?dark['"]?\]/)[0] ?? '';
 
 /**
  * Every token declared in theme.css's base block, in source order.

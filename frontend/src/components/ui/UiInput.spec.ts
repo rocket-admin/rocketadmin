@@ -8,20 +8,12 @@ describe('UiInput', () => {
 		expect(mount(UiInput).get('input').attributes('type')).toBe('text');
 	});
 
-	it.each([
-		'email',
-		'password',
-		'url',
-		'search',
-		'tel',
-		'number',
-		'date',
-		'time',
-		'datetime-local',
-		'color',
-	] as const)('renders type %s natively', (type) => {
-		expect(mount(UiInput, { props: { type } }).get('input').attributes('type')).toBe(type);
-	});
+	it.each(['email', 'password', 'url', 'search', 'tel', 'number', 'date', 'time', 'datetime-local', 'color'] as const)(
+		'renders type %s natively',
+		(type) => {
+			expect(mount(UiInput, { props: { type } }).get('input').attributes('type')).toBe(type);
+		},
+	);
 
 	it('round-trips a string through v-model', async () => {
 		const wrapper = mount(UiInput, { props: { modelValue: 'a' } });

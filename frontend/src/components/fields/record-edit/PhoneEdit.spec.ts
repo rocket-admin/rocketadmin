@@ -51,17 +51,15 @@ describe('PhoneEdit', () => {
 	});
 
 	describe('US formatting', () => {
-		it.each([
-			['(202) 456-1111'],
-			['2024561111'],
-			['202.456.1111'],
-			['+1 202 456 1111'],
-		])('stores %s as E.164', async (typed) => {
-			const wrapper = mountPhone('');
-			await phoneInput(wrapper).setValue(typed);
-			expect(lastEmitted(wrapper)).toBe('+12024561111');
-			wrapper.unmount();
-		});
+		it.each([['(202) 456-1111'], ['2024561111'], ['202.456.1111'], ['+1 202 456 1111']])(
+			'stores %s as E.164',
+			async (typed) => {
+				const wrapper = mountPhone('');
+				await phoneInput(wrapper).setValue(typed);
+				expect(lastEmitted(wrapper)).toBe('+12024561111');
+				wrapper.unmount();
+			},
+		);
 
 		it('formats as you type', async () => {
 			const wrapper = mountPhone('');
