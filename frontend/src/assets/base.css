@@ -75,10 +75,8 @@ button:focus-visible {
 
 /* A black single-colour image with no white variant (the GitHub mark): inverted on the dark theme
    so it doesn't vanish into the page. */
-@media (prefers-color-scheme: dark) {
-	.invert-on-dark {
-		filter: invert(1);
-	}
+:root[data-theme="dark"] .invert-on-dark {
+	filter: invert(1);
 }
 
 /* Honour a reduced-motion preference globally rather than per-animation: the skeleton shimmer and

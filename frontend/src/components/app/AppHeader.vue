@@ -8,6 +8,7 @@ import { RouterLink } from 'vue-router';
 import { UiBadge, UiIcon, UiIconButton, UiMenu, UiMenuItem } from '@/components/ui';
 import { environment } from '@/environment';
 import { useConnectionsStore } from '@/stores/connections';
+import { useUiSettingsStore } from '@/stores/ui-settings';
 import { useUserStore } from '@/stores/user';
 import { ACCOUNT_LINKS, CONNECTION_TAB_CAPTIONS, connectionTabPath, HELP_CENTER_URL } from './navigation';
 
@@ -24,6 +25,7 @@ const emit = defineEmits<{ 'open-menu': []; 'log-out': [] }>();
 
 const connections = useConnectionsStore();
 const user = useUserStore();
+const uiSettings = useUiSettingsStore();
 
 const accountLinks = ACCOUNT_LINKS.filter((link) => !link.saasOnly || environment.saas);
 const email = computed(() => user.currentUser?.email ?? '');
@@ -33,22 +35,17 @@ const ownConnections = computed(() => connections.ownConnectionsList ?? []);
 /** Nothing to switch to: the only own connection is the one that is open. */
 const switcherDisabled = computed(() => ownConnections.value.length === 1 && !isTestConnection.value);
 const signedIn = computed(() => props.userLoggedIn === true);
+const logoUrl = computed(() => (uiSettings.isDarkMode ? LOGO_DARK_URL : LOGO_URL));
 </script>
 
 <template>
 	<header :class="['app-header', { 'app-header--connection': connections.connectionID }]">
 		<div class="app-header__brand">
 			<RouterLink v-if="userLoggedIn" to="/connections-list" class="app-header__logo">
-				<picture>
-					<source :srcset="LOGO_DARK_URL" media="(prefers-color-scheme: dark)">
-					<img :src="LOGO_URL" alt="Rocketadmin logo" class="app-header__logo-image">
-				</picture>
+				<img :src="logoUrl" alt="Rocketadmin logo" class="app-header__logo-image">
 			</RouterLink>
 			<a v-else-if="userLoggedIn === false" href="https://rocketadmin.com/" class="app-header__logo">
-				<picture>
-					<source :srcset="LOGO_DARK_URL" media="(prefers-color-scheme: dark)">
-					<img :src="LOGO_URL" alt="Rocketadmin logo" class="app-header__logo-image">
-				</picture>
+				<img :src="logoUrl" alt="Rocketadmin logo" class="app-header__logo-image">
 			</a>
 
 			<template v-if="connections.connectionID">

@@ -22,9 +22,13 @@ const trackAuthEvent = vi.hoisted(() => vi.fn());
 
 vi.mock('@/stores/user', () => ({ useUserStore: () => reactive(user) }));
 vi.mock('@/stores/auth', () => ({ useAuthStore: () => auth }));
-vi.mock('@/stores/ui-settings', () => ({
-	useUiSettingsStore: () => ({ getUiSettings: () => Promise.resolve(null), updateGlobalSetting: vi.fn() }),
+const uiSettings = vi.hoisted(() => ({
+	theme: 'system',
+	setTheme: vi.fn(),
+	getUiSettings: () => Promise.resolve(null),
+	updateGlobalSetting: vi.fn(),
 }));
+vi.mock('@/stores/ui-settings', () => ({ useUiSettingsStore: () => uiSettings }));
 vi.mock('@/composables/useDialog', () => ({ useDialog: () => ({ open }) }));
 vi.mock('@/components/auth/analytics', () => ({ trackAuthEvent }));
 
@@ -156,6 +160,20 @@ describe('UserSettingsView', () => {
 		expect(user.switchOff2FA).toHaveBeenCalledWith('123456');
 		expect(trackAuthEvent).toHaveBeenCalledWith('User settings: 2fa disabled successfully');
 		expect(wrapper.find('input[name="code"]').exists()).toBe(false);
+		wrapper.unmount();
+	});
+
+	it('shows the current theme and saves a new one', async () => {
+		uiSettings.theme = 'light';
+		const { wrapper } = await mountPage();
+		const themes = wrapper.find('[data-testid="theme-select"]');
+		const radios = themes.findAll('input[type="radio"]');
+		expect(radios.map((radio) => (radio.element as HTMLInputElement).checked)).toEqual([false, true, false]);
+
+		await radios[2]?.setValue(true);
+
+		expect(uiSettings.setTheme).toHaveBeenCalledWith('dark');
+		expect(trackAuthEvent).toHaveBeenCalledWith('User settings: theme is changed', { theme: 'dark' });
 		wrapper.unmount();
 	});
 });
