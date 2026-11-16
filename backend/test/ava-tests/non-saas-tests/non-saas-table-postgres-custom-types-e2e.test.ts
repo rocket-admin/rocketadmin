@@ -24,7 +24,7 @@ import { TestUtils } from '../../utils/test.utils.js';
 
 // Covers the Postgres structure read for tables whose columns use user-defined types (enums and
 // composite types) against a real catalog. The DAO describes all of them with two batched catalog
-// queries (see the unit suite for the query count); this suite checks what those queries return.
+// queries (see the unit suite for the query count). This suite checks what those queries return.
 
 const mockFactory = new MockFactory();
 let app: INestApplication;

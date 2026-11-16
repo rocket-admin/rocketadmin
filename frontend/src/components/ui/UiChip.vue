@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Small status pill — styled text, not a control. Replaces the three hand-rolled `.chip` blocks
+ * Small status pill: styled text, not a control. Replaces the three hand-rolled `.chip` blocks
  * (WebsitesView, AccountView, DashboardView) whose only real disagreement was padding.
  *
  * Deliberately has **no ARIA role, no tabindex and no click event**. A chip labels something else;
@@ -8,7 +8,7 @@
  *
  * `text-transform: capitalize` was **dropped** from DashboardView's copy on purpose: casing an
  * arbitrary status string is data-dependent presentation and belongs to the call site. Phase 8's
- * migration should capitalise `{{ status }}` in the view (or via a class there) rather than
+ * migration should capitalise `{{ status }}` in the view (or with a class there) rather than
  * re-adding it here.
  */
 import { computed } from 'vue';

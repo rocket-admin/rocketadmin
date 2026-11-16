@@ -16,7 +16,7 @@ const props = withDefaults(
 
 const uiSettings = useUiSettingsStore();
 const collapsed = ref(false);
-/** Transitions start after the first render, so the stored state doesn't animate in on load. */
+/** Transitions start after the first render, so the stored state does not animate in on load. */
 const initialized = ref(false);
 
 onMounted(async () => {

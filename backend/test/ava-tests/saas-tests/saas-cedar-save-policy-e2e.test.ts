@@ -345,7 +345,7 @@ test.serial(`${currentTest} should reject saving cedar policy when group does no
 
 		const cedarPolicy = `permit(\n  principal,\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${secondConnectionId}"\n);`;
 
-		// Group belongs to first connection, but we're sending to second connection
+		// Group belongs to first connection, but we are sending to second connection
 		const response = await request(app.getHttpServer())
 			.post(`/connection/cedar-policy/${secondConnectionId}`)
 			.send({ cedarPolicy, groupId })

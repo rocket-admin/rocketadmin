@@ -1,12 +1,12 @@
 <script setup lang="ts">
 /**
- * The text control. Owns geometry only — label, hint, error and the ARIA wiring belong to
+ * The text control. Owns geometry only. Label, hint, error and the ARIA wiring belong to
  * `UiField`, which this picks up through `inject` when nested inside one.
  *
  * Geometry needed no arbitration: all four hand-rolled copies already agreed on
  * `0.625rem 0.75rem`; only the off-brand pair's `8px` radius and cyan focus ring differed.
  *
- * Standalone use is supported — without a `UiField` ancestor the injected context is absent and the
+ * Standalone use is supported. Without a `UiField` ancestor the injected context is absent and the
  * caller supplies `id`/`aria-describedby`/`invalid` itself.
  */
 import { computed, inject } from 'vue';
@@ -38,15 +38,15 @@ const props = withDefaults(
 		invalid?: boolean;
 	}>(),
 	// `invalid: undefined` disables Vue's boolean-prop casting for it. Without this an unpassed
-	// `invalid` arrives as `false` rather than `undefined`, and the `??` below would short-circuit —
-	// meaning a UiField's error state could never reach the control.
+	// `invalid` arrives as `false` and not `undefined`, and the `??` below would short-circuit.
+	// Then a UiField's error state could never reach the control.
 	{ type: 'text', size: 'md', invalid: undefined },
 );
 
 const emit = defineEmits<{ 'update:modelValue': [string] }>();
 
-// `false` for the injected default rather than `undefined`, so a standalone input has a context
-// shape to fall back on without every read needing an optional chain.
+// `false` for the injected default and not `undefined`. So a standalone input has a context
+// shape to fall back on, and no read needs an optional chain.
 const field = inject(FIELD_CONTEXT, undefined);
 
 /** An explicit `invalid` prop wins, so a standalone input can be marked invalid with no field. */
@@ -97,8 +97,8 @@ export default {
     box-shadow var(--motion-fast);
 }
 
-/* 0.625rem is off the 4px scale, but it's the vertical padding all four hand-rolled copies already
-   used, and snapping to --space-3 would grow every input in the app by 4px. Not --space-25, which
+/* 0.625rem is off the 4px scale, but it is the vertical padding all four hand-rolled copies already
+   used. A snap to --space-3 would grow every input in the app by 4px. Not --space-25, which
    is reserved for brand lockup gaps. */
 .ui-input--size-md {
   padding: 0.625rem var(--space-3);
@@ -114,7 +114,7 @@ export default {
   color: var(--color-muted-soft);
 }
 
-/* :focus-visible, not :focus — a text input still matches :focus-visible on click, so this only
+/* :focus-visible, not :focus. A text input still matches :focus-visible on click, so this only
    drops the ring for programmatic focus, which is the intent. */
 .ui-input:focus-visible {
   outline: none;

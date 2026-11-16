@@ -4,7 +4,7 @@ import UiField from './UiField.vue';
 import UiTextarea from './UiTextarea.vue';
 
 /**
- * Multi-line text — long text, JSON and XML fields. Same contract as `UiInput`: wrap it in a
+ * Multi-line text: long text, JSON and XML fields. Same contract as `UiInput`: wrap it in a
  * `UiField` and the label, hint and error wire themselves up.
  */
 const meta = {

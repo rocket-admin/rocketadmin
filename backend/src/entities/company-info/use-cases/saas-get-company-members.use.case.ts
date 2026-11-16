@@ -8,11 +8,11 @@ import { buildSimpleUserInfoDs } from '../../user/utils/build-created-user.ds.js
 import { ISaasGetCompanyMembers } from './company-info-use-cases.interface.js';
 
 // Company membership for the SaaS members screen: active users AND still-outstanding invitations in
-// one response, because that screen always needs both and the two live in different relations.
+// one response. The screen always needs both, and the two live in different relations.
 //
-// Deliberately NOT built on `GetAllUsersInCompanyUseCase`: that use case fans out one
-// `findAllUserNonTestsConnections` query per user to populate `user_membership`/`has_groups`, which
-// the SaaS UI does not render — connections and groups are RocketAdmin concepts, not SiteNova ones.
+// Deliberately NOT built on `GetAllUsersInCompanyUseCase`. That use case fans out one
+// `findAllUserNonTestsConnections` query per user to populate `user_membership`/`has_groups`. The
+// SaaS UI does not render them: connections and groups are RocketAdmin concepts, not SiteNova ones.
 // This keeps the endpoint a fixed two queries regardless of company size.
 //
 // The invitation rows are mapped WITHOUT `verification_string`: that is the raw invite token, and a

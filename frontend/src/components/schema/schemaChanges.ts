@@ -1,6 +1,6 @@
-// The schema editor's view of an AI-generated change: a display action/icon/tone per change type,
-// and the columns of a CREATE TABLE read from its SQL (node-sql-parser, loaded on first use — it
-// bundles every dialect's grammar). Ported from the private helpers of EditDatabaseSchemaComponent.
+// The schema editor's view of an AI-generated change: a display action/icon/tone per change type.
+// It also has the columns of a CREATE TABLE read from its SQL. The parser is node-sql-parser, loaded
+// on first use. It bundles every dialect's grammar. Ported from the private helpers of EditDatabaseSchemaComponent.
 import type { SchemaChangeResponse } from '@/stores/table-schema';
 
 export interface ParsedColumn {

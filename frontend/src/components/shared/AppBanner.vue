@@ -1,10 +1,10 @@
 <script setup lang="ts">
 // Port of frontend/src/app/components/ui-components/banner (BannerComponent).
 //
-// A full-height, centred status card for page-level states that replace the page: a server error
-// loading a connection, "no tables found", an invalid invitation link, "account deleted". The
+// A full-height, centred status card for page-level states that replace the page. Examples: a server
+// error when a connection loads, "no tables found", an invalid invitation link, "account deleted". The
 // Angular call sites put their buttons in a `.error-actions` div styled through ::ng-deep; here that
-// row is the `actions` slot. `type` is optional — company-member-invitation renders one without.
+// row is the `actions` slot. `type` is optional: company-member-invitation renders one without.
 //
 // Deviation: the Angular wrapper painted `assets/bg/banner.svg` behind the card. The SiteNova look
 // has no such decoration, so the card sits on the page's paper background.

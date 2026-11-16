@@ -44,8 +44,8 @@ export class RequestChangeUserEmailUseCase
 		const { rawToken } = await this._dbContext.emailChangeRepository.createOrUpdateEmailChangeEntity(foundUser);
 		const userCompanyInfo = await this._dbContext.companyInfoRepository.findCompanyInfoByUserId(userId);
 
-		// Trigger inversion (plan 15 Phase 2): bridge callers send the letter themselves — return
-		// the raw token instead of sending (and never log it).
+		// Trigger inversion (plan 15 Phase 2): bridge callers send the letter themselves. Return
+		// the raw token instead of the letter (and never log it).
 		if (inputData.suppressEmail) {
 			return {
 				message: Messages.EMAIL_CHANGE_REQUESTED,

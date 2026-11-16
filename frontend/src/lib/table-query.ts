@@ -2,15 +2,15 @@
 // ngmat-table-query-reflector, which db-table-view declared but never actually imported).
 //
 // Query params of /dashboard/:connectionId/:tableName:
-//   filters        JsonURL of `{ [column]: { [comparator]: value } }`
-//   saved_filter   id of the selected saved ("fast") filter
-//   dynamic_column JsonURL of the saved filter's `{ column_name, comparator }`
-//   sort_active    sorted column
-//   sort_direction ASC | DESC (written uppercase; read case-insensitively)
-//   page_index     0-based page
-//   page_size      rows per page (default 30)
-//   search         search string
-//   uncached       'true' bypasses the server's rows cache (set by auto-configure)
+//   `filters`        JsonURL of `{ [column]: { [comparator]: value } }`.
+//   `saved_filter`   id of the selected saved ("fast") filter.
+//   `dynamic_column` JsonURL of the saved filter's `{ column_name, comparator }`.
+//   `sort_active`    sorted column.
+//   `sort_direction` ASC | DESC (written uppercase; read case-insensitively).
+//   `page_index`     0-based page.
+//   `page_size`      rows per page (default 30).
+//   `search`         search string.
+//   `uncached`       'true' bypasses the server's rows cache (set by auto-configure).
 import JsonURL from '@jsonurl/jsonurl';
 import type { LocationQuery, LocationQueryRaw } from 'vue-router';
 import { getComparatorsFromUrl } from '@/lib/parse-filter-params';

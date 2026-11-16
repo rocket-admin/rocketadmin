@@ -4,10 +4,10 @@ import { validateSync } from 'class-validator';
 import { JwtScopesEnum } from '../../../src/entities/user/enums/jwt-scopes.enum.js';
 import { ValidateUserTokenDto } from '../../../src/microservices/agents-microservice/dto/agents-auth.dtos.js';
 
-// `allowScopes` is enum-validated, which makes this DTO a CROSS-REPO CONTRACT: a satellite that
-// asks to accept a scope this core has never heard of gets a 400 from the ValidationPipe before
-// any handler runs. That is the correct failure — a core that cannot name a scope cannot enforce
-// it either — but it means every scope a satellite may send has to exist here first.
+// `allowScopes` is enum-validated, which makes this DTO a CROSS-REPO CONTRACT. A satellite can ask
+// to accept a scope that this core has never heard of. It then gets a 400 from the ValidationPipe
+// before any handler runs. That is the correct failure: a core that cannot name a scope cannot
+// enforce it either. But it means every scope a satellite can send has to exist here first.
 //
 // This exact break cost a CI run: rocketadmin-saas' email-verification middleware sent
 // 'email_verify' and every request through it 400'd.

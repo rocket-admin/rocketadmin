@@ -3,9 +3,9 @@
  * Port of record-view-fields/json-editor (`JsonEditorRecordViewComponent`): JSON in a read-only
  * Monaco editor, without line numbers.
  *
- * Unlike Angular, which handed the raw value to the editor, a parsed object/array (json/jsonb,
- * Mongo `object`, arrays…) is pretty-printed with 4-space indent first, as the JSON edit widget does;
- * a string is shown as stored.
+ * Angular handed the raw value to the editor. Here a parsed object/array (json/jsonb, Mongo
+ * `object`, arrays…) is pretty-printed with 4-space indent first, as the JSON edit widget does.
+ * A string is shown as stored.
  */
 import { computed } from 'vue';
 import AppCodeEditor from '@/components/shared/AppCodeEditor.vue';

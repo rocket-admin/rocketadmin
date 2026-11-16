@@ -4,9 +4,9 @@ import { createMemoryHistory, createRouter, RouterLink } from 'vue-router';
 import UiButton from './UiButton.vue';
 
 /**
- * Behaviour and contracts only — never CSS values. The assertions about `variant` and `size` check
- * that the modifier class is *present*, not what it paints; Storybook's `AllVariants` matrix and a
- * reviewer's eyes cover appearance, and a padding assertion here would just make the design system
+ * Behaviour and contracts only, never CSS values. The assertions about `variant` and `size` check
+ * that the modifier class is *present*, not what it paints. Storybook's `AllVariants` matrix and a
+ * reviewer's eyes cover appearance. A padding assertion here would just make the design system
  * harder to evolve.
  */
 
@@ -95,7 +95,7 @@ describe('UiButton', () => {
 		});
 
 		it('leaves the spinner out of the accessibility tree', () => {
-			// The button already announces via aria-busy; a second "Loading" would be noise.
+			// The button already announces through aria-busy; a second "Loading" would be noise.
 			const wrapper = mountButton({ loading: true });
 
 			expect(wrapper.find('.ui-spinner').attributes('aria-hidden')).toBe('true');
@@ -126,7 +126,7 @@ describe('UiButton', () => {
 			const wrapper = mountButton({ href: 'https://example.com', disabled: true });
 			await wrapper.trigger('click');
 
-			// No href to follow, and the handler stops propagation so an ancestor listener can't fire.
+			// No href to follow, and the handler stops propagation so an ancestor listener cannot fire.
 			expect(wrapper.attributes('href')).toBeUndefined();
 		});
 	});

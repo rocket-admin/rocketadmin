@@ -4,8 +4,8 @@
  * or by uploading a file. The stored value is always hex: base64 input and uploaded files are
  * converted before `fieldChange`.
  *
- * With `widget_params.type` the mode is fixed and its name is shown instead of the switcher;
- * otherwise a Hex / Base64 / File switcher converts the current value between views (locked while
+ * With `widget_params.type` the mode is fixed and its name is shown instead of the switcher.
+ * Otherwise a Hex / Base64 / File switcher converts the current value between views (locked while
  * the base64 or hex text is invalid).
  */
 import { computed, onBeforeUnmount, ref } from 'vue';
@@ -37,13 +37,13 @@ const fixedType = computed<FileType | null>(() => {
 const fileType = ref<FileType>(fixedType.value || 'hex');
 const hexData = ref(props.value ?? '');
 const base64Data = ref(fileType.value === 'base64' ? (props.value ?? '') : '');
-/** Angular's `isNotSwitcherActive`: the current text can't be converted, so switching is locked. */
+/** Angular's `isNotSwitcherActive`: the current text cannot be converted, so the switcher is locked. */
 const switcherLocked = ref(false);
 const fileURL = ref<string | null>(null);
 const dirty = ref(false);
 const fileInput = ref<HTMLInputElement | null>(null);
 
-/** A fixed-type value that doesn't parse as its type; nothing else is shown then. */
+/** A fixed-type value that does not parse as its type. Nothing else is shown then. */
 const initError = computed<string | null>(() => {
 	if (!props.value || !fixedType.value) return null;
 	if (fixedType.value === 'hex' && hexErrors(props.value)) return 'Invalid hex format.';

@@ -1,7 +1,7 @@
 import type { Directive } from 'vue';
 
 /**
- * `v-custom-validity="message"` — sets the control's native validity message, so a widget's own
+ * `v-custom-validity="message"`: sets the control's native validity message. So a widget's own
  * validation (a validator.js rule, a hex check, …) makes the enclosing `<form>` invalid the same
  * way `required` or `maxlength` do. Replaces the Angular validator directives' hook into `ngModel`.
  *

@@ -742,7 +742,7 @@ test.serial(`${currentTest} non /table/crud routes are not affected by the wildc
 		.set('Origin', arbitraryOrigin)
 		.set('Access-Control-Request-Method', 'GET');
 
-	// The middleware only reflects the origin for /table/crud routes; everything else is left to the
+	// The middleware only reflects the origin for /table/crud routes. Everything else is left to the
 	// global allowlist (which is not configured in this test app), so no wildcard reflection happens.
 	t.not(res.headers['access-control-allow-origin'], arbitraryOrigin);
 });

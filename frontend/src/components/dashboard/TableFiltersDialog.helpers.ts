@@ -106,7 +106,7 @@ export function columnFilterComponent(ctx: FilterWidgetContext, field: string): 
 }
 
 /**
- * The widget for a column: its configured widget type when that has a component, else the column
+ * The widget for a column: its configured widget type when that has a component. Else it is the column
  * type's filter (the dialogs' `resolveValueComponent()` / the `widget_type ? UIwidgets[…] : inputs[…]`
  * template expressions).
  */

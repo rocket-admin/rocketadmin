@@ -44,9 +44,9 @@ export class SaasUsualRegisterUseCase
 			name: name,
 		};
 
-		// One account per address (plan 53): the saas mints a fresh company for every registration,
-		// so a per-company lookup could never find anything — the check is across ALL companies and
-		// providers, and it shares the lock with the insert so two concurrent sign-ups of one
+		// One account per address (plan 53): the saas mints a fresh company for every registration.
+		// So a per-company lookup could never find anything. The check is across ALL companies and
+		// providers. It shares the lock with the insert, so two concurrent sign-ups of one
 		// address cannot both pass. Existing duplicates (invitations, legacy rows) are untouched.
 		const savedUser = await this._dbContext.userRepository.withRegistrationEmailLock(email, async () => {
 			const existingUser = await this._dbContext.userRepository.findAnyUserWithEmail(email);
@@ -91,7 +91,7 @@ export class SaasUsualRegisterUseCase
 		};
 
 		// Trigger inversion (plan 15 Phase 2): the SaaS caller builds the link and sends the
-		// confirmation itself — hand back the raw token instead of sending (and never log it).
+		// confirmation itself. Hand back the raw token instead of the letter (and never log it).
 		if (suppressEmail) {
 			registeredUserRO.emailPayload = {
 				type: 'email_confirmation',
@@ -102,7 +102,7 @@ export class SaasUsualRegisterUseCase
 		}
 
 		// The satellite may route the confirmation link through itself (SiteNova). A disallowed or
-		// malformed base silently falls back to the legacy link — never fail the registration over it.
+		// malformed base silently falls back to the legacy link. Never fail the registration over it.
 		// Custom domains retired (plan 46): the legacy link is built on the default domain.
 		const verificationLinkBase = ValidationHelper.resolveEmailVerificationLinkBase(emailVerificationLinkBase);
 

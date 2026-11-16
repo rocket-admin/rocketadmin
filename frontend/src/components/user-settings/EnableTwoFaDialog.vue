@@ -2,8 +2,8 @@
 // Port of frontend/src/app/components/user-settings/enable-two-fa-dialog: shows the QR code from
 // POST /user/otp/generate and verifies the first authenticator code.
 //
-// Closes with 'enable' when the code is validated and with 'error' when the check fails (Angular
-// closed on click and emitted `confirm2FAerror`); either way the page knows whether 2FA is now on.
+// Closes with 'enable' when the code is validated and with 'error' when the check fails. (Angular
+// closed on click and emitted `confirm2FAerror`.) Either way the page knows whether 2FA is now on.
 import { ref } from 'vue';
 import { trackAuthEvent } from '@/components/auth/analytics';
 import AppDialogForm from '@/components/dialog/AppDialogForm.vue';

@@ -139,7 +139,7 @@ export class CompanyInfoModule implements NestModule {
 			{ path: '/company/users/suspend/:companyId', method: RequestMethod.PUT },
 			{ path: '/company/users/unsuspend/:companyId', method: RequestMethod.PUT },
 			{ path: '/company/connections/display/', method: RequestMethod.PUT },
-			// TEMPORARY (plan 46) — empty white-label answer for the not-yet-updated Angular shell.
+			// TEMPORARY (plan 46): empty white-label answer for the not-yet-updated Angular shell.
 			{ path: '/company/white-label-properties/:companyId', method: RequestMethod.GET },
 		);
 	}

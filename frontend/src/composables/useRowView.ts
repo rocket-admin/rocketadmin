@@ -1,6 +1,7 @@
-// The logic of db-table-row-view (DbTableRowViewComponent), the row preview side panel: its field
-// list, the foreign-key values and links, the "copy link to this record" URL, and the "Related
-// records" — the rows of other tables that reference the open row, fetched one table at a time.
+// The logic of db-table-row-view (DbTableRowViewComponent), the row preview side panel. It holds the
+// field list, the foreign-key values and links, the "copy link to this record" URL, and the "Related
+// records". These are the rows of other tables that reference the open row, fetched one table at a
+// time.
 import JsonURL from '@jsonurl/jsonurl';
 import { type Ref, reactive, ref, watch } from 'vue';
 import { formatFieldValue } from '@/lib/format-field-value';
@@ -192,8 +193,8 @@ export function formatReferencedRecords(res: ReferencedRowsResponse): Referenced
 }
 
 /**
- * Loads the related records of `selectedRow` whenever it changes: one request per referencing
- * table (first page of 30), stored under the table name as each arrives. A table missing from
+ * Loads the related records of `selectedRow` whenever it changes. It sends one request per
+ * referencing table (first page of 30) and stores each result under the table name. A table missing from
  * `records` is still loading.
  */
 export function useRelatedRecords(selectedRow: Ref<TableRow | null>) {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-// One labelled field of a credentials form: a UiField placed on the form's grid (the Angular
-// `credentials-fieldset__*-columns` classes), with the "autofilled from a connection string" look,
-// and an `after` slot for help that needs links or buttons (UiField's hint and error are text only).
+// One labelled field of a credentials form. It is a UiField placed on the form's grid (the Angular
+// `credentials-fieldset__*-columns` classes), with the "autofilled from a connection string" look.
+// It has an `after` slot for help that needs links or buttons (UiField's hint and error are text only).
 import { computed } from 'vue';
 import { UiField } from '@/components/ui';
 

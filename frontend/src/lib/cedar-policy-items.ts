@@ -37,7 +37,7 @@ export function permissionsToPolicyItems(permissions: Permissions): CedarPolicyI
 		items.push({ action: 'group:read' });
 	}
 
-	// Check if all tables share the same permissions — collapse to wildcard '*'
+	// Check if all tables share the same permissions: collapse to wildcard '*'
 	const tables = permissions.tables;
 	if (tables.length > 0) {
 		const allRead = tables.every((t) => t.accessLevel.visibility);

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Port of frontend/src/app/components/skeletons/placeholder-table-view.
-// The whole table page while the connection loads: the tables sidebar, then a header row (title,
-// search, three buttons, a round icon button) over the table grid.
+// The whole table page while the connection loads. It shows the tables sidebar, then a header row
+// over the table grid. The header row has a title, search, three buttons and a round icon button.
 // The root is the one `role="status"` region; every bar inside is a `decorative` UiSkeleton, so the
 // screen announces once (see UiSkeleton's header).
 import { UiSkeleton } from '@/components/ui';

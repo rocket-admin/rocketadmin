@@ -122,9 +122,9 @@ export const useUsersStore = defineStore('users', () => {
 	});
 
 	// --- Public (unauthenticated) access ---
-	// The endpoint is connection:edit guarded while setActiveConnection runs for every URL carrying a
-	// connection id, so the request waits for an explicit opt-in naming its connection: navigating to
-	// another connection does not refire it against one the user may not administer.
+	// The endpoint is connection:edit guarded. But setActiveConnection runs for every URL with a
+	// connection id. So the request waits for an explicit opt-in that names its connection. A navigation
+	// to another connection does not refire it against one the user may not administer.
 	const publicPermissionsFor = ref<string | null>(null);
 	const publicPermissionsData = ref<PublicPermissions | undefined>(undefined);
 	const publicPermissionsLoading = ref(false);

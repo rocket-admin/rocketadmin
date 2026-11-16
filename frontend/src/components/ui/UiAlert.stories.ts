@@ -4,8 +4,8 @@ import UiAlert from './UiAlert.vue';
 /**
  * Status banner, replacing 9 near-identical copies.
  *
- * Note what's missing: **margin**. The call sites sit in genuinely different layout contexts, so
- * spacing stays the caller's job via `class` passthrough. Every story below is inside a wrapper
+ * Note what is missing: **margin**. The call sites sit in genuinely different layout contexts, so
+ * spacing stays the caller's job through `class` passthrough. Every story below is inside a wrapper
  * that supplies its own gap, which is how a real view uses it.
  */
 const meta = {
@@ -60,7 +60,7 @@ export const Info: Story = {
 
 /**
  * All four tones. `error` and `warning` announce assertively (`role="alert"`); `success` and `info`
- * announce politely (`role="status"`) — an error the user just caused earns the interruption, a
+ * announce politely (`role="status"`). An error the user just caused earns the interruption. A
  * confirmation does not.
  */
 export const AllVariants: Story = {

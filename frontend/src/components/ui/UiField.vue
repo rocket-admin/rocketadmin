@@ -3,15 +3,15 @@
  * Label + hint + error, and the ARIA wiring between them and the control.
  *
  * Split from `UiInput` on purpose: the split is what lets a field also wrap a `<select>`, a
- * `<textarea>` or the Turnstile widget. `UiInput` picks the context up via `inject`; anything else
+ * `<textarea>` or the Turnstile widget. `UiInput` picks the context up through `inject`; anything else
  * reads the same ids off the scoped default slot.
  *
- * **`aria-describedby` linking an input to its error message exists nowhere in the app today** —
- * the four hand-rolled `.field` copies render the error as an unassociated sibling `<p>`, so a
- * screenreader user hears the label and nothing about why submission failed. That single defect is
- * what justifies this component.
+ * **An `aria-describedby` link from an input to its error message exists nowhere in the app
+ * today.** The four hand-rolled `.field` copies render the error as an unassociated sibling `<p>`.
+ * So a screenreader user hears the label and nothing about why the submission failed. That single
+ * defect is what justifies this component.
  *
- * Attribute fallthrough is left on (unlike `UiModal`, which forwards to its inner `<dialog>`): the
+ * Attribute fallthrough is left on (unlike `UiModal`, which forwards to its inner `<dialog>`). The
  * root here *is* the layout box, so a caller's one-off margin or width belongs on it. Attributes
  * meant for the control go on the control the caller passes into the slot.
  */
@@ -20,9 +20,9 @@ import { FIELD_CONTEXT } from './fieldContext';
 
 const props = withDefaults(
 	defineProps<{
-		/** Visible label text. Required — a field without one is a defect, not a style choice. */
+		/** Visible label text. Required: a field without one is a defect, not a style choice. */
 		label: string;
-		/** Supplementary text under the label, e.g. password rules or "(optional)". */
+		/** Supplementary text under the label, for example password rules or "(optional)". */
 		hint?: string;
 		/** Validation message. Its presence is what sets `aria-invalid` on the control. */
 		error?: string;
@@ -33,8 +33,8 @@ const props = withDefaults(
 	{ required: false, floatingLabel: false },
 );
 
-// useId() rather than a counter: deterministic per instance, stable across re-renders, and unique
-// across two fields on one page — the regression this guards is two inputs sharing one label.
+// useId() and not a counter: deterministic per instance, stable across re-renders, and unique
+// across two fields on one page. The regression this guards is two inputs with one shared label.
 const uid = useId();
 const inputId = `${uid}-input`;
 const labelId = `${uid}-label`;
@@ -45,7 +45,7 @@ const invalid = computed(() => Boolean(props.error));
 
 const classes = computed(() => ['ui-field', { 'ui-field--floating-label': props.floatingLabel }]);
 
-/* Both ids when both are present — an error must not silence the hint, since the hint usually
+/* Both ids when both are present. An error must not silence the hint, since the hint usually
    states the rule the error is complaining about. */
 const describedBy = computed(() => {
 	const ids = [props.hint ? hintId : undefined, props.error ? errorId : undefined].filter(Boolean);
@@ -72,8 +72,8 @@ provide(FIELD_CONTEXT, {
 		<slot :input-id="inputId" :described-by="describedBy" :invalid="invalid" :required="required" />
 
 		<p v-if="hint" :id="hintId" class="ui-field__hint">{{ hint }}</p>
-		<!-- No role="alert": the error is already reachable through aria-describedby, and announcing
-         it a second time on every keystroke of a live-validating form is worse than not at all. -->
+		<!-- No role="alert": the error is already reachable through aria-describedby. A second
+         announcement on every keystroke of a live-validating form is worse than none at all. -->
 		<p v-if="error" :id="errorId" class="ui-field__error">{{ error }}</p>
 	</div>
 </template>
@@ -92,7 +92,7 @@ provide(FIELD_CONTEXT, {
 }
 
 /* The label overlaps the control's top border; its surface background cuts the border line. Only
-   the label leaves the flow — hint and error stay under the control. */
+   the label leaves the flow. Hint and error stay under the control. */
 .ui-field--floating-label {
   position: relative;
 }

@@ -27,7 +27,7 @@ export class UnfreezeConnectionUseCase
 			throw new ConnectionNotFoundException(HttpStatus.BAD_REQUEST);
 		}
 
-		// Plan 46: no plan-gated connection types remain — any frozen connection may be unfrozen.
+		// Plan 46: no plan-gated connection types remain. Any frozen connection can be unfrozen.
 		connection.is_frozen = false;
 		await this._dbContext.connectionRepository.save(connection);
 		return { success: true };

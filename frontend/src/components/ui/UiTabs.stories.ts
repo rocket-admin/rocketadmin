@@ -7,10 +7,10 @@ import UiTabs from './UiTabs.vue';
 /**
  * Tab list with roving `tabindex` and APG keyboard navigation.
  *
- * Exists because its one call site is *currently broken ARIA*: `WebsiteDetailView`'s composer-mode
- * switcher is a `role="tablist"` wrapping plain buttons — no `role="tab"`, no `aria-selected`, no
- * `aria-controls` — so a screenreader announces a tab list with zero tabs. Fixing it inline meant
- * writing this keyboard handling anyway; here it is testable.
+ * Exists because its one call site is *currently broken ARIA*. `WebsiteDetailView`'s composer-mode
+ * switcher is a `role="tablist"` around plain buttons. It has no `role="tab"`, no `aria-selected`,
+ * no `aria-controls`. So a screenreader announces a tab list with zero tabs. An inline fix meant
+ * this keyboard handling anyway; here it is testable.
  *
  * Keyboard: **←/→** move and wrap, **Home/End** jump to the ends, disabled tabs are skipped, and
  * only the selected tab is in the tab order. Selection follows focus.
@@ -29,7 +29,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Click a tab, then use ←/→ and Home/End — selection follows focus. */
+/** Click a tab, then use ←/→ and Home/End: selection follows focus. */
 export const Default: Story = {
 	render: (args) => ({
 		components: { UiTabs, UiTab, UiTabPanel },
@@ -55,7 +55,7 @@ export const Default: Story = {
 
 /**
  * The real WebsiteDetailView shape: chat is unavailable until the live connection is up. Arrow
- * from "Ask for a change" — focus skips the disabled tab entirely rather than landing on a dead one.
+ * from "Ask for a change": focus skips the disabled tab entirely and does not land on a dead one.
  */
 export const WithDisabledTab: Story = {
 	render: (args) => ({
@@ -80,7 +80,7 @@ export const WithDisabledTab: Story = {
 	}),
 };
 
-/** Two tabs, the minimum that earns the pattern — a mode switch rather than navigation. */
+/** Two tabs, the minimum that earns the pattern: a mode switch rather than navigation. */
 export const TwoTabs: Story = {
 	render: (args) => ({
 		components: { UiTabs, UiTab, UiTabPanel },
@@ -102,7 +102,7 @@ export const TwoTabs: Story = {
 	}),
 };
 
-/** Every tab state at once — resting, selected, disabled — to catch drift between them. */
+/** Every tab state at once (resting, selected, disabled) to catch drift between them. */
 export const AllVariants: Story = {
 	render: () => ({
 		components: { UiTabs, UiTab, UiTabPanel },

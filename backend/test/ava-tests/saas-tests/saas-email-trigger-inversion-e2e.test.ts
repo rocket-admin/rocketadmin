@@ -16,10 +16,10 @@ import { DatabaseModule } from '../../../src/shared/database/database.module.js'
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { TestUtils } from '../../utils/test.utils.js';
 
-// Plan 15 Phase 2 — trigger inversion on the /saas/* email-flow bridges (microservice JWT):
-// with `suppressEmail: true` the bridge skips the send and returns an `emailPayload`
-// (raw token + context) instead; without the flag the responses stay exactly as before
-// (no `emailPayload` field anywhere — backward compatible with old SaaS deployments).
+// Plan 15 Phase 2: trigger inversion on the /saas/* email-flow bridges (microservice JWT).
+// With `suppressEmail: true`, the bridge skips the send and returns an `emailPayload`
+// (raw token + context) instead. Without the flag, the responses stay exactly as before
+// (no `emailPayload` field anywhere; backward compatible with old SaaS deployments).
 
 let app: INestApplication;
 let currentTest: string;
@@ -191,7 +191,7 @@ test.serial(
 		t.is(missingRO.message, existingRO.message);
 		t.false('emailPayload' in missingRO);
 
-		// the payload's raw token must consume via the reset-verify bridge
+		// the payload's raw token must consume through the reset-verify bridge
 		const verifyResult = await request(app.getHttpServer())
 			.post(`/saas/user/password/reset/verify/${existingRO.emailPayload.rawToken}`)
 			.set('Authorization', microserviceAuthHeader())
@@ -353,7 +353,7 @@ test.serial(`${currentTest} existing-inactive user branch returns a marked succe
 		});
 
 	// Marked success, NOT a 400: the global exception filter serializes a fixed error shape and
-	// would strip the payload, so the bridge returns `userAlreadyAddedInactive` and the SaaS
+	// would strip the payload. So the bridge returns `userAlreadyAddedInactive`, and the SaaS
 	// caller surfaces the user-facing 400 itself.
 	t.is(result.status, 201);
 	const ro = JSON.parse(result.text);

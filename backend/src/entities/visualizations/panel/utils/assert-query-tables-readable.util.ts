@@ -18,11 +18,11 @@ interface AssertQueryTablesReadableParams {
  * Guards a raw read-only query against table-level read permissions: the user must have read access
  * to every table the query touches.
  *
- * When the exact set of tables cannot be resolved (non-SQL connection, parse failure, or a statement
- * that resolves to no concrete table), we cannot trust the query to be harmless, so we fall back to
- * requiring read permission on EVERY table in the connection. This guarantees a user can never read
- * data from a table they lack permission on through this endpoint, while still letting users with
- * full read access run such queries.
+ * The exact set of tables can stay unresolved: a non-SQL connection, a parse failure, or a statement
+ * that resolves to no concrete table. Then we cannot trust the query to be harmless. So we fall back
+ * and require read permission on EVERY table in the connection. Thus a user can never read data
+ * from a table without permission through this endpoint. Users with full read access can still
+ * run such queries.
  */
 export async function assertUserCanReadQueryTables(params: AssertQueryTablesReadableParams): Promise<void> {
 	const { query, connectionType, connectionId, getReadableTables, listAllTableNames } = params;
@@ -40,7 +40,7 @@ export async function assertUserCanReadQueryTables(params: AssertQueryTablesRead
 		tablesToCheck = await listAllTableNames();
 	}
 
-	// One batched permission check: the all-tables fallback can cover dozens of tables, and a
+	// One batched permission check. The all-tables fallback can cover dozens of tables. A
 	// per-table check would load the user's groups once for each of them.
 	const uniqueTables = Array.from(new Set(tablesToCheck));
 	if (uniqueTables.length === 0) return;

@@ -2,9 +2,9 @@
 // Port of frontend/src/app/components/ui-components/content-loader (ContentLoaderComponent).
 //
 // The Angular loader was five pulsing dots absolutely centred in the nearest positioned ancestor,
-// with its own `@keyframes pulse`. The design system owns exactly one spinner animation (UiSpinner),
-// so this keeps the behaviour — centred over its container, announced as loading — on that
-// primitive instead of declaring another keyframe.
+// with its own `@keyframes pulse`. The design system owns exactly one spinner animation (UiSpinner).
+// So this keeps the behaviour on that primitive instead of declaring another keyframe. The
+// behaviour: centred over its container, announced as loading.
 import { UiSpinner } from '@/components/ui';
 
 withDefaults(

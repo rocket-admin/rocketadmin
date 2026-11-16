@@ -23,7 +23,7 @@ describe('UiPageShell', () => {
 
 	it('renders the landmark element when `as` asks for one', () => {
 		// The reason this prop exists: without it every view had to wrap the shell in a redundant
-		// <main> to keep its landmark, since the shell painted the page but couldn't be one.
+		// <main> to keep its landmark. The shell painted the page but could not be one.
 		expect(mount(UiPageShell, { props: { as: 'main' } }).element.tagName).toBe('MAIN');
 		expect(mount(UiPageShell, { props: { as: 'section' } }).element.tagName).toBe('SECTION');
 	});

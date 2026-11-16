@@ -28,8 +28,8 @@ import { IUpdateAiRows } from './agents-use-cases.interface.js';
 
 // Updates rows by primary key on behalf of a RocketAdmin user for the SiteNova chat data agent
 // (sitenova plan 85). One set of new values goes to every listed row. The steps mirror
-// BulkUpdateRowsInTableUseCase: the Cedar table:edit check, the key validation, the old rows for
-// the audit log, the password / uuid / binary processing and one bulk UPDATE. The UPDATE_ROW table
+// BulkUpdateRowsInTableUseCase. They are the Cedar table:edit check, the key validation, the old rows
+// for the audit log, the password / uuid / binary processing and one bulk UPDATE. The UPDATE_ROW table
 // actions fire per row, as on the panel's single-row route. A key that names no row refuses the
 // whole call before any write.
 @Injectable({ scope: Scope.REQUEST })

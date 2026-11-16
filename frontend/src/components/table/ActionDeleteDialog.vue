@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Port of frontend/src/app/components/dashboard/db-table-view/db-table-actions/action-delete-dialog:
 // confirms deleting a saved automation. The store's `ruleDeleted` event makes the page reload its
-// rules; the dialog closes with `true` once deleted and stays open on failure (the store shows it).
+// rules. The dialog closes with `true` once deleted and stays open on failure (the store shows it).
 import { ref } from 'vue';
 import AppDialog from '@/components/dialog/AppDialog.vue';
 import { UiButton } from '@/components/ui';

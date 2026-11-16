@@ -7,12 +7,12 @@ import { RequestRestUserPasswordDto } from '../../../entities/user/dto/request-r
 import { UserRoleEnum } from '../../../entities/user/enums/user-role.enum.js';
 
 // Bodies of the internal (microservice-JWT) email-flow bridges the SaaS control plane calls.
-// The `verificationLinkBase` fields are URL prefixes the token is appended to; they are validated
-// against the SaaS domain allowlist (ValidationHelper.resolveEmailVerificationLinkBase) and fall
-// back to the legacy frontend links when absent or not allowed.
-// `suppressEmail` (plan 15 Phase 2) inverts the trigger: the bridge skips the send and returns an
+// The `verificationLinkBase` fields are URL prefixes that the token is appended to. They are
+// validated against the SaaS domain allowlist (ValidationHelper.resolveEmailVerificationLinkBase).
+// They fall back to the legacy frontend links when absent or not allowed.
+// `suppressEmail` (plan 15 Phase 2) inverts the trigger. The bridge skips the send and returns an
 // `emailPayload` (raw token + context) instead, so the SaaS caller composes and sends in-process.
-// The flag exists ONLY on these bridge DTOs — the core's public routes never honor it.
+// The flag exists ONLY on these bridge DTOs. The core's public routes never honor it.
 
 export class SaasUserIdWithLinkBaseDto {
 	@ApiProperty()

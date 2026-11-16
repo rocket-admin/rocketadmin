@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Port of frontend/src/app/components/dashboard/db-table-view/db-table-actions: the table's
-// automations (`/dashboard/:connectionId/:tableName/actions`). A sidebar lists the rules; the main
+// automations (`/dashboard/:connectionId/:tableName/actions`). A sidebar lists the rules. The main
 // pane edits the selected one as WHEN (triggers, plus the custom button's settings) → THEN (one URL
 // webhook / email / Slack action). The logic lives in useTableRules().
 import { computed, nextTick, onMounted, ref, watch } from 'vue';

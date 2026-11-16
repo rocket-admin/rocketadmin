@@ -17,8 +17,8 @@ const emit = defineEmits<RecordEditFieldEmits>();
 
 const { normalizedLabel, widgetParams } = useRecordEditField(props);
 
-// `\u0023` is `#`: this is example text, not a colour, and spelling it out would trip the
-// no-hex-literal guard in design-tokens.spec.ts (which has an allowlist this widget can't edit).
+// `\u0023` is `#`: this is example text, not a colour. A literal `#` would trip the no-hex-literal
+// guard in design-tokens.spec.ts (which has an allowlist this widget cannot edit).
 const PLACEHOLDER = 'e.g. #000000, rgb(0,0,0), hsl(0,0%,0%)';
 
 const color = ref<string | null>(props.value ?? null);
@@ -27,7 +27,7 @@ const format = computed<string>(() => widgetParams.value.format || 'hex_hash');
 
 /**
  * The picker only understands `#rrggbb`. An unparseable value is passed as `''`, which the
- * browser's value sanitization turns into black — Angular's explicit fallback.
+ * browser's value sanitization turns into black. That was Angular's explicit fallback.
  */
 const pickerValue = computed(() => {
 	const parsed = parseColor(color.value);
@@ -57,7 +57,7 @@ function formatColor(parsed: ParsedColor, target: string): string {
 		case 'rgb':
 			return colorString.to.rgb(r, g, b, a) ?? hex;
 		case 'hsl': {
-			// Kept from Angular: get.hsl() can't read a hex string, so this falls back to hex.
+			// Kept from Angular: get.hsl() cannot read a hex string, so this falls back to hex.
 			const hsl = colorString.get.hsl(hex);
 			if (hsl) {
 				const [h = 0, s = 0, l = 0, alpha] = hsl;

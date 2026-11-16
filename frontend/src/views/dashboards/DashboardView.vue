@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Port of frontend/src/app/components/dashboards/dashboard-view: one dashboard
 // (/dashboards/:connectionId/:dashboardId) as a 12-column grid of panels. In edit mode panels can be
-// dragged by their header and resized; each changed position is saved. grid-layout-plus replaces
+// dragged by their header and resized. Each changed position is saved. The grid-layout-plus library replaces
 // angular-gridster2 (GridType.Fit, no compaction, items pushed out of the way).
 import { GridItem, GridLayout, type Layout } from 'grid-layout-plus';
 import { computed, onBeforeUnmount, ref, watch, watchEffect } from 'vue';
@@ -136,7 +136,7 @@ async function onLayoutUpdated(updated: Layout): Promise<void> {
 		) {
 			continue;
 		}
-		// Update the local widget first so the next layout update doesn't save it again.
+		// Update the local widget first so the next layout update does not save it again.
 		widget.position_x = item.x;
 		widget.position_y = item.y;
 		widget.width = item.w;

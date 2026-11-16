@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import UiSwitch from './UiSwitch.vue';
 
 /**
- * On/off switch on a native checkbox with `role="switch"` — AT announces "on/off". Use it for a
+ * On/off switch on a native checkbox with `role="switch"`. AT announces "on/off". Use it for a
  * setting that applies immediately; a form choice that is submitted later is a `UiCheckbox`.
  */
 const meta = {

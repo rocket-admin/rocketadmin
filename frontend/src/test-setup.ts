@@ -14,7 +14,7 @@ class NoopObserver {
 globalThis.ResizeObserver ??= NoopObserver as unknown as typeof ResizeObserver;
 globalThis.IntersectionObserver ??= NoopObserver as unknown as typeof IntersectionObserver;
 
-// Monaco can't run in jsdom (no layout, no workers). Rejecting the loader leaves AppCodeEditor on
+// Monaco cannot run in jsdom (no layout, no workers). Rejecting the loader leaves AppCodeEditor on
 // its <textarea> fallback, which is what component tests drive.
 vi.mock('@/lib/monaco', () => ({
 	loadMonaco: () => Promise.reject(new Error('Monaco is not available in tests')),

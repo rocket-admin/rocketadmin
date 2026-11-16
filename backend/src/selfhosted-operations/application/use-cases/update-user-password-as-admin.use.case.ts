@@ -10,7 +10,7 @@ import { SuccessResponse } from '../../../microservices/saas-microservice/data-s
 import { UpdateUserPasswordAsAdminDs } from '../data-structures/update-user-as-admin.ds.js';
 import { IUpdateUserPasswordAsAdminUseCase } from './selfhosted-use-cases.interfaces.js';
 
-// Plan 15 Phase 6 (rev 5): self-hosted has no email-based password recovery — a company
+// Plan 15 Phase 6 (rev 5): self-hosted has no email-based password recovery. A company
 // admin sets a new password directly. Same strength validation and hashing as the public
 // reset flow (VerifyResetUserPasswordUseCase); admin authority replaces the old-password check.
 @Injectable()

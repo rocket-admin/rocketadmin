@@ -1,8 +1,8 @@
 <script setup lang="ts">
 /**
- * Port of dashboard/db-table-view/db-table-export-dialog: downloads the current table view (sort,
- * filters and search from the table) as `database.csv`, either the first N records or everything
- * up to 100 000.
+ * Port of dashboard/db-table-view/db-table-export-dialog. It downloads the current table view (sort,
+ * filters and search from the table) as `database.csv`. That is either the first N records or
+ * everything up to 100 000.
  *
  * Opened with `useDialog().open(TableExportDialog, { data })`; closes with no result once the file
  * is downloaded. A failed export is reported by the tables store and leaves the dialog open.

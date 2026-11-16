@@ -1,6 +1,6 @@
 <script setup lang="ts">
-// Port of frontend/src/app/components/auto-configure (/auto-configure/:connectionId): runs the AI
-// setup of a freshly added connection, shows its progress as a short human-readable log, then
+// Port of frontend/src/app/components/auto-configure (/auto-configure/:connectionId). It runs the AI
+// setup of a freshly added connection and shows its progress as a short human-readable log. Then it
 // summarises what was configured and opens the dashboard.
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';

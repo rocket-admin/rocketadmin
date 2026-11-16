@@ -6,9 +6,9 @@ export class OperationResultMessageDs {
 	message: string;
 }
 
-// Returned by the email-flow use cases shared between the public routes and the /saas/* bridges:
+// Returned by the email-flow use cases that the public routes and the /saas/* bridges share.
 // `emailPayload` is populated only when the bridge caller set `suppressEmail: true` (plan 15
-// Phase 2) — public routes never set the flag, so their responses stay a bare `{message}`.
+// Phase 2). Public routes never set the flag, so their responses stay a bare `{message}`.
 export class OperationResultMessageWithEmailPayloadDs extends OperationResultMessageDs {
 	@ApiProperty({ required: false, type: OutgoingEmailPayloadDs })
 	emailPayload?: OutgoingEmailPayloadDs;

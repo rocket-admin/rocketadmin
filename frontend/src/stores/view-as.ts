@@ -1,6 +1,6 @@
 // Port of frontend/src/app/services/view-as.service.ts: "view as group" mode, where an admin sees the
-// app through another group's Cedar policy. The group id lives in the `?viewAs=` query param so a
-// deep link or a new tab opens in the same mode, and it sticks across navigations that drop it.
+// app through another group's Cedar policy. The group id lives in the `?viewAs=` query param, so a
+// deep link or a new tab opens in the same mode. It sticks across navigations that drop it.
 import { defineStore } from 'pinia';
 import { computed, onScopeDispose, ref } from 'vue';
 import { type LocationQuery, START_LOCATION } from 'vue-router';

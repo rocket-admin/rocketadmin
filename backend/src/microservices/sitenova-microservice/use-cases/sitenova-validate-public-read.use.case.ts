@@ -9,8 +9,8 @@ import { SitenovaPublicReadValidationRO } from '../data-structures/sitenova-inte
 import { ISitenovaValidatePublicRead } from './sitenova-use-cases.interface.js';
 
 // Bridges SitenovaPublicReadGuard's Cedar evaluation (allowed?) and the public readable-columns
-// projection to the universal-backend service, which runs the actual query itself but must apply
-// the exact same public-read policy the core applies on its own /sitenova data routes.
+// projection to the universal-backend service. That service runs the actual query itself. But it must
+// apply the exact same public-read policy that the core applies on its own /sitenova data routes.
 @Injectable()
 export class SitenovaValidatePublicReadUseCase
 	extends AbstractUseCase<SitenovaValidatePublicReadDs, SitenovaPublicReadValidationRO>

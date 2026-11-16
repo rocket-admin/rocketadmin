@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="R">
 /**
- * Data table on a native `<table>` — the `mat-table` + `matSort` + `SelectionModel` replacement.
+ * Data table on a native `<table>`: the `mat-table` + `matSort` + `SelectionModel` replacement.
  * Pair it with `UiPaginator` for `mat-paginator`.
  *
  * **Server-side first.** Clicking a sortable header only emits `update:sort`; the caller refetches.
@@ -10,22 +10,22 @@
  * **Cells** render `row[column.key]` (or `column.value(row)`) as text by default; replace any column
  * with a scoped slot `#cell-<key>="{ row, value, index, column }"` for widgets, links, badges.
  * Headers likewise: `#header-<key>="{ column, sort, direction, setSort }"` replaces the default sort
- * button — e.g. db-table-view's sort *menu* — while `aria-sort` stays on the `<th>`.
+ * button (for example db-table-view's sort *menu*), while `aria-sort` stays on the `<th>`.
  *
- * **Selection** (`selectable` + `v-model:selected`) holds row *keys*, from `rowKey`, so a selection
- * survives the page's rows being refetched as new objects. The header checkbox selects or clears the
- * rows on the current page and shows the indeterminate dash when only some are selected; keys of
+ * **Selection** (`selectable` + `v-model:selected`) holds row *keys*, from `rowKey`. So a selection
+ * survives when the page's rows are refetched as new objects. The header checkbox selects or clears
+ * the rows on the current page. It shows the indeterminate dash when only some are selected. Keys of
  * rows on other pages are left alone.
  *
  * **Actions.** The `#actions="{ row, index }"` slot renders a trailing column (header
  * `actionsLabel`), sticky to the inline end by default. Clicks inside it and in the checkbox column
  * do not trigger `rowClick`.
  *
- * `rowClick` fires on a pointer click anywhere else in a row. Rows are not focusable: any action a
- * row click performs must also be reachable through a control in the row (a link or button in a
- * cell or in `actions`), as db-table-view's edit link is.
+ * `rowClick` fires on a pointer click anywhere else in a row. Rows are not focusable. Any action
+ * that a row click does must also be reachable through a control in the row, as db-table-view's
+ * edit link is. That control is a link or button in a cell or in `actions`.
  *
- * Scrolling: the root is the scroll container (`overflow: auto`). Give it a height via `class` to
+ * Scrolling: the root is the scroll container (`overflow: auto`). Give it a height through `class` to
  * make `stickyHeader` stick.
  */
 import { computed } from 'vue';
@@ -39,11 +39,11 @@ type RowClass = string | string[] | Record<string, boolean> | undefined;
 const props = withDefaults(
 	defineProps<{
 		columns: TableColumn<R>[];
-		/** The rows to show — the current page when paging server-side. */
+		/** The rows to show: the current page when paging is server-side. */
 		rows: R[];
 		/** Row field (or function) giving a stable unique key. Required for `selectable`; falls back to the index. */
 		rowKey?: string | ((row: R, index: number) => TableRowKey);
-		/** Accessible name for the table, e.g. the table name. */
+		/** Accessible name for the table, for example the table name. */
 		label?: string;
 		/** Dims the rows under a spinner and sets `aria-busy`. Suppresses the empty state. */
 		loading?: boolean;
@@ -67,7 +67,7 @@ const props = withDefaults(
 		emptyText?: string;
 		/** Hover affordance for rows whose click does something (`rowClick`). */
 		interactive?: boolean;
-		/** Extra classes per row, e.g. to highlight the row open in a side panel. */
+		/** Extra classes per row, for example to highlight the row open in a side panel. */
 		rowClass?: (row: R, index: number) => RowClass;
 		/** Geometry only: cell padding. */
 		size?: 'sm' | 'md';
@@ -88,10 +88,10 @@ const props = withDefaults(
 	},
 );
 
-/** Current sort. Two-way via `v-model:sort`; uncontrolled when not bound. */
+/** Current sort. Two-way through `v-model:sort`; uncontrolled when not bound. */
 const sort = defineModel<TableSort>('sort', { default: () => ({ active: '', direction: '' }) });
 
-/** Keys of the selected rows. Two-way via `v-model:selected`. */
+/** Keys of the selected rows. Two-way through `v-model:selected`. */
 const selected = defineModel<TableRowKey[]>('selected', { default: () => [] });
 
 const emit = defineEmits<{ rowClick: [row: R, index: number] }>();
@@ -134,7 +134,7 @@ function keyOf(row: R, index: number): TableRowKey {
 	return index;
 }
 
-/** Rows paired with their index in `rows` — the index slots and labels report, even when sorted locally. */
+/** Rows paired with their index in `rows`: the index slots and labels report, even when sorted locally. */
 const displayedRows = computed(() => {
 	const entries = props.rows.map((row, index) => ({ row, index, key: keyOf(row, index) }));
 	const { active, direction } = sort.value;

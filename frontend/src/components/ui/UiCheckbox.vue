@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Checkbox with its label — the `mat-checkbox` replacement.
+ * Checkbox with its label: the `mat-checkbox` replacement.
  *
  * The label is the default slot and wraps the native `<input>`, so clicking the text toggles the box
  * and the box needs no `id`. A native checkbox rather than a `role="checkbox"` div: the browser
@@ -11,7 +11,7 @@ import { computed, useAttrs } from 'vue';
 const props = withDefaults(
 	defineProps<{
 		modelValue?: boolean;
-		/** The "some but not all" dash. Visual and ARIA only — clicking still emits a boolean. */
+		/** The "some but not all" dash. Visual and ARIA only: a click still emits a boolean. */
 		indeterminate?: boolean;
 		disabled?: boolean;
 	}>(),

@@ -24,7 +24,7 @@ import { TestUtils } from '../../utils/test.utils.js';
 
 // Tests for the SaaS login bridge POST /saas/user/login (SaaSAuthMiddleware / microservice JWT).
 // The bridge verifies email + password and returns the user info (FoundUserDto) WITHOUT signing a
-// token — rocketadmin-saas signs the cookie. The open-source POST /user/login path is unaffected.
+// token. rocketadmin-saas signs the cookie. The open-source POST /user/login path is unaffected.
 
 let app: INestApplication;
 let currentTest: string;
@@ -115,7 +115,7 @@ test.serial(`${currentTest} verifies credentials and returns the user (no token 
 	t.is(ro.email, email);
 	t.is(ro.is_2fa_enabled, false);
 	t.is(ro.suspended, false);
-	// The bridge must NOT sign a token / set a cookie — that is rocketadmin-saas's job.
+	// The bridge must NOT sign a token / set a cookie. That is rocketadmin-saas's job.
 	t.is(Object.hasOwn(ro, 'token'), false);
 	t.is(Object.hasOwn(ro, 'expires'), false);
 	t.is(result.headers['set-cookie'], undefined);

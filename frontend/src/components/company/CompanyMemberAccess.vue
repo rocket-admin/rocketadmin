@@ -1,9 +1,9 @@
 <script setup lang="ts">
-// The "Access" cell of the company members table: a check when the member belongs to any group,
-// with a hover/focus popup listing each connection and its groups (Angular's cdkConnectedOverlay);
-// a cross otherwise.
+// The "Access" cell of the company members table. It shows a check when the member belongs to any
+// group, with a hover/focus popup that lists each connection and its groups (Angular's
+// cdkConnectedOverlay). Otherwise it shows a cross.
 //
-// The popup is a `popover="manual"` element so it escapes the table's scroll container, placed
+// The popup is a `popover="manual"` element so it escapes the table's scroll container. It sits
 // above the icon (below when there is no room), like UiMenu's panel.
 import { nextTick, ref, useId } from 'vue';
 import { UiIcon } from '@/components/ui';
@@ -13,7 +13,7 @@ const props = defineProps<{
 	member: Pick<CompanyMember, 'has_groups' | 'user_membership'>;
 }>();
 
-/** Gap between icon and popup, in px — `--space-1`. Measured geometry, so it can't read the token. */
+/** Gap between icon and popup, in px: `--space-1`. Measured geometry, so it cannot read the token. */
 const OFFSET = 4;
 
 const popupId = `${useId()}-access`;

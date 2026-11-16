@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * Port of record-view-fields/number (`NumberRecordViewComponent`): a number, converted to the best
- * unit when the widget has a `unit` (`convert`), with an arrow when it is outside
+ * unit when the widget has a `unit` (`convert`). An arrow shows when it is outside
  * `threshold_min` / `threshold_max`.
  */
 import convert from 'convert';

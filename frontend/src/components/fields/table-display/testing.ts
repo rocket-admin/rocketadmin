@@ -1,5 +1,5 @@
 // Shared helpers for the table-display specs: a stubbed clipboard and a clickable "row" to mount
-// into, so each spec can assert the copy button never lets the click reach the row.
+// into. So each spec can assert that the copy button never lets the click reach the row.
 import { flushPromises, type VueWrapper } from '@vue/test-utils';
 import { type Mock, vi } from 'vitest';
 

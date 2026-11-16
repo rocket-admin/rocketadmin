@@ -5,8 +5,8 @@
  *
  * Landed in Phase 3 rather than Phase 5 because `UiButton`'s `loading` state mounts it.
  *
- * Announcement is opt-in via `label`: a spinner inside a button is decorative (the button already
- * carries `aria-busy` and its own label), while a standalone page spinner is the only thing on
+ * Announcement is opt-in through `label`. A spinner inside a button is decorative (the button already
+ * carries `aria-busy` and its own label). A standalone page spinner is the only thing on
  * screen and must announce. Guarded globally by `base.css`'s `prefers-reduced-motion` block.
  */
 import { computed } from 'vue';
@@ -18,7 +18,7 @@ const props = withDefaults(
 		 * loader centred over a whole panel (AppContentLoader).
 		 */
 		size?: 'sm' | 'md' | 'lg';
-		/** Announces the busy state via `role="status"`. Omit inside a button, which announces itself. */
+		/** Announces the busy state through `role="status"`. Omit inside a button, which announces itself. */
 		label?: string;
 	}>(),
 	{ size: 'md' },
@@ -47,8 +47,8 @@ const classes = computed(() => ['ui-spinner', `ui-spinner--size-${props.size}`])
 .ui-spinner__ring {
   display: block;
   border-radius: var(--radius-pill);
-  /* currentColor on three sides, transparent on the fourth: the gap is what reads as motion, and
-     inheriting the colour means the spinner needs no per-variant styling inside a button. */
+  /* currentColor on three sides, transparent on the fourth: the gap is what reads as motion. The
+     inherited colour means the spinner needs no per-variant styling inside a button. */
   border: 2px solid currentColor;
   border-top-color: transparent;
   opacity: 0.85;
@@ -71,7 +71,7 @@ const classes = computed(() => ['ui-spinner', `ui-spinner--size-${props.size}`])
   border-width: 3px;
 }
 
-/* Announced but not seen — the ring is the visual, the text is for AT. */
+/* Announced but not seen: the ring is the visual, the text is for AT. */
 .ui-spinner__label {
   position: absolute;
   width: 1px;

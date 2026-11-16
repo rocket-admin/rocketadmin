@@ -23,8 +23,8 @@ import { assertUserCanWriteTable, prepareAiTableWrite } from '../utils/ai-row-wr
 import { IInsertAiRows } from './agents-use-cases.interface.js';
 
 // Inserts rows on behalf of a RocketAdmin user for the SiteNova chat data agent (sitenova plan
-// 85). The steps mirror AddRowInTableUseCase: the Cedar table:add check, the row validation, the
-// password / uuid / binary processing, one audit-log row per insert and the ADD_ROW table actions.
+// 85). The steps mirror AddRowInTableUseCase. They are the Cedar table:add check, the row validation,
+// the password / uuid / binary processing, one audit-log row per insert and the ADD_ROW table actions.
 // The rows go in one by one, in request order. The first failure stops the call, and the response
 // says how many rows went in before it, so the agent can report the exact result.
 @Injectable({ scope: Scope.REQUEST })

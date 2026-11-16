@@ -3,7 +3,7 @@ import { TOOLTIP_BUBBLE_ID, type TooltipPlacement, tooltipState } from './toolti
 import UiTooltipLayer from './UiTooltipLayer.vue';
 
 /**
- * `v-tooltip` — the `matTooltip` replacement.
+ * `v-tooltip`: the `matTooltip` replacement.
  *
  * ```vue
  * <UiIconButton v-tooltip="'Delete row'" … />
@@ -11,24 +11,25 @@ import UiTooltipLayer from './UiTooltipLayer.vue';
  * <UiButton v-tooltip.top="disabled ? 'Select sort order first' : ''" … />
  * ```
  *
- * The value is the text; an empty string, `false`, `null` or `undefined` disables the tooltip
- * (and removes the host's `aria-describedby` token), which is how `[matTooltip]="cond ? 'x' : ''"`
- * ports. Placement comes from the argument or a modifier — `v-tooltip:left` / `v-tooltip.left` —
- * defaulting to `bottom` (Material's `below`); it flips to the opposite side when it would leave
+ * The value is the text. An empty string, `false`, `null` or `undefined` disables the tooltip.
+ * It also removes the host's `aria-describedby` token. That is how `[matTooltip]="cond ? 'x' : ''"`
+ * ports. Placement comes from the argument or a modifier: `v-tooltip:left` / `v-tooltip.left`.
+ * The default is `bottom` (Material's `below`). It flips to the opposite side when it would leave
  * the viewport.
  *
- * A directive rather than a `UiTooltip` wrapper component: 99 `matTooltip`s sit on existing
- * elements (icon buttons, table cells, truncated labels), and a wrapper would add a DOM node and
+ * A directive and not a `UiTooltip` wrapper component. 99 `matTooltip`s sit on existing
+ * elements (icon buttons, table cells, truncated labels). A wrapper would add a DOM node and
  * break `:first-child` / flex layouts at every one of them.
  *
  * Accessibility: the host gets `aria-describedby` pointing at an always-present describer node
  * (see `UiTooltipLayer`), so the text is announced on focus. It shows on hover and on focus, and
  * hides on pointer leave, blur, Escape and scroll. Per WCAG 1.4.13 the pointer may move onto the
- * bubble without it disappearing. On a `UiIconButton`, whose `label` already is the accessible
- * name and native `title`, a tooltip with the same words adds nothing — use it only for extra text.
+ * bubble without it disappearing. On a `UiIconButton`, the `label` already is the accessible
+ * name and native `title`. There, a tooltip with the same words adds nothing. Use it only for extra
+ * text.
  *
- * Known limit, shared with `matTooltip`: a natively `disabled` button fires no pointer events, so
- * its tooltip only shows if it is bound to a wrapper element instead.
+ * Known limit, shared with `matTooltip`: a natively `disabled` button fires no pointer events.
+ * So its tooltip only shows if it is bound to a wrapper element instead.
  */
 
 /** Values the directive accepts. Anything falsy means "no tooltip". */
@@ -273,6 +274,6 @@ function callPopover(el: HTMLElement, method: 'showPopover' | 'hidePopover') {
 	try {
 		fn?.call(el);
 	} catch {
-		// Already in the requested state — nothing to undo.
+		// Already in the requested state: nothing to undo.
 	}
 }

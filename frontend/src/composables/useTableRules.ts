@@ -1,10 +1,11 @@
 // The logic of frontend/src/app/components/dashboard/db-table-view/db-table-actions (the table's
-// "Automations" page): the table's rules, the one being edited, its triggers (add / update / delete
-// row, or a custom button) and its action (URL webhook, email or Slack).
+// "Automations" page). It holds the table's rules and the rule in edit. It also holds that rule's
+// triggers (add / update / delete row, or a custom button) and its action (URL webhook, email or
+// Slack).
 //
-// As in Angular, the rule being edited is the same object as its entry in `rules`, and its events
-// keep a trailing `{ event: null }` placeholder (the old one-select-per-trigger form needed it);
-// placeholders are dropped before saving.
+// As in Angular, the rule in edit is the same object as its entry in `rules`. Its events keep a
+// trailing `{ event: null }` placeholder (the old one-select-per-trigger form needed it).
+// Placeholders are dropped before the save.
 import { computed, type MaybeRefOrGetter, ref, toRaw, toValue } from 'vue';
 import ActionDeleteDialog from '@/components/table/ActionDeleteDialog.vue';
 import { trackTableEvent } from '@/components/table/analytics';

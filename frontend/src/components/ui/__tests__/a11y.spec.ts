@@ -46,7 +46,7 @@ import { axeViolations, formatViolations } from './axe';
  *
  * This exists because nothing else in the repo enforces accessibility. Biome does not parse Vue
  * `<template>`, so its a11y rules (`useSemanticElements`, `useAriaPropsForRole`, `useButtonType`)
- * never see a single line of markup — Phase 6 established that. Storybook's a11y addon reports in
+ * never see a single line of markup. Phase 6 established that. Storybook's a11y addon reports in
  * a panel a human has to open. Until this file, an ARIA regression in a primitive could ship, and
  * a primitive's defect multiplies across every view that consumes it.
  *
@@ -80,8 +80,8 @@ describe('primitive accessibility', () => {
 		delete (HTMLDialogElement.prototype as unknown as { showModal?: () => void }).showModal;
 	});
 
-	// Guards the harness itself. Every assertion below is an assertion that axe found NOTHING, which
-	// is also what a silently broken harness returns — a detached mount, a bad selector, a version
+	// Guards the harness itself. Every assertion below is an assertion that axe found NOTHING. A
+	// silently broken harness also returns that. Causes: a detached mount, a bad selector, a version
 	// bump that changes `axe.run`'s shape. This is the one case that must come back non-empty.
 	it('detects a real violation (harness self-test)', async () => {
 		const Broken = defineComponent({
@@ -123,7 +123,7 @@ describe('primitive accessibility', () => {
 		});
 
 		it('is accessible as a disabled link', async () => {
-			// aria-disabled with no href — the shape that keeps a "disabled" anchor off the tab order.
+			// aria-disabled with no href: the shape that keeps a "disabled" anchor off the tab order.
 			await expectNoViolations(UiButton, {
 				props: { href: 'https://example.com', disabled: true },
 				slots: { default: () => 'Docs' },
@@ -224,7 +224,7 @@ describe('primitive accessibility', () => {
 		];
 
 		it('is accessible with a choice made', async () => {
-			// radiogroup naming via `label`, and native radios each named by their segment text.
+			// radiogroup naming through `label`, and native radios each named by their segment text.
 			await expectNoViolations(UiSegmented, { props: { options, label: 'Active', modelValue: true } });
 		});
 
@@ -658,9 +658,9 @@ describe('primitive accessibility', () => {
 		});
 
 		it('is accessible with an opt-in control in the default slot', async () => {
-			// The slot puts a caller's own form control inside the dialog — a labelling mistake there
+			// The slot puts a caller's own form control inside the dialog. A labelling mistake there
 			// (a bare checkbox, or one labelled only by an adjacent text node) is exactly what axe
-			// catches and what the harness self-test above proves it catches.
+			// catches. The harness self-test above proves that it catches it.
 			await expectNoViolations(UiConfirmDialog, {
 				props: { open: true, title: 'Delete website', message: 'This cannot be undone.' },
 				slots: {
@@ -673,7 +673,7 @@ describe('primitive accessibility', () => {
 	describe('UiTabs', () => {
 		it('is accessible as a complete tab tree', async () => {
 			// The reason this primitive exists: WebsiteDetailView shipped role="tablist" wrapping plain
-			// buttons — no role="tab", no aria-selected, no tabpanel. Screenreaders announced a tab list
+			// buttons: no role="tab", no aria-selected, no tabpanel. Screenreaders announced a tab list
 			// with zero tabs. axe's aria-required-children/parent catch exactly that regression.
 			const Host = defineComponent({
 				components: { UiTabs, UiTab, UiTabPanel },

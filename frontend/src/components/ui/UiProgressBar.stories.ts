@@ -4,9 +4,9 @@ import UiProgressBar from './UiProgressBar.vue';
 /**
  * Determinate meter, replacing AccountView's usage bar and the app's only inline style.
  *
- * The value it adds over two divs is arithmetic and ARIA: it clamps out-of-range values, refuses to
- * render `NaN%` when `max` is zero, and emits `role="progressbar"` with real `aria-valuenow`/`max` —
- * the meter it replaces is invisible to assistive tech today.
+ * The value it adds over two divs is arithmetic and ARIA. It clamps out-of-range values and refuses
+ * to render `NaN%` when `max` is zero. It emits `role="progressbar"` with real `aria-valuenow`/`max`.
+ * The meter it replaces is invisible to assistive tech today.
  *
  * `tone` is the caller's decision. "Warn at 80%" is product policy that differs per meter, so the
  * primitive never derives a tone from a threshold.
@@ -47,7 +47,7 @@ export const UsageMeter: Story = {
 	}),
 };
 
-/** Near quota — the caller chose `warning`; the bar did not decide that for itself. */
+/** Near quota: the caller chose `warning`; the bar did not decide that for itself. */
 export const NearQuota: Story = { args: { value: 85, tone: 'warning' } };
 
 /** At quota. `value` above `max` clamps to a full bar rather than overflowing the track. */
@@ -55,7 +55,7 @@ export const OverQuota: Story = { args: { value: 120, tone: 'danger' } };
 
 /**
  * The edge cases the spec pins down, rendered. `max: 0` is the one AccountView guarded at the call
- * site — the primitive owns it now, so it shows an empty track instead of `NaN%`.
+ * site. The primitive owns it now, so it shows an empty track instead of `NaN%`.
  */
 export const EdgeCases: Story = {
 	render: () => ({

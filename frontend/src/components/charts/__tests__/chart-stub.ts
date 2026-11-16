@@ -1,4 +1,4 @@
-// Spec helper: Chart.js canvases don't render in jsdom, so specs replace vue-chartjs's <Chart> with
+// Spec helper: Chart.js canvases do not render in jsdom, so specs replace vue-chartjs's <Chart> with
 // this stub and assert on the props it received.
 //
 //   vi.mock('vue-chartjs', async () => ({ Chart: (await import('@/components/charts/__tests__/chart-stub')).ChartStub }));

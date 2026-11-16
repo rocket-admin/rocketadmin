@@ -2,7 +2,7 @@
 /**
  * Port of record-view-fields/s3 (`S3RecordViewComponent`): an S3 object key. With
  * `widget_params.type: 'image'` a presigned URL is fetched on mount (current connection and table,
- * this row's primary keys) and the image is previewed; any other type shows the key.
+ * this row's primary keys) and the image is previewed. Any other type shows the key.
  */
 import { computed, onMounted, ref } from 'vue';
 import { UiSpinner } from '@/components/ui';

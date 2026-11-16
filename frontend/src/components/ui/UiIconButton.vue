@@ -1,15 +1,15 @@
 <script setup lang="ts">
 /**
- * Icon-only button — the `mat-icon-button` replacement (the drawer toggle, the account menu
+ * Icon-only button: the `mat-icon-button` replacement (the drawer toggle, the account menu
  * trigger, row actions).
  *
- * `label` is **required** because an icon-only control has no other accessible name: it becomes the
- * `aria-label`, and also the native `title` tooltip so sighted mouse users get the same words. A
- * `UiTooltip` was not built — `title` covers every Angular `matTooltip` on an icon button, and a
+ * `label` is **required** because an icon-only control has no other accessible name. It becomes the
+ * `aria-label`. It is also the native `title` tooltip, so sighted mouse users get the same words. A
+ * `UiTooltip` was not built. `title` covers every Angular `matTooltip` on an icon button. A
  * custom tooltip is a positioning/hover-intent/dismissal problem for no new information.
  *
- * Polymorphism mirrors UiButton exactly (`to` → RouterLink, `href` → `<a>`, neither → `<button>`,
- * and a disabled link drops its `href`), so the two can sit side by side in a toolbar. Attributes and
+ * Polymorphism mirrors UiButton exactly: `to` → RouterLink, `href` → `<a>`, neither → `<button>`,
+ * and a disabled link drops its `href`. So the two can sit side by side in a toolbar. Attributes and
  * listeners fall through to the rendered element, which is what lets a `UiMenu` trigger slot
  * `v-bind` its `aria-expanded`/`aria-controls`/handlers straight onto it.
  */
@@ -23,7 +23,7 @@ const props = withDefaults(
 	defineProps<{
 		/** Material Symbols ligature name. */
 		icon: string;
-		/** Accessible name and tooltip. Required — an icon alone names nothing. */
+		/** Accessible name and tooltip. Required: an icon alone names nothing. */
 		label: string;
 		/** Interaction emphasis. `ghost` is the bare icon; `secondary` adds a bordered surface. */
 		variant?: 'ghost' | 'secondary' | 'primary' | 'danger';
@@ -64,7 +64,7 @@ const showBadge = computed(() => props.badge !== false && props.badge !== 0);
 
 /**
  * The visible badge is aria-hidden (UiBadge), and `aria-label` overrides the button's content
- * anyway, so whatever the badge means has to be spelled into the name itself.
+ * anyway. So whatever the badge means has to be spelled into the name itself.
  */
 const accessibleName = computed(() => {
 	if (!showBadge.value) return props.label;

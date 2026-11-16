@@ -1,13 +1,16 @@
 <script setup lang="ts">
 /**
  * Port of filter-fields/date-time (`DateTimeFilterComponent`), a "smart" filter with its own
- * comparator: the presets last hour / day / week / month / year (emitted as `gte` <now minus the
- * period>, UTC ISO without milliseconds), on / after / before / on or after / on or before
- * (`eq`/`gt`/`lt`/`gte`/`lte` on `<date>T<time>Z`), between (`[lower, upper]`, a missing bound is
- * `null`) and in (comma-separated ISO datetimes).
+ * comparator. It has these modes:
+ * - The presets last hour / day / week / month / year (emitted as `gte` <now minus the
+ *   period>, UTC ISO without milliseconds).
+ * - On / after / before / on or after / on or before (`eq`/`gt`/`lt`/`gte`/`lte` on
+ *   `<date>T<time>Z`).
+ * - Between (`[lower, upper]`, a missing bound is `null`).
+ * - In (comma-separated ISO datetimes).
  *
- * On mount, like `ngAfterViewInit`: with no value it emits the default `last_day` preset and `gte`;
- * a string value restores `gte` with its local date and time and re-emits `gte`.
+ * On mount, like `ngAfterViewInit`: with no value it emits the default `last_day` preset and `gte`.
+ * A string value restores `gte` with its local date and time and re-emits `gte`.
  *
  * `comparator` is an addition: Angular kept the between / in restore paths but its mode always
  * started at `last_day`, so they could never run. Passing the stored comparator (`between` or `in`)

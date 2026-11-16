@@ -25,9 +25,10 @@ export type CollectQueryTablesResult =
  * read permission on each of them.
  *
  * Returns `{ kind: 'tables' }` only when a confident, non-empty list of concrete tables could be
- * resolved. In every other case — non-SQL connections, parse failures, or statements that resolve
- * to no concrete table (e.g. `SELECT 1`, `SHOW`, `DESCRIBE`) — it returns `{ kind: 'indeterminate' }`
- * and the caller must fall back to a stricter check rather than assume the query is harmless.
+ * resolved. In every other case, it returns `{ kind: 'indeterminate' }`. These cases are non-SQL
+ * connections, parse failures, and statements that resolve to no concrete table (for example
+ * `SELECT 1`, `SHOW`, `DESCRIBE`). The caller must then fall back to a stricter check rather than
+ * assume the query is harmless.
  */
 export function collectQueryTables(query: string, connectionType: ConnectionTypesEnum): CollectQueryTablesResult {
 	if (NON_SQL_CONNECTION_TYPES.has(connectionType)) {
@@ -54,8 +55,8 @@ export function collectQueryTables(query: string, connectionType: ConnectionType
 		if (!tableName || tableName === 'null') {
 			continue;
 		}
-		// Common Table Expressions are aliases for inline subqueries, not real tables; the subqueries'
-		// underlying tables are already present in the list, so the CTE names must be dropped.
+		// Common Table Expressions are aliases for inline subqueries, not real tables. The underlying
+		// tables of the subqueries are already present in the list, so the CTE names must be dropped.
 		if (cteNames.has(tableName.toLowerCase())) {
 			continue;
 		}

@@ -16,8 +16,8 @@ function structure(...columnNames: Array<string>): Array<TableStructureDS> {
 }
 
 test('assertSomeColumnReadable fails closed on an empty readable set', (t) => {
-	// An empty set must never be read as "everything": excluding every column makes the MySQL/MSSQL
-	// DAOs fall back to select('*'), and the caller would still get a real pagination.total to mine.
+	// An empty set must never be read as "everything". When every column is excluded, the MySQL/MSSQL
+	// DAOs fall back to select('*'). The caller would then still get a real pagination.total to mine.
 	t.throws(() => assertSomeColumnReadable(new Set<string>()), { instanceOf: ForbiddenException });
 	t.notThrows(() => assertSomeColumnReadable(new Set(['id'])));
 });

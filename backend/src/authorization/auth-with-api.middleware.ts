@@ -34,7 +34,7 @@ export class AuthWithApiMiddleware implements NestMiddleware {
 			await this.authenticateRequest(req);
 			next();
 		} catch (error) {
-			// Capture only what becomes a 500 (plan 30) — see handleAuthenticationError's mapping.
+			// Capture only what becomes a 500 (plan 30). See handleAuthenticationError's mapping.
 			if (!(error instanceof HttpException || error instanceof UnauthorizedException)) {
 				Sentry.captureException(error);
 			}
@@ -64,7 +64,7 @@ export class AuthWithApiMiddleware implements NestMiddleware {
 
 	private async authenticateWithToken(tokenFromCookie: string, req: IRequestWithCognitoInfo): Promise<void> {
 		// No try/catch here (plan 30): the caller's catch owns both the Sentry capture and the
-		// error mapping — the old inner capture double-reported every failure.
+		// error mapping. The old inner capture double-reported every failure.
 		const jwtSecret = appConfig.auth.jwtSecret;
 		if (!jwtSecret) {
 			throw new UnauthorizedException('JWT verification failed');

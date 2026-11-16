@@ -3,8 +3,8 @@ import { computed } from 'vue';
 import { readTokens, resolveToken, type Token } from './readTokens';
 
 /**
- * One row per token, with a slot for whatever visual the page needs: a line of sample text sized by
- * the token, a spacing bar, a rounded corner, an elevated square. Covers everything a Foundations
+ * One row per token, with a slot for whatever visual the page needs. Examples: a line of sample text
+ * sized by the token, a spacing bar, a rounded corner, an elevated square. Covers everything a Foundations
  * page needs beyond a flat table without each page re-implementing the label column.
  */
 const props = defineProps<{
@@ -32,7 +32,7 @@ const rows = computed<Row[]>(() =>
 				<span v-if="row.note" class="specimen__note">{{ row.note }}</span>
 			</div>
 			<div class="specimen__visual">
-				<!-- Deliberately not `:name` — that's the slot-name attribute, so Vue would treat it as
+				<!-- Deliberately not `:name`. That is the slot-name attribute, so Vue would treat it as
 				     naming a *named* slot instead of passing a prop. -->
 				<slot :token="row" :css-var="row.name" :value="row.literal" />
 			</div>

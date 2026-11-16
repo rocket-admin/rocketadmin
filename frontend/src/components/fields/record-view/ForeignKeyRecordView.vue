@@ -2,7 +2,7 @@
 /**
  * Port of record-view-fields/foreign-key (`ForeignKeyRecordViewComponent`): the referenced row's
  * display value as a router link to that row (`link`, query = `primaryKeysParams` + `mode=view`).
- * Only `null`/`undefined` render a dash — `0` and `''` are real values and stay links.
+ * Only `null`/`undefined` render a dash. `0` and `''` are real values and stay links.
  *
  * Extra inputs beyond the shared contract, as in Angular: `link`, `primaryKeysParams`,
  * `displayValue`; the `onForeignKeyClick` output is the `foreignKeyClick` event.
@@ -17,7 +17,7 @@ import RecordViewValue from './RecordViewValue.vue';
 const props = defineProps<
 	RecordViewFieldProps & {
 		value?: unknown;
-		/** Path of the referenced table's entry page, e.g. `/dashboard/<conn>/<table>/entry`. */
+		/** Path of the referenced table's entry page, for example `/dashboard/<conn>/<table>/entry`. */
 		link?: string;
 		/** Primary key of the referenced row, `{ [referenced_column]: value }`. */
 		primaryKeysParams?: Record<string, unknown>;

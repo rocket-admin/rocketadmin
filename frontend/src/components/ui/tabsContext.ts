@@ -3,9 +3,9 @@ import type { InjectionKey, Ref } from 'vue';
 /**
  * The wiring `UiTabs` hands to its `UiTab` and `UiTabPanel` children.
  *
- * A separate module rather than a const inside `UiTabs.vue`, for the same reason as
- * `fieldContext.ts`: importing the key from the parent `.vue` into the children would make them
- * circularly dependent.
+ * A separate module and not a const inside `UiTabs.vue`, for the same reason as `fieldContext.ts`.
+ * An import of the key from the parent `.vue` into the children would make them circularly
+ * dependent.
  */
 export interface TabsContext {
 	/** The selected tab's `value`. */

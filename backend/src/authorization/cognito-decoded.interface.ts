@@ -21,9 +21,9 @@ export interface ICognitoDecodedData {
  * Request type with the cognito-derived JWT payload attached by auth middleware.
  *
  * `params` and `query` are narrowed to `Record<string, string | undefined>`. Express's stock
- * `query` type is `ParsedQs` (allows arrays and nested objects), but this codebase only
- * issues simple `?key=value` URLs — narrowing here surfaces accidental multi-value usage
- * without forcing every callsite to narrow inline.
+ * `query` type is `ParsedQs` (allows arrays and nested objects). But this codebase only
+ * issues simple `?key=value` URLs. The narrow type here surfaces accidental multi-value usage,
+ * and no callsite has to narrow inline.
  */
 export interface IRequestWithCognitoInfo extends Omit<Request, 'query' | 'params'> {
 	query: Record<string, string | undefined>;

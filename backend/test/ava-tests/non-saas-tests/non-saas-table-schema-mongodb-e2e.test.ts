@@ -374,7 +374,7 @@ test.serial('MongoDB: createIndex → rollback drops the index', async (t) => {
 test.serial('MongoDB: setValidator applies a JSON Schema', async (t) => {
 	const { token } = await registerUserAndReturnUserInfo(app);
 	// MongoDB refuses validators on the admin/config databases, so this test uses
-	// an isolated user-space database. authSource stays on admin where the root
+	// an isolated user-space database. The authSource stays on admin where the root
 	// user is defined, per standard MongoDB practice.
 	const isolatedDb = `ra_test_${faker.string.alphanumeric(6).toLowerCase()}`;
 	const connectionId = await createConnection(token, { database: isolatedDb, authSource: 'admin' });
@@ -533,8 +533,8 @@ test.serial('MongoDB: invalid op marks FAILED and attempts auto-rollback', async
 	const collectionName = randomCollectionName('ra_mfail');
 	createdCollections.push(collectionName);
 
-	// Ask the server to dropIndex "nonexistent" on a fresh collection — the initial
-	// createCollection-is-not-done-yet path is fine; we need a structurally valid op
+	// Ask the server to dropIndex "nonexistent" on a fresh collection. The initial
+	// createCollection-is-not-done-yet path is fine. We need a structurally valid op
 	// that the DB itself will reject. listIndexes on a missing collection throws.
 	nextProposal = {
 		forwardOp: JSON.stringify({ operation: 'dropIndex', collectionName, indexName: 'nonexistent_idx' }),

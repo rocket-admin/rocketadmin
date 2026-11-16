@@ -189,8 +189,8 @@ export function generateCedarPolicyForGroup(
 				`permit(\n  principal,\n  action == RocketAdmin::Action::"table:query",\n  resource == ${tableRef}\n);`,
 			);
 			// ColumnRead (checked after the query). `table:read` is an alias for
-			// QueryTable + ColumnRead(table, *): when no explicit column whitelist is given we
-			// grant every column via `resource in Table`; otherwise one grant per allowed column.
+			// QueryTable + ColumnRead(table, *). When no explicit column whitelist is given, we
+			// grant every column through `resource in Table`. Otherwise we add one grant per allowed column.
 			const readableColumns = table.readableColumns;
 			if (readableColumns && readableColumns.length > 0) {
 				for (const columnName of readableColumns) {

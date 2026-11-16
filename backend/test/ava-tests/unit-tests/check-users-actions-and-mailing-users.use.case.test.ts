@@ -4,7 +4,7 @@ import { UserActionEntity } from '../../../src/entities/user-actions/user-action
 import { UserActionEnum } from '../../../src/enums/user-action.enum.js';
 
 // `user_action.userId` is UNIQUE (one-to-one with `user`), so the 08:00 reminder cron must update a user's
-// existing action row in place. The original code marked the row as sent and then fell through to insert a
+// existing action row in place. The original code marked the row as sent. Then it fell through to insert a
 // second row for the same user, which failed with
 // `duplicate key value violates unique constraint "REL_c025478b45e60017ed10c77f99"` and dropped the email.
 

@@ -1,8 +1,8 @@
 import test from 'ava';
 import { getSsrfSafeRequestConfig, ssrfGuardLookup } from '../../../src/helpers/validators/ssrf-safe-http.js';
 
-// The SSRF guard is only meant to engage in SaaS mode (self-hosted owns its network). isSaaS()/
-// isTest() read env live, so we toggle env per test. IP literals are resolved by dns.lookup with
+// The SSRF guard is only meant to engage in SaaS mode (self-hosted owns its network). The isSaaS()/
+// isTest() helpers read env live, so we toggle env per test. IP literals are resolved by dns.lookup with
 // no network access, so the guard's blocking behaviour is exercised deterministically.
 const ORIGINAL_NODE_ENV = process.env.NODE_ENV;
 const ORIGINAL_IS_SAAS = process.env.IS_SAAS;
@@ -84,7 +84,7 @@ test('ssrfGuardLookup returns the allowed address as an array when all=true', as
 });
 
 test('ssrfGuardLookup (all=true) rejects when every resolved address is forbidden', async (t) => {
-	// localhost resolves to 127.0.0.1 and ::1 — a multi-record host where nothing is usable.
+	// localhost resolves to 127.0.0.1 and ::1: a multi-record host where nothing is usable.
 	await t.throwsAsync(() => lookupAll('localhost'), { message: /all resolved addresses are forbidden/ });
 });
 

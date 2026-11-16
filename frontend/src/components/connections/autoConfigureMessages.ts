@@ -1,6 +1,6 @@
 // The auto-configure page's reading of the AI setup log (AutoConfigureComponent's _humanize,
-// _widgetPhrase and _countMessage): backend progress lines become short user-facing sentences, and
-// widget / setting lines are counted for the summary chips.
+// _widgetPhrase and _countMessage). Backend progress lines become short user-facing sentences.
+// Widget / setting lines are counted for the summary chips.
 
 export interface CountedMessage {
 	/** A widget was added, a table setting was set, or neither. */

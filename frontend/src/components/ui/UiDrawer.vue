@@ -1,23 +1,23 @@
 <script setup lang="ts">
 /**
- * Side navigation drawer — the `mat-sidenav mode="over"` replacement. Slides in from the inline-start
+ * Side navigation drawer: the `mat-sidenav mode="over"` replacement. Slides in from the inline-start
  * edge over a `--color-overlay` backdrop.
  *
- * Built on the native `<dialog>` with `showModal()`, for the same reasons as UiModal: the browser
+ * Built on the native `<dialog>` with `showModal()`, for the same reasons as UiModal. The browser
  * supplies the focus trap, `inert` on the rest of the page, top-layer stacking, Escape (as the
- * `cancel` event) and the `::backdrop`. The drawer *is* modal while open — nothing behind it is
- * reachable — so the semantics are honest.
+ * `cancel` event) and the `::backdrop`. The drawer *is* modal while open: nothing behind it is
+ * reachable. So the semantics are honest.
  *
- * Focus: `showModal()` focuses the first focusable element inside; if there is none (or the browser
- * doesn't), the panel itself takes focus. On close, focus returns to whatever had it before opening
- * — normally the menu button — which browsers do natively and this restores explicitly for those
- * that don't.
+ * Focus: `showModal()` focuses the first focusable element inside. If there is none (or the browser
+ * does not), the panel itself takes focus. On close, focus returns to whatever had it before the
+ * open, normally the menu button. Browsers do that natively, and this restores it explicitly for
+ * those that do not.
  *
- * The slide is a `translate` transition with `@starting-style`; the open state ends on
- * `translate: none` rather than `0`, because any other value makes the drawer a containing block and
+ * The slide is a `translate` transition with `@starting-style`. The open state ends on
+ * `translate: none` and not `0`. Any other value makes the drawer a containing block and
  * would mis-position fixed descendants. `base.css`'s reduced-motion guard neutralises the slide.
  *
- * `inheritAttrs: false` — a caller's `class` lands on the `<dialog>`, the box they mean.
+ * `inheritAttrs: false`: a caller's `class` lands on the `<dialog>`, the box they mean.
  */
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 
@@ -25,9 +25,9 @@ defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(
 	defineProps<{
-		/** Visibility. Two-way via `v-model:open`, so Escape and the backdrop can close it. */
+		/** Visibility. Two-way through `v-model:open`, so Escape and the backdrop can close it. */
 		open: boolean;
-		/** Accessible name for the drawer, e.g. "Main navigation". Required — a nameless dialog is a defect. */
+		/** Accessible name for the drawer, for example "Main navigation". Required: a nameless dialog is a defect. */
 		label: string;
 		/** Geometry only: the panel width (16 / 20 / 24rem, capped to the viewport). */
 		size?: 'sm' | 'md' | 'lg';
@@ -71,7 +71,7 @@ function onDialogClick(event: MouseEvent) {
 	if (event.target === dialog.value) requestClose();
 }
 
-/** jsdom has `HTMLDialogElement` but no `showModal()`/`close()`, hence the optional calls. */
+/** jsdom has `HTMLDialogElement` but no `showModal()`/`close()`, so the calls are optional. */
 function syncOpen(shouldOpen: boolean) {
 	const el = dialog.value;
 	if (!el) return;
@@ -95,8 +95,8 @@ function focusFirst(el: HTMLDialogElement) {
 function restoreFocus(el: HTMLDialogElement) {
 	const target = returnFocusTo;
 	returnFocusTo = null;
-	// Only if focus is still inside the drawer or was dropped on <body>: a caller that already moved
-	// focus somewhere deliberate (a route change focusing a heading) wins.
+	// Only if focus is still inside the drawer or was dropped on <body>. A caller that already moved
+	// focus somewhere deliberate (a route change that focuses a heading) wins.
 	const active = document.activeElement;
 	if (target?.isConnected && (!active || active === document.body || el.contains(active))) target.focus();
 }

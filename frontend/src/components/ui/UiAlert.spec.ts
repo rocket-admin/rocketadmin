@@ -4,7 +4,7 @@ import UiAlert from './UiAlert.vue';
 
 describe('UiAlert', () => {
 	it('announces by default, because every call site shows an async result', () => {
-		// None of the 9 pre-DS alerts announced at all — this default is the fix.
+		// None of the 9 pre-DS alerts announced at all. This default is the fix.
 		expect(mount(UiAlert, { slots: { default: 'Boom' } }).attributes('role')).toBe('alert');
 	});
 

@@ -1,6 +1,6 @@
-// Parity checklist for the cutover (VUE_MIGRATION_PLAN.md, Phase 4): every route of
+// Parity checklist for the cutover (VUE_MIGRATION_PLAN.md, Phase 4). Every route of
 // frontend/src/app/app-routing.module.ts (and its routes/*.routes.ts children) resolves in the
-// Vue router with the same path, guard and title, so existing bookmarks and emailed links keep
+// Vue router with the same path, guard and title. So existing bookmarks and emailed links keep
 // working. The Angular table is a snapshot, so this spec outlives the deletion of frontend/.
 import { describe, expect, it } from 'vitest';
 import { createMemoryHistory, createRouter } from 'vue-router';

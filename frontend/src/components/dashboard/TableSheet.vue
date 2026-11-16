@@ -1,6 +1,6 @@
 <script setup lang="ts">
-// The table view's mobile bottom sheets (table switcher, sort, columns, import/export): a panel
-// sliding up from the bottom edge over a backdrop, with a title and a close button. Escape and the
+// The table view's mobile bottom sheets (table switcher, sort, columns, import/export). Each is a
+// panel that slides up from the bottom edge over a backdrop, with a title and a close button. Escape and the
 // backdrop close it.
 import { onBeforeUnmount, onMounted } from 'vue';
 import { UiIconButton } from '@/components/ui';

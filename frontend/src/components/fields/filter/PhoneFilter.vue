@@ -2,7 +2,7 @@
 /**
  * Port of filter-fields/phone (`PhoneFilterComponent`), a "smart" filter with its own comparator:
  * equal, country code, starts with, contains, is empty. "Country code" picks a country and filters
- * `startswith` on its dial code; an incoming value equal to a dial code restores that mode and
+ * `startswith` on its dial code. An incoming value equal to a dial code restores that mode and
  * emits `startswith` on mount. In the default `eq` mode nothing is emitted on mount.
  */
 import { computed, onMounted, ref } from 'vue';
@@ -43,7 +43,7 @@ useAutofocus(props, input);
 const initialCountry = props.value ? COUNTRIES_WITH_FLAGS.find((c) => c.dialCode === props.value) : undefined;
 const filterMode = ref<PhoneFilterMode>(initialCountry ? 'country' : 'eq');
 const text = ref<string | null | undefined>(props.value);
-/** The picked country — the Angular `countryControl` holding an object rather than typed text. */
+/** The picked country: the Angular `countryControl` that holds an object rather than typed text. */
 const selectedCountry = ref<CountryWithFlag | null>(initialCountry ?? null);
 const countryText = ref(initialCountry ? displayFn(initialCountry) : '');
 

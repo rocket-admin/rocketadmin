@@ -2,9 +2,9 @@ import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import UiButton from './UiButton.vue';
 
 /**
- * The one button, replacing ~19 hand-rolled blocks. `AllVariants` is the story that matters — it's
- * what catches primary and secondary drifting apart, which is exactly how the pre-DS code ended up
- * with five different `.btn` geometries.
+ * The one button, the replacement for ~19 hand-rolled blocks. `AllVariants` is the story that
+ * matters. It is what catches primary and secondary when they drift apart. That drift is exactly how
+ * the pre-DS code ended up with five different `.btn` geometries.
  *
  * Review it on all three background options: `secondary` and `ghost` both paint themselves
  * `--color-surface`, so Ink is where a missing border shows up.
@@ -40,15 +40,15 @@ export const Primary: Story = {};
 
 export const Secondary: Story = { args: { variant: 'secondary' } };
 
-/** The recessive action next to a primary — quieter hover, no accent lift. */
+/** The recessive action next to a primary: quieter hover, no accent lift. */
 export const Ghost: Story = { args: { variant: 'ghost' } };
 
 /** Destructive actions. Its focus ring is `--ring-danger`, not the accent one. */
 export const Danger: Story = { args: { variant: 'danger' } };
 
 /**
- * `loading` implies `disabled` and swaps the leading slot for a spinner, so the button can't fire
- * twice and its width doesn't jump when the request starts.
+ * `loading` implies `disabled` and swaps the leading slot for a spinner. So the button cannot fire
+ * twice, and its width does not jump when the request starts.
  */
 export const Loading: Story = { args: { loading: true } };
 
@@ -60,7 +60,7 @@ export const Block: Story = {
 	parameters: { layout: 'padded' },
 };
 
-/** Adornments use `leading`/`trailing` — logical positions, never `left`/`right`. */
+/** Adornments use `leading`/`trailing`: logical positions, never `left`/`right`. */
 export const WithAdornments: Story = {
 	render: () => ({
 		components: { UiButton },
@@ -80,9 +80,9 @@ export const WithAdornments: Story = {
 };
 
 /**
- * A disabled link renders as a `<span role="link" aria-disabled="true">` with **no** `href` — so
- * it leaves the tab order and can't be opened in a new tab, which `pointer-events: none` alone
- * would not prevent.
+ * A disabled link renders as a `<span role="link" aria-disabled="true">` with **no** `href`. So
+ * it leaves the tab order and cannot be opened in a new tab. `pointer-events: none` alone
+ * would not prevent that.
  */
 export const AsLink: Story = {
 	render: () => ({
@@ -99,7 +99,7 @@ export const AsLink: Story = {
 
 /**
  * Every variant × size. Scan the columns for consistent vertical rhythm and the rows for
- * consistent weight — this is the drift detector.
+ * consistent weight. This is the drift detector.
  */
 export const AllVariants: Story = {
 	parameters: { layout: 'padded' },

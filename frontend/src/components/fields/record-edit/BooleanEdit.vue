@@ -39,7 +39,7 @@ function onChange(option: boolean) {
 }
 
 /**
- * A click on the already-pressed segment — the radio's `change` doesn't fire for it. By the time
+ * A click on the already-pressed segment. The radio's `change` does not fire for it. By the time
  * the click reaches us the browser has already checked the radio, so compare with `current`.
  */
 function onClick(event: MouseEvent) {

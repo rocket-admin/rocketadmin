@@ -59,7 +59,7 @@ export class SitenovaValidatePublicReadDto {
 // --- Row-event bridge (plan 37): universal-backend → core table actions ---------------------------
 
 // Only the row events a generated-site visitor can cause. CUSTOM events are admin-panel buttons
-// that need a RocketAdmin user and a Cedar check — deliberately not reachable from here.
+// that need a RocketAdmin user and a Cedar check. They are deliberately not reachable from here.
 export const SITENOVA_ROW_EVENTS = ['ADD_ROW', 'UPDATE_ROW', 'DELETE_ROW'] as const;
 export type SitenovaRowEventType = (typeof SITENOVA_ROW_EVENTS)[number];
 

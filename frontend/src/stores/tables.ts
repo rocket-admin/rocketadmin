@@ -1,9 +1,9 @@
 // Port of TablesService: table lists and folders, rows, structure, settings, widgets, rules
-// (actions), CSV import/export and saved filters. The current table name follows the route via
+// (actions), CSV import/export and saved filters. The current table name follows the route through
 // `syncFromRoute`, wired up by `bindTablesToRouter(router)`.
 //
 // The string events of `cast` are now typed events on `tableEvents` (src/lib/table-events.ts).
-// createAIthread/requestAImessage were not ported: nothing in the Angular app calls them (the AI
+// The createAIthread/requestAImessage calls were not ported: nothing in the Angular app calls them (the AI
 // panel talks to /ai/v4 through its own service).
 import { defineStore } from 'pinia';
 import posthog from 'posthog-js';
@@ -55,7 +55,7 @@ export interface ExportTableParams {
 	search?: string;
 }
 
-/** GET /table-categories/v2/:id — the sidebar folders, each with its tables. */
+/** GET /table-categories/v2/:id: the sidebar folders, each with its tables. */
 export interface TableFolder extends Omit<TableCategory, 'tables'> {
 	tables: TableProperties[];
 }
@@ -274,7 +274,7 @@ export const useTablesStore = defineStore('tables', () => {
 		return api.get<RulesResponse>(`/action/rules/${connectionID}`, { params: { tableName: name }, notify: 'alert' });
 	}
 
-	// The success message names the saved rule, so it can't be a static `successMessage`.
+	// The success message names the saved rule, so it cannot be a static `successMessage`.
 	async function saveRule(connectionID: string, _tableName: string, rule: Rule): Promise<Rule> {
 		const res = await api.post<Rule>(`/action/rule/${connectionID}`, rule, { notify: 'alert' });
 		notifications.showSuccessSnackbar(`${res.title} action has been created.`);

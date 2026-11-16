@@ -1,6 +1,6 @@
 // Test helper for stores that talk to the backend through `@/api/client`: stubs global fetch with a
-// queue of canned responses and records each request, so specs exercise the real client (URL
-// building, params, headers and error notifications) the way HttpTestingController did in Angular.
+// queue of canned responses and records each request. So specs exercise the real client the way
+// HttpTestingController did in Angular: URL building, params, headers and error notifications.
 import { type Mock, vi } from 'vitest';
 
 export interface RecordedRequest {

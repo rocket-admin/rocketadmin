@@ -4,8 +4,8 @@ import AppAlert from './AppAlert.vue';
 
 /**
  * The page alert (port of Angular's `app-alert`). Shows its `alert` prop, else the notifications
- * store's current alert. Three message shapes — plain string, abstract + details, and `null` (the
- * default slot) — and three action types.
+ * store's current alert. Three message shapes: plain string, abstract + details, and `null` (the
+ * default slot). Three action types.
  */
 const meta = {
 	title: 'App/Alert',

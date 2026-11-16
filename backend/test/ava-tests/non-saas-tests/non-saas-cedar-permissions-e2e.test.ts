@@ -68,7 +68,7 @@ test.after(async () => {
 	}
 });
 
-//****************************** ADMIN GROUP (isMain=true) - FULL ACCESS VIA CEDAR ******************************
+//****************************** ADMIN GROUP (isMain=true) - FULL ACCESS THROUGH CEDAR ******************************
 
 currentTest = 'GET /connections/';
 
@@ -839,7 +839,7 @@ test.serial(
 	},
 );
 
-//****************************** CONNECTION:EDIT SCOPE — NO TABLE ACCESS ******************************
+//****************************** CONNECTION:EDIT SCOPE: NO TABLE ACCESS ******************************
 
 currentTest = 'GET /table/rows/:slug';
 
@@ -1222,7 +1222,7 @@ test.serial('Full group creation → permission assignment flow under Cedar', as
 		t.is(createGroupResp.status, 201);
 		const groupId = JSON.parse(createGroupResp.text).id;
 
-		// 3. Verify admin can still access everything (new group's empty policy doesn't break combined set)
+		// 3. Verify admin can still access everything (new group's empty policy does not break combined set)
 		const adminGetRows = await request(app.getHttpServer())
 			.get(`/table/rows/${connectionId}?tableName=${firstTable.testTableName}`)
 			.set('Cookie', connectionAdminUserToken)

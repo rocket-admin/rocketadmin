@@ -8,7 +8,7 @@ import { vTooltip } from '@/components/ui';
 const Blank = defineComponent({ render: () => h('div', { 'data-testid': 'blank-page' }) });
 
 /**
- * Mounts `view` as the page of `pattern` (e.g. '/edit-db/:connectionId'), navigated to `url`, under
+ * Mounts `view` as the page of `pattern` (for example '/edit-db/:connectionId'), navigated to `url`, under
  * a memory router whose other paths render a blank page. Activates a fresh Pinia.
  */
 export async function mountConnectionView(

@@ -1,8 +1,8 @@
 /**
  * Internal exception codes for the RocketAdmin backend.
  *
- * Codes are grouped into numeric ranges by domain so the frontend can branch either
- * on a whole category (e.g. `code >= 1000 && code < 1100` → database error) or on a
+ * Codes are grouped into numeric ranges by domain. So the frontend can branch either
+ * on a whole category (for example `code >= 1000 && code < 1100` → database error) or on a
  * specific code. These numbers are a stable wire contract: never renumber an existing
  * code, only append new ones inside the appropriate range.
  *
@@ -20,13 +20,13 @@ export enum ExceptionsInternalCodes {
 	UNKNOWN_SQL_EXCEPTION = 1000,
 	/** Foreign key constraint violation (PostgreSQL, MySQL, MSSQL, Oracle). */
 	FOREIGN_KEY_VIOLATION = 1001,
-	/** Database user lacks permission to perform the operation. */
+	/** Database user lacks permission to do the operation. */
 	DB_PERMISSION_DENIED = 1002,
 	/** Could not reach the database within the timeout window. */
 	CONNECTION_TIMEOUT = 1003,
-	/** Database host could not be resolved or is unreachable (ENOTFOUND, ECONNREFUSED, etc.). */
+	/** Database host could not be resolved or is unreachable (ENOTFOUND, ECONNREFUSED and other errors). */
 	HOST_UNREACHABLE = 1004,
-	/** Failed to decrypt the connection — usually a wrong/missing master password. */
+	/** Failed to decrypt the connection. The usual cause is a wrong/missing master password. */
 	DECRYPTION_FAILED = 1005,
 	/** Agent returned no data for the query. */
 	AGENT_NO_DATA = 1006,

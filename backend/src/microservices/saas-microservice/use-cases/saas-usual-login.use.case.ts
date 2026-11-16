@@ -20,7 +20,7 @@ import { ISaasUsualLoginUser } from './saas-use-cases.interface.js';
  * Verifies an email/password login for the SaaS control plane and returns the matched user.
  *
  * This duplicates the lookup + password-verification + sign-in-audit logic of the open-source
- * `UsualLoginUseCase` (`entities/user/use-cases/usual-login-use.case.ts`) **on purpose** — the
+ * `UsualLoginUseCase` (`entities/user/use-cases/usual-login-use.case.ts`) **on purpose**. The
  * self-hosted `POST /user/login` path is intentionally left untouched. The difference here is that
  * this use case is a microservice bridge: it never signs a JWT or sets a cookie. It returns the
  * user info (including `is_2fa_enabled`) so `rocketadmin-saas` can sign the end-user cookie itself,
@@ -117,8 +117,8 @@ export class SaasUsualLoginUseCase extends AbstractUseCase<UsualLoginDs, FoundUs
 		}
 
 		// Mirror UsualLoginUseCase: a SUCCESS audit is recorded only once login is actually complete.
-		// For OTP-enabled users the password step is just the first leg — the success is recorded by the
-		// subsequent OTP-login step — so we don't record it here.
+		// For OTP-enabled users, the password step is just the first leg. The next OTP-login step records
+		// the success, so we do not record it here.
 		if (!user.isOTPEnabled) {
 			await this.recordSignInAudit(email, user.id, SignInStatusEnum.SUCCESS, ipAddress, userAgent);
 		}
@@ -187,7 +187,7 @@ export class SaasUsualLoginUseCase extends AbstractUseCase<UsualLoginDs, FoundUs
 			throw new BadRequestException(Messages.INVALID_REQUEST_DOMAIN_FORMAT);
 		}
 
-		// Plan 46: custom domains are retired — only the product hostnames are accepted.
+		// Plan 46: custom domains are retired. Only the product hostnames are accepted.
 		throw new BadRequestException(Messages.INVALID_REQUEST_DOMAIN);
 	}
 }

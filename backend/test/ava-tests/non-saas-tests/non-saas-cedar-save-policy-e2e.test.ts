@@ -252,11 +252,11 @@ test.serial(
 	},
 );
 
-// Plan 13 P0-3 on the AUTHENTICATED read path: stripping a withheld column from the response still
-// let a filter/search on it run in SQL, so `pagination.total` answered "does this column start with
-// X?" one character at a time. The readable set now bounds the query itself, so a filter on a
-// withheld column is ignored exactly like one naming a column that does not exist.
-// The seeded table has 42 rows, 3 of them carrying 'Vasia' in `testTableColumnName`; the counts below
+// Plan 13 P0-3 on the AUTHENTICATED read path. The old code stripped a withheld column from the
+// response, but a filter/search on it still ran in SQL. So `pagination.total` answered "does this
+// column start with X?" one character at a time. The readable set now bounds the query itself.
+// So a filter on a withheld column is ignored exactly like one that names a column that does not exist.
+// The seeded table has 42 rows, and 3 of them have 'Vasia' in `testTableColumnName`. The counts below
 // are the oracle (42 = the filter was dropped, 3 = it ran).
 function readOnlyCedarPolicy(connectionId: string, tableName: string, readableColumns: Array<string>): string {
 	return [
@@ -332,8 +332,8 @@ test.serial(`${currentTest} authenticated rows: search never reaches a withheld 
 			.set('Accept', 'application/json');
 		t.is(savePolicyResponse.status, 201);
 
-		// 'Vasia' exists only in the withheld column: the search must match nothing rather than
-		// returning those 3 rows (before the fix, search ILIKEd every text column of the table).
+		// 'Vasia' exists only in the withheld column: the search must match nothing, not those 3 rows.
+		// Before the fix, search ILIKEd every text column of the table.
 		const searched = await request(app.getHttpServer())
 			.get(`/table/rows/${connectionId}?tableName=${tableName}&page=1&perPage=10&search=Vasia`)
 			.set('Cookie', testData.users.simpleUserToken)
@@ -431,7 +431,7 @@ test.serial(
 			const groupId = testData.groups.createdGroupId;
 			const tableName = testData.firstTableInfo.testTableName;
 
-			// Connection read only — no table:query / table:read grant at all.
+			// Connection read only: no table:query / table:read grant at all.
 			const cedarPolicy = `permit(\n  principal,\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`;
 
 			const savePolicyResponse = await request(app.getHttpServer())
@@ -466,7 +466,7 @@ test.serial(`${currentTest} legacy table:read still grants full column read (ali
 		const firstColumn = testData.firstTableInfo.testTableColumnName;
 		const secondColumn = testData.firstTableInfo.testTableSecondColumnName;
 
-		// Only a direct table:read grant (no table:query / column:read) — must behave as the
+		// Only a direct table:read grant (no table:query / column:read). It must behave as the
 		// alias QueryTable + ColumnRead(table, *).
 		const cedarPolicy = [
 			`permit(\n  principal,\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${connectionId}"\n);`,
@@ -812,7 +812,7 @@ test.serial(`${currentTest} should reject saving cedar policy when group does no
 
 		const cedarPolicy = `permit(\n  principal,\n  action == RocketAdmin::Action::"connection:read",\n  resource == RocketAdmin::Connection::"${secondConnectionId}"\n);`;
 
-		// Group belongs to first connection, but we're sending to second connection
+		// Group belongs to first connection, but we are sending to second connection
 		const response = await request(app.getHttpServer())
 			.post(`/connection/cedar-policy/${secondConnectionId}`)
 			.send({ cedarPolicy, groupId })

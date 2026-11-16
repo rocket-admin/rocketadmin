@@ -1,14 +1,14 @@
 <script setup lang="ts">
 /**
  * Status banner. Replaces 9 near-identical `.alert` blocks whose geometry was already unanimous
- * (`0.75rem 0.875rem` / 14px) — only the radius and the margins had drifted.
+ * (`0.75rem 0.875rem` / 14px). Only the radius and the margins had drifted.
  *
- * **No margin.** The nine call sites sit in genuinely different layout contexts (above a form,
- * below a row, tight against a `.setting`), so spacing belongs to the caller via `class`
+ * **No margin.** The nine call sites sit in genuinely different layout contexts: above a form,
+ * below a row, tight against a `.setting`. So spacing belongs to the caller through `class`
  * passthrough. This is the one place the design system deliberately does not unify a value.
  *
  * `live` defaults on because every existing alert displays an async fetch result and **none of the
- * nine announce today** — the failure is silent for screenreader users.
+ * nine announce today**. The failure is silent for screenreader users.
  */
 import { computed } from 'vue';
 
@@ -42,7 +42,7 @@ const role = computed(() => {
 
 <style scoped>
 .ui-alert {
-  /* margin: 0 is load-bearing — it overrides the UA default on the <p>s these replace, and keeps
+  /* margin: 0 is load-bearing. It overrides the UA default on the <p>s these replace, and keeps
      spacing the caller's decision. */
   margin: 0;
   padding: var(--space-3) 0.875rem;

@@ -1,6 +1,6 @@
-// Port of TableStateService: the row selected in the table view (shown in the side row view), the
-// AI panel's open/expanded state, and the "back to table" paging/sort/filter params kept in
-// sessionStorage so the row edit page can return to the same view.
+// Port of TableStateService: the row selected in the table view (shown in the side row view) and the
+// AI panel's open/expanded state. It also keeps the "back to table" paging/sort/filter params in
+// sessionStorage, so the row edit page can return to the same view.
 //
 // The three BehaviorSubjects (`cast`, `aiPanelCast`, `aiPanelExpandedCast`) are plain state here:
 // `selectedRow`, `aiPanelOpen`, `aiPanelExpanded`. Watch them instead of subscribing.

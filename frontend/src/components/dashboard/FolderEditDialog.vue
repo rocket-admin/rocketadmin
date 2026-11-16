@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Port of db-tables-list/db-folder-edit-dialog: rename a sidebar folder, pick its icon colour and
 // add/remove its tables. Works on a copy; "Save" closes with the edited folder (name trimmed), and
-// is refused while the name is empty. The "All Tables" folder can't be renamed.
+// is refused while the name is empty. The "All Tables" folder cannot be renamed.
 import { reactive, ref } from 'vue';
 import AppDialogForm from '@/components/dialog/AppDialogForm.vue';
 import { UiButton, UiField, UiInput } from '@/components/ui';

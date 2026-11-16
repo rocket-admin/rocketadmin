@@ -1,5 +1,6 @@
-// Contracts between the table browser's pieces: what TableView emits to DashboardView, the dialog
-// data, and what the components ported in parallel (filters dialog, saved filters panel) hand back.
+// Contracts between the table browser's pieces. They are what TableView emits to DashboardView, the
+// dialog data, and what the components ported in parallel hand back. Those components are the
+// filters dialog and the saved filters panel.
 import type { TableField, TableForeignKey, WidgetStructure } from '@/models/table';
 
 /** A custom action (rule event) as the table view triggers it, or the built-in "Delete row(s)". */
@@ -67,7 +68,7 @@ export interface SavedFilterItem {
 }
 
 /**
- * What SavedFiltersPanel exposes (`defineExpose`) — the members db-table-view reached through
+ * What SavedFiltersPanel exposes (`defineExpose`): the members db-table-view reached through
  * `@ViewChild(SavedFiltersPanelComponent)` for the mobile fast-filter chips and "Create fast filter".
  */
 export interface SavedFiltersPanelApi {

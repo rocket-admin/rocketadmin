@@ -452,7 +452,7 @@ test.serial(
 			const auditLogsRO = JSON.parse(getAuditLogsResult.text);
 
 			// Non-existent user login attempts should NOT be visible in company logs
-			// because the user doesn't belong to the company
+			// because the user does not belong to the company
 			const failedLogEntry = auditLogsRO.logs.find((log: any) => log.email === nonExistentEmail.toLowerCase());
 			t.falsy(failedLogEntry);
 		} catch (err) {

@@ -16,7 +16,7 @@ export const ssrfGuardLookup: net.LookupFunction = (hostname, options, callback)
 			return;
 		}
 		// Keep only the public addresses. We deliberately do NOT reject the whole host just because one of
-		// its records is private (split-horizon DNS, stray records); we simply never connect to a forbidden
+		// its records is private (split-horizon DNS, stray records). We simply never connect to a forbidden
 		// one. The request is refused only when no usable address remains.
 		const allowed = addresses.filter(({ address }) => !isForbiddenAddress(address));
 		if (allowed.length === 0) {

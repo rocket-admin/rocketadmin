@@ -17,7 +17,7 @@ describe('UiSkeleton', () => {
 	});
 
 	it('hides the shimmer bars from assistive tech', () => {
-		// The bars are decorative — the wrapper's label is the announcement. Without this, AT reads a
+		// The bars are decorative: the wrapper's label is the announcement. Without this, AT reads a
 		// stack of empty elements.
 		const bars = mount(UiSkeleton, { props: { lines: 2 } }).findAll('.ui-skeleton__bar');
 
@@ -48,7 +48,7 @@ describe('UiSkeleton', () => {
 	});
 
 	it('passes width and height through as inline styles', () => {
-		// The one accepted :style in a primitive — asserting it's wired, not what it paints.
+		// The one accepted :style in a primitive. This asserts that it is wired, not what it paints.
 		const bar = mount(UiSkeleton, { props: { width: '40%', height: '1.1rem' } }).find('.ui-skeleton__bar');
 
 		expect(bar.attributes('style')).toContain('width: 40%');

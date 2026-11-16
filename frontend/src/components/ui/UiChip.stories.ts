@@ -2,12 +2,12 @@ import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import UiChip from './UiChip.vue';
 
 /**
- * Small status pill — styled text with no interaction. Replaces the three hand-rolled `.chip`
+ * Small status pill: styled text with no interaction. Replaces the three hand-rolled `.chip`
  * blocks; the only genuine drift between them was padding, which became the `size` prop.
  *
- * Two things it deliberately does *not* do: it has no role/tabindex/click (a chip labels something
- * else, it isn't an affordance), and it does not capitalise its content — casing an arbitrary
- * status string belongs to the call site.
+ * Two things it deliberately does *not* do. First, it has no role/tabindex/click: a chip labels
+ * something else, it is not an affordance. Second, it does not capitalise its content. The casing
+ * of an arbitrary status string belongs to the call site.
  */
 const meta = {
 	title: 'UI/Chip',
@@ -34,7 +34,7 @@ type Story = StoryObj<typeof meta>;
 /** The majority geometry: `sm` + `neutral`, as used for the metadata chips in a website list. */
 export const Default: Story = {};
 
-/** `md` + `accent` — DashboardView's status chip, the larger of the two geometries. */
+/** `md` + `accent`: DashboardView's status chip, the larger of the two geometries. */
 export const Status: Story = {
 	args: { tone: 'accent', size: 'md' },
 	render: (args) => ({

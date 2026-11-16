@@ -2,9 +2,9 @@
 /**
  * Port of dashboard/db-table-view/db-table-import-dialog: uploads a CSV file into the table.
  *
- * Opened with `useDialog().open(TableImportDialog, { data })`; closes with no result once the import
- * succeeds (the tables store shows the success snackbar and emits `imported`, which the table view
- * listens to). A failed import is reported by the store and leaves the dialog open.
+ * Opened with `useDialog().open(TableImportDialog, { data })`. Closes with no result once the import
+ * succeeds. The tables store then shows the success snackbar and emits `imported`, which the table
+ * view listens to. A failed import is reported by the store and leaves the dialog open.
  */
 import posthog from 'posthog-js';
 import { ref } from 'vue';

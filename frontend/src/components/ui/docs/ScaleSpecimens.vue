@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import SpecimenList from './SpecimenList.vue';
 
 /**
- * The spacing, radius, elevation and motion specimen grids — the scales whose visual is a shape
+ * The spacing, radius, elevation and motion specimen grids: the scales whose visual is a shape
  * rather than text. Same rationale as TypeSpecimens for living in a `.vue` file: MDX compiles to
  * React, so Foundations visuals reach the docs as stories.
  */

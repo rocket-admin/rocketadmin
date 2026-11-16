@@ -1,26 +1,27 @@
 <script setup lang="ts">
 /**
- * Dropdown menu — the `mat-menu` replacement (account menu, connection switcher, row actions).
+ * Dropdown menu: the `mat-menu` replacement (account menu, connection switcher, row actions).
  * Implements the APG menu-button pattern; put `UiMenuItem`s in the default slot.
  *
- * The trigger is the caller's own control, rendered through the scoped `trigger` slot: spread
+ * The trigger is the caller's own control, rendered through the scoped `trigger` slot. Spread
  * `triggerProps` onto it (`<UiIconButton v-bind="triggerProps" … />`) and it gains the id,
- * `aria-haspopup`/`aria-expanded`/`aria-controls` and the click/keydown handlers. A slot rather than
- * a built-in button because the triggers genuinely differ — an icon button in the header, a text
- * button with a caret for the connection switcher.
+ * `aria-haspopup`/`aria-expanded`/`aria-controls` and the click/keydown handlers. A slot and not
+ * a built-in button, because the triggers genuinely differ. One is an icon button in the header,
+ * another is a text button with a caret for the connection switcher.
  *
- * Keyboard: Enter/Space/ArrowDown on the trigger open it on the first item, ArrowUp on the last;
- * inside, arrows/Home/End move (wrapping), a printable key jumps to the next item starting with it,
- * Escape closes and returns focus to the trigger, Tab closes and lets focus move on. Choosing an item
- * or clicking outside closes it.
+ * Keyboard: Enter/Space/ArrowDown on the trigger open it on the first item, ArrowUp on the last.
+ * Inside, arrows/Home/End move (with wrap), and a printable key jumps to the next item that starts
+ * with it. Escape closes and returns focus to the trigger. Tab closes and lets focus move on. A
+ * choice of an item or a click outside closes it.
  *
  * **Positioning.** The panel is a `popover="manual"` element shown with `showPopover()`, which puts
- * it in the top layer: it escapes `overflow: hidden` table wrappers and transformed ancestors (the
- * drawer), and still stacks correctly inside a modal `<dialog>`, which a `<Teleport to="body">` would
+ * it in the top layer. It escapes `overflow: hidden` table wrappers and transformed ancestors (the
+ * drawer). It still stacks correctly inside a modal `<dialog>`, which a `<Teleport to="body">` would
  * render *underneath*. "Manual" because the auto popover's light-dismiss also fires on a trigger
  * click, which would re-open the menu it just closed. Coordinates are measured from the trigger and
- * applied inline — like UiSkeleton's width, dynamic geometry no token can express. jsdom has no
- * popover API, so the calls are defensive and `v-show` is what actually hides the panel there.
+ * applied inline. Like UiSkeleton's width, it is dynamic geometry that no token can express. jsdom
+ * has no popover API. So the calls are defensive, and `v-show` is what actually hides the panel
+ * there.
  */
 import { computed, nextTick, onBeforeUnmount, provide, ref, useId, watch } from 'vue';
 import { MENU_CONTEXT } from './menuContext';
@@ -49,7 +50,7 @@ const panel = ref<HTMLElement | null>(null);
 const coords = ref<{ top: string; left: string } | undefined>(undefined);
 let triggerEl: HTMLElement | null = null;
 
-/** Gap between trigger and panel, in px — `--space-1`. Measured geometry, so it can't read the token. */
+/** Gap between trigger and panel, in px: `--space-1`. Measured geometry, so it cannot read the token. */
 const OFFSET = 4;
 
 const triggerProps = computed(() => ({
@@ -217,7 +218,7 @@ function callPopover(el: HTMLElement, method: 'showPopover' | 'hidePopover') {
 	try {
 		fn?.call(el);
 	} catch {
-		// Already in the requested state, or detached mid-transition — nothing to undo.
+		// Already in the requested state, or detached mid-transition: nothing to undo.
 	}
 }
 </script>

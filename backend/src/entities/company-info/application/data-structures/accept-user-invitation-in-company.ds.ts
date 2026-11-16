@@ -4,8 +4,8 @@ export class AcceptUserValidationInCompany {
 	userPassword: string;
 }
 
-// IToken fields (the legacy controller sets them as cookies) plus the accepted user's identity,
-// so a satellite caller (rocketadmin-saas) can sign its own session cookie instead.
+// IToken fields (the legacy controller sets them as cookies) and the accepted user's identity.
+// With them, a satellite caller (rocketadmin-saas) can sign its own session cookie instead.
 export class AcceptedCompanyInvitationDs {
 	token: string;
 	exp: Date;

@@ -5,7 +5,7 @@ import { api, type QueryParams } from '@/api/client';
 import { tableEvents } from '@/lib/table-events';
 import type { TableField, TableForeignKey, Widget } from '@/models/table';
 
-/** The row's primary key as query params, e.g. `{ id: 42 }`. */
+/** The row's primary key as query params, for example `{ id: 42 }`. */
 export type RowKeyParams = QueryParams;
 
 /** GET /table/row/:id. Only the commonly read fields are typed; the rest pass through. */

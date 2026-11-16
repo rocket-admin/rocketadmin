@@ -12,8 +12,8 @@ const PROXY_USERNAME_PREFIX = process.env.PROXY_CLIENT_USERNAME_PREFIX || 'proxy
 const PROXY_DATABASE = process.env.PROXY_CLIENT_DATABASE || 'postgres';
 
 function deriveCompanyId(username) {
-	// Single-username case (e.g. plain "proxy_user") keeps the legacy id so existing
-	// tests/clients that don't randomize still hit a stable companyId.
+	// Single-username case (for example plain "proxy_user") keeps the legacy id so existing
+	// tests/clients that do not randomize still hit a stable companyId.
 	if (username === PROXY_USERNAME_PREFIX) {
 		return 'test-company-001';
 	}
@@ -41,13 +41,13 @@ const TEST_CONNECTION = {
 	subscriptionLevel: 'TEAM_PLAN',
 };
 
-// Configurable subscription level — e2e tests can change this at runtime
+// Configurable subscription level: e2e tests can change this at runtime
 // to test throttling / frozen plan behaviour.
 let currentSubscriptionLevel = TEST_CONNECTION.subscriptionLevel;
 
 // The proxy keys throttling off hostedDbPlan, not subscriptionLevel. The
-// product reality is two-tier — paid (unlimited) and free (throttled) — plus
-// the admin-initiated `frozen` override and a TEST_TINY_PLAN used to drive
+// product reality is two-tier: paid (unlimited) and free (throttled). There is
+// also the admin-initiated `frozen` override and a TEST_TINY_PLAN that drives
 // the bucket to exhaustion quickly. Anything else is treated as paid so
 // positive-path tests run unthrottled.
 function deriveHostedDbPlan(level) {
@@ -57,7 +57,7 @@ function deriveHostedDbPlan(level) {
 	return 'HOSTED_DB_PAID';
 }
 
-// Store received usage reports so tests can verify them via GET /api/proxy/usage-reports
+// Store received usage reports so tests can verify them through GET /api/proxy/usage-reports
 const usageReports = [];
 
 const server = http.createServer((req, res) => {

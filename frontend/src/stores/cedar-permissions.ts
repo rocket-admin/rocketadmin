@@ -1,9 +1,9 @@
 // Port of frontend/src/app/services/cedar-permission.service.ts: client-side Cedar authorization.
 // The signed-in user's group policies (or, in view-as mode, the target group's policy alone) are
-// merged and evaluated in the Cedar wasm engine, so the UI can hide what the backend would refuse.
+// merged and evaluated in the Cedar wasm engine. So the UI can hide what the backend would refuse.
 //
-// The evaluation lives in createPermissionEvaluator() over plain refs so it is testable without the
-// stores it reads; the store only wires it to user, users and view-as.
+// The evaluation lives in createPermissionEvaluator() over plain refs, so it is testable without the
+// stores it reads. The store only wires it to user, users and view-as.
 import { defineStore } from 'pinia';
 import { type ComputedRef, computed, type Ref, shallowRef } from 'vue';
 import { loadCedarWasm } from '@/lib/cedar-wasm';
@@ -82,7 +82,7 @@ export function createPermissionEvaluator({
 		const policies = mergedPolicies.value;
 		const principalId = userId.value;
 		if (!cedar || !policies || !principalId) return null;
-		// No resource (e.g. no connection selected yet) can never be authorized.
+		// No resource (for example no connection selected yet) can never be authorized.
 		if (resourceId === null) return false;
 
 		try {

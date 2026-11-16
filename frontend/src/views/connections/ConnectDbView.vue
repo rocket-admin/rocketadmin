@@ -7,7 +7,7 @@
 // (not for DynamoDB) and then goes on to /auto-configure; an agent connection shows its token
 // instead. The credentials fields come from the form of the chosen database type.
 //
-// Angular edited the connections service's `currentConnection` in place; here the page edits a
+// Angular edited the connections service's `currentConnection` in place. Here the page edits a
 // reactive draft copied from the store (and re-copied when the store loads the connection).
 import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';

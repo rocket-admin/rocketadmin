@@ -4,8 +4,8 @@ import { defineComponent, nextTick, ref } from 'vue';
 import UiDrawer from './UiDrawer.vue';
 
 /**
- * jsdom 29 has `HTMLDialogElement` but neither `showModal()` nor `close()` (see UiModal.spec.ts), so
- * both are installed here and keep `open` truthful, since that's what the component reads.
+ * jsdom 29 has `HTMLDialogElement` but neither `showModal()` nor `close()` (see UiModal.spec.ts).
+ * So both are installed here and keep `open` truthful, since that is what the component reads.
  */
 function installDialogStubs() {
 	const proto = HTMLDialogElement.prototype as unknown as { showModal?: () => void; close?: () => void };

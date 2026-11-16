@@ -2,9 +2,12 @@
 /**
  * Port of record-edit-fields/money (`MoneyEditComponent`): an amount, optionally with a currency.
  *
- * `widget_params`: `default_currency` (USD), `show_currency_selector` (stores `{ amount, currency }`
- * instead of a bare number), `decimal_places` (2, clamped to 0–10), `allow_negative` (true) and
- * `cents` (store integer minor units; decimals then follow the currency, e.g. 0 for JPY).
+ * `widget_params`:
+ * - `default_currency` (USD).
+ * - `show_currency_selector` (stores `{ amount, currency }` instead of a bare number).
+ * - `decimal_places` (2, clamped to 0–10).
+ * - `allow_negative` (true).
+ * - `cents` (store integer minor units; decimals then follow the currency, for example 0 for JPY).
  * An empty amount is stored as `''`.
  */
 import { computed, nextTick, ref } from 'vue';
@@ -155,7 +158,7 @@ function toMinorUnits(): number {
 
 /**
  * Write the cleaned text back to the `<input>`. When it equals the previous `displayAmount` (the
- * user typed only rejected characters), the model doesn't change, so Vue won't patch the DOM.
+ * user typed only rejected characters), the model does not change, so Vue does not patch the DOM.
  */
 function syncInput() {
 	nextTick(() => {

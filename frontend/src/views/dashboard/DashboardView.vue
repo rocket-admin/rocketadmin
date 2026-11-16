@@ -2,12 +2,13 @@
 // Port of components/dashboard (DashboardComponent): the table browser page, for both
 // /dashboard/:connectionId (which opens the default or first table) and
 // /dashboard/:connectionId/:tableName. It loads the table folders, keeps the sidebar (TablesList),
-// owns the rows (useTableData) and the row selection, applies filters/search from the table view
-// and writes them to the URL, runs custom actions, and hosts the row preview and the AI panel.
+// and owns the rows (useTableData) and the row selection. It applies filters/search from the table
+// view and writes them to the URL. It runs custom actions and hosts the row preview and the AI panel.
 //
-// URL state (see lib/table-query.ts): when the table changes, the page, page size, sort, filters,
-// search and `uncached` are read from the query, as setTable did from the snapshot. Filters and
-// search are written back by navigating, exactly like the Angular router calls. The string events
+// URL state (see lib/table-query.ts): when the table changes, the page reads these values from the
+// query: page, page size, sort, filters, search and `uncached`. The Angular setTable did the same
+// from the snapshot. Filters and search are written back by navigating, exactly like the Angular
+// router calls. The string events
 // of TablesService/TableRowService.cast are the typed tableEvents bus.
 import { omitBy } from 'lodash-es';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';

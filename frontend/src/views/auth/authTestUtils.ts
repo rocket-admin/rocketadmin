@@ -7,8 +7,8 @@ import { createMemoryHistory, createRouter, type Router, RouterView } from 'vue-
 const Blank = defineComponent({ render: () => h('div', { 'data-testid': 'blank-page' }) });
 
 /**
- * Mounts `view` as the page of `pattern` (e.g. '/company/:companyId/verify/:verificationToken'),
- * navigated to `url`, under a memory router whose other paths render a blank page — so a spec can
+ * Mounts `view` as the page of `pattern` (for example '/company/:companyId/verify/:verificationToken'),
+ * navigated to `url`, under a memory router whose other paths render a blank page. So a spec can
  * read `router.currentRoute` after the view navigates. Activates a fresh Pinia.
  */
 export async function mountAuthView(

@@ -16,10 +16,10 @@ import { ISaasOtpLogin } from './saas-use-cases.interface.js';
  * Completes a 2FA login on behalf of the SaaS control plane (plan 15 Phase 5).
  *
  * The SaaS service cannot verify the temporary token locally (the logout blacklist lives in the
- * core's database), so this bridge replicates the core's TemporaryAuthMiddleware — blacklist check
- * plus jwt.verify against TEMPORARY_JWT_SECRET — and then delegates the OTP verification +
- * sign-in-audit recording to the existing OtpLoginUseCase (its core-signed token is discarded:
- * the SaaS caller signs its own cookie from the returned user, exactly as with the login bridge).
+ * core's database). So this bridge replicates the core's TemporaryAuthMiddleware: a blacklist check
+ * plus jwt.verify against TEMPORARY_JWT_SECRET. Then it delegates the OTP verification +
+ * sign-in-audit recording to the existing OtpLoginUseCase. Its core-signed token is discarded:
+ * the SaaS caller signs its own cookie from the returned user, exactly as with the login bridge.
  */
 @Injectable({ scope: Scope.REQUEST })
 export class SaasOtpLoginUseCase extends AbstractUseCase<SaasOtpLoginDs, FoundUserDto> implements ISaasOtpLogin {

@@ -64,7 +64,7 @@ export class VerifyChangeUserEmailUseCase
 		await this._dbContext.emailChangeRepository.removeEmailChangeEntity(verificationEntity);
 
 		// Trigger inversion (plan 15 Phase 2): the bridge caller sends the "email changed" notice
-		// itself — hand back the notice context instead of sending.
+		// itself. Hand back the notice context instead of the notice.
 		if (inputData.suppressEmail) {
 			return {
 				message: Messages.EMAIL_CHANGED,

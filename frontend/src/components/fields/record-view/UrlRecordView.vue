@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
- * Port of record-view-fields/url (`UrlRecordViewComponent`): a valid absolute URL becomes a link
- * opening in a new tab (the click does not bubble to the row); anything else is plain text.
+ * Port of record-view-fields/url (`UrlRecordViewComponent`). A valid absolute URL becomes a link
+ * that opens in a new tab (the click does not bubble to the row). Anything else is plain text.
  */
 import { computed } from 'vue';
 import { UiIcon } from '@/components/ui';

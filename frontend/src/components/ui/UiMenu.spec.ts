@@ -7,8 +7,8 @@ import UiMenu from './UiMenu.vue';
 import UiMenuItem from './UiMenuItem.vue';
 
 /**
- * jsdom has no popover API and no layout, so these assert the ARIA wiring, the keyboard contract,
- * focus movement and `v-show` visibility — the parts the component owns. Positioning is eyes-only.
+ * jsdom has no popover API and no layout. So these assert the parts that the component owns: the ARIA
+ * wiring, the keyboard contract, focus movement and `v-show` visibility. Positioning is eyes-only.
  */
 
 const onDelete = vi.fn();

@@ -3,8 +3,8 @@
 //
 //   node scripts/coverage-report.mjs badge <coverage-summary.json> <out.svg> [label]
 //       → a shields-style SVG badge ("<label> | 81.3%") from the LINE coverage percentage.
-//         Dependency-free on purpose: the repo is private, so shields.io / codecov cannot read it,
-//         and the badge has to be a file we host ourselves (the `badges` branch, see tests.yml).
+//         Dependency-free on purpose: the repo is private, so shields.io / codecov cannot read it.
+//         So the badge has to be a file we host ourselves (the `badges` branch, see tests.yml).
 //
 //   node scripts/coverage-report.mjs markdown <name> <coverage-summary.json>
 //       → a Markdown table (lines / statements / functions / branches) for $GITHUB_STEP_SUMMARY.

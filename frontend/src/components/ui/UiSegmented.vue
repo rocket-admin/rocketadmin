@@ -1,12 +1,12 @@
 <script setup lang="ts" generic="T extends SelectValue">
 /**
- * Single-choice segmented control — the `mat-button-toggle-group` replacement (Yes / No / Null
+ * Single-choice segmented control: the `mat-button-toggle-group` replacement (Yes / No / Null
  * toggles, unit pickers).
  *
  * Built on a `role="radiogroup"` of native radio inputs, so arrow keys move the choice and AT reads
  * "Yes, radio button, 1 of 2". The radios are visually hidden; the label is the visible segment.
  *
- * `label` names the group. Pass it even when a visible caption sits beside the control — the
+ * `label` names the group. Pass it even when a visible caption sits beside the control. The
  * caption is not programmatically linked otherwise.
  */
 import { computed, useId } from 'vue';

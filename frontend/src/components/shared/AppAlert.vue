@@ -1,10 +1,10 @@
 <script setup lang="ts">
 // Port of frontend/src/app/components/ui-components/alert (AlertComponent).
 //
-// Renders the given `alert`, or — like the Angular `this.alert || notifications.currentAlert` — the
-// notifications store's page alert. Three message shapes, same as Angular's getMessageType():
+// Renders the given `alert`, or the notifications store's page alert. That is like the Angular
+// `this.alert || notifications.currentAlert`. Three message shapes, same as Angular's getMessageType():
 // a string (plain), `{abstract, details}` with details (bold abstract over the details), and
-// `{abstract}` alone (plain abstract). `message: null` renders the default slot instead — how
+// `{abstract}` alone (plain abstract). `message: null` renders the default slot instead. That is how
 // connect-db puts the IP-address hint inside a warning alert.
 //
 // Actions follow AlertActionType: `button` calls `action(alert.id)`, `internal link` is a

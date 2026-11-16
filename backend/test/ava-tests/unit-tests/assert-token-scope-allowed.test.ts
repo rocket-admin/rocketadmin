@@ -7,9 +7,9 @@ import { EmailVerificationRequiredException } from '../../../src/exceptions/cust
 import { TwoFaRequiredException } from '../../../src/exceptions/custom-exceptions/two-fa-required-exception.js';
 
 // The single place every auth path asks "is this restricted token allowed here?".
-// A scope on a token means the session is limited to the flow that finishes it —
-// '2fa_enable' until the user enrols in 2FA, 'email_verify' until the user confirms
-// their email — so it must be refused everywhere except the routes that complete it.
+// A scope on a token means the session is limited to the flow that finishes it.
+// The scope '2fa_enable' holds until the user enrols in 2FA, 'email_verify' until the
+// user confirms their email. So the token must be refused everywhere except the routes that complete it.
 
 test('a token with no scope claim is allowed', (t) => {
 	t.notThrows(() => assertTokenScopeAllowed(undefined));
@@ -59,8 +59,8 @@ test('a token carrying both scopes is refused until both are allowed', (t) => {
 });
 
 // Forward compatibility: an unrecognized scope keeps the pre-existing behavior of
-// every call site (the old `includes(TWO_FA_ENABLE)` check ignored anything else),
-// so a token minted by a newer service never locks a user out of an older one.
+// every call site. The old `includes(TWO_FA_ENABLE)` check ignored anything else.
+// So a token minted by a newer service never locks a user out of an older one.
 test('an unrecognized scope is ignored', (t) => {
 	t.notThrows(() => assertTokenScopeAllowed(['some_future_scope' as JwtScopesEnum]));
 });

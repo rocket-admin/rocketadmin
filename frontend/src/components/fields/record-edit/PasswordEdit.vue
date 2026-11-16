@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * Port of record-edit-fields/password (`PasswordEditComponent`). The API masks stored passwords as
- * `***`; that shows as an empty input, and an empty input is never sent, so the password is kept
+ * `***`. That shows as an empty input, and an empty input is never sent. So the password is kept
  * unless the user types a new one or ticks "Clear password" (which sends `null`).
  */
 import { onMounted, ref } from 'vue';

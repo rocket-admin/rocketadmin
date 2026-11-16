@@ -188,7 +188,7 @@ export class CedarPermissionsService implements IUserAccessRepository {
 	}
 
 	// "Table read" now means "may query this table" (the QueryTable half of the table:read
-	// alias). Column-level visibility is enforced separately via checkColumnRead/getReadableColumns.
+	// alias). Column-level visibility is enforced separately through checkColumnRead/getReadableColumns.
 	async checkTableRead(
 		cognitoUserName: string,
 		connectionId: string,
@@ -446,9 +446,9 @@ export class CedarPermissionsService implements IUserAccessRepository {
 			ctx.policies,
 			entities,
 		);
-		// "Blanket trigger on this table" — only `permit(... resource in Table::"...")` policies
+		// "Blanket trigger on this table": only `permit(... resource in Table::"...")` policies
 		// match this synthetic probe event. Per-event grants (resource == ActionEvent::"...x")
-		// won't match the probe id, so the table-level flag stays false unless the user truly
+		// do not match the probe id, so the table-level flag stays false unless the user truly
 		// has table-wide trigger.
 		const probeEntities = buildCedarEntities(
 			userId,

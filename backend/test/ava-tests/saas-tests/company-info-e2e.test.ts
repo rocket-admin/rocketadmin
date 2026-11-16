@@ -1122,7 +1122,7 @@ test.serial(`${currentTest} a company invites a 4th, 5th … 7th member and nobo
 		t.is(user.suspended, false);
 	}
 
-	// The 7th member can use the API — nothing suspended them.
+	// The 7th member can use the API: nothing suspended them.
 	const lastUserConnections = await request(app.getHttpServer())
 		.get('/connections')
 		.set('Cookie', additionalUsers[additionalUsers.length - 1].token)

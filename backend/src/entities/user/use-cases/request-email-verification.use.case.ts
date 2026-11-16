@@ -45,8 +45,8 @@ export class RequestEmailVerificationUseCase
 		}
 		const foundUserCompany = await this._dbContext.companyInfoRepository.findCompanyInfoByUserId(foundUser.id);
 
-		// Trigger inversion (plan 15 Phase 2): bridge callers send the letter themselves — return
-		// the raw token instead of sending (and never log it).
+		// Trigger inversion (plan 15 Phase 2): bridge callers send the letter themselves. Return
+		// the raw token instead of the letter (and never log it).
 		if (inputData.suppressEmail) {
 			const { rawToken } = await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(foundUser);
 			return {

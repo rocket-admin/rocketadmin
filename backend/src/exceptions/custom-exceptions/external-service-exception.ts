@@ -3,7 +3,7 @@ import { ExceptionsInternalCodes } from './custom-exceptions-internal-codes/exce
 
 /**
  * Raised when an external dependency (the SaaS gateway, the agent, ...) returns an error.
- * The upstream HTTP status is preserved, and the upstream message — when available — is
+ * The upstream HTTP status is preserved. When the upstream message is available, it is
  * surfaced under `originalMessage`.
  */
 export class ExternalServiceException extends BaseRocketAdminException {

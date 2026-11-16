@@ -55,10 +55,10 @@ export class BaseSaasGatewayService {
 		}
 	}
 
-	// Callers turn a failed call into their own error (often a plain 404), so the upstream
-	// status and reason must be visible somewhere — here, once, for every core→saas call
-	// (401 = MICROSERVICE_JWT_SECRET mismatch, 404 = row missing on the saas this core is
-	// pointed at, 5xx = saas-side failure). Sentry groups by method + route shape + status, so a
+	// Callers turn a failed call into their own error (often a plain 404). So the upstream
+	// status and reason must be visible somewhere: here, once, for every core→saas call.
+	// 401 = MICROSERVICE_JWT_SECRET mismatch, 404 = row missing on the saas this core is
+	// pointed at, 5xx = saas-side failure. Sentry groups by method + route shape + status. So a
 	// broken edge is one issue with an event per call rather than one issue per id in the URL.
 	private reportFailedRequest(
 		method: SaaSRequestMethod,
@@ -82,9 +82,9 @@ export class BaseSaasGatewayService {
 	}
 
 	// A 2xx whose body is not JSON never came from a saas controller. The usual cause is
-	// SAAS_URL pointing at something else on the same host — e.g. the SPA's nginx, whose
-	// history-mode fallback answers 200 + index.html for any unknown path — or a redirect
-	// that fetch followed. Content type, final URL and a body snippet pin that down.
+	// a SAAS_URL that points at something else on the same host, or a redirect that fetch followed.
+	// An example is the SPA's nginx, whose history-mode fallback answers 200 + index.html for any
+	// unknown path. Content type, final URL and a body snippet pin that down.
 	private reportUnexpectedBody(method: SaaSRequestMethod, patch: string, res: Response, parseFailure: string): void {
 		const contentType = res.headers.get('content-type') ?? 'none';
 		const message =
@@ -104,8 +104,8 @@ export class BaseSaasGatewayService {
 		});
 	}
 
-	// Parses the body as JSON; on failure returns `{}` (the historical contract every caller
-	// relies on) plus a short description of what was actually there, for the reports above.
+	// Parses the body as JSON. On failure, returns `{}` (the historical contract every caller
+	// relies on) and a short description of what was actually there, for the reports above.
 	private async readBody(res: Response): Promise<{ body: Record<string, unknown>; parseFailure?: string }> {
 		let text: string;
 		try {
@@ -129,7 +129,7 @@ export class BaseSaasGatewayService {
 	}
 }
 
-// "— <message>" for the log line when the saas error body carries one; empty otherwise.
+// `"— <message>"` for the log line when the saas error body carries one; empty otherwise.
 export function describeSaasErrorBody(body: Record<string, unknown>): string {
 	const message = body?.message;
 	if (typeof message === 'string' && message.length) {

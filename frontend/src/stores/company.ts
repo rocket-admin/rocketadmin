@@ -3,7 +3,7 @@
 //
 // Angular pushed 'invited' | 'revoked' | 'role' | 'suspended' | 'unsuspended' | 'deleted' | 'domain'
 // through `company.cast` and CompanyComponent refetched on each. Here the store keeps the company,
-// its members and its custom domain as state, and each mutation refreshes the part it changed, so
+// its members and its custom domain as state. Each mutation refreshes the part it changed. So
 // the company page only renders `company`, `members` and `customDomain`.
 import { defineStore } from 'pinia';
 import { ref } from 'vue';

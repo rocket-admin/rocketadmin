@@ -9,7 +9,7 @@ export type OutgoingEmailPayloadType =
 
 /**
  * Email context a `/saas/*` bridge returns INSTEAD of sending the letter itself when the caller
- * sets `suppressEmail: true` (plan 15 Phase 2 — trigger inversion). The SaaS control plane builds
+ * sets `suppressEmail: true` (plan 15 Phase 2, trigger inversion). The SaaS control plane builds
  * the final link from `rawToken` and sends the email in-process. The raw token transits exactly
  * one internal HTTPS hop and must never be logged on either side.
  */

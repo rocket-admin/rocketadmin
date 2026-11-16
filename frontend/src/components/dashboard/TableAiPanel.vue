@@ -2,8 +2,8 @@
 /**
  * Port of db-table-view/db-table-ai-panel: the "AI insights" chat about the current table.
  *
- * - Empty chat: a question input with suggestion chips (Explore / Data Quality / Insights); a chip
- *   fills the input and opens its completions, hovering one previews it, picking one asks it.
+ * - Empty chat: a question input with suggestion chips (Explore / Data Quality / Insights). A chip
+ *   fills the input and opens its completions. A hover on one previews it, a pick of one asks it.
  * - The first question creates a thread (POST /ai/v4/request, thread id from the response header),
  *   later ones continue it. Answers stream in as NDJSON (`useAiStore`): `thinking` text is shown
  *   until the first `text` chunk, `thinking_commit` promotes it to the answer.
@@ -221,8 +221,8 @@ async function consumeStream(stream: AsyncGenerator<AiStreamChunk>) {
 
 /**
  * The Angular AI service showed a failed request and resolved null, so the chat added nothing. The
- * store throws the (already reported) ApiError instead; anything else, e.g. a broken stream, goes
- * into the chat as before.
+ * store throws the (already reported) ApiError instead. Anything else, for example a broken stream,
+ * goes into the chat as before.
  */
 function isReportedApiError(error: unknown): boolean {
 	return isApiError(error) && error.notified;

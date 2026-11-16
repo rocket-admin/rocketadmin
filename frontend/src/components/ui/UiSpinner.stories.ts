@@ -23,10 +23,10 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Unlabelled, so `aria-hidden` — the in-button case, where the button announces instead. */
+/** Unlabelled, so `aria-hidden`: the in-button case, where the button announces instead. */
 export const Default: Story = {};
 
-/** Labelled, so `role="status"` with a visually-hidden name — for a standalone page spinner. */
+/** Labelled, so `role="status"` with a visually-hidden name: for a standalone page spinner. */
 export const Labelled: Story = { args: { label: 'Loading websites' } };
 
 /** Inside a button, where it inherits the label colour on every variant. */

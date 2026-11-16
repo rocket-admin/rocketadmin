@@ -1,6 +1,6 @@
 // Port of ConfigurationStateService: runs the AI auto-configure setup stream for a connection
-// (GET /ai/v2/setup/:id, NDJSON progress events) and replays the events through a paced queue so
-// the progress log reads as a steady feed rather than arriving in bursts.
+// (GET /ai/v2/setup/:id, NDJSON progress events). It replays the events through a paced queue, so
+// the progress log reads as a steady feed and does not arrive in bursts.
 //
 // `progress$` (BehaviorSubject) is now the `progress` ref; the set of connections being configured
 // is reactive state, read through `isConfiguring(id)`.

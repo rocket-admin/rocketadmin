@@ -6,14 +6,14 @@ export interface SelectOption<T extends SelectValue = SelectValue> {
 	label: string;
 	disabled?: boolean;
 	/**
-	 * `UiSelect` only: the `<optgroup>` label this option sits under — the `mat-optgroup`
-	 * replacement. Consecutive options sharing a `group` render inside one `<optgroup>`; options
+	 * `UiSelect` only: the `<optgroup>` label this option sits under. It is the `mat-optgroup`
+	 * replacement. Consecutive options with the same `group` render inside one `<optgroup>`; options
 	 * without one render ungrouped. Ignored by `UiSegmented`.
 	 */
 	group?: string;
 }
 
-/** A `UiAutocomplete` suggestion. Any value type — a foreign key's row, a country record. */
+/** A `UiAutocomplete` suggestion. Any value type: a foreign key's row, a country record. */
 export interface AutocompleteOption<V = unknown> {
 	value: V;
 	label: string;

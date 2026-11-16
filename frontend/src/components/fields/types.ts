@@ -9,8 +9,8 @@
  *   `comparator-change`, `onCopyToClipboard` → `copy-to-clipboard`. A dynamic host binds them with
  *   `v-on="{ fieldChange: …, comparatorChange: … }"`.
  *
- * `value` is not in the base props: each widget declares its own `value` type (a string for text,
- * a boolean for a checkbox, …) so its template is type-checked against what it actually renders.
+ * `value` is not in the base props. Each widget declares its own `value` type (a string for text,
+ * a boolean for a checkbox, …). So its template is type-checked against what it actually renders.
  */
 import type { TableField, TableForeignKey, WidgetStructure } from '@/models/table';
 

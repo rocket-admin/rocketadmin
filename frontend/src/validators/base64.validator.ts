@@ -3,7 +3,7 @@ import { toRule, type ValidationErrors, type ValidationRule } from './types';
 
 export const BASE64_ERROR_MESSAGE = 'Invalid base64.';
 
-/** `{ isInvalidBase64: true }` for a non-empty value that isn't padded base64, otherwise `null`. */
+/** `{ isInvalidBase64: true }` for a non-empty value that is not padded base64, otherwise `null`. */
 export function base64Errors(value: unknown): ValidationErrors | null {
 	if (!value) return null;
 	const text = String(value);

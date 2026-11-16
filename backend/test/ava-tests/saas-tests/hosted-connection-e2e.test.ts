@@ -60,7 +60,7 @@ test.serial(`${currentTest} should create a hosted postgres connection with admi
 	try {
 		const { token } = await registerUserAndReturnUserInfo(app);
 
-		// Get user info to obtain userId and companyId
+		// Get user info to get userId and companyId
 		const getUserResult = await request(app.getHttpServer())
 			.get('/user')
 			.set('Content-Type', 'application/json')
@@ -73,7 +73,7 @@ test.serial(`${currentTest} should create a hosted postgres connection with admi
 
 		const saasToken = generateSaasToken();
 
-		// Create hosted connection via SaaS endpoint
+		// Create hosted connection through SaaS endpoint
 		const createHostedConnectionResult = await request(app.getHttpServer())
 			.post('/saas/connection/hosted')
 			.send({
@@ -99,7 +99,7 @@ test.serial(`${currentTest} should create a hosted postgres connection with admi
 		// Verify connection was created
 		t.truthy(connectionId);
 
-		// Verify connection is accessible via connection groups endpoint
+		// Verify connection is accessible through connection groups endpoint
 		const groupsResponse = await request(app.getHttpServer())
 			.get(`/connection/groups/${connectionId}`)
 			.set('Content-Type', 'application/json')

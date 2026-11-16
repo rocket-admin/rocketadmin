@@ -1,7 +1,7 @@
 // The dashboard's `SelectionModel<any>(true, [])` for the table rows. UiTable selects row *keys*
-// (so a selection survives a refetch); this keeps the row objects behind them as well, because the
-// bulk actions, the CSV export and the confirmation dialog need the selected rows' data — including
-// rows selected on another page, which SelectionModel kept too.
+// (so a selection survives a refetch). This keeps the row objects behind them as well. The reason:
+// the bulk actions, the CSV export and the confirmation dialog need the selected rows' data. That
+// includes rows selected on another page, which SelectionModel kept too.
 import { computed, reactive, ref, shallowRef } from 'vue';
 import type { TableRowKey } from '@/components/ui';
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-// Port of frontend/src/app/components/ui-components/turnstile (TurnstileComponent): renders the
-// Cloudflare Turnstile challenge once `window.turnstile` (loaded async by index.saas.html) exists,
-// polling for it for up to 5 s, and emits the token. `reset()` is exposed for callers that need a
+// Port of frontend/src/app/components/ui-components/turnstile (TurnstileComponent). It renders the
+// Cloudflare Turnstile challenge once `window.turnstile` (loaded async by index.saas.html) exists.
+// It polls for it for up to 5 s, and emits the token. `reset()` is exposed for callers that need a
 // fresh token after a failed submit.
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { environment } from '@/environment';
