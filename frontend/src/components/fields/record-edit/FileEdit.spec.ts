@@ -9,7 +9,7 @@ describe('FileEdit', () => {
 	it('defaults to hex and shows the value', () => {
 		const wrapper = mount(FileEdit, { props: { label: 'attachment', value: '48656c6c6f' } });
 		expect(wrapper.find('textarea').element.value).toBe('48656c6c6f');
-		expect((radio(wrapper, 0)?.element as HTMLInputElement).checked).toBe(true);
+		expect((radio(wrapper, 0)?.element as HTMLInputElement | undefined)?.checked).toBe(true);
 		expect(wrapper.text()).toContain('Attachment');
 	});
 
@@ -19,7 +19,7 @@ describe('FileEdit', () => {
 		expect(wrapper.emitted('fieldChange')).toEqual([['48656c6c6f']]);
 		await wrapper.find('textarea').setValue('zz');
 		expect(wrapper.text()).toContain('Invalid hex.');
-		expect((radio(wrapper, 1)?.element as HTMLInputElement).disabled).toBe(true);
+		expect((radio(wrapper, 1)?.element as HTMLInputElement | undefined)?.disabled).toBe(true);
 	});
 
 	it('converts hex to base64 when switching to Base64', async () => {
@@ -40,7 +40,7 @@ describe('FileEdit', () => {
 		await radio(wrapper, 1)?.setValue(true);
 		await wrapper.find('textarea').setValue('!!!invalid!!!');
 		expect(wrapper.text()).toContain('Invalid base64.');
-		expect((radio(wrapper, 0)?.element as HTMLInputElement).disabled).toBe(true);
+		expect((radio(wrapper, 0)?.element as HTMLInputElement | undefined)?.disabled).toBe(true);
 	});
 
 	it('uses the fixed type from widget params instead of the switcher', () => {
