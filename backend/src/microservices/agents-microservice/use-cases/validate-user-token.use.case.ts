@@ -26,10 +26,10 @@ export class ValidateUserTokenUseCase
 
 	protected async implementation(inputData: ValidateUserTokenDs): Promise<ValidatedUserTokenRO> {
 		const { token, allowScopes } = inputData;
-		// Plan 15 Phase 5: when the caller explicitly accepts the '2fa_enable' scope, validation
+		// Plan 15 Phase 5: the caller can explicitly accept the '2fa_enable' scope. Then validation
 		// deliberately MATCHES the core's NonScopedAuthMiddleware semantics EXACTLY (used by the
-		// core's own OTP-enrolment routes): the 2fa-scope rejection is skipped AND the suspension
-		// check is skipped too — NonScopedAuthMiddleware only verifies signature + logout blacklist,
+		// core's own OTP-enrolment routes). The 2fa-scope rejection is skipped AND the suspension
+		// check is skipped too. NonScopedAuthMiddleware only verifies signature + logout blacklist,
 		// without loading the user at all. Tighten both together if this ever changes.
 		const allow2faEnableScope = allowScopes?.includes(JwtScopesEnum.TWO_FA_ENABLE) === true;
 

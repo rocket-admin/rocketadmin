@@ -3,21 +3,21 @@ import { DataSource, QueryRunner } from 'typeorm';
 /**
  * Serialises self-service registrations of one email address (plan 53).
  *
- * The `user` table cannot carry a unique index on `email` (invitations legitimately create one
- * row per company for the same address, and existing duplicates stay), so "does this address
- * already have an account?" followed by the INSERT is a check-then-act race: a double submit,
+ * The `user` table cannot carry a unique index on `email`. Invitations legitimately create one
+ * row per company for the same address, and existing duplicates stay. So "does this address
+ * already have an account?" followed by the INSERT is a check-then-act race. A double submit,
  * two tabs, or two backend instances could each see "no account" and both insert. Two layers
- * close it, each covering what the other cannot:
+ * close it, and each one covers what the other cannot:
  *
- * - an in-process mutex keyed on the address — the same instance never interleaves two
- *   registrations of one address (this is also what a single-connection PGlite run relies on:
- *   a session advisory lock is re-entrant within one session, so it alone would not serialise
- *   two concurrent callers sharing that session);
+ * - an in-process mutex keyed on the address. The same instance never interleaves two
+ *   registrations of one address. A single-connection PGlite run also relies on this mutex.
+ *   A session advisory lock is re-entrant within one session, so it alone would not serialise
+ *   two concurrent callers that share that session.
  * - a Postgres session advisory lock (`pg_advisory_lock(hashtext(email))`) held on a dedicated
- *   query runner — instances behind a load balancer serialise on the database.
+ *   query runner. Instances behind a load balancer serialise on the database.
  *
- * Only the lookup + insert belong inside `fn`; everything that needs the new row but not the
- * address (demo data, company join, audit) stays outside so the lock is held for milliseconds.
+ * Only the lookup + insert belong inside `fn`. Everything that needs the new row but not the
+ * address (demo data, company join, audit) stays outside, so the lock is held for milliseconds.
  */
 const inProcessLocks = new Map<string, Promise<void>>();
 
@@ -60,8 +60,8 @@ function createTurn(): { current: Promise<void>; release: () => void } {
 }
 
 async function withDatabaseLock<T>(dataSource: DataSource, key: string, fn: () => Promise<T>): Promise<T> {
-	// A dedicated runner pins one connection for the lock's lifetime: session advisory locks belong
-	// to the connection that took them, and the pool would otherwise hand the unlock to another one.
+	// A dedicated runner pins one connection for the lock's lifetime. Session advisory locks belong
+	// to the connection that took them. Otherwise the pool would hand the unlock to another one.
 	const runner: QueryRunner = dataSource.createQueryRunner();
 	await runner.connect();
 	try {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Port of frontend/src/app/components/password-request. Like login, "Next" looks up the email's
-// companies first (one is picked automatically, several show a picker), then "Reset my password"
+// companies first (one is picked automatically, several show a picker). Then "Reset my password"
 // asks for the reset email (POST /user/password/reset/request; the store shows "Check your email.").
 import { computed, ref } from 'vue';
 import { isValidEmail } from '@/components/auth/validity';

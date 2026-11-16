@@ -5,9 +5,9 @@ import { readTokens, resolveToken } from './readTokens';
 /**
  * A grid of colour swatches for one token prefix, or for an explicit subset of it.
  *
- * The swatch itself is painted with `var(--token)` rather than the resolved hex, so what you see is
- * genuinely what the theme produces — if the alias chain breaks, the swatch goes transparent and
- * the page shows the bug instead of hiding it behind a copied literal.
+ * The swatch itself is painted with `var(--token)` and not the resolved hex. So what you see is
+ * genuinely what the theme produces. If the alias chain breaks, the swatch goes transparent. The
+ * page then shows the bug and does not hide it behind a copied literal.
  */
 const props = withDefaults(
 	defineProps<{
@@ -15,7 +15,7 @@ const props = withDefaults(
 		prefix: string;
 		/** Restrict to these exact token names, in this order. Omit to show the whole prefix. */
 		only?: string[];
-		/** Draw a hairline border on each swatch — needed for near-white surfaces. */
+		/** Draw a hairline border on each swatch. Near-white surfaces need it. */
 		bordered?: boolean;
 	}>(),
 	{ bordered: false },

@@ -2,7 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 // Decrypted connection credentials handed to the universal-backend service so it can open the
 // customer database itself (with Knex). Serving this over the microservice-JWT channel keeps the
-// core the sole owner of credential storage/decryption; the satellite never sees the core DB or
+// core the sole owner of credential storage/decryption. The satellite never sees the core DB or
 // the encryption keys. Same trust level as the existing write-capable raw-query edge.
 export class SitenovaDecryptedConnectionRO {
 	@ApiProperty()

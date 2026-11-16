@@ -8,7 +8,7 @@ import { createMemoryHistory, createRouter, type Router, RouterView } from 'vue-
 const Blank = defineComponent({ render: () => h('div', { 'data-testid': 'blank-page' }) });
 
 /**
- * Mounts `view` as the page of `pattern` (e.g. '/dashboard/:connectionId/:tableName/widgets'),
+ * Mounts `view` as the page of `pattern` (for example '/dashboard/:connectionId/:tableName/widgets'),
  * navigated to `url`, under a memory router whose other paths render a blank page. Activates a
  * fresh Pinia and waits for lazily imported components.
  */

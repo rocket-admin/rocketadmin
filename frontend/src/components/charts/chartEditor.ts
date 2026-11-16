@@ -1,6 +1,6 @@
-// The panel editor's chart configuration, pulled out of ChartEditView so the series and advanced
-// option sections can live in their own components (they inject it) and the option round-trip can
-// be tested without a page. Port of the chart config signals, `currentWidgetOptions`, the series and
+// The panel editor's chart configuration, pulled out of ChartEditView. The series and advanced
+// option sections can then live in their own components (they inject it). And a test can check the
+// option round-trip without a page. Port of the chart config signals, `currentWidgetOptions`, the series and
 // palette helpers, and the two "apply saved options" blocks of chart-edit.component.ts.
 import { computed, type InjectionKey, inject, provide, ref } from 'vue';
 import type { SelectOption } from '@/components/ui';

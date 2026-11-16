@@ -1,6 +1,6 @@
 // An in-memory stand-in for the RocketAdmin API. Every request the app sends to /api is answered
-// here, against state that create/update/delete calls really change, so a test can add a row and
-// then see it in the table. Specs read `calls` to check what was sent and use `override()` to make
+// here. The answers use state that create/update/delete calls really change. So a test can add a
+// row and then see it in the table. Specs read `calls` to check what was sent and use `override()` to make
 // a single endpoint fail or answer differently.
 import type { Page, Request, Route } from '@playwright/test';
 import { createInitialState, type Doc, type MockState, type Row } from './fixtures';

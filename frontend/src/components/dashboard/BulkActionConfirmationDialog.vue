@@ -1,10 +1,10 @@
 <script setup lang="ts">
 // Port of db-table-view/db-bulk-action-confirmation-dialog (BbBulkActionConfirmationDialogComponent):
 // confirms a custom action that requires confirmation, or deleting rows, listing the rows by their
-// identity field (or primary key). With an action `id` it activates that action — and shows the
-// link dialog when the action answers with a location; without one it deletes the row (one key)
+// identity field (or primary key). With an action `id` it activates that action. It also shows the
+// link dialog when the action answers with a location. Without one it deletes the row (one key)
 // or the rows (several). Closes with `true` once the request succeeded (the row edit page then
-// goes back to the table) and without a result when it failed — Angular closed on both.
+// goes back to the table). Closes without a result when it failed. Angular closed on both.
 import { computed, ref } from 'vue';
 import AppDialog from '@/components/dialog/AppDialog.vue';
 import { UiButton } from '@/components/ui';

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-// Port of frontend/src/app/components/dashboards/panel-edit-dialog: adds a panel (a saved query) to
-// a dashboard, or swaps the query of an existing one, and closes with `true` so the dashboard
+// Port of frontend/src/app/components/dashboards/panel-edit-dialog. It adds a panel (a saved query)
+// to a dashboard, or swaps the query of an existing one. It closes with `true` so the dashboard
 // reloads. "Create new query" leaves for the panel editor instead.
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';

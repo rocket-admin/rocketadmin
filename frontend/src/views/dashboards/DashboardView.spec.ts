@@ -6,7 +6,7 @@ import type { Dashboard } from '@/models/dashboard';
 import type { SavedQuery } from '@/models/saved-query';
 import DashboardView from './DashboardView.vue';
 
-// grid-layout-plus measures the DOM, which jsdom doesn't lay out: render the items as plain boxes.
+// grid-layout-plus measures the DOM, which jsdom does not lay out: render the items as plain boxes.
 vi.mock('grid-layout-plus', async () => {
 	const { defineComponent, h } = await import('vue');
 	return {

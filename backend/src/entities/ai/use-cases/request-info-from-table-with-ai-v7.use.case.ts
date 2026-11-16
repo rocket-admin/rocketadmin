@@ -352,8 +352,8 @@ export class RequestInfoFromTableWithAIUseCaseV7
 			dao.getReferencedTableNamesAndColumns(tableName, userEmail),
 		]);
 
-		// Only expose the structure of related tables the user is permitted to
-		// read — otherwise foreign-key traversal would leak the schema of tables
+		// Only expose the structure of related tables that the user is permitted to
+		// read. Otherwise the foreign-key traversal would leak the schema of tables
 		// the user has no access to. One batched permission check covers both
 		// directions of the relation.
 		const referencedByTableNames = referencedTableNamesAndColumns.flatMap((referencedTable) =>
@@ -388,9 +388,9 @@ export class RequestInfoFromTableWithAIUseCaseV7
 	}
 
 	/**
-	 * Verifies the user has read permission on every supplied table before the
+	 * Verifies that the user has read permission on every supplied table before the
 	 * AI is allowed to query or inspect them. Throws a `ForbiddenException` on
-	 * the first unreadable table; inside the tool loop this surfaces back to the
+	 * the first unreadable table. Inside the tool loop, this surfaces back to the
 	 * model as a tool error, so the offending query is never executed. Empty or
 	 * blank names are ignored.
 	 */
@@ -417,11 +417,11 @@ export class RequestInfoFromTableWithAIUseCaseV7
 	}
 
 	/**
-	 * Guards a MongoDB aggregation pipeline against table-level read permissions:
-	 * the user must be able to read the base collection and every collection the
+	 * Guards a MongoDB aggregation pipeline against table-level read permissions.
+	 * The user must be able to read the base collection and every collection that the
 	 * pipeline pulls in (`$lookup` / `$graphLookup` / `$unionWith`). When the
-	 * pipeline cannot be parsed we cannot trust it to be harmless, so we fall
-	 * back to requiring read permission on every collection in the connection.
+	 * pipeline cannot be parsed, we cannot trust it to be harmless. Then we fall
+	 * back and require read permission on every collection in the connection.
 	 */
 	private async assertUserCanReadPipelineCollections(
 		pipeline: string,

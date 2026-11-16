@@ -1,4 +1,4 @@
-// biome lints and formats TS/JS; ESLint covers what biome can't see inside .vue single-file components.
+// biome lints and formats TS/JS; ESLint covers what biome cannot see inside .vue single-file components.
 import pluginVue from 'eslint-plugin-vue';
 import tseslint from 'typescript-eslint';
 

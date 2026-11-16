@@ -91,7 +91,7 @@ export function validateProposedDdl(opts: ValidateProposedDdlOptions): void {
 
 	// MongoDB schema changes are emitted as structured JSON, not SQL. Parsing them with
 	// node-sql-parser is meaningless (and will always fall through to the warn path),
-	// and the AST/target-table checks below don't apply. Richer shape validation runs
+	// and the AST/target-table checks below do not apply. Richer shape validation runs
 	// in validateProposedMongoOp, which the use-cases call for Mongo dispatch.
 	if (isMongoSchemaChangeType(changeType)) {
 		return;
@@ -102,11 +102,11 @@ export function validateProposedDdl(opts: ValidateProposedDdlOptions): void {
 	try {
 		ast = parser.astify(trimmed, { database: connectionTypeToParserDialect(connectionType) });
 	} catch (err) {
-		// AST shape verification is defense-in-depth, not the only gate:
-		// the forbidden-construct regex and single-statement check above have already run,
-		// and the DB itself rejects invalid DDL with auto-rollback. node-sql-parser's grammar
-		// doesn't cover every dialect feature (GENERATED AS IDENTITY, EXCLUDE, PARTITION BY,
-		// INHERITS, TABLESPACE, vendor-specific types), so we log and fall through rather than
+		// AST shape verification is defense-in-depth, not the only gate.
+		// The forbidden-construct regex and single-statement check above already ran.
+		// The DB itself rejects invalid DDL with auto-rollback. The grammar of node-sql-parser
+		// does not cover every dialect feature (GENERATED AS IDENTITY, EXCLUDE, PARTITION BY,
+		// INHERITS, TABLESPACE, vendor-specific types). So we log and fall through rather than
 		// block legitimate statements.
 		// eslint-disable-next-line no-console
 		console.warn(

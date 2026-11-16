@@ -1,6 +1,6 @@
-// The logic of db-tables-list (DbTablesListComponent): the sidebar's table folders — expand and
-// collapse (remembered in the UI settings), search, add/edit/delete, drag a table into a folder,
-// reorder tables inside one — and the collapsed sidebar's folder rail. Every change to the folders
+// The logic of db-tables-list (DbTablesListComponent): the sidebar's table folders and the collapsed
+// sidebar's folder rail. The folder actions are expand and collapse (remembered in the UI settings),
+// search, add/edit/delete, drag a table into a folder, reorder tables inside one. Every change to the folders
 // is saved through PUT /table-categories.
 import { computed, type MaybeRefOrGetter, reactive, ref, toValue } from 'vue';
 import { normalizeTableName } from '@/lib/normalize';
@@ -142,7 +142,7 @@ export function useTableFolders(options: TableFoldersOptions) {
 	function toggleFolder(folderId: string): void {
 		const folder = folders.value.find((candidate) => candidate.id === folderId);
 		if (!folder) return;
-		// "All tables" can't be collapsed while it is the only folder.
+		// "All tables" cannot be collapsed while it is the only folder.
 		if (folder.id === ALL_TABLES_FOLDER_ID && folder.expanded && !hasCustomFolders()) return;
 		folder.expanded = !folder.expanded;
 		const expandedFolders = folders.value.filter((candidate) => candidate.expanded).map((candidate) => candidate.id);

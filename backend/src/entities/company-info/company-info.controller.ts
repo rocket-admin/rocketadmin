@@ -464,8 +464,8 @@ export class CompanyInfoController {
 		return await this.unSuspendUsersInCompanyUseCase.execute({ companyInfoId, usersEmails }, InTransactionEnum.ON);
 	}
 
-	// TEMPORARY (plan 46): white label is retired; the deployed Angular shell still requests this on
-	// every load, so answer with empty properties (default logo / favicon / title) instead of a 404.
+	// TEMPORARY (plan 46): white label is retired. The deployed Angular shell still requests this on
+	// every load. So answer with empty properties (default logo / favicon / title) instead of a 404.
 	// Remove once the frontend stops calling it. No use case, no database access.
 	@ApiOperation({ summary: '[temporary] Company white label properties — always empty (white label retired)' })
 	@ApiResponse({

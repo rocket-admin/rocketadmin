@@ -55,7 +55,7 @@ export function toAngularRoutePath(path: string): string {
 }
 
 /**
- * Renames the transaction and the route-param attributes the Vue router integration sets, and drops
+ * Renames the transaction and the route-param attributes the Vue router integration sets. It also drops
  * its `query.*` attributes: they carry filters, searches and primary-key values that Angular never sent.
  */
 export function toAngularSentryEvent<T extends Event>(event: T): T {

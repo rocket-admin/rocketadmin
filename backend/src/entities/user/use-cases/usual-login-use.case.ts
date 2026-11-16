@@ -148,7 +148,7 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
 			throw new BadRequestException(Messages.INVALID_REQUEST_DOMAIN_FORMAT);
 		}
 
-		// Plan 46: custom domains are retired — only the product hostnames are accepted.
+		// Plan 46: custom domains are retired. Only the product hostnames are accepted.
 		throw new BadRequestException(Messages.INVALID_REQUEST_DOMAIN);
 	}
 }

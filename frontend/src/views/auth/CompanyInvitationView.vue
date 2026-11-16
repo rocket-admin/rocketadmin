@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // Port of frontend/src/app/components/company-member-invitation: the emailed invitation link
-// (/company/:companyId/verify/:verificationToken). Checks the link while showing the skeleton; a
-// dead link gets the "invalid" banner, a live one asks for a password and a display name, and
-// joining starts a session and goes to /connections-list.
+// (/company/:companyId/verify/:verificationToken). Checks the link while it shows the skeleton. A
+// dead link gets the "invalid" banner. A live one asks for a password and a display name. The join
+// starts a session and goes to /connections-list.
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { trackAuthEvent } from '@/components/auth/analytics';

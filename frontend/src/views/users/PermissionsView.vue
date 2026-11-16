@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Port of frontend/src/app/components/users (UsersComponent), the `/permissions/:connectionId`
-// page: the connection's user groups with their members, the public-access panel, and the entry
-// points to the group, member and Cedar policy dialogs and to "view as group".
+// page. It shows the connection's user groups with their members and the public-access panel. It
+// also has the entry points to the group, member and Cedar policy dialogs and to "view as group".
 import { differenceBy } from 'lodash-es';
 import { computed, reactive, ref, watch, watchEffect } from 'vue';
 import { useRouter } from 'vue-router';

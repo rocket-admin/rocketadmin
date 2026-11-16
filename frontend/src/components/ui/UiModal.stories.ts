@@ -7,9 +7,9 @@ import UiModal from './UiModal.vue';
  * Modal dialog on the native `<dialog>` element.
  *
  * `showModal()` supplies focus trapping, `::backdrop`, top-layer stacking, Escape and `inert` on
- * the rest of the page — all from the browser. That is why `@headlessui/vue` was dropped in Phase 3:
- * its `Dialog` reimplements in JS what the platform now does natively, and a hand-rolled focus trap
- * is the most bug-prone code in any design system.
+ * the rest of the page. All of it comes from the browser. That is why `@headlessui/vue` was dropped
+ * in Phase 3. Its `Dialog` reimplements in JS what the platform now does natively. A hand-rolled
+ * focus trap is the most bug-prone code in any design system.
  *
  * Open the stories below and try Tab (focus stays inside), Escape, and a backdrop click.
  */
@@ -51,7 +51,7 @@ export const Default: Story = {
 	}),
 };
 
-/** The wider size, for content that needs the room — a form rather than a sentence. */
+/** The wider size, for content that needs the room: a form rather than a sentence. */
 export const Medium: Story = {
 	args: { size: 'md', title: 'Website settings' },
 	render: Default.render,

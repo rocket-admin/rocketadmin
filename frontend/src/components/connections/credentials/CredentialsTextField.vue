@@ -1,7 +1,7 @@
 <script setup lang="ts">
-// A text, number, password or multi-line field bound to one connection property, with the
-// credentials forms' common behaviour: readonly / disabled rules, touched and dirty tracking, the
-// "should not be empty" error, the autofilled look and the "<field> is edited" analytics event.
+// A text, number, password or multi-line field bound to one connection property. It has the
+// credentials forms' common behaviour. That is the readonly / disabled rules, touched and dirty
+// tracking, the "should not be empty" error, the autofilled look and the "<field> is edited" analytics event.
 import { computed } from 'vue';
 import { UiInput, UiTextarea } from '@/components/ui';
 import CredentialsField from './CredentialsField.vue';

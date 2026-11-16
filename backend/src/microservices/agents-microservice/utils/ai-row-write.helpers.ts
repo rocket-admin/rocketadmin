@@ -16,8 +16,8 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { compareArrayElements } from '../../../helpers/compare-array-elements.js';
 
 // Shared steps of the three AI row-write use cases (sitenova plan 85). The chat data agent writes
-// rows on behalf of a RocketAdmin user, so each write gets the checks the admin panel's own row
-// routes apply: the table-level Cedar action, the table existence, the view rule, and the
+// rows on behalf of a RocketAdmin user. So each write gets the checks of the admin panel's own row
+// routes. They are the table-level Cedar action, the table existence, the view rule, and the
 // per-table `can_add` / `can_update` / `can_delete` settings.
 
 const logger = new Logger('AgentsAiRowWrite');
@@ -128,8 +128,8 @@ export function primaryKeyIndexKey(row: Record<string, unknown>, primaryColumnNa
 	return primaryColumnNames.map((column) => String(row[column])).join('\u0000');
 }
 
-// Reads the rows behind the keys (the audit log's "old data") and refuses the whole call when a
-// key names no row, so a write never silently skips a row the agent reported as changed.
+// Reads the rows behind the keys (the audit log's "old data"). Refuses the whole call when a
+// key names no row. So a write never silently skips a row that the agent reported as changed.
 export async function loadRowsForAiPrimaryKeys(
 	dao: IDataAccessObject | IDataAccessObjectAgent,
 	tableName: string,

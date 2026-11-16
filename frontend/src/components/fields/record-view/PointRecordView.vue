@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
- * Port of record-view-fields/point (`PointRecordViewComponent`): a geometric point — `"(x,y)"`,
- * `"x,y"`, `{ x, y }` or `[x, y]` — as `(x, y)`. Nothing is rendered for an empty value.
+ * Port of record-view-fields/point (`PointRecordViewComponent`): a geometric point as `(x, y)`.
+ * The input is `"(x,y)"`, `"x,y"`, `{ x, y }` or `[x, y]`. Nothing is rendered for an empty value.
  */
 import { computed } from 'vue';
 import type { RecordViewFieldProps, ViewFieldEmits } from '../types';

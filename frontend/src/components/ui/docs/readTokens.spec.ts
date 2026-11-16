@@ -3,7 +3,7 @@ import { readTokens, resolveToken } from './readTokens';
 
 /**
  * Guards the CSS parse behind the Foundations docs. Without these, a theme.css reformat that broke
- * the regex would leave every swatch grid silently empty — the docs would look "fine", just blank.
+ * the regex would leave every swatch grid silently empty. The docs would look "fine", just blank.
  */
 describe('readTokens', () => {
 	it('finds every token group', () => {

@@ -52,7 +52,7 @@ export class SitenovaLoginEndUserUseCase
 		);
 		const row = found.data && found.data.length > 0 ? found.data[0] : null;
 
-		// Generic failure for both "no such user" and "wrong password" — never leak which.
+		// Generic failure for both "no such user" and "wrong password". Never leak which.
 		const valid = row ? await Encryptor.verifyUserPassword(password, row[passwordField] as string) : false;
 		if (!row || !valid) {
 			throw new UnauthorizedException('Invalid email or password.');

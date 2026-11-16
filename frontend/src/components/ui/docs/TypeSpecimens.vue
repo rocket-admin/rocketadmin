@@ -4,11 +4,11 @@ import SpecimenList from './SpecimenList.vue';
 
 /**
  * The four typography specimen grids. Each renders the same sample string at every step of one
- * scale, which is the only way to judge whether a scale's steps are actually distinguishable — a
- * table of rem values isn't.
+ * scale. That is the only way to judge whether the steps of a scale are actually distinguishable.
+ * A table of rem values is not.
  *
- * These live in a Vue component rather than inline in the MDX because MDX compiles to React here:
- * a `.vue` component referenced from MDX is handed to `React.jsx()` and throws. The supported
+ * These live in a Vue component and not inline in the MDX, because MDX compiles to React here.
+ * A `.vue` component referenced from MDX goes to `React.jsx()` and throws. The supported
  * bridge is a story, so every Foundations visual is a story in `foundations.stories.ts` wrapping
  * one of these components.
  */

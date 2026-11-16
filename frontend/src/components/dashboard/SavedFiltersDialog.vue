@@ -1,12 +1,12 @@
 <script setup lang="ts">
 /**
- * Port of saved-filters-panel/saved-filters-dialog: creates or edits a saved ("fast") filter — a
- * name, conditions (one card per column: comparator + value widget), and optionally one
- * "quick editing" column whose value is typed from the table view instead of being saved.
+ * Port of saved-filters-panel/saved-filters-dialog: creates or edits a saved ("fast") filter. A
+ * filter has a name and conditions (one card per column: comparator + value widget). Optionally it has
+ * one "quick editing" column whose value is typed from the table view instead of being saved.
  *
  * Opened by SavedFiltersPanel with `useDialog().open(SavedFiltersDialog, { data })`. Closes with
- * `true` once the filter is created, updated or removed (the tables store announces it through
- * `tableEvents`, which the panel listens to); Cancel and Escape close with `undefined`. Errors are
+ * `true` once the filter is created, updated or removed. The tables store announces it through
+ * `tableEvents`, which the panel listens to. Cancel and Escape close with `undefined`. Errors are
  * shown by the store and leave the dialog open.
  */
 import posthog from 'posthog-js';

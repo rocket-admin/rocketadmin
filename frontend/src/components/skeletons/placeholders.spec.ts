@@ -21,9 +21,9 @@ import PlaceholderUserGroup from './PlaceholderUserGroup.vue';
 import PlaceholderUserGroups from './PlaceholderUserGroups.vue';
 
 /**
- * One spec for all 17 skeleton screens. Each asserts the contract that matters — the screen
- * announces once, and none of its bars do — plus the structure it fakes, counted in bars, so a
- * placeholder can't silently drift away from the page it stands in for. Appearance is Storybook's.
+ * One spec for all 17 skeleton screens. Each asserts the contract that matters: the screen
+ * announces once, and none of its bars do. Each also asserts the structure it fakes, counted in
+ * bars. So a placeholder cannot silently drift away from the page it stands in for. Appearance is Storybook's.
  */
 const PLACEHOLDERS: Array<[string, Component, number]> = [
 	['PlaceholderAddUserDialog', PlaceholderAddUserDialog, 5],

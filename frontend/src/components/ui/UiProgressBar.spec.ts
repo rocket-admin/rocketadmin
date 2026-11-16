@@ -2,15 +2,15 @@ import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 import UiProgressBar from './UiProgressBar.vue';
 
-/** The fill's inline width is the rendered percentage — the one CSS value worth asserting here,
- *  because it *is* the arithmetic under test rather than an appearance choice. */
+/** The fill's inline width is the rendered percentage. It is the one CSS value worth asserting here,
+ *  because it *is* the arithmetic under test and not an appearance choice. */
 function fillWidth(wrapper: ReturnType<typeof mount>): string | undefined {
 	return wrapper.find('.ui-progress-bar__fill').attributes('style');
 }
 
 describe('UiProgressBar', () => {
 	it('exposes itself to assistive tech', () => {
-		// The bar it replaces has none of this — a screenreader user gets no sense of the budget.
+		// The bar it replaces has none of this: a screenreader user gets no sense of the budget.
 		const wrapper = mount(UiProgressBar, {
 			props: { value: 7, max: 10, label: 'Websites generated today' },
 		});
@@ -45,7 +45,7 @@ describe('UiProgressBar', () => {
 
 	it('renders an empty bar rather than NaN% when max is not positive', () => {
 		// AccountView guarded `limit > 0` at the call site; the primitive owns that guard now, so the
-		// next caller can't forget it.
+		// next caller cannot forget it.
 		for (const max of [0, -5]) {
 			const wrapper = mount(UiProgressBar, { props: { value: 5, max, label: 'Usage' } });
 

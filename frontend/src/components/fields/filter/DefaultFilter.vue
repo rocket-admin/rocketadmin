@@ -1,8 +1,8 @@
 <script setup lang="ts">
 /**
- * Port of filter-fields/default-filter (`DefaultFilterComponent`): the comparator select hosts put
- * around a "simple" value widget (comparator family `text`, `number` or `datetime`, see
- * `comparatorType.ts` / `usesDefaultFilter()`), and that widget rendered through `<component :is>`
+ * Port of filter-fields/default-filter (`DefaultFilterComponent`). It is the comparator select that
+ * hosts put around a "simple" value widget (comparator family `text`, `number` or `datetime`, see
+ * `comparatorType.ts` / `usesDefaultFilter()`). It renders that widget through `<component :is>`
  * (the Angular `ndc-dynamic`).
  *
  * - `text` widgets get starts with / ends with / equal / contains / not contains / is empty;

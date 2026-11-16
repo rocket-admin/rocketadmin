@@ -186,7 +186,7 @@ test.serial(`${currentTest} - should return list of company secrets`, async (t) 
 });
 
 test.serial(`${currentTest}?search=test - should filter secrets by slug`, async (t) => {
-	// Create user with secrets that include 'test' in the slug and one that doesn't
+	// Create user with secrets that include 'test' in the slug and one that does not
 	const { token } = await setupUserWithSecrets([
 		{ slug: 'test-search-key', value: 'value1' },
 		{ slug: 'another-test-key', value: 'value2' },

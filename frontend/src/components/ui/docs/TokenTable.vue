@@ -3,17 +3,17 @@ import { computed } from 'vue';
 import { readTokens, resolveToken, type Token } from './readTokens';
 
 /**
- * The shared table behind most Foundations pages: one row per token, with the declared value, the
- * value it resolves to through the alias layer, and the trailing comment from theme.css.
+ * The shared table behind most Foundations pages: one row per token. Each row has the declared
+ * value, the value it resolves to through the alias layer, and the trailing comment from theme.css.
  *
- * Every Foundations grid is driven by `readTokens()` rather than a hand-written list, so a token
- * added to theme.css shows up in the docs on the next reload with nothing else to update.
+ * Every Foundations grid is driven by `readTokens()` and not by a hand-written list. So a token
+ * added to theme.css shows up in the docs on the next reload, with nothing else to update.
  */
 const props = withDefaults(
 	defineProps<{
 		/** Token prefix to enumerate, including the leading `--`. Ignored when `only` is given. */
 		prefix?: string;
-		/** Exact token names, in this order. Use for groups that don't share one prefix. */
+		/** Exact token names, in this order. Use for groups that do not share one prefix. */
 		only?: string[];
 		/** Show the resolved literal in its own column. Off for groups that hold no aliases. */
 		resolved?: boolean;
@@ -32,7 +32,7 @@ const rows = computed<Row[]>(() => {
 	return tokens.map((token) => ({ ...token, resolvedValue: resolveToken(token.name) }));
 });
 
-/** Only worth a column when at least one row is an alias — otherwise it duplicates `value`. */
+/** Only worth a column when at least one row is an alias. Otherwise it duplicates `value`. */
 const showResolved = computed(() => props.resolved && rows.value.some((row) => row.value !== row.resolvedValue));
 </script>
 

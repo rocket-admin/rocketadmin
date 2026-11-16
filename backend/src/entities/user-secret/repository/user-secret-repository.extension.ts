@@ -4,11 +4,11 @@ import { IUserSecretRepository } from './user-secret-repository.interface.js';
 
 export const userSecretRepositoryExtension: IUserSecretRepository = {
 	/**
-	 * Atomically provisions a secret the first time it is needed and returns whichever row exists
-	 * afterwards — the one just inserted or the one a concurrent caller inserted first.
-	 * `user_secrets (companyId, slug)` is UNIQUE; a read-then-insert races with itself when several
-	 * requests provision the same slug at once (e.g. the universal-backend instances all fetching a
-	 * fresh site's end-user signing key on its first page load) and the losers fail with
+	 * Atomically provisions a secret the first time it is needed. Then it returns whichever row exists:
+	 * the one just inserted or the one a concurrent caller inserted first.
+	 * `user_secrets (companyId, slug)` is UNIQUE. A read-then-insert races with itself when several
+	 * requests provision the same slug at once. For example, all universal-backend instances fetch a
+	 * fresh site's end-user signing key on its first page load. Then the losers fail with
 	 * `duplicate key value violates unique constraint "IDX_f39a47aac503fe096b0c77f2b3"`.
 	 * `INSERT … ON CONFLICT DO NOTHING` + re-read makes every caller land on the single row.
 	 */

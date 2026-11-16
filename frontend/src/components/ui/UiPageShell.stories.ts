@@ -4,7 +4,7 @@ import UiPageShell from './UiPageShell.vue';
 
 /**
  * The page wrapper, replacing 9 duplicated backgrounds and the 8 width boxes they always wrapped.
- * `layout: 'fullscreen'` here because the component *is* the page — padding it inside Storybook's
+ * `layout: 'fullscreen'` here because the component *is* the page. Padding inside Storybook's
  * default frame would misrepresent it.
  *
  * The background toolbar is redundant for these stories: the shell paints `--color-paper` itself,
@@ -62,7 +62,7 @@ export const AuthPage: Story = {
 	}),
 };
 
-/** `full` for a page that manages its own column — the split-pane views. */
+/** `full` for a page that manages its own column: the split-pane views. */
 export const FullWidth: Story = { args: { width: 'full' } };
 
 /** Every alignment × width. The visible difference is where the column starts and how wide it is. */

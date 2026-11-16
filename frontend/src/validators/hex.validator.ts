@@ -3,7 +3,7 @@ import { toRule, type ValidationErrors, type ValidationRule } from './types';
 
 export const HEX_ERROR_MESSAGE = 'Invalid hex.';
 
-/** `{ isInvalidHex: true }` for a non-empty value that isn't an even-length hex string, otherwise `null`. */
+/** `{ isInvalidHex: true }` for a non-empty value that is not an even-length hex string, otherwise `null`. */
 export function hexErrors(value: unknown): ValidationErrors | null {
 	if (!value) return null;
 	const text = String(value);

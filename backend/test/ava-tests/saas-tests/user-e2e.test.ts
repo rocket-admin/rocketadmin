@@ -30,10 +30,10 @@ let app: INestApplication;
 let currentTest: string;
 let _testUtils: TestUtils;
 
-// Plan 53: self-service registration of an address that already has an account is rejected, so
-// the multi-company cases below can no longer register the same email twice through the saas.
-// The second membership is inserted the way it exists in production — an invitation-era /
-// legacy duplicate row in another company — which is exactly what the rule leaves untouched.
+// Plan 53: the saas rejects self-service registration of an address that already has an account.
+// So the multi-company cases below can no longer register the same email twice through the saas.
+// The second membership is inserted the way it exists in production: an invitation-era /
+// legacy duplicate row in another company. The rule leaves exactly that untouched.
 async function addExistingMembershipInAnotherCompany(email: string, password: string): Promise<void> {
 	const dataSource = app.get<DataSource>(BaseType.DATA_SOURCE);
 	const companyRepository = dataSource.getRepository(CompanyInfoEntity);
@@ -347,7 +347,7 @@ test.serial(`${currentTest} should toggle test connections display mode`, async 
 	t.is(toggleTestConnectionsDisplayModeResult.status, 200);
 	t.truthy(toggleTestConnectionsDisplayModeRO.success);
 
-	//get user connections (test connections shouldn't be included)
+	//get user connections (test connections must not be included)
 
 	const getUserConnectionsResultAfterToggleMode = await request(app.getHttpServer())
 		.get('/connections')

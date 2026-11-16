@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * A small count or dot pinned to the top-end corner of whatever it wraps — the `matBadge`
+ * A small count or dot pinned to the top-end corner of whatever it wraps: the `matBadge`
  * replacement. RocketAdmin's one real use is the "1" on the account button and menu item while the
  * user's email is unverified, toggled with `hidden`.
  *
@@ -8,8 +8,8 @@
  * count next to a label.
  *
  * The indicator itself is `aria-hidden`: "1" floating after a button name means nothing to a
- * screenreader. Say what it means with `label` (rendered as visually hidden text), or — inside a
- * `UiIconButton`, whose `aria-label` overrides its content — with the button's `badgeLabel`.
+ * screenreader. Say what it means with `label` (rendered as visually hidden text). Inside a
+ * `UiIconButton`, the `aria-label` overrides its content, so use the button's `badgeLabel` there.
  */
 import { computed } from 'vue';
 
@@ -23,7 +23,7 @@ const props = withDefaults(
 		hidden?: boolean;
 		/** Status colour. Non-interactive, so this is `tone`, not `variant`. */
 		tone?: 'accent' | 'danger' | 'neutral';
-		/** What the badge means to a screenreader, e.g. "Email not verified". Visually hidden. */
+		/** What the badge means to a screenreader, for example "Email not verified". Visually hidden. */
 		label?: string;
 	}>(),
 	{ max: 99, hidden: false, tone: 'accent' },
@@ -81,8 +81,8 @@ const indicatorClasses = computed(() => [
   pointer-events: none;
 }
 
-/* Over the wrapped element: pinned to the top-end corner, overhanging it by half its size, with a
-   surface-coloured ring so it separates from an icon of the same colour. */
+/* Over the wrapped element: pinned to the top-end corner, and it overhangs it by half its size.
+   A surface-coloured ring separates it from an icon of the same colour. */
 .ui-badge--overlay > .ui-badge__indicator {
   position: absolute;
   top: 0;

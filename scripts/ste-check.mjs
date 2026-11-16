@@ -533,11 +533,21 @@ const bannedMatchers = BANNED.map(([phrase, suggestion]) => ({
 	re: new RegExp(`(?<![\\p{L}\\p{N}_-])${escapeRegex(phrase)}(?![\\p{L}\\p{N}_-])`, 'giu'),
 }));
 
-const contractionMatchers = CONTRACTIONS.map(([phrase, suggestion]) => ({
-	phrase,
-	suggestion,
-	re: new RegExp(`(?<![\\p{L}\\p{N}_])${escapeRegex(phrase).replace("'", "['’]")}(?![\\p{L}\\p{N}_])`, 'giu'),
-}));
+// A product name that starts with a contraction. The suffix after the contraction excludes the match.
+const CONTRACTION_NAME_SUFFIXES = new Map([["let's", '\\s+Encrypt\\b']]);
+
+const contractionMatchers = CONTRACTIONS.map(([phrase, suggestion]) => {
+	const suffix = CONTRACTION_NAME_SUFFIXES.get(phrase);
+	const exclude = suffix ? `(?!${suffix})` : '';
+	return {
+		phrase,
+		suggestion,
+		re: new RegExp(
+			`(?<![\\p{L}\\p{N}_])${escapeRegex(phrase).replace("'", "['’]")}(?![\\p{L}\\p{N}_])${exclude}`,
+			'giu',
+		),
+	};
+});
 
 const gerundTriggerRe = new RegExp(
 	`(?:^|[^\\p{L}\\p{N}_-])(${GERUND_TRIGGERS.map(escapeRegex).join('|')})\\s+([\\p{L}]+ing)(?![\\p{L}\\p{N}_-])`,

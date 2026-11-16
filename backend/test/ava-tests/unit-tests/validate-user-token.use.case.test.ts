@@ -10,7 +10,7 @@ import { appConfig } from '../../../src/shared/config/app-config.js';
 
 // The satellite services (rocketadmin-saas, agents-core) validate end-user cookies through this
 // use case. `allowScopes` is how a caller says "this route is the one that finishes the restricted
-// flow" — without it a scoped token must be refused, which is what makes the email-verification
+// flow". Without it a scoped token must be refused. That makes the email-verification
 // gate real rather than cosmetic.
 
 const USER_ID = 'a3f1c9d2-4b5e-4c7a-8d9e-0f1a2b3c4d5e';

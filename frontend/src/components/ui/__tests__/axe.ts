@@ -4,37 +4,37 @@ import axe, { type AxeResults, type ElementContext, type RunOptions } from 'axe-
 /**
  * Runs axe-core over a mounted primitive, inside the existing jsdom vitest run.
  *
- * Why here and not in Storybook: `storybook test` is not a command that exists in Storybook 10 —
- * story testing moved to `@storybook/addon-vitest`, which drives stories in a real browser via
+ * Why here and not in Storybook: `storybook test` is not a command that exists in Storybook 10.
+ * Story testing moved to `@storybook/addon-vitest`, which drives stories in a real browser through
  * `@vitest/browser-playwright`. That is four dev dependencies, a ~150MB browser download CI must
  * also install, a second vitest project in browser mode, and a new CI job. This helper rides the
  * `pnpm vitest run` gate that already exists, at the cost of one dependency.
  *
- * What that trade actually costs: jsdom computes no layout and no real styles, so the rules axe
- * needs a rendered box for — `color-contrast` above all — cannot run here. That is the deliberate
- * gap. It is also the failure class the design system guards by construction: every colour in a
- * primitive is a `var(--color-*)` (enforced by design-tokens.spec.ts rule 1) and theme.css
+ * What that trade actually costs: jsdom computes no layout and no real styles. So the rules that
+ * need a rendered box cannot run here, `color-contrast` above all. That is the deliberate gap.
+ * It is also the failure class that the design system guards by construction. Every colour in a
+ * primitive is a `var(--color-*)` (enforced by design-tokens.spec.ts rule 1). And theme.css
  * documents each pair's contrast ratio inline. Contrast regressions are caught by review against
  * those ratios, and by the a11y panel in Storybook, which does run in a real browser.
  *
  * What it does catch is the class the primitives actually risk, and have actually shipped: ARIA
- * tree and labelling defects. Both near-misses during the Phase 8 migrations were exactly that —
- * three sibling `role="status"` regions in WebsitesView and AccountView, from putting one
- * `UiSkeleton` per card when `UiSkeleton`'s own wrapper is the live region. jsdom sees those fine.
+ * tree and labelling defects. Both near-misses during the Phase 8 migrations were exactly that.
+ * There were three sibling `role="status"` regions in WebsitesView and AccountView. They came from
+ * one `UiSkeleton` per card, when `UiSkeleton`'s own wrapper is the live region. jsdom sees those fine.
  */
 
 /**
  * Rules that cannot pass on an isolated component fragment, and would fail every primitive for
  * reasons that have nothing to do with the primitive.
  *
- * This is the same exemption `foundations.stories.ts` takes with `a11y: { disable: true }`, but
- * scoped to named rules instead of switching the whole check off: a document-structure rule is
- * asserting something about the *page*, and a mounted `UiChip` is not a page. The app's real
+ * This is the same exemption `foundations.stories.ts` takes with `a11y: { disable: true }`. But it
+ * is scoped to named rules and does not switch the whole check off. A document-structure rule
+ * asserts something about the *page*, and a mounted `UiChip` is not a page. The app's real
  * landmark and heading structure lives in the views and their `UiPageShell`, which is where a
  * future view-level suite would check it.
  */
 const FRAGMENT_EXEMPT_RULES = [
-	'region', // "all content must be in a landmark" — a fragment has no <main>
+	'region', // "all content must be in a landmark". A fragment has no <main>
 	'landmark-one-main',
 	'page-has-heading-one',
 	'html-has-lang',
@@ -68,16 +68,16 @@ const RUN_OPTIONS: RunOptions = {
 /**
  * Mounts a component attached to `document.body` and returns axe's findings.
  *
- * `attachTo` matters: axe walks the real document, and @vue/test-utils mounts detached by default,
- * so an unattached wrapper yields zero violations no matter how broken the markup is — the check
+ * `attachTo` matters: axe walks the real document, and @vue/test-utils mounts detached by default.
+ * So an unattached wrapper yields zero violations, no matter how broken the markup is. The check
  * would pass vacuously. The wrapper is always unmounted, including on failure, so one leaked node
- * can't contaminate the next test's document.
+ * cannot contaminate the next test's document.
  *
  * Pass `skipIframes` for a primitive that renders an `<iframe>`. By default axe injects itself into
- * every frame to audit its contents, which jsdom cannot do for a frame with a real `src` — it
- * throws "Respondable target must be a frame in the current window". Skipping frames keeps the
- * audit on the host markup, which is the only part the primitive owns anyway: what's *inside* a
- * site preview is a third-party page, not this design system's contract.
+ * every frame to audit its contents. The jsdom environment cannot do that for a frame with a real `src`: it
+ * throws "Respondable target must be a frame in the current window". With frames skipped, the
+ * audit stays on the host markup, which is the only part the primitive owns anyway. What is *inside*
+ * a site preview is a third-party page, not this design system's contract.
  */
 export async function axeViolations(
 	component: Parameters<typeof mount>[0],

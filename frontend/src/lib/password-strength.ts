@@ -1,9 +1,9 @@
-// The password scorer behind PasswordStrength (replaces angular-password-strength-meter's zxcvbn
-// service). zxcvbn-ts and its dictionaries are ~1 MB, so they load on first use, off the main bundle.
+// The password scorer behind PasswordStrength. It replaces angular-password-strength-meter's zxcvbn
+// service. zxcvbn-ts and its dictionaries are ~1 MB, so they load on first use, off the main bundle.
 //
-// Deviation: the Angular provider configured zxcvbn with the English translations only; this one
+// Deviation: the Angular provider configured zxcvbn with the English translations only. This one
 // also loads the common and English dictionaries (zxcvbn-ts' recommended setup), so dictionary
-// words score lower. The meter is informational — form validity still comes from passwordValidation.
+// words score lower. The meter is informational. Form validity still comes from passwordValidation.
 
 export interface PasswordFeedback {
 	warning: string | null;

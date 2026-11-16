@@ -36,7 +36,7 @@ const countries = computed<CountryOption[]>(() => {
 	return allowNull ? [{ value: null, label: '', flag: '' }, ...sorted] : sorted;
 });
 
-/** The picked country — Angular's control holding an object rather than typed text. */
+/** The picked country: Angular's control that holds an object rather than typed text. */
 const selected = ref<CountryOption | null>(
 	(props.value && countries.value.find((country) => country.value === props.value)) || null,
 );

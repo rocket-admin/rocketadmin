@@ -1,7 +1,7 @@
-// Spec helper for the charts/dashboards pages: mounts `view` as the page of `pattern` (e.g.
-// '/panels/:connectionId/:queryId'), navigated to `url`, under a memory router whose other paths
-// render a blank page, so a spec can read `router.currentRoute` after the view navigates.
-// Activates a fresh Pinia; stores the spec doesn't vi.mock are real.
+// Spec helper for the charts/dashboards pages. It mounts `view` as the page of `pattern` (for example
+// '/panels/:connectionId/:queryId'), navigated to `url`. A memory router holds it, and its other
+// paths render a blank page. So a spec can read `router.currentRoute` after the view navigates.
+// Activates a fresh Pinia. The stores that the spec does not vi.mock are real.
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { type Component, defineComponent, h } from 'vue';
@@ -36,7 +36,7 @@ export async function mountPage(
 	return { wrapper, router };
 }
 
-/** The button (or link) whose text — its UiButton label, without the icon ligature — is `label`. */
+/** The button (or link) whose text is `label`. The text is its UiButton label, without the icon ligature. */
 export function byText(wrapper: VueWrapper, label: string, selector = 'button, a') {
 	const match = wrapper.findAll(selector).find((candidate) => {
 		const buttonLabel = candidate.find('.ui-button__label');

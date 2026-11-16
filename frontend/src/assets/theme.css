@@ -3,29 +3,29 @@
  *
  * Two layers, and the distinction matters:
  *
- *   Layer 1 — `--palette-*` / `--font-*`: raw values. Verbatim from SiteNova, which mirrors the
+ *   Layer 1, `--palette-*` / `--font-*`: raw values. Verbatim from SiteNova, which mirrors the
  *     brand defined in `sitenova-landing/src/styles/global.css` (a Tailwind v4 `@theme` block).
  *     The products share one look, so these MUST BE CHANGED TOGETHER with SiteNova's copy. Component CSS must never
  *     reference this layer directly.
  *
- *   Layer 2 — `--color-*` / `--shadow-*`: semantic aliases. The only layer component CSS may use.
+ *   Layer 2, `--color-*` / `--shadow-*`: semantic aliases. The only layer component CSS may use.
  *     `--color-paper` means "the page background", which happens to resolve to a specific
  *     blue-white today. Naming the *role* rather than the value is what makes a dark theme a
  *     dozen-line override instead of a sweep across every view.
  *
- * Everything below the colour block — spacing, type scale, weights, motion, z-index, sizing — is
- * app-only and NOT mirrored in the landing. Change it freely.
+ * Everything below the colour block is app-only and NOT mirrored in the landing: spacing, type scale,
+ * weights, motion, z-index, sizing. Change it freely.
  *
  * The luminous white-blue "supernova" palette: cool paper, deep navy ink, one electric-blue accent
  * with a hot cyan-white highlight for glow.
  */
 :root {
-	/* Flipped to `dark` by the prefers-color-scheme block at the end of this file, together with the
-	   aliases — native controls and scrollbars must never claim dark ahead of the aliases. */
+	/* The prefers-color-scheme block at the end of this file flips this to `dark`, together with the
+	   aliases. Native controls and scrollbars must never claim dark ahead of the aliases. */
 	color-scheme: light;
 
 	/* ===================================================================================
-	   LAYER 1 — RAW PALETTE. Mirrored in SiteNova. Never referenced by components.
+	   LAYER 1: RAW PALETTE. Mirrored in SiteNova. Never referenced by components.
 	   =================================================================================== */
 
 	/* Brand: verbatim from the landing's @theme block. */
@@ -40,13 +40,13 @@
 
 	/* Text ramp intermediates.
 	   The landing is a marketing page and needs only ink + muted for text. This app has a denser
-	   4-step ramp (#101828 / #344054 / #667085 / #98a2b3); flattening it to two steps would lose
-	   hierarchy in the tables and detail panels, so two intermediates are interpolated into the
+	   4-step ramp (#101828 / #344054 / #667085 / #98a2b3). A flat ramp of two steps would lose
+	   hierarchy in the tables and detail panels. So two intermediates are interpolated into the
 	   cooler palette.
 
-	   Contrast on paper: ink 17.8:1, navy-700 12.2:1, slate-500 5.7:1, slate-600 4.5:1 — all pass
-	   WCAG AA for body text. slate-600 is deliberately darker than the #98a2b3 it replaces (which
-	   was only 2.6:1 on white) because it carries real copy here, not just decoration: empty-state
+	   Contrast on paper: ink 17.8:1, navy-700 12.2:1, slate-500 5.7:1, slate-600 4.5:1. All pass
+	   WCAG AA for body text. slate-600 is deliberately darker than the #98a2b3 it replaces. That value
+	   was only 2.6:1 on white. The slate-600 step carries real copy here, not just decoration: empty-state
 	   messages, the "(optional)" field hint and the slug-field domain suffix. */
 	--palette-navy-700: #26304d;
 	--palette-slate-500: #59637a;
@@ -67,13 +67,13 @@
 	--palette-green-200: #a6f4c5;
 
 	/* Dark ramp. App-only: neither SiteNova nor the landing has a dark theme yet, so these are NOT
-	   mirrored — when SiteNova gains one, reconcile and move them into the shared block above.
+	   mirrored. When SiteNova gets one, reconcile and move them into the shared block above.
 	   The paper is the brand's own navy-900; surfaces step up from it in the same hue.
 
 	   Contrast on dark surface: ink 15.4:1, ink-soft 11.2:1, muted 7.4:1, muted-soft 5.8:1,
-	   accent 6.1:1, line-strong 3.9:1 (non-text, needs 3:1). The accent is lifted from blue-600
-	   because no blue reads as link text on navy *and* carries white text on its own fill; dark
-	   mode puts navy-900 text on it instead (6.8:1), via --color-on-accent. */
+	   accent 6.1:1, line-strong 3.9:1 (non-text, needs 3:1). The accent is lifted from blue-600.
+	   The reason: no blue reads as link text on navy *and* carries white text on its own fill. Dark
+	   mode puts navy-900 text on it instead (6.8:1), through --color-on-accent. */
 	--palette-navy-850: #121a36;
 	--palette-navy-800: #1a2344;
 	--palette-navy-750: #1c2650;
@@ -99,13 +99,13 @@
 	/* Typography families.
 	   Match the installed @fontsource-variable packages exactly (verified against their index.css);
 	   the fallbacks mirror the metric-matched stacks the landing declares in astro.config.mjs. All
-	   three are variable fonts, normal style only — no italics. */
+	   three are variable fonts, normal style only: no italics. */
 	--font-sans: "Geist Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
 	--font-display: "Space Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
 	--font-mono: "Geist Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
 
 	/* ===================================================================================
-	   LAYER 2 — SEMANTIC ALIASES. The only colour layer components may use.
+	   LAYER 2: SEMANTIC ALIASES. The only colour layer components may use.
 	   =================================================================================== */
 
 	/* Surfaces */
@@ -123,8 +123,8 @@
 	--color-muted: var(--palette-slate-500);
 	--color-muted-soft: var(--palette-slate-600);
 
-	/* Lines. `line` divides content; `line-strong` bounds an interactive control — an input border
-	   needs to read as an edge you can type inside, not as a hairline rule. */
+	/* Lines. `line` divides content. `line-strong` bounds an interactive control: an input border
+	   must read as an edge you can type inside, not as a hairline rule. */
 	--color-line: var(--palette-blue-200);
 	--color-line-strong: var(--palette-slate-600);
 
@@ -148,9 +148,9 @@
 	--color-success-bg: var(--palette-green-50);
 	--color-success-border: var(--palette-green-200);
 
-	/* Shadows — large, tight-spread, heavily negative-offset and accent-tinted: glow rather than
-	   drop shadow. Aliased because they're tuned for dark-on-light and a dark theme must swap them,
-	   not merely re-point their colours. */
+	/* Shadows: large, tight-spread, heavily negative-offset and accent-tinted. They are glow rather than
+	   drop shadow. They are aliased because they are tuned for dark-on-light, and a dark theme must swap
+	   them, not merely re-point their colours. */
 	--shadow-card: 0 1px 0 rgb(0 0 0 / 0.02), 0 20px 50px -34px rgb(10 15 36 / 0.35);
 	--shadow-lift: 0 24px 50px -30px rgb(43 92 255 / 0.4);
 	--shadow-focus: 0 0 0 3px rgb(43 92 255 / 0.2);
@@ -187,13 +187,13 @@
 	--space-12: 3rem; /* 48px */
 	--space-16: 4rem; /* 64px */
 
-	/* A deliberate off-scale step, kept because two of its nine uses are load-bearing in brand
+	/* A deliberate off-scale step. It stays because two of its nine uses are load-bearing in brand
 	   assets: AppLogo's mark↔wordmark gap (mirrored in sitenova-landing) and the GitHub button's
 	   icon gap. Snapping 10px→12px inside a 32px lockup is visible.
-	   A third legitimate use is UiChip's `sm` horizontal padding — 10px is the arbitrated value from
+	   A third legitimate use is UiChip's `sm` horizontal padding. 10px is the arbitrated value from
 	   the chip copies it replaces, and 12px visibly widens every chip in a dense list. Those three
-	   are the whole allowlist; don't reach for it elsewhere. */
-	--space-25: 0.625rem; /* 10px — brand lockup, inline icon gaps, UiChip sm padding */
+	   are the whole allowlist. Do not reach for it elsewhere. */
+	--space-25: 0.625rem; /* 10px: brand lockup, inline icon gaps, UiChip sm padding */
 
 	/* --- Type scale ---
 	   7 steps, collapsed from the 20 ad-hoc sizes the views had accumulated (nine of which sat
@@ -206,15 +206,15 @@
 	--text-xl: 1.5rem; /* 24px */
 	--text-2xl: 1.875rem; /* 30px */
 
-	/* Line-heights are separate tokens rather than bundled into the size: pairing them would need
-	   the `font:` shorthand, which resets font-weight and font-family — a footgun in scoped CSS
+	/* Line-heights are separate tokens rather than bundled into the size. A pair would need the
+	   `font:` shorthand, which resets font-weight and font-family. That is a footgun in scoped CSS
 	   where weight is set independently. */
 	--leading-tight: 1.15; /* display headings */
 	--leading-snug: 1.3; /* card + section titles */
 	--leading-normal: 1.5; /* body */
 	--leading-relaxed: 1.6; /* long-form muted copy, empty states */
 
-	/* Geist is a variable font, so 550/650 rendered as real intermediate weights — but they're
+	/* Geist is a variable font, so 550/650 rendered as real intermediate weights. But they are
 	   indistinguishable from 500/600 at 15px, so the scale has four steps. */
 	--weight-regular: 400;
 	--weight-medium: 500;
@@ -248,7 +248,7 @@
 }
 
 /* ===================================================================================
-   DARK THEME — Layer 2 re-pointed at the dark ramp. Follows the OS setting, as the Angular app
+   DARK THEME: Layer 2 re-pointed at the dark ramp. Follows the OS setting, as the Angular app
    does; there is no in-app toggle. Only aliases change here: the scales above are theme-neutral.
    =================================================================================== */
 @media (prefers-color-scheme: dark) {
@@ -287,7 +287,7 @@
 		--color-success-bg: var(--palette-green-950);
 		--color-success-border: var(--palette-green-900);
 
-		/* A navy drop shadow vanishes on a navy page: depth comes from a black shadow plus a faint
+		/* A navy drop shadow vanishes on a navy page. Depth comes from a black shadow plus a faint
 		   top highlight, and the glow keeps its accent tint. */
 		--shadow-card: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 20px 50px -30px rgb(0 0 0 / 0.7);
 		--shadow-lift: 0 24px 50px -30px rgb(113 150 255 / 0.45);

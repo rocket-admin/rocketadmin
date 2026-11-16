@@ -1,7 +1,7 @@
 /**
- * Global element styles. Imported by both src/main.ts and .storybook/preview.ts, so a story renders
- * on the same foundation as the app — these rules used to live in App.vue's unscoped <style> block
- * and were hand-copied into .storybook/preview.css, which drifted by construction.
+ * Global element styles. Both src/main.ts and .storybook/preview.ts import this file, so a story
+ * renders on the same foundation as the app. These rules used to live in App.vue's unscoped <style>
+ * block and were hand-copied into .storybook/preview.css, which drifted by construction.
  *
  * Expects src/assets/theme.css to be loaded first.
  */
@@ -18,7 +18,7 @@ html {
 body {
 	margin: 0;
 	font-family: var(--font-sans);
-	/* Geist's stylistic sets — matches the landing's body rule. */
+	/* Geist's stylistic sets: matches the landing's body rule. */
 	font-feature-settings: "ss01", "cv01";
 	font-size: var(--text-base);
 	line-height: var(--leading-normal);
@@ -26,8 +26,8 @@ body {
 	color: var(--color-ink);
 }
 
-/* Form controls and buttons don't inherit font-family — without this they keep the browser's
-   system UI font and the brand typeface stops at the edge of every input and button. */
+/* Form controls and buttons do not inherit font-family. Without this rule they keep the browser's
+   system UI font, and the brand typeface stops at the edge of every input and button. */
 button,
 input,
 select,
@@ -40,7 +40,7 @@ textarea {
 	color: var(--color-on-accent);
 }
 
-/* Keyboard focus ring — visible, on-brand, only for keyboard users. Primitives that need a
+/* Keyboard focus ring: visible, on-brand, only for keyboard users. Primitives that need a
    different shape (inputs use a box-shadow ring on the control itself) override locally. */
 a:focus-visible,
 button:focus-visible {
@@ -74,17 +74,17 @@ button:focus-visible {
 }
 
 /* A black single-colour image with no white variant (the GitHub mark): inverted on the dark theme
-   so it doesn't vanish into the page. */
+   so it does not vanish into the page. */
 @media (prefers-color-scheme: dark) {
 	.invert-on-dark {
 		filter: invert(1);
 	}
 }
 
-/* Honour a reduced-motion preference globally rather than per-animation: the skeleton shimmer and
+/* Honour a reduced-motion preference globally rather than per-animation. The skeleton shimmer and
    spinner loop indefinitely, which is exactly the vestibular-trigger case the media query exists
    for. Durations are near-zero rather than `none` so transitionend/animationend still fire and
-   JS waiting on them doesn't hang. */
+   JS that waits on them does not hang. */
 @media (prefers-reduced-motion: reduce) {
 	*,
 	*::before,

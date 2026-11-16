@@ -9,9 +9,9 @@ export const userActionCustomRepositoryExtension = {
 
 	/**
 	 * Atomically creates the user's action or overwrites its message.
-	 * `user_action.userId` is UNIQUE (one-to-one with `user`); a read-then-insert races with itself when
-	 * the same user sends two requests at once (e.g. two tabs opening "add connection") and the second
-	 * insert fails with `duplicate key value violates unique constraint "REL_c025478b45e60017ed10c77f99"`.
+	 * `user_action.userId` is UNIQUE (one-to-one with `user`). A read-then-insert races with itself when
+	 * the same user sends two requests at once (for example, two tabs that open "add connection"). Then
+	 * the second insert fails with `duplicate key value violates unique constraint "REL_c025478b45e60017ed10c77f99"`.
 	 * `INSERT … ON CONFLICT ("userId") DO UPDATE` makes the second request an update instead.
 	 */
 	async upsertUserAction(userId: string, message: string): Promise<UserActionEntity> {

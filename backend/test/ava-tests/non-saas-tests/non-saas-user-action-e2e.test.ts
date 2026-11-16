@@ -20,8 +20,8 @@ import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
 import { TestUtils } from '../../utils/test.utils.js';
 
 // `user_action.userId` is UNIQUE (one row per user). The frontend posts an action every time the
-// "add connection" page opens, so the endpoint must be an upsert: a repeat (or concurrent) request for
-// the same user updates the one row instead of failing with
+// "add connection" page opens. So the endpoint must be an upsert. A repeat (or concurrent) request for
+// the same user updates the one row and does not fail with
 // `duplicate key value violates unique constraint "REL_c025478b45e60017ed10c77f99"`.
 
 let app: INestApplication;

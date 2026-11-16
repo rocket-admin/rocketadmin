@@ -1,11 +1,11 @@
 <script setup lang="ts">
 /**
- * The one button. Replaces ~19 hand-rolled blocks across the views — five `.btn` bases with five
+ * The one button. Replaces ~19 hand-rolled blocks across the views: five `.btn` bases with five
  * different geometries, four `.submit`s, two `.github-button`s, `.btn-delete`, `.btn--sm`,
  * `.btn--option` and the header logout.
  *
- * Sizes are the plurality geometries, not an average: `md` matches the AccountView/BillingView pair
- * *and* `.submit`'s vertical rhythm, so every auth submit becomes `md` + `block` with no visual
+ * Sizes are the plurality geometries, not an average. `md` matches the AccountView/BillingView pair
+ * *and* `.submit`'s vertical rhythm. So every auth submit becomes `md` + `block` with no visual
  * change. See _Foundations → Conventions_ for the prop vocabulary.
  *
  * Polymorphism is two typed, mutually exclusive props rather than a generic `as`: `to` renders a
@@ -22,7 +22,7 @@ type ButtonSize = 'sm' | 'md' | 'lg';
 
 const props = withDefaults(
 	defineProps<{
-		/** Interaction emphasis. Never a status colour — that's `tone`, and buttons don't have one. */
+		/** Interaction emphasis. Never a status colour: that is `tone`, and buttons do not have one. */
 		variant?: ButtonVariant;
 		/** Geometry only: padding and font-size. Never changes colour. */
 		size?: ButtonSize;
@@ -47,12 +47,12 @@ if (import.meta.env.DEV && props.to !== undefined && props.href !== undefined) {
 
 const attrs = useAttrs();
 
-/** `loading` implies `disabled` — a button mid-request must not fire twice. */
+/** `loading` implies `disabled`: a button mid-request must not fire twice. */
 const isDisabled = computed(() => props.disabled || props.loading);
 
 /**
- * A disabled link is not a link. Dropping `href`/`to` removes it from the tab order and from
- * "open in new tab", which `pointer-events: none` alone would not; `aria-disabled` carries the
+ * A disabled link is not a link. Without `href`/`to`, it leaves the tab order and
+ * "open in new tab". `pointer-events: none` alone would not do that. `aria-disabled` carries the
  * state to AT, since only `<button>` supports the native `disabled` attribute.
  */
 const tag = computed(() => {
@@ -84,7 +84,7 @@ const classes = computed(() => [
 /** The spinner inherits the label's colour, so it needs no per-variant styling. */
 const spinnerSize = computed(() => (props.size === 'sm' ? 'sm' : 'md'));
 
-/** Click is suppressed on the non-native tags, where `disabled` isn't enforced by the browser. */
+/** Click is suppressed on the non-native tags, where the browser does not enforce `disabled`. */
 function onClick(event: MouseEvent) {
 	if (isDisabled.value && !isNativeButton.value) {
 		event.preventDefault();
@@ -103,8 +103,8 @@ export default {
 
 <template>
 	<component :is="tag" v-bind="{ ...attrs, ...bindings }" :class="classes" @click="onClick">
-		<!-- The spinner replaces the leading adornment rather than displacing it, so the button's
-         width doesn't jump when a request starts. -->
+		<!-- The spinner replaces the leading adornment and does not displace it, so the button's
+         width does not jump when a request starts. -->
 		<span v-if="loading" class="ui-button__adornment">
 			<UiSpinner :size="spinnerSize" />
 		</span>
@@ -142,7 +142,7 @@ export default {
     box-shadow var(--motion-base);
 }
 
-/* :focus-visible, not :focus — the pre-DS code rang the focus ring on mouse clicks too. */
+/* :focus-visible, not :focus. The pre-DS code rang the focus ring on mouse clicks too. */
 .ui-button:focus-visible {
   outline: none;
   box-shadow: var(--ring-focus);
@@ -182,7 +182,7 @@ export default {
   box-shadow: var(--shadow-lift);
 }
 
-/* Inherits `.btn--option`'s accent lift: it's the nicer interaction, and secondary is the
+/* Inherits `.btn--option`'s accent lift: it is the nicer interaction, and secondary is the
    app's most-clicked affordance. */
 .ui-button--secondary {
   background: var(--color-surface);
@@ -197,7 +197,7 @@ export default {
   box-shadow: var(--shadow-lift);
 }
 
-/* Ghost keeps the quieter hover — it's for the recessive action next to a primary. */
+/* Ghost keeps the quieter hover. It is for the recessive action next to a primary. */
 .ui-button--ghost {
   background: var(--color-surface);
   border-color: var(--color-line);

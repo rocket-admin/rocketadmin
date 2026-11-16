@@ -3,8 +3,8 @@
 // (`/dashboard/:connectionId/:tableName/entry`). The logic lives in useRowEdit(); this renders the
 // header (back, duplicate, delete, custom actions), the related records and the widget form.
 //
-// Each column is rendered by its record-edit widget: the table widget's type (consts UIwidgets) when
-// one is configured, otherwise the column type's widget for the connection's database
+// Each column is rendered by its record-edit widget. When a table widget is configured, that is its
+// type (consts UIwidgets). Otherwise it is the column type's widget for the connection's database
 // (recordEditTypes).
 //
 // Not ported here: the side row view (`app-db-table-row-view`) a related record opens in. Clicking

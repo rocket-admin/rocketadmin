@@ -29,7 +29,7 @@ describe('UiSegmented', () => {
 	});
 
 	it('shares one radio name per group, distinct between groups', () => {
-		// useId is per app, so the two groups must share one — the real case, a form with two toggles.
+		// useId is per app, so the two groups must share one. The real case: a form with two toggles.
 		const Host = defineComponent({
 			components: { UiSegmented },
 			setup: () => ({ options: OPTIONS }),

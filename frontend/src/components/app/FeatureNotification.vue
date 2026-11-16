@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Port of FeatureNotificationComponent: the one-off "what's new" card shown until dismissed
+// Port of FeatureNotificationComponent: the one-off "what is new" card shown until dismissed
 // (see CURRENT_FEATURE_NOTIFICATION_ID in useAppSession). The animation's colours are palette tokens.
 import { UiButton } from '@/components/ui';
 

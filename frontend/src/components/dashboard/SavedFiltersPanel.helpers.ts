@@ -1,5 +1,6 @@
-// The saved-filters panel's pure parts: splitting a saved filter into its static conditions and its
-// quick-editing ("dynamic") column, the chip text of a condition, and the table URL query.
+// The saved-filters panel's pure parts. One part splits a saved filter into its static conditions
+// and its quick-editing ("dynamic") column. The others are the chip text of a condition and the
+// table URL query.
 import type { LocationQuery, LocationQueryRaw } from 'vue-router';
 import { normalizeTableName } from '@/lib/normalize';
 import type { SavedFilter } from '@/stores/tables';
@@ -94,7 +95,7 @@ export function sortByCreation<T extends { createdAt?: string }>(filters: T[]): 
 	return [...filters].sort((a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime());
 }
 
-/** `getFilter()`: the static condition chip, e.g. `First name = ...Jo...`. */
+/** `getFilter()`: the static condition chip, for example `First name = ...Jo...`. */
 export function describeFilter(entry: FilterEntry): string {
 	const displayedName = normalizeTableName(entry.column);
 	const value = entry.value;

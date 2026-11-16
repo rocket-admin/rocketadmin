@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // Port of frontend/src/app/components/skeletons/placeholder-row-edit.
-// The row-edit page: the header (back button, title and table name, row actions), five fields in a
-// centred column, and the full-width save bar pinned to the bottom with its buttons aligned to the
-// column.
+// The row-edit page: the header (back button, title and table name, row actions) and five fields in
+// a centred column. It also has the full-width save bar pinned to the bottom, with its buttons
+// aligned to the column.
 // The root is the one `role="status"` region; every bar inside is a `decorative` UiSkeleton, so the
 // screen announces once (see UiSkeleton's header).
 import { UiSkeleton } from '@/components/ui';

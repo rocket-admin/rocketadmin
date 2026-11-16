@@ -2,8 +2,8 @@
 // the connection ER diagram with its preview.
 //
 // generate, approve and preview never notified in Angular: they throw and the schema editor shows
-// the message inline. reject and fetchDiagram report the error through the client and then throw the
-// notified ApiError, like every other store (Angular's ApiService resolved null instead).
+// the message inline. The reject and fetchDiagram calls report the error through the client. Then
+// they throw the notified ApiError, like every other store (Angular's ApiService resolved null instead).
 import { defineStore } from 'pinia';
 import { api, isApiError } from '@/api/client';
 

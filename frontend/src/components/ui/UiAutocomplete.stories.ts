@@ -26,10 +26,10 @@ function useFiltered() {
 }
 
 /**
- * Text input with a suggestion list (APG combobox): focus stays in the input, ArrowUp / ArrowDown
- * move the highlight, Enter picks, Escape closes the list (and only the list, inside a modal).
+ * Text input with a suggestion list (APG combobox). Focus stays in the input, ArrowUp / ArrowDown
+ * move the highlight, Enter picks. Escape closes the list (and only the list, inside a modal).
  *
- * Filtering is the caller's — `v-model` is the typed text and `options` is what to show for it.
+ * Filtering is the caller's: `v-model` is the typed text and `options` is what to show for it.
  * Picking an option emits `select` and sets the text to the option's label.
  */
 // `component` is widened and `Meta` left untyped: Storybook's types cannot infer args from a

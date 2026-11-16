@@ -1,9 +1,9 @@
 <script setup lang="ts">
 /**
- * Simple list of `UiListItem`s — the `mat-list` / `mat-nav-list` replacement.
+ * Simple list of `UiListItem`s: the `mat-list` / `mat-nav-list` replacement.
  *
  * A real `<ul>`, so AT announces "list, 4 items". `as="nav"` wraps it in a `<nav>` landmark named by
- * `label`, for link lists that are navigation (the drawer's connection tabs); a list of row
+ * `label`, for link lists that are navigation (the drawer's connection tabs). A list of row
  * summaries that merely *contain* links stays a plain list.
  */
 import { computed } from 'vue';
@@ -12,7 +12,7 @@ const props = withDefaults(
 	defineProps<{
 		/** `nav` wraps the list in a `<nav>` landmark. */
 		as?: 'ul' | 'nav';
-		/** Accessible name — required in practice for `as="nav"`, since a page may hold several navs. */
+		/** Accessible name. Required in practice for `as="nav"`, since a page can hold several navs. */
 		label?: string;
 		/** Geometry only: row padding. */
 		size?: 'sm' | 'md';

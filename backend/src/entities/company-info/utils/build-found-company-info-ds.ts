@@ -54,7 +54,7 @@ export function buildFoundCompanyFullInfoDs(
 	return responseObject;
 }
 
-// Plan 46 (2026-09): white label (logo / favicon / tab title) and custom domains are retired — the
+// Plan 46 (2026-09): white label (logo / favicon / tab title) and custom domains are retired. The
 // response carries `custom_domain: null` for API compatibility and no white-label fields at all.
 export function buildFoundCompanyInfoDs(
 	companyInfoFromCore: CompanyInfoEntity,

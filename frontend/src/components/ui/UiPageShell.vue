@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * The page wrapper. Absorbs both the 9 duplicated page backgrounds *and* the width box they always
- * wrapped — `.panel` (44rem, ×4 byte-identical) and `.auth-card`'s max-width (26rem, ×4). They were
+ * wrapped: `.panel` (44rem, ×4 byte-identical) and `.auth-card`'s max-width (26rem, ×4). They were
  * never used apart, so one component owns both.
  *
  * `background: var(--color-paper)` is what silently fixed the two off-brand page backgrounds the
@@ -20,10 +20,10 @@ const props = withDefaults(
 		width?: 'panel' | 'auth' | 'full';
 		/**
 		 * Root element. `main` when the shell *is* the page's main landmark, which is the common case
-		 * for a view — it saves every view wrapping the shell in a redundant `<main>`.
+		 * for a view. Then no view has to wrap the shell in a redundant `<main>`.
 		 *
 		 * Deliberately a closed union of landmark-capable elements, not the generic polymorphic `as`
-		 * the plan rejected: `as: string` would erase the check that makes `as="span"` a type error.
+		 * that the plan rejected. `as: string` would erase the check that makes `as="span"` a type error.
 		 */
 		as?: 'div' | 'main' | 'section';
 	}>(),
@@ -67,7 +67,7 @@ const classes = computed(() => [
   width: 100%;
   /* A grid item's automatic minimum is its content's min-content width, not zero. Without this, one
      unbreakable line inside a page (a long site name, set to `nowrap` + ellipsis) widened the
-     track and the page scrolled sideways on mobile instead of the line truncating. */
+     track. The page then scrolled sideways on mobile, and the line did not truncate. */
   min-width: 0;
 }
 

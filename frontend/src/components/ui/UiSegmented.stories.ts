@@ -11,7 +11,7 @@ const BOOLEAN: SelectOption<SelectValue>[] = [
 
 /**
  * Single-choice toggle group on native radios: arrow keys move the choice, AT reads "Yes, radio
- * button, 1 of 3". Values are typed — the Yes / No / Null boolean editor round-trips `true`,
+ * button, 1 of 3". Values are typed: the Yes / No / Null boolean editor round-trips `true`,
  * `false` and `null`. Always pass `label`: it is the group's only accessible name.
  */
 // `component` is widened and `Meta` left untyped: Storybook's types cannot infer args from a

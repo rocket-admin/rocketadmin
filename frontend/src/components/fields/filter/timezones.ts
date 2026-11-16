@@ -1,7 +1,7 @@
 // The timezone list of filter-fields/timezone, built once per page load from the Intl API.
 import type { SelectOption } from '@/components/ui';
 
-/** `+HH:MM` / `-HH:MM` for a timezone right now, `''` when the runtime can't resolve it. */
+/** `+HH:MM` / `-HH:MM` for a timezone right now, `''` when the runtime cannot resolve it. */
 export function getTimezoneOffset(timezone: string): string {
 	try {
 		const now = new Date();

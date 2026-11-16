@@ -6,8 +6,8 @@ import * as tableDisplayTypes from './table-display-types';
 import ANGULAR_MAPS from './widget-types.angular.json';
 
 /**
- * Parity guard for the widget type maps: every DB-type → widget table must keep exactly the keys
- * (and the same widget per key) as the Angular map it was ported from, because the row edit form,
+ * Parity guard for the widget type maps. Every DB-type → widget table must keep exactly the keys
+ * (and the same widget per key) as the Angular map it was ported from. The reason: the row edit form,
  * the record view, the table cells and the filters all pick their widget from these tables.
  *
  * widget-types.angular.json is a snapshot of the Angular frontend/src/app/consts/*-types.ts maps

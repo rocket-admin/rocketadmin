@@ -1,10 +1,10 @@
 /**
  * The Angular filter components carried a `static type` (`'text'`, `'number'`, `'datetime'`, …) that
  * the filters dialog and `DefaultFilterComponent` read off the class to pick a comparator list.
- * A Vue SFC has no static members, and the maps in `@/consts/filter-types` hand out lazy
- * `defineAsyncComponent` wrappers whose target is not loaded yet, so the type lives here instead,
- * keyed both by those wrappers (what a host resolves from the maps) and by SFC name (a widget
- * imported directly, as in tests and stories).
+ * A Vue SFC has no static members. The maps in `@/consts/filter-types` hand out lazy
+ * `defineAsyncComponent` wrappers whose target is not loaded yet. So the type lives here instead.
+ * It is keyed by those wrappers (what a host resolves from the maps). It is also keyed by SFC name
+ * (a widget imported directly, as in tests and stories).
  */
 import { type Component, toRaw } from 'vue';
 import type { SelectOption } from '@/components/ui';

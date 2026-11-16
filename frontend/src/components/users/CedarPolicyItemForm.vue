@@ -1,6 +1,6 @@
 <script setup lang="ts">
-// The action / table / dashboard pickers of the policy builder, shared by its "add" row and the
-// inline edit of an existing policy (the two copies of this markup in cedar-policy-list.component).
+// The action / table / dashboard pickers of the policy builder. Its "add" row and the inline edit
+// of an existing policy share them (the two copies of this markup in cedar-policy-list.component).
 import { computed } from 'vue';
 import { type SelectOption, UiButton, UiField, UiSelect } from '@/components/ui';
 import type { PolicyActionGroup } from '@/lib/cedar-policy-items';

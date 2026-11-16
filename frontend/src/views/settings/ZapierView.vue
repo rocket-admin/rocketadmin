@@ -2,8 +2,8 @@
 // Port of frontend/src/app/components/zapier (/zapier, SaaS): Zapier's embeddable workflow element,
 // loaded from Zapier's CDN once per page load.
 //
-// `<zapier-workflow>` is a custom element. It is created here rather than written in the template,
-// so the Vue compiler needs no `isCustomElement` option, and its inputs are set as DOM properties,
+// `<zapier-workflow>` is a custom element. It is created here and not written in the template,
+// so the Vue compiler needs no `isCustomElement` option. Its inputs are set as DOM properties,
 // as Angular's `[signUpEmail]` bindings did.
 import { computed, onMounted, ref, watch } from 'vue';
 import ProfileLayout from '@/components/profile/ProfileLayout.vue';

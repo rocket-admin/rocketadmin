@@ -1,6 +1,6 @@
 <script setup lang="ts">
-// Port of db-table-view/db-action-link-dialog: a custom action answered with a location to go to;
-// the dialog offers it as a link ("Take action … for id = 1.") and closes once it is followed.
+// Port of db-table-view/db-action-link-dialog: a custom action answered with a location to go to.
+// The dialog offers it as a link ("Take action … for id = 1.") and closes once it is followed.
 import AppDialog from '@/components/dialog/AppDialog.vue';
 import { UiButton } from '@/components/ui';
 import { useDialogRef } from '@/composables/useDialog';

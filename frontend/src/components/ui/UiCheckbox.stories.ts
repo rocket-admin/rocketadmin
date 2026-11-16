@@ -4,7 +4,7 @@ import UiCheckbox from './UiCheckbox.vue';
 
 /**
  * Native checkbox wrapped by its label, so clicking the text toggles it. With no visible text (a
- * table row), pass `aria-label` — it lands on the `<input>`; `class` lands on the label.
+ * table row), pass `aria-label`. It lands on the `<input>`; `class` lands on the label.
  */
 const meta = {
 	title: 'UI/Checkbox',

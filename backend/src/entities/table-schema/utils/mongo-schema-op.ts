@@ -50,8 +50,8 @@ export interface ValidateMongoOpInput {
 	opJson: string;
 	changeType: SchemaChangeTypeEnum;
 	targetTableName: string;
-	// When true (rollback path), we do not enforce changeType↔operation matching — rollback
-	// for a createCollection is a dropCollection, etc. We still enforce structural safety.
+	// When true (rollback path), we do not enforce changeType↔operation matching. For example, the
+	// rollback for a createCollection is a dropCollection. We still enforce structural safety.
 	allowAnyOperation?: boolean;
 }
 

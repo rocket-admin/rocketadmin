@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Port of filter-fields/file (`FileFilterComponent`): file columns can't be filtered, so it only
+ * Port of filter-fields/file (`FileFilterComponent`): file columns cannot be filtered, so it only
  * says so. Comparator family `file` (see `comparatorType.ts`), which no host maps to a comparator list.
  */
 import type { FilterFieldEmits, FilterFieldProps } from '../types';

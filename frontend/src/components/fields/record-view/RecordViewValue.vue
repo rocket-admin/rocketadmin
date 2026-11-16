@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * The shared value text of every record-view widget — the `.field-view-value` rule in Angular's
+ * The shared value text of every record-view widget. It is the `.field-view-value` rule in Angular's
  * `base-record-view-field.component.css`, which every widget pulled in through `styleUrls`. One
  * wrapper instead of 30 copies of the same CSS: muted ink, wraps anywhere, never wider than the panel.
  *

@@ -21,10 +21,11 @@ import { DatabaseModule } from '../../../src/shared/database/database.module.js'
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { TestUtils } from '../../utils/test.utils.js';
 
-// Tests for the SaaS email-verification bridge POST /saas/user/email/verify/:verificationString
-// (SaaSAuthMiddleware / microservice JWT) and the optional `emailVerificationLinkBase` field of
-// POST /saas/user/register. rocketadmin-saas routes SiteNova confirmation links through itself
-// (GET /saas/user/email/verify/:token) and consumes them via this internal endpoint — the public
+// Tests for two items. The first is the SaaS email-verification bridge
+// POST /saas/user/email/verify/:verificationString (SaaSAuthMiddleware / microservice JWT). The second
+// is the optional `emailVerificationLinkBase` field of POST /saas/user/register.
+// The rocketadmin-saas service routes SiteNova confirmation links through itself
+// (GET /saas/user/email/verify/:token) and consumes them through this internal endpoint. The public
 // browser route GET /user/email/verify/:slug is unaffected.
 
 let app: INestApplication;
@@ -64,8 +65,8 @@ async function registerUser(extraFields: Record<string, unknown> = {}): Promise<
 	return { userId: ro.id, email: ro.email };
 }
 
-// The raw token is (correctly) never returned by the register endpoint — replace the verification
-// row through the same repository extension the production code uses and keep the fresh raw token.
+// The raw token is (correctly) never returned by the register endpoint. Replace the verification
+// row through the same repository extension that the production code uses. Keep the fresh raw token.
 async function mintVerificationToken(userId: string): Promise<string> {
 	const dataSource = app.get<DataSource>(BaseType.DATA_SOURCE);
 	const userRepository = dataSource.getRepository(UserEntity);

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 /**
  * Port of table-display-fields/number (`NumberDisplayComponent`): a right-aligned number, converted
- * to the best `unit` (via `convert`), with an arrow when outside `threshold_min` / `threshold_max`.
+ * to the best `unit` (through `convert`). An arrow shows when it is outside `threshold_min` /
+ * `threshold_max`.
  */
 import convert from 'convert';
 import { computed } from 'vue';

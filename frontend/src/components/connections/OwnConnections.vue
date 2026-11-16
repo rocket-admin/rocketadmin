@@ -1,7 +1,7 @@
 <script setup lang="ts">
-// Port of connections-list/own-connections: the user's connection cards (three, or all of them —
-// the choice is a stored UI setting), the "Add database" button for admins, and with no connections
-// yet the grid of database types to connect.
+// Port of connections-list/own-connections. It shows the user's connection cards: three, or all of
+// them (the choice is a stored UI setting). It shows the "Add database" button for admins. With no
+// connections yet, it shows the grid of database types to connect.
 import posthog from 'posthog-js';
 import { computed, onMounted, ref, watch } from 'vue';
 import { RouterLink } from 'vue-router';
@@ -367,8 +367,8 @@ function track(action: string) {
 	overflow: hidden;
 }
 
-/* The tile is dark in both themes — the default logo is the white mark, and custom logos are made
-   for a dark tile — so on the dark theme it stays navy rather than inverting with --color-ink. */
+/* The tile is dark in both themes. The default logo is the white mark, and custom logos are made
+   for a dark tile. So on the dark theme it stays navy rather than inverting with --color-ink. */
 @media (prefers-color-scheme: dark) {
 	.own-connections__card {
 		background-color: var(--color-paper-2);

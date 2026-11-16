@@ -21,13 +21,13 @@ const DEFAULT_ALLOWED_HEADERS = 'Content-Type, Authorization, x-api-key, masterp
  * Wildcard CORS for the public table CRUD routes (TablePureCrudOperationsController).
  *
  * These endpoints support public / api-key access and may be called from any origin.
- * A literal `Access-Control-Allow-Origin: *` cannot be combined with credentials, so we reflect
- * the request's Origin back instead — this allows any origin while still permitting cookie /
+ * A literal `Access-Control-Allow-Origin: *` cannot be combined with credentials. So we reflect
+ * the request's Origin back instead. This allows any origin and still permits cookie /
  * credentialed requests. Must be registered before the global enableCors() so it owns these
  * routes (including answering the OPTIONS preflight) before the global allowlist runs.
  *
  * Reflected request values (Origin, Access-Control-Request-Headers) are validated against strict
- * allowlists before being echoed back, so no untrusted input reaches a response header
+ * allowlists before they are echoed back. So no untrusted input reaches a response header
  * (defense-in-depth against header injection / CWE-113).
  */
 export function publicCrudCorsMiddleware(req: Request, res: Response, next: NextFunction): void {

@@ -10,12 +10,12 @@ import { SetPublicPermissionsDs } from '../data-structures/agents.ds.js';
 import { PublicPermissionsRO } from '../data-structures/agents-responses.ds.js';
 import { ISetPublicPermissions } from './agents-use-cases.interface.js';
 
-// Grants public (anonymous) read access on connection tables on behalf of the website-generation
-// agent (agents-core `set_public_read_permissions`, ADR sitenova/03 §6.4). agents-core has already
-// collected the explicit user approval; this side re-checks that the approving user actually holds
-// Cedar connection:edit, then MERGES the requested tables into the existing public policy (merge by
-// default — the agent can only ever ADD public tables, never remove an admin's; `replace` exists
-// for explicit resets). savePublicPermissions re-validates the generated policy and invalidates
+// Grants public (anonymous) read access on connection tables. The grant is on behalf of the
+// website-generation agent (agents-core `set_public_read_permissions`, ADR sitenova/03 §6.4). agents-core already
+// collected the explicit user approval. This side re-checks that the approving user actually holds
+// Cedar connection:edit. Then it MERGES the requested tables into the existing public policy. Merge
+// is the default: the agent can only ever ADD public tables, never remove an admin's. `replace` exists
+// for explicit resets. savePublicPermissions re-validates the generated policy and invalidates
 // the policy cache, so the grant is effective immediately.
 
 // Union two public-table sets: an all-columns grant (absent/empty readableColumns) on either side
@@ -72,7 +72,7 @@ export class SetPublicPermissionsUseCase
 			connectionId,
 		});
 		if (!allowed) {
-			// Audit trail: this is the most security-relevant refusal on the endpoint — the approving
+			// Audit trail: this is the most security-relevant refusal on the endpoint. The approving
 			// user does not hold connection:edit, so the agent-collected approval is not honored.
 			this.logger.warn(
 				`Public-read grant REFUSED (no connection:edit): connection=${connectionId} user=${userId} requested=[${requestedNames}]`,
@@ -98,10 +98,10 @@ export class SetPublicPermissionsUseCase
 	}
 
 	// "Never publicly grant the users/auth table or a password column" used to be generation-prompt
-	// text only (plan 13 §3) — a misbehaving agent could still expose every visitor account to the
-	// anonymous internet. With the site manifest stored server-side (Step 2b) the rule is enforced
-	// here: a requested table matching the manifest's auth table is refused outright, and so is any
-	// column whitelist naming the manifest's password column (that column holds credentials wherever
+	// text only (plan 13 §3). A misbehaving agent could still expose every visitor account to the
+	// anonymous internet. With the site manifest stored server-side (Step 2b), the rule is enforced
+	// here. A requested table that matches the manifest's auth table is refused outright. So is any
+	// column whitelist that names the manifest's password column (that column holds credentials wherever
 	// it appears). Connections without a manifest (plain admin-panel connections) are unaffected.
 	private async refuseGrantOnSiteAuthTable(
 		connectionId: string,

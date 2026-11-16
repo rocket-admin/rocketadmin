@@ -1,5 +1,5 @@
-// The session bootstrap that lived in AppComponent: once signed in, load the user, boot Intercom,
-// keep the connections list fresh and decide whether to show the feature notification; log out on
+// The session bootstrap that lived in AppComponent. Once signed in, load the user, boot Intercom,
+// keep the connections list fresh and decide whether to show the feature notification. Log out on
 // account deletion.
 import { onScopeDispose, ref, watch } from 'vue';
 import { useAuthStore } from '@/stores/auth';

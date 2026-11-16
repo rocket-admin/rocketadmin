@@ -1,7 +1,7 @@
-// Replaces the string events that TablesService.cast ('delete rows', 'import', 'settings', ...) and
-// TableRowService.cast ('delete row') broadcast after a successful mutation. They are genuinely
-// fire-and-forget "something changed, refresh if you care" signals, so they stay a bus — but a
-// typed one, with the table they concern in the payload.
+// Replaces the string events that TablesService.cast and TableRowService.cast broadcast after a
+// successful mutation: ('delete rows', 'import', 'settings', ...) and ('delete row'). They are
+// genuinely fire-and-forget "something changed, refresh if you care" signals, so they stay a bus.
+// But it is a typed one, with the table they concern in the payload.
 import mitt from 'mitt';
 import { getCurrentScope, onScopeDispose } from 'vue';
 

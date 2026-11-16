@@ -23,8 +23,8 @@ import { DatabaseService } from '../../../src/shared/database/database.service.j
 import { TestUtils } from '../../utils/test.utils.js';
 
 // Tests for the SaaS bridge GET /saas/company/my/email/:email (SaaSAuthMiddleware / microservice JWT).
-// It duplicates the open-source GET /company/my/email/:email lookup so rocketadmin-saas can expose the
-// same "which companies is this email in" list (used by the multi-company login picker). The
+// It duplicates the open-source GET /company/my/email/:email lookup. Thus rocketadmin-saas can expose
+// the same "which companies is this email in" list (used by the multi-company login picker). The
 // open-source endpoint is unchanged.
 
 let app: INestApplication;

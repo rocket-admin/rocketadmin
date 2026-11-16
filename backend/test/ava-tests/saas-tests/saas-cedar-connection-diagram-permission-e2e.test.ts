@@ -57,7 +57,7 @@ test.after(async () => {
 	}
 });
 
-//****************************** GET /connection/diagram/:connectionId — separate Cedar permission ******************************
+//****************************** GET /connection/diagram/:connectionId: separate Cedar permission ******************************
 
 currentTest = 'GET /connection/diagram/:connectionId';
 

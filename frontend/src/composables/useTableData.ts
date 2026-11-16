@@ -1,7 +1,7 @@
-// Port of frontend/src/app/components/dashboard/db-tables-data-source.ts (TablesDataSource): one
-// page of a table's rows plus everything the table view derives from the rows response — columns
-// and their visibility, foreign keys, widgets, field types, actions, permissions, the default sort
-// and the info alerts.
+// Port of frontend/src/app/components/dashboard/db-tables-data-source.ts (TablesDataSource). It is
+// one page of a table's rows plus everything the table view derives from the rows response. That
+// is: columns and their visibility, foreign keys, widgets, field types, actions, permissions, the
+// default sort and the info alerts.
 //
 // The CDK DataSource's BehaviorSubjects (`rowsSubject`, `loading$`) are plain reactive state:
 // `rows` and `loading`. The MatPaginator the data source wrote `pageSize`/`length` into is replaced

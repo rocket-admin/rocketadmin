@@ -27,7 +27,7 @@ export class RequestResetUserPasswordUseCase
 		const foundUser = await this._dbContext.userRepository.findOneUserByEmailAndCompanyId(email, companyId);
 		if (!foundUser) {
 			// Trigger inversion (plan 15 Phase 2): the bridge answers the same `{message}` whether or
-			// not the user exists (no payload, no error) so the SaaS caller leaks nothing to the
+			// not the user exists (no payload, no error). So the SaaS caller leaks nothing to the
 			// browser. The legacy path keeps today's behavior for old callers.
 			if (suppressEmail) {
 				return { message: Messages.PASSWORD_RESET_REQUESTED };

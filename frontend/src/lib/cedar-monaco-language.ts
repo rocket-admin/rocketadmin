@@ -20,7 +20,7 @@ export function registerCedarLanguage(monaco: any): void {
 				// Strings
 				[/"[^"]*"/, 'string'],
 
-				// Namespace paths (RocketAdmin::Action, etc.)
+				// Namespace paths (RocketAdmin::Action and other namespaced names)
 				[/[A-Z]\w*(?:::[A-Z]\w*)+/, 'type.identifier'],
 
 				// Keywords and clauses

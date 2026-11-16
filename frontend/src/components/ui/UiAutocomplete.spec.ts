@@ -6,7 +6,7 @@ import UiAutocomplete from './UiAutocomplete.vue';
 import UiField from './UiField.vue';
 
 /**
- * jsdom has no popover API and no layout, so these assert the APG combobox contract: the input
+ * jsdom has no popover API and no layout, so these assert the APG combobox contract. The input
  * keeps focus, `aria-expanded` / `aria-activedescendant` track the virtual cursor, and the keys do
  * what the pattern says.
  */

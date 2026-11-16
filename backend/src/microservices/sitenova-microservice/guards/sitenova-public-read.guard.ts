@@ -12,8 +12,8 @@ import { CedarAuthorizationService } from '../../../entities/cedar-authorization
 import { Messages } from '../../../exceptions/text/messages.js';
 
 // Gates read operations on the generated-site data API. Reads are allowed only when the connection
-// has a public policy that grants table:query on the requested table — the same public-permissions
-// mechanism the existing /table/crud routes use (see QueryTableGuard). The visitor is anonymous
+// has a public policy that grants table:query on the requested table. This is the same public-permissions
+// mechanism that the existing /table/crud routes use (see QueryTableGuard). The visitor is anonymous
 // here; column visibility follows the connection's public-read policy downstream.
 @Injectable()
 export class SitenovaPublicReadGuard implements CanActivate {
@@ -32,9 +32,9 @@ export class SitenovaPublicReadGuard implements CanActivate {
 			throw new BadRequestException(Messages.TABLE_NAME_MISSING);
 		}
 
-		// The deny REASON is logged on purpose: an anonymous 403 here is what a generated site's
-		// visitor hits when the public grant is missing/partial, and the two causes (no public
-		// policy at all vs. this specific table not granted) have different fixes.
+		// The deny REASON is logged on purpose. A generated site's visitor gets an anonymous 403 here
+		// when the public grant is missing/partial. The two causes have different fixes: no public
+		// policy at all, or this specific table not granted.
 		const publicEnabled = await this.cedarAuthService.isPublicAccessEnabled(connectionId);
 		if (!publicEnabled) {
 			this.logger.warn(

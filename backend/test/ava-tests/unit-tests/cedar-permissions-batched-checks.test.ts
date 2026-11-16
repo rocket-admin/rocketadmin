@@ -11,7 +11,7 @@ import { Cacher } from '../../../src/helpers/cache/cacher.js';
 
 // Every Cedar permission check loads the caller's groups in the connection (one SQL query joining
 // group + connection + user). Listing endpoints used to run that check once per table or per group
-// inside Promise.all, which surfaced as an "N+1 query with repeating spans" on the backend. The
+// inside Promise.all. That surfaced as an "N+1 query with repeating spans" on the backend. The
 // batched entry points below must answer the same verdicts as the per-item ones while loading the
 // groups exactly once.
 

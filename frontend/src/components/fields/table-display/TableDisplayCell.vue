@@ -1,12 +1,12 @@
 <script setup lang="ts">
 /**
- * The shared shell of every table-display widget — the port of
+ * The shared shell of every table-display widget: the port of
  * `base-table-display-field.component.css` (`.field-display` / `.field-value` /
  * `.field-copy-button`), which each Angular widget re-imported.
  *
- * The value goes in the default slot (single line, ellipsised); the copy button appears on row hover
+ * The value goes in the default slot (single line, ellipsised). The copy button appears on row hover
  * (and on keyboard focus) and is hidden on narrow screens. The cell sits inside a clickable table
- * row, so the button stops the click from propagating before emitting `copy` — the widget then calls
+ * row. So the button stops the click from propagating before it emits `copy`. The widget then calls
  * `useViewField().copy(…)` with whatever it wants copied.
  */
 import { computed } from 'vue';

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Multi-line text control — the `matInput` on a `<textarea>` replacement (long text, JSON, XML).
+ * Multi-line text control: the `matInput` on a `<textarea>` replacement (long text, JSON, XML).
  *
  * Same contract as `UiInput`: geometry only, and the label/hint/error wiring comes from a `UiField`
  * ancestor through `inject`. Standalone use passes `invalid` itself.

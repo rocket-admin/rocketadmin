@@ -12,17 +12,17 @@ import TypeSpecimens from './TypeSpecimens.vue';
 
 /**
  * The Foundations pages are as brittle as any other rendering code, and their failure mode is
- * silent: a broken prefix or a renamed slot prop yields an empty grid, and an empty grid looks like
- * a page that simply has nothing to show. These assert the grids are non-empty and that each
- * specimen actually paints with a `var()` rather than a copied literal.
+ * silent. A broken prefix or a renamed slot prop yields an empty grid. An empty grid looks like
+ * a page that simply has nothing to show. These assert that the grids are non-empty. They also
+ * assert that each specimen actually paints with a `var()` and not with a copied literal.
  *
  * They also pin the MDX↔story contract. Every Foundations page pulls its visuals in with
- * `<Story of={Specimens.X} />`, which resolves at *runtime* in the Storybook manager — a story
+ * `<Story of={Specimens.X} />`, which resolves at *runtime* in the Storybook manager. A story
  * renamed here fails as a blank panel in the browser, not as a build error. The
  * `story exports the MDX pages reference` test is what turns that into a red unit test instead.
  */
 
-/** This directory. `process.cwd()` is the `frontend/` root — vitest.config.ts pins it. */
+/** This directory. `process.cwd()` is the `frontend/` root: vitest.config.ts pins it. */
 const DOCS = resolve(process.cwd(), 'src/components/ui/docs');
 
 /** Renders one doc component with the same props its story passes. */
@@ -33,8 +33,8 @@ function render(component: Parameters<typeof mount>[0], props: Record<string, un
 describe('SwatchGrid', () => {
 	it('paints each chip with the token, not a resolved literal', () => {
 		const wrapper = render(SwatchGrid, { prefix: '--color-accent', only: ['--color-accent'] });
-		// The var() indirection is the point: a copied hex would keep looking right after the alias
-		// chain broke, which is exactly the bug the docs are meant to expose.
+		// The var() indirection is the point. A copied hex would keep looking right after the alias
+		// chain broke. That is exactly the bug the docs are meant to expose.
 		expect(wrapper.get('.swatch__chip').attributes('style')).toContain('var(--color-accent)');
 	});
 
@@ -129,8 +129,8 @@ describe('foundations stories', () => {
 	/**
 	 * Story exports named in a `<Story of={Specimens.X} />`, read out of the MDX pages themselves.
 	 *
-	 * Scanned rather than hand-listed: a hand-maintained copy of what the pages embed is the same
-	 * kind of drift this pair of tests exists to catch, one level up.
+	 * Scanned and not hand-listed. A hand-maintained copy of what the pages embed is the same kind of
+	 * drift that this pair of tests exists to catch, one level up.
 	 */
 	const REFERENCED = [
 		...new Set(
@@ -152,7 +152,7 @@ describe('foundations stories', () => {
 	});
 
 	it('has no unreferenced stories', () => {
-		// A specimen nobody embeds is dead weight — it renders nowhere, so nobody notices it rot.
+		// A specimen nobody embeds is dead weight. It renders nowhere, so nobody notices it rot.
 		const exported = Object.keys(specimens).filter((key) => key !== 'default');
 		expect(exported.sort()).toEqual([...REFERENCED].sort());
 	});

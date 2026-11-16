@@ -55,7 +55,7 @@ export interface PersonalTableViewSettings {
 	// sortable_by: string[],
 }
 
-/** Where a row is referenced from — GET /table/row's `referenced_table_names_and_columns[0]`. */
+/** Where a row is referenced from: GET /table/row's `referenced_table_names_and_columns[0]`. */
 export interface RelatedRecords {
 	referenced_on_column_name: string;
 	referenced_by: { table_name: string; column_name: string; display_name?: string }[];

@@ -4,8 +4,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import AppCodeEditor from './AppCodeEditor.vue';
 
 /**
- * Monaco is mocked to reject in `src/test-setup.ts`, so these drive the `<textarea>` fallback —
- * which is also what a user gets until the Monaco chunk arrives.
+ * Monaco is mocked to reject in `src/test-setup.ts`, so these drive the `<textarea>` fallback.
+ * That is also what a user gets until the Monaco chunk arrives.
  */
 
 beforeEach(() => {

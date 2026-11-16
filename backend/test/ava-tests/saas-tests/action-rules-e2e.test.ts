@@ -1627,7 +1627,7 @@ test.serial(`${currentTest} eventId from a different connection is rejected`, as
 	const conn2 = JSON.parse(createConn2.text);
 	t.is(createConn2.status, 201);
 
-	// Use the first event id against the SECOND connection id — guard's lookup should miss
+	// Use the first event id against the SECOND connection id. The guard's lookup must miss
 	const res = await request(app.getHttpServer())
 		.post(`/event/actions/activate/${fx.eventId}/${conn2.id}`)
 		.set('Cookie', ownerSecond.token)

@@ -114,7 +114,7 @@ export async function getTableStructureInfo(
 		dao.getReferencedTableNamesAndColumns(tableName, userEmail),
 	]);
 
-	// Only expose the structure of related tables the user is permitted to read — otherwise
+	// Only expose the structure of related tables that the user is permitted to read. Otherwise the
 	// foreign-key traversal would leak the schema of tables the user has no access to. One batched
 	// permission check covers both directions of the relation.
 	const referencedByTableNames = referencedTableNamesAndColumns.flatMap((referencedTable) =>

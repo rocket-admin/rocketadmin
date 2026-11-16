@@ -4,7 +4,7 @@ import type { WidgetStructure } from '@/models/table';
 import { mockWidgetStructure } from '../stories.mocks';
 import UrlEdit from './UrlEdit.vue';
 
-/** The API sometimes sends `widget_params` as a JSON string, which `WidgetStructure` doesn't model. */
+/** The API sometimes sends `widget_params` as a JSON string, which `WidgetStructure` does not model. */
 const rawParams = (json: string) => json as unknown as WidgetStructure['widget_params'];
 
 describe('UrlEdit', () => {

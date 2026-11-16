@@ -78,8 +78,8 @@ export class ExportCSVFromTableUseCase
 			}
 
 			// Column-level read permissions bound the query, not just the exported rows (plan 13
-			// P0-3): a filter/search/ordering on a withheld column would otherwise reveal its
-			// values through which rows come back. This route requires a userId (`@UserId()`, no
+			// P0-3). Otherwise a filter/search/ordering on a withheld column would reveal its
+			// values through the returned rows. This route requires a userId (`@UserId()`, no
 			// anonymous branch), so only the authenticated evaluation is needed here.
 			const allColumnNames = tableStructure.map((column) => column.column_name);
 			const readableColumns = await this.cedarPermissions.getReadableColumns(
@@ -110,8 +110,8 @@ export class ExportCSVFromTableUseCase
 
 			if (isHexString(searchingFieldValue)) {
 				searchingFieldValue = hexToBinary(searchingFieldValue) as any;
-				// Readable columns only — a binary search must not reach a withheld column either.
-				// This must land on the settings object the DAO actually receives; assigning it to
+				// Readable columns only: a binary search must not reach a withheld column either.
+				// This must land on the settings object that the DAO actually receives. An assignment to
 				// `tableSettings` (which was already consumed above) had no effect on the query.
 				const binarySearchFields = queryableStructure
 					.filter((field) => isBinary(field.data_type))
@@ -135,8 +135,8 @@ export class ExportCSVFromTableUseCase
 			// Response-side projection, on top of the query-level restriction above (defense in depth).
 			const restrictColumns = !isAllColumnsReadable(readableColumns, allColumnNames);
 
-			//todo: rework as streams when node oracle driver will support it correctly
-			//todo: agent return data as array of table rows, not as stream, because we cant
+			//todo: rework as streams when node oracle driver will support it correctly.
+			//TODO: agent return data as array of table rows, not as stream, because we cannot
 			//todo: transfer data as a stream from clint to server
 			if (
 				connection.type === 'oracledb' ||

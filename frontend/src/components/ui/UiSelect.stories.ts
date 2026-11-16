@@ -19,7 +19,7 @@ const TYPED: SelectOption<SelectValue>[] = [
 
 /**
  * Native `<select>`, so the platform picker handles keyboard and screenreaders. Option values are
- * typed — `true`, `42` and `null` come back through `v-model` as themselves, not as strings. The
+ * typed: `true`, `42` and `null` come back through `v-model` as themselves, not as strings. The
  * _Typed Values_ story prints the model so you can see it.
  *
  * Searchable lists use `UiAutocomplete`.
@@ -77,7 +77,7 @@ export const Multiple: Story = {
 	}),
 };
 
-/** `group` on an option renders it under a native `<optgroup>` — the `mat-optgroup` replacement. */
+/** `group` on an option renders it under a native `<optgroup>`: the `mat-optgroup` replacement. */
 export const Grouped: Story = {
 	render: () => ({
 		components: { UiField, UiSelect },

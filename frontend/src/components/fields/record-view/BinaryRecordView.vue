@@ -1,8 +1,9 @@
 <script setup lang="ts">
 /**
  * Port of record-view-fields/binary (`BinaryRecordViewComponent`): binary data (a server string
- * of char-code bytes, or Buffer JSON) encoded as `widget_params.encoding` — hex (default),
- * base64 or ascii — truncated to 80 characters (full text in the `title`), with a copy button.
+ * of char-code bytes, or Buffer JSON) encoded as `widget_params.encoding`. The encoding is hex
+ * (default), base64 or ascii. The text is truncated to 80 characters (full text in the `title`),
+ * with a copy button.
  */
 import { computed } from 'vue';
 import { UiIconButton } from '@/components/ui';

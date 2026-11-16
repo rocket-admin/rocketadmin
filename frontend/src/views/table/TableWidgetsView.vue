@@ -315,8 +315,8 @@ async function updateWidgets(afterDeleteAll = false) {
 }
 
 /* Pushed to the bottom of the page when the list is short. The wrapper is 90% of the page, so the
-   panel bleeds by the other 10% plus the page gutter and pads back by the same to keep the buttons
-   aligned with the grid. */
+   panel bleeds by the other 10% plus the page gutter. It pads back by the same amount to keep the
+   buttons aligned with the grid. */
 .table-widgets__actions {
 	position: sticky;
 	bottom: 0;

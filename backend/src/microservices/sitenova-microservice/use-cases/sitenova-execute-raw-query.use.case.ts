@@ -32,10 +32,10 @@ export class SitenovaExecuteRawQueryUseCase
 		const dao = getDataAccessObject(connection);
 		const userEmail = await getUserEmailForAgent(connection, userId, this._dbContext.userRepository);
 
-		// Intentionally write-capable: unlike the AI read path there is no read-only
+		// Intentionally write-capable. Unlike the AI read path, there is no read-only
 		// validation, no LIMIT wrapping and no Cedar permission check. The caller is
-		// authorized by the microservice JWT and is constrained only by the privileges
-		// of the connected database user, so it can run DDL/DML such as CREATE TABLE.
+		// authorized by the microservice JWT. Only the privileges of the connected database
+		// user constrain it, so it can run DDL/DML such as CREATE TABLE.
 		const result = await dao.executeRawQuery(query, tableName ?? '', userEmail);
 
 		return { result };

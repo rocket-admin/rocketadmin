@@ -1,6 +1,6 @@
-// Paths of a table's pages. Table names are user data and can hold `?`, `#`, `%` or `/`, so each
-// segment is encoded, like the Angular router does for `router.navigate([...])` commands; vue-router
-// treats a `path` as already encoded and would otherwise cut the name at `?` or `#`.
+// Paths of a table's pages. Table names are user data and can hold `?`, `#`, `%` or `/`. So each
+// segment is encoded, like the Angular router does for `router.navigate([...])` commands. The
+// vue-router treats a `path` as already encoded and would otherwise cut the name at `?` or `#`.
 
 export type TablePage = 'entry' | 'widgets' | 'settings' | 'actions';
 

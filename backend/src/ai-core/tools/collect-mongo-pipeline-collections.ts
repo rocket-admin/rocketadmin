@@ -38,12 +38,12 @@ function collectReferencedCollections(node: unknown, collected: Set<string>): vo
 }
 
 /**
- * Resolves the collections a MongoDB aggregation pipeline reads from besides
- * its base collection (the `$lookup` / `$graphLookup` / `$unionWith` targets),
- * so the caller can verify the user has read permission on each.
+ * Resolves the collections that a MongoDB aggregation pipeline reads from, other than
+ * its base collection. These are the `$lookup` / `$graphLookup` / `$unionWith` targets.
+ * The caller can then verify that the user has read permission on each.
  *
- * Returns `{ kind: 'tables' }` (possibly empty) when the pipeline parses, and
- * `{ kind: 'indeterminate' }` when it cannot be parsed — in which case the
+ * Returns `{ kind: 'tables' }` (possibly empty) when the pipeline parses.
+ * Returns `{ kind: 'indeterminate' }` when it cannot be parsed. In that case the
  * caller must fall back to a stricter check rather than assume it is harmless.
  */
 export function collectMongoPipelineCollections(pipeline: string): CollectQueryTablesResult {

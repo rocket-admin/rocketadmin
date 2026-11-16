@@ -34,7 +34,7 @@ export class UnsuspendUsersInCompanyUseCase
 			throw new BadRequestException(Messages.NO_USERS_TO_SUSPEND);
 		}
 
-		// Plan 46: no plan-driven member cap — an admin can unsuspend any number of users.
+		// Plan 46: no plan-driven member cap. An admin can unsuspend any number of users.
 		await this._dbContext.userRepository.unSuspendUsers(userIdsToSuspend);
 		return {
 			success: true,

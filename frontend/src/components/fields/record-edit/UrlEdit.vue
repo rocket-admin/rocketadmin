@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * Port of record-edit-fields/url (`UrlEditComponent`): a URL column. `widget_params.prefix` is
- * shown before the input and prepended for validation only — the stored value is what was typed.
+ * shown before the input and prepended for validation only. The stored value is what was typed.
  */
 import { computed, ref } from 'vue';
 import { UiField, UiInput } from '@/components/ui';

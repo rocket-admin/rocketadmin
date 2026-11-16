@@ -1,8 +1,8 @@
 <script setup lang="ts">
 /**
  * Port of record-view-fields/image (`ImageRecordViewComponent`): the image at `prefix + value`
- * (`widget_params.prefix`) when that is a valid URL, an `[Image URL]` placeholder otherwise — and
- * the stored value underneath either way.
+ * (`widget_params.prefix`) when that is a valid URL, an `[Image URL]` placeholder otherwise. The
+ * stored value is underneath either way.
  */
 import { computed } from 'vue';
 import type { RecordViewFieldProps, ViewFieldEmits } from '../types';

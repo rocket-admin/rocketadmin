@@ -1,9 +1,9 @@
 <script setup lang="ts">
 /**
- * Rendered Markdown — the `<markdown [data]>` (ngx-markdown) replacement for the markdown view and
+ * Rendered Markdown: the `<markdown [data]>` (ngx-markdown) replacement for the markdown view and
  * display fields.
  *
- * `marked` parses, DOMPurify sanitizes: the source is user data from a database column, so the
+ * `marked` parses, DOMPurify sanitizes. The source is user data from a database column, so the
  * HTML is never trusted. ngx-markdown sanitized through Angular's DomSanitizer for the same reason.
  * With `mermaid` (the AI panel's `<markdown mermaid>`), ```mermaid fences are rendered as
  * diagrams after each render; the library loads on the first diagram.
@@ -26,7 +26,7 @@ const props = withDefaults(
 const root = ref<HTMLElement | null>(null);
 const html = computed(() => renderMarkdown(props.source ?? '', { inline: props.inline }));
 
-// flush: 'post' — v-html has replaced the content by then, so the fences are in the DOM.
+// flush: 'post'. By then v-html replaced the content, so the fences are in the DOM.
 watch(
 	[html, () => props.mermaid, root],
 	() => {

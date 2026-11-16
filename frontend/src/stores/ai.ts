@@ -2,7 +2,7 @@
 // Both calls POST to the same NDJSON endpoint; the first one gets the thread id from a header.
 //
 // A failed request is reported by the client and the notified ApiError is thrown, like every store.
-// An aborted request (the user pressed stop) still resolves null, as in Angular: the AI panel treats
+// An aborted request (the user pressed stop) still resolves null, as in Angular. The AI panel treats
 // null as "nothing to show" and would otherwise render the abort as an error message.
 import { defineStore } from 'pinia';
 import { api, isAbortError } from '@/api/client';
@@ -57,7 +57,7 @@ export const useAiStore = defineStore('ai', () => {
 	return { createThread, sendMessage };
 });
 
-/** api.service.ts's tryParseChunk: lines that parse but aren't `{ type: string }` objects are dropped. */
+/** api.service.ts's tryParseChunk: lines that parse but are not `{ type: string }` objects are dropped. */
 export function isAiStreamChunk(value: unknown): value is AiStreamChunk {
 	return typeof value === 'object' && value !== null && typeof (value as { type?: unknown }).type === 'string';
 }

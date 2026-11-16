@@ -61,7 +61,7 @@ describe('useTableFolders', () => {
 			},
 		]);
 		expect(state.hasCustomFolders()).toBe(false);
-		// It can't be collapsed either.
+		// It cannot be collapsed either.
 		state.toggleFolder(ALL_TABLES_FOLDER_ID);
 		expect(state.folders[0]?.expanded).toBe(true);
 		expect(uiSettings.updateConnectionSetting).not.toHaveBeenCalled();

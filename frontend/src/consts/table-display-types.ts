@@ -1,4 +1,4 @@
-// Port of frontend/src/app/consts/table-display-types.ts. The DB-type tables are kept exactly as in Angular; only the
+// Port of frontend/src/app/consts/table-display-types.ts. The DB-type tables are kept exactly as in Angular. Only the
 // component references changed, to lazily loaded Vue SFCs (one chunk per widget, shared by every
 // key that maps to it). `Default: ''` is kept so hosts can keep testing the entry for truthiness.
 import { defineAsyncComponent } from 'vue';

@@ -14,19 +14,20 @@ import { SitenovaRowEventRO } from '../data-structures/sitenova-internal-respons
 import { ISitenovaActivateRowEventActions } from './sitenova-use-cases.interface.js';
 
 // The universal-backend → core row-event bridge (plan 37). A generated-site visitor's write never
-// passes through the core's own row use cases (universal-backend runs the query itself), so the
-// table actions the connection owner configured in RocketAdmin ("on new row in orders → Slack")
-// would never fire for visitor traffic. universal-backend reports every write here; THIS use case
-// decides whether anything runs: only the actions the owner attached to this table + event — the
-// same lookup AddRow/UpdateRow/DeleteRowInTableUseCase perform — and nothing when there are none.
+// passes through the core's own row use cases (universal-backend runs the query itself). The
+// connection owner configured table actions in RocketAdmin ("on new row in orders → Slack"). So these
+// actions would never fire for visitor traffic. universal-backend reports every write here. THIS use case
+// decides whether anything runs: only the actions that the owner attached to this table + event.
+// That is the same lookup that AddRow/UpdateRow/DeleteRowInTableUseCase do. When there are none,
+// nothing runs.
 //
 // Trust: the caller is a satellite (microservice JWT), and the write it reports was already
-// authorized against the site manifest on its side. Nothing here re-checks Cedar — the actions run
+// authorized against the site manifest on its side. Nothing here re-checks Cedar. The actions run
 // under the owner's configuration, on the owner's behalf, exactly as they would for an admin-panel
 // write. The actor is reported as a site visitor, never as a RocketAdmin user.
 //
-// Failure model: one action failing must not hide the others, and no failure is the visitor's
-// problem — the outcome is reported per action and logged, never thrown (the write already
+// Failure model: the failure of one action must not hide the others. No failure is the visitor's
+// problem. The outcome is reported per action and logged, never thrown (the write already
 // happened). Mirrors activateTableActions(), which swallows per-action errors on the admin path.
 @Injectable()
 export class SitenovaActivateRowEventActionsUseCase
@@ -47,7 +48,7 @@ export class SitenovaActivateRowEventActionsUseCase
 		const { connectionId, tableName, event, primaryKeys, visitor } = inputData;
 
 		// "Process only if added in RocketAdmin": no configured action ⇒ nothing to do, and the
-		// connection is not even decrypted. This is the hot path — every visitor write lands here.
+		// connection is not even decrypted. This is the hot path: every visitor write lands here.
 		const tableActions = await this.findActionsForEvent(connectionId, tableName, event);
 		if (!tableActions.length) {
 			return { actionsMatched: 0, activationResults: [] };
@@ -73,8 +74,8 @@ export class SitenovaActivateRowEventActionsUseCase
 				);
 				activationResults.push({ actionId: tableAction.id, result: receivedOperationResult });
 			} catch (error) {
-				// A 4xx/5xx from the owner's webhook URL, an unreachable Slack hook, a mail failure — the
-				// owner's integration problem, reported back to universal-backend's log line, not thrown.
+				// A 4xx/5xx from the owner's webhook URL, an unreachable Slack hook, a mail failure: these are the
+				// owner's integration problems. They are reported back to universal-backend's log line, not thrown.
 				this.logger.warn(
 					`Table action ${tableAction.id} (${tableAction.method}) failed for visitor ${event} on ` +
 						`connection=${connectionId} table=${tableName}: ${getErrorMessage(error)}`,

@@ -346,7 +346,7 @@ test.serial('Elasticsearch: updateMapping adds a new field; rollback is recorded
 	t.is(generateResp.status, 201);
 	const changeId = JSON.parse(generateResp.text).changes[0].id;
 
-	// Update is destructive in the sense that the rollback can't restore the prior
+	// Update is destructive in the sense that the rollback cannot restore the prior
 	// mapping shape; the use-case requires confirmedDestructive when isReversible=false.
 	const approveResp = await request(app.getHttpServer())
 		.post(`/table-schema/change/${changeId}/approve`)
@@ -365,8 +365,8 @@ test.serial('Elasticsearch: invalid op marks FAILED and attempts auto-rollback',
 	const indexName = randomIndexName('ra_es_fail');
 	createdIndices.push(indexName);
 
-	// updateMapping on a non-existent index — Elasticsearch will reject with an
-	// index_not_found_exception, exercising the FAILED + auto-rollback path.
+	// updateMapping on a non-existent index. Elasticsearch will reject with an
+	// index_not_found_exception, which exercises the FAILED + auto-rollback path.
 	nextProposal = {
 		forwardOp: JSON.stringify({
 			operation: 'updateMapping',

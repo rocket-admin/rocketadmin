@@ -1,10 +1,10 @@
 <script setup lang="ts">
 /**
- * One entry in a `UiMenu` — the `mat-menu-item` replacement.
+ * One entry in a `UiMenu`: the `mat-menu-item` replacement.
  *
  * Three shapes, by the same typed-props polymorphism as UiButton: `to` renders a RouterLink, `href`
  * an `<a>` (with `target`), neither a `<button>` that emits `select`. All carry `role="menuitem"` and
- * `tabindex="-1"` — the menu moves focus between items with the arrow keys, so none of them sit in
+ * `tabindex="-1"`. The menu moves focus between items with the arrow keys, so none of them sit in
  * the page's tab order. Choosing any of them closes the menu and returns focus to the trigger.
  *
  * Disabled items stay in the DOM with `aria-disabled` (a disabled link also drops its `href`), and
@@ -26,7 +26,7 @@ const props = withDefaults(
 		target?: string;
 		/** Leading Material Symbols icon. Use the `leading` slot instead for anything richer (a badge). */
 		icon?: string;
-		/** A muted second line under the label, e.g. the signed-in email under "Account". */
+		/** A muted second line under the label, for example the signed-in email under "Account". */
 		description?: string;
 		/** Interaction emphasis. `danger` for destructive entries such as "Delete". */
 		variant?: 'ghost' | 'danger';
@@ -71,7 +71,7 @@ function onClick(event: MouseEvent) {
 	menu?.close({ returnFocus: true });
 }
 
-/** APG: Space activates a menu item too. Buttons do that natively; links and spans don't. */
+/** APG: Space activates a menu item too. Buttons do that natively; links and spans do not. */
 function onKeydown(event: KeyboardEvent) {
 	if (event.key === ' ' && tag.value !== 'button') {
 		event.preventDefault();

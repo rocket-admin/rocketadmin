@@ -1426,7 +1426,7 @@ test.serial(
 				.set('Accept', 'application/json');
 			t.is(getTablesInConnection.status, 200);
 			const tables = JSON.parse(getTablesInConnection.text);
-			// connection:edit does NOT grant table access — tables should be empty
+			// connection:edit does NOT grant table access. Tables must be empty
 			const targetTable = tables.find((table: any) => table.table === firstTableInfo.testTableName);
 			t.is(targetTable, undefined);
 		} catch (e) {

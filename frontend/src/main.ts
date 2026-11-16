@@ -1,5 +1,5 @@
 // Self-hosted brand fonts first so their @font-face rules land before the theme, then the tokens,
-// then base.css (which reads them). .storybook/preview.ts mirrors this order — keep them together.
+// then base.css (which reads them). .storybook/preview.ts mirrors this order: keep them together.
 import '@fontsource-variable/geist';
 import '@fontsource-variable/space-grotesk';
 import '@fontsource-variable/geist-mono';
@@ -29,8 +29,8 @@ async function bootstrap() {
 	app.directive('tooltip', vTooltip);
 	initMonitoring(app, router);
 
-	// An awaited request that failed has already been shown to the user (see ApiError.notified);
-	// letting it reach the console as an unhandled error would only add noise.
+	// An awaited request that failed has already been shown to the user (see ApiError.notified).
+	// If it reaches the console as an unhandled error, it only adds noise.
 	const defaultHandler = app.config.errorHandler;
 	app.config.errorHandler = (error, instance, info) => {
 		if (isApiError(error) && error.notified) return;

@@ -3,8 +3,8 @@ import UiBadge from './UiBadge.vue';
 import UiIcon from './UiIcon.vue';
 
 /**
- * Count/dot overlay, the `matBadge` replacement — the "1" on the account icon while the email is
- * unverified. The indicator is `aria-hidden`; `label` says what it means to a screenreader.
+ * Count/dot overlay, the `matBadge` replacement. Example: the "1" on the account icon while the email
+ * is unverified. The indicator is `aria-hidden`; `label` says what it means to a screenreader.
  */
 const meta = {
 	title: 'UI/Badge',

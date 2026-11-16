@@ -16,9 +16,9 @@ import { SelfHostedOperationsController } from './selfhosted-operations.controll
 @Module({})
 export class SelfHostedOperationsModule {
 	// Whether register() built the full (self-hosted) module. configure() must
-	// follow THIS decision, not re-read isSaaS(): register() runs at import
-	// time and configure() at app init — a process that flips IS_SAAS in
-	// between (the in-process test apps do) would otherwise apply
+	// follow THIS decision, not re-read isSaaS(). register() runs at import
+	// time and configure() at app init. A process can flip IS_SAAS in
+	// between (the in-process test apps do). It would otherwise apply
 	// AuthMiddleware inside the empty module variant, whose TypeORM
 	// repositories were never imported, and crash the boot on DI resolution.
 	private static registeredSelfHosted = false;

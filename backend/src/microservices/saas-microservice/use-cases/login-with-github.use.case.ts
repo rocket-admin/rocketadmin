@@ -40,9 +40,9 @@ export class LoginUserWithGithubUseCase
 				foundUser.name = name;
 			}
 			if (foundUser.email !== email) {
-				// GitHub reports a new primary address. Following it used to be unconditional, which
-				// could hand this row an address another account already owns (plan 53): keep the old
-				// one in that case — the login itself is unaffected.
+				// GitHub reports a new primary address. The update to it used to be unconditional. That
+				// could hand this row an address that another account already owns (plan 53). In that case,
+				// keep the old one. The login itself is unaffected.
 				const addressOwner = await this._dbContext.userRepository.findAnyUserWithEmail(email);
 				if (addressOwner) {
 					this.logger.warn(
@@ -67,7 +67,7 @@ export class LoginUserWithGithubUseCase
 
 		try {
 			// A new GitHub identity: the address must be free across ALL companies and providers
-			// (plan 53) — a password or Google account with this address is rejected, not doubled.
+			// (plan 53). A password or Google account with this address is rejected, not doubled.
 			const savedUser = await this._dbContext.userRepository.withRegistrationEmailLock(email, async () => {
 				const conflictingUser = await this._dbContext.userRepository.findAnyUserWithEmail(email);
 				if (conflictingUser) {

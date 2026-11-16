@@ -2,13 +2,13 @@ import { EmailVerificationRequiredException } from '../../../exceptions/custom-e
 import { TwoFaRequiredException } from '../../../exceptions/custom-exceptions/two-fa-required-exception.js';
 import { JwtScopesEnum } from '../enums/jwt-scopes.enum.js';
 
-// A scope on an end-user token means the session is restricted to the flow that finishes it:
-// '2fa_enable' until the user enrols in company-mandated 2FA, 'email_verify' until the user
-// confirms their email. Every auth path funnels through here so a restricted token is refused
-// everywhere except the routes that complete its flow — those pass the scope in `allowScopes`.
+// A scope on an end-user token means that the session is restricted to the flow that finishes it.
+// '2fa_enable' applies until the user enrols in company-mandated 2FA. 'email_verify' applies until
+// the user confirms their email. Every auth path funnels through here. So a restricted token is
+// refused everywhere except the routes that complete its flow. Those pass the scope in `allowScopes`.
 //
-// An unrecognized scope is ignored, preserving the behavior of the `includes(TWO_FA_ENABLE)`
-// checks this replaced: a token minted by a newer service must not lock a user out of an older one.
+// An unrecognized scope is ignored. This keeps the behavior of the replaced `includes(TWO_FA_ENABLE)`
+// checks. A token minted by a newer service must not lock a user out of an older one.
 export function assertTokenScopeAllowed(
 	tokenScope: Array<JwtScopesEnum> | null | undefined,
 	allowScopes: Array<JwtScopesEnum | string> = [],

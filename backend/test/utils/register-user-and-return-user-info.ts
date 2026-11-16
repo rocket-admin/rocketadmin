@@ -168,12 +168,12 @@ function cookieValueFromResponse(response: Response, cookieName: string): string
 }
 
 // Since 2026-08-25 a saas registration ends on a 6-digit email code: the cookie it returns is scoped
-// `email_verify`, which the core refuses on every route. The tests have no mailbox, so they finish
-// the verification the same way a user clicking the emailed LINK would: the saas keeps the raw core
-// verification token next to the hashed code (`email_verification_code.coreVerificationToken`); the
-// helper reads it from the saas test database, opens the saas verify link, then asks the saas to
-// swap the scoped cookie for a full session (`POST /saas/user/session/refresh`) — exactly what the
-// SPA polls for. Nothing in the services is bypassed.
+// `email_verify`, which the core refuses on every route. The tests have no mailbox. So they finish
+// the verification the same way as a user who clicks the emailed LINK. The saas keeps the raw core
+// verification token next to the hashed code (`email_verification_code.coreVerificationToken`). The
+// helper reads it from the saas test database and opens the saas verify link. Then it asks the saas
+// to swap the scoped cookie for a full session (`POST /saas/user/session/refresh`). That is exactly
+// what the SPA polls for. Nothing in the services is bypassed.
 async function completeSaasEmailVerification(scopedJwt: string): Promise<string> {
 	const payload = JSON.parse(Buffer.from(scopedJwt.split('.')[1], 'base64url').toString('utf8')) as { id: string };
 	const row = await getSaasTestDb()('email_verification_code')

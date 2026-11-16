@@ -16,8 +16,8 @@ export const COPIED_MESSAGE = 'Field value was copied to clipboard.';
 
 /**
  * `widget_params` as an object. The API hands them over either parsed or as a JSON string
- * (depending on the endpoint), and every Angular widget repeated the `typeof … === 'string'`
- * check; an unparseable string yields `{}` rather than throwing in a template.
+ * (depending on the endpoint). Every Angular widget repeated the `typeof … === 'string'`
+ * check. An unparseable string yields `{}` rather than an error in a template.
  */
 // biome-ignore lint/suspicious/noExplicitAny: widget params are free-form per widget type
 export function parseWidgetParams(widgetStructure: WidgetStructure | null | undefined): Record<string, any> {

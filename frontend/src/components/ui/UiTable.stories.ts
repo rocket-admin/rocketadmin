@@ -32,7 +32,7 @@ const COLUMNS: TableColumn<Log>[] = [
 
 /**
  * Native `<table>` replacing `mat-table` + `matSort` + `SelectionModel`; `UiPaginator` replaces
- * `mat-paginator`. Sorting and paging are emitted for the caller to fetch — `localSort` is opt-in.
+ * `mat-paginator`. Sorting and paging are emitted for the caller to fetch; `localSort` is opt-in.
  * Cells and headers are scoped slots (`#cell-<key>`, `#header-<key>`); `#actions` is a sticky
  * trailing column.
  */

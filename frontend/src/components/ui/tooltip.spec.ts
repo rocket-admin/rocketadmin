@@ -11,7 +11,7 @@ function mountHost(template: string, setup: () => Record<string, unknown> = () =
 
 const bubble = () => document.getElementById(TOOLTIP_BUBBLE_ID) as HTMLElement;
 const isShown = () => bubble().style.display !== 'none';
-/** The text a host's aria-describedby resolves to — what a screenreader announces. */
+/** The text a host's aria-describedby resolves to: what a screenreader announces. */
 const description = (el: Element) =>
 	(el.getAttribute('aria-describedby') ?? '')
 		.split(' ')
@@ -116,8 +116,8 @@ describe('vTooltip', () => {
         <button class="c" v-tooltip="'C'">c</button>
       </div>
     `);
-		// jsdom has a 1024×768 viewport and zero-sized rects at 0,0: top and left cannot fit, so
-		// they flip to their opposites — which is itself the flip behaviour under test.
+		// jsdom has a 1024×768 viewport and zero-sized rects at 0,0. Top and left cannot fit, so
+		// they flip to their opposites. That is itself the flip behaviour under test.
 		Object.defineProperty(window, 'innerWidth', { value: 1024, configurable: true });
 		Object.defineProperty(window, 'innerHeight', { value: 768, configurable: true });
 

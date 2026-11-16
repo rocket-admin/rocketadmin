@@ -4,9 +4,9 @@ import { Messages } from '../exceptions/text/messages.js';
 import { ValidationHelper } from '../helpers/validators/validation-helper.js';
 
 /**
- * Like @UserId(), but tolerates an unauthenticated ("public") request: when no user is present it
- * returns undefined instead of throwing. Use on endpoints that may be reached by public users
- * (the guard decides whether public access is allowed); the handler then treats a missing userId
+ * Like @UserId(), but tolerates an unauthenticated ("public") request. When no user is present, it
+ * returns undefined instead of throwing. Use it on endpoints that public users can reach.
+ * The guard decides whether public access is allowed. The handler then treats a missing userId
  * as a public request.
  */
 export const OptionalUserId = createParamDecorator((_data: unknown, ctx: ExecutionContext): string | undefined => {

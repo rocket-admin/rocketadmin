@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Collapsible section — the `mat-expansion-panel` replacement (the connection forms' "Advanced
+ * Collapsible section: the `mat-expansion-panel` replacement (the connection forms' "Advanced
  * settings", the row-edit related-records list). Group several in a `UiAccordion` for one-open-at-
  * a-time behaviour.
  *
@@ -8,7 +8,7 @@
  * `aria-controls`, and the content is a `role="region"` labelled by that button. `headingLevel`
  * wraps the button in an `<hN>` when the panel titles belong in the page outline.
  *
- * The `actions` slot sits in the header row but **outside** the button — interactive content
+ * The `actions` slot sits in the header row but **outside** the button. Interactive content
  * (the related-records "add" and "open" links) cannot legally live inside a `<button>`. Clicks on
  * the rest of the header row toggle, like Material's whole-header hit area; clicks in `actions` do
  * not.
@@ -29,7 +29,7 @@ const props = withDefaults(
 		description?: string;
 		/** The header cannot be toggled; the panel stays in its current state. */
 		disabled?: boolean;
-		/** Hides the chevron, e.g. for a panel with nothing to show. */
+		/** Hides the chevron, for example for a panel with nothing to show. */
 		hideToggle?: boolean;
 		/** Wraps the header button in an `<h2>`…`<h6>`. Omitted, no heading is added. */
 		headingLevel?: 2 | 3 | 4 | 5 | 6;
@@ -89,8 +89,8 @@ function toggle() {
 
 <template>
 	<div :class="classes">
-		<!-- The row takes the click so the chevron and padding toggle too; the button is what keyboard
-         and AT use, and its own click bubbles here, so it needs no handler of its own. -->
+		<!-- The row takes the click so the chevron and padding toggle too. The button is what keyboard
+         and AT use. Its own click bubbles here, so it needs no handler of its own. -->
 		<div class="ui-expansion-panel__header" @click="toggle">
 			<component :is="headingTag" class="ui-expansion-panel__heading">
 				<button

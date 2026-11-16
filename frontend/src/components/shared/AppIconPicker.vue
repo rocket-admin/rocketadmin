@@ -1,15 +1,16 @@
 <script setup lang="ts">
 // Port of frontend/src/app/components/ui-components/icon-picker (IconPickerComponent).
 //
-// A button ("Add icon" / "Change icon", tooltip via `title`) opening a small panel: a grid of
-// suggested icons as radio buttons, a free-text Material Symbols name with Apply, and Remove when
-// `resetButtonShown` and an icon is set. Emits `change` with the icon name, or `null` for Remove —
-// the Angular `onFieldChange` output.
+// A button ("Add icon" / "Change icon", tooltip through `title`) that opens a small panel. The panel
+// has a grid of suggested icons as radio buttons and a free-text Material Symbols name with Apply.
+// It has Remove when `resetButtonShown` and an icon is set. Emits `change` with the icon name, or
+// `null` for Remove: the Angular `onFieldChange` output.
 //
 // Angular put this inside a mat-menu, which closes on any click inside it except where the custom
-// input stopped propagation; the same effect here: clicking a suggestion, Apply and Remove close the
-// panel, typing doesn't, and arrowing through the suggestions emits each without closing. The panel is a non-modal `role="dialog"` rather than a UiMenu — its contents
-// are radios and a text field, which `role="menu"` may not contain. Escape and an outside click
+// input stopped propagation. The same effect here: a click on a suggestion, Apply or Remove closes the
+// panel, and typing does not. Arrow keys through the suggestions emit each without closing. The panel
+// is a non-modal `role="dialog"` rather than a UiMenu. Its contents
+// are radios and a text field, which `role="menu"` cannot contain. Escape and an outside click
 // close it; focus moves in on open and back to the button on Escape.
 import { computed, nextTick, onBeforeUnmount, ref, useId, watch } from 'vue';
 import { UiButton, UiField, UiIcon, UiInput } from '@/components/ui';

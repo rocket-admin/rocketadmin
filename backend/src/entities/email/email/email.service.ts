@@ -29,7 +29,7 @@ export interface ICronMessagingResults {
 	messageId?: string;
 	accepted?: Array<string | Mail.Address>;
 	rejected?: Array<string | Mail.Address>;
-	// Set when the dispatch failed or was suppressed — the Slack cron report
+	// Set when the dispatch failed or was suppressed. The Slack cron report
 	// groups failures by this string.
 	failureReason?: string;
 }
@@ -51,8 +51,8 @@ export function mapReminderOutcomeToCronResult(email: string, outcome: EmailDisp
 		accepted: accepted ? accepted : undefined,
 		rejected: rejected ? rejected : undefined,
 	};
-	// The saas webhook is best-effort: SMTP failure still comes back as 2xx with
-	// the address in `rejected` — surface it as a failure, not a success row.
+	// The saas webhook is best-effort: an SMTP failure still comes back as 2xx with
+	// the address in `rejected`. Surface it as a failure, not a success row.
 	if (!accepted || accepted.length === 0) {
 		base.failureReason = `rejected by saas transporter${outcome.deliveryError ? `: ${outcome.deliveryError}` : ''}`;
 	}
@@ -61,9 +61,9 @@ export function mapReminderOutcomeToCronResult(email: string, outcome: EmailDisp
 
 // Every public send* method builds the letter parameters (including the legacy link
 // computation with linkBase/customCompanyDomain handling) and hands them to the
-// `dispatchEmail` seam. In SaaS mode the seam fires the saas-side composer webhook;
-// self-hosted it composes the letter locally (EMAIL_TEXT + nunjucks templates) and sends
-// it through the instance's own SMTP server (EMAIL_CONFIG_STRING / EMAIL_SERVICE_*), or
+// `dispatchEmail` seam. In SaaS mode the seam fires the saas-side composer webhook.
+// Self-hosted, it composes the letter locally (EMAIL_TEXT + nunjucks templates). It sends
+// the letter through the instance's own SMTP server (EMAIL_CONFIG_STRING / EMAIL_SERVICE_*), or
 // suppresses it when no SMTP server is configured.
 @Injectable()
 export class EmailService {
@@ -154,7 +154,7 @@ export class EmailService {
 		const link = verificationLinkBase
 			? `${verificationLinkBase}/${verificationString}`
 			: `${domain}/company/${companyId}/verify/${verificationString}/`;
-		// The saas composer adds the quotes/spacing around the name — pass the raw value or null.
+		// The saas composer adds the quotes/spacing around the name. Pass the raw value or null.
 		return await this.dispatchEmail('company_invite', email, {
 			link,
 			companyName: invitedCompanyName ? invitedCompanyName : null,
@@ -217,10 +217,10 @@ export class EmailService {
 		return await this.emailTransporterService.transportEmail(emailMessage);
 	}
 
-	// The single gate every outgoing letter passes through:
-	// - test mode   -> no-op (unchanged semantics);
+	// The single gate that every outgoing letter passes through:
+	// - test mode   -> no-op (unchanged semantics).
 	// - SaaS mode   -> saas-side composer webhook, mapped onto a SentMessageInfo-compatible
-	//                  object (a failure never fails the parent operation);
+	//                  object (a failure never fails the parent operation).
 	// - self-hosted -> composed locally and sent through the configured SMTP server; suppressed
 	//                  when none is configured. The reminder is SaaS onboarding copy and never
 	//                  leaves a self-hosted instance.

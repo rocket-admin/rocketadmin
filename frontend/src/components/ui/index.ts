@@ -1,6 +1,6 @@
 /**
- * The design system's public surface. Views import from here — `import { UiButton } from
- * '@/components/ui'` — so a primitive can be split or renamed without touching every call site.
+ * The design system's public surface. Views import from here (`import { UiButton } from
+ * '@/components/ui'`), so a primitive can be split or renamed with no change at every call site.
  *
  * See `CONVENTIONS.md` in this directory (rendered in Storybook under _Foundations → Conventions_)
  * before adding one.

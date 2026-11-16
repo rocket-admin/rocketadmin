@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Port of frontend/src/app/components/edit-database-schema (EditDatabaseSchemaComponent): the AI
-// schema assistant. A prompt goes to the table-schema generator, the proposed batch of changes is
+// schema assistant. A prompt goes to the table-schema generator. The proposed batch of changes is
 // shown as cards (with a preview diagram), and the batch is applied or rejected. The ER diagram of
 // the connection sits on the left.
 //
@@ -131,7 +131,7 @@ async function submit() {
 				);
 				previewSource = preview.diagram ?? '';
 			} catch {
-				// preview is supplementary — don't block the change list on a diagram failure
+				// preview is supplementary: do not block the change list on a diagram failure
 			}
 			const parsedChanges = await Promise.all(result.changes.map((c) => parseChange(c)));
 			messages.value.push({
@@ -232,7 +232,7 @@ async function loadDiagram(label: string) {
 			messages.value.push({ role: 'diagram', text: label, diagramSource: `\`\`\`mermaid\n${source}\n\`\`\`` });
 		}
 	} catch {
-		// Diagram is supplementary - don't show error if it fails
+		// Diagram is supplementary. Do not show error if it fails
 	} finally {
 		initialDiagramLoading.value = false;
 	}

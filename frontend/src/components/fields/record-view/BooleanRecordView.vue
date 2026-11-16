@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * Port of record-view-fields/boolean (`BooleanRecordViewComponent`): a check (true) or a cross
- * (false), coloured success/danger — swapped by `invertColors` — and a dash for anything else.
+ * (false), coloured success/danger (swapped by `invertColors`), and a dash for anything else.
  */
 import { computed } from 'vue';
 import { UiIcon } from '@/components/ui';

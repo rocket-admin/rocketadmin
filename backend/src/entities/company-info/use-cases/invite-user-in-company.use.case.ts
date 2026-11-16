@@ -44,7 +44,7 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
 			);
 		}
 
-		// Plan 46: RocketAdmin is free — `canInviteMoreUsers` is always true today; the seam stays.
+		// Plan 46: RocketAdmin is free. `canInviteMoreUsers` is always true today; the seam stays.
 		if (isSaaS()) {
 			const canInviteMoreUsers = await this.companyInfoHelperService.canInviteMoreUsers(companyId);
 			if (!canInviteMoreUsers) {
@@ -72,9 +72,9 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
 		}
 
 		if (foundInvitedUser && !foundInvitedUser.isActive) {
-			// Trigger inversion (plan 15 Phase 2): with `suppressEmail` (bridge-only) the re-confirmation
-			// letter is NOT sent here — the raw token travels back as a MARKED SUCCESS (the global
-			// exception filter would strip extra fields from an error body) and the SaaS caller sends
+			// Trigger inversion (plan 15 Phase 2): with `suppressEmail` (bridge-only), the re-confirmation
+			// letter is NOT sent here. The raw token travels back as a MARKED SUCCESS (the global
+			// exception filter would strip extra fields from an error body). The SaaS caller sends
 			// the letter, then surfaces the user-facing 400 itself. Never log the raw token here.
 			if (inputData.suppressEmail) {
 				const { rawToken: suppressedRawToken } =
@@ -134,7 +134,7 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
 		};
 
 		// Trigger inversion (plan 15 Phase 2): the SaaS caller builds the invite link and sends the
-		// letter itself — return the raw token instead of sending (and never log it).
+		// letter itself. Return the raw token instead of the letter (and never log it).
 		if (inputData.suppressEmail) {
 			invitationRO.emailPayload = {
 				type: 'company_invite',

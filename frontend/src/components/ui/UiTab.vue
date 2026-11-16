@@ -17,9 +17,9 @@ const props = withDefaults(
 		/**
 		 * Id of the region this tab controls, when it is not a sibling `UiTabPanel`.
 		 *
-		 * For the mode-switch shape: several tabs re-configuring one shared region rather than
-		 * revealing separate panels. `aria-controls` must still resolve to a real element, so pass the
-		 * shared region's id here instead of leaving it pointing at a panel that was never rendered.
+		 * For the mode-switch shape: several tabs re-configure one shared region and do not reveal
+		 * separate panels. `aria-controls` must still resolve to a real element. So pass the shared
+		 * region's id here. Otherwise it points at a panel that was never rendered.
 		 */
 		controls?: string;
 	}>(),
@@ -44,7 +44,7 @@ const classes = computed(() => [
 ]);
 
 function onKeydown(event: KeyboardEvent) {
-	// Horizontal list, so Left/Right. Home/End jump to the ends; both wrap via the parent.
+	// Horizontal list, so Left/Right. Home/End jump to the ends; both wrap through the parent.
 	const moves = {
 		ArrowRight: 'next',
 		ArrowLeft: 'prev',

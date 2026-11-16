@@ -1,6 +1,6 @@
-// Helpers shared by the secrets page and its dialogs: expiry checks, Angular's `date` pipe formats,
-// the `<input type="date">` value conversions that replace mat-datepicker, and the analytics events
-// (Angular sent each one to both Amplitude and PostHog).
+// Helpers shared by the secrets page and its dialogs. They are the expiry checks, Angular's `date`
+// pipe formats, the `<input type="date">` value conversions that replace mat-datepicker, and the
+// analytics events. Angular sent each event to both Amplitude and PostHog.
 import posthog from 'posthog-js';
 import { trackEvent } from '@/composables/useAnalytics';
 import type { Secret } from '@/models/secret';
@@ -30,12 +30,12 @@ const medium = new Intl.DateTimeFormat('en-US', {
 	second: '2-digit',
 });
 
-/** Angular's `date:'mediumDate'`, e.g. "Jan 5, 2024". */
+/** Angular's `date:'mediumDate'`, for example "Jan 5, 2024". */
 export function formatMediumDate(value: string): string {
 	return mediumDate.format(new Date(value));
 }
 
-/** Angular's `date:'medium'`, e.g. "Jan 5, 2024, 3:04:05 PM". */
+/** Angular's `date:'medium'`, for example "Jan 5, 2024, 3:04:05 PM". */
 export function formatMediumDateTime(value: string): string {
 	return medium.format(new Date(value));
 }

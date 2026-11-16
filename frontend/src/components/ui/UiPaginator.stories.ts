@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import UiPaginator from './UiPaginator.vue';
 
 /**
- * `mat-paginator` with Material's texts: "Items per page:", "1 – 30 of 120", previous/next and
+ * `mat-paginator` with Material's texts: "Items per page:", `1 – 30 of 120`, previous/next and
  * optional first/last. Emits `update:pageIndex`, `update:pageSize` and a `page` event; the caller
  * fetches.
  */

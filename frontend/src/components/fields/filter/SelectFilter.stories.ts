@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/vue3-vite';
 import { mockStructure } from '../stories.mocks';
 import SelectFilter from './SelectFilter.vue';
 
-// Angular passed an empty widget structure too, which left mat-select with no options; without one the
+// Angular passed an empty widget structure too, which left mat-select with no options. Without one the
 // options come from `data_type_params`, as they do for an enum column with no widget.
 const meta = {
 	title: 'Filter Fields/Select',

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // Port of frontend/src/app/components/skeletons/placeholder-table-data.
 //
-// A 7-column × 6-row table grid on wide screens, swapped for six 4-line cards at ≤600px — the same
-// 42 cells and 6 cards, in the same column proportions, as the Angular component.
+// A 7-column × 6-row table grid on wide screens, swapped for six 4-line cards at ≤600px. It has the
+// same 42 cells and 6 cards, in the same column proportions, as the Angular component.
 //
 // The root is the one `role="status"` region; every bar inside is a `decorative` UiSkeleton. When
 // nested inside another placeholder (PlaceholderTableView, PlaceholderCompany) pass `nested`: the

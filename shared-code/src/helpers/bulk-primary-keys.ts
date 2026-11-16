@@ -68,10 +68,12 @@ export function chunkPrimaryKeyRows(
 }
 
 /**
- * Restricts the query to the given keys with one list predicate instead of one OR-ed group per key:
- * `col IN (…)` for a single key column, `(a, b) IN ((…), (…))` for composite keys where the dialect
- * has row-value constructors, and a grouped `(a = ? AND b = ?) OR …` where it has not (MSSQL).
- * A key with a `null` component never matches through IN (`NULL IN (NULL)` is unknown), so such
+ * Restricts the query to the given keys with one list predicate instead of one OR-ed group per key.
+ * - `col IN (…)` for a single key column.
+ * - `(a, b) IN ((…), (…))` for composite keys where the dialect has row-value constructors.
+ * - A grouped `(a = ? AND b = ?) OR …` where it has not (MSSQL).
+ *
+ * A key with a `null` component never matches through IN (`NULL IN (NULL)` is unknown). So such
  * keys are always emitted as a group with `IS NULL` for the null columns.
  */
 export function applyPrimaryKeysFilter<T extends Knex.QueryBuilder>(

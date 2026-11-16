@@ -1,9 +1,9 @@
 /** Types shared by `UiTable`, `UiPaginator` and their callers. */
 
-/** `''` means unsorted — Material's `SortDirection`, so ported query-param code keeps working. */
+/** `''` means unsorted. It is Material's `SortDirection`, so ported query-param code keeps working. */
 export type TableSortDirection = 'asc' | 'desc' | '';
 
-/** The `v-model:sort` value of a `UiTable` — Material's `Sort` state (`matSortActive`/`matSortDirection`). */
+/** The `v-model:sort` value of a `UiTable`: Material's `Sort` state (`matSortActive`/`matSortDirection`). */
 export interface TableSort {
 	/** Key of the sorted column; `''` when nothing is sorted. */
 	active: string;
@@ -13,7 +13,7 @@ export interface TableSort {
 /** Identifies a row for `v-model:selected` and the `v-for` key. */
 export type TableRowKey = string | number;
 
-/** One `UiTable` column — what `matColumnDef` + `mat-header-cell` declared. */
+/** One `UiTable` column: what `matColumnDef` + `mat-header-cell` declared. */
 export interface TableColumn<R = unknown> {
 	/** Column id: the sort key, the `#cell-<key>`/`#header-<key>` slot suffix and, by default, the row field read. */
 	key: string;
@@ -23,13 +23,13 @@ export interface TableColumn<R = unknown> {
 	sortable?: boolean;
 	/** Cell text alignment, in logical terms. Default `start`. */
 	align?: 'start' | 'center' | 'end';
-	/** Any CSS width for the column, e.g. `'12rem'` or `'20%'`. */
+	/** Any CSS width for the column, for example `'12rem'` or `'20%'`. */
 	width?: string;
 	/** Reads the cell value; defaults to `row[key]`. Also what `localSort` compares. */
 	value?: (row: R) => unknown;
 }
 
-/** Emitted by `UiPaginator` on every change — the shape of Material's `PageEvent`. */
+/** Emitted by `UiPaginator` on every change: the shape of Material's `PageEvent`. */
 export interface PageEvent {
 	pageIndex: number;
 	pageSize: number;

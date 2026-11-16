@@ -9,7 +9,7 @@ import { SuccessResponse } from '../../../microservices/saas-microservice/data-s
 import { UpdateUserEmailAsAdminDs } from '../data-structures/update-user-as-admin.ds.js';
 import { IUpdateUserEmailAsAdminUseCase } from './selfhosted-use-cases.interfaces.js';
 
-// Plan 15 Phase 6 (rev 5): self-hosted has no email-change verification flow — a company
+// Plan 15 Phase 6 (rev 5): self-hosted has no email-change verification flow. A company
 // admin updates the address directly. Uniqueness rule matches VerifyChangeUserEmailUseCase.
 @Injectable()
 export class UpdateUserEmailAsAdminUseCase

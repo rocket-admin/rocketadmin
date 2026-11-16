@@ -27,7 +27,7 @@ const props = withDefaults(
 		submitVariant?: 'primary' | 'danger';
 		/** Request in flight: spins the submit button and locks dismissal. */
 		busy?: boolean;
-		/** Disables the submit button, e.g. while the form is invalid. */
+		/** Disables the submit button, for example while the form is invalid. */
 		disabled?: boolean;
 		/** Geometry only. */
 		size?: 'sm' | 'md' | 'lg';

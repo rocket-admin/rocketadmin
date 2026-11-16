@@ -4,9 +4,9 @@ const SUCCESS_TABLE_CHUNK_SIZE = 20;
 const FAILURE_ADDRESSES_CHUNK_SIZE = 100;
 
 // Pure formatter for the morning email-cron Slack report: one string per Slack
-// message, in posting order. Successes render as fixed-width tables; failures
-// are grouped by reason so a broken delivery seam names itself instead of
-// hiding behind a generic "timed out" line.
+// message, in posting order. Successes render as fixed-width tables. Failures
+// are grouped by reason, so a broken delivery seam names itself. It does not
+// hide behind a generic "timed out" line.
 export function buildEmailCronReportMessages(results: Array<ICronMessagingResults>): Array<string> {
 	const successes = results.filter((result) => !result.failureReason);
 	const failures = results.filter((result) => !!result.failureReason);

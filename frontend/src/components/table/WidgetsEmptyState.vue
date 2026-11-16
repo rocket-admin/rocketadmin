@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Port of frontend/src/app/components/dashboard/db-table-view/db-table-widgets/widgets-empty-state:
 // the widgets page with no widgets yet. A demo table turns its raw values into widgets one row at a
-// time (600ms apart, holding 2.2s, then restarting), next to a grid of the available widgets.
+// time (600ms apart, then 2.2s hold, then a restart). It sits next to a grid of the available widgets.
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { UiButton, UiIcon } from '@/components/ui';
 import { trackTableEvent } from './analytics';

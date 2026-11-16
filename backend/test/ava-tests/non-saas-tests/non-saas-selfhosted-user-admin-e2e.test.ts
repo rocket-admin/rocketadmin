@@ -26,11 +26,11 @@ let currentTest: string;
 const testPassword = `#r@dY^e&7R4b5Ib@31iE4xbn`;
 
 // SelfHostedOperationsModule.register() decides at IMPORT time (when
-// app.module loads) whether to build the full self-hosted variant — flipping
-// IS_SAAS afterwards cannot bring the routes back. In SaaS-mode environments
-// (e.g. the sitenova full stack, IS_SAAS=true in the container env) this file
-// can only self-skip; it runs for real where the env is self-hosted at import
-// (rocketadmin CI), or via `exec -e IS_SAAS= … npx ava <this file>`.
+// app.module loads) whether to build the full self-hosted variant. A later flip of
+// IS_SAAS cannot bring the routes back. In SaaS-mode environments
+// (for example the sitenova full stack, IS_SAAS=true in the container env), this file
+// can only self-skip. It runs for real where the env is self-hosted at import
+// (rocketadmin CI), or through `exec -e IS_SAAS= … npx ava <this file>`.
 const SELFHOSTED_MODULE_UNAVAILABLE = !!process.env.IS_SAAS;
 
 function skipUnavailable(t: { log: (msg: string) => void; pass: () => void }): boolean {
@@ -84,8 +84,8 @@ async function getUserProfile(userToken: string): Promise<{ id: string; email: s
 	return JSON.parse(foundUser.text);
 }
 
-// Self-hosted invite flow (plan 15 Phase 6): no email transporter exists or is reachable —
-// the invitation must still succeed (dispatchEmail no-ops), the raw verification string is
+// Self-hosted invite flow (plan 15 Phase 6): no email transporter exists or is reachable.
+// The invitation must still succeed (dispatchEmail no-ops). The raw verification string is
 // exposed under isTest(), and the invited user can complete signup and log in.
 async function inviteAndActivateUser(
 	adminToken: string,
@@ -134,8 +134,8 @@ test.serial(`${currentTest} invite succeeds with no email transporter and invite
 	}
 	const adminInfo = await registerUserAndReturnUserInfo(app);
 
-	// The whole flow must work although no SMTP transporter is configured or reachable:
-	// plan 15 Phase 3 dispatchEmail never touches a transporter, and Phase 6 removed the
+	// The whole flow must work although no SMTP transporter is configured or reachable.
+	// The plan 15 Phase 3 dispatchEmail never touches a transporter. Phase 6 removed the
 	// fatal EMAIL_SEND_FAILED check from the invite use case.
 	const invitedUser = await inviteAndActivateUser(adminInfo.token, 'USER');
 	t.truthy(invitedUser.userId);
@@ -161,7 +161,7 @@ test.serial(`${currentTest} re-inviting an inactive user does not fail with emai
 	t.true(firstInvite.status <= 201);
 
 	// Second invite of the same not-yet-active email: before plan 15 Phase 6 this path
-	// attempted an email send and threw a fatal 500 EMAIL_SEND_FAILED self-hosted.
+	// tried an email send and threw a fatal 500 EMAIL_SEND_FAILED self-hosted.
 	// Now it must answer with the domain-level 400 (user already added but not active).
 	const secondInvite = await request(app.getHttpServer())
 		.put(`/company/user/${adminProfile.company.id}`)
@@ -234,7 +234,7 @@ test.serial(`${currentTest} weak (too short) password receives 400`, async (t) =
 	const adminInfo = await registerUserAndReturnUserInfo(app);
 	const invitedUser = await inviteAndActivateUser(adminInfo.token, 'USER');
 
-	// isPasswordStrongOrThrowError is bypassed in test mode — the DTO MinLength(8)
+	// isPasswordStrongOrThrowError is bypassed in test mode. The DTO MinLength(8)
 	// still enforces the lower bound, so a short password must be rejected.
 	const result = await request(app.getHttpServer())
 		.put(`/selfhosted/users/${invitedUser.userId}/password`)
@@ -324,8 +324,8 @@ test.serial(`${currentTest} malformed email receives 400`, async (t) => {
 currentTest = 'SaaS mode gating';
 
 // The real SaaS deployment registers an EMPTY SelfHostedOperationsModule (register() runs
-// with IS_SAAS set), so the routes plainly 404 there — that branch cannot be exercised
-// in-process because register() already ran self-hosted at module import. What CAN be
+// with IS_SAAS set). So the routes plainly 404 there. That branch cannot be exercised
+// in-process, because register() already ran self-hosted at module import. What CAN be
 // verified is the dynamic belt-and-braces gate inside the use cases: with IS_SAAS flipped
 // at request time the endpoints answer 400 ENDPOINT_NOT_AVAILABLE_IN_THIS_MODE.
 test.serial(`${currentTest} user-admin routes answer 400 when IS_SAAS is set`, async (t) => {

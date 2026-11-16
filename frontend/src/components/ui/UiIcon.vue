@@ -1,11 +1,11 @@
 <script setup lang="ts">
 /**
- * A Material Symbols Outlined ligature icon — the `mat-icon` replacement. The font is loaded
+ * A Material Symbols Outlined ligature icon: the `mat-icon` replacement. The font is loaded
  * globally (`@material-symbols/font-400/outlined.css` in main.ts and the Storybook preview), so this
  * is a styled `<span>` whose text content is the ligature name.
  *
  * **Decorative by default.** Almost every icon in the app sits next to text that already names the
- * thing (a button label, a menu item), so the span is `aria-hidden` — otherwise a screenreader reads
+ * thing (a button label, a menu item). So the span is `aria-hidden`. Otherwise a screenreader reads
  * the ligature ("chevron_right") aloud. Pass `label` for the rare icon that carries meaning on its
  * own; it then becomes `role="img"` with that name. An icon-only *control* should be a
  * `UiIconButton`, whose button carries the name instead.
@@ -17,7 +17,7 @@ import { computed } from 'vue';
 
 const props = withDefaults(
 	defineProps<{
-		/** Ligature name from https://fonts.google.com/icons, e.g. `chevron_right`. */
+		/** Ligature name from https://fonts.google.com/icons, for example `chevron_right`. */
 		name: string;
 		/** Geometry only: the glyph's box. `sm` 18px (inline with text), `md` 24px, `lg` 32px. */
 		size?: 'sm' | 'md' | 'lg';

@@ -8,8 +8,8 @@ import { ISaasGetUserEmailCompanies } from './saas-use-cases.interface.js';
 
 /**
  * Returns the companies a given email is registered in. This is the SaaS microservice bridge for the
- * open-source `GET /my/email/:email` endpoint (GetUserEmailCompaniesUseCase) — duplicated here on
- * purpose so rocketadmin-saas can expose the same lookup (used by the multi-company login picker)
+ * open-source `GET /my/email/:email` endpoint (GetUserEmailCompaniesUseCase). It is duplicated here
+ * on purpose. Thus rocketadmin-saas can expose the same lookup (used by the multi-company login picker)
  * through its own `/saas/*` surface. The open-source endpoint is left untouched.
  */
 @Injectable()

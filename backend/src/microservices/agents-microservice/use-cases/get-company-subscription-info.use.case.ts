@@ -13,7 +13,7 @@ import { IGetCompanySubscriptionInfo } from './agents-use-cases.interface.js';
 
 /**
  * Thin metadata provider for the agents microservice: resolves a user's company subscription level
- * via the saas gateway. The agents service (agents-core) owns all website-generation policy
+ * through the saas gateway. The agents service (agents-core) owns all website-generation policy
  * (model tier, hosting caps, quota enforcement) and only reads this subscription metadata from here.
  */
 @Injectable({ scope: Scope.REQUEST })

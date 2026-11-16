@@ -1,12 +1,12 @@
 <script setup lang="ts">
 // Port of frontend/src/app/components/company (/company): the company name, and the members table
-// with pending invitations — roles, suspension, connection access, invite / delete / revoke.
+// with pending invitations: roles, suspension, connection access, invite / delete / revoke.
 //
-// The store keeps company, members and custom domain as state and refreshes what each mutation
+// The store keeps company, members and custom domain as state. It refreshes what each mutation
 // changed (Angular refetched on `company.cast` events), so this page renders from the store.
 //
-// The custom domain is fetched on load like Angular did, but Angular's template renders no domain
-// section any more (its handlers are unused), so there is none here either; DeleteDomainDialog is
+// The custom domain is fetched on load like Angular did. But Angular's template renders no domain
+// section any more (its handlers are unused), so there is none here either. DeleteDomainDialog is
 // ported for parity.
 import { orderBy } from 'lodash-es';
 import { computed, onMounted, ref, watch } from 'vue';

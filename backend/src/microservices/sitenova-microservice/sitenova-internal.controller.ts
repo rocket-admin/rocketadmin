@@ -22,9 +22,10 @@ import {
 } from './use-cases/sitenova-use-cases.interface.js';
 
 // Internal, microservice-authenticated controller (SaaSAuthMiddleware / microservice JWT), used by
-// the SiteNova agents service only. The single endpoint runs write-capable raw SQL so the AI agent
-// can provision schema (e.g. CREATE TABLE, including the users/auth table the generated site needs)
-// in the user's connected database. Browser-facing CRUD + auth live in SitenovaSiteController.
+// the SiteNova agents service only. The single endpoint runs write-capable raw SQL. With it, the AI
+// agent can provision schema in the user's connected database. An example is CREATE TABLE,
+// including the users/auth table that the generated site needs. Browser-facing CRUD + auth live in
+// SitenovaSiteController.
 @UseInterceptors(SentryInterceptor)
 @SkipThrottle()
 @Timeout()
