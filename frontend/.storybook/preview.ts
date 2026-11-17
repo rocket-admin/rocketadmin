@@ -13,7 +13,12 @@ import type { Preview } from '@storybook/vue3-vite';
 import { setup } from '@storybook/vue3-vite';
 import { createPinia } from 'pinia';
 import { createMemoryHistory, createRouter } from 'vue-router';
+import { applyTheme, onSystemThemeChange, systemPrefersDark } from '../src/lib/color-theme';
 import { type AuthParams, buildRoutes, type RouterParams } from './decorators';
+
+// The app sets `data-theme` from the account setting. Stories have no account, so they follow the OS.
+applyTheme(systemPrefersDark());
+onSystemThemeChange(applyTheme);
 
 /**
  * Installs a fresh Pinia + router on every story's app. This runs before mount, which is why it

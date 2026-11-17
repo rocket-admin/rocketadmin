@@ -1,7 +1,10 @@
+import type { ThemePreference } from '@/lib/color-theme';
+
 export interface GlobalSettingsUI {
 	connectionsListCollapsed: boolean;
 	lastFeatureNotificationId: string;
 	profileSidebarCollapsed?: boolean;
+	theme?: ThemePreference;
 }
 
 export interface TableSettingsUI {
