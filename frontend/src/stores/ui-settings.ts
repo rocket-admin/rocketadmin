@@ -1,13 +1,23 @@
 // Port of frontend/src/app/services/ui-settings.service.ts: per-user UI preferences (collapsed
 // panels, shown columns, the last feature notification seen), stored server-side as one JSON blob
-// in /user/settings.
+// in /user/settings. The store also owns the colour theme: it applies `globalSettings.theme` to the
+// page.
 //
 // Shape of the blob:
-//   { globalSettings: { connectionsListCollapsed },
+//   { globalSettings: { connectionsListCollapsed, theme },
 //     connections: { [connectionId]: { shownTableTitles, tables: { [tableName]: { shownColumns } } } } }
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { api } from '@/api/client';
+import {
+	applyTheme,
+	isThemePreference,
+	onSystemThemeChange,
+	readStoredTheme,
+	storeTheme,
+	systemPrefersDark,
+	type ThemePreference,
+} from '@/lib/color-theme';
 import type { ConnectionSettingsUI, GlobalSettingsUI, TableSettingsUI, UiSettings } from '@/models/ui-settings';
 
 interface UserSettingsResponse {
@@ -19,9 +29,17 @@ export const useUiSettingsStore = defineStore('uiSettings', () => {
 	const settings = ref<UiSettings>(emptySettings());
 	/** The last settings the server confirmed; null until they are loaded (or when none are stored). */
 	const loadedSettings = ref<UiSettings | null>(null);
-	/** Read once, like the Angular service: the Monaco editors pick their theme from it. */
-	const isDarkMode = ref(prefersDarkMode());
+	/** The user's theme choice. The account settings page changes it. */
+	const theme = ref<ThemePreference>(readStoredTheme());
+	const systemDark = ref(systemPrefersDark());
+	/** The resolved theme. The Monaco editors and the database logos pick their variant from it. */
+	const isDarkMode = computed(() => (theme.value === 'system' ? systemDark.value : theme.value === 'dark'));
 	let pending: Promise<UiSettings | null> | null = null;
+
+	onSystemThemeChange((dark) => {
+		systemDark.value = dark;
+	});
+	watch(isDarkMode, applyTheme, { immediate: true });
 
 	/**
 	 * The stored settings, fetched once and then served from memory. Resolves null when the user has
@@ -35,6 +53,8 @@ export const useUiSettingsStore = defineStore('uiSettings', () => {
 				.then((response) => {
 					const parsed = parseSettings(response);
 					if (parsed) settings.value = parsed;
+					const storedTheme = parsed?.globalSettings?.theme;
+					if (isThemePreference(storedTheme)) selectTheme(storedTheme);
 					loadedSettings.value = parsed;
 					return parsed;
 				})
@@ -72,6 +92,22 @@ export const useUiSettingsStore = defineStore('uiSettings', () => {
 		syncUiSettings().catch(() => {});
 	}
 
+	/**
+	 * Applies `value` at once and saves it to the account. The upload waits for the stored settings,
+	 * so that it does not replace them with an empty copy.
+	 */
+	function setTheme(value: ThemePreference): void {
+		selectTheme(value);
+		getUiSettings().then(
+			() => {
+				// The loaded settings can carry the previous choice. The new choice wins.
+				selectTheme(value);
+				updateGlobalSetting('theme', value);
+			},
+			() => {},
+		);
+	}
+
 	async function syncUiSettings(): Promise<UserSettingsResponse> {
 		const response = await api.post<UserSettingsResponse>(
 			'/user/settings',
@@ -82,6 +118,11 @@ export const useUiSettingsStore = defineStore('uiSettings', () => {
 		return response;
 	}
 
+	function selectTheme(value: ThemePreference): void {
+		theme.value = value;
+		storeTheme(value);
+	}
+
 	function connectionSettings(connectionId: string): ConnectionSettingsUI {
 		settings.value.connections[connectionId] ??= { shownTableTitles: false, tables: {} };
 		return settings.value.connections[connectionId];
@@ -90,8 +131,10 @@ export const useUiSettingsStore = defineStore('uiSettings', () => {
 	return {
 		settings,
 		loadedSettings,
+		theme,
 		isDarkMode,
 		getUiSettings,
+		setTheme,
 		updateGlobalSetting,
 		updateConnectionSetting,
 		updateTableSetting,
@@ -105,8 +148,4 @@ function emptySettings(): UiSettings {
 
 function parseSettings(response: UserSettingsResponse | null): UiSettings | null {
 	return response?.userSettings ? (JSON.parse(response.userSettings) as UiSettings) : null;
-}
-
-function prefersDarkMode(): boolean {
-	return typeof window.matchMedia === 'function' && window.matchMedia('(prefers-color-scheme: dark)').matches;
 }

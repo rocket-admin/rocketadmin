@@ -15,9 +15,11 @@ const connections = reactive({
 const user = reactive({
 	currentUser: { email: 'ada@example.com', isActive: true } as { email: string; isActive: boolean } | null,
 });
+const uiSettings = reactive({ isDarkMode: false });
 
 vi.mock('@/stores/connections', () => ({ useConnectionsStore: () => connections }));
 vi.mock('@/stores/user', () => ({ useUserStore: () => user }));
+vi.mock('@/stores/ui-settings', () => ({ useUiSettingsStore: () => uiSettings }));
 vi.mock('@/environment', () => ({ environment: { saas: false } }));
 
 function makeRouter() {
@@ -39,6 +41,18 @@ describe('AppHeader', () => {
 		connections.connectionID = null;
 		connections.ownConnectionsList = [];
 		user.currentUser = { email: 'ada@example.com', isActive: true };
+		uiSettings.isDarkMode = false;
+	});
+
+	it('shows the logo variant for the current theme', async () => {
+		const wrapper = await mountHeader();
+		const logo = () => wrapper.find('.app-header__logo-image').attributes('src');
+		expect(logo()).toBe('/assets/rocketadmin_logo_black.svg');
+
+		uiSettings.isDarkMode = true;
+		await flushPromises();
+		expect(logo()).toBe('/assets/rocketadmin_logo_white.svg');
+		wrapper.unmount();
 	});
 
 	it('links the logo to rocketadmin.com when signed out, with no account menu', async () => {

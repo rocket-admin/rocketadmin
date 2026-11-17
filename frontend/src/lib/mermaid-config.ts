@@ -31,11 +31,10 @@ const MERMAID_DARK_OPTIONS: MermaidConfig = {
 };
 
 /**
- * The options every `mermaid.initialize` uses. Like Angular, the dark variant is picked from
- * `prefers-color-scheme` once, when mermaid first loads.
+ * The options every `mermaid.initialize` uses. Like Angular, mermaid reads the theme once, when it
+ * first loads. The theme comes from the `data-theme` attribute that the ui-settings store sets.
  */
 export function mermaidConfig(): MermaidConfig {
-	const prefersDark =
-		typeof window.matchMedia === 'function' && window.matchMedia('(prefers-color-scheme: dark)').matches;
-	return { startOnLoad: false, ...(prefersDark ? MERMAID_DARK_OPTIONS : { theme: 'default' }) };
+	const dark = document.documentElement.dataset.theme === 'dark';
+	return { startOnLoad: false, ...(dark ? MERMAID_DARK_OPTIONS : { theme: 'default' }) };
 }

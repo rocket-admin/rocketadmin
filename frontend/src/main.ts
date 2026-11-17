@@ -19,6 +19,7 @@ import { router } from './router';
 import { useAuthStore } from './stores/auth';
 import { bindConnectionsToRouter } from './stores/connections';
 import { bindTablesToRouter } from './stores/tables';
+import { useUiSettingsStore } from './stores/ui-settings';
 
 async function bootstrap() {
 	await loadConfig('/config.json');
@@ -43,6 +44,8 @@ async function bootstrap() {
 
 	// Before the router resolves the first route: the guards read the restored session.
 	useAuthStore(pinia).restoreSession();
+	// The store applies the colour theme when it starts. Start it before the first paint.
+	useUiSettingsStore(pinia);
 
 	// Queries behave like Angular's httpResource: one attempt (the client already reported the
 	// failure) and no refetch on window focus.

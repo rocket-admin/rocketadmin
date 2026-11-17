@@ -9,6 +9,7 @@
 			"!**/src/version.ts",
 			"!**/index.saas.html",
 			"!**/storybook-static",
+			"!**/dist-e2e",
 			"!**/public/assets"
 		]
 	},

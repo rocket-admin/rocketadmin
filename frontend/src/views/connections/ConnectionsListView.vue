@@ -125,12 +125,10 @@ watch(
 	width: 100%;
 }
 
-@media (prefers-color-scheme: dark) {
-	.connections-list {
-		background-image:
-			url('/assets/bg/connections-list-left-decoration_dark.svg'),
-			url('/assets/bg/connections-list-right-decoration_dark.svg');
-	}
+:root[data-theme='dark'] .connections-list {
+	background-image:
+		url('/assets/bg/connections-list-left-decoration_dark.svg'),
+		url('/assets/bg/connections-list-right-decoration_dark.svg');
 }
 
 @media (width <= 600px) {
