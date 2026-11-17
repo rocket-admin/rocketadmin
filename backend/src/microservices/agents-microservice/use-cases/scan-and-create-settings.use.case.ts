@@ -11,10 +11,10 @@ import { ScanAndCreateSettingsDs } from '../data-structures/agents.ds.js';
 import { IScanAndCreateSettings } from './agents-use-cases.interface.js';
 
 // Streaming variant of the AI settings/widgets scan for the agents
-// microservice. Mirrors `RequestAISettingsAndWidgetsCreationUseCase`: the scan
+// microservice. Mirrors `RequestAISettingsAndWidgetsCreationUseCase`. The scan
 // itself (table discovery, AI generation, validation, persistence) is shared
-// with the connection-creation flow via `SharedJobsService` and stays in this
-// backend; progress chunks are streamed so the agents service can pipe them
+// with the connection-creation flow through `SharedJobsService` and stays in this
+// backend. Progress chunks are streamed, so the agents service can pipe them
 // through to the client unchanged.
 @Injectable({ scope: Scope.REQUEST })
 export class ScanAndCreateSettingsUseCase

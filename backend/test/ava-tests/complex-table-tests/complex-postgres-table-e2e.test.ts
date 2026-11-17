@@ -284,9 +284,9 @@ test.serial(
 			{ parent_id: orphanedParentId, description: 'orphan-fk' },
 		]);
 
-		// Now make the orphan-fk row truly orphaned by deleting its parent,
-		// then register the FK with NOT VALID so Postgres reports it in metadata
-		// without rejecting the existing orphan row.
+		// Now delete the parent of the orphan-fk row, so that the row is truly orphaned.
+		// Then register the FK with NOT VALID, so Postgres reports it in metadata
+		// and does not reject the existing orphan row.
 		await knex(parentTableName).where({ id: orphanedParentId }).del();
 		await knex.raw(
 			`ALTER TABLE "${childTableName}" ADD CONSTRAINT fk_bugfix_child_parent FOREIGN KEY (parent_id) REFERENCES "${parentTableName}" (id) NOT VALID`,

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 // Port of dashboard/db-tables-list (DbTablesListComponent): the table sidebar. Expanded, it has
-// a search, "Add folder" and the folders — "All tables" plus the user's own — each listing its
-// tables as links (first page, 30 rows). Editors can drag a table's link onto a folder to add it,
-// reorder a folder's tables by their handle (vuedraggable, in place of cdkDropList), and edit or
-// delete a folder from its menu. Collapsed, it is a rail of folder icons whose table list shows
+// a search, "Add folder" and the folders: "All tables" plus the user's own. Each folder lists its
+// tables as links (first page, 30 rows). Editors can drag a table's link onto a folder to add it.
+// They can reorder a folder's tables by their handle (vuedraggable, in place of cdkDropList). They
+// can edit or delete a folder from its menu. Collapsed, it is a rail of folder icons whose table list shows
 // as initials/icons.
 //
 // The folder state and every save live in useTableFolders; this component is the markup.

@@ -2,15 +2,16 @@
 /**
  * Port of db-table-view/saved-filters-panel: the saved ("fast") filters strip above the table.
  *
- * - One chip per saved filter (a dropdown on small screens). Choosing one writes its filters to the
- *   URL (`filters`, `saved_filter`, `dynamic_column`, first page, current page size and sort) and
- *   emits `filterSelected` with it; choosing it again clears the selection and emits `null`.
- * - A filter's quick-editing ("dynamic") column gets an inline comparator + value editor; edits are
+ * - One chip per saved filter (a dropdown on small screens). A choice writes its filters to the
+ *   URL (`filters`, `saved_filter`, `dynamic_column`, first page, current page size and sort). It
+ *   emits `filterSelected` with it. A second choice of it clears the selection and emits `null`.
+ * - A filter's quick-editing ("dynamic") column gets an inline comparator + value editor. Edits are
  *   applied 800 ms after the last keystroke (or on Enter) the same way.
  * - Users who can edit the connection create, edit and delete filters (SavedFiltersDialog).
  *
- * The list is (re)loaded when the route's table changes and after the tables store announces a
- * saved filter was created, updated or deleted (the Angular `cast` strings, now `tableEvents`).
+ * The list is (re)loaded when the route's table changes. It also reloads after the tables store
+ * announces a saved filter was created, updated or deleted (the Angular `cast` strings, now
+ * `tableEvents`).
  * Exposed for the table view (its @ViewChild): `handleOpenSavedFiltersDialog()`, `savedFilterData`,
  * `selectedFilterSetId`, `selectFiltersSet()`, `handleEditFilter()`, `handleDeleteFilter()`.
  */
@@ -473,7 +474,7 @@ defineExpose({
 					{{ filter.name }}
 				</UiMenuItem>
 				<template v-if="canEditConnection">
-					<!-- Angular nested a row menu in each item; a UiMenu can't nest, so the selected filter's actions follow. -->
+					<!-- Angular nested a row menu in each item. A UiMenu cannot nest, so the selected filter's actions follow. -->
 					<template v-if="selectedFilter">
 						<UiMenuItem icon="create" @select="handleEditFilter(selectedFilter)">Edit {{ selectedFilter.name }}</UiMenuItem>
 						<UiMenuItem icon="delete" @select="handleDeleteFilter(selectedFilter)">Delete {{ selectedFilter.name }}</UiMenuItem>

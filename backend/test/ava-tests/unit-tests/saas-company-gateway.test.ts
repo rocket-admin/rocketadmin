@@ -2,7 +2,7 @@ import { Logger, type LoggerService } from '@nestjs/common';
 import test from 'ava';
 
 // The gateway reads IS_SAAS / MICROSERVICE_JWT_SECRET / SAAS_URL through
-// appConfig — set them before the module (and its appConfig import) loads.
+// appConfig. Set them before the module (and its appConfig import) loads.
 process.env.IS_SAAS = '1';
 process.env.MICROSERVICE_JWT_SECRET = 'unit-test-secret';
 process.env.SAAS_URL = 'http://saas.unit.test';
@@ -17,7 +17,7 @@ const { normalizeSaasPath } = await import(
 const COMPANY_ID = 'b3363e0b-0101-4bc8-86cd-02516d407b62';
 
 // Every reason a company lookup comes back empty ends up as a user-facing
-// "Company not found" in the callers, so the gateway must leave the real reason
+// "Company not found" in the callers. So the gateway must leave the real reason
 // (upstream status + message) in the log. These tests pin those log lines.
 const captured: { level: string; message: string }[] = [];
 const capturingLogger: LoggerService = {

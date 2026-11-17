@@ -1,11 +1,11 @@
 <script setup lang="ts">
 /**
- * Monaco editor — the `<ngs-code-editor>` replacement used by the code, JSON and markdown fields
+ * Monaco editor: the `<ngs-code-editor>` replacement used by the code, JSON and markdown fields
  * (and later the SQL / Cedar editors).
  *
  * Monaco is loaded on mount through `loadMonaco()`, so it stays in its own chunk and never loads for
  * a page without an editor. Until it resolves, and in jsdom where it never mounts, a plain
- * `<textarea>` stands in with the same value, so the value stays editable and tests can drive it.
+ * `<textarea>` stands in with the same value. So the value stays editable and tests can drive it.
  *
  * `modelValue` is read on mount and again whenever it changes from outside; edits emit
  * `update:modelValue`. The theme follows the user's dark-mode preference like the Angular editors.

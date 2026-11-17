@@ -6,7 +6,7 @@ import {
 
 // The subject line of every Slack / email table-action notification (plan 37 made it actor-aware).
 // The RocketAdmin-user wording is a contract: it predates the actor notion and downstream Slack
-// filters may match on it, so it is pinned byte-for-byte. A site visitor is described as such —
+// filters may match on it, so it is pinned byte-for-byte. A site visitor is described as such,
 // never under a RocketAdmin identity.
 
 const RA_USER: UserInfoMessageData = {

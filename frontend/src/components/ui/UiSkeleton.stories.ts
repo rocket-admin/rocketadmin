@@ -4,10 +4,10 @@ import UiSkeleton from './UiSkeleton.vue';
 /**
  * Loading placeholder, owning the `@keyframes shimmer` that was copy-pasted into four views.
  *
- * The radius drift between those copies became the `shape` prop instead of being arbitrated: a text
+ * The radius drift between those copies became the `shape` prop and was not arbitrated. A text
  * line wants a pill, a 3rem content block wants panel radius. `width`/`height` pass through as
- * inline styles — the one accepted `:style` in a primitive, because the call sites need percentages
- * of an arbitrary container.
+ * inline styles. That is the one accepted `:style` in a primitive, because the call sites need
+ * percentages of an arbitrary container.
  *
  * The wrapper is a single `role="status"` region with the bars `aria-hidden`, so a three-line
  * skeleton announces "Loading" once. Toggle the OS "reduce motion" setting to check `base.css`'s
@@ -34,8 +34,9 @@ export const Default: Story = {};
 /**
  * The real shape of a card skeleton in WebsitesView: a short title over a longer body line.
  *
- * Two separate bars means two `role="status"` regions, so this is the case where a view should
- * reach for `lines` — or give the wrapper the specific label and accept the second generic one.
+ * Two separate bars means two `role="status"` regions. So this is the case where a view should
+ * reach for `lines`. Or it should give the wrapper the specific label and accept the second generic
+ * one.
  */
 export const CardPlaceholder: Story = {
 	render: () => ({
@@ -49,10 +50,10 @@ export const CardPlaceholder: Story = {
 	}),
 };
 
-/** `lines: 3` — three bars inside one labelled wrapper, so AT announces "Loading" once. */
+/** `lines: 3`: three bars inside one labelled wrapper, so AT announces "Loading" once. */
 export const MultipleLines: Story = { args: { lines: 3, width: '75%' } };
 
-/** `shape: 'block'` — WebsiteDetailView's 3rem area, which wants panel radius, not a pill. */
+/** `shape: 'block'`: WebsiteDetailView's 3rem area, which wants panel radius, not a pill. */
 export const Block: Story = { args: { shape: 'block', height: '3rem' } };
 
 /** Both shapes, alone and stacked. The matrix is what catches a radius regressing to one value. */

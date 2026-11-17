@@ -1,7 +1,7 @@
 <script setup lang="ts">
-// Port of connect-db/db-connection-ip-access-dialog: before a direct connection is added, asks the
-// user to let Rocketadmin's IP through — step-by-step for AWS, Azure and Google Cloud, or the
-// GRANT / pg_hba.conf commands for a self-hosted PostgreSQL, MySQL or Oracle. Closes with
+// Port of connect-db/db-connection-ip-access-dialog. Before a direct connection is added, it asks the
+// user to let Rocketadmin's IP through. It shows step-by-step help for AWS, Azure and Google Cloud, or
+// the GRANT / pg_hba.conf commands for a self-hosted PostgreSQL, MySQL or Oracle. Closes with
 // 'confirmed' on "I've given access".
 import { computed } from 'vue';
 import AppDialog from '@/components/dialog/AppDialog.vue';

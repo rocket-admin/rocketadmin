@@ -23,9 +23,9 @@ export const emailVerificationRepositoryExtension = {
 	async createOrUpdateEmailVerification(
 		user: UserEntity,
 	): Promise<{ entity: EmailVerificationEntity; rawToken: string }> {
-		// A missing `user.email_verification` may only mean the caller loaded the
-		// user without that relation (the invite flow does) — always query by
-		// user id, or the insert below collides with the one-row-per-user unique
+		// A missing `user.email_verification` can only mean that the caller loaded the
+		// user without that relation (the invite flow does). Always query by
+		// user id. Otherwise the insert below collides with the one-row-per-user unique
 		// constraint for any registered-but-unconfirmed user.
 		const foundEmailVerification = await this.findOne({ where: { user: { id: user.id } } });
 		if (foundEmailVerification) {

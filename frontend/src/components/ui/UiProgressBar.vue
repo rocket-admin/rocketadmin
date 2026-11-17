@@ -1,15 +1,15 @@
 <script setup lang="ts">
 /**
- * Determinate meter. Replaces AccountView's `.bar` / `.bar__fill` and the app's only inline style,
- * and fixes a real hole: the usage meter is currently invisible to assistive tech — no
- * `role="progressbar"`, no values, so a screenreader user sees a number with no sense of the budget.
+ * Determinate meter. Replaces AccountView's `.bar` / `.bar__fill` and the app's only inline style.
+ * It also fixes a real hole: the usage meter is currently invisible to assistive tech. It has no
+ * `role="progressbar"` and no values, so a screenreader user sees a number with no sense of the budget.
  *
  * The clamping arithmetic lives here rather than at the call site. AccountView's `barWidth()` guarded
  * `limit > 0` to avoid a `NaN%` width; that guard is now the primitive's, so no future caller has to
  * remember it.
  *
  * `tone` is caller policy, not a threshold baked in here. "Warn at 80%" is a product decision that
- * differs per meter, so the primitive renders the tone it's given and never derives one.
+ * differs per meter, so the primitive renders the tone it is given and never derives one.
  * Motion (the width transition) is guarded globally by `base.css`'s `prefers-reduced-motion` block.
  */
 import { computed } from 'vue';
@@ -20,7 +20,7 @@ const props = withDefaults(
 		value: number;
 		/** Upper bound. A non-positive `max` renders an empty bar rather than `NaN%`. */
 		max?: number;
-		/** Required: becomes `aria-label`. A meter without a name is a defect, so there's no default. */
+		/** Required: becomes `aria-label`. A meter without a name is a defect, so there is no default. */
 		label: string;
 		/** Status colour. Non-interactive, so this is `tone`, not `variant`. Never auto-derived. */
 		tone?: 'accent' | 'warning' | 'danger';
@@ -37,8 +37,8 @@ const clamped = computed(() => {
 });
 
 /**
- * `aria-valuenow` carries the raw clamped value, not the percentage — a screenreader says "7 of 10",
- * so passing 70 against a max of 10 would be nonsense.
+ * `aria-valuenow` carries the raw clamped value, not the percentage. A screenreader says "7 of 10",
+ * so a value of 70 against a max of 10 would be nonsense.
  */
 const percent = computed(() => (props.max > 0 ? `${Math.round((clamped.value / props.max) * 100)}%` : '0%'));
 </script>
@@ -58,7 +58,7 @@ const percent = computed(() => (props.max > 0 ? `${Math.round((clamped.value / p
 
 <style scoped>
 .ui-progress-bar {
-  /* A track thickness, not spacing — deliberately off the 4px scale rather than forced onto
+  /* A track thickness, not spacing. Deliberately off the 4px scale and not forced onto
      --space-2, which would make the bar chunky. */
   height: 8px;
   border-radius: var(--radius-pill);
@@ -70,7 +70,7 @@ const percent = computed(() => (props.max > 0 ? `${Math.round((clamped.value / p
   display: block;
   height: 100%;
   border-radius: var(--radius-pill);
-  /* Inline width from the computed percentage — unavoidable, and the only dynamic value here. */
+  /* Inline width from the computed percentage: unavoidable, and the only dynamic value here. */
   transition: width var(--motion-slow) ease;
 }
 

@@ -62,6 +62,12 @@ test('contraction: contractions are errors', () => {
 	assert.equal(g.rule, 'contraction');
 });
 
+test("contraction: the product name Let's Encrypt is not a contraction", () => {
+	assert.deepEqual(check("The router gets the certificate from Let's Encrypt."), []);
+	assert.deepEqual(check('The router gets the certificate from Let’s Encrypt.'), []);
+	assert.deepEqual(rulesOf(check("Let's add a retry.")), ['contraction']);
+});
+
 test('dash-clause: an em dash or a spaced en dash is an error, a numeric range is not', () => {
 	assert.deepEqual(rulesOf(check('The task runs once — then it exits.')), ['dash-clause']);
 	assert.deepEqual(rulesOf(check('The task runs once – then it exits.')), ['dash-clause']);

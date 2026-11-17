@@ -20,10 +20,10 @@ export class InvitedUserInCompanyAndConnectionGroupDs {
 	emailPayload?: OutgoingEmailPayloadDs;
 
 	// suppressEmail-only: the invited address belongs to an existing-but-inactive user, so no
-	// invitation was created — the payload above is a re-confirmation letter instead. Returned as
+	// invitation was created. The payload above is a re-confirmation letter instead. Returned as
 	// a marked success (not thrown) because the global exception filter serializes a fixed shape
-	// and would strip the payload from an error body; the SaaS caller translates this back into
-	// the user-facing 400 after sending the letter.
+	// and would strip the payload from an error body. The SaaS caller translates this back into
+	// the user-facing 400 after it sends the letter.
 	@ApiProperty({ required: false })
 	userAlreadyAddedInactive?: boolean;
 }

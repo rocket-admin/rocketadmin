@@ -4,12 +4,12 @@ import conventionsMdx from './01-Conventions.mdx?raw';
 
 /**
  * `CONVENTIONS.md` is the file a reviewer greps and a PR diffs; `01-Conventions.mdx` renders it in
- * Storybook. The MDX must render it via `<Markdown>{conventions}</Markdown>` rather than restating
- * it, because a hand copy drifts — that's exactly what happened to `.storybook/preview.css` before
- * Phase 1 replaced its 40-line duplicate of App.vue's globals with a 4-line Storybook-only override.
+ * Storybook. The MDX must render it through `<Markdown>{conventions}</Markdown>` and must not restate
+ * it, because a hand copy drifts. That is what happened to `.storybook/preview.css`. Phase 1 replaced
+ * its 40-line duplicate of App.vue's globals with a 4-line Storybook-only override.
  *
- * This test guards the mechanism, not the prose: if someone pastes the text into the MDX instead of
- * importing it, the sync guarantee is gone even though the page still looks right that day.
+ * This test guards the mechanism, not the prose. If someone pastes the text into the MDX and does not
+ * import it, the sync guarantee is gone. The page still looks right that day.
  */
 describe('ui conventions docs', () => {
 	it('renders CONVENTIONS.md rather than a copy of it', () => {
@@ -32,9 +32,9 @@ describe('ui conventions docs', () => {
 	});
 
 	it('states the rules the primitives are reviewed against', () => {
-		// A sanity check on the source of truth itself: these are the sentences a PR comment cites, so
-		// silently dropping one should fail rather than just shrink the page. Whitespace is collapsed
-		// so a re-wrap at the 100-column limit isn't a failure.
+		// A sanity check on the source of truth itself. These are the sentences that a PR comment cites.
+		// So a silent drop of one must fail, and must not only shrink the page. Whitespace is collapsed,
+		// so a re-wrap at the 100-column limit is not a failure.
 		const prose = conventionsMd.replace(/\s+/g, ' ');
 		for (const rule of [
 			'never both on one component',

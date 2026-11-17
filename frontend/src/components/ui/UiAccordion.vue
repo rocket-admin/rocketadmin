@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Groups `UiExpansionPanel`s — the `mat-accordion` replacement. By default only one panel is open
+ * Groups `UiExpansionPanel`s: the `mat-accordion` replacement. By default only one panel is open
  * at a time: opening one collapses the others. `multi` lifts that, leaving just the shared layout
  * (the `mat-accordion multi="true"` shape in the row-edit related-records list).
  *

@@ -133,7 +133,7 @@ test.serial(`${currentTest} should return 403 when user lacks read permission on
 		const groupId = testData.groups.createdGroupId;
 		const tableName = testData.firstTableInfo.testTableName;
 
-		// Connection read only — no table read permission granted.
+		// Connection read only: no table read permission granted.
 		await saveCedarPolicy(connectionId, groupId, testData.users.adminUserToken, [connectionReadPolicy(connectionId)]);
 
 		const testQueryResponse = await request(app.getHttpServer())
@@ -160,11 +160,11 @@ test.serial(
 			const connectionId = testData.connections.firstId;
 			const groupId = testData.groups.createdGroupId;
 
-			// Connection read only — no table read permission granted.
+			// Connection read only: no table read permission granted.
 			await saveCedarPolicy(connectionId, groupId, testData.users.adminUserToken, [connectionReadPolicy(connectionId)]);
 
-			// "SELECT 1" resolves to no concrete table, so the check falls back to requiring read on
-			// every table in the connection — which this user does not have.
+			// "SELECT 1" resolves to no concrete table. So the check falls back and requires read on
+			// every table in the connection. This user does not have that.
 			const testQueryResponse = await request(app.getHttpServer())
 				.post(`/connection/${connectionId}/query/test`)
 				.send({ query_text: 'SELECT 1' })

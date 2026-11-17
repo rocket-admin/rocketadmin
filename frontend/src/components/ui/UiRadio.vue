@@ -1,10 +1,10 @@
 <script setup lang="ts">
 /**
- * One option in a `UiRadioGroup` — the `mat-radio-button` replacement. Must sit inside a group,
+ * One option in a `UiRadioGroup`: the `mat-radio-button` replacement. Must sit inside a group,
  * which supplies the shared `name`, the selection and the change handler.
  *
- * The label is the default slot and wraps the native `<input>`, like `UiCheckbox`, so clicking the
- * text chooses the option and the radio needs no `id`.
+ * The label is the default slot and wraps the native `<input>`, like `UiCheckbox`. So a click on the
+ * text chooses the option, and the radio needs no `id`.
  */
 import { computed, inject, useAttrs } from 'vue';
 import { RADIO_CONTEXT } from './radioContext';

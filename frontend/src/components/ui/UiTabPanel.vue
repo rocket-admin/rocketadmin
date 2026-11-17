@@ -2,8 +2,8 @@
 /**
  * The panel a `UiTab` controls. Rendered only while its tab is selected.
  *
- * `tabindex="0"` is deliberate and required by the APG: when a panel holds no focusable content,
- * it must itself be focusable so a keyboard user can reach the content the tab just revealed.
+ * `tabindex="0"` is deliberate and required by the APG. When a panel holds no focusable content,
+ * it must itself be focusable, so a keyboard user can reach the content the tab just revealed.
  */
 import { computed, inject } from 'vue';
 import { TABS_CONTEXT } from './tabsContext';

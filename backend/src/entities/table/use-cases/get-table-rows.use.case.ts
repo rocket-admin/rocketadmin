@@ -119,8 +119,8 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 				this._dbContext.personalTableSettingsRepository.findUserTableSettings(userId, connectionId, tableName),
 			]);
 			// Column-level read permission (the ColumnRead half of table:read) must bound the QUERY,
-			// not only the response (plan 13 P0-3): resolved here, BEFORE filters, search, ordering
-			// and autocomplete are parsed, so a withheld column can be neither filtered, searched,
+			// not only the response (plan 13 P0-3). It is resolved here, BEFORE filters, search, ordering
+			// and autocomplete are parsed. So a withheld column can be neither filtered, searched,
 			// ordered by nor selected. Stripping it from the rows afterwards still let
 			// `pagination.total` answer "does this column start with X?" one character at a time.
 			// Keep in step with the pure-CRUD twin (`pure-get-rows-from-table.use.case.ts`).
@@ -175,7 +175,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 					connection.type === ConnectionTypesEnum.agent_mongodb)
 			) {
 				searchingFieldValue = hexToBinary(searchingFieldValue) as any;
-				// Readable columns only — a binary search must not reach a withheld column either.
+				// Readable columns only: a binary search must not reach a withheld column either.
 				builtDAOsTableSettings.search_fields = queryableStructure
 					.filter((field) => isBinary(field.data_type))
 					.map((field) => field.column_name);

@@ -110,7 +110,7 @@ test('table with visibility=true generates table:query + wildcard column:read (t
 	);
 	t.true(result.includes('action == RocketAdmin::Action::"table:query"'));
 	t.true(result.includes('action == RocketAdmin::Action::"column:read"'));
-	// Wildcard column read: every column of the table via `resource in Table`.
+	// Wildcard column read: every column of the table through `resource in Table`.
 	t.true(result.includes(`resource in RocketAdmin::Table::"${connectionId}/users"`));
 	// table:read is no longer emitted directly; it is the alias = table:query + column:read(*).
 	t.false(result.includes('action == RocketAdmin::Action::"table:read"'));

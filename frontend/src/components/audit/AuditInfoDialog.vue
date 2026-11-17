@@ -4,7 +4,7 @@
 // action lists the row's values.
 //
 // The Angular "one row" table passed the key/value pair (not the key) to its changed/sensitive
-// checks, so it never highlighted or hid anything there; that behaviour is kept. Its keyvalue pipe
+// checks. So it never highlighted or hid anything there. That behaviour is kept. Its keyvalue pipe
 // listed the fields sorted by key, which is kept too.
 import { format } from 'date-fns';
 import { computed } from 'vue';

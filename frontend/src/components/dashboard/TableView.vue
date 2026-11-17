@@ -1,12 +1,13 @@
 <script setup lang="ts">
-// Port of dashboard/db-table-view (DbTableViewComponent): one table's page of rows with its
-// toolbar — search, filters (chips for the active ones), fast filters, columns, import/export,
-// table settings — the bulk actions bar for selected rows, per-row actions and the paginator.
+// Port of dashboard/db-table-view (DbTableViewComponent): one table's page of rows. It has the
+// toolbar: search, filters (chips for the active ones), fast filters, columns, import/export,
+// table settings. It also has the bulk actions bar for selected rows, per-row actions and the
+// paginator.
 // On phones the same controls move into bottom sheets (table switcher, sort, columns,
 // import/export), with pull-to-refresh and an "Add row" FAB.
 //
 // The rows and everything derived from them are the `table` prop (useTableData, the Angular
-// TablesDataSource), owned by DashboardView like the `selection`. Sort and page live here and are
+// TablesDataSource). DashboardView owns it, like the `selection`. Sort and page live here. They are
 // written to the URL on every change, exactly as the Angular view navigated:
 // filters / saved_filter / dynamic_column / sort_active / sort_direction / page_index / page_size.
 // The pure helpers are in lib/table-view.ts.
@@ -1510,7 +1511,7 @@ defineExpose({ loadRowsPage, searchString, sort });
 	gap: var(--space-2);
 }
 
-/* The search and the actions wrap as separate header items, so a narrow header (side panels open)
+/* The search and the actions wrap as separate header items. So a narrow header (side panels open)
    moves the actions onto their own row before the search ever drops under the table name. */
 .table-view__actions-bar {
 	display: contents;

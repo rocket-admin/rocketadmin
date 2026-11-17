@@ -186,7 +186,7 @@ function formatAsYouType(text: string): string {
 	return selectedCountry.value ? new AsYouType(selectedCountry.value.code as CountryCode).input(text) : text;
 }
 
-/** The formatter may hand back the previous text (a rejected keystroke); Vue won't patch that. */
+/** The formatter can hand back the previous text (a rejected keystroke). Vue does not patch that. */
 function syncPhoneInput() {
 	nextTick(() => {
 		const input = phoneControl.value?.querySelector('input');

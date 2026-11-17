@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // Port of frontend/src/app/components/ui-components/breadcrumbs (BreadcrumbsComponent).
 //
-// Crumbs with a `link` are RouterLinks (carrying `queryParams`); the rest — normally the last, the
-// current page — are bold static text. A chevron separates them. Rendered as a `<nav>` with an
+// Crumbs with a `link` are RouterLinks (they carry `queryParams`). The rest are bold static text.
+// Normally that is the last crumb, the current page. A chevron separates them. Rendered as a `<nav>` with an
 // ordered list and `aria-current="page"` on the final crumb, which the Angular `<div>` lacked.
 import { UiIcon } from '@/components/ui';
 

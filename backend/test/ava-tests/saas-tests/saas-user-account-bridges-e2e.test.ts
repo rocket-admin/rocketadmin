@@ -20,15 +20,15 @@ import { DatabaseModule } from '../../../src/shared/database/database.module.js'
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { TestUtils } from '../../utils/test.utils.js';
 
-// Tests for the plan-15 Phase 4/5 internal user-account bridges rocketadmin-saas calls
-// (microservice JWT):
+// Tests for the plan-15 Phase 4/5 internal user-account bridges that rocketadmin-saas calls
+// (microservice JWT). The bridges:
 //   GET  /saas/user/:userId/profile          POST /saas/user/password/change
 //   PUT  /saas/user/name                     PUT  /saas/user/delete
 //   POST /saas/user/settings                 GET  /saas/user/:userId/settings
 //   PUT  /saas/user/test-connections
 //   POST /saas/user/otp/generate|verify|disable|login
 //   POST /saas/user/validate-token (allowScopes extension)
-// The OTP codes are computed with the same otplib the core verifies with; the temporary token for
+// The OTP codes are computed with the same otplib that the core verifies with. The temporary token for
 // otp/login is minted exactly the way the saas service signs it (TEMPORARY_JWT_SECRET, `id` claim).
 
 let app: INestApplication;
@@ -459,8 +459,8 @@ test.serial(`${currentTest} disables 2FA with a valid code`, async (t) => {
 currentTest = 'PUT /saas/user/delete';
 
 test.serial(`${currentTest} deletes the account (profile 404 afterwards)`, async (t) => {
-	// Delete a NON-last company member: deleting the last user triggers the
-	// core→saas deleteCompany webhook, and bridge-registered test users have no
+	// Delete a NON-last company member. The deletion of the last user triggers the
+	// core→saas deleteCompany webhook. Bridge-registered test users have no
 	// saas-side CompanyEntity, so that call can only fail in this stack. A
 	// second bridge registration into the same companyId gives us a deletable
 	// non-last member without touching any saas webhook.

@@ -1,6 +1,6 @@
 // The pure logic of db-table-view (DbTableViewComponent), pulled out of the component so it is
-// tested on its own: filter chip labels, foreign-key cells, the selected-row highlight, CSV export
-// of the selection, the columns menu order and the mobile table switcher's search.
+// tested on its own. It covers filter chip labels, foreign-key cells, the selected-row highlight,
+// CSV export of the selection, the columns menu order and the mobile table switcher's search.
 import { normalizeTableName } from '@/lib/normalize';
 import type { TableForeignKey, TableProperties, TableRow } from '@/models/table';
 
@@ -25,7 +25,7 @@ export function getFiltersCount(activeFilters: object | null | undefined, hasSav
 	return 0;
 }
 
-/** The chip text of one active filter, e.g. `First Names = A...`. */
+/** The chip text of one active filter, for example `First Names = A...`. */
 export function getFilterLabel(key: string, value: Record<string, unknown>): string {
 	const displayedName = normalizeTableName(key);
 	const comparator = Object.keys(value)[0] ?? '';
@@ -183,8 +183,8 @@ export function matchesTableQuery(table: TableProperties, query: string): boolea
 }
 
 /**
- * The mobile table switcher's groups. As in Angular, "all tables" is the folder with a null id,
- * and every folder with an id is listed as a group (the API's "All tables" folder included).
+ * The mobile table switcher's groups. As in Angular, "all tables" is the folder with a null id.
+ * Every folder with an id is listed as a group (the API's "All tables" folder included).
  */
 export function tableSwitcherGroups(tableFolders: TableCategoryView[] | null | undefined, search: string) {
 	const folders = (tableFolders ?? []).filter((category) => category.category_id !== null);

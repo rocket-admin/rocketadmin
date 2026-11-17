@@ -1,15 +1,15 @@
 // The logic of frontend/src/app/components/db-table-row-edit (the `/dashboard/:connectionId/:tableName/entry`
 // page), pulled out of the template so it can be tested on its own:
 //
-// - no query params: add a row (GET /table/structure);
-// - the row's primary key as query params: edit it (GET /table/row), with `action=dub` to duplicate it
-//   and `mode=view` to show it read-only;
+// - no query params: add a row (GET /table/structure).
+// - the row's primary key as query params: edit it (GET /table/row). Use `action=dub` to duplicate it
+//   and `mode=view` to show it read-only.
 // - the tables that reference the row (`referenced_table_names_and_columns`), each with its first
-//   page of related records;
+//   page of related records.
 // - the row's custom actions and delete, through the confirmation / action-link dialogs.
 //
-// Only the fields the user touched are sent on update: widgets such as the foreign key and binary
-// ones re-emit their current value on mount, and those init-time emits must not rewrite columns the
+// Only the fields the user touched are sent on update. Widgets such as the foreign key and binary
+// ones re-emit their current value on mount. Those init-time emits must not rewrite columns the
 // user never edited.
 import JsonURL from '@jsonurl/jsonurl';
 import JSON5 from 'json5';
@@ -524,7 +524,7 @@ export function useRowEdit({ connectionId, tableName, router }: UseRowEditOption
 			: { ...values };
 		const types = Object.entries(tableTypes.value);
 
-		// MySQL returns datetimes as ISO strings ('…T…000Z') but won't store them in that form.
+		// MySQL returns datetimes as ISO strings ('…T…000Z') but will not store them in that form.
 		if (connectionType.value === DBtype.MySQL) {
 			for (const [field] of types.filter(([, type]) => type === 'datetime' || type === 'timestamp')) {
 				const value = updatedRow[field];
@@ -538,7 +538,7 @@ export function useRowEdit({ connectionId, tableName, router }: UseRowEditOption
 			}
 		}
 
-		// Don't override the primary key fields for DynamoDB / ClickHouse.
+		// Do not override the primary key fields for DynamoDB / ClickHouse.
 		if (connectionType.value === DBtype.Dynamo || connectionType.value === DBtype.ClickHouse) {
 			for (const field of Object.keys(keyAttributesFromURL.value)) delete updatedRow[field];
 		}

@@ -119,7 +119,7 @@ async function createConnectionAndTable(): Promise<{
 	};
 }
 
-// Provision a users/auth table in the connected DB via the internal raw-query endpoint (this is the
+// Provision a users/auth table in the connected DB through the internal raw-query endpoint (this is the
 // agents-core pipeline's job at site-creation time). Returns the table name.
 async function createUsersTable(connectionId: string, userId: string): Promise<string> {
 	const usersTable = `sitenova_users_${faker.string.alpha({ length: 10, casing: 'lower' })}`;
@@ -481,7 +481,7 @@ test.serial(`${currentTest} runs the URL and Slack actions configured for the ev
 	t.true(slackActionBody.text.includes('[{"id":1}]'));
 	scope.done();
 
-	// The rule is attached to ADD_ROW only — an UPDATE_ROW report matches nothing and calls nobody.
+	// The rule is attached to ADD_ROW only. An UPDATE_ROW report matches nothing and calls nobody.
 	const updateResponse = await request(app.getHttpServer())
 		.post(`/internal/sitenova/row-event/${connectionId}`)
 		.send({ tableName: testTableName, event: 'UPDATE_ROW', primaryKeys: [{ id: 1 }], visitor: { uid: '7' } })
@@ -543,13 +543,13 @@ test.serial(`${currentTest} rejects a missing microservice JWT (401) and a malfo
 
 currentTest = 'GET /internal/sitenova/connection/:connectionId (internal, microservice JWT)';
 
-// The universal-backend asks for a site's credentials + end-user signing key on every cold cache,
-// and a generated site's first page load fires several such requests at once (one per replica,
-// one per parallel API call). The key is provisioned lazily on the first request, so the first
-// burst must be race-safe: every caller gets 200 and the SAME key, and exactly one
-// `sitenova:enduser-jwt:<connectionId>` secret exists afterwards — not the
-// `duplicate key value violates unique constraint "IDX_f39a47aac503fe096b0c77f2b3"` 500 the
-// read-then-insert used to produce for every loser of the race.
+// The universal-backend asks for a site's credentials + end-user signing key on every cold cache.
+// A generated site's first page load fires several such requests at once (one per replica,
+// one per parallel API call). The key is provisioned lazily on the first request. So the first
+// burst must be race-safe: every caller gets 200 and the SAME key. Exactly one
+// `sitenova:enduser-jwt:<connectionId>` secret exists afterwards. The old read-then-insert produced
+// a `duplicate key value violates unique constraint "IDX_f39a47aac503fe096b0c77f2b3"` 500 for
+// every loser of the race.
 test.serial(`${currentTest} concurrent first requests provision one signing key`, async (t) => {
 	const { connectionId, userId } = await createConnectionAndTable();
 
@@ -577,8 +577,8 @@ test.serial(`${currentTest} concurrent first requests provision one signing key`
 		.count({ where: { slug: `sitenova:enduser-jwt:${connectionId}` } });
 	t.is(storedSecrets, 1, 'the signing key is stored once');
 
-	// The key handed out is the one the core itself signs with: a visitor token minted by the
-	// core's register route verifies with it, so tokens issued by either service stay interchangeable.
+	// The key handed out is the one that the core itself signs with. A visitor token minted by the
+	// core's register route verifies with it. So tokens issued by either service stay interchangeable.
 	const usersTable = await createUsersTable(connectionId, userId);
 	const visitorToken = await registerAndGetToken(connectionId, usersTable);
 	const decoded = jwt.verify(visitorToken, key, { algorithms: ['HS256'], audience: 'sitenova:enduser' }) as {

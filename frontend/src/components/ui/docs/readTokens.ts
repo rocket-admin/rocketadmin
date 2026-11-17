@@ -4,19 +4,19 @@ import themeCss from '@/assets/theme.css?raw';
  * Reads design tokens straight out of `theme.css`, so the Foundations docs enumerate whatever the
  * theme actually declares.
  *
- * The alternative — a hand-maintained `tokens.ts` mirror — is a second source of truth that drifts
- * silently and can't be type-checked against the CSS. Vite's `?raw` gives us the file as a string
- * and Storybook shares the app's Vite config, so this needs no extra setup. The cost is a regex
- * over CSS, which `readTokens.spec.ts` guards: if a theme.css reformat breaks the parse, that test
- * fails rather than the docs quietly rendering empty.
+ * The alternative is a hand-maintained `tokens.ts` mirror. That is a second source of truth that
+ * drifts silently and cannot be type-checked against the CSS. Vite's `?raw` gives us the file as a
+ * string. Storybook shares the app's Vite config, so this needs no extra setup. The cost is a regex
+ * over CSS, which `readTokens.spec.ts` guards. If a theme.css reformat breaks the parse, that test
+ * fails. The docs do not quietly render empty.
  *
- * Note: this import needs `test.css: true` in vitest.config.ts — vitest stubs stylesheet
+ * Note: this import needs `test.css: true` in vitest.config.ts. Vitest stubs stylesheet
  * transforms by default, which would make `?raw` resolve to an empty string under test only.
  */
 export type Token = {
 	/** Full custom-property name, including the leading `--`. */
 	name: string;
-	/** Declared value, verbatim — may itself be a `var(--…)` reference. */
+	/** Declared value, verbatim. It can itself be a `var(--…)` reference. */
 	value: string;
 	/** The `/* … *\/` comment trailing the declaration on the same line, if any. */
 	note?: string;
@@ -46,7 +46,7 @@ const ALL_TOKENS: Token[] = [...BASE_CSS.matchAll(DECLARATION)].map(([, name, va
 /**
  * Tokens whose name starts with `prefix`.
  *
- * @param prefix Including the leading `--`, e.g. `'--color-'` or `'--space-'`.
+ * @param prefix Including the leading `--`, for example `'--color-'` or `'--space-'`.
  */
 export function readTokens(prefix: string): Token[] {
 	return ALL_TOKENS.filter((token) => token.name.startsWith(prefix));
@@ -55,9 +55,9 @@ export function readTokens(prefix: string): Token[] {
 /**
  * Resolves a token's value through the alias layer down to a literal.
  *
- * `--color-accent` is declared as `var(--palette-blue-600)`, which is the point of the indirection —
- * but a swatch needs the hex to display alongside it. Follows at most `maxDepth` hops so a
- * malformed self-reference can't spin.
+ * `--color-accent` is declared as `var(--palette-blue-600)`, which is the point of the indirection.
+ * But a swatch needs the hex to display alongside it. Follows at most `maxDepth` hops so a
+ * malformed self-reference cannot spin.
  */
 export function resolveToken(name: string, maxDepth = 5): string | undefined {
 	let current = ALL_TOKENS.find((token) => token.name === name)?.value;

@@ -45,7 +45,7 @@ const upstreamConnectionParams = {
 
 // Connection DTO that points to the proxy (used in rocketadmin API).
 // Each call returns a unique username so the mock-api derives a unique
-// companyId — this isolates each test's connection pool inside the proxy's
+// companyId. This isolates each test's connection pool inside the proxy's
 // per-company concurrency limiter. The password must match the upstream
 // password the mock-api hands back to the proxy, since the proxy now
 // verifies client-supplied credentials before forwarding.
@@ -468,7 +468,7 @@ test.serial('should get table structure through the proxy via rocketadmin API', 
 // ─── Usage reporting test ───────────────────────────────────────────────────
 //
 // Verifies that the proxy actually reports usage metrics back to the backend
-// (mock API) after queries. Uses a baseline/delta approach so it doesn't
+// (mock API) after queries. Uses a baseline/delta approach so it does not
 // conflict with any state accumulated by earlier tests in the same run.
 //
 // Requires the proxy-mock-api container to be rebuilt with the test-only
@@ -477,7 +477,7 @@ test.serial('should get table structure through the proxy via rocketadmin API', 
 test.serial('should report usage metrics to mock API after queries through proxy', async (t) => {
 	if (maybeSkip(t)) return;
 	try {
-		// Probe mock API capability — skip if test endpoints are absent (old mock build)
+		// Probe mock API capability. Skip if test endpoints are absent (old mock build)
 		const probe = await getUsageReports();
 		if (!Array.isArray(probe)) {
 			t.pass('skipped: proxy-mock-api does not expose test endpoints (rebuild required)');
@@ -500,7 +500,7 @@ test.serial('should report usage metrics to mock API after queries through proxy
 		t.is(createConnectionResponse.status, 201);
 		const createConnectionRO = JSON.parse(createConnectionResponse.text);
 
-		// A single query is enough — the proxy reports usage periodically regardless
+		// A single query is enough: the proxy reports usage periodically regardless
 		const getRowsResponse = await request(app.getHttpServer())
 			.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
 			.set('Cookie', firstUserToken)
@@ -521,7 +521,7 @@ test.serial('should report usage metrics to mock API after queries through proxy
 			`Expected new usage reports after queries (baseline=${baselineReportCount}, got=${reports.length})`,
 		);
 
-		// Filter to reports for THIS test's derived connectionId so we don't pick up
+		// Filter to reports for THIS test's derived connectionId so we do not pick up
 		// reports from other tests sharing the mock-api.
 		const latestReports = reports.slice(baselineReportCount);
 		const relevantReports = latestReports.filter((r: any) => r.connectionId === expectedConnId);
@@ -539,7 +539,7 @@ test.serial('should report usage metrics to mock API after queries through proxy
 		const totalQueryCount = relevantReports.reduce((sum: number, r: any) => sum + r.queryCount, 0);
 		t.true(totalQueryCount > 0, `Expected positive query count, got ${totalQueryCount}`);
 
-		// Total query time must be strictly positive — /table/rows runs several
+		// Total query time must be strictly positive. /table/rows runs several
 		// metadata queries plus the row fetch, which must register more than a
 		// single millisecond of billed time. A zero here would indicate the
 		// timer never fired or was dropped on disconnect.
@@ -558,13 +558,13 @@ test.serial('should report usage metrics to mock API after queries through proxy
 	}
 });
 
-// Budget-exhaustion behaviour is "queue, don't fail": queries past the
+// Budget-exhaustion behaviour is "queue, do not fail": queries past the
 // token-bucket budget park on `Limiter.WaitForBudget` until tokens refill,
 // rather than returning a 53400. End-to-end verification of that wait is
 // covered by `postgres-proxy/internal/ratelimit/bucket_test.go`
 // (TestLimiter_WaitForBudget_*), which can simulate refill in milliseconds.
 // An equivalent rocketadmin e2e check would need a custom plan with a refill
-// rate that completes inside the AVA timeout — not worth the moving pieces.
+// rate that completes inside the AVA timeout. That is not worth the moving pieces.
 
 // ─── Frozen plan / connection rejection test ────────────────────────────────
 //
@@ -578,7 +578,7 @@ test.serial('should report usage metrics to mock API after queries through proxy
 test.serial('[zzz-last] should reject connection when subscription plan is frozen', async (t) => {
 	if (maybeSkip(t)) return;
 
-	// Probe mock API capability — skip if test endpoints are absent
+	// Probe mock API capability. Skip if test endpoints are absent
 	const probe = await mockApiRequest('GET', '/api/test/usage-reports');
 	if (!Array.isArray(probe)) {
 		t.pass('skipped: proxy-mock-api does not expose test endpoints (rebuild required)');
@@ -586,7 +586,7 @@ test.serial('[zzz-last] should reject connection when subscription plan is froze
 	}
 
 	try {
-		// Set plan to frozen via mock API
+		// Set plan to frozen through mock API
 		await setSubscriptionLevel('frozen');
 
 		const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;

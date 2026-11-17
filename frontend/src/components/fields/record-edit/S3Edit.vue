@@ -1,8 +1,8 @@
 <script setup lang="ts">
 /**
- * Port of record-edit-fields/s3 (`S3EditComponent`): a column holding an S3 object key. The key
- * can be typed, or a file uploaded through a presigned URL (the new key is emitted); the current
- * object is previewed through a presigned GET URL — a thumbnail for images, a file icon otherwise.
+ * Port of record-edit-fields/s3 (`S3EditComponent`): a column that holds an S3 object key. The key
+ * can be typed, or a file uploaded through a presigned URL (the new key is emitted). The current
+ * object is previewed through a presigned GET URL: a thumbnail for images, a file icon otherwise.
  *
  * Preview needs the row's primary key (`rowPrimaryKey`), so a new row only previews after upload.
  */
@@ -49,8 +49,8 @@ const isImage = computed(() => {
 
 const fileAccept = computed(() => (widgetParams.value.type === 'image' ? 'image/*' : '*/*'));
 
-// Angular loaded on init and again from an effect whenever the value or row key changed while no
-// preview was shown and none was loading; one immediate watcher covers both.
+// Angular loaded on init. It loaded again from an effect whenever the value or row key changed while
+// no preview was shown and none was loading. One immediate watcher covers both.
 watch(
 	[() => props.value, () => props.rowPrimaryKey],
 	([value, rowPrimaryKey]) => {

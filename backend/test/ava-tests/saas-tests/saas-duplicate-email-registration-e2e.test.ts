@@ -22,12 +22,12 @@ import { DatabaseModule } from '../../../src/shared/database/database.module.js'
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { TestUtils } from '../../utils/test.utils.js';
 
-// Plan 53 — one account per email address. The three microservice-JWT bridges that create user
-// rows (POST /saas/user/register, POST /saas/user/google/login, POST /saas/user/github/login)
-// reject a self-service registration of an address that already has an account in ANY company,
-// with ANY provider, confirmed or not: 400 + internalCode 1102 + a message naming the door to
-// use. Existing duplicates (invitations, legacy rows) are untouched — see user-e2e.test.ts for
-// the multi-company login of a pre-existing duplicate.
+// Plan 53: one account per email address. Three microservice-JWT bridges create user rows:
+// POST /saas/user/register, POST /saas/user/google/login, POST /saas/user/github/login.
+// They reject a self-service registration of an address that already has an account in ANY company,
+// with ANY provider, confirmed or not. The answer is 400 + internalCode 1102 + a message that names
+// the door to use. Existing duplicates (invitations, legacy rows) are untouched. See user-e2e.test.ts
+// for the multi-company login of a pre-existing duplicate.
 
 let app: INestApplication;
 let currentTest: string;

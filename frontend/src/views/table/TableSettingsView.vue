@@ -1,9 +1,11 @@
 <script setup lang="ts">
 // Port of frontend/src/app/components/dashboard/db-table-view/db-table-settings: the table's
-// settings (`/dashboard/:connectionId/:tableName/settings`) — display name and icon, sensitive and
-// identity fields, CSV import/export and delete permissions, the default table view (visible
-// columns, column order by drag and drop, search, ordering, sorting, hidden columns) and the row
-// edit behaviour (foreign key search columns, read-only fields).
+// settings (`/dashboard/:connectionId/:tableName/settings`). They are:
+// - display name and icon, sensitive and identity fields.
+// - CSV import/export and delete permissions.
+// - the default table view (visible columns, column order by drag and drop, search, ordering,
+//   sorting, hidden columns).
+// - the row edit behaviour (foreign key search columns, read-only fields).
 //
 // Save is enabled once the form was touched (or the order / icon changed), like Angular's
 // `pristine` check; Reset deletes the saved settings.

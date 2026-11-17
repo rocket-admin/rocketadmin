@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 // The demo-account regime (passwordless throwaway users created through POST /saas/user/demo/register)
-// is gone from the frontend, the SaaS service and the core; the flag that marked those rows goes with it.
+// is gone from the frontend, the SaaS service and the core. The flag that marked those rows goes with it.
 export class DropIsDemoAccountFromUserEntity1790343620550 implements MigrationInterface {
 	name = 'DropIsDemoAccountFromUserEntity1790343620550';
 

@@ -16,11 +16,11 @@ export type SentEmailWebhookResultDs = {
 };
 
 // The webhook call either produced a delivery result or failed with a named
-// reason ('http 404', 'fetch failed: …', 'timed out after 4000ms', …) — the
-// reason is what the cron report surfaces instead of a bare null.
+// reason ('http 404', 'fetch failed: …', 'timed out after 4000ms', and others).
+// The cron report surfaces that reason instead of a bare null.
 export type EmailWebhookOutcome = { ok: true; result: SentEmailWebhookResultDs } | { ok: false; reason: string };
 
-// Plan 15 Phase 3: the core no longer composes or transports letters — it fires the
+// Plan 15 Phase 3: the core no longer composes or transports letters. It fires the
 // saas-side composer webhook (POST /webhook/email/send) with the letter type and params.
 @Injectable()
 export class SaasEmailGatewayService {
@@ -29,8 +29,8 @@ export class SaasEmailGatewayService {
 
 	constructor(private readonly logger: WinstonLogger) {}
 
-	// An email failure must never fail the parent operation: ANY failure (non-2xx status,
-	// network error, timeout) is logged and swallowed — the caller gets a named
+	// An email failure must never fail the parent operation. ANY failure (non-2xx status,
+	// network error, timeout) is logged and swallowed. The caller gets a named
 	// { ok: false, reason } instead of an exception.
 	public async sendEmail(type: string, to: string, params: Record<string, unknown>): Promise<EmailWebhookOutcome> {
 		if (!isSaaS()) {

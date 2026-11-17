@@ -2,16 +2,16 @@
 /**
  * Confirmation prompt for a destructive or irreversible action, replacing `window.confirm()`.
  *
- * `window.confirm` blocks the main thread, cannot be styled or branded, renders a browser-chrome
- * string with no room for context, and gives the user no "working…" state — so a slow delete looks
- * frozen. It is also suppressible per-origin in most browsers, which silently turns a guarded
+ * `window.confirm` blocks the main thread and cannot be styled or branded. It renders a
+ * browser-chrome string with no room for context. It gives the user no "working…" state, so a slow
+ * delete looks frozen. It is also suppressible per-origin in most browsers, which silently turns a guarded
  * action into an unguarded one.
  *
  * Dismissal is disabled while `busy`: Escape or a backdrop click mid-request would hide the dialog
  * while the operation it describes is still in flight.
  *
- * The default slot takes options that qualify the action itself — an opt-in for a second,
- * wider-reaching deletion, say. Keep it to decisions the confirm button carries out; anything the
+ * The default slot takes options that qualify the action itself. An example is an opt-in for a
+ * second, wider-reaching deletion. Keep it to decisions the confirm button carries out. Anything the
  * user would navigate away to do belongs on the page, not in a modal they must dismiss to reach it.
  */
 import { computed } from 'vue';
@@ -20,13 +20,13 @@ import UiModal from './UiModal.vue';
 
 const props = withDefaults(
 	defineProps<{
-		/** Visibility. Two-way via `v-model:open`. */
+		/** Visibility. Two-way through `v-model:open`. */
 		open: boolean;
-		/** The question, e.g. `Delete "My site"?`. Becomes the dialog's accessible name. */
+		/** The question, for example `Delete "My site"?`. Becomes the dialog's accessible name. */
 		title: string;
 		/** Consequence text under the title. Say what is irreversible. */
 		message: string;
-		/** Confirm button label. Prefer the verb — "Delete" beats "OK". */
+		/** Confirm button label. Prefer the verb: "Delete" beats "OK". */
 		confirmLabel?: string;
 		/** Cancel button label. */
 		cancelLabel?: string;
@@ -60,7 +60,7 @@ function onCancel() {
 	>
 		<p class="ui-confirm-dialog__message">{{ message }}</p>
 
-		<!-- Extra decisions that belong to this confirmation — an opt-in checkbox for a second,
+		<!-- Extra decisions that belong to this confirmation: an opt-in checkbox for a second,
          wider-reaching deletion, say. Empty in the common case, so nothing renders and the
          dialog stays the plain question it was. -->
 		<div v-if="$slots.default" class="ui-confirm-dialog__extra"><slot /></div>

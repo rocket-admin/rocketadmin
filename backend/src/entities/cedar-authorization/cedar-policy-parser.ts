@@ -82,7 +82,7 @@ export function parseCedarPolicyToClassicalPermissions(
 			case 'column:read': {
 				if (permit.resourceType === 'RocketAdmin::Table' && permit.isInRelation) {
 					// Wildcard: read every column on this table (the table:read alias). No explicit
-					// column whitelist — leave readableColumns undefined ⇒ "all columns".
+					// column whitelist: leave readableColumns undefined ⇒ "all columns".
 					const tableName = extractTableName(permit.resourceId, connectionId);
 					if (!tableName) break;
 					getOrCreateTableEntry(tableMap, tableName);

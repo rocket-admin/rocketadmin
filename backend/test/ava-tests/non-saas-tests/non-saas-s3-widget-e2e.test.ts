@@ -306,7 +306,7 @@ test.serial(`${currentTest} - should return 400 when S3 widget is not configured
 test.serial(`${currentTest} - should return 404 when row with primary key not found`, async (t) => {
 	const { token, connectionId, tableName, fieldName } = await setupS3WidgetTestEnvironment();
 
-	// Use a primary key that doesn't exist
+	// Use a primary key that does not exist
 	const nonExistentPrimaryKey = { id: 99999 };
 
 	const response = await request(app.getHttpServer())
@@ -527,8 +527,8 @@ test.serial(`${currentTest} - user A cannot get upload URL from user B's connect
 });
 
 test.serial(`${currentTest} - user can access their own connection successfully`, async (t) => {
-	// User sets up their environment - this should work without permission errors
-	// Note: The actual S3 call may fail (no real AWS), but we should not get 403
+	// User sets up their environment. This must work without permission errors.
+	// Note: The actual S3 call can fail (no real AWS), but we must not get 403
 	const { token, connectionId, tableName, fieldName, rowPrimaryKey } = await setupS3WidgetTestEnvironment();
 
 	const response = await request(app.getHttpServer())

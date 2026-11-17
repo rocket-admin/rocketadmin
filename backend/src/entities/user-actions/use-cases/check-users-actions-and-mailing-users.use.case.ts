@@ -58,8 +58,8 @@ export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActio
 	 * Marks the user's action as mailed, creating the action row when the user has none.
 	 * Returns `true` when a reminder email should be sent to this user.
 	 *
-	 * `user_action.userId` is UNIQUE (one-to-one with `user`), so the lookup must ignore `mail_sent`:
-	 * if a row exists it is updated in place — never inserted alongside — otherwise the insert fails with
+	 * `user_action.userId` is UNIQUE (one-to-one with `user`), so the lookup must ignore `mail_sent`.
+	 * If a row exists, it is updated in place and never inserted alongside. Otherwise the insert fails with
 	 * `duplicate key value violates unique constraint "REL_c025478b45e60017ed10c77f99"`.
 	 */
 	private async updateOrCreateActionForUser(u: { id: string; email: string }): Promise<boolean> {

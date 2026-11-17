@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
- * Port of record-view-fields/text (`TextRecordViewComponent`): a short text value, flagged with a
- * wavy underline and a `title` when it fails the widget's `validate` (validator.js method or regex).
+ * Port of record-view-fields/text (`TextRecordViewComponent`): a short text value. When it fails the
+ * widget's `validate` (validator.js method or regex), it gets a wavy underline and a `title`.
  */
 import { computed } from 'vue';
 import { textErrors } from '@/validators/text.validator';

@@ -27,10 +27,12 @@ import {
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
 import { TestUtils } from '../../utils/test.utils.js';
 
-// The SiteNova chat data agent's row writes (sitenova plan 85): the three internal endpoints that
-// insert, update and delete rows on behalf of a RocketAdmin user. The suite pins the happy path on
-// Postgres (the hosted-database engine), the Cedar refusal for a user without permissions, the
-// microservice JWT gate and the "a key that names no row refuses the whole call" rule.
+// The SiteNova chat data agent's row writes (sitenova plan 85). These are the three internal endpoints
+// that insert, update and delete rows on behalf of a RocketAdmin user. The suite pins these cases:
+// - the happy path on Postgres (the hosted-database engine).
+// - the Cedar refusal for a user without permissions.
+// - the microservice JWT gate.
+// - the "a key that names no row refuses the whole call" rule.
 
 const mockFactory = new MockFactory();
 let app: INestApplication;

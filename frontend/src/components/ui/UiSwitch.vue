@@ -1,8 +1,8 @@
 <script setup lang="ts">
 /**
- * On/off switch with its label — the `mat-slide-toggle` replacement.
+ * On/off switch with its label: the `mat-slide-toggle` replacement.
  *
- * A native checkbox with `role="switch"`, wrapped by its `<label>` like `UiCheckbox`: the browser
+ * A native checkbox with `role="switch"`, wrapped by its `<label>` like `UiCheckbox`. The browser
  * keeps the keyboard handling (Space), form participation and the checked state, and AT announces
  * "on/off" instead of "checked/not checked". The track and thumb are decoration drawn beside the
  * visually hidden input.

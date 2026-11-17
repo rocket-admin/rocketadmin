@@ -14,11 +14,12 @@ import {
 // Provisions and uses a per-connection HS256 signing key for generated-site end-user (site visitor)
 // tokens, never exposed outside the backend.
 //
-// When the connection belongs to a company (SaaS), the key is a company-scoped UserSecret —
-// encrypted at rest with the app key, no master-password layer so it decrypts unattended on public
-// requests; rotating/deleting it invalidates every token for that site. When the connection has NO
-// company (self-hosted / single-tenant), we deterministically DERIVE the key from the platform
-// secret per connection instead — UserSecret requires a companyId, so storage isn't an option there.
+// When the connection belongs to a company (SaaS), the key is a company-scoped UserSecret. It is
+// encrypted at rest with the app key. It has no master-password layer, so it decrypts unattended on
+// public requests. A rotation/deletion of it invalidates every token for that site. When the
+// connection has NO company (self-hosted / single-tenant), we deterministically DERIVE the key from
+// the platform secret per connection instead. UserSecret requires a companyId, so storage is not an
+// option there.
 @Injectable()
 export class SitenovaEndUserAuthService {
 	constructor(
@@ -27,10 +28,10 @@ export class SitenovaEndUserAuthService {
 	) {}
 
 	// `uid` (the users-table row primary key) is the basis for row-level authorization in the
-	// universal-backend runtime (plan 13). It is optional here: the core's own register/login sites
-	// are being retired to universal-backend, so the core keeps issuing uid-less tokens, and the
+	// universal-backend runtime (plan 13). It is optional here. The core's own register/login sites
+	// are being retired to universal-backend, so the core keeps issuing uid-less tokens. The
 	// universal-backend verifier accepts them through its grace window. Verification is symmetric
-	// regardless — same key, same audience — so a uid-bearing token from either service validates on
+	// regardless (same key, same audience). So a uid-bearing token from either service validates on
 	// the other during cutover.
 	public async signEndUserToken(connectionId: string, sub: string, uid?: string): Promise<string> {
 		const key = await this.getOrCreateSigningKey(connectionId);
@@ -118,10 +119,10 @@ export class SitenovaEndUserAuthService {
 		if (existing) {
 			return Encryptor.decryptData(existing.encryptedValue);
 		}
-		// First use of this connection's key. Concurrent first uses (the universal-backend replicas
-		// all fetching a fresh site's credentials on its first page load) all miss the read above, so
-		// the insert is conflict-tolerant and the key handed back is whichever row won — never a
-		// locally generated key that the database did not keep.
+		// First use of this connection's key. Concurrent first uses all miss the read above. An example
+		// is the universal-backend replicas, which all fetch a fresh site's credentials on its first page
+		// load. So the insert is conflict-tolerant, and the key handed back is whichever row won. It is
+		// never a locally generated key that the database did not keep.
 		const secret = await this._dbContext.userSecretRepository.createSecretUnlessExists({
 			slug,
 			encryptedValue: Encryptor.encryptData(crypto.randomBytes(32).toString('hex')),

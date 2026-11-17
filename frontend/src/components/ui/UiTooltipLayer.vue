@@ -1,12 +1,12 @@
 <script setup lang="ts">
 /**
- * The DOM the `vTooltip` directive renders into — not used directly. Mounted once, lazily, into a
+ * The DOM the `vTooltip` directive renders into. Not used directly. Mounted once, lazily, into a
  * container appended to `<body>`, the first time any host binds a tooltip.
  *
  * Two parts, following the CDK `AriaDescriber` pattern `matTooltip` used:
  *
- * - **Describer messages**: one visually hidden node per distinct tooltip text, always present, so
- *   each host's `aria-describedby` resolves the moment focus lands on it — before any bubble shows.
+ * - **Describer messages**: one visually hidden node per distinct tooltip text, always present.
+ *   So each host's `aria-describedby` resolves the moment focus lands on it, before any bubble shows.
  *   `aria-hidden` keeps a screenreader's virtual cursor from reading the list at the end of the
  *   page; `aria-describedby` still resolves hidden nodes, which is the point.
  * - **The bubble**: the single visible tooltip, `aria-hidden` because the description is already
@@ -42,7 +42,7 @@ const classes = computed(() => [
 </template>
 
 <style scoped>
-/* Visually hidden, not display: none — the conventional shape AT is most reliable with. */
+/* Visually hidden, not display: none. That is the conventional shape AT is most reliable with. */
 .ui-tooltip-layer__messages {
   position: absolute;
   width: 1px;

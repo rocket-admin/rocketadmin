@@ -3,12 +3,12 @@ import UiField from './UiField.vue';
 import UiInput from './UiInput.vue';
 
 /**
- * Label, hint, error — and the `aria-describedby` wiring between them, which **exists nowhere in
+ * Label, hint, error, and the `aria-describedby` wiring between them, which **exists nowhere in
  * the app today**. Inspect a rendered input in the DOM panel: its `aria-describedby` should name
  * the hint and error nodes, and its `id` should match the label's `for`.
  *
  * `UiField` and `UiInput` are separate components so a field can also wrap a `<select>`, a
- * `<textarea>` or the Turnstile widget — see the _Wrapping A Select_ story.
+ * `<textarea>` or the Turnstile widget. See the _Wrapping A Select_ story.
  */
 const meta = {
 	title: 'UI/Field',
@@ -43,7 +43,7 @@ export const WithError: Story = {
 };
 
 /**
- * Both at once. The hint stays in `aria-describedby` alongside the error — it usually states the
+ * Both at once. The hint stays in `aria-describedby` alongside the error. It usually states the
  * rule the error is complaining about, so silencing it would lose the fix.
  */
 export const WithHintAndError: Story = {
@@ -56,7 +56,7 @@ export const WithHintAndError: Story = {
 
 export const Required: Story = { args: { required: true } };
 
-/** The label sits on the control's top border — for dense rows such as the filters dialog. */
+/** The label sits on the control's top border: for dense rows such as the filters dialog. */
 export const FloatingLabel: Story = { args: { floatingLabel: true } };
 
 export const Disabled: Story = {
@@ -72,7 +72,7 @@ export const Disabled: Story = {
 };
 
 /**
- * The scoped slot exposes `inputId` / `describedBy` / `invalid`, so a control that isn't `UiInput`
+ * The scoped slot exposes `inputId` / `describedBy` / `invalid`, so a control that is not `UiInput`
  * wires up identically. This is why the two components are split.
  */
 export const WrappingASelect: Story = {

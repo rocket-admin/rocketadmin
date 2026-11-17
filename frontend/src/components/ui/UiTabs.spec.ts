@@ -6,7 +6,7 @@ import UiTabs from './UiTabs.vue';
 
 /**
  * Mounts a three-tab list wired the way a view would, with `v-model` emulated so selection
- * actually moves — the keyboard assertions below are meaningless against a frozen `modelValue`.
+ * actually moves. The keyboard assertions below are meaningless against a frozen `modelValue`.
  */
 function mountTabs(options: { disabled?: string; selected?: string } = {}) {
 	return mount(
@@ -91,7 +91,7 @@ describe('UiTabs', () => {
 	});
 
 	it('moves DOM focus along with selection, not just aria-selected', async () => {
-		// The roving tabindex is only half the pattern; without focus actually moving, a keyboard user
+		// The roving tabindex is only half the pattern. If focus does not actually move, a keyboard user
 		// sees the selection change while their focus stays behind on the old tab.
 		const wrapper = mountTabs();
 

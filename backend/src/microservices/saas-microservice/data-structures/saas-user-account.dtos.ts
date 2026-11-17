@@ -12,8 +12,8 @@ import {
 } from 'class-validator';
 
 // Bodies of the internal (microservice-JWT) user-account bridges the SaaS control plane calls
-// (plan 15 Phases 4/5). End-user authorization happens on the SaaS side (cookie + guards) —
-// these bridges only trust the microservice JWT, exactly like `saas/user/register`.
+// (plan 15 Phases 4/5). End-user authorization happens on the SaaS side (cookie + guards).
+// These bridges only trust the microservice JWT, exactly like `saas/user/register`.
 
 export class SaasUserPasswordChangeDto {
 	@ApiProperty()
@@ -127,7 +127,7 @@ export class SaasOtpCodeDto extends SaasUserIdDto {
 
 export class SaasOtpLoginDto {
 	// The temporary (TEMPORARY_JWT_SECRET-signed, 4-min TTL) token issued at the password step of
-	// a 2FA login. Read server-side from the cookie by the SaaS caller — never accepted from JS.
+	// a 2FA login. Read server-side from the cookie by the SaaS caller; never accepted from JS.
 	@ApiProperty()
 	@IsNotEmpty()
 	@IsString()

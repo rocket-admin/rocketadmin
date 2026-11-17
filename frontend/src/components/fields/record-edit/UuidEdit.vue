@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * Port of record-edit-fields/uuid (`UuidEditComponent`): a UUID column. A new row (empty value)
- * gets a UUID of `widget_params.version` (v1/v3/v4/v5/v7, default v4) on mount; v3/v5 hash
+ * gets a UUID of `widget_params.version` (v1/v3/v4/v5/v7, default v4) on mount. The v3/v5 versions hash
  * `widget_params.name` (or the current timestamp) in `widget_params.namespace` (default DNS).
  */
 import {

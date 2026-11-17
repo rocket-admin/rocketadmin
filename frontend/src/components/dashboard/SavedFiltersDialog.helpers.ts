@@ -65,8 +65,9 @@ export function hasConditions({ values, comparators, dynamicColumn }: SavedFilte
 }
 
 /**
- * The body for POST/PUT /table-filters: every column but the dynamic one as `{ comparator: value }`
- * (`''`/`undefined` saved as `null`), and the dynamic column with its comparator (`''` when none).
+ * The body for POST/PUT /table-filters. It holds every column but the dynamic one as
+ * `{ comparator: value }` (`''`/`undefined` saved as `null`). It also holds the dynamic column with
+ * its comparator (`''` when none).
  * `null` when there are no columns at all, in which case Angular sent nothing.
  */
 export function buildSavedFilterPayload(name: string, state: SavedFilterFormState): SavedFilterPayload | null {

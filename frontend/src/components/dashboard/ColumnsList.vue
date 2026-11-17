@@ -1,7 +1,7 @@
 <script setup lang="ts">
-// The table view's column picker, in the desktop "Columns" popover and the mobile columns sheet:
-// visible columns first, each with a checkbox, reorderable by drag (vuedraggable in place of
-// cdkDropList). The last visible column can't be hidden.
+// The table view's column picker, in the desktop "Columns" popover and the mobile columns sheet.
+// Visible columns come first, each with a checkbox, reorderable by drag (vuedraggable in place of
+// cdkDropList). The last visible column cannot be hidden.
 import { computed } from 'vue';
 import Draggable from 'vuedraggable';
 import { UiCheckbox, UiIcon } from '@/components/ui';

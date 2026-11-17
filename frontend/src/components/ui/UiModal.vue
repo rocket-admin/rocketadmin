@@ -3,12 +3,12 @@
  * Modal dialog on the native `<dialog>` element.
  *
  * `showModal()` gives focus trapping, `::backdrop`, top-layer stacking (above every `z-index`
- * regardless of stacking context), Escape-to-dismiss and `inert` on the rest of the page — all
- * browser-implemented. A hand-rolled focus trap is ~60 lines of the most bug-prone code in any
- * design system, which is exactly why `@headlessui/vue` was dropped in Phase 3: its `Dialog` is a
+ * regardless of stacking context), Escape-to-dismiss and `inert` on the rest of the page. The
+ * browser implements all of it. A hand-rolled focus trap is ~60 lines of the most bug-prone code in
+ * any design system. That is exactly why `@headlessui/vue` was dropped in Phase 3: its `Dialog` is a
  * JS reimplementation of `<dialog>` from before the element had support.
  *
- * `inheritAttrs: false` — the root here is a positioning wrapper, so a caller's `class` is forwarded
+ * `inheritAttrs: false`: the root here is a positioning wrapper, so a caller's `class` is forwarded
  * to the `<dialog>` itself, which is the box they mean. See _Foundations → Conventions_.
  */
 import { computed, nextTick, onBeforeUnmount, ref, useId, watch } from 'vue';
@@ -18,9 +18,9 @@ defineOptions({ inheritAttrs: false });
 
 const props = withDefaults(
 	defineProps<{
-		/** Visibility. Two-way via `v-model:open`, so Escape and the backdrop can close it. */
+		/** Visibility. Two-way through `v-model:open`, so Escape and the backdrop can close it. */
 		open: boolean;
-		/** Accessible name, wired through `aria-labelledby`. Required — a nameless dialog is a defect. */
+		/** Accessible name, wired through `aria-labelledby`. Required: a nameless dialog is a defect. */
 		title: string;
 		/** Geometry only: the dialog's max-width. `lg` fits the wide RocketAdmin dialogs (filters, row view). */
 		size?: 'sm' | 'md' | 'lg';
@@ -47,7 +47,7 @@ const titleId = `${useId()}-title`;
 
 /**
  * jsdom 29 ships `HTMLDialogElement` and its `open` property but **not** `showModal()`/`close()`,
- * so both are called defensively. Without this, mounting the component under vitest throws — the
+ * so both are called defensively. Without this, a mount of the component under vitest throws. The
  * plan's assumption that "jsdom 29 supports `<dialog>`" does not hold for the methods.
  */
 function syncOpen(shouldOpen: boolean) {
@@ -82,7 +82,7 @@ function requestClose() {
 
 /**
  * The native `cancel` event fires for Escape. Cancelling it is what makes `dismissible: false`
- * real — `preventDefault()` is the only supported way to refuse Escape on a modal dialog.
+ * real. `preventDefault()` is the only supported way to refuse Escape on a modal dialog.
  */
 function onCancel(event: Event) {
 	event.preventDefault();
@@ -192,7 +192,7 @@ const classes = computed(() => ['ui-modal', `ui-modal--size-${props.size}`]);
   color: var(--color-ink);
 }
 
-/* A 40px hit area, pulled into the panel's padding so it doesn't push the title down or inward. */
+/* A 40px hit area, pulled into the panel's padding so it does not push the title down or inward. */
 .ui-modal__close {
   margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) 0;
 }

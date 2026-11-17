@@ -654,7 +654,7 @@ test.serial('DynamoDB: runtime failure marks FAILED and attempts auto-rollback',
 
 	await seedTable(tableName, [{ AttributeName: 'id', KeyType: 'HASH' }], [{ AttributeName: 'id', AttributeType: 'S' }]);
 
-	// Try to delete a GSI that doesn't exist — DynamoDB rejects at UpdateTable time.
+	// Try to delete a GSI that does not exist. DynamoDB rejects at UpdateTable time.
 	nextProposal = {
 		forwardOp: JSON.stringify({
 			operation: 'updateTable',

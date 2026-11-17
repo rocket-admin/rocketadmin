@@ -9,7 +9,7 @@ export type QueryParams = Record<string, string | number | boolean | null | unde
 
 /**
  * How a failed request is reported before the error is thrown.
- * - `auto`: an alert when the server sent `originalMessage` details, otherwise an error snackbar (api.service.ts)
+ * - `auto`: an alert when the server sent `originalMessage` details, otherwise an error snackbar (api.service.ts).
  * - `alert`: always the dismissible page alert (most legacy HttpClient services)
  * - `snackbar`: always an error snackbar
  * - `false`: report nothing; the caller handles the error
@@ -42,9 +42,9 @@ export interface ServerErrorBody {
 }
 
 /**
- * Thrown for every failed request. `notified` is true once the user has seen the error, so the
+ * Thrown for every failed request. `notified` is true once the user has seen the error. So the
  * global handlers in main.ts stay quiet; an awaited call that fails then behaves like the
- * `catchError(() => EMPTY)` the Angular services used: the code after it simply never runs.
+ * `catchError(() => EMPTY)` the Angular services used. The code after it simply never runs.
  */
 export class ApiError extends Error {
 	notified = false;

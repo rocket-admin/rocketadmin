@@ -1,6 +1,6 @@
 // "Back to the table" state for the row edit page: the table view's paging/sort from the URL and
-// its active filters, stashed in sessionStorage (TableStateService.setBackUrlParams/Filters) right
-// before a link to the entry page is followed.
+// its active filters. The state is stashed in sessionStorage (TableStateService.setBackUrlParams/Filters)
+// right before a link to the entry page is followed.
 import type { LocationQuery } from 'vue-router';
 import { DEFAULT_PAGE_SIZE, queryValue } from '@/lib/table-query';
 import { useTableStateStore } from '@/stores/table-state';

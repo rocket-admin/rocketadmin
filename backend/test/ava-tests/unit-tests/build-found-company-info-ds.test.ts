@@ -9,8 +9,8 @@ import { SubscriptionLevelEnum } from '../../../src/enums/subscription-level.enu
 import { FoundSassCompanyInfoDS } from '../../../src/microservices/gateways/saas-gateway.ts/data-structures/found-saas-company-info.ds.js';
 
 // Plan 46 (2026-09-17): white label (logo / favicon / tab title) and custom domains are retired. The
-// company payload must not carry the white-label fields at all — even when stale rows are still
-// attached to the entity — and `custom_domain` is always null (kept for API compatibility).
+// company payload must not carry the white-label fields at all, even when stale rows are still
+// attached to the entity. `custom_domain` is always null (kept for API compatibility).
 
 function coreCompany(): CompanyInfoEntity {
 	return {

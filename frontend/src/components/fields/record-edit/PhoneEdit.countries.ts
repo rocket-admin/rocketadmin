@@ -1,5 +1,5 @@
 // The phone widget's own country list (code, name, dial code, flag), ported verbatim from the
-// Angular `PhoneEditComponent` — a smaller, phone-specific list than `@/consts/countries`.
+// Angular `PhoneEditComponent`. It is a smaller, phone-specific list than `@/consts/countries`.
 
 export interface PhoneCountry {
 	code: string;

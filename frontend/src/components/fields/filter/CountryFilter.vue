@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * Port of filter-fields/country (`CountryFilterComponent`): a country autocomplete, filtered by name
- * or ISO code as you type; picking one emits its code (`null` for the empty option nullable
+ * or ISO code as you type. A pick emits its code (`null` for the empty option that nullable
  * columns get).
  */
 import { computed, ref } from 'vue';

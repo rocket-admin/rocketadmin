@@ -18,7 +18,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
-/** `label` turns it into a named image — for an icon that carries meaning with no text beside it. */
+/** `label` turns it into a named image: for an icon that carries meaning with no text beside it. */
 export const Meaningful: Story = { args: { name: 'warning', label: 'Warning' } };
 
 /** Every size, outlined and filled, over the icons the app shell uses. */

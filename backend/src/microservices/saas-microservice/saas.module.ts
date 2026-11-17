@@ -169,7 +169,7 @@ import { UpdateHostedConnectionPasswordUseCase } from './use-cases/update-hosted
 			provide: UseCaseType.VERIFY_INVITE_USER_IN_COMPANY_AND_CONNECTION_GROUP,
 			useClass: VerifyInviteUserInCompanyAndConnectionGroupUseCase,
 		},
-		// Account-management bridges (plan 15 Phase 4) — reuse the user-entity use cases.
+		// Account-management bridges (plan 15 Phase 4): reuse the user-entity use cases.
 		{
 			provide: UseCaseType.FIND_USER,
 			useClass: FindUserUseCase,

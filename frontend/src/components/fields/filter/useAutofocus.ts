@@ -1,7 +1,7 @@
 /**
- * The `autofocus` input of `BaseFilterFieldComponent`: every Angular filter focused its control in
- * `ngAfterViewInit` through `setTimeout(…, 100)`, late enough for the dialog's open animation and
- * the saved-filters panel to have settled. Same delay here.
+ * The `autofocus` input of `BaseFilterFieldComponent`. Every Angular filter focused its control in
+ * `ngAfterViewInit` through `setTimeout(…, 100)`. That is late enough for the dialog's open animation
+ * and the saved-filters panel to settle. Same delay here.
  */
 import { type ComponentPublicInstance, onBeforeUnmount, onMounted, type Ref } from 'vue';
 

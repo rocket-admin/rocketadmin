@@ -415,7 +415,7 @@ test.serial(`${currentTest} should create widget and then attach query (proper w
 
 		const queryId = JSON.parse(createQuery.text).id;
 
-		// Then attach query to widget via update
+		// Then attach query to widget through update
 		const updateWidget = await request(app.getHttpServer())
 			.put(`/dashboard/${dashboardId}/widget/${widgetId}/${connectionId}`)
 			.send({ query_id: queryId })

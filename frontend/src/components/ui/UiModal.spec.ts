@@ -4,12 +4,12 @@ import UiModal from './UiModal.vue';
 
 /**
  * jsdom 29 ships `HTMLDialogElement` and its `open` property but implements **neither**
- * `showModal()` nor `close()` — they are `undefined`, not merely inert. (The plan assumed jsdom
- * supported `<dialog>` and suggested spying on existing prototype methods; it does not.)
+ * `showModal()` nor `close()`. They are `undefined`, not merely inert. (The plan assumed that jsdom
+ * supported `<dialog>` and suggested spies on existing prototype methods; it does not.)
  *
- * So the methods are installed here rather than spied. Each stub also maintains `open`, because
- * that is the state the component reads to decide whether a sync is needed, and a stub that lies
- * about it would make every assertion below meaningless.
+ * So the methods are installed here and not spied. Each stub also maintains `open`. That is the
+ * state the component reads to decide whether a sync is needed. A stub that lies about it would
+ * make every assertion below meaningless.
  */
 function installDialogStubs() {
 	const proto = HTMLDialogElement.prototype as unknown as {
@@ -116,7 +116,7 @@ describe('UiModal', () => {
 		await wrapper.get('dialog').trigger('cancel');
 
 		// The native default must also be prevented, or the browser closes the dialog regardless of
-		// what the component emits — that is the whole mechanism behind `dismissible: false`.
+		// what the component emits. That is the whole mechanism behind `dismissible: false`.
 		expect(wrapper.emitted('update:open')).toBeUndefined();
 		expect(wrapper.emitted('close')).toBeUndefined();
 	});

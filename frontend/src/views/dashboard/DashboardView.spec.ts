@@ -1,5 +1,5 @@
-// Port of dashboard.component.spec.ts, extended to the page's behaviour: loading the folders,
-// opening the URL's table (or the default one), the URL state of filters and search, and actions.
+// Port of dashboard.component.spec.ts, extended to the page's behaviour. It covers the folder load,
+// the open of the URL's table (or the default one), the URL state of filters and search, and actions.
 import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

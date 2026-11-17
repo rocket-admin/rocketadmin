@@ -505,7 +505,7 @@ export function getMappedChartType(chartType: ChartType, options: ChartWidgetOpt
 	// For mixed charts, the base type is used but individual datasets may override
 	const hasMixedTypes = options.series?.some((s) => s.type) ?? false;
 	if (hasMixedTypes) {
-		// Use 'bar' as base for mixed charts - individual series override via dataset.type
+		// Use 'bar' as base for mixed charts - individual series override through dataset.type
 		return 'bar' as ChartJsType;
 	}
 	return chartType as ChartJsType;

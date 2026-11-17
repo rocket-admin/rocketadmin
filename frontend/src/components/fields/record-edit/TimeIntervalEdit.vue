@@ -29,8 +29,8 @@ function onInput(unit: Unit, value: string) {
 }
 
 /**
- * The row's interval object as is (Angular used it directly). A raw interval string — which Angular
- * left unparsed, showing empty inputs — is parsed with `postgres-interval`.
+ * The row's interval object as is (Angular used it directly). Angular left a raw interval string
+ * unparsed and showed empty inputs. Here it is parsed with `postgres-interval`.
  */
 function initialInterval(): Interval {
 	const empty: Interval = { years: '', months: '', days: '', hours: '', minutes: '', seconds: '', milliseconds: '' };

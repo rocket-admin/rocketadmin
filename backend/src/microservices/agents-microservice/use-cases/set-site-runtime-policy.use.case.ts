@@ -9,12 +9,12 @@ import { SetSiteRuntimePolicyDs } from '../data-structures/agents.ds.js';
 import { SiteRuntimePolicyRO } from '../data-structures/agents-responses.ds.js';
 import { ISetSiteRuntimePolicy } from './agents-use-cases.interface.js';
 
-// Writes the site data contract (plan 13 §4) onto the connection — the manifest universal-backend
-// enforces at the generated-site runtime (auth-table pinning, write allow-lists, owner-scoped
-// reads). Same owner-consent channel as set-public-permissions: agents-core has already collected
-// the explicit user approval; this side re-checks that the approving user actually holds Cedar
-// connection:edit and logs refusals. Unlike the public grant there is no merge mode — the agent
-// derives the complete manifest from the schema it created and it replaces the stored one
+// Writes the site data contract (plan 13 §4) onto the connection. This is the manifest that
+// universal-backend enforces at the generated-site runtime (auth-table pinning, write allow-lists,
+// owner-scoped reads). Same owner-consent channel as set-public-permissions: agents-core already
+// collected the explicit user approval. This side re-checks that the approving user actually holds
+// Cedar connection:edit and logs refusals. Unlike the public grant, there is no merge mode. The agent
+// derives the complete manifest from the schema it created, and it replaces the stored one
 // wholesale (a backfilled presence-only marker included).
 @Injectable({ scope: Scope.REQUEST })
 export class SetSiteRuntimePolicyUseCase
@@ -34,8 +34,8 @@ export class SetSiteRuntimePolicyUseCase
 	protected async implementation(inputData: SetSiteRuntimePolicyDs): Promise<SiteRuntimePolicyRO> {
 		const { userId, connectionId, policy } = inputData;
 
-		// The DTO already requires an object; arrays satisfy @IsObject, so rule them out here —
-		// a jsonb array would make universal-backend's parser treat every section as absent.
+		// The DTO already requires an object. Arrays satisfy @IsObject, so rule them out here.
+		// A jsonb array would make universal-backend's parser treat every section as absent.
 		if (typeof policy !== 'object' || policy === null || Array.isArray(policy)) {
 			throw new HttpException({ message: Messages.SITE_RUNTIME_POLICY_INVALID }, HttpStatus.BAD_REQUEST);
 		}

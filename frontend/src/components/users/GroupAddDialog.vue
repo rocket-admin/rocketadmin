@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Port of frontend/src/app/components/users/group-add-dialog: creates a user group in the current
-// connection and closes with the new group, so the permissions page can open its policy editor.
+// connection. It closes with the new group, so the permissions page can open its policy editor.
 import { computed, ref } from 'vue';
 import AppDialogForm from '@/components/dialog/AppDialogForm.vue';
 import { UiField, UiInput } from '@/components/ui';

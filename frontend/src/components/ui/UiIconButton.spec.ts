@@ -82,7 +82,8 @@ describe('UiIconButton', () => {
 	});
 
 	it('passes trigger attributes through to the rendered element', () => {
-		// The UiMenu contract: `v-bind="triggerProps"` must land aria-expanded etc. on the button.
+		// The UiMenu contract: `v-bind="triggerProps"` must land aria-expanded and the other trigger
+		// attributes on the button.
 		const wrapper = mount(UiIconButton, {
 			props: { icon: 'more_vert', label: 'Actions' },
 			attrs: { 'aria-expanded': 'false', 'aria-haspopup': 'menu', id: 'trigger' },

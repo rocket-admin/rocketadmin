@@ -1,7 +1,7 @@
 <script setup lang="ts">
-// Port of frontend/src/app/components/secrets (/secrets): the company's secrets vault — a searchable,
-// paged list of secrets with their encryption and expiry, and the create / edit / audit log / delete
-// dialogs. The dialogs change secrets through the secrets store, which reloads the page on screen
+// Port of frontend/src/app/components/secrets (/secrets): the company's secrets vault. It has a
+// searchable, paged list of secrets with their encryption and expiry. It also has the create / edit /
+// audit log / delete dialogs. The dialogs change secrets through the secrets store, which reloads the page on screen
 // (Angular's `secrets.cast` subscription).
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import ProfileLayout from '@/components/profile/ProfileLayout.vue';

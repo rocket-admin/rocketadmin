@@ -56,7 +56,7 @@ export const TableWidgets = story(PlaceholderTableWidgets);
 export const UserGroup = story(PlaceholderUserGroup, 'max-width: 30rem;');
 export const UserGroups = story(PlaceholderUserGroups, 'max-width: 44rem;');
 
-/** All of them stacked — the matrix for spotting radius or rhythm drift between screens. */
+/** All of them stacked: the matrix to spot radius or rhythm drift between screens. */
 export const AllVariants: Story = {
 	render: () => ({
 		components: {

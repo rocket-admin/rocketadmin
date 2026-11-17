@@ -1,6 +1,6 @@
 <script setup lang="ts">
-// The actions page with no automations yet: what an automation is (a trigger, then an action), the
-// "Create first automation" call to action and the docs link.
+// The actions page with no automations yet. It shows what an automation is (a trigger, then an
+// action), the "Create first automation" call to action and the docs link.
 import { UiButton, UiIcon } from '@/components/ui';
 
 defineEmits<{ create: [] }>();

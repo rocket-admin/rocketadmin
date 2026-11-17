@@ -19,17 +19,17 @@ async function bootstrap() {
 	try {
 		appConfig.validate();
 		// Before the app is built: Sentry's default integrations install the process-level
-		// uncaughtException / unhandledRejection handlers, so initializing after NestFactory.create
+		// uncaughtException / unhandledRejection handlers. An init after NestFactory.create
 		// left every module-init and DB-connect failure on the floor. A blank/unset DSN keeps every
 		// capture call a no-op.
 		Sentry.init({
 			dsn: appConfig.thirdParty.sentryDsn ?? undefined,
 			// Separates prod/staging/dev events; unset shows as Sentry's default.
 			environment: process.env.SENTRY_ENVIRONMENT,
-			// Was a hard-coded 1.0 — 100% performance tracing in prod is a cost bug, and errors
+			// Was a hard-coded 1.0. 100% performance tracing in prod is a cost bug, and errors
 			// are captured regardless of this rate. Same env knob + default as agents-core/saas.
 			// NOTE: with the init here (after express/typeorm are loaded), a nonzero rate yields
-			// few real traces — enabling tracing for real needs a `node --import` preload init
+			// few real traces. Real tracing needs a `node --import` preload init
 			// (see plan 30's rolled-back addendum).
 			tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE ?? 0) || 0,
 			// @sentry/node v11 replaced `sendDefaultPii` with `dataCollection` and made the unset
@@ -67,8 +67,9 @@ async function bootstrap() {
 
 		app.use(helmet());
 
-		// Wildcard CORS for the public table CRUD routes — registered before the global enableCors()
-		// so it owns these routes (including the OPTIONS preflight) before the global allowlist runs.
+		// Wildcard CORS for the public table CRUD routes. The app registers it before the global
+		// enableCors(), so it owns these routes before the global allowlist runs. That includes the
+		// OPTIONS preflight.
 		app.use(publicCrudCorsMiddleware);
 
 		app.enableCors({

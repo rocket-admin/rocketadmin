@@ -16,8 +16,8 @@ const input = ref<FocusTarget>(null);
 useAutofocus(props, input);
 
 /**
- * The Angular `pattern` attribute. Checked in script rather than as a native `pattern`: browsers
- * compile that with the `v` flag, where the unescaped `[{]` is a syntax error and the rule is dropped.
+ * The Angular `pattern` attribute. Checked in script rather than as a native `pattern`. Browsers
+ * compile that with the `v` flag. There the unescaped `[{]` is a syntax error and the rule is dropped.
  */
 const ID_PATTERN = /^[{]?[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}[}]?$/;
 

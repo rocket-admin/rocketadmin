@@ -26,11 +26,11 @@ import {
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
 import { TestUtils } from '../../utils/test.utils.js';
 
-// POST /internal/agents/connection/public-permissions/:connectionId — the grant the
-// website-generation agent's set_public_read_permissions tool performs after user approval
-// (agents-core → this endpoint). Regression context: the endpoint was MISSING until 2026-07-30
-// while agents-core already called it, so every agent grant 404ed and generated sites 403ed on
-// anonymous reads — these tests pin the full chain down to the public /sitenova data read.
+// POST /internal/agents/connection/public-permissions/:connectionId: the grant that the
+// website-generation agent's set_public_read_permissions tool does after user approval
+// (agents-core → this endpoint). Regression context: the endpoint was MISSING until 2026-07-30,
+// but agents-core already called it. So every agent grant 404ed, and generated sites 403ed on
+// anonymous reads. These tests pin the full chain down to the public /sitenova data read.
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -304,18 +304,18 @@ test.serial(`${currentTest} refuses a policy that is not a JSON object (400)`, a
 
 // --- plan 13 P0-3: a public column whitelist must bound the QUERY, not just the response ---
 //
-// `readableColumns` used to be applied only as a projection over rows the query had already
-// returned, so an anonymous caller could still filter or search on a WITHHELD column and read its
-// values back out of which rows came back (`pagination.total` as a per-character oracle over a
-// password hash). These tests pin the fix on the core's anonymous `/table/crud` branch: the
-// readable set now feeds filtering, search and the select list. (universal-backend enforces the
-// same rule for the generated-site runtime — plan 13 Step 0.)
+// `readableColumns` used to be applied only as a projection over rows the query already
+// returned. So an anonymous caller could still filter or search on a WITHHELD column. The caller
+// could then read its values back out of the returned rows (`pagination.total` as a per-character
+// oracle over a password hash). These tests pin the fix on the core's anonymous `/table/crud` branch:
+// the readable set now feeds filtering, search and the select list. (universal-backend enforces the
+// same rule for the generated-site runtime: plan 13 Step 0.)
 //
-// The seeded table has 42 rows; `testTableColumnName` holds the value 'Vasia' in exactly 3 of them
+// The seeded table has 42 rows. `testTableColumnName` holds the value 'Vasia' in exactly 3 of them,
 // and `testTableSecondColumnName` holds a unique email per row. Assertions deliberately use a
-// filter/search that matches a NON-EMPTY subset when applied, because the MySQL DAO's
-// `getRowsCount` treats a filtered count of 0 as falsy and falls back to the whole-table count —
-// so "total === 0" is not a usable signal here, while "total === 3 vs 42" is.
+// filter/search that matches a NON-EMPTY subset when applied. The reason: the MySQL DAO's
+// `getRowsCount` treats a filtered count of 0 as falsy and falls back to the whole-table count.
+// So "total === 0" is not a usable signal here, while "total === 3 vs 42" is.
 
 function anonymousCrudRowsRequest(
 	connectionId: string,
@@ -352,7 +352,7 @@ test.serial(`${currentTest} returns only the publicly readable columns`, async (
 test.serial(`${currentTest} ignores a filter on a withheld column (kills the pagination oracle)`, async (t) => {
 	const { userId, connectionId, testTableName, testTableColumnName, testTableSecondColumnName } =
 		await createConnectionAndTable();
-	// Grant the EMAIL column only — the name column (3 rows of 'Vasia') is withheld.
+	// Grant the EMAIL column only. The name column (3 rows of 'Vasia') is withheld.
 	await grantRequest(connectionId, {
 		userId,
 		tables: [{ tableName: testTableName, readableColumns: [testTableSecondColumnName] }],
@@ -389,8 +389,8 @@ test.serial(`${currentTest} never searches a withheld column`, async (t) => {
 		tables: [{ tableName: testTableName, readableColumns: [testTableSecondColumnName] }],
 	});
 
-	// 'Vasia' exists only in the withheld column: the search must match nothing rather than
-	// returning those 3 rows (before the fix, search ILIKEd every column of the table).
+	// 'Vasia' exists only in the withheld column: the search must match nothing, not those 3 rows.
+	// Before the fix, search ILIKEd every column of the table.
 	const response = await anonymousCrudRowsRequest(connectionId, testTableName, {}, '&search=Vasia');
 	t.is(response.status, 200);
 	const body = JSON.parse(response.text);

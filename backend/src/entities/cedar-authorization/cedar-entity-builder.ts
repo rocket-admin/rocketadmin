@@ -53,8 +53,8 @@ export function buildCedarEntities(
 		});
 	}
 
-	// Column entity, parented by its Table — required so `resource in Table::"..."`
-	// policies authorize reading any column without naming each one (the table:read alias).
+	// Column entity, parented by its Table. The parent is required so that `resource in Table::"..."`
+	// policies authorize the read of any column without naming each one (the table:read alias).
 	if (columnName && tableName) {
 		entities.push({
 			uid: { type: 'RocketAdmin::Column', id: `${connectionId}/${tableName}/${columnName}` },
@@ -63,8 +63,8 @@ export function buildCedarEntities(
 		});
 	}
 
-	// ActionEvent entity, parented by its Table — required so `resource in Table::"..."`
-	// policies authorize triggering specific events without naming each event.
+	// ActionEvent entity, parented by its Table. The parent is required so that `resource in Table::"..."`
+	// policies authorize the trigger of specific events without naming each event.
 	if (actionEventId && tableName) {
 		entities.push({
 			uid: { type: 'RocketAdmin::ActionEvent', id: `${connectionId}/${tableName}/${actionEventId}` },

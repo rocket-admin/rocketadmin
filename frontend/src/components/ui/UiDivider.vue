@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
- * Separator line — the `mat-divider` replacement. A native `<hr>`, so AT reads it as a separator
- * without any ARIA; `vertical` adds `aria-orientation` and draws it as a full-height rule for
+ * Separator line: the `mat-divider` replacement. A native `<hr>`, so AT reads it as a separator
+ * without any ARIA. `vertical` adds `aria-orientation` and draws it as a full-height rule for
  * toolbars and flex rows. Margins are layout, so they come from the caller's `class`.
  */
 import { computed } from 'vue';

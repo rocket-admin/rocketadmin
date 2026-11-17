@@ -32,7 +32,7 @@ export function passwordErrors(value: unknown): PasswordRequirements | null {
 	return valid ? null : requirements;
 }
 
-/** "Password must contain: a number, at least 8 characters" — only the unmet requirements. */
+/** "Password must contain: a number, at least 8 characters": only the unmet requirements. */
 export function passwordErrorMessage(errors: ValidationErrors): string {
 	const missing = Object.entries(PASSWORD_REQUIREMENT_LABELS)
 		.filter(([key]) => errors[key] === false)

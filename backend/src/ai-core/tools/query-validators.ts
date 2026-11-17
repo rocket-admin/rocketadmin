@@ -30,8 +30,8 @@ export function isValidSQLQuery(query: string): boolean {
 
 // Aggregation operators that either write to a collection ($out, $merge) or execute
 // server-side JavaScript ($function, $accumulator, $where). None of these belong in a
-// read-only AI query, and the substring blocklist in `isValidMongoDbCommand` cannot
-// detect them, so they must be rejected by walking the parsed pipeline.
+// read-only AI query. The substring blocklist in `isValidMongoDbCommand` cannot
+// detect them, so a walk of the parsed pipeline must reject them.
 const FORBIDDEN_MONGO_OPERATORS: ReadonlySet<string> = new Set([
 	'$out',
 	'$merge',
@@ -59,9 +59,9 @@ function pipelineContainsForbiddenOperator(node: unknown): boolean {
 }
 
 /**
- * Ensures a MongoDB aggregation pipeline is read-only: it must parse as JSON and contain
- * no write stages (`$out`, `$merge`) or server-side JavaScript operators (`$function`,
- * `$accumulator`, `$where`) at any nesting depth (including `$lookup` sub-pipelines). This
+ * Makes sure that a MongoDB aggregation pipeline is read-only. The pipeline must parse as JSON.
+ * It must contain no write stages (`$out`, `$merge`) and no server-side JavaScript operators
+ * (`$function`, `$accumulator`, `$where`) at any nesting depth (including `$lookup` sub-pipelines). This
  * AST-level check complements the substring-based `isValidMongoDbCommand`, which cannot
  * detect these stages. Returns false for unparseable pipelines (fail-closed).
  */

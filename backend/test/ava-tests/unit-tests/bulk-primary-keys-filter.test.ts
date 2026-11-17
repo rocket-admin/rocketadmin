@@ -8,8 +8,8 @@ import { ERROR_MESSAGES } from '@rocketadmin/shared-code/dist/src/helpers/errors
 import test from 'ava';
 import knex from 'knex';
 
-// Bulk row deletion (and the bulk "old rows" read that precedes it) used to filter with one
-// `OR (col = ? AND …)` group per primary key, all in a single statement. The SQL DAOs now
+// Bulk row deletion and the bulk "old rows" read that precedes it used to filter in one way. They
+// used one `OR (col = ? AND …)` group per primary key, all in a single statement. The SQL DAOs now
 // normalise the keys once, chunk them to each dialect's statement limits and filter with one
 // IN list per chunk. These checks compile the filter with knex's own query compilers (no
 // database) and pin the exact SQL each dialect gets.

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-// The `.profile-layout` frame the account pages (user settings, company, secrets, API keys, Zapier)
-// shared in Angular: the profile sidebar, then a scrolling main column with the page alert on top.
+// The `.profile-layout` frame that the account pages shared in Angular. The pages are user settings,
+// company, secrets, API keys, Zapier. The frame is the profile sidebar, then a scrolling main column
+// with the page alert on top.
 import AppAlert from '@/components/shared/AppAlert.vue';
 import ProfileSidebar, { type ProfileTab } from './ProfileSidebar.vue';
 

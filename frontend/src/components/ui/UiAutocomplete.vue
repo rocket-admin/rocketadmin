@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T">
 /**
- * Text input with a suggestion list — the `mat-autocomplete` replacement (foreign keys, countries,
+ * Text input with a suggestion list: the `mat-autocomplete` replacement (foreign keys, countries,
  * languages, timezones, currencies).
  *
  * The APG "combobox with listbox popup" pattern: focus stays in the `<input>`, ArrowUp/ArrowDown
@@ -60,7 +60,7 @@ defineSlots<{
 const field = inject(FIELD_CONTEXT, undefined);
 
 // `class` / `style` are layout passthrough and belong on the bordered root, which is the box a
-// caller sizes; everything else (`name`, `aria-label`, `data-*`) belongs on the <input>.
+// caller sizes. Everything else (`name`, `aria-label`, `data-*`) belongs on the <input>.
 const attrs = useAttrs();
 // Functions, not computeds: `attrs` is not reactive, so a computed would cache a stale copy.
 function rootAttrs() {
@@ -218,7 +218,7 @@ function hide() {
 	window.removeEventListener('scroll', place, true);
 }
 
-/** Gap between control and list, in px — `--space-1`. */
+/** Gap between control and list, in px: `--space-1`. */
 const OFFSET = 4;
 
 function place() {

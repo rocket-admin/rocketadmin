@@ -277,7 +277,7 @@ test.serial(
 			t.is(response.status, 403);
 			t.is(JSON.parse(response.text).message, Messages.DONT_HAVE_PERMISSIONS);
 
-			//connection wasn't deleted
+			//connection was not deleted
 			const findOneResponce = await request(app.getHttpServer())
 				.get(`/connection/one/${testData.connections.firstId}`)
 				.set('Cookie', testData.users.simpleUserToken)

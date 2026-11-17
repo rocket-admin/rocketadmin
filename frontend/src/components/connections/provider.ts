@@ -1,5 +1,5 @@
-// Shared bits of the connect-db page and its dialogs: default ports, the hosting provider guessed
-// from the hostname, and the provider names / docs links the dialogs show.
+// Shared bits of the connect-db page and its dialogs. They are the default ports, the hosting
+// provider guessed from the hostname, and the provider names / docs links the dialogs show.
 import ipaddr from 'ipaddr.js';
 import isIP from 'validator/es/lib/isIP';
 import googleIPs from '@/consts/google-IP-addresses';
@@ -70,7 +70,7 @@ export const IP_ACCESS_DOCS_LINKS: Partial<Record<DbProvider, string>> = {
  * The hosting provider, guessed from the hostname; `null` when none matches.
  *
  * Kept as in Angular: a host inside one of Google Cloud's ranges returns `undefined` (the loop's bare
- * `return`) rather than 'google', so neither dialog shows Google-specific help.
+ * `return`) rather than 'google'. So neither dialog shows Google-specific help.
  */
 export function getProvider(db: Pick<Connection, 'host' | 'type'>): DbProvider | null | undefined {
 	const host = db.host ?? '';

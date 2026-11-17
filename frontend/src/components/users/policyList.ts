@@ -59,8 +59,8 @@ export function scopeResource(actions: PolicyAction[], value: string): PolicyAct
 }
 
 /**
- * The action picker's groups: actions that need no table or dashboard can be granted once, so those
- * already in the policy (except the one at `excludeIndex`, being edited) are left out.
+ * The action picker's groups. Actions that need no table or dashboard can be granted once. So those
+ * already in the policy are left out, except the one at `excludeIndex`, which is in edit.
  */
 export function buildFilteredGroups(
 	groups: PolicyActionGroup[],

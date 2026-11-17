@@ -1,16 +1,20 @@
 <script setup lang="ts" generic="T extends SelectValue">
 /**
- * Group of native radio buttons — the `mat-radio-group` replacement. Put `UiRadio`s in the default
+ * Group of native radio buttons: the `mat-radio-group` replacement. Put `UiRadio`s in the default
  * slot, or pass `options` for the plain case.
  *
- * A `role="radiogroup"` around native radios sharing one `name`: the browser supplies arrow-key
+ * A `role="radiogroup"` around native radios with one shared `name`. The browser supplies arrow-key
  * movement and the single tab stop, and AT reads "Read only, radio button, 2 of 3". Values are typed
- * (`SelectValue`), like `UiSelect` and `UiSegmented` — they are compared in JS, never stringified.
+ * (`SelectValue`), like `UiSelect` and `UiSegmented`. They are compared in JS, never stringified.
  *
- * Naming, in order: the `label` prop (rendered as the visible group caption); else the surrounding
- * `UiField`'s label, through `aria-labelledby` — a `<label for>` cannot name a group; else an
- * `aria-label` attribute from the caller. Inside a `UiField` the group also takes its hint/error
- * through `aria-describedby` and `aria-invalid`.
+ * Naming, in order:
+ * 1. The `label` prop (rendered as the visible group caption).
+ * 2. Else the surrounding `UiField`'s label, through `aria-labelledby`. A `<label for>` cannot
+ *    name a group.
+ * 3. Else an `aria-label` attribute from the caller.
+ *
+ * Inside a `UiField` the group also takes its hint/error through `aria-describedby` and
+ * `aria-invalid`.
  *
  * `UiSegmented` is the same pattern drawn as a button bar, for two-to-four short choices.
  */

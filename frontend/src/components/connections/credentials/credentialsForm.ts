@@ -1,7 +1,7 @@
 // The shared part of the per-database credentials forms (port of BaseCredentialsFormComponent).
 //
-// Every form takes the same props and emits the same events; it calls `provideCredentialsForm()`
-// once and the field components below it (CredentialsTextField, CredentialsHostField, …) read the
+// Every form takes the same props and emits the same events. It calls `provideCredentialsForm()`
+// once. The field components below it (CredentialsTextField, CredentialsHostField, …) read the
 // connection, the touched/dirty state and the analytics helper from the injected context.
 //
 // The connection is the page's reactive draft and the fields write into it directly, as the
@@ -21,7 +21,7 @@ export interface CredentialsFormProps {
 	accessLevel?: AccessLevel | null;
 	/** Fields filled from a pasted connection string; they get the "autofilled" look. */
 	autoFilledFields?: Set<string>;
-	/** A submit was attempted: every field shows its error, as a submitted NgForm did. */
+	/** The user tried a submit: every field shows its error, as a submitted NgForm did. */
 	submitted?: boolean;
 }
 
@@ -71,7 +71,7 @@ export interface CredentialsFormContext {
 	markDirty(name: string): void;
 	isTouched(name: string): boolean;
 	isDirty(name: string): boolean;
-	/** Errors show once the field was left or a submit was attempted (mat-error's rule). */
+	/** Errors show once the field was left or the user tried a submit (mat-error's rule). */
 	showErrors(name: string): boolean;
 	isAutoFilled(key: string): boolean;
 	/** The user edited an autofilled field: it stops being autofilled. */

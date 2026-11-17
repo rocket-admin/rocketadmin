@@ -3,7 +3,7 @@
 import type { MermaidConfig } from 'mermaid';
 
 // Angular's dark themeVariables, re-tinted from purple to the dark ramp in assets/theme.css: Mermaid
-// renders static SVG, so it can't follow the CSS tokens itself.
+// renders static SVG, so it cannot follow the CSS tokens itself.
 const MERMAID_DARK_OPTIONS: MermaidConfig = {
 	theme: 'base',
 	themeVariables: {

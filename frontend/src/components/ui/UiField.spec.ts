@@ -7,11 +7,11 @@ import UiInput from './UiInput.vue';
 /**
  * The highest-value spec in the design system: it pins the ARIA wiring that **exists nowhere in the
  * app today**. Before `UiField`, all four hand-rolled field copies rendered the error as an
- * unassociated sibling `<p>`, so a screenreader user heard the label and never learned why
+ * unassociated sibling `<p>`. So a screenreader user heard the label and never learned why the
  * submission failed.
  */
 
-/** A field wrapping a real UiInput — the composition every call site actually uses. */
+/** A field that wraps a real UiInput: the composition every call site actually uses. */
 function mountField(props: Record<string, unknown> = {}) {
 	return mount(UiField, {
 		props: { label: 'Email', ...props },
@@ -71,7 +71,7 @@ describe('UiField + UiInput', () => {
 		});
 
 		it('references hint and error together when both are present', () => {
-			// An error must not silence the hint — the hint usually states the rule being violated.
+			// An error must not silence the hint. The hint usually states the rule that the input violates.
 			const wrapper = mountField({ hint: 'Work address', error: 'Enter a valid email' });
 			const ids = wrapper.find('input').attributes('aria-describedby')?.split(' ') ?? [];
 
@@ -164,7 +164,7 @@ describe('UiInput', () => {
 	});
 
 	it('forwards arbitrary attributes onto the control itself', () => {
-		// inheritAttrs: false — without the explicit v-bind these would land nowhere useful.
+		// inheritAttrs: false. Without the explicit v-bind these would land nowhere useful.
 		const wrapper = mount(UiInput, { attrs: { name: 'email', maxlength: '80' } });
 
 		expect(wrapper.find('input').attributes('name')).toBe('email');

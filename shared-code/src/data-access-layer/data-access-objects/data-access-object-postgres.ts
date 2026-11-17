@@ -419,9 +419,9 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
 		});
 
 		if (customTypeIndexes.length > 0) {
-			// One catalog round trip per type kind for the whole table, not per column: a table with N
+			// One catalog round trip per type kind for the whole table, not per column. A table with N
 			// user-defined columns used to issue 2N sequential catalog queries (composite attributes +
-			// enum labels, once per column, even for repeated types), which Sentry reported as an
+			// enum labels, once per column, even for repeated types). Sentry reported that as an
 			// "N+1 query with repeating spans" on the pg_type/pg_class/pg_attribute SELECT.
 			const customTypes = await this.describeCustomTypes(
 				knex,

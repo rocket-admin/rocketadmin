@@ -38,7 +38,7 @@ const languages = computed<LanguageOption[]>(() => {
 	return allowNull ? [{ value: null, label: '', flag: '' }, ...sorted] : sorted;
 });
 
-/** The picked language — Angular's control holding an object rather than typed text. */
+/** The picked language: Angular's control that holds an object rather than typed text. */
 const selected = ref<LanguageOption | null>(findLanguage(props.value));
 const text = ref(selected.value?.label ?? '');
 

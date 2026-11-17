@@ -31,10 +31,10 @@ jobs:
             backend/coverage/lcov-report
           if-no-files-found: error
 
-  # Turns the coverage artifact into a Markdown report (metrics table) plus an SVG badge
-  # (scripts/coverage-report.mjs, no dependencies, no external service) and force-pushes them —
-  # with the raw summary — to the orphan `badges` branch as a single commit, with the workflow's
-  # own GITHUB_TOKEN. README.md links to the report (a link never renders as a broken image; the
+  # Turns the coverage artifact into a Markdown report (metrics table) and an SVG badge. The script is
+  # scripts/coverage-report.mjs (no dependencies, no external service). The job force-pushes the report, the
+  # badge and the raw summary to the orphan `badges` branch as a single commit, with the workflow's own
+  # GITHUB_TOKEN. README.md links to the report (a link never renders as a broken image; the
   # branch only exists after the first main build).
   coverage-badge:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'

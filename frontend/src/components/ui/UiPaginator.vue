@@ -1,11 +1,11 @@
 <script setup lang="ts">
 /**
- * Page navigation for a paged list — the `mat-paginator` replacement, used under a `UiTable`.
+ * Page navigation for a paged list: the `mat-paginator` replacement, used under a `UiTable`.
  *
- * Behaviour and texts follow Material so ported pages read the same: "Items per page:" with a
- * page-size picker, the "1 – 30 of 120" range label, and previous/next (plus first/last with
- * `showFirstLast`) buttons. Changing the page size keeps the first visible item on screen by
- * recomputing the page index, exactly as `MatPaginator._changePageSize` does.
+ * Behaviour and texts follow Material so ported pages read the same. They are "Items per page:"
+ * with a page-size picker, the `1 – 30 of 120` range label, and previous/next (plus first/last with
+ * `showFirstLast`) buttons. A change of the page size keeps the first visible item on screen. It
+ * recomputes the page index, exactly as `MatPaginator._changePageSize` does.
  *
  * Purely controlled by numbers: it emits `update:pageIndex` / `update:pageSize` and a Material-shaped
  * `page` event, and the caller fetches. The range label is a polite live region, so a screenreader
@@ -40,9 +40,9 @@ const props = withDefaults(
 	},
 );
 
-/** Zero-based page index. Two-way via `v-model:page-index`. */
+/** Zero-based page index. Two-way through `v-model:page-index`. */
 const pageIndex = defineModel<number>('pageIndex', { default: 0 });
-/** Items per page. Two-way via `v-model:page-size`. */
+/** Items per page. Two-way through `v-model:page-size`. */
 const pageSize = defineModel<number>('pageSize', { default: 30 });
 
 const emit = defineEmits<{ page: [PageEvent] }>();

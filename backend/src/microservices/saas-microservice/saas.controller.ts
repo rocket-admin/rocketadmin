@@ -408,8 +408,8 @@ export class SaasController {
 		if (!ValidationHelper.isValidUUID(companyId)) {
 			throw new BadRequestException(Messages.COMPANY_ID_MISSING);
 		}
-		// Authorization (company admin, ownership of inviterId) is enforced by the SaaS caller —
-		// this bridge only trusts the microservice JWT, exactly like `saas/user/register`.
+		// Authorization (company admin, ownership of inviterId) is enforced by the SaaS caller.
+		// This bridge only trusts the microservice JWT, exactly like `saas/user/register`.
 		return await this.inviteUserInCompanyUseCase.execute({
 			inviterId: body.inviterId,
 			companyId,
@@ -445,9 +445,9 @@ export class SaasController {
 
 	// --- Company membership administration ------------------------------------------------------
 	// Bridges for the SiteNova members screen. The equivalent public routes live on
-	// `CompanyController` behind CompanyUserGuard/CompanyAdminGuard, which read an end-user JWT the
-	// SaaS service does not have — so, exactly like the invite bridge above, these trust the
-	// microservice JWT and rely on the SaaS caller having enforced company-admin itself.
+	// `CompanyController` behind CompanyUserGuard/CompanyAdminGuard. These guards read an end-user JWT
+	// that the SaaS service does not have. So, exactly like the invite bridge above, these bridges trust
+	// the microservice JWT. They rely on the SaaS caller to enforce company-admin itself.
 
 	@ApiOperation({ summary: 'List company members and outstanding invitations for the SaaS service' })
 	@ApiResponse({
@@ -487,10 +487,7 @@ export class SaasController {
 		if (!ValidationHelper.isValidUUID(companyId)) {
 			throw new BadRequestException(Messages.COMPANY_ID_MISSING);
 		}
-		return await this.revokeInvitationInCompanyUseCase.execute(
-			{ email: body.email, companyId },
-			InTransactionEnum.ON,
-		);
+		return await this.revokeInvitationInCompanyUseCase.execute({ email: body.email, companyId }, InTransactionEnum.ON);
 	}
 
 	@ApiOperation({ summary: 'Update company user roles on behalf of the SaaS service' })
@@ -560,7 +557,7 @@ export class SaasController {
 
 	// ---------------------------------------------------------------------------------------------
 	// Account-management bridges (plan 15 Phase 4). `userId` ownership is enforced by the SaaS
-	// caller (cookie auth) — these bridges only trust the microservice JWT, like `saas/user/login`.
+	// caller (cookie auth). These bridges only trust the microservice JWT, like `saas/user/login`.
 	// ---------------------------------------------------------------------------------------------
 
 	@ApiOperation({ summary: 'Get the full user profile on behalf of the SaaS service (findMe parity)' })
@@ -607,7 +604,7 @@ export class SaasController {
 	@Put('user/delete')
 	async deleteSaasUserAccount(@Body() body: SaasDeleteUserAccountDto): Promise<Omit<RegisteredUserDs, 'token'>> {
 		// When the deleted user is the last one in the company, the use case calls back into the SaaS
-		// service (`saasCompanyGatewayService.deleteCompany`) — plain sequential HTTP, no deadlock.
+		// service (`saasCompanyGatewayService.deleteCompany`). This is plain sequential HTTP, no deadlock.
 		const deleteResult = await this.deleteUserAccountUseCase.execute(body.userId, InTransactionEnum.ON);
 		const slackMessage = Messages.USER_DELETED_ACCOUNT(deleteResult.email, body.reason ?? '', body.message ?? '');
 		await slackPostMessage(slackMessage);
@@ -768,10 +765,10 @@ export class SaasController {
 		type: CreatedConnectionResponse,
 	})
 	// Hosted-connection registration is the tail of saas's hosted-database provisioning chain
-	// (Aurora DDL → this → saas row): it test-connects to the brand-new database over TLS and
-	// writes ~8 rows. The controller default (15 s) can cut a cold-Aurora test-connect with a 408,
-	// which saas treats as a failed registration and answers by DROPPING the database it just
-	// created; saas itself waits 60 s for this call (CORE_REQUEST_TIMEOUT_MS), so the route budget
+	// (Aurora DDL → this → saas row). It test-connects to the brand-new database over TLS and
+	// writes ~8 rows. The controller default (15 s) can cut a cold-Aurora test-connect with a 408.
+	// The saas treats that as a failed registration and answers with a DROP of the database it just
+	// created. The saas itself waits 60 s for this call (CORE_REQUEST_TIMEOUT_MS), so the route budget
 	// matches it (2026-09-28, sitenova plan 54).
 	@Timeout(TimeoutDefaults.EXTENDED)
 	@Post('/connection/hosted')

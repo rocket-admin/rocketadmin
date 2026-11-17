@@ -1,7 +1,7 @@
 // Port of S3Service: presigned URLs for S3-backed file fields and the upload itself. Every method
 // resolves a fallback (null / false) on failure after showing an error alert, as in Angular.
 //
-// The upload PUT goes straight to the presigned S3 URL; the client sends no credentials or API
+// The upload PUT goes straight to the presigned S3 URL. The client sends no credentials or API
 // headers to non-API origins, so the signature stays valid.
 import { defineStore } from 'pinia';
 import { api, isApiError } from '@/api/client';

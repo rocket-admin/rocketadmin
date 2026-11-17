@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // The Password field: required for a new connection, and for a saved one once the hostname (or the
-// port) was touched; a saved connection otherwise keeps its password when this is left blank.
+// port) was touched. Otherwise a saved connection keeps its password when this is left blank.
 import { computed } from 'vue';
 import CredentialsTextField from './CredentialsTextField.vue';
 import { useCredentialsForm } from './credentialsForm';

@@ -35,7 +35,7 @@ const VERB_TO_ICON: Record<string, string> = {
 };
 
 // Verb display overrides used inside labels (lowercase context).
-// e.g. `actionLabel('table:ai-request')` → 'Table AI request'.
+// For example `actionLabel('table:ai-request')` → 'Table AI request'.
 const VERB_DISPLAY_OVERRIDE: Record<string, string> = {
 	'ai-request': 'AI request',
 };
@@ -67,7 +67,7 @@ export function actionIcon(value: string): string {
 }
 
 // Returns the verb as it should appear inside a sentence-case label
-// (e.g. inside "Connection read"). For short labels, capitalize the first letter
+// (for example inside "Connection read"). For short labels, capitalize the first letter
 // of the result.
 function verbInLabel(verb: string): string {
 	const override = VERB_DISPLAY_OVERRIDE[verb];

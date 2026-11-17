@@ -1,8 +1,8 @@
 <script setup lang="ts">
 /**
- * Port of table-display-fields/markdown (`MarkdownDisplayComponent`): a one-line preview — the first
- * heading, else the first paragraph, truncated at 100 characters — as plain text (like Angular,
- * so inline markup in the title shows as typed), with the whole source as a tooltip.
+ * Port of table-display-fields/markdown (`MarkdownDisplayComponent`): a one-line preview. It is the
+ * first heading, else the first paragraph, truncated at 100 characters. It shows as plain text (like
+ * Angular, so inline markup in the title shows as typed), with the whole source as a tooltip.
  */
 import { marked } from 'marked';
 import { computed } from 'vue';

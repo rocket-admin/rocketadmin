@@ -2367,7 +2367,7 @@ test.serial(`${currentTest} should throw an exception when connection id is not 
 
 	t.is(addRowInTableResponse.status, 404);
 
-	//checking that the line wasn't added
+	//check that the line was not added
 	const getTableRowsResponse = await request(app.getHttpServer())
 		.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
 		.set('Cookie', firstUserToken)
@@ -2424,7 +2424,7 @@ test.serial(`${currentTest} should throw an exception when table name is not pas
 
 	t.is(message, Messages.TABLE_NAME_MISSING);
 
-	//checking that the line wasn't added
+	//check that the line was not added
 	const getTableRowsResponse = await request(app.getHttpServer())
 		.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
 		.set('Cookie', firstUserToken)
@@ -2471,7 +2471,7 @@ test.serial(`${currentTest} should throw an exception when row is not passed in 
 
 	t.is(message, Messages.PARAMETER_MISSING);
 
-	//checking that the line wasn't added
+	//check that the line was not added
 	const getTableRowsResponse = await request(app.getHttpServer())
 		.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
 		.set('Cookie', firstUserToken)
@@ -2528,7 +2528,7 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
 
 	t.is(message, Messages.TABLE_NOT_FOUND);
 
-	//checking that the line wasn't added
+	//check that the line was not added
 	const getTableRowsResponse = await request(app.getHttpServer())
 		.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
 		.set('Cookie', firstUserToken)
@@ -3029,7 +3029,7 @@ test.serial(`${currentTest} should throw an exception when connection id not pas
 
 	t.is(deleteRowInTableResponse.status, 404);
 
-	//checking that the line wasn't deleted
+	//check that the line was not deleted
 	const getTableRowsResponse = await request(app.getHttpServer())
 		.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
 		.set('Cookie', firstUserToken)
@@ -3079,7 +3079,7 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
 	const { message } = JSON.parse(deleteRowInTableResponse.text);
 	t.is(message, Messages.DONT_HAVE_PERMISSIONS);
 
-	//checking that the line wasn't deleted
+	//check that the line was not deleted
 	const getTableRowsResponse = await request(app.getHttpServer())
 		.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
 		.set('Cookie', firstUserToken)
@@ -3129,7 +3129,7 @@ test.serial(`${currentTest} should throw an exception when tableName not passed 
 	const { message } = JSON.parse(deleteRowInTableResponse.text);
 	t.is(message, Messages.TABLE_NAME_MISSING);
 
-	//checking that the line wasn't deleted
+	//check that the line was not deleted
 	const getTableRowsResponse = await request(app.getHttpServer())
 		.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
 		.set('Cookie', firstUserToken)
@@ -3179,7 +3179,7 @@ test.serial(`${currentTest} should throw an exception when tableName passed in r
 	const { message } = JSON.parse(deleteRowInTableResponse.text);
 	t.is(message, Messages.TABLE_NOT_FOUND);
 
-	//checking that the line wasn't deleted
+	//check that the line was not deleted
 	const getTableRowsResponse = await request(app.getHttpServer())
 		.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
 		.set('Cookie', firstUserToken)
@@ -3228,7 +3228,7 @@ test.serial(`${currentTest} should throw an exception when primary key not passe
 	const { message } = JSON.parse(deleteRowInTableResponse.text);
 	t.is(message, Messages.PRIMARY_KEY_INVALID);
 
-	//checking that the line wasn't deleted
+	//check that the line was not deleted
 	const getTableRowsResponse = await request(app.getHttpServer())
 		.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
 		.set('Cookie', firstUserToken)
@@ -3284,7 +3284,7 @@ test.serial(
 		const { message } = JSON.parse(deleteRowInTableResponse.text);
 		t.is(message, Messages.PRIMARY_KEY_INVALID);
 
-		//checking that the line wasn't deleted
+		//check that the line was not deleted
 		const getTableRowsResponse = await request(app.getHttpServer())
 			.get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
 			.set('Cookie', firstUserToken)

@@ -57,9 +57,9 @@ export class ValidationHelper {
 		return countries.isValid(countryCode);
 	}
 
-	// Normalizes a satellite-provided link base for use in an email: returns the base without
-	// trailing slashes when it passes the allowlist below, null otherwise (callers fall back to
-	// the legacy link — a bad base must never fail the underlying operation).
+	// Normalizes a satellite-provided link base for use in an email. Returns the base without
+	// trailing slashes when it passes the allowlist below, null otherwise. Callers then fall back to
+	// the legacy link: a bad base must never fail the underlying operation.
 	public static resolveEmailVerificationLinkBase(linkBase: string | null | undefined): string | null {
 		if (!linkBase || !ValidationHelper.isValidEmailVerificationLinkBase(linkBase)) {
 			return null;
@@ -90,7 +90,7 @@ export class ValidationHelper {
 		try {
 			allowedHostnames.add(new URL(Constants.APP_DOMAIN_ADDRESS).hostname);
 		} catch (_e) {
-			// APP_DOMAIN_ADDRESS may be a bare hostname — fall through to the raw value
+			// APP_DOMAIN_ADDRESS can be a bare hostname. Fall through to the raw value
 			allowedHostnames.add(Constants.APP_DOMAIN_ADDRESS);
 		}
 		if (process.env.NODE_ENV !== 'production') {

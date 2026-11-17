@@ -3,8 +3,8 @@
  * Port of dashboard/db-table-view/db-table-filters-dialog: builds the table filters, one line per
  * column with its filter widget (`@/consts/filter-types`, or the column's configured widget).
  *
- * Initial state, as in Angular: none with a `saved_filter` in the URL; else the URL's `filters`;
- * else the columns marked "searched" in the table settings (`eq`, no value). `data.autofocusField`
+ * Initial state, as in Angular: none with a `saved_filter` in the URL. Else the URL's `filters`.
+ * Else the columns marked "searched" in the table settings (`eq`, no value). `data.autofocusField`
  * (an active-filter chip was clicked) adds that column and focuses its control.
  *
  * Closing: Angular closed with `'filter'` / `'reset'` and the caller then read the dialog's

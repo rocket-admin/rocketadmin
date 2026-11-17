@@ -1,6 +1,7 @@
 <script setup lang="ts">
-// The role picker of the company page and the invite dialog: a button naming the current role that
-// opens a menu of the three roles, each with its description and a check on the current one.
+// The role picker of the company page and the invite dialog. It is a button that names the current
+// role. The button opens a menu of the three roles, each with its description and a check on the
+// current one.
 import { UiButton, UiIcon, UiMenu, UiMenuItem } from '@/components/ui';
 import type { CompanyMemberRole } from '@/models/company';
 import { COMPANY_ROLE_NAMES, COMPANY_ROLE_OPTIONS } from './companyRoles';

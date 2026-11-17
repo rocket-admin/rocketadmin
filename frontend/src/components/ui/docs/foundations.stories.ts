@@ -8,9 +8,9 @@ import TypeSpecimens from './TypeSpecimens.vue';
 /**
  * Every visual on the Foundations pages, as a story.
  *
- * The indirection exists because `@storybook/addon-docs` compiles MDX to **React**: a `.vue`
- * component imported into an `.mdx` file is handed to `React.jsx()` and throws at render. A story is
- * the supported bridge — it's rendered by the Vue renderer — so the MDX pages carry the prose and
+ * The indirection exists because `@storybook/addon-docs` compiles MDX to **React**. A `.vue`
+ * component imported into an `.mdx` file goes to `React.jsx()` and throws at render. A story is
+ * the supported bridge: the Vue renderer renders it. So the MDX pages carry the prose and
  * pull each grid in with `<Story of={...} />`.
  *
  * Every grid is driven by `readTokens()` reading `theme.css`, so adding a token to the theme makes
@@ -23,8 +23,8 @@ const meta = {
 	title: 'Foundations/Specimens',
 	tags: ['!dev', '!autodocs'],
 	parameters: {
-		// Specimens are colour and geometry samples with no accessible content of their own; running
-		// the a11y check on a bare swatch grid only produces noise about missing landmarks.
+		// Specimens are colour and geometry samples with no accessible content of their own. The a11y
+		// check on a bare swatch grid only produces noise about missing landmarks.
 		a11y: { disable: true },
 		layout: 'fullscreen',
 	},
@@ -36,8 +36,8 @@ type Story = StoryObj<typeof meta>;
 /**
  * Builds a story that renders one doc component with fixed props.
  *
- * Props are passed through `v-bind` rather than as story `args` on purpose: these are page fragments
- * with no controls, and `args` would put a useless props table on a doc-only story.
+ * Props go through `v-bind` and not as story `args` on purpose. These are page fragments with no
+ * controls, and `args` would put a useless props table on a doc-only story.
  */
 function specimen(component: Component, props: Record<string, unknown>): Story {
 	return {
@@ -120,6 +120,6 @@ export const MotionTable = specimen(TokenTable, { prefix: '--motion-' });
 
 export const ZIndexTable = specimen(TokenTable, { prefix: '--z-' });
 export const SizingTable = specimen(TokenTable, {
-	// Explicit list rather than a prefix: --header-height doesn't share one with the width tokens.
+	// Explicit list and not a prefix: --header-height does not share one with the width tokens.
 	only: ['--header-height', '--width-panel', '--width-auth-card'],
 });

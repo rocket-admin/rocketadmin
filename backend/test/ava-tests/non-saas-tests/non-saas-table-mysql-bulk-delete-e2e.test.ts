@@ -24,10 +24,11 @@ import {
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
 import { TestUtils } from '../../utils/test.utils.js';
 
-// Bulk row deletion against a real MySQL: more keys than fit one statement (the DAO chunks at
-// 1000 keys and runs the chunks in one transaction), a composite primary key (row-value IN list),
-// and the audit log, which is now written with one batched INSERT per chunk instead of one
-// INSERT per deleted row.
+// Bulk row deletion against a real MySQL. The suite covers these cases:
+// - more keys than fit one statement (the DAO chunks at 1000 keys and runs the chunks in one transaction).
+// - a composite primary key (row-value IN list).
+// - the audit log, which is now written with one batched INSERT per chunk instead of one
+//   INSERT per deleted row.
 
 const mockFactory = new MockFactory();
 // The test knex speaks the mysql2 driver; the connection the backend stores keeps type "mysql".

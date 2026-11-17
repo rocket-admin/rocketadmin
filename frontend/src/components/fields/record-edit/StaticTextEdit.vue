@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
- * Port of record-edit-fields/static-text (`StaticTextEditComponent`): a column that can't be
- * edited (readonly widget, `null` data type) — its label and current value, or `NULL`.
+ * Port of record-edit-fields/static-text (`StaticTextEditComponent`): a column that cannot be
+ * edited (readonly widget, `null` data type). It shows its label and current value, or `NULL`.
  */
 import type { RecordEditFieldProps } from '../types';
 import { useRecordEditField } from '../useFieldWidget';

@@ -9,7 +9,7 @@ export interface TooltipMessage {
 	text: string;
 }
 
-/** The tooltip currently on screen. At most one exists — showing another replaces it. */
+/** The tooltip currently on screen. At most one exists: another one replaces it. */
 export interface ActiveTooltip {
 	text: string;
 	/** The side actually used, after flipping away from a viewport edge. */
@@ -20,8 +20,8 @@ export interface ActiveTooltip {
 
 /**
  * Shared between the `vTooltip` directive (which writes it) and `UiTooltipLayer` (which renders
- * it). A separate module for the same reason as `fieldContext.ts`: importing it from the `.vue`
- * file into `tooltip.ts`, which also imports that `.vue` file, would be circular.
+ * it). A separate module for the same reason as `fieldContext.ts`. `tooltip.ts` also imports that
+ * `.vue` file, so an import of this state from the `.vue` file into `tooltip.ts` would be circular.
  */
 export const tooltipState = reactive<{ messages: TooltipMessage[]; active: ActiveTooltip | null }>({
 	messages: [],

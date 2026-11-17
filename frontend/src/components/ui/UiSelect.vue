@@ -1,19 +1,19 @@
 <script setup lang="ts" generic="T extends SelectValue">
 /**
- * Dropdown control on a native `<select>` — the `mat-select` replacement.
+ * Dropdown control on a native `<select>`: the `mat-select` replacement.
  *
- * Native on purpose: the platform picker is keyboard- and screenreader-complete on every device,
- * and none of the Angular `mat-select`s needed anything a native one can't show (no icons or rich
+ * Native on purpose: the platform picker is keyboard- and screenreader-complete on every device.
+ * None of the Angular `mat-select`s needed anything a native one cannot show (no icons or rich
  * rows in options). Searchable lists use `UiAutocomplete` instead.
  *
- * Option values are typed, not strings: the `<option>`s carry their index, and the change handler
- * maps it back, so `true`, `42` and `null` round-trip through `v-model` unchanged.
+ * Option values are typed, not strings. The `<option>`s carry their index, and the change handler
+ * maps it back. So `true`, `42` and `null` round-trip through `v-model` unchanged.
  *
  * `multiple` renders a native list box and makes the model an array.
  *
  * Option groups (`mat-optgroup`): give options a `group` label. Runs of consecutive options with the
  * same `group` render inside one native `<optgroup>`, so keep each group's options adjacent. The
- * `options` array stays flat, which keeps the index mapping — and every existing caller — unchanged.
+ * `options` array stays flat, which keeps the index mapping (and every existing caller) unchanged.
  */
 import { computed, inject } from 'vue';
 import { FIELD_CONTEXT } from './fieldContext';
@@ -83,7 +83,7 @@ function onChange(event: Event) {
 		emit('update:modelValue', values);
 		return;
 	}
-	// The placeholder's value is "", and `Number('')` is 0 — without this guard choosing the
+	// The placeholder's value is "", and `Number('')` is 0. Without this guard, a choice of the
 	// placeholder would emit the first option instead of null.
 	const option = select.value === '' ? undefined : props.options[Number(select.value)];
 	emit('update:modelValue', option === undefined ? null : option.value);

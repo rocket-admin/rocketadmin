@@ -31,9 +31,9 @@ export type ActionActivationResult = {
 	receivedPrimaryKeysObj: Array<Record<string, unknown>>;
 };
 
-// A generated-site end-user acting through universal-backend (plan 37): the users-row primary key
-// carried by their token (`uid`, null for a pre-uid grace token) and the address they registered
-// with when the site passed it along. Neither is a RocketAdmin identity.
+// A generated-site end-user who acts through universal-backend (plan 37). The first field is the
+// users-row primary key from their token (`uid`, null for a pre-uid grace token). The second is
+// their registration address, when the site passed it along. Neither is a RocketAdmin identity.
 export type SitenovaVisitorActor = {
 	visitorId: string | null;
 	email: string | null;
@@ -83,10 +83,10 @@ export class TableActionActivationService {
 		);
 	}
 
-	// Same dispatch as activateTableAction, for an operation performed by a generated-site visitor
-	// rather than a RocketAdmin user (plan 37). There is no account to look up: the actor is
-	// described from what universal-backend forwarded, and the HTTP payload / Slack / email say so
-	// explicitly instead of borrowing the connection owner's identity.
+	// Same dispatch as activateTableAction, for an operation that a generated-site visitor did,
+	// not a RocketAdmin user (plan 37). There is no account to look up. The actor is
+	// described from what universal-backend forwarded. The HTTP payload / Slack / email say so
+	// explicitly and do not borrow the connection owner's identity.
 	public async activateTableActionForVisitor(
 		tableAction: TableActionEntity,
 		foundConnection: ConnectionEntity,
@@ -245,8 +245,8 @@ export class TableActionActivationService {
 
 		const dateString = new Date().toISOString();
 		// Wire contract of URL actions (consumers verify it with the Rocketadmin-Signature HMAC).
-		// $$_raUserId is the historical field and stays a string for RocketAdmin users; it is null when
-		// a generated-site visitor acted (plan 37) — such events never fired before, so no existing
+		// $$_raUserId is the historical field and stays a string for RocketAdmin users. It is null when
+		// a generated-site visitor acted (plan 37). Such events never fired before, so no existing
 		// consumer saw a null there. $$_triggeredBy / $$_visitorId are additive.
 		const actionRequestBody = JSON.stringify({
 			$$_raUserId: userId,

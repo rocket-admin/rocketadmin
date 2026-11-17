@@ -2,7 +2,7 @@ import test from 'ava';
 import type { WinstonLogger } from '../../../src/entities/logging/winston-logger.js';
 
 // The gateway reads IS_SAAS / MICROSERVICE_JWT_SECRET / SAAS_URL through
-// appConfig — set them before the module (and its appConfig import) loads.
+// appConfig. Set them before the module (and its appConfig import) loads.
 process.env.IS_SAAS = '1';
 process.env.MICROSERVICE_JWT_SECRET = 'unit-test-secret';
 process.env.SAAS_URL = 'http://saas.unit.test';

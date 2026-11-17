@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 import UiCard from './UiCard.vue';
 
-/** Thin by design — UiCard is presentational, so there's little behaviour to pin beyond the API. */
+/** Thin by design. UiCard is presentational, so there is little behaviour to pin beyond the API. */
 describe('UiCard', () => {
 	it('defaults to a padded panel', () => {
 		const wrapper = mount(UiCard, { slots: { default: 'Body' } });

@@ -72,8 +72,8 @@ export class PureGetRowsFromTableUseCase
 		const tableStructure = await dao.getTableStructure(tableName, userEmail);
 
 		// Column-level read permissions must bound the whole query, not just the response (plan 13
-		// P0-3): resolved here, BEFORE the filters/ordering are parsed, so a withheld column can be
-		// neither filtered, searched, ordered by nor selected. Anonymous callers (no userId — the
+		// P0-3). They are resolved here, BEFORE the filters/ordering are parsed. So a withheld column can be
+		// neither filtered, searched, ordered by nor selected. Anonymous callers (no userId: the
 		// public branch of QueryTableGuard) are evaluated against the connection's public policy.
 		const allColumnNames = tableStructure.map((column) => column.column_name);
 		const readableColumns = userId
@@ -105,7 +105,7 @@ export class PureGetRowsFromTableUseCase
 				connection.type === ConnectionTypesEnum.agent_mongodb)
 		) {
 			searchingFieldValue = hexToBinary(searchingFieldValue) as unknown as string;
-			// Readable columns only — a binary search must not reach a withheld column either.
+			// Readable columns only: a binary search must not reach a withheld column either.
 			builtTableSettings.search_fields = queryableStructure
 				.filter((field) => isBinary(field.data_type))
 				.map((field) => field.column_name);
@@ -133,7 +133,7 @@ export class PureGetRowsFromTableUseCase
 
 		rows = processRowsUtil(rows, tableWidgets, tableCustomFields);
 
-		// Defense in depth on top of the query-level restriction above: a widget/custom field or a DAO
+		// Defense in depth on top of the query-level restriction above. A widget/custom field or a DAO
 		// that ignores excluded_fields must not put a withheld column into the response.
 		if (!isAllColumnsReadable(readableColumns, allColumnNames)) {
 			rows.data = filterRowsByReadableColumns(rows.data, readableColumns);

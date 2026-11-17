@@ -16,7 +16,7 @@ defineProps<{
 	/** The selected comparator / filter mode. */
 	modelValue: string;
 	options: SelectOption<string>[];
-	/** Accessible name of the comparator select, e.g. "Email comparator". */
+	/** Accessible name of the comparator select, for example "Email comparator". */
 	label: string;
 	disabled?: boolean;
 }>();

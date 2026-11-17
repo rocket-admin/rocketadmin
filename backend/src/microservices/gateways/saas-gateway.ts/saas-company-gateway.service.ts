@@ -10,7 +10,7 @@ import { FoundSassCompanyInfoDS } from './data-structures/found-saas-company-inf
 @Injectable()
 export class SaasCompanyGatewayService extends BaseSaasGatewayService {
 	// Returns null both when the saas has no such company AND when the call failed for any
-	// other reason (401/5xx/unexpected body) — every caller reports that null as
+	// other reason (401/5xx/unexpected body). Every caller reports that null as
 	// COMPANY_NOT_FOUND, so the real reason is logged here before it is lost.
 	public async getCompanyInfo(companyId: string): Promise<FoundSassCompanyInfoDS | null> {
 		const result = await this.sendRequestToSaaS(`/webhook/company/${companyId}/`, 'GET', null);
@@ -28,7 +28,7 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
 			);
 			return null;
 		}
-		// A 2xx that is not a company is a contract break between the two services — nothing
+		// A 2xx that is not a company is a contract break between the two services. Nothing
 		// upstream reports it, so it is captured here.
 		const message = `SaaS company lookup for company ${companyId} returned HTTP ${result.status} with an unexpected body (keys: ${Object.keys(result.body ?? {}).join(', ') || 'none'}); callers will report COMPANY_NOT_FOUND`;
 		this.logger.warn(message);

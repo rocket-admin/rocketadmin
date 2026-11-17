@@ -137,8 +137,8 @@ export class GetRowByPrimaryKeyUseCase
 				),
 			);
 		}
-		// Column-level read permission (the ColumnRead half of table:read), resolved BEFORE the query
-		// so a withheld column is never selected — and so a caller who may read no column at all gets
+		// Column-level read permission (the ColumnRead half of table:read), resolved BEFORE the query.
+		// So a withheld column is never selected. And a caller who can read no column at all gets
 		// a 403 instead of a row-existence answer (plan 13 P0-3; same rule as
 		// `pure-read-row-from-table.use.case.ts`).
 		const allColumnNames = tableStructure.map((column) => column.column_name);
@@ -177,8 +177,8 @@ export class GetRowByPrimaryKeyUseCase
 		rowData = removePasswordsFromRowsUtil(rowData, tableWidgets);
 		let formedTableStructure = formFullTableStructure(tableStructure, tableSettings);
 
-		// Response-side projection, on top of the query-level restriction above (defense in depth: a
-		// widget or a DAO that ignores `excluded_fields` must not put a withheld column in the row).
+		// Response-side projection, on top of the query-level restriction above (defense in depth).
+		// A widget or a DAO that ignores `excluded_fields` must not put a withheld column in the row.
 		let listFields = findAvailableFields(daoTableSettings, tableStructure);
 		if (!isAllColumnsReadable(readableColumns, allColumnNames)) {
 			rowData = filterRowByReadableColumns(rowData, readableColumns);

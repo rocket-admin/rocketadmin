@@ -1,14 +1,14 @@
 <script setup lang="ts">
 /**
- * One row of a `UiList` — the `mat-list-item` replacement. Always an `<li>`; its content is:
+ * One row of a `UiList`: the `mat-list-item` replacement. Always an `<li>`; its content is:
  *
- * - a `RouterLink` with `to` (the exact-active one gets `aria-current="page"` from the router, and
- *   the `--active` modifier),
- * - an `<a>` with `href`,
- * - a `<button>` with `interactive`, emitting `click` (e.g. "view this related record"),
+ * - a `RouterLink` with `to`. The exact-active one gets `aria-current="page"` from the router and
+ *   the `--active` modifier.
+ * - an `<a>` with `href`.
+ * - a `<button>` with `interactive` that emits `click` (for example "view this related record").
  * - otherwise static content.
  *
- * Slots: `leading` (an icon), default (the title), `description` (a secondary line —
+ * Slots: `leading` (an icon), default (the title), `description` (a secondary line:
  * `matListItemLine`), `trailing` (a count, a check). When the item is a link or button, `leading`
  * and `trailing` are inside it and so must not hold controls of their own.
  */

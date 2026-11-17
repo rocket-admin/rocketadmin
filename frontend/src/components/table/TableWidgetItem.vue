@@ -1,8 +1,10 @@
 <script setup lang="ts">
 // Port of frontend/src/app/components/dashboard/db-table-view/db-table-widgets/widget: one row of
-// the widgets form — the column (picked once, from the columns without a widget), the widget type
-// with its docs link, the JSON5 params editor (read-only for types without settings), and the
-// displayed name and description. Changes are emitted; the page owns the widget list.
+// the widgets form. The row has these parts:
+// - The column (picked once, from the columns without a widget).
+// - The widget type with its docs link.
+// - The JSON5 params editor (read-only for types without settings).
+// - The displayed name and description. Changes are emitted; the page owns the widget list.
 //
 // The root uses `display: contents`, so the cells line up in the page's six-column grid.
 import { computed } from 'vue';

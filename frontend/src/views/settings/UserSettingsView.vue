@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Port of frontend/src/app/components/user-settings (/user-settings): the account page — name,
+// Port of frontend/src/app/components/user-settings (/user-settings): the account page with name,
 // email and password changes, two-factor authentication, the colour theme and account deletion.
 import { computed, onMounted, ref, watch } from 'vue';
 import { trackAuthEvent } from '@/components/auth/analytics';

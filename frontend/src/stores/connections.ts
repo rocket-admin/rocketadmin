@@ -1,6 +1,6 @@
-// Port of ConnectionsService: the connections list, the connection the current route points at
-// (its title, access levels, default table and custom accent colour), the connection-level tabs the
-// user may see, and the connection CRUD / settings / audit-log endpoints.
+// Port of ConnectionsService. It holds the connections list and the connection the current route
+// points at (its title, access levels, default table and custom accent colour). It also holds the
+// connection-level tabs the user can see, and the connection CRUD / settings / audit-log endpoints.
 //
 // Angular derived the current connection from Router NavigationEnd events inside the service. Here
 // the store exposes `syncFromRoute(route)`, and `bindConnectionsToRouter(router)` wires it to
@@ -199,7 +199,7 @@ export const useConnectionsStore = defineStore('connections', () => {
 		const changed = !from || from.path !== route.path || connectionID.value !== id;
 		setConnectionID(id);
 		// Angular refetched on every NavigationEnd; a query-only change (table paging, filters)
-		// can't change the connection, so it no longer triggers a refetch.
+		// cannot change the connection, so it no longer triggers a refetch.
 		if (changed) setConnectionInfo(id);
 		if (id) useUsersStore().setActiveConnection(id);
 		notifications.resetAlert();

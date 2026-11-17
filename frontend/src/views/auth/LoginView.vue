@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Port of frontend/src/app/components/login. Email first: "Next" looks up the user's companies; one
 // company reveals the password at once, several show a company picker. SaaS (outside a customer's
-// custom domain) adds Google (GSI button + One Tap) and GitHub sign-in beside the form; a custom
+// custom domain) adds Google (GSI button + One Tap) and GitHub sign-in beside the form. A custom
 // domain or a self-hosted install asks for email and password straight away. A temporary sign-in
 // response swaps the form for the 2FA code step. A successful sign-in is redirected by the auth
 // store (startSession → /connections-list).

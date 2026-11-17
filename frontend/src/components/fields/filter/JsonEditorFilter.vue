@@ -13,7 +13,7 @@ const emit = defineEmits<FilterFieldEmits>();
 
 const { normalizedLabel } = useFilterField(props);
 
-/** `JSON.stringify(value, undefined, 4) || '{}'` — so `null` stays `"null"`, only undefined falls back. */
+/** `JSON.stringify(value, undefined, 4) || '{}'`. So `null` stays `"null"`, only undefined falls back. */
 const code = ref(JSON.stringify(props.value, undefined, 4) || '{}');
 
 function onChange(value: string) {

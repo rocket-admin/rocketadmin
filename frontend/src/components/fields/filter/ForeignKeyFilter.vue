@@ -3,9 +3,10 @@
  * Port of filter-fields/foreign-key (`ForeignKeyFilterComponent`): an autocomplete over the
  * referenced table's rows, with a link to the selected related record.
  *
- * On setup it loads the row the current value points at (its display string and link, and emits
- * the referenced value) and the first 20 suggestions. Typing is debounced 500 ms: text matching a
- * known suggestion emits that suggestion's value, anything else searches the referenced table.
+ * On setup it loads the row that the current value points at and the first 20 suggestions. For the
+ * row it gets the display string and link, and it emits the referenced value. Typing is debounced
+ * 500 ms: text matching a known suggestion emits that suggestion's value, anything else searches the
+ * referenced table.
  * Clearing the text emits `null`. Suggestions read "identity (col | col)", or the autocomplete
  * columns (else every non-empty column) joined by " | ".
  */

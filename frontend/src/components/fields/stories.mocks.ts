@@ -1,4 +1,4 @@
-// Fixtures shared by the field-widget stories — the `mockStructure` / `mockWidgetStructure`
+// Fixtures shared by the field-widget stories: the `mockStructure` / `mockWidgetStructure`
 // objects every Angular story declared inline.
 import type { TableField, TableForeignKey, WidgetStructure } from '@/models/table';
 

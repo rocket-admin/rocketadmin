@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Port of frontend/src/app/components/charts/chart-edit: create (/panels/:connectionId/new) or edit
-// (/panels/:connectionId/:queryId) a panel — a saved SQL query with its chart configuration. The
+// (/panels/:connectionId/:queryId) a panel: a saved SQL query with its chart configuration. The
 // query can be generated with AI, tested to get columns and a live preview, then saved.
 //
 // The chart configuration lives in createChartEditorState() (components/charts/chartEditor.ts),

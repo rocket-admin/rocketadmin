@@ -5,8 +5,8 @@ import { Knex } from 'knex';
 
 // The Postgres DAO describes user-defined column types (enums, composite types) from the catalog
 // while reading a table's structure. It used to run two catalog queries per USER-DEFINED column,
-// sequentially and without deduplicating repeated types — the "N+1 query with repeating spans"
-// Sentry reported on the pg_type/pg_class/pg_attribute SELECT. The structure must now be built
+// sequentially and without deduplication of repeated types. That is the "N+1 query with repeating
+// spans" Sentry reported on the pg_type/pg_class/pg_attribute SELECT. The structure must now be built
 // from one composite-attributes query and one enum-labels query for the whole table.
 
 type RecordedQuery = {

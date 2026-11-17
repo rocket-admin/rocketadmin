@@ -7,7 +7,7 @@ import { ExceptionsInternalCodes } from './custom-exceptions-internal-codes/exce
 /**
  * Self-service registration (password, Google, GitHub) of an email address that already has an
  * account in any company (plan 53). `provider` is the conflicting account's registration
- * provider (null = password account) and only picks the wording — which door the user should use.
+ * provider (null = password account). It only picks the wording: which door the user must use.
  */
 export class EmailAlreadyRegisteredException extends BaseRocketAdminException {
 	constructor(provider: ExternalRegistrationProviderEnum | null) {

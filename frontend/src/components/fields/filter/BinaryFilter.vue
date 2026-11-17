@@ -2,7 +2,7 @@
 /**
  * Port of filter-fields/binary (`BinaryFilterComponent`), a "smart" filter with its own comparator
  * (equal, contains, starts with, is empty). The value is typed in the widget's `encoding` (hex by
- * default, base64 or ascii) and always emitted as hex — `''` while the input doesn't decode.
+ * default, base64 or ascii) and always emitted as hex. It is `''` while the input does not decode.
  */
 import { computed, ref } from 'vue';
 import { type SelectOption, UiField, UiInput } from '@/components/ui';

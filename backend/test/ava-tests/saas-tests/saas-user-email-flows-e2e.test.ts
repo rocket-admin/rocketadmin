@@ -23,13 +23,15 @@ import { DatabaseModule } from '../../../src/shared/database/database.module.js'
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { TestUtils } from '../../utils/test.utils.js';
 
-// Tests for the plan-11 internal email-flow bridges rocketadmin-saas calls (microservice JWT):
+// Tests for the plan-11 internal email-flow bridges that rocketadmin-saas calls (microservice JWT).
+// The bridges:
 //   POST /saas/user/password/reset/request | /saas/user/password/reset/verify/:token
 //   POST /saas/user/email/change/request   | /saas/user/email/change/verify/:token
 //   POST /saas/user/email/verify/request   (re-send confirmation)
 //   POST /saas/company/:companyId/invite   | /saas/company/invite/verify/:token
 // The invite happy-path verification is covered in rocketadmin-saas's own suite (it needs the
-// company row in the SaaS DB); here we cover everything reachable with the core alone. Raw tokens are minted through the same repository extensions production uses.
+// company row in the SaaS DB). Here we cover everything reachable with the core alone. Raw tokens are
+// minted through the same repository extensions that production uses.
 
 let app: INestApplication;
 let currentTest: string;

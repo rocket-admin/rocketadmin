@@ -8,7 +8,7 @@ import UiConfirmDialog from './UiConfirmDialog.vue';
  * `WebsitesView.vue:37`.
  *
  * `window.confirm` blocks the main thread, cannot be branded, has no room for consequence text and
- * offers no "working…" state — so a slow delete looks frozen. It is also suppressible per-origin in
+ * offers no "working…" state. So a slow delete looks frozen. It is also suppressible per-origin in
  * most browsers, which quietly turns a guarded action into an unguarded one.
  *
  * `tone` is mapped to `UiButton`'s `variant` internally: a component never carries both, per
@@ -67,8 +67,8 @@ export const Accent: Story = {
 };
 
 /**
- * `busy` is the state `window.confirm` cannot express: the request is in flight, so the confirm
- * button spins and Escape, the backdrop and Cancel are all locked until it resolves.
+ * `busy` is the state `window.confirm` cannot express: the request is in flight. The confirm
+ * button spins, and Escape, the backdrop and Cancel are all locked until it resolves.
  */
 export const Busy: Story = {
 	args: { open: true, busy: true },
@@ -80,9 +80,9 @@ export const Busy: Story = {
 };
 
 /**
- * The default slot carries options that qualify the action itself. This is the WebsitesView case:
- * deleting a website leaves its database running, and the checkbox is how the user opts into
- * dropping that too — unticked by default, because it destroys data the plain delete keeps.
+ * The default slot carries options that qualify the action itself. This is the WebsitesView case.
+ * A website delete leaves its database running, and the checkbox is how the user opts into
+ * a drop of that too. It is unticked by default, because it destroys data the plain delete keeps.
  */
 export const WithOption: Story = {
 	args: {
@@ -114,7 +114,7 @@ export const WithOption: Story = {
 	}),
 };
 
-/** Both tones, resting and busy — the matrix that catches a drifted confirm button. */
+/** Both tones, resting and busy: the matrix that catches a drifted confirm button. */
 export const AllVariants: Story = {
 	render: () => ({
 		components: { UiConfirmDialog, UiButton },

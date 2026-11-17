@@ -38,8 +38,8 @@ export class LoginWithGoogleUseCase
 			name: name ? name : null,
 		};
 
-		// "Login or create": an existing Google account logs in; otherwise the address must be free
-		// across ALL companies and providers (plan 53) — a password or GitHub account with this
+		// "Login or create": an existing Google account logs in. Otherwise the address must be free
+		// across ALL companies and providers (plan 53). A password or GitHub account with this
 		// address is rejected, not silently logged into. Lookup + insert share the registration lock.
 		let foundUser: UserEntity;
 		let created = false;

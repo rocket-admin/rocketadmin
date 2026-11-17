@@ -3,7 +3,7 @@ import AppMarkdown from './AppMarkdown.vue';
 
 /**
  * Rendered Markdown for the markdown view and display fields. The source is database content, so
- * the output is always sanitized — the _Sanitized_ story feeds it script and handler attributes.
+ * the output is always sanitized. The _Sanitized_ story feeds it script and handler attributes.
  */
 const meta = {
 	title: 'App/Markdown',

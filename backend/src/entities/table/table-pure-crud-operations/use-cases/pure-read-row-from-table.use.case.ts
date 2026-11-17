@@ -89,8 +89,8 @@ export class PureReadRowFromTableUseCase
 		const readableColumns = userId
 			? await this.cedarPermissions.getReadableColumns(userId, connectionId, tableName, allColumnNames)
 			: await this.cedarPermissions.getReadableColumnsForPublic(connectionId, tableName, allColumnNames);
-		// Fail closed (plan 13 P0-3): no readable column ⇒ 403, not a 200 carrying an empty object —
-		// the 200-vs-400 outcome of the primary-key lookup is itself a row-existence signal.
+		// Fail closed (plan 13 P0-3): no readable column ⇒ 403, not a 200 with an empty object.
+		// The 200-vs-400 outcome of the primary-key lookup is itself a row-existence signal.
 		assertSomeColumnReadable(readableColumns);
 		if (!isAllColumnsReadable(readableColumns, allColumnNames)) {
 			rowData = filterRowByReadableColumns(rowData, readableColumns);
