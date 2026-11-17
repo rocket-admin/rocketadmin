@@ -78,8 +78,10 @@ function evaluate(permission: ComputedRef<boolean | null>): boolean | null {
 	return permission.value;
 }
 
-function staticPolicies(mock: Mock): string | undefined {
-	return (mock.mock.calls.at(-1)?.[0] as { policies: { staticPolicies: string } } | undefined)?.policies.staticPolicies;
+function staticPolicies(mock: Mock): string {
+	const call = mock.mock.calls.at(-1);
+	if (!call) throw new Error('The mock has no call.');
+	return (call[0] as { policies: { staticPolicies: string } }).policies.staticPolicies;
 }
 
 describe('createPermissionEvaluator', () => {
